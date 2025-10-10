@@ -29,73 +29,11 @@ export function ExploreSetPage() {
     direction: "left" | "right" | null;
     intensity: number;
   }>({ direction: null, intensity: 0 });
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const explorableSets = explorableSetsQuery.data || [];
   const currentSet = explorableSets[currentIndex];
   const isLastSet = currentIndex >= explorableSets.length - 1;
-
-  async function handleVote(voteType: number) {
-    if (!currentSet) return;
-
-    if (!user) {
-      showAuthDialog();
-      return;
-    }
-
-    const existingVote = userVotes[currentSet.id];
-
-    try {
-      await voteMutation.mutateAsync({
-        setId: currentSet.id,
-        voteType,
-        userId: user.id,
-        existingVote,
-      });
-
-      // Set direction based on vote type for animation
-      setDirection(voteType >= 1 ? "right" : "left");
-
-      // Move to next set after animation
-      setTimeout(() => {
-        if (isLastSet) {
-          // Navigate back or show completion screen
-          navigate(`${basePath}/sets`);
-        } else {
-          setCurrentIndex((prev) => prev + 1);
-          setDirection(null);
-        }
-      }, 300);
-    } catch (error) {
-      console.error("Failed to vote:", error);
-    }
-  }
-
-  function handleSwipe(direction: "left" | "right") {
-    if (direction === "left") {
-      handleVote(-1); // Won't Go
-    } else {
-      handleVote(1); // Interested
-    }
-  }
-
-  function handleDragUpdate(
-    direction: "left" | "right" | null,
-    intensity: number,
-  ) {
-    setDragFeedback({ direction, intensity });
-  }
-
-  function handleSkip() {
-    setDirection("left");
-    setTimeout(() => {
-      if (isLastSet) {
-        navigate(-1);
-      } else {
-        setCurrentIndex((prev) => prev + 1);
-        setDirection(null);
-      }
-    }, 300);
-  }
 
   if (explorableSetsQuery.isLoading) {
     return <LoadingState />;
@@ -137,4 +75,71 @@ export function ExploreSetPage() {
       />
     </div>
   );
+
+  async function handleVote(voteType: number) {
+    if (!currentSet || isAnimating) return;
+
+    if (!user) {
+      showAuthDialog();
+      return;
+    }
+
+    const existingVote = userVotes[currentSet.id];
+
+    setIsAnimating(true);
+
+    try {
+      await voteMutation.mutateAsync({
+        setId: currentSet.id,
+        voteType,
+        userId: user.id,
+        existingVote,
+      });
+
+      setDirection(voteType >= 1 ? "right" : "left");
+
+      setTimeout(() => {
+        if (isLastSet) {
+          navigate(`${basePath}/sets`);
+        } else {
+          setDirection(null);
+        }
+        setIsAnimating(false);
+      }, 300);
+    } catch (error) {
+      console.error("Failed to vote:", error);
+      setIsAnimating(false);
+    }
+  }
+
+  function handleSwipe(direction: "left" | "right") {
+    if (direction === "left") {
+      handleVote(-1); // Won't Go
+    } else {
+      handleVote(1); // Interested
+    }
+  }
+
+  function handleDragUpdate(
+    direction: "left" | "right" | null,
+    intensity: number,
+  ) {
+    setDragFeedback({ direction, intensity });
+  }
+
+  function handleSkip() {
+    if (isAnimating) return;
+
+    setIsAnimating(true);
+    setDirection("left");
+    setTimeout(() => {
+      if (isLastSet) {
+        navigate(-1);
+      } else {
+        setCurrentIndex((prev) => prev + 1);
+        setDirection(null);
+      }
+      setIsAnimating(false);
+    }, 300);
+  }
 }

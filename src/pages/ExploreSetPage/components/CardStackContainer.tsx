@@ -13,11 +13,11 @@ interface CardStackContainerProps {
 
 export function CardStackContainer({
   currentSet,
-  nextSet,
+  // nextSet,
   direction,
   onSwipe,
   onDragUpdate,
-  isLastSet,
+  // isLastSet,
 }: CardStackContainerProps) {
   return (
     <div className="relative flex-1 px-4 pb-32">
@@ -54,12 +54,12 @@ export function CardStackContainer({
           )}
         </AnimatePresence>
 
-        {/* Preview next card */}
+        {/* Preview next card
         {!isLastSet && nextSet && (
           <div className="absolute inset-0 -z-10 scale-95 opacity-50">
             <SetExploreCard set={nextSet} />
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );

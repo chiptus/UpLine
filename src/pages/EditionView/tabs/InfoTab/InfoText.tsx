@@ -1,4 +1,4 @@
-import { parseMarkdown } from "@/lib/markdown";
+import { MarkdownText } from "@/components/ui/markdown-text";
 import { getTextAlignmentClasses } from "@/lib/textAlignment";
 
 interface InfoTextProps {
@@ -6,14 +6,13 @@ interface InfoTextProps {
 }
 
 export function InfoText({ infoText }: InfoTextProps) {
-  const htmlContent = infoText ? parseMarkdown(infoText) : "";
   const alignmentClasses = infoText ? getTextAlignmentClasses(infoText) : "";
 
   return (
     <div className="bg-white/5 rounded-lg p-6">
-      <div
-        className={`prose prose-invert max-w-none text-purple-100 ${alignmentClasses}`}
-        dangerouslySetInnerHTML={{ __html: htmlContent }}
+      <MarkdownText
+        content={infoText || ""}
+        className={`prose-sm prose-invert text-purple-100 ${alignmentClasses}`}
       />
     </div>
   );

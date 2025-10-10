@@ -13,6 +13,7 @@ import { FestivalSet } from "@/hooks/queries/sets/useSets";
 import { formatTimeRange } from "@/lib/timeUtils";
 import { GenreBadge } from "@/components/GenreBadge";
 import { StagePin } from "@/components/StagePin";
+import { MarkdownText } from "@/components/ui/markdown-text";
 
 interface SetInfoCardProps {
   set: FestivalSet;
@@ -73,7 +74,10 @@ export function SetInfoCard({
           </div>
           {(set.description || artist.description) && (
             <CardDescription className="text-purple-200 text-lg leading-relaxed">
-              {set.description || artist.description}
+              <MarkdownText
+                content={set.description || artist.description || ""}
+                className="prose-sm prose-invert"
+              />
             </CardDescription>
           )}
         </CardHeader>

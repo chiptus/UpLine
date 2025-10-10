@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
+import { MarkdownText } from "@/components/ui/markdown-text";
 
 interface TextareaCellProps {
   value: string | null;
@@ -70,7 +71,9 @@ export function TextareaCell({
       onClick={handleEdit}
       title="Click to edit"
     >
-      {value || (
+      {value ? (
+        <MarkdownText content={value} className="prose-sm" />
+      ) : (
         <span className="text-muted-foreground italic">
           {placeholder || "Click to add..."}
         </span>

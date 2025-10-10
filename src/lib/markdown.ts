@@ -7,5 +7,13 @@ marked.setOptions({
 });
 
 export function parseMarkdown(markdown: string): string {
-  return marked.parse(markdown) as string;
+  if (!markdown) return "";
+
+  try {
+    return marked.parse(markdown, {}) as string;
+  } catch (error) {
+    console.error("Error parsing markdown:", error);
+    // Fallback to plain text with line breaks
+    return markdown.replace(/\n/g, "<br>");
+  }
 }

@@ -13,6 +13,7 @@ import { formatTimeRange } from "@/lib/timeUtils";
 import { GenreBadge } from "@/components/GenreBadge";
 import { IndividualArtistCard } from "./IndividualArtistCard";
 import { StagePin } from "@/components/StagePin";
+import { MarkdownText } from "@/components/ui/markdown-text";
 
 interface MultiArtistSetInfoCardProps {
   set: FestivalSet;
@@ -94,7 +95,10 @@ export function MultiArtistSetInfoCard({
           </div>
           {set.description && (
             <CardDescription className="text-purple-200 text-lg leading-relaxed">
-              {set.description}
+              <MarkdownText
+                content={set.description}
+                className="prose-sm prose-invert"
+              />
             </CardDescription>
           )}
         </CardHeader>

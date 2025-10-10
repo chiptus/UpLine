@@ -5,6 +5,7 @@ import { ExternalLink, Music, Play } from "lucide-react";
 import { Artist } from "@/hooks/queries/artists/useArtists";
 import { GenreBadge } from "@/components/GenreBadge";
 import { ArtistImageLoader } from "@/components/ArtistImageLoader";
+import { MarkdownText } from "@/components/ui/markdown-text";
 
 interface IndividualArtistCardProps {
   artist: Artist;
@@ -58,9 +59,12 @@ export function IndividualArtistCard({
       <CardContent className="pt-0">
         {/* Description (only if showFullDetails) */}
         {showFullDetails && artist.description && (
-          <p className="text-purple-200 text-sm mb-3 line-clamp-3">
-            {artist.description}
-          </p>
+          <div className="mb-3">
+            <MarkdownText
+              content={artist.description}
+              className="prose-sm prose-invert text-purple-200 line-clamp-3"
+            />
+          </div>
         )}
 
         {/* External Links */}

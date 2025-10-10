@@ -1,6 +1,7 @@
 import { Users } from "lucide-react";
 import { SoundCloudBadge } from "./SoundCloudBadge";
 import { Artist } from "@/hooks/queries/artists/useArtists";
+import { MarkdownText } from "@/components/ui/markdown-text";
 
 interface PrimaryArtistDisplayProps {
   artist: Artist;
@@ -28,9 +29,12 @@ export function PrimaryArtistDisplay({
       </div>
       <h3 className="text-xl font-semibold">{artist.name}</h3>
       {artist.description && (
-        <p className="text-sm text-gray-300 line-clamp-2">
-          {artist.description}
-        </p>
+        <div className="text-sm text-gray-300 line-clamp-2">
+          <MarkdownText
+            content={artist.description}
+            className="prose-sm prose-invert"
+          />
+        </div>
       )}
 
       <div className="flex justify-center mt-2">

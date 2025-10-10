@@ -30,6 +30,7 @@ export function useExplorableSets({
     data: explorableSets,
     isLoading: setsQuery.isLoading,
     error: setsQuery.error,
+    totalSets: setsQuery.data?.length || 0,
   };
 }
 

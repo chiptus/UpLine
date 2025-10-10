@@ -39,12 +39,15 @@ export function ExploreSetPage() {
     return <LoadingState />;
   }
 
-  const totalSets = explorableSets.length;
+  const totalExplorableSets = explorableSets.length;
   const nextSet = !isLastSet ? explorableSets[currentIndex + 1] : undefined;
 
-  if (!edition || totalSets === 0) {
+  if (!edition || totalExplorableSets === 0) {
     return <EmptyState basePath={basePath} />;
   }
+  const totalSets = explorableSetsQuery.totalSets;
+  const currentIndexInAllSets =
+    totalSets - totalExplorableSets + currentIndex + 1;
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-purple-900 to-black">
@@ -52,7 +55,7 @@ export function ExploreSetPage() {
       <ExplorePageHeader
         basePath={basePath}
         editionName={edition.name}
-        currentIndex={currentIndex}
+        currentIndex={currentIndexInAllSets}
         totalSets={totalSets}
       />
 

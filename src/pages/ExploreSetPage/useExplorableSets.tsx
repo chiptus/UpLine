@@ -10,27 +10,45 @@ export function useExplorableSets({
 }) {
   const setsQuery = useSetsByEditionQuery(editionId);
 
-  // Filter to sets with artists and valid data, excluding already voted sets
-  const explorableSets = useMemo(() => {
-    const validSets =
-      setsQuery.data?.filter(
-        (set) =>
-          set.artists &&
-          set.artists.length > 0 &&
-          set.name &&
-          set.artists[0].soundcloud_url &&
-          !userVotes[set.id],
-      ) || [];
+  const stats = useMemo(() => {
+    const allSets = setsQuery.data || [];
+    const totalSets = allSets.length;
 
-    // Randomize the order using Fisher-Yates shuffle
-    return shuffle(validSets);
+    let votedCount = 0;
+    let nonExplorableCount = 0;
+    const validSets: typeof allSets = [];
+
+    for (const set of allSets) {
+      const hasValidData =
+        set.artists &&
+        set.artists.length > 0 &&
+        set.name &&
+        set.artists[0].soundcloud_url;
+
+      if (userVotes[set.id]) {
+        votedCount++;
+      } else if (!hasValidData) {
+        nonExplorableCount++;
+      } else {
+        validSets.push(set);
+      }
+    }
+
+    return {
+      explorableSets: shuffle(validSets),
+      totalSets,
+      votedCount,
+      nonExplorableCount,
+    };
   }, [setsQuery.data, userVotes]);
 
   return {
-    data: explorableSets,
+    data: stats.explorableSets,
     isLoading: setsQuery.isLoading,
     error: setsQuery.error,
-    totalSets: setsQuery.data?.length || 0,
+    totalSets: stats.totalSets,
+    votedCount: stats.votedCount,
+    nonExplorableCount: stats.nonExplorableCount,
   };
 }
 

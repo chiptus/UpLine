@@ -12,7 +12,7 @@ export function ExplorationProgress({
   const percentage = (current / total) * 100;
 
   return (
-    <div className="flex items-center space-x-3">
+    <div className="flex items-center space-x-2">
       <span className="text-sm text-white/80">
         {current} of {total}
       </span>

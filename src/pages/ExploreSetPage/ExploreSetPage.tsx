@@ -30,6 +30,7 @@ export function ExploreSetPage() {
     intensity: number;
   }>({ direction: null, intensity: 0 });
   const [isAnimating, setIsAnimating] = useState(false);
+  const [skippedCount, setSkippedCount] = useState(0);
 
   const explorableSets = explorableSetsQuery.data || [];
   const currentSet = explorableSets[currentIndex];
@@ -51,12 +52,14 @@ export function ExploreSetPage() {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-purple-900 to-black">
-      {/* Header */}
       <ExplorePageHeader
         basePath={basePath}
         editionName={edition.name}
         currentIndex={currentIndexInAllSets}
         totalSets={totalSets}
+        votedCount={explorableSetsQuery.votedCount}
+        nonExplorableCount={explorableSetsQuery.nonExplorableCount}
+        skippedCount={skippedCount}
       />
 
       {/* Card Stack */}
@@ -135,6 +138,7 @@ export function ExploreSetPage() {
 
     setIsAnimating(true);
     setDirection("left");
+    setSkippedCount((prev) => prev + 1);
     setTimeout(() => {
       if (isLastSet) {
         navigate(-1);

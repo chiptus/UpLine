@@ -1,13 +1,17 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Info } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { ExplorationProgress } from "../ExplorationProgress";
+import { ProgressInfoTooltip } from "./ProgressInfoTooltip";
 
 interface ExplorePageHeaderProps {
   basePath: string;
   editionName: string;
   currentIndex: number;
   totalSets: number;
+  votedCount: number;
+  nonExplorableCount: number;
+  skippedCount: number;
 }
 
 export function ExplorePageHeader({
@@ -15,35 +19,40 @@ export function ExplorePageHeader({
   editionName,
   currentIndex,
   totalSets,
+  votedCount,
+  nonExplorableCount,
+  skippedCount,
 }: ExplorePageHeaderProps) {
   return (
     <div className="relative z-10 p-4 flex items-center justify-between">
-      <Link to={`${basePath}/sets`}>
+      <div className="flex-1 flex justify-start">
         <Button
           asChild
           variant="ghost"
           size="sm"
-          className="text-white hover:bg-white/20"
+          className="text-white hover:bg-white/20 flex items-center "
         >
-          <div className="flex items-center">
+          <Link to={`${basePath}/sets`}>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </div>
+            <span className="hidden sm:inline">Back</span>
+          </Link>
         </Button>
-      </Link>
+      </div>
 
       <div className="text-center text-white">
         <h1 className="font-semibold">{editionName}</h1>
         <ExplorationProgress current={currentIndex + 1} total={totalSets} />
       </div>
 
-      <Button
-        variant="ghost"
-        size="sm"
-        className="text-white hover:bg-white/20"
-      >
-        <Info className="h-4 w-4" />
-      </Button>
+      <div className="flex-1 flex justify-end">
+        <ProgressInfoTooltip
+          current={currentIndex + 1}
+          total={totalSets}
+          votedCount={votedCount}
+          nonExplorableCount={nonExplorableCount}
+          skippedCount={skippedCount}
+        />
+      </div>
     </div>
   );
 }

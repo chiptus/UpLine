@@ -269,6 +269,7 @@ export function CSVImportDialog({
           description: setsResult.message,
           variant: "destructive",
         });
+        console.error("Import failed:", setsResult.message, setsResult.errors);
       }
     } catch (error) {
       toast({

@@ -24,14 +24,13 @@ export function TimezoneSelector({
           <SelectValue placeholder="Select timezone" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="Europe/Lisbon">Europe/Lisbon</SelectItem>
-          <SelectItem value="Europe/Madrid">Europe/Madrid</SelectItem>
-          <SelectItem value="Europe/London">Europe/London</SelectItem>
-          <SelectItem value="America/New_York">America/New_York</SelectItem>
-          <SelectItem value="America/Los_Angeles">
-            America/Los_Angeles
-          </SelectItem>
           <SelectItem value="UTC">UTC</SelectItem>
+          <SelectItem value="Europe/Lisbon">Lisbon</SelectItem>
+          <SelectItem value="Europe/Madrid">Madrid</SelectItem>
+          <SelectItem value="Europe/London">London</SelectItem>
+          <SelectItem value="Asia/Jerusalem">Jerusalem</SelectItem>
+          <SelectItem value="America/New_York">New York</SelectItem>
+          <SelectItem value="America/Los_Angeles">Los Angeles</SelectItem>
         </SelectContent>
       </Select>
       <p className="text-xs text-muted-foreground">

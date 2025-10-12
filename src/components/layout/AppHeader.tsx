@@ -1,7 +1,7 @@
 import { useRef, useCallback } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useScrollVisibility } from "@/hooks/useScrollVisibility";
-import { TopBar } from "./AppHeader/TopBar";
+import { TopBar } from "./TopBar";
 import { TitleSection } from "./AppHeader/TitleSection";
 
 interface AppHeaderProps {
@@ -55,7 +55,7 @@ export function AppHeader({
           title={title}
         />
 
-        <div className="pt-16 md:pt-20" ref={titleRef}>
+        <div ref={titleRef}>
           <TitleSection
             title={title}
             logoUrl={logoUrl}

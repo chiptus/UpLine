@@ -1,4 +1,4 @@
-import { AppHeader } from "@/components/layout/AppHeader";
+import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 function CookiePolicy() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background/95 to-muted/20">
-      <AppHeader />
+      <TopBar />
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
@@ -213,7 +213,7 @@ function CookiePolicy() {
                 If you have any questions about our use of cookies or this
                 Cookie Policy, please contact us at:
                 <br />
-                Email: chiptus@pm.me
+                Email: upline@getupline.com
               </p>
             </section>
           </div>

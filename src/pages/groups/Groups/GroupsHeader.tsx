@@ -1,13 +1,16 @@
-import { AppHeader } from "@/components/layout/AppHeader";
+import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 
 export function GroupsHeader({ onCreate }: { onCreate: () => void }) {
   return (
     <div>
-      <AppHeader showBackButton backLabel="Back to Artists" title="My Groups" />
+      <TopBar showBackButton backLabel="Back to Artists" title="My Groups" />
+
       <div className="flex justify-between items-center mb-6">
-        <div />
+        <h2 className="text-2xl font-bold text-white tracking-tight md:block">
+          My Groups
+        </h2>
         <Button
           onClick={onCreate}
           className="bg-purple-600 hover:bg-purple-700"

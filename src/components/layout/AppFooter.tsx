@@ -2,13 +2,11 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { PrivacyPolicyModal } from "./legal/PrivacyPolicyModal";
 import { Settings } from "lucide-react";
 import { useCookieConsent } from "@/hooks/useCookieConsent";
 import { CookiePreferencesDialog } from "./legal/CookiePreferencesDialog";
 
 export function AppFooter() {
-  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [showCookiePreferences, setShowCookiePreferences] = useState(false);
   const { revokeConsent } = useCookieConsent();
 
@@ -33,12 +31,12 @@ export function AppFooter() {
             <div className="space-y-4">
               <h4 className="font-medium">Legal</h4>
               <div className="flex flex-col space-y-2 text-sm">
-                <button
-                  onClick={() => setShowPrivacyModal(true)}
+                <Link
+                  to="/privacy"
                   className="text-left hover:text-primary transition-colors"
                 >
                   Privacy Policy
-                </button>
+                </Link>
                 <Link
                   to="/terms"
                   className="hover:text-primary transition-colors"
@@ -86,20 +84,15 @@ export function AppFooter() {
             <p className="mt-2 sm:mt-0">
               Questions? Contact us at{" "}
               <a
-                href="mailto:chiptus@pm.me"
+                href="mailto:upline@getupline.com"
                 className="hover:text-primary transition-colors"
               >
-                chiptus@pm.me
+                upline@getupline.com
               </a>
             </p>
           </div>
         </div>
       </footer>
-
-      <PrivacyPolicyModal
-        open={showPrivacyModal}
-        onOpenChange={setShowPrivacyModal}
-      />
 
       <CookiePreferencesDialog
         open={showCookiePreferences}

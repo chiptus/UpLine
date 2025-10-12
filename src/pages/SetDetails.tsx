@@ -1,5 +1,4 @@
 import { useParams } from "react-router-dom";
-import { AppHeader } from "@/components/layout/AppHeader";
 import { ArtistImageCard } from "./SetDetails/SetImageCard";
 import { MixedArtistImage } from "./SetDetails/MixedArtistImage";
 import { SetInfoCard } from "./SetDetails/SetInfoCard";
@@ -14,6 +13,7 @@ import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useVoteCount } from "@/hooks/useVoteCount";
 import { PageTitle } from "@/components/PageTitle/PageTitle";
+import { TopBar } from "@/components/layout/TopBar";
 
 export function SetDetails() {
   const { user } = useAuth();
@@ -47,7 +47,11 @@ export function SetDetails() {
       <PageTitle title={setTitle} prefix={festival?.name} />
       <div className="min-h-screen bg-app-gradient">
         <div className="container mx-auto px-4 py-8">
-          <AppHeader showBackButton backLabel="Back to Artists" />
+          <TopBar
+            showBackButton
+            backLabel="Back to Artists"
+            logoUrl={festival?.logo_url}
+          />
 
           {/* Set Header */}
           {isMultiArtistSet ? (

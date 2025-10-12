@@ -30,8 +30,6 @@ export default function EditionView() {
       <div className="container mx-auto px-4 py-4 md:py-8 pb-20 md:pb-8">
         <AppHeader
           title={festival.name}
-          // subtitle={edition.name}
-          // description="Festival voting platform"
           logoUrl={festival.logo_url}
           showGroupsButton
         />

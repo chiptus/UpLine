@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { AppHeader } from "@/components/layout/AppHeader";
+import { TopBar } from "@/components/layout/TopBar";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUserPermissionsQuery } from "@/hooks/queries/auth/useUserPermissions";
@@ -70,13 +70,13 @@ export default function AdminLayout() {
   return (
     <div className="min-h-screen bg-app-gradient">
       <div className="container mx-auto px-4 py-8">
-        <AppHeader
+        <TopBar
           showBackButton
           backLabel="Back to app"
           title="Admin Dashboard"
         />
 
-        <div className="mt-8">
+        <div>
           <Tabs
             value={getCurrentTab()}
             onValueChange={handleTabChange}

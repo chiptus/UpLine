@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { AppHeader } from "@/components/layout/AppHeader";
+import { TopBar } from "@/components/layout/TopBar";
 import {
   Card,
   CardContent,
@@ -125,7 +125,7 @@ function GroupDetail() {
   return (
     <div className="min-h-screen bg-app-gradient">
       <div className="container mx-auto px-4 py-8">
-        <AppHeader showBackButton backLabel="Back to Groups" />
+        <TopBar showBackButton backLabel="Back to Groups" />
 
         <div className="mb-8">
           <div className="flex items-center space-x-4 mb-2">

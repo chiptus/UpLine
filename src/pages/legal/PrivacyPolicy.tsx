@@ -1,4 +1,4 @@
-import { AppHeader } from "@/components/layout/AppHeader";
+import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 function PrivacyPolicy() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background/95 to-muted/20">
-      <AppHeader />
+      <TopBar />
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
@@ -29,7 +29,7 @@ function PrivacyPolicy() {
               <p className="text-muted-foreground">
                 This festival voting application is operated by Chaim Lev-Ari.
                 For any data protection inquiries, please contact us at
-                chiptus@pm.me.
+                upline@getupline.com.
               </p>
             </section>
 
@@ -205,7 +205,7 @@ function PrivacyPolicy() {
                 For any questions about this privacy policy or to exercise your
                 rights, please contact us at:
                 <br />
-                Email: chiptus@pm.me
+                Email: upline@getupline.com
               </p>
             </section>
 

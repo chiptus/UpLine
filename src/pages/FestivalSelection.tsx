@@ -76,11 +76,7 @@ export default function FestivalSelection() {
   return (
     <div className="min-h-screen bg-app-gradient">
       <div className="container mx-auto px-4 py-8">
-        <AppHeader
-          title="UpLine"
-          subtitle="Collaborative Festival Voting"
-          description="Choose a festival to start voting and collaborating with your community."
-        />
+        <AppHeader title="UpLine" />
 
         <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {availableFestivals.map((festival: Festival) => (

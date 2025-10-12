@@ -74,8 +74,6 @@ export default function AdminLayout() {
           showBackButton
           backLabel="Back to app"
           title="Admin Dashboard"
-          subtitle="Platform Management"
-          description="Manage artists, genres, and admin permissions"
         />
 
         <div className="mt-8">

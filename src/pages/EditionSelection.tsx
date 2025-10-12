@@ -84,8 +84,6 @@ export default function EditionSelection() {
             showBackButton
             backLabel="Back to Festivals"
             title={festival.name}
-            subtitle="No editions available"
-            description="There are currently no editions available for voting."
           />
 
           <div className="flex items-center justify-center mt-16">
@@ -146,8 +144,6 @@ export default function EditionSelection() {
           showBackButton
           backLabel="Back to Festivals"
           title={festival.name}
-          subtitle="Choose Festival Edition"
-          description="Select which edition of the festival you want to explore and vote on."
         />
 
         <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">

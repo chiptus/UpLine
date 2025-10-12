@@ -1,4 +1,4 @@
-import { ReactNode, useRef, useCallback } from "react";
+import { useRef, useCallback } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useScrollVisibility } from "@/hooks/useScrollVisibility";
 import { TopBar } from "./AppHeader/TopBar";
@@ -12,26 +12,19 @@ interface AppHeaderProps {
   // Page content
   title?: string;
   logoUrl?: string | null;
-  subtitle?: string;
-  description?: string;
 
   // Navigation options
   showGroupsButton?: boolean;
-
-  // Custom content section
-  children?: ReactNode;
 }
 
 export function AppHeader({
   showBackButton = false,
   backLabel = "Back",
   title,
-  // subtitle,
-  // description,
+
   logoUrl,
-  // actions,
+
   showGroupsButton = false,
-  // children,
 }: AppHeaderProps) {
   // Track visibility of logo specifically for festival context in top bar
   const titleRef = useRef<HTMLDivElement | null>(null);

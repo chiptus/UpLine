@@ -5,7 +5,7 @@ import { Plus } from "lucide-react";
 export function GroupsHeader({ onCreate }: { onCreate: () => void }) {
   return (
     <div>
-      <TopBar showBackButton backLabel="Back to Artists" title="My Groups" />
+      <TopBar showBackButton backLabel="Back to Artists" />
 
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-white tracking-tight md:block">

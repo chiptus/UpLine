@@ -11,7 +11,7 @@ import { Festival } from "@/hooks/queries/festivals/types";
 import { useFestivalEditionBySlugQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionBySlug";
 import { FestivalEdition } from "@/hooks/queries/festivals/editions/types";
 import { getSubdomainInfo } from "@/lib/subdomain";
-import { AppHeader } from "@/components/layout/AppHeader";
+import { TopBar } from "@/components/layout/TopBar";
 import { useToast } from "@/hooks/use-toast";
 
 interface FestivalEditionContextType {
@@ -170,10 +170,10 @@ export function FestivalEditionProvider({
       <FestivalEditionContext.Provider value={contextValue}>
         <div className="min-h-screen bg-app-gradient">
           <div className="container mx-auto px-4 py-8">
-            <AppHeader
-              backLabel="Back to Festivals"
-              title="Festival not found"
-            />
+            <TopBar backLabel="Back to Festivals" />
+            <h1 className="text-4xl font-bold text-white text-center mb-8">
+              No valid festival or edition found
+            </h1>
             <Navigate to="/" />
           </div>
         </div>

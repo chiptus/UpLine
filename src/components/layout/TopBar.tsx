@@ -1,17 +1,12 @@
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AppBranding } from "./AppHeader/AppBranding";
-import { FestivalIndicator } from "./AppHeader/FestivalIndicator";
 import { UserActions } from "./AppHeader/UserActions";
+import { PropsWithChildren } from "react";
 
 interface TopBarProps {
   showBackButton?: boolean;
   backLabel?: string;
   showGroupsButton?: boolean;
-
-  // Festival context
-  isTitleVisible?: boolean;
-  logoUrl?: string | null;
-  title?: string;
 }
 
 export function TopBar({
@@ -19,10 +14,8 @@ export function TopBar({
   backLabel = "Back",
   showGroupsButton = false,
 
-  isTitleVisible = false,
-  logoUrl,
-  title,
-}: TopBarProps) {
+  children,
+}: PropsWithChildren<TopBarProps>) {
   const isMobile = useIsMobile();
 
   return (
@@ -30,11 +23,7 @@ export function TopBar({
       <div className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-purple-400/20 flex items-center px-4 py-3 md:py-4">
         <AppBranding isMobile={isMobile} />
 
-        <FestivalIndicator
-          isTitleVisible={isTitleVisible}
-          logoUrl={logoUrl}
-          title={title}
-        />
+        {children}
 
         <UserActions
           showBackButton={showBackButton}

@@ -70,11 +70,7 @@ export default function AdminLayout() {
   return (
     <div className="min-h-screen bg-app-gradient">
       <div className="container mx-auto px-4 py-8">
-        <TopBar
-          showBackButton
-          backLabel="Back to app"
-          title="Admin Dashboard"
-        />
+        <TopBar showBackButton backLabel="Back to app" />
 
         <div>
           <Tabs

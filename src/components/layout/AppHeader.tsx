@@ -3,6 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useScrollVisibility } from "@/hooks/useScrollVisibility";
 import { TopBar } from "./TopBar";
 import { TitleSection } from "./AppHeader/TitleSection";
+import { FestivalIndicator } from "./AppHeader/FestivalIndicator";
 
 interface AppHeaderProps {
   // Navigation
@@ -50,10 +51,13 @@ export function AppHeader({
           showBackButton={showBackButton}
           backLabel={backLabel}
           showGroupsButton={showGroupsButton}
-          isTitleVisible={!shouldShowFestivalIcon}
-          logoUrl={logoUrl}
-          title={title}
-        />
+        >
+          <FestivalIndicator
+            isTitleVisible={!shouldShowFestivalIcon}
+            logoUrl={logoUrl}
+            title={title}
+          />
+        </TopBar>
 
         <div ref={titleRef}>
           <TitleSection

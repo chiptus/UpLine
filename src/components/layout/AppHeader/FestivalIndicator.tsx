@@ -1,7 +1,7 @@
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 
 interface FestivalIndicatorProps {
-  isTitleVisible: boolean;
+  isTitleVisible?: boolean;
   logoUrl?: string | null;
   title?: string;
 }

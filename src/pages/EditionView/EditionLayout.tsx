@@ -5,10 +5,8 @@ import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { Outlet } from "react-router-dom";
 
 export default function EditionView() {
-  // Get festival/edition context
   const { festival, edition, isContextReady } = useFestivalEdition();
 
-  // Show loading while context is not ready
   if (!isContextReady) {
     return (
       <div className="min-h-screen bg-app-gradient flex items-center justify-center">
@@ -34,7 +32,6 @@ export default function EditionView() {
           showGroupsButton
         />
 
-        {/* Main Tab Navigation */}
         <MainTabNavigation />
 
         <div className="mt-4 md:mt-8">

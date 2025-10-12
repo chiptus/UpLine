@@ -15,6 +15,7 @@ import { useFestivalEditionsForFestivalQuery } from "@/hooks/queries/festivals/e
 import { FestivalEdition } from "@/hooks/queries/festivals/editions/types";
 import { useEffect } from "react";
 import { getSubdomainInfo } from "@/lib/subdomain";
+import { TopBar } from "@/components/layout/TopBar";
 
 export default function EditionSelection() {
   const { festival } = useFestivalEdition();
@@ -80,11 +81,10 @@ export default function EditionSelection() {
     return (
       <div className="min-h-screen bg-app-gradient">
         <div className="container mx-auto px-4 py-8">
-          <AppHeader
-            showBackButton
-            backLabel="Back to Festivals"
-            title={festival.name}
-          />
+          <TopBar showBackButton backLabel="Back to Festivals" />
+          <h1 className="text-4xl font-bold text-white text-center mb-8">
+            {festival.name}
+          </h1>
 
           <div className="flex items-center justify-center mt-16">
             <Card className="w-full max-w-md bg-white/10 border-purple-400/30">
@@ -144,6 +144,8 @@ export default function EditionSelection() {
           showBackButton
           backLabel="Back to Festivals"
           title={festival.name}
+          logoUrl={festival.logo_url}
+          showGroupsButton
         />
 
         <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">

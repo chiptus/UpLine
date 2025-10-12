@@ -1,5 +1,5 @@
 import { Navigate, Route } from "react-router-dom";
-import EditionView from "@/pages/EditionView/EditionView";
+import EditionLayout from "@/pages/EditionView/EditionLayout";
 import { SetDetails } from "@/pages/SetDetails";
 import { ExploreSetPage } from "@/pages/ExploreSetPage/ExploreSetPage";
 
@@ -22,8 +22,8 @@ export function createEditionRoutes({
   WrapperComponent,
 }: EditionRoutesProps) {
   const EditionComponent = WrapperComponent
-    ? () => <WrapperComponent component={EditionView} />
-    : EditionView;
+    ? () => <WrapperComponent component={EditionLayout} />
+    : EditionLayout;
 
   const SetDetailsComponent = WrapperComponent
     ? () => <WrapperComponent component={SetDetails} />

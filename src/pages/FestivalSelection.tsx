@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/card";
 import { useFestivalsQuery } from "@/hooks/queries/festivals/useFestivals";
 import { Festival } from "@/hooks/queries/festivals/types";
-import { AppHeader } from "@/components/layout/AppHeader";
 import { useEffect } from "react";
 import {
   createFestivalSubdomainUrl,
@@ -17,6 +16,8 @@ import {
 import { Link } from "react-router-dom";
 import { useCustomLinksQuery } from "@/hooks/queries/custom-links/useCustomLinks";
 import { PageTitle } from "@/components/PageTitle/PageTitle";
+import { TopBar } from "@/components/layout/TopBar";
+import { AppHeader } from "@/components/layout/AppHeader";
 
 export default function FestivalSelection() {
   const { data: availableFestivals = [], isLoading: festivalsLoading } =
@@ -52,7 +53,7 @@ export default function FestivalSelection() {
       <div className="min-h-screen bg-app-gradient">
         <div className="container mx-auto px-4 py-8">
           <PageTitle title="Select Festival" />
-          <AppHeader title="UpLine" />
+          <TopBar />
 
           <div className="flex items-center justify-center mt-16">
             <Card className="w-full max-w-md bg-white/10 border-purple-400/30">

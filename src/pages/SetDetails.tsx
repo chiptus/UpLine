@@ -14,6 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useVoteCount } from "@/hooks/useVoteCount";
 import { PageTitle } from "@/components/PageTitle/PageTitle";
 import { TopBar } from "@/components/layout/TopBar";
+import { FestivalIndicator } from "@/components/layout/AppHeader/FestivalIndicator";
 
 export function SetDetails() {
   const { user } = useAuth();
@@ -47,11 +48,12 @@ export function SetDetails() {
       <PageTitle title={setTitle} prefix={festival?.name} />
       <div className="min-h-screen bg-app-gradient">
         <div className="container mx-auto px-4 py-8">
-          <TopBar
-            showBackButton
-            backLabel="Back to Artists"
-            logoUrl={festival?.logo_url}
-          />
+          <TopBar showBackButton backLabel="Back to Artists" showGroupsButton>
+            <FestivalIndicator
+              title={festival?.name}
+              logoUrl={festival?.logo_url}
+            />
+          </TopBar>
 
           {/* Set Header */}
           {isMultiArtistSet ? (

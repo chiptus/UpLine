@@ -10,6 +10,7 @@ import { useVote } from "@/hooks/queries/voting/useVote";
 import { useUserVotes } from "@/hooks/queries/voting/useUserVotes";
 import { useState } from "react";
 import { useExplorableSets } from "./useExplorableSets";
+import { PageTitle } from "@/components/PageTitle/PageTitle";
 
 export function ExploreSetPage() {
   const { edition, basePath } = useFestivalEdition();
@@ -52,6 +53,7 @@ export function ExploreSetPage() {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-purple-900 to-black">
+      <PageTitle title={`Explore Sets - ${edition.name}`} />
       <ExplorePageHeader
         basePath={basePath}
         editionName={edition.name}

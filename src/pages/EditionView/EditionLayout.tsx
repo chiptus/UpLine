@@ -32,7 +32,7 @@ export default function EditionView() {
   const ticketsUrl = customLinks.find(
     (link) => link.link_type === "tickets",
   )?.url;
-  console.log(customLinks);
+
   return (
     <div className="min-h-screen bg-app-gradient">
       <div className="container mx-auto px-4 py-4 md:py-8 pb-20 md:pb-8">

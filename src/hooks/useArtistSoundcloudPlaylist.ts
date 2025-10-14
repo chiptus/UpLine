@@ -56,11 +56,6 @@ interface UseArtistSoundcloudPlaylistOptions {
 async function fetchArtistPlaylist(
   soundcloudUrl: string,
 ): Promise<SoundCloudPlaylist> {
-  console.log(
-    "[fetchArtistPlaylist] Calling edge function for:",
-    soundcloudUrl,
-  );
-
   const { data, error } = await supabase.functions.invoke(
     "get-artist-soundcloud-playlist",
     {
@@ -108,7 +103,6 @@ async function fetchArtistPlaylist(
     throw new Error("No playlist found in response");
   }
 
-  console.log("[fetchArtistPlaylist] Received playlist:", data.playlist.title);
   return data.playlist;
 }
 

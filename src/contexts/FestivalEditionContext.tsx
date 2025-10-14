@@ -43,13 +43,6 @@ function getSlugs(pathname: string) {
   const subdomainInfo = getSubdomainInfo();
   let festivalSlug = subdomainInfo.festivalSlug || "";
 
-  console.log("🔍 FestivalEditionContext getSlugs debug:", {
-    pathname,
-    festivalSlug: subdomainInfo.festivalSlug,
-    isSubdomain: subdomainInfo.isSubdomain,
-    isMainDomain: subdomainInfo.isMainDomain,
-  });
-
   let basePath = "";
   // For main domain, extract festival slug from URL path
   if (pathname.includes("/festivals/")) {
@@ -60,7 +53,6 @@ function getSlugs(pathname: string) {
   }
 
   if (!pathname.includes("/editions")) {
-    console.log("🔍 No editions in pathname, returning:", { festivalSlug });
     return {
       festivalSlug,
       basePath,
@@ -75,10 +67,6 @@ function getSlugs(pathname: string) {
   if (matchWithSlash) {
     const editionSlug = matchWithSlash?.params.editionSlug || "";
 
-    console.log("🔍 Found editions in pathname with slash, returning:", {
-      festivalSlug,
-      editionSlug,
-    });
     return {
       basePath: basePath + `/editions/${editionSlug}`,
       festivalSlug,
@@ -92,12 +80,6 @@ function getSlugs(pathname: string) {
 
   const editionSlug = matchWithoutSlash?.params.editionSlug || "";
 
-  console.log("🔍 Found editions in pathname without slash, returning:", {
-    festivalSlug,
-    editionSlug,
-    matchWithoutSlash,
-    pathname,
-  });
   return {
     basePath: basePath + `/editions/${editionSlug}`,
     festivalSlug,

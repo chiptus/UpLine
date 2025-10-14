@@ -76,8 +76,6 @@ export function useScheduleData(
       };
     });
 
-    console.log({ enhancedSets });
-
     // Group sets by day
     const dayGroups = enhancedSets.reduce(
       (acc, set) => {

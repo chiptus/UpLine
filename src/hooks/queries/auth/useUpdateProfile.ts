@@ -19,13 +19,6 @@ async function updateProfile(variables: {
     },
   );
 
-  console.log(
-    "Validation result:",
-    validationResult,
-    "Error:",
-    validationError,
-  );
-
   if (validationError) {
     throw new Error("Failed to validate profile data");
   }

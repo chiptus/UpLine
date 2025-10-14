@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { TopBar } from "@/components/layout/TopBar";
 import {
   Card,
@@ -82,8 +82,8 @@ function GroupDetail() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => navigate("/")} className="w-full">
-              Go to Home
+            <Button asChild className="w-full">
+              <Link to="/">Go to Home</Link>
             </Button>
           </CardContent>
         </Card>
@@ -111,8 +111,8 @@ function GroupDetail() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => navigate("/groups")} className="w-full">
-              Back to Groups
+            <Button asChild className="w-full">
+              <Link to="/groups">Back to Groups</Link>
             </Button>
           </CardContent>
         </Card>

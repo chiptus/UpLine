@@ -101,11 +101,13 @@ export default function EditionSelection() {
               <CardContent>
                 <Button
                   variant="outline"
-                  onClick={() => navigate("/")}
+                  asChild
                   className="w-full border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white"
                 >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Festivals
+                  <Link to="/">
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back to Festivals
+                  </Link>
                 </Button>
               </CardContent>
             </Card>

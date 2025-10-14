@@ -143,7 +143,7 @@ export function ExploreSetPage() {
     setSkippedCount((prev) => prev + 1);
     setTimeout(() => {
       if (isLastSet) {
-        navigate(-1);
+        navigate(`${basePath}/sets`);
       } else {
         setCurrentIndex((prev) => prev + 1);
         setDirection(null);

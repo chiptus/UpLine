@@ -16,29 +16,29 @@ interface AppHeaderProps {
 
   // Navigation options
   showGroupsButton?: boolean;
+
+  // External links
+  websiteUrl?: string;
+  ticketsUrl?: string;
 }
 
 export function AppHeader({
   showBackButton = false,
   backLabel = "Back",
   title,
-
   logoUrl,
-
   showGroupsButton = false,
+  websiteUrl,
+  ticketsUrl,
 }: AppHeaderProps) {
-  // Track visibility of logo specifically for festival context in top bar
   const titleRef = useRef<HTMLDivElement | null>(null);
   const logoRef = useRef<HTMLElement | null>(null);
 
-  // Use logo visibility with top bar offset - trigger when logo hits the top bar
-  const isLogoVisible = useScrollVisibility(logoRef, {
-    rootMargin: "-80px 0px 0px 0px", // Negative top margin = trigger when logo is 80px from top (behind top bar)
+  const shouldShowFestivalIcon = useShouldShowIconInTitle({
+    logoRef,
+    titleRef,
+    logoUrl,
   });
-  const isTitleVisible = useScrollVisibility(titleRef, {
-    rootMargin: "-80px 0px 0px 0px", // Same offset for consistency
-  });
-  const shouldShowFestivalIcon = logoUrl ? !isLogoVisible : !isTitleVisible;
 
   const handleLogoRefChange = useCallback((node: HTMLElement | null) => {
     logoRef.current = node;
@@ -60,13 +60,36 @@ export function AppHeader({
         </TopBar>
 
         <div ref={titleRef}>
-          <TitleSection
-            title={title}
-            logoUrl={logoUrl}
-            onLogoRefChange={handleLogoRefChange}
-          />
+          {title && (
+            <TitleSection
+              title={title}
+              logoUrl={logoUrl}
+              onLogoRefChange={handleLogoRefChange}
+              websiteUrl={websiteUrl}
+              ticketsUrl={ticketsUrl}
+            />
+          )}
         </div>
       </div>
     </TooltipProvider>
   );
+}
+function useShouldShowIconInTitle({
+  logoRef,
+  logoUrl,
+  titleRef,
+}: {
+  logoRef: React.RefObject<Element>;
+  titleRef: React.RefObject<Element>;
+  logoUrl: string | null | undefined;
+}) {
+  const isLogoVisible = useScrollVisibility(logoRef, {
+    rootMargin: "-80px 0px 0px 0px", // Negative top margin = trigger when logo is 80px from top (behind top bar)
+  });
+
+  const isTitleVisible = useScrollVisibility(titleRef, {
+    rootMargin: "-80px 0px 0px 0px", // Same offset for consistency
+  });
+
+  return logoUrl ? !isLogoVisible : !isTitleVisible;
 }

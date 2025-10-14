@@ -210,6 +210,7 @@ export type Database = {
           display_order: number | null;
           festival_id: string;
           id: string;
+          link_type: Database["public"]["Enums"]["link_type"];
           title: string;
           updated_at: string | null;
           url: string;
@@ -219,6 +220,7 @@ export type Database = {
           display_order?: number | null;
           festival_id: string;
           id?: string;
+          link_type?: Database["public"]["Enums"]["link_type"];
           title: string;
           updated_at?: string | null;
           url: string;
@@ -228,6 +230,7 @@ export type Database = {
           display_order?: number | null;
           festival_id?: string;
           id?: string;
+          link_type?: Database["public"]["Enums"]["link_type"];
           title?: string;
           updated_at?: string | null;
           url?: string;
@@ -642,7 +645,6 @@ export type Database = {
           playlist_title: string | null;
           playlist_url: string | null;
           soundcloud_id: number | null;
-          soundcloud_url: string;
           updated_at: string | null;
           username: string | null;
         };
@@ -656,7 +658,6 @@ export type Database = {
           playlist_title?: string | null;
           playlist_url?: string | null;
           soundcloud_id?: number | null;
-          soundcloud_url: string;
           updated_at?: string | null;
           username?: string | null;
         };
@@ -670,7 +671,6 @@ export type Database = {
           playlist_title?: string | null;
           playlist_url?: string | null;
           soundcloud_id?: number | null;
-          soundcloud_url?: string;
           updated_at?: string | null;
           username?: string | null;
         };
@@ -798,9 +798,9 @@ export type Database = {
       use_invite_token: {
         Args: { token: string; user_id: string };
         Returns: {
-          success: boolean;
-          message: string;
           group_id: string;
+          message: string;
+          success: boolean;
         }[];
       };
       users_share_group: {
@@ -810,9 +810,9 @@ export type Database = {
       validate_invite_token: {
         Args: { token: string };
         Returns: {
-          invite_id: string;
           group_id: string;
           group_name: string;
+          invite_id: string;
           is_valid: boolean;
           reason: string;
         }[];
@@ -824,6 +824,7 @@ export type Database = {
     };
     Enums: {
       admin_role: "super_admin" | "admin" | "moderator";
+      link_type: "website" | "tickets" | "custom";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -958,6 +959,7 @@ export const Constants = {
   public: {
     Enums: {
       admin_role: ["super_admin", "admin", "moderator"],
+      link_type: ["website", "tickets", "custom"],
     },
   },
 } as const;

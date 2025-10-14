@@ -97,7 +97,9 @@ export default function FestivalSelection() {
 
 function FestivalCard({ festival }: { festival: Festival }) {
   const customLinksQuery = useCustomLinksQuery(festival.id);
-  const websiteUrl = customLinksQuery.data?.[0]?.url;
+  const websiteUrl = customLinksQuery.data?.find(
+    (link) => link.link_type === "website",
+  )?.url;
 
   return (
     <Link

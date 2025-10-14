@@ -3,9 +3,11 @@ import { MainTabNavigation } from "./TabNavigation/TabNavigation";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { Outlet } from "react-router-dom";
+import { useCustomLinksQuery } from "@/hooks/queries/custom-links/useCustomLinks";
 
 export default function EditionView() {
   const { festival, edition, isContextReady } = useFestivalEdition();
+  const customLinksQuery = useCustomLinksQuery(festival?.id);
 
   if (!isContextReady) {
     return (
@@ -23,13 +25,23 @@ export default function EditionView() {
     );
   }
 
+  const customLinks = customLinksQuery.data || [];
+  const websiteUrl = customLinks.find(
+    (link) => link.link_type === "website",
+  )?.url;
+  const ticketsUrl = customLinks.find(
+    (link) => link.link_type === "tickets",
+  )?.url;
+  console.log(customLinks);
   return (
     <div className="min-h-screen bg-app-gradient">
       <div className="container mx-auto px-4 py-4 md:py-8 pb-20 md:pb-8">
         <AppHeader
-          title={festival.name}
+          title={`${festival.name} - ${edition.name}`}
           logoUrl={festival.logo_url}
           showGroupsButton
+          websiteUrl={websiteUrl}
+          ticketsUrl={ticketsUrl}
         />
 
         <MainTabNavigation />

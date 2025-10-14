@@ -11,11 +11,9 @@ export function SetAudioPlayer({
     return null;
   }
 
-  // Build SoundCloud iframe URL with parameters
   const baseUrl = "https://w.soundcloud.com/player/";
-  const encodedUrl = encodeURIComponent(soundcloudUrl);
   const params = new URLSearchParams({
-    url: encodedUrl,
+    url: soundcloudUrl,
     auto_play: "true",
     color: "8b5cf6",
     buying: "false",
@@ -25,7 +23,6 @@ export function SetAudioPlayer({
     show_user: "false",
     single_active: "true",
     download: "false",
-    // start_track: "0",
   });
   const widgetUrl = `${baseUrl}?${params.toString()}`;
 

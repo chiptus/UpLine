@@ -2,8 +2,8 @@ import { createRoot } from "react-dom/client";
 import { QueryClient } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
-
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { PostHogProvider } from "posthog-js/react";
 import App from "./App.tsx";
 import "./index.css";
 
@@ -39,11 +39,21 @@ const queryClient = new QueryClient({
 });
 
 createRoot(document.getElementById("root")!).render(
-  <PersistQueryClientProvider
-    client={queryClient}
-    persistOptions={{ persister }}
+  <PostHogProvider
+    apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_KEY}
+    options={{
+      api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
+      defaults: "2025-05-24",
+      capture_exceptions: true, // This enables capturing exceptions using Error Tracking
+      debug: import.meta.env.MODE === "development",
+    }}
   >
-    <App />
-    <ReactQueryDevtools initialIsOpen={false} />
-  </PersistQueryClientProvider>,
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{ persister }}
+    >
+      <App />
+      <ReactQueryDevtools initialIsOpen={false} />
+    </PersistQueryClientProvider>
+  </PostHogProvider>,
 );

@@ -22,6 +22,7 @@ import {
   parseSetsCSV,
   extractArtistCandidatesFromSets,
   type SetImportData,
+  type StageImportData,
 } from "@/services/csv/csvParser";
 import type { ImportResult } from "@/services/csv/types";
 import { detectImportConflicts } from "@/services/csv/conflictDetector";
@@ -36,6 +37,8 @@ import type {
 import { StagesTabContent } from "./StagesTabContent";
 import { SetsTabContent } from "./SetsTabContent";
 import { ImportProgress } from "./ImportProgress";
+import { StagesPreviewTable } from "./StagesPreviewTable";
+import { SetsPreviewTable } from "./SetsPreviewTable";
 
 interface CSVImportDialogProps {
   editionId: string;
@@ -55,6 +58,10 @@ export function CSVImportDialog({
   const [timezone, setTimezone] = useState("Europe/Lisbon");
   const [progress, setProgress] = useState({ current: 0, total: 0, label: "" });
 
+  // Preview state
+  const [stagesPreview, setStagesPreview] = useState<StageImportData[]>([]);
+  const [setsPreview, setSetsPreview] = useState<SetImportData[]>([]);
+
   // Conflict resolution state
   const [showConflictResolver, setShowConflictResolver] = useState(false);
   const [pendingImport, setPendingImport] = useState<{
@@ -67,16 +74,38 @@ export function CSVImportDialog({
   const queryClient = useQueryClient();
   const artistsQuery = useArtistsQuery();
 
-  function handleFileChange(
+  async function handleFileChange(
     event: React.ChangeEvent<HTMLInputElement>,
     type: "stages" | "sets",
   ) {
     const file = event.target.files?.[0];
     if (file && file.type === "text/csv") {
-      if (type === "stages") {
-        setStagesFile(file);
-      } else {
-        setSetsFile(file);
+      try {
+        const content = await readFileAsText(file);
+
+        if (type === "stages") {
+          const parsedStages = parseStagesCSV(content);
+          setStagesFile(file);
+          setStagesPreview(parsedStages);
+        } else {
+          const parsedSets = parseSetsCSV(content);
+          setSetsFile(file);
+          setSetsPreview(parsedSets);
+        }
+      } catch (error) {
+        toast({
+          title: "Failed to parse CSV",
+          description:
+            error instanceof Error ? error.message : "Invalid CSV format",
+          variant: "destructive",
+        });
+        if (type === "stages") {
+          setStagesFile(null);
+          setStagesPreview([]);
+        } else {
+          setSetsFile(null);
+          setSetsPreview([]);
+        }
       }
     } else {
       toast({
@@ -199,6 +228,8 @@ export function CSVImportDialog({
         // Reset form
         setStagesFile(null);
         setSetsFile(null);
+        setStagesPreview([]);
+        setSetsPreview([]);
         setProgress({ current: 0, total: 0, label: "" });
         setIsOpen(false);
       } else {
@@ -260,6 +291,8 @@ export function CSVImportDialog({
         // Reset form
         setStagesFile(null);
         setSetsFile(null);
+        setStagesPreview([]);
+        setSetsPreview([]);
         setProgress({ current: 0, total: 0, label: "" });
         setPendingImport(null);
         setIsOpen(false);
@@ -311,6 +344,9 @@ export function CSVImportDialog({
               stagesFile={stagesFile}
               onStagesFileChange={(e) => handleFileChange(e, "stages")}
             />
+            {stagesPreview.length > 0 && (
+              <StagesPreviewTable stages={stagesPreview} />
+            )}
           </TabsContent>
 
           <TabsContent value="sets" className="space-y-4">
@@ -320,6 +356,9 @@ export function CSVImportDialog({
               onSetsFileChange={(e) => handleFileChange(e, "sets")}
               onTimezoneChange={setTimezone}
             />
+            {setsPreview.length > 0 && (
+              <SetsPreviewTable sets={setsPreview} timezone={timezone} />
+            )}
           </TabsContent>
         </Tabs>
 

@@ -1,5 +1,3 @@
-import type { ImportCandidate } from "./conflictDetector";
-
 export interface StageImportData {
   name: string;
 }
@@ -76,30 +74,4 @@ export function parseSetsCSV(csvContent: string): SetImportData[] {
     });
     return set as SetImportData;
   });
-}
-
-// Extract artist candidates from CSV sets data
-export function extractArtistCandidatesFromSets(
-  sets: SetImportData[],
-): ImportCandidate[] {
-  const artistMap = new Map<string, ImportCandidate>();
-
-  for (const set of sets) {
-    const artistNames = set.artist_names
-      .split(",")
-      .map((name) => name.trim())
-      .filter((name) => name.length > 0);
-
-    for (const artistName of artistNames) {
-      if (!artistMap.has(artistName)) {
-        artistMap.set(artistName, {
-          name: artistName,
-          // CSV imports typically don't have additional metadata
-          // but we could extract it from description or other fields if needed
-        });
-      }
-    }
-  }
-
-  return Array.from(artistMap.values());
 }

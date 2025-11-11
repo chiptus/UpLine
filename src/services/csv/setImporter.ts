@@ -3,48 +3,12 @@ import { generateSlug } from "@/lib/slug";
 import { convertLocalTimeToUTC, combineDateAndTime } from "@/lib/timeUtils";
 import type { SetImportData } from "./csvParser";
 import type { ImportResult } from "./types";
-import type {
-  ImportConflict,
-  ConflictResolution,
-  ImportCandidate,
-} from "./conflictDetector";
-import { createArtistIdMap } from "./artistResolver";
 
 function generateSetNameFromArtists(artistNames: string[]): string {
   if (artistNames.length === 0) return "Unnamed Set";
   if (artistNames.length === 1) return artistNames[0];
   if (artistNames.length === 2) return `${artistNames[0]} & ${artistNames[1]}`;
   return `${artistNames[0]} & ${artistNames.length - 1} others`;
-}
-
-export async function importSetsWithConflictResolution(
-  sets: SetImportData[],
-  editionId: string,
-  resolutions: Map<number, ConflictResolution>,
-  conflicts: ImportConflict[],
-  candidatesWithoutConflicts: ImportCandidate[],
-  timezone: string = "UTC",
-  onProgress?: (completed: number, total: number) => void,
-): Promise<ImportResult> {
-  const currentUser = await supabase.auth.getUser();
-  const userId = currentUser.data.user?.id || "";
-
-  // Create artist ID mapping
-  const artistIdMap = await createArtistIdMap(
-    conflicts,
-    candidatesWithoutConflicts,
-    resolutions,
-    userId,
-  );
-
-  // Now proceed with the original import logic, but use the resolved artist IDs
-  return importSetsWithArtistMap(
-    sets,
-    editionId,
-    artistIdMap,
-    timezone,
-    onProgress,
-  );
 }
 
 async function importSetsWithArtistMap(

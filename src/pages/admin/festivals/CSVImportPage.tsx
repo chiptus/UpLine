@@ -6,26 +6,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Upload, Loader2, ArrowLeft } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { importStages } from "@/services/csv/stageImporter";
-import {
-  importSets,
-  importSetsWithConflictResolution,
-} from "@/services/csv/setImporter";
+import { importSets } from "@/services/csv/setImporter";
 import {
   parseStagesCSV,
   parseSetsCSV,
-  extractArtistCandidatesFromSets,
   type SetImportData,
   type StageImportData,
 } from "@/services/csv/csvParser";
 import type { ImportResult } from "@/services/csv/types";
-import { detectImportConflicts } from "@/services/csv/conflictDetector";
 import { useArtistsQuery } from "@/hooks/queries/artists/useArtists";
-import { ImportConflictResolver } from "@/pages/admin/festivals/CSVImportDialog/ImportConflictResolver/ImportConflictResolver";
-import type {
-  ImportConflict,
-  ConflictResolution,
-  ImportCandidate,
-} from "@/services/csv/conflictDetector";
 import { StagesTabContent } from "@/pages/admin/festivals/CSVImportDialog/StagesTabContent";
 import { SetsTabContent } from "@/pages/admin/festivals/CSVImportDialog/SetsTabContent";
 import { ImportProgress } from "@/pages/admin/festivals/CSVImportDialog/ImportProgress";
@@ -48,6 +37,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+function getUserTimezone(): string {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone;
+}
+
 export function CSVImportPage() {
   const { festivalId: urlFestivalId, editionId: urlEditionId } = useParams();
   const navigate = useNavigate();
@@ -63,18 +56,11 @@ export function CSVImportPage() {
   const [isImporting, setIsImporting] = useState(false);
   const [stagesFile, setStagesFile] = useState<File | null>(null);
   const [setsFile, setSetsFile] = useState<File | null>(null);
-  const [timezone, setTimezone] = useState("Europe/Lisbon");
+  const [timezone, setTimezone] = useState(getUserTimezone());
   const [progress, setProgress] = useState({ current: 0, total: 0, label: "" });
 
   const [stagesPreview, setStagesPreview] = useState<StageImportData[]>([]);
   const [setsPreview, setSetsPreview] = useState<SetImportData[]>([]);
-
-  const [showConflictResolver, setShowConflictResolver] = useState(false);
-  const [pendingImport, setPendingImport] = useState<{
-    setsData: SetImportData[];
-    conflicts: ImportConflict[];
-    candidates: ImportCandidate[];
-  } | null>(null);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -218,38 +204,24 @@ export function CSVImportPage() {
         setProgress({
           current: 0,
           total: 0,
-          label: "Analyzing sets for conflicts...",
+          label: "Importing sets...",
         });
         const setsContent = await readFileAsText(setsFile);
         const setsData = parseSetsCSV(setsContent);
 
-        const candidates = extractArtistCandidatesFromSets(setsData);
-        const conflicts = detectImportConflicts(candidates, artistsQuery.data);
-
-        if (conflicts.length > 0) {
-          setPendingImport({
-            setsData,
-            conflicts,
-            candidates,
-          });
-          setShowConflictResolver(true);
-          setIsImporting(false);
-          return;
-        } else {
-          const setsResult = await importSets(
-            setsData,
-            selectedEditionId,
-            timezone,
-            (current, total) => {
-              setProgress({
-                current,
-                total,
-                label: `Importing sets (${current}/${total})...`,
-              });
-            },
-          );
-          results.push(setsResult);
-        }
+        const setsResult = await importSets(
+          setsData,
+          selectedEditionId,
+          timezone,
+          (current, total) => {
+            setProgress({
+              current,
+              total,
+              label: `Importing sets (${current}/${total})...`,
+            });
+          },
+        );
+        results.push(setsResult);
       }
 
       const successCount = results.filter((r) => r.success).length;
@@ -287,73 +259,6 @@ export function CSVImportPage() {
       setIsImporting(false);
       setProgress({ current: 0, total: 0, label: "" });
     }
-  }
-
-  async function handleResolveConflicts(
-    resolutions: Map<number, ConflictResolution>,
-    candidatesWithoutConflicts: ImportCandidate[],
-  ) {
-    if (!pendingImport || !selectedEditionId) return;
-
-    setIsImporting(true);
-    setShowConflictResolver(false);
-
-    try {
-      const setsResult = await importSetsWithConflictResolution(
-        pendingImport.setsData,
-        selectedEditionId,
-        resolutions,
-        pendingImport.conflicts,
-        candidatesWithoutConflicts,
-        timezone,
-        (current, total) => {
-          setProgress({
-            current,
-            total,
-            label: `Importing sets (${current}/${total})...`,
-          });
-        },
-      );
-
-      if (setsResult.success) {
-        toast({
-          title: "Import successful",
-          description: setsResult.message,
-        });
-
-        queryClient.invalidateQueries({ queryKey: ["stages"] });
-        queryClient.invalidateQueries({ queryKey: ["sets"] });
-        queryClient.invalidateQueries({ queryKey: ["artists"] });
-
-        setStagesFile(null);
-        setSetsFile(null);
-        setStagesPreview([]);
-        setSetsPreview([]);
-        setProgress({ current: 0, total: 0, label: "" });
-        setPendingImport(null);
-      } else {
-        toast({
-          title: "Import failed",
-          description: setsResult.message,
-          variant: "destructive",
-        });
-        console.error("Import failed:", setsResult.message, setsResult.errors);
-      }
-    } catch (error) {
-      toast({
-        title: "Import failed",
-        description: error instanceof Error ? error.message : "Unknown error",
-        variant: "destructive",
-      });
-    } finally {
-      setIsImporting(false);
-      setProgress({ current: 0, total: 0, label: "" });
-    }
-  }
-
-  function handleCancelConflictResolution() {
-    setShowConflictResolver(false);
-    setPendingImport(null);
   }
 
   const selectedFestival = festivalsQuery.data?.find(
@@ -498,21 +403,6 @@ export function CSVImportPage() {
             </div>
           </CardContent>
         </Card>
-      )}
-
-      {showConflictResolver && pendingImport && (
-        <ImportConflictResolver
-          conflicts={pendingImport.conflicts}
-          candidatesWithoutConflicts={pendingImport.candidates.filter(
-            (candidate) =>
-              !pendingImport.conflicts.some(
-                (conflict) => conflict.candidate === candidate,
-              ),
-          )}
-          onResolve={handleResolveConflicts}
-          onCancel={handleCancelConflictResolution}
-          isProcessing={isImporting}
-        />
       )}
     </div>
   );

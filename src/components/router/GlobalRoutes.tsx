@@ -16,6 +16,7 @@ import NotFound from "@/pages/NotFound";
 import { AdminRolesTable } from "@/pages/admin/Roles/AdminRolesTable";
 import { DuplicateArtistsPage } from "@/pages/admin/ArtistsManagement/DuplicateArtistsPage";
 import { ArtistBulkEditor } from "@/pages/admin/ArtistsManagement/ArtistBulkEditor";
+import { CSVImportPage } from "@/pages/admin/festivals/CSVImportPage";
 
 export function GlobalRoutes() {
   return (
@@ -31,6 +32,11 @@ export function GlobalRoutes() {
         <Route path="artists/duplicates" element={<DuplicateArtistsPage />} />
         <Route path="analytics" element={<AdminAnalytics />} />
         <Route path="admins" element={<AdminRolesTable />} />
+        <Route path="festivals/import" element={<CSVImportPage />} />
+        <Route
+          path="festivals/:festivalId/:editionId/import"
+          element={<CSVImportPage />}
+        />
         <Route path="festivals" element={<AdminFestivals />}>
           <Route path=":festivalSlug" element={<FestivalDetail />}>
             <Route path="editions/:editionSlug" element={<FestivalEdition />}>

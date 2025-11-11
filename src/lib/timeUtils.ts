@@ -111,16 +111,43 @@ export function toISOString(datetimeLocal: string): string {
   return convertLocalTimeToUTC(datetimeLocal, getUserTimeZone()) || "";
 }
 
-// Helper function to convert local time string to UTC for database storage (used in CSV imports)
+export function combineDateAndTime(
+  dateString: string | undefined,
+  timeString: string | undefined,
+): string | null {
+  if (!dateString || !timeString) return null;
+
+  const datePart = dateString.trim();
+  let timePart = timeString.trim();
+
+  // Normalize time format: ensure HH:MM format (pad single digit hours)
+  // Match formats like "8:00", "08:00", "8:00:00", "08:00:00"
+  const timeMatch = timePart.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+  if (timeMatch) {
+    const hours = timeMatch[1].padStart(2, "0");
+    const minutes = timeMatch[2];
+    const seconds = timeMatch[3] || "00";
+    timePart = `${hours}:${minutes}:${seconds}`;
+  }
+
+  return `${datePart} ${timePart}`;
+}
+
 export function convertLocalTimeToUTC(
   timeString: string | undefined,
   timezone: string,
 ): string | null {
   if (!timeString) return null;
 
-  // Parse the time string and interpret it as being in the specified timezone
-  // First create a date object assuming the time is in the target timezone
-  const utcDate = fromZonedTime(timeString, timezone);
+  try {
+    const utcDate = fromZonedTime(timeString, timezone);
 
-  return utcDate.toISOString();
+    if (!isValid(utcDate)) {
+      return null;
+    }
+
+    return utcDate.toISOString();
+  } catch {
+    return null;
+  }
 }

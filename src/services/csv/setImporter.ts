@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { generateSlug } from "@/lib/slug";
-import { convertLocalTimeToUTC } from "@/lib/timeUtils";
+import { convertLocalTimeToUTC, combineDateAndTime } from "@/lib/timeUtils";
 import type { SetImportData } from "./csvParser";
 import type { ImportResult } from "./types";
 import type {
@@ -153,9 +153,26 @@ async function importSetsWithArtistMap(
 
       const { data: existingSet } = await setQuery.limit(1);
 
-      // Convert times to UTC
-      const utcTimeStart = convertLocalTimeToUTC(set.time_start, timezone);
-      const utcTimeEnd = convertLocalTimeToUTC(set.time_end, timezone);
+      // Convert times to UTC, combining date and time fields if both are present
+      const timeStartInput =
+        set.date_start && set.time_start
+          ? combineDateAndTime(set.date_start, set.time_start)
+          : set.time_start;
+      const timeEndInput =
+        set.date_end && set.time_end
+          ? combineDateAndTime(set.date_end, set.time_end)
+          : set.time_end;
+
+      if (!timeStartInput) {
+        throw new Error("Missing time start");
+      }
+
+      if (!timeEndInput) {
+        throw new Error("Missing time end");
+      }
+
+      const utcTimeStart = convertLocalTimeToUTC(timeStartInput, timezone);
+      const utcTimeEnd = convertLocalTimeToUTC(timeEndInput, timezone);
 
       let createdSetId = "";
       let setError;

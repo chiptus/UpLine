@@ -9,7 +9,9 @@ export interface SetImportData {
   stage_name: string;
   artist_names: string;
   time_start?: string;
+  date_start?: string;
   time_end?: string;
+  date_end?: string;
   description?: string;
 }
 
@@ -59,10 +61,14 @@ export function parseSetsCSV(csvContent: string): SetImportData[] {
     const set: Partial<SetImportData> = {};
     headers.forEach((header, index) => {
       const value = line[index] || "";
-      if (header === "time_start" || header === "time_end") {
+      if (
+        header === "time_start" ||
+        header === "time_end" ||
+        header === "date_start" ||
+        header === "date_end"
+      ) {
         set[header as keyof SetImportData] = value || undefined;
       } else if (header === "name") {
-        // Optional name - only set if not empty
         set[header as keyof SetImportData] = value || undefined;
       } else {
         set[header as keyof SetImportData] = value;

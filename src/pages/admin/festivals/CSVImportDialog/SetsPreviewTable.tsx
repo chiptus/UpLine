@@ -24,6 +24,11 @@ export interface ArtistSelection {
   isCreating: boolean;
 }
 
+export interface SetSelection {
+  action: "match" | "duplicate" | "create";
+  matchedSetId?: string;
+}
+
 interface SetsPreviewTableProps {
   sets: SetImportData[];
   timezone: string;
@@ -31,6 +36,7 @@ interface SetsPreviewTableProps {
   onArtistSelectionsChange?: (
     selections: Map<number, ArtistSelection[]>,
   ) => void;
+  onSetSelectionsChange?: (selections: Map<number, SetSelection>) => void;
 }
 
 export function SetsPreviewTable({
@@ -38,10 +44,14 @@ export function SetsPreviewTable({
   timezone,
   editionId,
   onArtistSelectionsChange,
+  onSetSelectionsChange,
 }: SetsPreviewTableProps) {
   const [artistSelections, setArtistSelections] = useState<
     Map<number, ArtistSelection[]>
   >(new Map());
+  const [setSelections, setSetSelections] = useState<Map<number, SetSelection>>(
+    new Map(),
+  );
 
   const artistsQuery = useArtistsQuery();
   const matchingSetsQuery = useMatchingSetsQuery(sets, editionId);
@@ -60,7 +70,9 @@ export function SetsPreviewTable({
   useEffect(() => {
     if (!matchingSetsQuery.data) return;
 
-    const initialSelections = new Map<number, ArtistSelection[]>();
+    const initialArtistSelections = new Map<number, ArtistSelection[]>();
+    const initialSetSelections = new Map<number, SetSelection>();
+
     sets.forEach((set, index) => {
       const artistNames = set.artist_names
         .split(",")
@@ -77,12 +89,25 @@ export function SetsPreviewTable({
         };
       });
 
-      initialSelections.set(index, selections);
+      initialArtistSelections.set(index, selections);
+
+      initialSetSelections.set(index, {
+        action: "create",
+      });
     });
 
-    setArtistSelections(initialSelections);
-    onArtistSelectionsChange?.(initialSelections);
-  }, [sets, artistsByName, matchingSetsQuery.data, onArtistSelectionsChange]);
+    setArtistSelections(initialArtistSelections);
+    onArtistSelectionsChange?.(initialArtistSelections);
+
+    setSetSelections(initialSetSelections);
+    onSetSelectionsChange?.(initialSetSelections);
+  }, [
+    sets,
+    artistsByName,
+    matchingSetsQuery.data,
+    onArtistSelectionsChange,
+    onSetSelectionsChange,
+  ]);
 
   if (sets.length === 0) {
     return null;
@@ -157,10 +182,12 @@ export function SetsPreviewTable({
                   index={index}
                   validation={validationResults[index]}
                   hasSeparateDateFields={hasSeparateDateFields}
-                  matchingSet={matchingSets.get(index) || null}
+                  matchingSets={matchingSets.get(index) || []}
+                  setSelection={setSelections.get(index)}
                   artistSelections={artistSelections.get(index) || []}
                   isLoadingMatches={isLoadingMatches}
                   onArtistSelectionChange={handleArtistSelectionChange}
+                  onSetSelectionChange={handleSetSelectionChange}
                 />
               ))}
             </TableBody>
@@ -197,5 +224,12 @@ export function SetsPreviewTable({
     newMap.set(setIndex, newSelections);
     setArtistSelections(newMap);
     onArtistSelectionsChange?.(newMap);
+  }
+
+  function handleSetSelectionChange(setIndex: number, selection: SetSelection) {
+    const newMap = new Map(setSelections);
+    newMap.set(setIndex, selection);
+    setSetSelections(newMap);
+    onSetSelectionsChange?.(newMap);
   }
 }

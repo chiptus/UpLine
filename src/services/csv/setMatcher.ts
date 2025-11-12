@@ -7,6 +7,7 @@ export interface MatchingSet {
   stage_name: string | null;
   artist_names: string[];
   vote_count: number;
+  time_start: string | null;
 }
 
 export async function findMatchingSets({
@@ -17,11 +18,12 @@ export async function findMatchingSets({
   existingSets: {
     id: string;
     name: string;
+    time_start: string | null;
     set_artists?: { artists: { name: string } }[];
     stages?: { name: string } | null;
   }[];
-}): Promise<Map<number, MatchingSet | null>> {
-  const matchMap = new Map<number, MatchingSet | null>();
+}): Promise<Map<number, MatchingSet[]>> {
+  const matchMap = new Map<number, MatchingSet[]>();
 
   for (let index = 0; index < importedSets.length; index++) {
     const set = importedSets[index];
@@ -31,16 +33,16 @@ export async function findMatchingSets({
       .filter((name) => name.length > 0);
 
     if (artistNames.length === 0) {
-      matchMap.set(index, null);
+      matchMap.set(index, []);
       continue;
     }
 
     if (!existingSets || existingSets.length === 0) {
-      matchMap.set(index, null);
+      matchMap.set(index, []);
       continue;
     }
 
-    let bestMatch: MatchingSet | null = null;
+    const matches: MatchingSet[] = [];
 
     for (const existingSet of existingSets) {
       if (!existingSet.set_artists || existingSet.set_artists.length === 0) {
@@ -69,18 +71,18 @@ export async function findMatchingSets({
           .select("*", { count: "exact", head: true })
           .eq("set_id", existingSet.id);
 
-        bestMatch = {
+        matches.push({
           id: existingSet.id,
           name: existingSet.name,
           stage_name: existingSet.stages?.name || null,
           artist_names: setArtistNames,
           vote_count: voteCount || 0,
-        };
-        break;
+          time_start: existingSet.time_start,
+        });
       }
     }
 
-    if (!bestMatch && set.stage_name) {
+    if (matches.length === 0 && set.stage_name) {
       for (const existingSet of existingSets) {
         if (!existingSet.set_artists || existingSet.set_artists.length === 0) {
           continue;
@@ -102,19 +104,19 @@ export async function findMatchingSets({
             .select("*", { count: "exact", head: true })
             .eq("set_id", existingSet.id);
 
-          bestMatch = {
+          matches.push({
             id: existingSet.id,
             name: existingSet.name,
             stage_name: stageName || null,
             artist_names: setArtistNames,
             vote_count: voteCount || 0,
-          };
-          break;
+            time_start: existingSet.time_start,
+          });
         }
       }
     }
 
-    matchMap.set(index, bestMatch);
+    matchMap.set(index, matches);
   }
 
   return matchMap;

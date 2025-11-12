@@ -13,6 +13,7 @@ function useSetsQuery(editionId: string) {
           `
               id,
               name,
+              time_start,
               stage_id,
               stages(name),
               set_artists(artist_id, artists(name))

@@ -3,6 +3,8 @@ import { generateSlug } from "@/lib/slug";
 import { convertLocalTimeToUTC, combineDateAndTime } from "@/lib/timeUtils";
 import type { SetImportData } from "./csvParser";
 import type { ImportResult } from "./types";
+import type { SetSelection } from "@/pages/admin/festivals/CSVImportDialog/SetsPreviewTable";
+import { duplicateSetWithVotes } from "./setDuplicator";
 
 function generateSetNameFromArtists(artistNames: string[]): string {
   if (artistNames.length === 0) return "Unnamed Set";
@@ -17,191 +19,47 @@ export interface ArtistMapping {
   shouldCreate: boolean;
 }
 
-async function importSetsWithArtistMap(
-  sets: SetImportData[],
-  editionId: string,
-  artistMappings: Map<number, ArtistMapping[]>,
-  timezone: string = "UTC",
-  onProgress?: (completed: number, total: number) => void,
-): Promise<ImportResult> {
+async function importSetsWithArtistMap({
+  artistMappings,
+  editionId,
+  sets,
+  timezone = "UTC",
+  onProgress,
+  setSelections,
+}: {
+  sets: SetImportData[];
+  editionId: string;
+  artistMappings: Map<number, ArtistMapping[]>;
+  setSelections?: Map<number, SetSelection>;
+  timezone?: string;
+  onProgress?: (completed: number, total: number) => void;
+}): Promise<ImportResult> {
   const currentUser = await supabase.auth.getUser();
   const userId = currentUser.data.user?.id || "";
 
-  const results = [];
-  const errors = [];
+  const results: Array<string> = [];
+  const errors: Array<string> = [];
   const total = sets.length;
 
   for (let i = 0; i < sets.length; i++) {
     const set = sets[i];
-    try {
-      const setMappings = artistMappings.get(i);
-      if (!setMappings || setMappings.length === 0) {
-        errors.push(`Set "${set.name || "Unnamed"}" has no artist mappings`);
-        continue;
-      }
+    const setMappings = artistMappings.get(i);
+    const setSelection = setSelections?.get(i);
 
-      const artistNames = setMappings.map((m) => m.csvName);
-      const setName = set.name || generateSetNameFromArtists(artistNames);
+    const response = await importSingleSet({
+      importedSet: set,
+      setMappings,
+      setSelection,
+      editionId,
+      timezone,
+      userId,
+    });
 
-      const artistIds: string[] = [];
-
-      for (const mapping of setMappings) {
-        let artistId = mapping.artistId;
-
-        if (!artistId && mapping.shouldCreate) {
-          const { data: newArtist, error: createError } = await supabase
-            .from("artists")
-            .insert({
-              name: mapping.csvName,
-              slug: generateSlug(mapping.csvName),
-              added_by: userId,
-            })
-            .select("id")
-            .single();
-
-          if (createError || !newArtist) {
-            errors.push(
-              `Failed to create artist "${mapping.csvName}": ${createError?.message || "No ID"}`,
-            );
-            continue;
-          }
-
-          artistId = newArtist.id;
-        }
-
-        if (!artistId) {
-          errors.push(`Artist "${mapping.csvName}" could not be resolved`);
-          continue;
-        }
-
-        artistIds.push(artistId);
-      }
-
-      if (artistIds.length === 0) {
-        errors.push(`Set "${set.name || "Unnamed"}" has no valid artists`);
-        continue;
-      }
-
-      // Continue with set creation logic (same as original)
-
-      let stageId = "";
-      if (set.stage_name) {
-        const { data: stage, error: stageError } = await supabase
-          .from("stages")
-          .select("id")
-          .eq("name", set.stage_name)
-          .eq("festival_edition_id", editionId)
-          .single();
-
-        if (stageError || !stage) {
-          errors.push(
-            `Stage "${set.stage_name}" not found for set "${setName}"`,
-          );
-          continue;
-        }
-
-        stageId = stage.id;
-      }
-
-      // Check if set already exists
-      const setQuery = supabase
-        .from("sets")
-        .select("id")
-        .eq("name", setName)
-        .eq("festival_edition_id", editionId);
-
-      if (stageId) {
-        setQuery.eq("stage_id", stageId);
-      }
-
-      const { data: existingSet } = await setQuery.limit(1);
-
-      // Convert times to UTC, combining date and time fields if both are present
-      const timeStartInput =
-        set.date_start && set.time_start
-          ? combineDateAndTime(set.date_start, set.time_start)
-          : set.time_start;
-      const timeEndInput =
-        set.date_end && set.time_end
-          ? combineDateAndTime(set.date_end, set.time_end)
-          : set.time_end;
-
-      if (!timeStartInput) {
-        throw new Error("Missing time start");
-      }
-
-      if (!timeEndInput) {
-        throw new Error("Missing time end");
-      }
-
-      const utcTimeStart = convertLocalTimeToUTC(timeStartInput, timezone);
-      const utcTimeEnd = convertLocalTimeToUTC(timeEndInput, timezone);
-
-      let createdSetId = "";
-      let setError;
-
-      if (existingSet && existingSet.length === 1) {
-        createdSetId = existingSet[0].id;
-        // Update existing set
-        const { error } = await supabase
-          .from("sets")
-          .update({
-            time_start: utcTimeStart,
-            time_end: utcTimeEnd,
-            description: set.description || null,
-            archived: false,
-          })
-          .eq("id", createdSetId);
-
-        setError = error;
-      } else {
-        // Create new set
-        const { data, error } = await supabase
-          .from("sets")
-          .insert({
-            name: setName,
-            slug: generateSlug(setName),
-            stage_id: stageId || null,
-            festival_edition_id: editionId,
-            time_start: utcTimeStart,
-            time_end: utcTimeEnd,
-            description: set.description || null,
-            archived: false,
-            created_by: userId,
-          })
-          .select("id")
-          .single();
-
-        createdSetId = data?.id || "";
-        setError = error;
-      }
-
-      if (setError || !createdSetId) {
-        errors.push(
-          `Failed to create set "${setName}": ${setError?.message || "No ID"}`,
-        );
-        continue;
-      }
-
-      // Link artists to set
-      for (const artistId of artistIds) {
-        await supabase.from("set_artists").upsert(
-          {
-            set_id: createdSetId,
-            artist_id: artistId,
-          },
-          {
-            onConflict: "set_id,artist_id",
-            ignoreDuplicates: true,
-          },
-        );
-      }
-
-      results.push(setName);
-    } catch (error) {
-      errors.push(
-        `Error processing set: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
+    if (response.type === "error") {
+      errors.push(...response.errors);
+      continue;
+    } else {
+      results.push(response.setName);
     }
 
     onProgress?.(i + 1, total);
@@ -223,13 +81,219 @@ async function importSetsWithArtistMap(
   };
 }
 
+async function importSingleSet({
+  importedSet,
+  setMappings,
+  userId,
+  timezone,
+  editionId,
+  setSelection,
+}: {
+  timezone: string;
+  userId: string;
+  importedSet: SetImportData;
+  setMappings: ArtistMapping[] | undefined;
+  editionId: string;
+  setSelection: SetSelection | undefined;
+}): Promise<
+  | {
+      type: "error";
+      errors: string[];
+    }
+  | {
+      type: "success";
+      setName: string;
+    }
+> {
+  const errors: string[] = [];
+  try {
+    if (!setMappings || setMappings.length === 0) {
+      errors.push(
+        `Set "${importedSet.name || "Unnamed"}" has no artist mappings`,
+      );
+      return { type: "error", errors };
+    }
+
+    const artistNames = setMappings.map((m) => m.csvName);
+    const setName = importedSet.name || generateSetNameFromArtists(artistNames);
+
+    const artistIds: string[] = [];
+
+    for (const mapping of setMappings) {
+      let artistId = mapping.artistId;
+
+      if (!artistId && mapping.shouldCreate) {
+        const { data: newArtist, error: createError } = await supabase
+          .from("artists")
+          .insert({
+            name: mapping.csvName,
+            slug: generateSlug(mapping.csvName),
+            added_by: userId,
+          })
+          .select("id")
+          .single();
+
+        if (createError || !newArtist) {
+          errors.push(
+            `Failed to create artist "${mapping.csvName}": ${createError?.message || "No ID"}`,
+          );
+          continue;
+        }
+
+        artistId = newArtist.id;
+      }
+
+      if (!artistId) {
+        errors.push(`Artist "${mapping.csvName}" could not be resolved`);
+        continue;
+      }
+
+      artistIds.push(artistId);
+    }
+
+    if (artistIds.length === 0) {
+      errors.push(
+        `Set "${importedSet.name || "Unnamed"}" has no valid artists`,
+      );
+      return { type: "error", errors };
+    }
+
+    // Continue with set creation logic (same as original)
+
+    let stageId = "";
+    if (importedSet.stage_name) {
+      const { data: stage, error: stageError } = await supabase
+        .from("stages")
+        .select("id")
+        .eq("name", importedSet.stage_name)
+        .eq("festival_edition_id", editionId)
+        .single();
+
+      if (stageError || !stage) {
+        errors.push(
+          `Stage "${importedSet.stage_name}" not found for set "${setName}"`,
+        );
+        return { type: "error", errors };
+      }
+
+      stageId = stage.id;
+    }
+
+    const timeStartInput =
+      importedSet.date_start && importedSet.time_start
+        ? combineDateAndTime(importedSet.date_start, importedSet.time_start)
+        : importedSet.time_start;
+    const timeEndInput =
+      importedSet.date_end && importedSet.time_end
+        ? combineDateAndTime(importedSet.date_end, importedSet.time_end)
+        : importedSet.time_end;
+
+    if (!timeStartInput) {
+      errors.push("Missing time start");
+      return { type: "error", errors };
+    }
+
+    if (!timeEndInput) {
+      errors.push("Missing time end");
+      return { type: "error", errors };
+    }
+
+    const utcTimeStart = convertLocalTimeToUTC(timeStartInput, timezone);
+    const utcTimeEnd = convertLocalTimeToUTC(timeEndInput, timezone);
+
+    if (!utcTimeEnd || !utcTimeStart) {
+      errors.push("Time is not valid");
+      return { type: "error", errors };
+    }
+
+    let createdSetId = "";
+    let setError: Error | null = null;
+
+    if (setSelection?.action === "match" && setSelection.matchedSetId) {
+      createdSetId = setSelection.matchedSetId;
+      const { error } = await supabase
+        .from("sets")
+        .update({
+          time_start: utcTimeStart,
+          time_end: utcTimeEnd,
+          description: importedSet.description || null,
+          archived: false,
+        })
+        .eq("id", createdSetId);
+
+      setError = error;
+    } else if (
+      setSelection?.action === "duplicate" &&
+      setSelection.matchedSetId
+    ) {
+      try {
+        createdSetId = await duplicateSetWithVotes(
+          setSelection.matchedSetId,
+          utcTimeStart!,
+          utcTimeEnd!,
+        );
+      } catch (error) {
+        setError = error as Error;
+      }
+    } else {
+      const { data, error } = await supabase
+        .from("sets")
+        .insert({
+          name: setName,
+          slug: generateSlug(setName),
+          stage_id: stageId || null,
+          festival_edition_id: editionId,
+          time_start: utcTimeStart,
+          time_end: utcTimeEnd,
+          description: importedSet.description || null,
+          archived: false,
+          created_by: userId,
+        })
+        .select("id")
+        .single();
+
+      createdSetId = data?.id || "";
+      setError = error;
+    }
+
+    if (setError || !createdSetId) {
+      errors.push(
+        `Failed to create set "${setName}": ${setError?.message || "No ID"}`,
+      );
+      return { type: "error", errors };
+    }
+
+    // Link artists to set
+    for (const artistId of artistIds) {
+      await supabase.from("set_artists").upsert(
+        {
+          set_id: createdSetId,
+          artist_id: artistId,
+        },
+        {
+          onConflict: "set_id,artist_id",
+          ignoreDuplicates: true,
+        },
+      );
+    }
+
+    return { type: "success", setName };
+  } catch (error) {
+    errors.push(
+      `Error processing set: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
+
+    return { errors, type: "error" };
+  }
+}
+
 export async function importSets(
   sets: SetImportData[],
   editionId: string,
   timezone: string = "UTC",
   onProgress?: (completed: number, total: number) => void,
 ): Promise<ImportResult> {
-  const mappings = new Map<number, ArtistMapping[]>();
+  const artistMappings = new Map<number, ArtistMapping[]>();
 
   sets.forEach((set, index) => {
     const artistNames = set.artist_names
@@ -237,7 +301,7 @@ export async function importSets(
       .map((name) => name.trim())
       .filter((name) => name.length > 0);
 
-    mappings.set(
+    artistMappings.set(
       index,
       artistNames.map((csvName) => ({
         csvName,
@@ -247,27 +311,29 @@ export async function importSets(
     );
   });
 
-  return importSetsWithArtistMap(
+  return importSetsWithArtistMap({
     sets,
     editionId,
-    mappings,
+    artistMappings: artistMappings,
     timezone,
     onProgress,
-  );
+  });
 }
 
 export async function importSetsWithMappings(
   sets: SetImportData[],
   editionId: string,
   artistMappings: Map<number, ArtistMapping[]>,
+  setSelections?: Map<number, SetSelection>,
   timezone: string = "UTC",
   onProgress?: (completed: number, total: number) => void,
 ): Promise<ImportResult> {
-  return importSetsWithArtistMap(
+  return importSetsWithArtistMap({
     sets,
     editionId,
     artistMappings,
+    setSelections,
     timezone,
     onProgress,
-  );
+  });
 }

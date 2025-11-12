@@ -25,7 +25,9 @@ import { StagesPreviewTable } from "@/pages/admin/festivals/CSVImportDialog/Stag
 import {
   SetsPreviewTable,
   type ArtistSelection,
+  type SetSelection,
 } from "@/pages/admin/festivals/CSVImportDialog/SetsPreviewTable";
+import { validateSetSelections } from "@/services/csv/setSelectionValidator";
 import { useFestivalsQuery } from "@/hooks/queries/festivals/useFestivals";
 import { useFestivalEditionsForFestivalQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionsForFestival";
 import {
@@ -70,6 +72,9 @@ export function CSVImportPage() {
   const [artistSelections, setArtistSelections] = useState<
     Map<number, ArtistSelection[]>
   >(new Map());
+  const [setSelections, setSetSelections] = useState<Map<number, SetSelection>>(
+    new Map(),
+  );
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -186,6 +191,18 @@ export function CSVImportPage() {
       return;
     }
 
+    if (setsFile && setSelections.size > 0) {
+      const validationErrors = validateSetSelections(setSelections);
+      if (validationErrors.length > 0) {
+        toast({
+          title: "Set selection conflicts",
+          description: validationErrors[0].message,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     setIsImporting(true);
     const results: ImportResult[] = [];
 
@@ -234,6 +251,7 @@ export function CSVImportPage() {
           setsData,
           selectedEditionId,
           artistMappings,
+          setSelections,
           timezone,
           (current, total) => {
             setProgress({
@@ -398,6 +416,7 @@ export function CSVImportPage() {
                     timezone={timezone}
                     editionId={selectedEditionId}
                     onArtistSelectionsChange={setArtistSelections}
+                    onSetSelectionsChange={setSetSelections}
                   />
                 )}
               </TabsContent>

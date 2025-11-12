@@ -3,18 +3,19 @@ import type { SetImportData } from "@/services/csv/csvParser";
 import type { SetValidationResult } from "@/services/csv/timeValidator";
 import { cn } from "@/lib/utils";
 import type { MatchingSet } from "@/services/csv/setMatcher";
-import type { ArtistSelection } from "./SetsPreviewTable";
+import type { ArtistSelection, SetSelection } from "./SetsPreviewTable";
 import { ArtistSelectionCell } from "./ArtistSelectionCell";
 import { StageCellWithValidation } from "./StageCellWithValidation";
 import { TimeCellWithValidation } from "./TimeCellWithValidation";
-import { MatchingSetCell } from "./MatchingSetCell";
+import { SetSelectionCell } from "./SetSelectionCell";
 
 interface SetPreviewRowProps {
   set: SetImportData;
   index: number;
   validation: SetValidationResult;
   hasSeparateDateFields: boolean;
-  matchingSet: MatchingSet | null;
+  matchingSets: MatchingSet[];
+  setSelection?: SetSelection;
   artistSelections: ArtistSelection[];
   isLoadingMatches: boolean;
   onArtistSelectionChange: (
@@ -22,6 +23,7 @@ interface SetPreviewRowProps {
     artistIndex: number,
     value: string,
   ) => void;
+  onSetSelectionChange: (setIndex: number, selection: SetSelection) => void;
 }
 
 export function SetPreviewRow({
@@ -29,10 +31,12 @@ export function SetPreviewRow({
   index,
   validation,
   hasSeparateDateFields,
-  matchingSet,
+  matchingSets,
+  setSelection,
   artistSelections,
   isLoadingMatches,
   onArtistSelectionChange,
+  onSetSelectionChange,
 }: SetPreviewRowProps) {
   const hasErrors = !validation.isValid;
 
@@ -86,7 +90,14 @@ export function SetPreviewRow({
       <TableCell className="max-w-xs truncate">
         {set.description || "-"}
       </TableCell>
-      <MatchingSetCell matchingSet={matchingSet} isLoading={isLoadingMatches} />
+      <SetSelectionCell
+        matchingSets={matchingSets}
+        setSelection={setSelection}
+        isLoading={isLoadingMatches}
+        onSetSelectionChange={(selection) =>
+          onSetSelectionChange(index, selection)
+        }
+      />
     </TableRow>
   );
 }

@@ -772,6 +772,14 @@ export type Database = {
         Args: { check_username: string; exclude_user_id?: string };
         Returns: boolean;
       };
+      duplicate_set_with_votes: {
+        Args: {
+          new_time_end: string;
+          new_time_start: string;
+          source_set_id: string;
+        };
+        Returns: string;
+      };
       get_user_id_by_email: {
         Args: { user_email: string };
         Returns: string;

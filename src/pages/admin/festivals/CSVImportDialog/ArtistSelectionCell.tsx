@@ -4,7 +4,6 @@ import { ArtistSelect } from "./ArtistSelect";
 
 interface ArtistSelectionCellProps {
   artistSelections: ArtistSelection[];
-  allArtists: Array<{ id: string; name: string }>;
   isLoadingMatches: boolean;
   validationError?: string;
   onArtistSelectionChange: (artistIndex: number, value: string) => void;
@@ -12,7 +11,6 @@ interface ArtistSelectionCellProps {
 
 export function ArtistSelectionCell({
   artistSelections,
-  allArtists,
   isLoadingMatches,
   validationError,
   onArtistSelectionChange,
@@ -27,7 +25,6 @@ export function ArtistSelectionCell({
             <ArtistSelect
               key={artistIdx}
               selection={selection}
-              allArtists={allArtists}
               onValueChange={(value) =>
                 onArtistSelectionChange(artistIdx, value)
               }

@@ -9,14 +9,22 @@ export interface MatchingSet {
   vote_count: number;
 }
 
-export async function findMatchingSets(
-  sets: SetImportData[],
-  editionId: string,
-): Promise<Map<number, MatchingSet | null>> {
+export async function findMatchingSets({
+  existingSets,
+  importedSets,
+}: {
+  importedSets: SetImportData[];
+  existingSets: {
+    id: string;
+    name: string;
+    set_artists?: { artists: { name: string } }[];
+    stages?: { name: string } | null;
+  }[];
+}): Promise<Map<number, MatchingSet | null>> {
   const matchMap = new Map<number, MatchingSet | null>();
 
-  for (let index = 0; index < sets.length; index++) {
-    const set = sets[index];
+  for (let index = 0; index < importedSets.length; index++) {
+    const set = importedSets[index];
     const artistNames = set.artist_names
       .split(",")
       .map((name) => name.trim())
@@ -26,20 +34,6 @@ export async function findMatchingSets(
       matchMap.set(index, null);
       continue;
     }
-
-    const { data: existingSets } = await supabase
-      .from("sets")
-      .select(
-        `
-        id,
-        name,
-        stage_id,
-        stages(name),
-        set_artists(artist_id, artists(name))
-      `,
-      )
-      .eq("festival_edition_id", editionId)
-      .eq("archived", false);
 
     if (!existingSets || existingSets.length === 0) {
       matchMap.set(index, null);

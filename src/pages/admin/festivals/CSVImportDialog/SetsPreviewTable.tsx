@@ -46,20 +46,16 @@ export function SetsPreviewTable({
   const artistsQuery = useArtistsQuery();
   const matchingSetsQuery = useMatchingSetsQuery(sets, editionId);
 
-  const allArtists = useMemo(
-    () => artistsQuery.data || [],
-    [artistsQuery.data],
-  );
   const matchingSets = matchingSetsQuery.data || new Map();
   const isLoadingMatches = matchingSetsQuery.isLoading;
 
   const artistsByName = useMemo(() => {
     const map = new Map<string, string>();
-    allArtists.forEach((artist) => {
+    artistsQuery.data?.forEach((artist) => {
       map.set(artist.name.toLowerCase(), artist.id);
     });
     return map;
-  }, [allArtists]);
+  }, [artistsQuery.data]);
 
   useEffect(() => {
     if (!matchingSetsQuery.data) return;
@@ -102,35 +98,6 @@ export function SetsPreviewTable({
   const hasSeparateDateFields = sets.some(
     (set) => set.date_start !== undefined || set.date_end !== undefined,
   );
-
-  function handleArtistSelectionChange(
-    setIndex: number,
-    artistIndex: number,
-    value: string,
-  ) {
-    const currentSelections = artistSelections.get(setIndex) || [];
-    const newSelections = [...currentSelections];
-    const selection = newSelections[artistIndex];
-
-    if (value === "create") {
-      newSelections[artistIndex] = {
-        ...selection,
-        artistId: null,
-        isCreating: true,
-      };
-    } else {
-      newSelections[artistIndex] = {
-        ...selection,
-        artistId: value,
-        isCreating: false,
-      };
-    }
-
-    const newMap = new Map(artistSelections);
-    newMap.set(setIndex, newSelections);
-    setArtistSelections(newMap);
-    onArtistSelectionsChange?.(newMap);
-  }
 
   return (
     <Card>
@@ -192,7 +159,6 @@ export function SetsPreviewTable({
                   hasSeparateDateFields={hasSeparateDateFields}
                   matchingSet={matchingSets.get(index) || null}
                   artistSelections={artistSelections.get(index) || []}
-                  allArtists={allArtists}
                   isLoadingMatches={isLoadingMatches}
                   onArtistSelectionChange={handleArtistSelectionChange}
                 />
@@ -203,4 +169,33 @@ export function SetsPreviewTable({
       </CardContent>
     </Card>
   );
+
+  function handleArtistSelectionChange(
+    setIndex: number,
+    artistIndex: number,
+    value: string,
+  ) {
+    const currentSelections = artistSelections.get(setIndex) || [];
+    const newSelections = [...currentSelections];
+    const selection = newSelections[artistIndex];
+
+    if (value === "create") {
+      newSelections[artistIndex] = {
+        ...selection,
+        artistId: null,
+        isCreating: true,
+      };
+    } else {
+      newSelections[artistIndex] = {
+        ...selection,
+        artistId: value,
+        isCreating: false,
+      };
+    }
+
+    const newMap = new Map(artistSelections);
+    newMap.set(setIndex, newSelections);
+    setArtistSelections(newMap);
+    onArtistSelectionsChange?.(newMap);
+  }
 }

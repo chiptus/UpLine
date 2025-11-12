@@ -16,7 +16,6 @@ interface SetPreviewRowProps {
   hasSeparateDateFields: boolean;
   matchingSet: MatchingSet | null;
   artistSelections: ArtistSelection[];
-  allArtists: Array<{ id: string; name: string }>;
   isLoadingMatches: boolean;
   onArtistSelectionChange: (
     setIndex: number,
@@ -32,7 +31,6 @@ export function SetPreviewRow({
   hasSeparateDateFields,
   matchingSet,
   artistSelections,
-  allArtists,
   isLoadingMatches,
   onArtistSelectionChange,
 }: SetPreviewRowProps) {
@@ -49,7 +47,6 @@ export function SetPreviewRow({
       />
       <ArtistSelectionCell
         artistSelections={artistSelections}
-        allArtists={allArtists}
         isLoadingMatches={isLoadingMatches}
         validationError={validation.errors.artist_names}
         onArtistSelectionChange={(artistIndex, value) =>

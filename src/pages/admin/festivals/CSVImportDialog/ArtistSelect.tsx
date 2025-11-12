@@ -6,18 +6,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { ArtistSelection } from "./SetsPreviewTable";
+import { useArtistsQuery } from "@/hooks/queries/artists/useArtists";
 
 interface ArtistSelectProps {
   selection: ArtistSelection;
-  allArtists: Array<{ id: string; name: string }>;
   onValueChange: (value: string) => void;
 }
 
-export function ArtistSelect({
-  selection,
-  allArtists,
-  onValueChange,
-}: ArtistSelectProps) {
+export function ArtistSelect({ selection, onValueChange }: ArtistSelectProps) {
+  const artistsQuery = useArtistsQuery();
+
+  if (!artistsQuery.data) {
+    return <>Loading...</>;
+  }
+
+  const allArtists = artistsQuery.data;
+
   const selectValue = selection.isCreating
     ? "create"
     : selection.artistId || "create";

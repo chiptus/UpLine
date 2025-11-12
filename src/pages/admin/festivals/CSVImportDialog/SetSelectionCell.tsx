@@ -10,11 +10,14 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import type { MatchingSet } from "@/services/csv/setMatcher";
 import type { SetSelection } from "./SetsPreviewTable";
+import { useSetsByEditionQuery } from "@/hooks/queries/sets/useSetsByEdition";
+import { useMemo } from "react";
 
 interface SetSelectionCellProps {
   matchingSets: MatchingSet[];
   setSelection?: SetSelection;
   isLoading: boolean;
+  editionId: string;
   onSetSelectionChange: (selection: SetSelection) => void;
 }
 
@@ -22,9 +25,17 @@ export function SetSelectionCell({
   matchingSets,
   setSelection,
   isLoading,
+  editionId,
   onSetSelectionChange,
 }: SetSelectionCellProps) {
-  if (isLoading) {
+  const allSetsQuery = useSetsByEditionQuery(editionId);
+
+  const otherSets = useMemo(() => {
+    const matchingIds = new Set(matchingSets.map((m) => m.id));
+    return allSetsQuery.data?.filter((set) => !matchingIds.has(set.id)) || [];
+  }, [matchingSets, allSetsQuery.data]);
+
+  if (isLoading || allSetsQuery.isLoading) {
     return (
       <TableCell>
         <div className="text-sm text-muted-foreground">Loading...</div>
@@ -86,6 +97,30 @@ export function SetSelectionCell({
                 </div>
               </SelectItem>
             ))}
+            {otherSets.length > 0 && (
+              <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+                Other Sets
+              </div>
+            )}
+            {otherSets.map((set) => {
+              const artistNames =
+                set.artists?.map((a) => a.name).join(", ") || "No artists";
+              const voteCount = set.votes?.length || 0;
+              return (
+                <SelectItem key={set.id} value={set.id}>
+                  <div className="flex flex-col">
+                    <span className="font-medium">
+                      {set.name || artistNames}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {set.stage_name && `${set.stage_name} • `}
+                      {voteCount} {voteCount === 1 ? "vote" : "votes"}
+                      {!set.time_start && " • No hours"}
+                    </span>
+                  </div>
+                </SelectItem>
+              );
+            })}
           </SelectContent>
         </Select>
 

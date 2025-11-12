@@ -18,6 +18,7 @@ interface SetPreviewRowProps {
   setSelection?: SetSelection;
   artistSelections: ArtistSelection[];
   isLoadingMatches: boolean;
+  editionId: string;
   onArtistSelectionChange: (
     setIndex: number,
     artistIndex: number,
@@ -35,6 +36,7 @@ export function SetPreviewRow({
   setSelection,
   artistSelections,
   isLoadingMatches,
+  editionId,
   onArtistSelectionChange,
   onSetSelectionChange,
 }: SetPreviewRowProps) {
@@ -94,6 +96,7 @@ export function SetPreviewRow({
         matchingSets={matchingSets}
         setSelection={setSelection}
         isLoading={isLoadingMatches}
+        editionId={editionId}
         onSetSelectionChange={(selection) =>
           onSetSelectionChange(index, selection)
         }

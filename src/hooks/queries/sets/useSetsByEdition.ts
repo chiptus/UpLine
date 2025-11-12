@@ -15,6 +15,7 @@ async function fetchSetsByEdition(editionId: string): Promise<FestivalSet[]> {
           artist_music_genres (music_genre_id)
         )
       ),
+      stages (name),
       votes (vote_type, user_id)
     `,
     )
@@ -37,7 +38,9 @@ async function fetchSetsByEdition(editionId: string): Promise<FestivalSet[]> {
             ...sa.artists,
           }))
           .filter(Boolean) || [],
+      stage_name: set.stages?.name || null,
       set_artists: undefined, // Remove junction data from final response
+      stages: undefined, // Remove junction data from final response
     })) || [];
 
   return transformedData;

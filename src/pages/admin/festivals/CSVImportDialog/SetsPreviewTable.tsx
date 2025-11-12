@@ -68,10 +68,7 @@ export function SetsPreviewTable({
   }, [artistsQuery.data]);
 
   useEffect(() => {
-    if (!matchingSetsQuery.data) return;
-
     const initialArtistSelections = new Map<number, ArtistSelection[]>();
-    const initialSetSelections = new Map<number, SetSelection>();
 
     sets.forEach((set, index) => {
       const artistNames = set.artist_names
@@ -90,24 +87,34 @@ export function SetsPreviewTable({
       });
 
       initialArtistSelections.set(index, selections);
-
-      initialSetSelections.set(index, {
-        action: "create",
-      });
     });
 
     setArtistSelections(initialArtistSelections);
     onArtistSelectionsChange?.(initialArtistSelections);
+  }, [sets, artistsByName, onArtistSelectionsChange]);
+
+  useEffect(() => {
+    const initialSetSelections = new Map<number, SetSelection>();
+
+    sets.forEach((_set, index) => {
+      if (!matchingSetsQuery.data) return;
+
+      const matchingSetsForRow = matchingSetsQuery.data?.get(index) || [];
+      if (matchingSetsForRow.length > 0) {
+        initialSetSelections.set(index, {
+          action: "match",
+          matchedSetId: matchingSetsForRow[0].id,
+        });
+      } else {
+        initialSetSelections.set(index, {
+          action: "create",
+        });
+      }
+    });
 
     setSetSelections(initialSetSelections);
     onSetSelectionsChange?.(initialSetSelections);
-  }, [
-    sets,
-    artistsByName,
-    matchingSetsQuery.data,
-    onArtistSelectionsChange,
-    onSetSelectionsChange,
-  ]);
+  }, [sets, matchingSetsQuery.data, onSetSelectionsChange]);
 
   if (sets.length === 0) {
     return null;
@@ -186,6 +193,7 @@ export function SetsPreviewTable({
                   setSelection={setSelections.get(index)}
                   artistSelections={artistSelections.get(index) || []}
                   isLoadingMatches={isLoadingMatches}
+                  editionId={editionId}
                   onArtistSelectionChange={handleArtistSelectionChange}
                   onSetSelectionChange={handleSetSelectionChange}
                 />

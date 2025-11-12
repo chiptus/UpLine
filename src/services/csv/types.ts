@@ -5,10 +5,3 @@ export interface ImportResult {
   updated?: number;
   errors?: string[];
 }
-
-import type { ImportConflict } from "./conflictDetector";
-
-export interface ConflictAwareImportResult extends ImportResult {
-  conflicts?: ImportConflict[];
-  requiresConflictResolution?: boolean;
-}

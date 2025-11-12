@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useOutletContext } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 import { useStagesByEditionQuery } from "@/hooks/queries/stages/useStagesByEdition";
 import { FestivalEdition } from "@/hooks/queries/festivals/editions/types";
 import { useDeleteStageMutation } from "@/hooks/queries/stages/useDeleteStage";
@@ -7,7 +7,6 @@ import { Stage } from "@/hooks/queries/stages/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, MapPin, Upload } from "lucide-react";
-import { CSVImportDialog } from "./CSVImportDialog/CSVImportDialog";
 import { StagesTable } from "./StageManagement/StagesTable";
 import { CreateStageDialog } from "./StageManagement/CreateStageDialog";
 import { EditStageDialog } from "./StageManagement/EditStageDialog";
@@ -69,12 +68,14 @@ export function StageManagement(_props: StageManagementProps) {
             Stage Management
           </span>
           <div className="flex gap-2">
-            <CSVImportDialog editionId={edition.id}>
-              <Button variant="outline">
+            <Button variant="outline" asChild>
+              <Link
+                to={`/admin/festivals/${edition.festival_id}/${edition.id}/import?tab=stages`}
+              >
                 <Upload className="h-4 w-4 mr-2" />
                 Import CSV
-              </Button>
-            </CSVImportDialog>
+              </Link>
+            </Button>
             <CreateStageDialog editionId={edition.id} />
           </div>
         </CardTitle>

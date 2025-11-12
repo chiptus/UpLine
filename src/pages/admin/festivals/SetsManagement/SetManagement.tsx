@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { useOutletContext } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Plus, Music, Upload } from "lucide-react";
-import { CSVImportDialog } from "../CSVImportDialog/CSVImportDialog";
 import { FestivalSet } from "@/hooks/queries/sets/useSets";
 import { useSetsQuery } from "@/hooks/queries/sets/useSets";
 import { FestivalEdition } from "@/hooks/queries/festivals/editions/types";
@@ -73,12 +72,14 @@ export function SetManagement(_props: SetManagementProps) {
             Set Management
           </span>
           <div className="flex gap-2">
-            <CSVImportDialog editionId={edition.id} defaultTab="sets">
-              <Button variant="outline">
+            <Button variant="outline" asChild>
+              <Link
+                to={`/admin/festivals/${edition.festival_id}/${edition.id}/import?tab=sets`}
+              >
                 <Upload className="h-4 w-4 mr-2" />
                 Import CSV
-              </Button>
-            </CSVImportDialog>
+              </Link>
+            </Button>
             <Button
               onClick={handleCreate}
               className="bg-purple-600 hover:bg-purple-700"

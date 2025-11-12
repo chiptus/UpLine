@@ -760,22 +760,32 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      bootstrap_super_admin: {
-        Args: { user_email: string };
-        Returns: boolean;
-      };
-      can_edit_artists: {
-        Args: { check_user_id: string };
-        Returns: boolean;
-      };
+      bootstrap_super_admin: { Args: { user_email: string }; Returns: boolean };
+      can_edit_artists: { Args: { check_user_id: string }; Returns: boolean };
       check_username_exists: {
         Args: { check_username: string; exclude_user_id?: string };
         Returns: boolean;
       };
-      get_user_id_by_email: {
-        Args: { user_email: string };
-        Returns: string;
-      };
+      duplicate_set_with_votes:
+        | {
+            Args: {
+              new_time_end: string;
+              new_time_start: string;
+              source_set_id: string;
+            };
+            Returns: string;
+          }
+        | {
+            Args: {
+              new_description?: string;
+              new_stage_id?: string;
+              new_time_end: string;
+              new_time_start: string;
+              source_set_id: string;
+            };
+            Returns: string;
+          };
+      get_user_id_by_email: { Args: { user_email: string }; Returns: string };
       has_admin_role: {
         Args: {
           check_role: Database["public"]["Enums"]["admin_role"];
@@ -783,16 +793,14 @@ export type Database = {
         };
         Returns: boolean;
       };
-      is_admin: {
-        Args: { check_user_id: string };
-        Returns: boolean;
-      };
-      is_group_creator: {
-        Args: { group_id_param: string };
-        Returns: boolean;
-      };
-      is_group_member: {
-        Args: { group_id_param: string };
+      is_admin: { Args: { check_user_id: string }; Returns: boolean };
+      is_group_creator: { Args: { group_id_param: string }; Returns: boolean };
+      is_group_member: { Args: { group_id_param: string }; Returns: boolean };
+      promote_user_to_admin: {
+        Args: {
+          target_role?: Database["public"]["Enums"]["admin_role"];
+          user_email: string;
+        };
         Returns: boolean;
       };
       use_invite_token: {

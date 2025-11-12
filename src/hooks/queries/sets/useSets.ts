@@ -6,6 +6,7 @@ import { Artist } from "../artists/useArtists";
 export type FestivalSet = Database["public"]["Tables"]["sets"]["Row"] & {
   artists: Artist[];
   votes: { vote_type: number; user_id: string }[];
+  stage_name?: string | null;
 };
 
 export type Stage = Database["public"]["Tables"]["stages"]["Row"];

@@ -228,13 +228,13 @@ async function importSingleSet({
       setSelection.matchedSetId
     ) {
       try {
-        createdSetId = await duplicateSetWithVotes(
-          setSelection.matchedSetId,
-          utcTimeStart!,
-          utcTimeEnd!,
-          stageId || null,
-          importedSet.description || null,
-        );
+        createdSetId = await duplicateSetWithVotes({
+          sourceSetId: setSelection.matchedSetId,
+          newTimeStart: utcTimeStart!,
+          newTimeEnd: utcTimeEnd!,
+          stageId: stageId,
+          description: importedSet.description,
+        });
       } catch (error) {
         setError = error as Error;
       }

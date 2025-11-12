@@ -21,6 +21,7 @@ import { useArtistsQuery } from "@/hooks/queries/artists/useArtists";
 import { StagesTabContent } from "@/pages/admin/festivals/CSVImportDialog/StagesTabContent";
 import { SetsTabContent } from "@/pages/admin/festivals/CSVImportDialog/SetsTabContent";
 import { ImportProgress } from "@/pages/admin/festivals/CSVImportDialog/ImportProgress";
+import { ImportResults } from "@/pages/admin/festivals/CSVImportDialog/ImportResults";
 import { StagesPreviewTable } from "@/pages/admin/festivals/CSVImportDialog/StagesPreviewTable";
 import {
   SetsPreviewTable,
@@ -66,6 +67,7 @@ export function CSVImportPage() {
   const [setsFile, setSetsFile] = useState<File | null>(null);
   const [timezone, setTimezone] = useState(getUserTimezone());
   const [progress, setProgress] = useState({ current: 0, total: 0, label: "" });
+  const [importResults, setImportResults] = useState<ImportResult[]>([]);
 
   const [stagesPreview, setStagesPreview] = useState<StageImportData[]>([]);
   const [setsPreview, setSetsPreview] = useState<SetImportData[]>([]);
@@ -204,6 +206,7 @@ export function CSVImportPage() {
     }
 
     setIsImporting(true);
+    setImportResults([]);
     const results: ImportResult[] = [];
 
     try {
@@ -266,8 +269,11 @@ export function CSVImportPage() {
 
       const successCount = results.filter((r) => r.success).length;
       const failureCount = results.filter((r) => !r.success).length;
+      const allErrors = results.flatMap((r) => r.errors || []);
 
-      if (successCount > 0 && failureCount === 0) {
+      setImportResults(results);
+
+      if (successCount > 0 && failureCount === 0 && allErrors.length === 0) {
         toast({
           title: "Import successful",
           description: results.map((r) => r.message).join(". "),
@@ -282,10 +288,11 @@ export function CSVImportPage() {
         setStagesPreview([]);
         setSetsPreview([]);
         setProgress({ current: 0, total: 0, label: "" });
+        setImportResults([]);
       } else {
         toast({
           title: "Import completed with issues",
-          description: results.map((r) => r.message).join(". "),
+          description: `${results.map((r) => r.message).join(". ")}${allErrors.length > 0 ? ` See details below for ${allErrors.length} error${allErrors.length === 1 ? "" : "s"}.` : ""}`,
           variant: failureCount > 0 ? "destructive" : "default",
         });
       }
@@ -423,6 +430,8 @@ export function CSVImportPage() {
             </Tabs>
 
             <ImportProgress progress={progress} isImporting={isImporting} />
+
+            <ImportResults results={importResults} />
 
             <div className="flex justify-end gap-2 pt-4 mt-6 border-t">
               <Button

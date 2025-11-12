@@ -74,6 +74,3 @@ $$;
 
 -- Grant execute permission to authenticated users
 GRANT EXECUTE ON FUNCTION duplicate_set_with_votes(uuid, timestamp with time zone, timestamp with time zone, uuid, text) TO authenticated;
-
--- Keep backward compatibility by granting permission to the old signature as well
-GRANT EXECUTE ON FUNCTION duplicate_set_with_votes(uuid, timestamp with time zone, timestamp with time zone) TO authenticated;

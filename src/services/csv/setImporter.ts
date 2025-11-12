@@ -214,6 +214,7 @@ async function importSingleSet({
       const { error } = await supabase
         .from("sets")
         .update({
+          stage_id: stageId || null,
           time_start: utcTimeStart,
           time_end: utcTimeEnd,
           description: importedSet.description || null,
@@ -231,6 +232,8 @@ async function importSingleSet({
           setSelection.matchedSetId,
           utcTimeStart!,
           utcTimeEnd!,
+          stageId || null,
+          importedSet.description || null,
         );
       } catch (error) {
         setError = error as Error;

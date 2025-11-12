@@ -54,15 +54,25 @@ export async function findMatchingSets({
           (sa: { artists: { name: string } | null } | null) =>
             sa?.artists?.name,
         )
-        .filter((name): name is string => name !== null && name !== undefined)
-        .sort();
+        .filter((name): name is string => name !== null && name !== undefined);
 
-      const csvArtistNamesSorted = [...artistNames].sort();
+      function normalizeArtistName(name: string) {
+        return name
+          .toLowerCase()
+          .trim()
+          .replace(/[.,;!?]+$/, "");
+      }
+
+      const csvArtistNamesLower = artistNames.map(normalizeArtistName);
+      const setArtistNamesLower = setArtistNames.map(normalizeArtistName);
+
+      csvArtistNamesLower.sort();
+      setArtistNamesLower.sort();
 
       const artistsMatch =
-        setArtistNames.length === csvArtistNamesSorted.length &&
-        setArtistNames.every(
-          (name: string, idx: number) => name === csvArtistNamesSorted[idx],
+        setArtistNamesLower.length === csvArtistNamesLower.length &&
+        setArtistNamesLower.every(
+          (name: string, idx: number) => name === csvArtistNamesLower[idx],
         );
 
       if (artistsMatch) {
@@ -79,40 +89,6 @@ export async function findMatchingSets({
           vote_count: voteCount || 0,
           time_start: existingSet.time_start,
         });
-      }
-    }
-
-    if (matches.length === 0 && set.stage_name) {
-      for (const existingSet of existingSets) {
-        if (!existingSet.set_artists || existingSet.set_artists.length === 0) {
-          continue;
-        }
-
-        const stageName = existingSet.stages?.name;
-        if (stageName === set.stage_name) {
-          const setArtistNames = existingSet.set_artists
-            .map(
-              (sa: { artists: { name: string } | null } | null) =>
-                sa?.artists?.name,
-            )
-            .filter(
-              (name): name is string => name !== null && name !== undefined,
-            );
-
-          const { count: voteCount } = await supabase
-            .from("votes")
-            .select("*", { count: "exact", head: true })
-            .eq("set_id", existingSet.id);
-
-          matches.push({
-            id: existingSet.id,
-            name: existingSet.name,
-            stage_name: stageName || null,
-            artist_names: setArtistNames,
-            vote_count: voteCount || 0,
-            time_start: existingSet.time_start,
-          });
-        }
       }
     }
 

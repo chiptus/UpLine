@@ -1,7 +1,6 @@
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
@@ -14,14 +13,81 @@ import {
   validateSetData,
   type SetValidationResult,
 } from "@/services/csv/timeValidator";
-import { cn } from "@/lib/utils";
+import { useState, useEffect, useMemo } from "react";
+import { useArtistsQuery } from "@/hooks/queries/artists/useArtists";
+import { useMatchingSetsQuery } from "@/hooks/queries/sets/useMatchingSetsQuery";
+import { SetPreviewRow } from "./SetPreviewRow";
+
+export interface ArtistSelection {
+  csvName: string;
+  artistId: string | null;
+  isCreating: boolean;
+}
 
 interface SetsPreviewTableProps {
   sets: SetImportData[];
   timezone: string;
+  editionId: string;
+  onArtistSelectionsChange?: (
+    selections: Map<number, ArtistSelection[]>,
+  ) => void;
 }
 
-export function SetsPreviewTable({ sets, timezone }: SetsPreviewTableProps) {
+export function SetsPreviewTable({
+  sets,
+  timezone,
+  editionId,
+  onArtistSelectionsChange,
+}: SetsPreviewTableProps) {
+  const [artistSelections, setArtistSelections] = useState<
+    Map<number, ArtistSelection[]>
+  >(new Map());
+
+  const artistsQuery = useArtistsQuery();
+  const matchingSetsQuery = useMatchingSetsQuery(sets, editionId);
+
+  const allArtists = useMemo(
+    () => artistsQuery.data || [],
+    [artistsQuery.data],
+  );
+  const matchingSets = matchingSetsQuery.data || new Map();
+  const isLoadingMatches = matchingSetsQuery.isLoading;
+
+  const artistsByName = useMemo(() => {
+    const map = new Map<string, string>();
+    allArtists.forEach((artist) => {
+      map.set(artist.name.toLowerCase(), artist.id);
+    });
+    return map;
+  }, [allArtists]);
+
+  useEffect(() => {
+    if (!matchingSetsQuery.data) return;
+
+    const initialSelections = new Map<number, ArtistSelection[]>();
+    sets.forEach((set, index) => {
+      const artistNames = set.artist_names
+        .split(",")
+        .map((name) => name.trim())
+        .filter((name) => name.length > 0);
+
+      const selections: ArtistSelection[] = artistNames.map((csvName) => {
+        const artistId = artistsByName.get(csvName.toLowerCase());
+
+        return {
+          csvName,
+          artistId: artistId || null,
+          isCreating: !artistId,
+        };
+      });
+
+      initialSelections.set(index, selections);
+    });
+
+    setArtistSelections(initialSelections);
+    onArtistSelectionsChange?.(initialSelections);
+  }, [sets, artistsByName, matchingSetsQuery.data, onArtistSelectionsChange]);
+
   if (sets.length === 0) {
     return null;
   }
@@ -36,6 +102,35 @@ export function SetsPreviewTable({ sets, timezone }: SetsPreviewTableProps) {
   const hasSeparateDateFields = sets.some(
     (set) => set.date_start !== undefined || set.date_end !== undefined,
   );
+
+  function handleArtistSelectionChange(
+    setIndex: number,
+    artistIndex: number,
+    value: string,
+  ) {
+    const currentSelections = artistSelections.get(setIndex) || [];
+    const newSelections = [...currentSelections];
+    const selection = newSelections[artistIndex];
+
+    if (value === "create") {
+      newSelections[artistIndex] = {
+        ...selection,
+        artistId: null,
+        isCreating: true,
+      };
+    } else {
+      newSelections[artistIndex] = {
+        ...selection,
+        artistId: value,
+        isCreating: false,
+      };
+    }
+
+    const newMap = new Map(artistSelections);
+    newMap.set(setIndex, newSelections);
+    setArtistSelections(newMap);
+    onArtistSelectionsChange?.(newMap);
+  }
 
   return (
     <Card>
@@ -84,101 +179,24 @@ export function SetsPreviewTable({ sets, timezone }: SetsPreviewTableProps) {
                 )}
                 <TableHead>Set Name</TableHead>
                 <TableHead>Description</TableHead>
+                <TableHead>Matching Set</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sets.map((set, index) => {
-                const validation = validationResults[index];
-                const hasErrors = !validation.isValid;
-
-                return (
-                  <TableRow
-                    key={index}
-                    className={cn(hasErrors && "bg-destructive/5")}
-                  >
-                    <TableCell className="font-mono text-sm text-muted-foreground">
-                      {index + 1}
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div>{set.stage_name || "-"}</div>
-                        {validation.errors.stage_name && (
-                          <div className="text-xs text-destructive">
-                            {validation.errors.stage_name}
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div>{set.artist_names}</div>
-                        {validation.errors.artist_names && (
-                          <div className="text-xs text-destructive">
-                            {validation.errors.artist_names}
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    {hasSeparateDateFields ? (
-                      <>
-                        <TableCell className="font-mono text-sm">
-                          <div>{set.date_start || "-"}</div>
-                        </TableCell>
-                        <TableCell className="font-mono text-sm">
-                          <div className="space-y-1">
-                            <div>{set.time_start || "-"}</div>
-                            {validation.errors.time_start && (
-                              <div className="text-xs text-destructive">
-                                {validation.errors.time_start}
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell className="font-mono text-sm">
-                          <div>{set.date_end || "-"}</div>
-                        </TableCell>
-                        <TableCell className="font-mono text-sm">
-                          <div className="space-y-1">
-                            <div>{set.time_end || "-"}</div>
-                            {validation.errors.time_end && (
-                              <div className="text-xs text-destructive">
-                                {validation.errors.time_end}
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                      </>
-                    ) : (
-                      <>
-                        <TableCell className="font-mono text-sm">
-                          <div className="space-y-1">
-                            <div>{set.time_start || "-"}</div>
-                            {validation.errors.time_start && (
-                              <div className="text-xs text-destructive">
-                                {validation.errors.time_start}
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell className="font-mono text-sm">
-                          <div className="space-y-1">
-                            <div>{set.time_end || "-"}</div>
-                            {validation.errors.time_end && (
-                              <div className="text-xs text-destructive">
-                                {validation.errors.time_end}
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                      </>
-                    )}
-                    <TableCell>{set.name || "-"}</TableCell>
-                    <TableCell className="max-w-xs truncate">
-                      {set.description || "-"}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+              {sets.map((set, index) => (
+                <SetPreviewRow
+                  key={index}
+                  set={set}
+                  index={index}
+                  validation={validationResults[index]}
+                  hasSeparateDateFields={hasSeparateDateFields}
+                  matchingSet={matchingSets.get(index) || null}
+                  artistSelections={artistSelections.get(index) || []}
+                  allArtists={allArtists}
+                  isLoadingMatches={isLoadingMatches}
+                  onArtistSelectionChange={handleArtistSelectionChange}
+                />
+              ))}
             </TableBody>
           </Table>
         </div>

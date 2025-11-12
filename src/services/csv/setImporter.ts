@@ -11,10 +11,16 @@ function generateSetNameFromArtists(artistNames: string[]): string {
   return `${artistNames[0]} & ${artistNames.length - 1} others`;
 }
 
+export interface ArtistMapping {
+  csvName: string;
+  artistId: string | null;
+  shouldCreate: boolean;
+}
+
 async function importSetsWithArtistMap(
   sets: SetImportData[],
   editionId: string,
-  artistIdMap: Map<string, string>,
+  artistMappings: Map<number, ArtistMapping[]>,
   timezone: string = "UTC",
   onProgress?: (completed: number, total: number) => void,
 ): Promise<ImportResult> {
@@ -28,55 +34,48 @@ async function importSetsWithArtistMap(
   for (let i = 0; i < sets.length; i++) {
     const set = sets[i];
     try {
-      // Parse artist names
-      const artistNames = set.artist_names
-        .split(",")
-        .map((name) => name.trim())
-        .filter((name) => name.length > 0);
-
-      if (artistNames.length === 0) {
-        errors.push(`Set "${set.name || "Unnamed"}" has no artists specified`);
+      const setMappings = artistMappings.get(i);
+      if (!setMappings || setMappings.length === 0) {
+        errors.push(`Set "${set.name || "Unnamed"}" has no artist mappings`);
         continue;
       }
 
-      // Generate set name if not provided
+      const artistNames = setMappings.map((m) => m.csvName);
       const setName = set.name || generateSetNameFromArtists(artistNames);
 
-      // Get artist IDs from the resolved map or try to find existing ones
       const artistIds: string[] = [];
-      console.log(`Processing set "${setName}" with artists:`, artistNames);
 
-      for (const artistName of artistNames) {
-        let artistId = artistIdMap.get(artistName);
-        console.log(
-          `Looking for artist "${artistName}":`,
-          artistId ? `Found in map: ${artistId}` : "Not in map",
-        );
+      for (const mapping of setMappings) {
+        let artistId = mapping.artistId;
 
-        if (!artistId) {
-          // Try to find existing artist as fallback
-          const { data: existingArtist } = await supabase
+        if (!artistId && mapping.shouldCreate) {
+          const { data: newArtist, error: createError } = await supabase
             .from("artists")
+            .insert({
+              name: mapping.csvName,
+              slug: generateSlug(mapping.csvName),
+              added_by: userId,
+            })
             .select("id")
-            .eq("name", artistName)
-            .limit(1);
+            .single();
 
-          if (existingArtist && existingArtist.length > 0) {
-            artistId = existingArtist[0].id;
-            console.log(`Found existing artist "${artistName}": ${artistId}`);
-          } else {
-            errors.push(`Artist "${artistName}" could not be resolved`);
-            console.error(
-              `Artist "${artistName}" could not be resolved - not in map and not found in database`,
+          if (createError || !newArtist) {
+            errors.push(
+              `Failed to create artist "${mapping.csvName}": ${createError?.message || "No ID"}`,
             );
             continue;
           }
+
+          artistId = newArtist.id;
+        }
+
+        if (!artistId) {
+          errors.push(`Artist "${mapping.csvName}" could not be resolved`);
+          continue;
         }
 
         artistIds.push(artistId);
       }
-
-      console.log(`Final artist IDs for set "${setName}":`, artistIds);
 
       if (artistIds.length === 0) {
         errors.push(`Set "${set.name || "Unnamed"}" has no valid artists`);
@@ -230,11 +229,44 @@ export async function importSets(
   timezone: string = "UTC",
   onProgress?: (completed: number, total: number) => void,
 ): Promise<ImportResult> {
-  // Use the artistMap version but with an empty map (original behavior)
+  const mappings = new Map<number, ArtistMapping[]>();
+
+  sets.forEach((set, index) => {
+    const artistNames = set.artist_names
+      .split(",")
+      .map((name) => name.trim())
+      .filter((name) => name.length > 0);
+
+    mappings.set(
+      index,
+      artistNames.map((csvName) => ({
+        csvName,
+        artistId: null,
+        shouldCreate: true,
+      })),
+    );
+  });
+
   return importSetsWithArtistMap(
     sets,
     editionId,
-    new Map(),
+    mappings,
+    timezone,
+    onProgress,
+  );
+}
+
+export async function importSetsWithMappings(
+  sets: SetImportData[],
+  editionId: string,
+  artistMappings: Map<number, ArtistMapping[]>,
+  timezone: string = "UTC",
+  onProgress?: (completed: number, total: number) => void,
+): Promise<ImportResult> {
+  return importSetsWithArtistMap(
+    sets,
+    editionId,
+    artistMappings,
     timezone,
     onProgress,
   );

@@ -6,7 +6,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Upload, Loader2, ArrowLeft } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { importStages } from "@/services/csv/stageImporter";
-import { importSets } from "@/services/csv/setImporter";
+import {
+  importSetsWithMappings,
+  type ArtistMapping,
+} from "@/services/csv/setImporter";
 import {
   parseStagesCSV,
   parseSetsCSV,
@@ -19,7 +22,10 @@ import { StagesTabContent } from "@/pages/admin/festivals/CSVImportDialog/Stages
 import { SetsTabContent } from "@/pages/admin/festivals/CSVImportDialog/SetsTabContent";
 import { ImportProgress } from "@/pages/admin/festivals/CSVImportDialog/ImportProgress";
 import { StagesPreviewTable } from "@/pages/admin/festivals/CSVImportDialog/StagesPreviewTable";
-import { SetsPreviewTable } from "@/pages/admin/festivals/CSVImportDialog/SetsPreviewTable";
+import {
+  SetsPreviewTable,
+  type ArtistSelection,
+} from "@/pages/admin/festivals/CSVImportDialog/SetsPreviewTable";
 import { useFestivalsQuery } from "@/hooks/queries/festivals/useFestivals";
 import { useFestivalEditionsForFestivalQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionsForFestival";
 import {
@@ -61,6 +67,9 @@ export function CSVImportPage() {
 
   const [stagesPreview, setStagesPreview] = useState<StageImportData[]>([]);
   const [setsPreview, setSetsPreview] = useState<SetImportData[]>([]);
+  const [artistSelections, setArtistSelections] = useState<
+    Map<number, ArtistSelection[]>
+  >(new Map());
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -209,9 +218,22 @@ export function CSVImportPage() {
         const setsContent = await readFileAsText(setsFile);
         const setsData = parseSetsCSV(setsContent);
 
-        const setsResult = await importSets(
+        const artistMappings = new Map<number, ArtistMapping[]>();
+        artistSelections.forEach((selections, index) => {
+          artistMappings.set(
+            index,
+            selections.map((sel) => ({
+              csvName: sel.csvName,
+              artistId: sel.artistId,
+              shouldCreate: sel.isCreating,
+            })),
+          );
+        });
+
+        const setsResult = await importSetsWithMappings(
           setsData,
           selectedEditionId,
+          artistMappings,
           timezone,
           (current, total) => {
             setProgress({
@@ -370,8 +392,13 @@ export function CSVImportPage() {
                   onSetsFileChange={(e) => handleFileChange(e, "sets")}
                   onTimezoneChange={setTimezone}
                 />
-                {setsPreview.length > 0 && (
-                  <SetsPreviewTable sets={setsPreview} timezone={timezone} />
+                {setsPreview.length > 0 && selectedEditionId && (
+                  <SetsPreviewTable
+                    sets={setsPreview}
+                    timezone={timezone}
+                    editionId={selectedEditionId}
+                    onArtistSelectionsChange={setArtistSelections}
+                  />
                 )}
               </TabsContent>
             </Tabs>

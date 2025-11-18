@@ -20,7 +20,8 @@ export interface FilterSortState {
   groupId?: string;
   invite?: string;
   sortLocked?: boolean;
-  votePerspective?: string; // For filtering votes by group
+  votePerspective?: string;
+  showConflictsOnly?: boolean;
 }
 
 const defaultState: FilterSortState = {
@@ -34,6 +35,7 @@ const defaultState: FilterSortState = {
   invite: undefined,
   sortLocked: false,
   votePerspective: undefined,
+  showConflictsOnly: false,
 };
 
 export function useUrlState() {
@@ -62,6 +64,9 @@ export function useUrlState() {
         searchParams.get("sortLocked") === "true" || defaultState.sortLocked,
       votePerspective:
         searchParams.get("votePerspective") || defaultState.votePerspective,
+      showConflictsOnly:
+        searchParams.get("showConflictsOnly") === "true" ||
+        defaultState.showConflictsOnly,
     };
   }, [searchParams]);
 
@@ -102,6 +107,9 @@ export function useUrlState() {
       }
       if (newState.votePerspective) {
         newParams.set("votePerspective", newState.votePerspective);
+      }
+      if (newState.showConflictsOnly) {
+        newParams.set("showConflictsOnly", newState.showConflictsOnly.toString());
       }
 
       setSearchParams(newParams, { replace: true });

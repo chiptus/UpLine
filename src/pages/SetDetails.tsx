@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom";
+import { useMemo } from "react";
 import { ArtistImageCard } from "./SetDetails/SetImageCard";
 import { MixedArtistImage } from "./SetDetails/MixedArtistImage";
 import { SetInfoCard } from "./SetDetails/SetInfoCard";
@@ -15,6 +16,9 @@ import { useVoteCount } from "@/hooks/useVoteCount";
 import { PageTitle } from "@/components/PageTitle/PageTitle";
 import { TopBar } from "@/components/layout/TopBar";
 import { FestivalIndicator } from "@/components/layout/AppHeader/FestivalIndicator";
+import { useSetsByEditionQuery } from "@/hooks/queries/sets/useSetsByEdition";
+import { findConflictingSets } from "@/lib/scheduleConflicts";
+import { ConflictsWarning } from "@/components/SchedulePhase/ConflictsWarning";
 
 export function SetDetails() {
   const { user } = useAuth();
@@ -25,6 +29,15 @@ export function SetDetails() {
     slug: setSlug,
     editionId: edition?.id,
   });
+
+  const { data: allSets = [] } = useSetsByEditionQuery(edition?.id);
+
+  const conflictingSets = useMemo(() => {
+    if (!setQuery.data || !allSets.length) return [];
+
+    const conflictingIds = findConflictingSets(setQuery.data, allSets);
+    return allSets.filter((set) => conflictingIds.includes(set.id));
+  }, [setQuery.data, allSets]);
 
   const { getVoteCount } = useVoteCount(setQuery.data);
 
@@ -54,6 +67,13 @@ export function SetDetails() {
               logoUrl={festival?.logo_url}
             />
           </TopBar>
+
+          {conflictingSets.length > 0 && (
+            <ConflictsWarning
+              conflictingSets={conflictingSets}
+              currentSetName={currentSet.name}
+            />
+          )}
 
           {/* Set Header */}
           {isMultiArtistSet ? (

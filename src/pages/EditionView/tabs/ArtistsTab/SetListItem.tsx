@@ -3,8 +3,17 @@ import { SetImage } from "./SetCard/SetImage";
 import { SetMetadata } from "./SetCard/SetMetadata";
 import { SetDescription } from "./SetCard/SetDescription";
 import { SetVotingButtons } from "./SetCard/SetVotingButtons";
+import { ConflictBadge } from "@/components/SchedulePhase/ConflictBadge";
 
-export function SetListItem() {
+interface SetListItemProps {
+  conflictCount?: number;
+  showScheduleInfo?: boolean;
+}
+
+export function SetListItem({
+  conflictCount = 0,
+  showScheduleInfo = false,
+}: SetListItemProps) {
   return (
     <div
       className="bg-white/10 backdrop-blur-md border-purple-400/30 hover:bg-white/15 transition-all duration-300 rounded-lg p-4"
@@ -16,7 +25,12 @@ export function SetListItem() {
           <SetImage size="sm" />
           <div className="flex-1 min-w-0">
             <SetHeader size="sm" />
-            <SetMetadata />
+            <div className="flex items-center gap-2 flex-wrap">
+              <SetMetadata />
+              {showScheduleInfo && conflictCount > 0 && (
+                <ConflictBadge conflictCount={conflictCount} />
+              )}
+            </div>
           </div>
         </div>
 
@@ -36,7 +50,12 @@ export function SetListItem() {
             <div className="flex-1 min-w-0">
               <SetHeader size="sm" />
 
-              <SetMetadata />
+              <div className="flex items-center gap-2 flex-wrap">
+                <SetMetadata />
+                {showScheduleInfo && conflictCount > 0 && (
+                  <ConflictBadge conflictCount={conflictCount} />
+                )}
+              </div>
             </div>
           </div>
 

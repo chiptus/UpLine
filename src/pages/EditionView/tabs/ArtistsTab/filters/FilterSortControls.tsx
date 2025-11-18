@@ -8,12 +8,15 @@ import { GroupFilterDropdown } from "./GroupFilterDropdown";
 import { FilterToggle } from "@/components/filters/FilterToggle";
 import { FilterContainer } from "@/components/filters/FilterContainer";
 import { RefreshButton } from "./RefreshButton";
+import { ConflictsToggle } from "./ConflictsToggle";
 
 interface FilterSortControlsProps {
   state: FilterSortState;
   onStateChange: (updates: Partial<FilterSortState>) => void;
   onClear: () => void;
   editionId: string;
+  conflictCount?: number;
+  showConflictsToggle?: boolean;
 }
 
 export function FilterSortControls({
@@ -21,6 +24,8 @@ export function FilterSortControls({
   onStateChange,
   onClear,
   editionId,
+  conflictCount = 0,
+  showConflictsToggle = false,
 }: FilterSortControlsProps) {
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -63,6 +68,15 @@ export function FilterSortControls({
           )}
 
           <div className="ml-auto" />
+
+          {showConflictsToggle && (
+            <ConflictsToggle
+              showConflictsOnly={state.showConflictsOnly || false}
+              onToggle={(value) => onStateChange({ showConflictsOnly: value })}
+              conflictCount={conflictCount}
+            />
+          )}
+
           <GroupFilterDropdown
             selectedGroupId={state.groupId}
             onGroupChange={(groupId) => onStateChange({ groupId })}

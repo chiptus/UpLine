@@ -6,6 +6,7 @@ import { useGroupMembersQuery } from "@/hooks/queries/groups/useGroupMembers";
 export function useSetFiltering(
   sets: FestivalSet[],
   filterSortState: FilterSortState,
+  conflicts?: Map<string, string[]>,
 ) {
   const groupMembersQuery = useGroupMembersQuery(
     filterSortState?.groupId || "",
@@ -90,6 +91,12 @@ export function useSetFiltering(
           if (rating < filterSortState.minRating) return false;
         }
 
+        // Conflicts filter
+        if (filterSortState.showConflictsOnly && conflicts) {
+          const hasConflict = conflicts.has(set.id);
+          if (!hasConflict) return false;
+        }
+
         return true;
       });
 
@@ -151,7 +158,7 @@ export function useSetFiltering(
     }
 
     return filtered;
-  }, [sets, filterSortState, groupMemberIds, lockedOrder]);
+  }, [sets, filterSortState, groupMemberIds, lockedOrder, conflicts]);
 
   // Update locked order when sort is unlocked
   useEffect(() => {

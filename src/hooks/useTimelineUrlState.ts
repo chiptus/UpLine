@@ -9,6 +9,7 @@ export interface TimelineState {
   selectedDay: string; // Dynamic based on festival dates
   selectedTime: TimeFilter;
   selectedStages: string[];
+  jumpToTime?: string; // ISO format: YYYY-MM-DDTHH:mm
 }
 
 const defaultState: TimelineState = {
@@ -16,6 +17,7 @@ const defaultState: TimelineState = {
   selectedDay: "all",
   selectedTime: "all",
   selectedStages: [],
+  jumpToTime: undefined,
 };
 
 export function useTimelineUrlState() {
@@ -31,6 +33,7 @@ export function useTimelineUrlState() {
       selectedStages:
         searchParams.get("stages")?.split(",").filter(Boolean) ||
         defaultState.selectedStages,
+      jumpToTime: searchParams.get("jumpTo") || undefined,
     };
   }, [searchParams]);
 
@@ -53,6 +56,9 @@ export function useTimelineUrlState() {
       }
       if (newState.selectedStages.length > 0) {
         newParams.set("stages", newState.selectedStages.join(","));
+      }
+      if (newState.jumpToTime) {
+        newParams.set("jumpTo", newState.jumpToTime);
       }
 
       setSearchParams(newParams, { replace: true });

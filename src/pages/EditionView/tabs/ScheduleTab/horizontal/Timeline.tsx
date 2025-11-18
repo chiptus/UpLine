@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { useScheduleData } from "@/hooks/useScheduleData";
 import { calculateTimelineData } from "@/lib/timelineCalculator";
 import { StageLabels } from "./StageLabels";
@@ -19,8 +19,12 @@ export function Timeline() {
     editionSets,
     stagesQuery.data,
   );
-  const { state: filters } = useTimelineUrlState();
-  const { selectedDay, selectedTime, selectedStages } = filters;
+  const { state: filters, updateState } = useTimelineUrlState();
+  const { selectedDay, selectedTime, selectedStages, jumpToTime } = filters;
+
+  const handleScrollComplete = useCallback(() => {
+    updateState({ jumpToTime: undefined });
+  }, [updateState]);
 
   const timelineData = useMemo(() => {
     if (!edition || !edition.start_date || !edition.end_date) {
@@ -122,7 +126,11 @@ export function Timeline() {
     <div className="space-y-8">
       <div className="relative bg-white/5 rounded-lg p-4">
         <StageLabels stages={timelineData.stages} />
-        <TimelineContainer timelineData={timelineData} />
+        <TimelineContainer
+          timelineData={timelineData}
+          jumpToTime={jumpToTime}
+          onScrollComplete={handleScrollComplete}
+        />
       </div>
     </div>
   );

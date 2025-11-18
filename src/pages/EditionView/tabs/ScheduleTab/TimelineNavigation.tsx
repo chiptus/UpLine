@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Clock, Sun, Sunset, Calendar } from "lucide-react";
+import { Clock, Sun, Sunset } from "lucide-react";
 import { StageFilterButtons } from "./StageFilterButtons";
 
 interface TimelineNavigationProps {
@@ -15,7 +15,7 @@ export function TimelineNavigation({
   onJumpToToday,
   onJumpToTime,
 }: TimelineNavigationProps) {
-  function handleJumpToToday() {
+  function handleJumpToNow() {
     onJumpToToday?.();
   }
 
@@ -34,11 +34,11 @@ export function TimelineNavigation({
           <Button
             variant="outline"
             size="sm"
-            onClick={handleJumpToToday}
+            onClick={handleJumpToNow}
             className="border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white"
           >
-            <Calendar className="h-3 w-3 mr-2" />
-            Jump to Today
+            <Clock className="h-3 w-3 mr-2" />
+            Jump to Now
           </Button>
           <Button
             variant="outline"

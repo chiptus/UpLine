@@ -1,14 +1,40 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { TimeScale } from "./TimeScale";
 import { StageRow } from "./StageRow";
 import type { TimelineData } from "@/lib/timelineCalculator";
+import { differenceInMinutes } from "date-fns";
 
 interface TimelineContainerProps {
   timelineData: TimelineData;
+  jumpToTime?: string;
+  onScrollComplete?: () => void;
 }
 
-export function TimelineContainer({ timelineData }: TimelineContainerProps) {
+export function TimelineContainer({
+  timelineData,
+  jumpToTime,
+  onScrollComplete,
+}: TimelineContainerProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!jumpToTime || !scrollContainerRef.current) return;
+
+    const targetTime = new Date(jumpToTime);
+    const { festivalStart } = timelineData;
+
+    const minutesFromStart = differenceInMinutes(targetTime, festivalStart);
+    const scrollPosition = minutesFromStart * 2;
+
+    scrollContainerRef.current.scrollTo({
+      left: scrollPosition,
+      behavior: "smooth",
+    });
+
+    if (onScrollComplete) {
+      setTimeout(onScrollComplete, 500);
+    }
+  }, [jumpToTime, timelineData, onScrollComplete]);
 
   return (
     <div

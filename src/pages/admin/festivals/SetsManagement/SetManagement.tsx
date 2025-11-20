@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useOutletContext } from "@tanstack/react-router";
+import { Link, useRouteContext } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Plus, Music, Upload } from "lucide-react";
@@ -14,7 +14,7 @@ interface SetManagementProps {}
 
 export function SetManagement(_props: SetManagementProps) {
   // All hooks must be at the top level
-  const { edition } = useOutletContext<{ edition: FestivalEdition }>();
+  const { edition } = useRouteContext({ strict: false }) as { edition: FestivalEdition };
   const { data: sets = [], isLoading } = useSetsQuery();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSet, setEditingSet] = useState<FestivalSet | null>(null);

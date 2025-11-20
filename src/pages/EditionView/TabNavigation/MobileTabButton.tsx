@@ -1,16 +1,19 @@
-import { NavLink } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { TabButtonProps } from "./types";
 
 export function MobileTabButton({ config, basePath }: TabButtonProps) {
   return (
-    <NavLink
+    <Link
       key={config.key}
       to={`${basePath}/${config.key}`}
-      className={({ isActive }) => `
-        flex-1 flex flex-col items-center justify-center
-        py-2 px-1 transition-colors duration-200 min-h-16
-        ${isActive ? "text-purple-400" : "text-gray-400 active:text-purple-300"}
-      `}
+      activeProps={{
+        className: `flex-1 flex flex-col items-center justify-center
+          py-2 px-1 transition-colors duration-200 min-h-16 text-purple-400`,
+      }}
+      inactiveProps={{
+        className: `flex-1 flex flex-col items-center justify-center
+          py-2 px-1 transition-colors duration-200 min-h-16 text-gray-400 active:text-purple-300`,
+      }}
     >
       {({ isActive }) => (
         <>
@@ -24,6 +27,6 @@ export function MobileTabButton({ config, basePath }: TabButtonProps) {
           </span>
         </>
       )}
-    </NavLink>
+    </Link>
   );
 }

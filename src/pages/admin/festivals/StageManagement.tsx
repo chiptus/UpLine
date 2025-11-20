@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useOutletContext } from "@tanstack/react-router";
+import { Link, useRouteContext } from "@tanstack/react-router";
 import { useStagesByEditionQuery } from "@/hooks/queries/stages/useStagesByEdition";
 import { FestivalEdition } from "@/hooks/queries/festivals/editions/types";
 import { useDeleteStageMutation } from "@/hooks/queries/stages/useDeleteStage";
@@ -14,7 +14,7 @@ import { EditStageDialog } from "./StageManagement/EditStageDialog";
 interface StageManagementProps {}
 
 export function StageManagement(_props: StageManagementProps) {
-  const { edition } = useOutletContext<{ edition: FestivalEdition }>();
+  const { edition } = useRouteContext({ strict: false }) as { edition: FestivalEdition };
   const { data: stages = [], isLoading } = useStagesByEditionQuery(edition.id);
   const deleteStageMutation = useDeleteStageMutation();
 

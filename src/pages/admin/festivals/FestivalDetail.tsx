@@ -40,7 +40,7 @@ export default function FestivalDetail() {
   }
 
   function handleEditionSelect(editionSlug: string | undefined) {
-    if (!editionSlug) return;
+    if (!editionSlug || !festivalSlug) return;
     navigate({
       to: "/admin/festivals/$festivalSlug/editions/$editionSlug/stages",
       params: { festivalSlug, editionSlug },

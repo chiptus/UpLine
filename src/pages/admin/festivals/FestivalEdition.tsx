@@ -6,10 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useFestivalEditionBySlugQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionBySlug";
 
 export default function FestivalEdition() {
-  const { festivalSlug, editionSlug } = useParams<{
-    festivalSlug: string;
-    editionSlug: string;
-  }>();
+  const { festivalSlug, editionSlug } = useParams({ strict: false });
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -110,7 +107,7 @@ export default function FestivalEdition() {
         </TabsList>
 
         <div className="mt-6">
-          <Outlet context={{ edition: currentEdition }} />
+          <Outlet />
         </div>
       </Tabs>
     </div>

@@ -74,7 +74,7 @@ export function SetManagement(_props: SetManagementProps) {
           <div className="flex gap-2">
             <Button variant="outline" asChild>
               <Link
-                to={`/admin/festivals/${edition.festival_id}/${edition.id}/import?tab=sets`}
+                to={`/admin/festivals/${edition.festival_id}/${edition.id}/import?tab=sets` as any}
               >
                 <Upload className="h-4 w-4 mr-2" />
                 Import CSV

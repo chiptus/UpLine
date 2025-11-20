@@ -5,12 +5,12 @@ export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug/schedule",
 )({
   component: ScheduleTab,
-  beforeLoad: ({ location }) => {
+  beforeLoad: ({ params, location }) => {
     if (location.pathname.endsWith("/schedule")) {
       throw redirect({
         to: "/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline",
-        params: location.params,
-        search: location.search,
+        params,
+        search: location.search as Record<string, unknown>,
       });
     }
   },

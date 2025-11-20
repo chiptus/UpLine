@@ -35,7 +35,10 @@ export default function EditionSelection() {
       const festivalSlug = festival.slug;
 
       if (subdomainInfo.isSubdomain) {
-        navigate({ to: "/editions/$editionSlug", params: { editionSlug } });
+        navigate({
+          to: "/festivals/$festivalSlug/editions/$editionSlug",
+          params: { festivalSlug, editionSlug },
+        });
       } else {
         navigate({
           to: "/festivals/$festivalSlug/editions/$editionSlug",

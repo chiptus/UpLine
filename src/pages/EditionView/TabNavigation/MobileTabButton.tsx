@@ -5,7 +5,7 @@ export function MobileTabButton({ config, basePath }: TabButtonProps) {
   return (
     <Link
       key={config.key}
-      to={`${basePath}/${config.key}`}
+      to={`${basePath}/${config.key}` as any}
       activeProps={{
         className: `flex-1 flex flex-col items-center justify-center
           py-2 px-1 transition-colors duration-200 min-h-16 text-purple-400`,

@@ -8,10 +8,7 @@ import { useFestivalBySlugQuery } from "@/hooks/queries/festivals/useFestivalByS
 import { Loader2, Info, ChevronDown, ChevronUp } from "lucide-react";
 
 export default function FestivalDetail() {
-  const { festivalSlug, editionSlug = "" } = useParams<{
-    festivalSlug: string;
-    editionSlug?: string;
-  }>();
+  const { festivalSlug, editionSlug = "" } = useParams({ strict: false });
   const [showFestivalInfo, setShowFestivalInfo] = useState(false);
   const navigate = useNavigate();
 
@@ -42,7 +39,8 @@ export default function FestivalDetail() {
     );
   }
 
-  function handleEditionSelect(editionSlug: string) {
+  function handleEditionSelect(editionSlug: string | undefined) {
+    if (!editionSlug) return;
     navigate({
       to: "/admin/festivals/$festivalSlug/editions/$editionSlug/stages",
       params: { festivalSlug, editionSlug },

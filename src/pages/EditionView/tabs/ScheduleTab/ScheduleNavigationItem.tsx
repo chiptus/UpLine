@@ -18,7 +18,7 @@ export function ScheduleNavigationItem({
 
   return (
     <Link
-      to={`${basePath}/schedule/${view}`}
+      to={`${basePath}/schedule/${view}` as any}
       activeProps={{
         className: cn(
           `flex gap-2 items-center justify-center  py-2 md:py-3 rounded-lg

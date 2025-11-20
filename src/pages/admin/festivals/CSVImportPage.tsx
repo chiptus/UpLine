@@ -51,7 +51,7 @@ function getUserTimezone(): string {
 }
 
 export function CSVImportPage() {
-  const { festivalId: urlFestivalId, editionId: urlEditionId } = useParams();
+  const { festivalId: urlFestivalId, editionId: urlEditionId } = useParams({ strict: false });
   const navigate = useNavigate();
   const search = useSearch({ strict: false });
   const defaultTab = ((search as { tab?: string })?.tab as "stages" | "sets") || "stages";
@@ -102,7 +102,7 @@ export function CSVImportPage() {
   function handleFestivalChange(festivalId: string) {
     setSelectedFestivalId(festivalId);
     setSelectedEditionId("");
-    navigate({ to: "/admin/festivals/$festivalId/import", params: { festivalId }, replace: true });
+    navigate({ to: "/admin/festivals/$festivalId/$editionId/import", params: { festivalId, editionId: "" }, replace: true });
   }
 
   function handleEditionChange(editionId: string) {

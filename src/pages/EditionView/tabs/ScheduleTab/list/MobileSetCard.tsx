@@ -22,7 +22,7 @@ export function MobileSetCard({ set }: MobileSetCardProps) {
         {/* Artist name */}
         <div className="mb-3">
           <Link
-            to={`../../sets/${set.slug}`}
+            to={`../../sets/${set.slug}` as any}
             className="text-white font-semibold hover:text-purple-300 transition-colors block text-lg"
           >
             {set.name}

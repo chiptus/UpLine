@@ -32,7 +32,7 @@ export function ExplorePageHeader({
           size="sm"
           className="text-white hover:bg-white/20 flex items-center "
         >
-          <Link to={`${basePath}/sets`}>
+          <Link to={`${basePath}/sets` as any}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             <span className="hidden sm:inline">Back</span>
           </Link>

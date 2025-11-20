@@ -6,7 +6,7 @@ export function DesktopTabButton({ config, basePath }: TabButtonProps) {
   return (
     <Link
       key={config.key}
-      to={`${basePath}/${config.key}`}
+      to={`${basePath}/${config.key}` as any}
       activeProps={{
         className: cn(
           `flex items-center justify-center gap-2

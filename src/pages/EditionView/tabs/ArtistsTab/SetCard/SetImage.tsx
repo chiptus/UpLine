@@ -21,7 +21,7 @@ export function SetImage({ className = "", size = "lg" }: SetImageProps) {
   const containerClass = `${sizeClasses[size]} ${className} overflow-hidden rounded-lg hover:opacity-90 transition-opacity cursor-pointer`;
 
   return (
-    <Link to={`./${set.slug}`} className="block flex-shrink-0">
+    <Link to={`./${set.slug}` as any} className="block flex-shrink-0">
       {isMultiArtist ? (
         <MixedArtistImage
           artists={set.artists}

@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "@tanstack/react-router";
 
 import AdminAnalytics from "@/pages/admin/Analytics/AdminAnalytics";
 import AdminFestivals from "@/pages/admin/festivals/AdminFestivals";

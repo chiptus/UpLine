@@ -5,7 +5,7 @@ import {
   useEffect,
   useMemo,
 } from "react";
-import { matchPath, Navigate, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useFestivalBySlugQuery } from "@/hooks/queries/festivals/useFestivalBySlug";
 import { Festival } from "@/hooks/queries/festivals/types";
 import { useFestivalEditionBySlugQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionBySlug";
@@ -46,10 +46,12 @@ function getSlugs(pathname: string) {
   let basePath = "";
   // For main domain, extract festival slug from URL path
   if (pathname.includes("/festivals/")) {
-    const match = matchPath({ path: "/festivals/:festivalSlug/*" }, pathname);
-    festivalSlug = match?.params.festivalSlug || festivalSlug || "";
-    pathname = pathname.replace(`/festivals/${festivalSlug}`, "");
-    basePath = `/festivals/${festivalSlug}`;
+    const festivalMatch = pathname.match(/\/festivals\/([^/]+)/);
+    if (festivalMatch) {
+      festivalSlug = festivalMatch[1];
+      pathname = pathname.replace(`/festivals/${festivalSlug}`, "");
+      basePath = `/festivals/${festivalSlug}`;
+    }
   }
 
   if (!pathname.includes("/editions")) {
@@ -59,26 +61,8 @@ function getSlugs(pathname: string) {
     };
   }
 
-  const matchWithSlash = matchPath(
-    { path: "/editions/:editionSlug/*" },
-    pathname,
-  );
-
-  if (matchWithSlash) {
-    const editionSlug = matchWithSlash?.params.editionSlug || "";
-
-    return {
-      basePath: basePath + `/editions/${editionSlug}`,
-      festivalSlug,
-      editionSlug,
-    };
-  }
-  const matchWithoutSlash = matchPath(
-    { path: "/editions/:editionSlug" },
-    pathname,
-  );
-
-  const editionSlug = matchWithoutSlash?.params.editionSlug || "";
+  const editionMatch = pathname.match(/\/editions\/([^/]+)/);
+  const editionSlug = editionMatch ? editionMatch[1] : "";
 
   return {
     basePath: basePath + `/editions/${editionSlug}`,
@@ -98,6 +82,7 @@ export function FestivalEditionProvider({
   children,
 }: PropsWithChildren<unknown>) {
   const { festivalSlug, editionSlug, basePath } = useParseSlugs();
+  const navigate = useNavigate();
 
   const festivalQuery = useFestivalBySlugQuery(festivalSlug);
 
@@ -147,6 +132,12 @@ export function FestivalEditionProvider({
     }
   }, [editionQuery.error, toast, editionSlug]);
 
+  useEffect(() => {
+    if (festivalQuery.error || editionQuery.error) {
+      navigate({ to: "/" });
+    }
+  }, [festivalQuery.error, editionQuery.error, navigate]);
+
   if (festivalQuery.error || editionQuery.error) {
     return (
       <FestivalEditionContext.Provider value={contextValue}>
@@ -156,7 +147,6 @@ export function FestivalEditionProvider({
             <h1 className="text-4xl font-bold text-white text-center mb-8">
               No valid festival or edition found
             </h1>
-            <Navigate to="/" />
           </div>
         </div>
       </FestivalEditionContext.Provider>

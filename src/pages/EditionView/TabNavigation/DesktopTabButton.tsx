@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { NavLink } from "react-router-dom";
+import { NavLink } from "@tanstack/react-router";
 import { TabButtonProps } from "./types";
 
 export function DesktopTabButton({ config, basePath }: TabButtonProps) {

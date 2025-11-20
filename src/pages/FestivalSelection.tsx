@@ -13,7 +13,7 @@ import {
   createFestivalSubdomainUrl,
   isMainGetuplineDomain,
 } from "@/lib/subdomain";
-import { Link } from "react-router-dom";
+import { Link } from "@tanstack/react-router";
 import { useCustomLinksQuery } from "@/hooks/queries/custom-links/useCustomLinks";
 import { PageTitle } from "@/components/PageTitle/PageTitle";
 import { TopBar } from "@/components/layout/TopBar";

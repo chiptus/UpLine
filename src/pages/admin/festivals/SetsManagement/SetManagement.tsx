@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useOutletContext } from "react-router-dom";
+import { Link, useOutletContext } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Plus, Music, Upload } from "lucide-react";

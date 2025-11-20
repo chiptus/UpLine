@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useOutletContext } from "react-router-dom";
+import { Link, useOutletContext } from "@tanstack/react-router";
 import { useStagesByEditionQuery } from "@/hooks/queries/stages/useStagesByEdition";
 import { FestivalEdition } from "@/hooks/queries/festivals/editions/types";
 import { useDeleteStageMutation } from "@/hooks/queries/stages/useDeleteStage";

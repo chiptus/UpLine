@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { AppHeader } from "@/components/layout/AppHeader";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useFestivalEditionsForFestivalQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionsForFestival";
 import { FestivalEdition } from "@/hooks/queries/festivals/editions/types";
 import { useEffect } from "react";
@@ -31,11 +31,17 @@ export default function EditionSelection() {
     ) {
       // If we're on a subdomain, navigate to /editions/slug
       // If we're on main domain, navigate to /festivals/festival-slug/editions/slug
-      const targetPath = subdomainInfo.isSubdomain
-        ? `/editions/${editionListQuery.data[0].slug}`
-        : `/festivals/${festival?.slug}/editions/${editionListQuery.data[0].slug}`;
+      const editionSlug = editionListQuery.data[0].slug;
+      const festivalSlug = festival.slug;
 
-      navigate(targetPath);
+      if (subdomainInfo.isSubdomain) {
+        navigate({ to: "/editions/$editionSlug", params: { editionSlug } });
+      } else {
+        navigate({
+          to: "/festivals/$festivalSlug/editions/$editionSlug",
+          params: { festivalSlug, editionSlug },
+        });
+      }
     }
   }, [
     editionListQuery.data,

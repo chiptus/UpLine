@@ -1,4 +1,4 @@
-import { useParams, useLocation, useNavigate, Outlet } from "react-router-dom";
+import { useParams, useLocation, useNavigate, Outlet } from "@tanstack/react-router";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, MapPin, Music } from "lucide-react";
 import { useEffect } from "react";
@@ -21,9 +21,10 @@ export default function FestivalEdition() {
       location.pathname ===
         `/admin/festivals/${festivalSlug}/editions/${editionSlug}`
     ) {
-      navigate(
-        `/admin/festivals/${festivalSlug}/editions/${editionSlug}/stages`,
-      );
+      navigate({
+        to: "/admin/festivals/$festivalSlug/editions/$editionSlug/stages",
+        params: { festivalSlug, editionSlug },
+      });
     }
   }, [location.pathname, festivalSlug, editionSlug, navigate]);
 
@@ -69,9 +70,10 @@ export default function FestivalEdition() {
   const currentSubTab = getCurrentSubTab();
 
   function handleSubTabChange(value: string) {
-    navigate(
-      `/admin/festivals/${festivalSlug}/editions/${editionSlug}/${value}`,
-    );
+    navigate({
+      to: `/admin/festivals/$festivalSlug/editions/$editionSlug/${value}`,
+      params: { festivalSlug, editionSlug },
+    });
   }
 
   return (

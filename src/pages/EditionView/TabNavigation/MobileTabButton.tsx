@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink } from "@tanstack/react-router";
 import { TabButtonProps } from "./types";
 
 export function MobileTabButton({ config, basePath }: TabButtonProps) {

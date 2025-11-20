@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@tanstack/react-router";
 import { ArtistImageLoader } from "@/components/ArtistImageLoader";
 import { useFestivalSet } from "../FestivalSetContext";
 import { MixedArtistImage } from "@/pages/SetDetails/MixedArtistImage";

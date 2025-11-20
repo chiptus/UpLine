@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@tanstack/react-router";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { LoadingState } from "./components/LoadingState";
 import { EmptyState } from "./components/EmptyState";
@@ -108,7 +108,7 @@ export function ExploreSetPage() {
 
       setTimeout(() => {
         if (isLastSet) {
-          navigate(`${basePath}/sets`);
+          navigate({ to: `${basePath}/sets` as any });
         } else {
           setDirection(null);
         }
@@ -143,7 +143,7 @@ export function ExploreSetPage() {
     setSkippedCount((prev) => prev + 1);
     setTimeout(() => {
       if (isLastSet) {
-        navigate(`${basePath}/sets`);
+        navigate({ to: `${basePath}/sets` as any });
       } else {
         setCurrentIndex((prev) => prev + 1);
         setDirection(null);

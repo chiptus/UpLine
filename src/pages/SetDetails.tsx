@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams } from "@tanstack/react-router";
 import { ArtistImageCard } from "./SetDetails/SetImageCard";
 import { MixedArtistImage } from "./SetDetails/MixedArtistImage";
 import { SetInfoCard } from "./SetDetails/SetInfoCard";

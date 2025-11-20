@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 
 export type SortOption =
   | "name-asc"
@@ -20,7 +20,7 @@ export interface FilterSortState {
   groupId?: string;
   invite?: string;
   sortLocked?: boolean;
-  votePerspective?: string; // For filtering votes by group
+  votePerspective?: string;
 }
 
 const defaultState: FilterSortState = {
@@ -37,31 +37,29 @@ const defaultState: FilterSortState = {
 };
 
 export function useUrlState() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const searchParams = useSearch({ strict: false }) as Record<string, string>;
 
   const getStateFromUrl = useCallback((): FilterSortState => {
     return {
-      sort: (searchParams.get("sort") as SortOption) || defaultState.sort,
+      sort: (searchParams.sort as SortOption) || defaultState.sort,
       stages:
-        searchParams.get("stages")?.split(",").filter(Boolean) ||
-        defaultState.stages,
+        searchParams.stages?.split(",").filter(Boolean) || defaultState.stages,
       genres:
-        searchParams.get("genres")?.split(",").filter(Boolean) ||
-        defaultState.genres,
+        searchParams.genres?.split(",").filter(Boolean) || defaultState.genres,
       minRating:
-        parseInt(searchParams.get("minRating") || "0") ||
-        defaultState.minRating,
+        parseInt(searchParams.minRating || "0") || defaultState.minRating,
       timelineView:
-        (searchParams.get("timelineView") as TimelineView) ||
+        (searchParams.timelineView as TimelineView) ||
         defaultState.timelineView,
       use24Hour:
-        searchParams.get("use24Hour") === "true" || defaultState.use24Hour,
-      groupId: searchParams.get("groupId") || defaultState.groupId,
-      invite: searchParams.get("invite") || defaultState.invite,
+        searchParams.use24Hour === "true" || defaultState.use24Hour,
+      groupId: searchParams.groupId || defaultState.groupId,
+      invite: searchParams.invite || defaultState.invite,
       sortLocked:
-        searchParams.get("sortLocked") === "true" || defaultState.sortLocked,
+        searchParams.sortLocked === "true" || defaultState.sortLocked,
       votePerspective:
-        searchParams.get("votePerspective") || defaultState.votePerspective,
+        searchParams.votePerspective || defaultState.votePerspective,
     };
   }, [searchParams]);
 
@@ -70,56 +68,56 @@ export function useUrlState() {
       const currentState = getStateFromUrl();
       const newState = { ...currentState, ...updates };
 
-      const newParams = new URLSearchParams();
+      const newParams: Record<string, string> = {};
 
       // Only add non-default values to URL
       if (newState.sort !== defaultState.sort) {
-        newParams.set("sort", newState.sort);
+        newParams.sort = newState.sort;
       }
       if (newState.stages.length > 0) {
-        newParams.set("stages", newState.stages.join(","));
+        newParams.stages = newState.stages.join(",");
       }
       if (newState.genres.length > 0) {
-        newParams.set("genres", newState.genres.join(","));
+        newParams.genres = newState.genres.join(",");
       }
       if (newState.minRating > 0) {
-        newParams.set("minRating", newState.minRating.toString());
+        newParams.minRating = newState.minRating.toString();
       }
       if (newState.timelineView !== defaultState.timelineView) {
-        newParams.set("timelineView", newState.timelineView);
+        newParams.timelineView = newState.timelineView;
       }
       if (newState.use24Hour !== defaultState.use24Hour) {
-        newParams.set("use24Hour", newState.use24Hour.toString());
+        newParams.use24Hour = newState.use24Hour.toString();
       }
       if (newState.groupId) {
-        newParams.set("groupId", newState.groupId);
+        newParams.groupId = newState.groupId;
       }
       if (newState.invite) {
-        newParams.set("invite", newState.invite);
+        newParams.invite = newState.invite;
       }
       if (newState.sortLocked) {
-        newParams.set("sortLocked", newState.sortLocked.toString());
+        newParams.sortLocked = newState.sortLocked.toString();
       }
       if (newState.votePerspective) {
-        newParams.set("votePerspective", newState.votePerspective);
+        newParams.votePerspective = newState.votePerspective;
       }
 
-      setSearchParams(newParams, { replace: true });
+      navigate({ search: newParams, replace: true });
     },
-    [getStateFromUrl, setSearchParams],
+    [getStateFromUrl, navigate],
   );
 
   const clearFilters = useCallback(() => {
     const currentState = getStateFromUrl();
-    const newParams = new URLSearchParams();
+    const newParams: Record<string, string> = {};
 
     // Keep invite parameter when clearing filters
     if (currentState.invite) {
-      newParams.set("invite", currentState.invite);
+      newParams.invite = currentState.invite;
     }
 
-    setSearchParams(newParams, { replace: true });
-  }, [getStateFromUrl, setSearchParams]);
+    navigate({ search: newParams, replace: true });
+  }, [getStateFromUrl, navigate]);
 
   return {
     state: getStateFromUrl(),

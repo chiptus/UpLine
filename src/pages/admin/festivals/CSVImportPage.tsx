@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useParams, useNavigate, useSearch } from "@tanstack/react-router";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -53,8 +53,8 @@ function getUserTimezone(): string {
 export function CSVImportPage() {
   const { festivalId: urlFestivalId, editionId: urlEditionId } = useParams();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const defaultTab = (searchParams.get("tab") as "stages" | "sets") || "stages";
+  const search = useSearch({ strict: false });
+  const defaultTab = ((search as { tab?: string })?.tab as "stages" | "sets") || "stages";
 
   const [selectedFestivalId, setSelectedFestivalId] = useState<string>(
     urlFestivalId || "",
@@ -102,15 +102,13 @@ export function CSVImportPage() {
   function handleFestivalChange(festivalId: string) {
     setSelectedFestivalId(festivalId);
     setSelectedEditionId("");
-    navigate(`/admin/festivals/${festivalId}/import`, { replace: true });
+    navigate({ to: "/admin/festivals/$festivalId/import", params: { festivalId }, replace: true });
   }
 
   function handleEditionChange(editionId: string) {
     setSelectedEditionId(editionId);
     if (selectedFestivalId) {
-      navigate(`/admin/festivals/${selectedFestivalId}/${editionId}/import`, {
-        replace: true,
-      });
+      navigate({ to: "/admin/festivals/$festivalId/$editionId/import", params: { festivalId: selectedFestivalId, editionId }, replace: true });
     }
   }
 
@@ -321,7 +319,7 @@ export function CSVImportPage() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate("/admin/festivals")}
+          onClick={() => navigate({ to: "/admin/festivals" })}
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Festivals

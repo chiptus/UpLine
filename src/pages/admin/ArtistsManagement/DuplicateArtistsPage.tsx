@@ -6,7 +6,7 @@ import { AlertTriangle, Copy, ArrowLeft, Zap } from "lucide-react";
 import { useDuplicateArtistsQuery } from "@/hooks/queries/artists/useDuplicateArtists";
 import { DuplicateGroupCard } from "./DuplicateGroupCard";
 import { BulkMergeDialog } from "./BulkMergeDialog";
-import { Link } from "react-router-dom";
+import { Link } from "@tanstack/react-router";
 
 export function DuplicateArtistsPage() {
   const duplicatesQuery = useDuplicateArtistsQuery();

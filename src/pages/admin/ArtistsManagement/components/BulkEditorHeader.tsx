@@ -1,7 +1,7 @@
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Grid3X3, Plus, Copy } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "@tanstack/react-router";
 import { SoundCloudSyncButton } from "./SoundCloudSyncButton";
 
 interface BulkEditorHeaderProps {

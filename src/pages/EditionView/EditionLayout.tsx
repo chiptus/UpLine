@@ -2,7 +2,7 @@ import { AppHeader } from "@/components/layout/AppHeader";
 import { MainTabNavigation } from "./TabNavigation/TabNavigation";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
-import { Outlet } from "react-router-dom";
+import { Outlet } from "@tanstack/react-router";
 import { useCustomLinksQuery } from "@/hooks/queries/custom-links/useCustomLinks";
 
 export default function EditionView() {

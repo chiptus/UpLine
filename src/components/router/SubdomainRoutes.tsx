@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route } from "@tanstack/react-router";
 import EditionSelection from "@/pages/EditionSelection";
 import { GlobalRoutes } from "./GlobalRoutes";
 import { createEditionRoutes } from "./EditionRoutes";

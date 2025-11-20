@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, useNavigate, Outlet } from "react-router-dom";
+import { useParams, useNavigate, Outlet } from "@tanstack/react-router";
 import { FestivalEditionManagement } from "./FestivalEditionManagement";
 import { FestivalInfoDetails } from "@/pages/admin/festivals/info/FestivalInfoDetails";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -43,7 +43,10 @@ export default function FestivalDetail() {
   }
 
   function handleEditionSelect(editionSlug: string) {
-    navigate(`/admin/festivals/${festivalSlug}/editions/${editionSlug}/stages`);
+    navigate({
+      to: "/admin/festivals/$festivalSlug/editions/$editionSlug/stages",
+      params: { festivalSlug, editionSlug },
+    });
   }
 
   const festival = festivalQuery.data;

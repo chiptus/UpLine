@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearch } from "@tanstack/react-router";
 import { useToast } from "@/components/ui/use-toast";
 import {
   useInviteValidationQuery,
@@ -7,17 +7,17 @@ import {
 } from "@/hooks/queries/useInviteValidationQuery";
 
 export function useInviteValidation() {
-  const [searchParams] = useSearchParams();
+  const search = useSearch({ strict: false });
   const [inviteToken, setInviteToken] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Extract token from search params
   useEffect(() => {
-    const token = searchParams.get("invite");
+    const token = (search as { invite?: string })?.invite;
     if (token) {
       setInviteToken(token);
     }
-  }, [searchParams]);
+  }, [search]);
 
   const {
     data: inviteValidation,

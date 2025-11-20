@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink } from "@tanstack/react-router";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@tanstack/react-router";
 import { Music } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";

@@ -1,4 +1,4 @@
-import { Navigate, Route } from "react-router-dom";
+import { Navigate, Route } from "@tanstack/react-router";
 import EditionLayout from "@/pages/EditionView/EditionLayout";
 import { SetDetails } from "@/pages/SetDetails";
 import { ExploreSetPage } from "@/pages/ExploreSetPage/ExploreSetPage";

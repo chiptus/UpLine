@@ -1,5 +1,5 @@
-import { useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useCallback, useMemo } from "react";
+import { useSearch, useNavigate } from "@tanstack/react-router";
 
 export type TimelineView = "horizontal" | "list";
 export type TimeFilter = "all" | "morning" | "afternoon" | "evening";
@@ -19,61 +19,65 @@ const defaultState: TimelineState = {
 };
 
 export function useTimelineUrlState() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const search = useSearch({ strict: false });
+  const navigate = useNavigate();
 
   const getStateFromUrl = useCallback((): TimelineState => {
+    const params = search as Record<string, string | undefined>;
     return {
       timelineView:
-        (searchParams.get("view") as TimelineView) || defaultState.timelineView,
-      selectedDay: searchParams.get("day") || defaultState.selectedDay,
+        (params.view as TimelineView) || defaultState.timelineView,
+      selectedDay: params.day || defaultState.selectedDay,
       selectedTime:
-        (searchParams.get("time") as TimeFilter) || defaultState.selectedTime,
+        (params.time as TimeFilter) || defaultState.selectedTime,
       selectedStages:
-        searchParams.get("stages")?.split(",").filter(Boolean) ||
+        params.stages?.split(",").filter(Boolean) ||
         defaultState.selectedStages,
     };
-  }, [searchParams]);
+  }, [search]);
 
   const updateTimelineState = useCallback(
     (updates: Partial<TimelineState>) => {
       const currentState = getStateFromUrl();
       const newState = { ...currentState, ...updates };
 
-      const newParams = new URLSearchParams();
+      const newSearchParams: Record<string, string> = {};
 
       // Only add non-default values to URL
       if (newState.timelineView !== defaultState.timelineView) {
-        newParams.set("view", newState.timelineView);
+        newSearchParams.view = newState.timelineView;
       }
       if (newState.selectedDay !== defaultState.selectedDay) {
-        newParams.set("day", newState.selectedDay);
+        newSearchParams.day = newState.selectedDay;
       }
       if (newState.selectedTime !== defaultState.selectedTime) {
-        newParams.set("time", newState.selectedTime);
+        newSearchParams.time = newState.selectedTime;
       }
       if (newState.selectedStages.length > 0) {
-        newParams.set("stages", newState.selectedStages.join(","));
+        newSearchParams.stages = newState.selectedStages.join(",");
       }
 
-      setSearchParams(newParams, { replace: true });
+      navigate({ search: newSearchParams, replace: true });
     },
-    [getStateFromUrl, setSearchParams],
+    [getStateFromUrl, navigate],
   );
 
   const clearTimelineFilters = useCallback(() => {
     const currentState = getStateFromUrl();
-    const newParams = new URLSearchParams();
+    const newSearchParams: Record<string, string> = {};
 
     // Keep view when clearing filters
     if (currentState.timelineView !== defaultState.timelineView) {
-      newParams.set("view", currentState.timelineView);
+      newSearchParams.view = currentState.timelineView;
     }
 
-    setSearchParams(newParams, { replace: true });
-  }, [getStateFromUrl, setSearchParams]);
+    navigate({ search: newSearchParams, replace: true });
+  }, [getStateFromUrl, navigate]);
+
+  const state = useMemo(() => getStateFromUrl(), [getStateFromUrl]);
 
   return {
-    state: getStateFromUrl(),
+    state,
     updateState: updateTimelineState,
     clearFilters: clearTimelineFilters,
   };

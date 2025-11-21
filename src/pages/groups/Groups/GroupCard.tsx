@@ -26,7 +26,7 @@ export function GroupCard({
   const leaveGroupMutation = useLeaveGroupMutation();
 
   return (
-    <Link to={`/groups/${group.slug}` as any} className="block">
+    <Link to="/groups/$groupSlug" params={{ groupSlug: group.slug }} className="block">
       <Card className="bg-white/10 border-purple-400/30">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">

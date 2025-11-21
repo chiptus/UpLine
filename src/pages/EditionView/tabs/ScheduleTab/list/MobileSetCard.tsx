@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Link } from "@tanstack/react-router";
+import { Link, useParams } from "@tanstack/react-router";
 import { Clock } from "lucide-react";
 import { format, differenceInMinutes } from "date-fns";
 import { VoteButtons } from "../VoteButtons";
@@ -11,6 +11,7 @@ interface MobileSetCardProps {
 }
 
 export function MobileSetCard({ set }: MobileSetCardProps) {
+  const { festivalSlug, editionSlug } = useParams({ strict: false });
   const duration =
     set.startTime && set.endTime
       ? differenceInMinutes(set.endTime, set.startTime)
@@ -22,7 +23,8 @@ export function MobileSetCard({ set }: MobileSetCardProps) {
         {/* Artist name */}
         <div className="mb-3">
           <Link
-            to={`../../sets/${set.slug}` as any}
+            to="/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug"
+            params={{ festivalSlug: festivalSlug as string, editionSlug: editionSlug as string, setSlug: set.slug as string }}
             className="text-white font-semibold hover:text-purple-300 transition-colors block text-lg"
           >
             {set.name}

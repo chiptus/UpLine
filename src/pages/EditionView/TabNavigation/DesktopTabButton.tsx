@@ -1,12 +1,24 @@
 import { cn } from "@/lib/utils";
-import { Link } from "@tanstack/react-router";
+import { Link, useParams } from "@tanstack/react-router";
 import { TabButtonProps } from "./types";
 
-export function DesktopTabButton({ config, basePath }: TabButtonProps) {
+const tabRoutes = {
+  sets: "/festivals/$festivalSlug/editions/$editionSlug/sets",
+  schedule: "/festivals/$festivalSlug/editions/$editionSlug/schedule",
+  map: "/festivals/$festivalSlug/editions/$editionSlug/map",
+  info: "/festivals/$festivalSlug/editions/$editionSlug/info",
+  social: "/festivals/$festivalSlug/editions/$editionSlug/social",
+  explore: "/festivals/$festivalSlug/editions/$editionSlug/explore",
+} as const;
+
+export function DesktopTabButton({ config }: TabButtonProps) {
+  const { festivalSlug, editionSlug } = useParams({ strict: false });
+
   return (
     <Link
       key={config.key}
-      to={`${basePath}/${config.key}` as any}
+      to={tabRoutes[config.key]}
+      params={{ festivalSlug: festivalSlug as string, editionSlug: editionSlug as string }}
       activeProps={{
         className: cn(
           `flex items-center justify-center gap-2

@@ -55,7 +55,6 @@ export function ExploreSetPage() {
     <div className="relative min-h-screen bg-gradient-to-b from-purple-900 to-black">
       <PageTitle title={`Explore Sets - ${edition.name}`} />
       <ExplorePageHeader
-        basePath={basePath}
         editionName={edition.name}
         currentIndex={currentIndexInAllSets}
         totalSets={totalSets}
@@ -108,7 +107,7 @@ export function ExploreSetPage() {
 
       setTimeout(() => {
         if (isLastSet) {
-          navigate({ to: `${basePath}/sets` as any });
+          navigate({ to: "../sets" as any });
         } else {
           setDirection(null);
         }
@@ -143,7 +142,7 @@ export function ExploreSetPage() {
     setSkippedCount((prev) => prev + 1);
     setTimeout(() => {
       if (isLastSet) {
-        navigate({ to: `${basePath}/sets` as any });
+        navigate({ to: "../sets" as any });
       } else {
         setCurrentIndex((prev) => prev + 1);
         setDirection(null);

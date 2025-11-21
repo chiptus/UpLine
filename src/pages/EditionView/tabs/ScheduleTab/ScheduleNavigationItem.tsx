@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 
 interface ScheduleNavigationItemProps {
   view: "timeline" | "list";
@@ -14,11 +13,9 @@ export function ScheduleNavigationItem({
   label,
   icon: Icon,
 }: ScheduleNavigationItemProps) {
-  const { basePath } = useFestivalEdition();
-
   return (
     <Link
-      to={`${basePath}/schedule/${view}` as any}
+      to={(view === "timeline" ? "./timeline" : "./list") as any}
       activeProps={{
         className: cn(
           `flex gap-2 items-center justify-center  py-2 md:py-3 rounded-lg

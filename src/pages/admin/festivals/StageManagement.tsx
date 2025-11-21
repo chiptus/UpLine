@@ -70,7 +70,9 @@ export function StageManagement(_props: StageManagementProps) {
           <div className="flex gap-2">
             <Button variant="outline" asChild>
               <Link
-                to={`/admin/festivals/${edition.festival_id}/${edition.id}/import?tab=stages` as any}
+                to="/admin/festivals/$festivalId/$editionId/import"
+                params={{ festivalId: edition.festival_id, editionId: edition.id }}
+                search={{ tab: "stages" }}
               >
                 <Upload className="h-4 w-4 mr-2" />
                 Import CSV

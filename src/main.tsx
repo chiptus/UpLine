@@ -4,6 +4,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { PostHogProvider } from "posthog-js/react";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
+import NotFound from "./pages/NotFound";
 import "./index.css";
 
 const queryClient = new QueryClient({
@@ -25,6 +26,7 @@ const router = createRouter({
   },
   defaultPreload: "intent",
   defaultPreloadStaleTime: 0,
+  defaultNotFoundComponent: NotFound,
 });
 
 declare module "@tanstack/react-router" {

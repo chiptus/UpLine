@@ -104,7 +104,8 @@ function FestivalCard({ festival }: { festival: Festival }) {
   return (
     <Link
       className="block cursor-pointer max-w-[90vw] w-full"
-      to={`/festivals/${festival.slug}` as any}
+      to="/festivals/$festivalSlug"
+      params={{ festivalSlug: festival.slug }}
     >
       <Card className="bg-white/10 border-purple-400/30 hover:bg-white/15 transition-all duration-300 cursor-pointer group">
         <CardHeader>

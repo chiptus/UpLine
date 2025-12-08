@@ -7,7 +7,7 @@ import {
   toISOString,
   combineDateAndTime,
   convertLocalTimeToUTC,
-} from "../timeUtils";
+} from "./timeUtils";
 
 describe("formatTimeRange", () => {
   it("returns null when both times are null", () => {

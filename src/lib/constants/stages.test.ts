@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_STAGE_COLOR } from "../stages";
+import { DEFAULT_STAGE_COLOR } from "./stages";
 
 describe("DEFAULT_STAGE_COLOR", () => {
   it("is defined", () => {

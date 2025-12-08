@@ -1,12 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Button } from "../button";
+import { Button } from "./button";
 
 describe("Button", () => {
   it("renders children content", () => {
     render(<Button>Click me</Button>);
-    expect(screen.getByRole("button", { name: "Click me" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Click me" }),
+    ).toBeInTheDocument();
   });
 
   it("renders with default variant", () => {
@@ -28,7 +30,9 @@ describe("Button", () => {
   });
 
   it("renders with secondary variant", () => {
-    const { container } = render(<Button variant="secondary">Secondary</Button>);
+    const { container } = render(
+      <Button variant="secondary">Secondary</Button>,
+    );
     const button = container.querySelector("button");
     expect(button).toHaveClass("bg-secondary", "text-secondary-foreground");
   });
@@ -86,13 +90,19 @@ describe("Button", () => {
   it("does not trigger click when disabled", async () => {
     const user = userEvent.setup();
     const handleClick = vi.fn();
-    render(<Button disabled onClick={handleClick}>Disabled</Button>);
+    render(
+      <Button disabled onClick={handleClick}>
+        Disabled
+      </Button>,
+    );
     await user.click(screen.getByRole("button"));
     expect(handleClick).not.toHaveBeenCalled();
   });
 
   it("applies custom className", () => {
-    const { container } = render(<Button className="custom-class">Custom</Button>);
+    const { container } = render(
+      <Button className="custom-class">Custom</Button>,
+    );
     const button = container.querySelector("button");
     expect(button).toHaveClass("custom-class");
   });
@@ -111,7 +121,11 @@ describe("Button", () => {
   });
 
   it("passes through HTML attributes", () => {
-    render(<Button type="submit" data-testid="submit-btn">Submit</Button>);
+    render(
+      <Button type="submit" data-testid="submit-btn">
+        Submit
+      </Button>,
+    );
     const button = screen.getByTestId("submit-btn");
     expect(button).toHaveAttribute("type", "submit");
   });
@@ -122,7 +136,11 @@ describe("Button", () => {
   });
 
   it("combines variant and size classes", () => {
-    const { container } = render(<Button variant="destructive" size="lg">Large Delete</Button>);
+    const { container } = render(
+      <Button variant="destructive" size="lg">
+        Large Delete
+      </Button>,
+    );
     const button = container.querySelector("button");
     expect(button).toHaveClass("bg-destructive");
     expect(button).toHaveClass("h-11", "px-8");

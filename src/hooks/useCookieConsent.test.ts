@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeEach, vi } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
-import { useCookieConsent } from "../useCookieConsent";
+import { useCookieConsent } from "./useCookieConsent";
 import * as CrossDomainStorageModule from "@/lib/crossDomainStorage";
 
 vi.mock("@/lib/crossDomainStorage", () => ({
@@ -18,7 +18,10 @@ describe("useCookieConsent", () => {
   });
 
   it("initializes with null consent and showBanner true when no saved consent", async () => {
-    vi.spyOn(CrossDomainStorageModule.CrossDomainStorage, "getItem").mockReturnValue(null);
+    vi.spyOn(
+      CrossDomainStorageModule.CrossDomainStorage,
+      "getItem",
+    ).mockReturnValue(null);
 
     const { result } = renderHook(() => useCookieConsent());
 
@@ -38,9 +41,10 @@ describe("useCookieConsent", () => {
       timestamp: Date.now(),
     };
 
-    vi.spyOn(CrossDomainStorageModule.CrossDomainStorage, "getItem").mockReturnValue(
-      JSON.stringify(savedConsent),
-    );
+    vi.spyOn(
+      CrossDomainStorageModule.CrossDomainStorage,
+      "getItem",
+    ).mockReturnValue(JSON.stringify(savedConsent));
 
     const { result } = renderHook(() => useCookieConsent());
 
@@ -60,9 +64,10 @@ describe("useCookieConsent", () => {
       timestamp: Date.now(),
     };
 
-    vi.spyOn(CrossDomainStorageModule.CrossDomainStorage, "getItem").mockReturnValue(
-      JSON.stringify(savedConsent),
-    );
+    vi.spyOn(
+      CrossDomainStorageModule.CrossDomainStorage,
+      "getItem",
+    ).mockReturnValue(JSON.stringify(savedConsent));
 
     const { result } = renderHook(() => useCookieConsent());
 
@@ -72,9 +77,10 @@ describe("useCookieConsent", () => {
   });
 
   it("shows banner when saved consent is invalid JSON", async () => {
-    vi.spyOn(CrossDomainStorageModule.CrossDomainStorage, "getItem").mockReturnValue(
-      "invalid json",
-    );
+    vi.spyOn(
+      CrossDomainStorageModule.CrossDomainStorage,
+      "getItem",
+    ).mockReturnValue("invalid json");
 
     const { result } = renderHook(() => useCookieConsent());
 
@@ -84,8 +90,14 @@ describe("useCookieConsent", () => {
   });
 
   it("saveConsent updates consent and hides banner", () => {
-    vi.spyOn(CrossDomainStorageModule.CrossDomainStorage, "getItem").mockReturnValue(null);
-    const setItemSpy = vi.spyOn(CrossDomainStorageModule.CrossDomainStorage, "setItem");
+    vi.spyOn(
+      CrossDomainStorageModule.CrossDomainStorage,
+      "getItem",
+    ).mockReturnValue(null);
+    const setItemSpy = vi.spyOn(
+      CrossDomainStorageModule.CrossDomainStorage,
+      "setItem",
+    );
 
     const { result } = renderHook(() => useCookieConsent());
 
@@ -102,7 +114,10 @@ describe("useCookieConsent", () => {
   });
 
   it("acceptAll enables all preferences", () => {
-    vi.spyOn(CrossDomainStorageModule.CrossDomainStorage, "getItem").mockReturnValue(null);
+    vi.spyOn(
+      CrossDomainStorageModule.CrossDomainStorage,
+      "getItem",
+    ).mockReturnValue(null);
 
     const { result } = renderHook(() => useCookieConsent());
 
@@ -120,7 +135,10 @@ describe("useCookieConsent", () => {
   });
 
   it("acceptEssential only enables essential cookies", () => {
-    vi.spyOn(CrossDomainStorageModule.CrossDomainStorage, "getItem").mockReturnValue(null);
+    vi.spyOn(
+      CrossDomainStorageModule.CrossDomainStorage,
+      "getItem",
+    ).mockReturnValue(null);
 
     const { result } = renderHook(() => useCookieConsent());
 
@@ -147,9 +165,10 @@ describe("useCookieConsent", () => {
       timestamp: Date.now(),
     };
 
-    vi.spyOn(CrossDomainStorageModule.CrossDomainStorage, "getItem").mockReturnValue(
-      JSON.stringify(savedConsent),
-    );
+    vi.spyOn(
+      CrossDomainStorageModule.CrossDomainStorage,
+      "getItem",
+    ).mockReturnValue(JSON.stringify(savedConsent));
 
     const { result } = renderHook(() => useCookieConsent());
 
@@ -175,9 +194,10 @@ describe("useCookieConsent", () => {
       timestamp: Date.now(),
     };
 
-    vi.spyOn(CrossDomainStorageModule.CrossDomainStorage, "getItem").mockReturnValue(
-      JSON.stringify(savedConsent),
-    );
+    vi.spyOn(
+      CrossDomainStorageModule.CrossDomainStorage,
+      "getItem",
+    ).mockReturnValue(JSON.stringify(savedConsent));
     const removeItemSpy = vi.spyOn(
       CrossDomainStorageModule.CrossDomainStorage,
       "removeItem",
@@ -204,9 +224,10 @@ describe("useCookieConsent", () => {
       timestamp: Date.now(),
     };
 
-    vi.spyOn(CrossDomainStorageModule.CrossDomainStorage, "getItem").mockReturnValue(
-      JSON.stringify(savedConsent),
-    );
+    vi.spyOn(
+      CrossDomainStorageModule.CrossDomainStorage,
+      "getItem",
+    ).mockReturnValue(JSON.stringify(savedConsent));
 
     const { result } = renderHook(() => useCookieConsent());
 
@@ -224,9 +245,10 @@ describe("useCookieConsent", () => {
       timestamp: Date.now(),
     };
 
-    vi.spyOn(CrossDomainStorageModule.CrossDomainStorage, "getItem").mockReturnValue(
-      JSON.stringify(savedConsent),
-    );
+    vi.spyOn(
+      CrossDomainStorageModule.CrossDomainStorage,
+      "getItem",
+    ).mockReturnValue(JSON.stringify(savedConsent));
 
     const { result } = renderHook(() => useCookieConsent());
 
@@ -235,7 +257,10 @@ describe("useCookieConsent", () => {
   });
 
   it("canUseCookie returns false when no consent", () => {
-    vi.spyOn(CrossDomainStorageModule.CrossDomainStorage, "getItem").mockReturnValue(null);
+    vi.spyOn(
+      CrossDomainStorageModule.CrossDomainStorage,
+      "getItem",
+    ).mockReturnValue(null);
 
     const { result } = renderHook(() => useCookieConsent());
 
@@ -243,7 +268,10 @@ describe("useCookieConsent", () => {
   });
 
   it("setShowBanner updates banner visibility", () => {
-    vi.spyOn(CrossDomainStorageModule.CrossDomainStorage, "getItem").mockReturnValue(null);
+    vi.spyOn(
+      CrossDomainStorageModule.CrossDomainStorage,
+      "getItem",
+    ).mockReturnValue(null);
 
     const { result } = renderHook(() => useCookieConsent());
 
@@ -261,8 +289,14 @@ describe("useCookieConsent", () => {
   });
 
   it("saveConsent sets timestamp and version", () => {
-    vi.spyOn(CrossDomainStorageModule.CrossDomainStorage, "getItem").mockReturnValue(null);
-    const setItemSpy = vi.spyOn(CrossDomainStorageModule.CrossDomainStorage, "setItem");
+    vi.spyOn(
+      CrossDomainStorageModule.CrossDomainStorage,
+      "getItem",
+    ).mockReturnValue(null);
+    const setItemSpy = vi.spyOn(
+      CrossDomainStorageModule.CrossDomainStorage,
+      "setItem",
+    );
 
     const { result } = renderHook(() => useCookieConsent());
 
@@ -289,9 +323,10 @@ describe("useCookieConsent", () => {
       timestamp: Date.now(),
     };
 
-    vi.spyOn(CrossDomainStorageModule.CrossDomainStorage, "getItem").mockReturnValue(
-      JSON.stringify(savedConsent),
-    );
+    vi.spyOn(
+      CrossDomainStorageModule.CrossDomainStorage,
+      "getItem",
+    ).mockReturnValue(JSON.stringify(savedConsent));
 
     localStorage.setItem("sidebar:state", "collapsed");
     const { result } = renderHook(() => useCookieConsent());
@@ -304,7 +339,10 @@ describe("useCookieConsent", () => {
   });
 
   it("defaults to essential true", () => {
-    vi.spyOn(CrossDomainStorageModule.CrossDomainStorage, "getItem").mockReturnValue(null);
+    vi.spyOn(
+      CrossDomainStorageModule.CrossDomainStorage,
+      "getItem",
+    ).mockReturnValue(null);
 
     const { result } = renderHook(() => useCookieConsent());
 

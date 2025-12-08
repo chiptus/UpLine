@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { parseMarkdown } from "../markdown";
+import { parseMarkdown } from "./markdown";
 
 describe("parseMarkdown", () => {
   let consoleErrorSpy: ReturnType<typeof vi.spyOn>;

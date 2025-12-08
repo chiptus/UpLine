@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
-import { useOnlineStatus } from "../useOnlineStatus";
+import { useOnlineStatus } from "./useOnlineStatus";
 
 describe("useOnlineStatus", () => {
   let onlineListener: ((event: Event) => void) | null = null;
@@ -13,13 +13,15 @@ describe("useOnlineStatus", () => {
       value: true,
     });
 
-    vi.spyOn(window, "addEventListener").mockImplementation((event, handler) => {
-      if (event === "online") {
-        onlineListener = handler as (event: Event) => void;
-      } else if (event === "offline") {
-        offlineListener = handler as (event: Event) => void;
-      }
-    });
+    vi.spyOn(window, "addEventListener").mockImplementation(
+      (event, handler) => {
+        if (event === "online") {
+          onlineListener = handler as (event: Event) => void;
+        } else if (event === "offline") {
+          offlineListener = handler as (event: Event) => void;
+        }
+      },
+    );
 
     vi.spyOn(window, "removeEventListener").mockImplementation(() => {});
   });

@@ -1,7 +1,9 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { StagePin } from "../StagePin";
+import { StagePin } from "./StagePin";
 import * as useStageQueryModule from "@/hooks/queries/stages/useStageQuery";
+
+type StageQueryResult = ReturnType<typeof useStageQueryModule.useStageQuery>;
 
 vi.mock("@/hooks/queries/stages/useStageQuery");
 
@@ -15,7 +17,7 @@ describe("StagePin", () => {
       data: { id: "1", name: "Main Stage", color: "#ff0000", archived: false },
       isLoading: false,
       error: null,
-    } as any);
+    } as StageQueryResult);
 
     render(<StagePin stageId="1" />);
     expect(screen.getByText("Main Stage")).toBeInTheDocument();
@@ -26,7 +28,7 @@ describe("StagePin", () => {
       data: { id: "1", name: "Main Stage", color: "#ff0000", archived: false },
       isLoading: false,
       error: null,
-    } as any);
+    } as StageQueryResult);
 
     const { container } = render(<StagePin stageId="1" />);
     const icon = container.querySelector("svg");
@@ -38,7 +40,7 @@ describe("StagePin", () => {
       data: null,
       isLoading: false,
       error: null,
-    } as any);
+    } as StageQueryResult);
 
     const { container } = render(<StagePin stageId="1" />);
     expect(container.firstChild).toBeNull();
@@ -49,7 +51,7 @@ describe("StagePin", () => {
       data: null,
       isLoading: false,
       error: null,
-    } as any);
+    } as StageQueryResult);
 
     const { container } = render(<StagePin stageId={null} />);
     expect(container.firstChild).toBeNull();
@@ -60,7 +62,7 @@ describe("StagePin", () => {
       data: null,
       isLoading: true,
       error: null,
-    } as any);
+    } as unknown as StageQueryResult);
 
     const { container } = render(<StagePin stageId="1" />);
     expect(container.firstChild).toBeNull();
@@ -71,7 +73,7 @@ describe("StagePin", () => {
       data: { id: "1", name: "Main Stage", color: "#ff0000", archived: false },
       isLoading: false,
       error: null,
-    } as any);
+    } as StageQueryResult);
 
     const { container } = render(<StagePin stageId="1" />);
     const wrapper = container.querySelector("div");
@@ -83,7 +85,7 @@ describe("StagePin", () => {
       data: { id: "1", name: "Main Stage", color: "#ff0000", archived: false },
       isLoading: false,
       error: null,
-    } as any);
+    } as StageQueryResult);
 
     const { container } = render(<StagePin stageId="1" />);
     const icon = container.querySelector("svg");
@@ -95,7 +97,7 @@ describe("StagePin", () => {
       data: { id: "1", name: "Main Stage", color: "#ff0000", archived: false },
       isLoading: false,
       error: null,
-    } as any);
+    } as StageQueryResult);
 
     const { container } = render(<StagePin stageId="1" />);
     const text = container.querySelector("span");
@@ -112,7 +114,7 @@ describe("StagePin", () => {
       },
       isLoading: false,
       error: null,
-    } as any);
+    } as StageQueryResult);
 
     render(<StagePin stageId="2" />);
     expect(screen.getByText("Electronic Stage")).toBeInTheDocument();

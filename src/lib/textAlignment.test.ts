@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { detectTextAlignment, getTextAlignmentClasses } from "../textAlignment";
+import { detectTextAlignment, getTextAlignmentClasses } from "./textAlignment";
 
 describe("textAlignment", () => {
   describe("detectTextAlignment", () => {

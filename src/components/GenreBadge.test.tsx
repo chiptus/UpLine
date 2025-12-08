@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { GenreBadge } from "../GenreBadge";
+import { GenreBadge } from "./GenreBadge";
 import * as useGenresModule from "@/hooks/queries/genres/useGenres";
 
 vi.mock("@/hooks/queries/genres/useGenres");

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { StageBadge } from "../StageBadge";
+import { StageBadge } from "./StageBadge";
 
 describe("StageBadge", () => {
   it("renders stage name", () => {

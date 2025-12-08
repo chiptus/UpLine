@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { sortStagesByOrder } from "../stageUtils";
+import { sortStagesByOrder } from "./stageUtils";
 
 describe("sortStagesByOrder", () => {
   it("sorts stages with order > 0 by their order value", () => {

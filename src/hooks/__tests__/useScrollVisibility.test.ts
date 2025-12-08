@@ -28,7 +28,8 @@ describe("useScrollVisibility", () => {
       };
     });
 
-    global.IntersectionObserver = constructorSpy as any;
+    global.IntersectionObserver =
+      constructorSpy as unknown as typeof IntersectionObserver;
   });
 
   afterEach(() => {
@@ -37,7 +38,9 @@ describe("useScrollVisibility", () => {
   });
 
   it("returns true by default", () => {
-    const ref: RefObject<HTMLDivElement> = { current: document.createElement("div") };
+    const ref: RefObject<HTMLDivElement> = {
+      current: document.createElement("div"),
+    };
     const { result } = renderHook(() => useScrollVisibility(ref));
     expect(result.current).toBe(true);
   });
@@ -186,8 +189,6 @@ describe("useScrollVisibility", () => {
       ({ threshold }) => useScrollVisibility(ref, { threshold }),
       { initialProps: { threshold: 0 } },
     );
-
-    const firstObserver = global.IntersectionObserver;
 
     rerender({ threshold: 0.5 });
 

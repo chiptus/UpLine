@@ -26,7 +26,8 @@ describe("useToast", () => {
   it("returns toast with id, dismiss, and update methods", () => {
     const { result } = renderHook(() => useToast());
 
-    let toastResult: any;
+    type ToastReturn = ReturnType<typeof result.current.toast>;
+    let toastResult: ToastReturn | undefined;
     act(() => {
       toastResult = result.current.toast({ title: "Test" });
     });
@@ -34,21 +35,22 @@ describe("useToast", () => {
     expect(toastResult).toHaveProperty("id");
     expect(toastResult).toHaveProperty("dismiss");
     expect(toastResult).toHaveProperty("update");
-    expect(typeof toastResult.id).toBe("string");
-    expect(typeof toastResult.dismiss).toBe("function");
-    expect(typeof toastResult.update).toBe("function");
+    expect(typeof toastResult?.id).toBe("string");
+    expect(typeof toastResult?.dismiss).toBe("function");
+    expect(typeof toastResult?.update).toBe("function");
   });
 
   it("generates unique IDs for toasts", () => {
     const { result } = renderHook(() => useToast());
 
-    let toast1: any, toast2: any;
+    let toast1: { id: string } | undefined;
+    let toast2: { id: string } | undefined;
     act(() => {
       toast1 = result.current.toast({ title: "Toast 1" });
       toast2 = result.current.toast({ title: "Toast 2" });
     });
 
-    expect(toast1.id).not.toBe(toast2.id);
+    expect(toast1?.id).not.toBe(toast2?.id);
   });
 
   it("limits toasts to TOAST_LIMIT (1)", () => {
@@ -107,13 +109,16 @@ describe("useToast", () => {
   it("updates toast with new props", () => {
     const { result } = renderHook(() => useToast());
 
-    let toastResult: any;
+    type ToastReturn = ReturnType<typeof result.current.toast>;
+    let toastResult: ToastReturn | undefined;
     act(() => {
       toastResult = result.current.toast({ title: "Original" });
     });
 
     act(() => {
-      toastResult.update({ title: "Updated" });
+      if (toastResult) {
+        toastResult.update({ id: toastResult.id, title: "Updated" });
+      }
     });
 
     expect(result.current.toasts[0].title).toBe("Updated");
@@ -122,13 +127,14 @@ describe("useToast", () => {
   it("toast dismiss method works", () => {
     const { result } = renderHook(() => useToast());
 
-    let toastResult: any;
+    type ToastReturn = ReturnType<typeof result.current.toast>;
+    let toastResult: ToastReturn | undefined;
     act(() => {
       toastResult = result.current.toast({ title: "Test" });
     });
 
     act(() => {
-      toastResult.dismiss();
+      toastResult?.dismiss();
     });
 
     expect(result.current.toasts[0].open).toBe(false);
@@ -193,7 +199,7 @@ describe("useToast", () => {
     expect(typeof toastItem.onOpenChange).toBe("function");
 
     act(() => {
-      toastItem.onOpenChange(false);
+      toastItem.onOpenChange?.(false);
     });
 
     expect(result.current.toasts[0].open).toBe(false);
@@ -202,7 +208,9 @@ describe("useToast", () => {
   it("increments ID counter correctly", () => {
     const { result } = renderHook(() => useToast());
 
-    let id1: string, id2: string, id3: string;
+    let id1 = "";
+    let id2 = "";
+    let id3 = "";
     act(() => {
       const t1 = result.current.toast({ title: "1" });
       const t2 = result.current.toast({ title: "2" });

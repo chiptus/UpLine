@@ -48,8 +48,8 @@ describe("formatTimeRange", () => {
 
   it("formats time range across different days", () => {
     const result = formatTimeRange(
-      "2024-12-15T23:00:00Z",
-      "2024-12-16T01:00:00Z",
+      "2024-12-15T10:00:00Z",
+      "2024-12-16T14:00:00Z",
     );
     expect(result).toContain("Dec 15");
     expect(result).toContain("Dec 16");

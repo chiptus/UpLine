@@ -58,7 +58,9 @@ describe("CardHeader", () => {
   });
 
   it("applies custom className", () => {
-    const { container } = render(<CardHeader className="custom-header">Test</CardHeader>);
+    const { container } = render(
+      <CardHeader className="custom-header">Test</CardHeader>,
+    );
     const header = container.firstChild as HTMLElement;
     expect(header).toHaveClass("custom-header");
   });
@@ -93,7 +95,9 @@ describe("CardTitle", () => {
   });
 
   it("applies custom className", () => {
-    const { container } = render(<CardTitle className="custom-title">Test</CardTitle>);
+    const { container } = render(
+      <CardTitle className="custom-title">Test</CardTitle>,
+    );
     const title = container.querySelector("h3");
     expect(title).toHaveClass("custom-title");
   });
@@ -118,7 +122,9 @@ describe("CardDescription", () => {
   });
 
   it("applies custom className", () => {
-    const { container } = render(<CardDescription className="custom-desc">Test</CardDescription>);
+    const { container } = render(
+      <CardDescription className="custom-desc">Test</CardDescription>,
+    );
     const description = container.firstChild as HTMLElement;
     expect(description).toHaveClass("custom-desc");
   });
@@ -143,7 +149,9 @@ describe("CardContent", () => {
   });
 
   it("applies custom className", () => {
-    const { container } = render(<CardContent className="custom-content">Test</CardContent>);
+    const { container } = render(
+      <CardContent className="custom-content">Test</CardContent>,
+    );
     const content = container.firstChild as HTMLElement;
     expect(content).toHaveClass("custom-content");
   });
@@ -168,7 +176,9 @@ describe("CardFooter", () => {
   });
 
   it("applies custom className", () => {
-    const { container } = render(<CardFooter className="custom-footer">Test</CardFooter>);
+    const { container } = render(
+      <CardFooter className="custom-footer">Test</CardFooter>,
+    );
     const footer = container.firstChild as HTMLElement;
     expect(footer).toHaveClass("custom-footer");
   });
@@ -210,7 +220,7 @@ describe("Card composition", () => {
 
     const card = container.firstChild as HTMLElement;
     const header = card.querySelector("div");
-    const title = header?.querySelector("h3");
+    const title = header?.querySelector("h3") ?? null;
 
     expect(card).toContainElement(header);
     expect(header).toContainElement(title);

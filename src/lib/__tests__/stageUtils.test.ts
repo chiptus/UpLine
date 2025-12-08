@@ -47,13 +47,15 @@ describe("sortStagesByOrder", () => {
   });
 
   it("handles null stage_order as 0", () => {
-    const stages = [
+    const stages: Array<{ name: string; stage_order: number | null }> = [
       { name: "Stage B", stage_order: null },
       { name: "Stage A", stage_order: 1 },
       { name: "Stage C", stage_order: null },
     ];
 
-    const sorted = sortStagesByOrder(stages);
+    const sorted = sortStagesByOrder(
+      stages as Array<{ name: string; stage_order: number }>,
+    );
 
     expect(sorted[0].name).toBe("Stage A");
     expect(sorted[1].name).toBe("Stage B");
@@ -61,13 +63,15 @@ describe("sortStagesByOrder", () => {
   });
 
   it("handles undefined stage_order as 0", () => {
-    const stages = [
+    const stages: Array<{ name: string; stage_order: number | undefined }> = [
       { name: "Stage B", stage_order: undefined },
       { name: "Stage A", stage_order: 1 },
       { name: "Stage C", stage_order: undefined },
     ];
 
-    const sorted = sortStagesByOrder(stages);
+    const sorted = sortStagesByOrder(
+      stages as Array<{ name: string; stage_order: number }>,
+    );
 
     expect(sorted[0].name).toBe("Stage A");
     expect(sorted[1].name).toBe("Stage B");
@@ -96,7 +100,9 @@ describe("sortStagesByOrder", () => {
 
   it("handles empty array", () => {
     const stages: Array<{ name: string; stage_order: number | null }> = [];
-    const sorted = sortStagesByOrder(stages);
+    const sorted = sortStagesByOrder(
+      stages as Array<{ name: string; stage_order: number }>,
+    );
     expect(sorted).toEqual([]);
   });
 

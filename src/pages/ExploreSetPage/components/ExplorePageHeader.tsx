@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useParams } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { ExplorationProgress } from "../ExplorationProgress";
@@ -21,6 +21,8 @@ export function ExplorePageHeader({
   nonExplorableCount,
   skippedCount,
 }: ExplorePageHeaderProps) {
+  const { festivalSlug, editionSlug } = useParams({ strict: false });
+
   return (
     <div className="relative z-10 p-4 flex items-center justify-between">
       <div className="flex-1 flex justify-start">
@@ -30,7 +32,10 @@ export function ExplorePageHeader({
           size="sm"
           className="text-white hover:bg-white/20 flex items-center "
         >
-          <Link to={"../sets" as any}>
+          <Link
+            to="/festivals/$festivalSlug/editions/$editionSlug/sets"
+            params={{ festivalSlug: festivalSlug!, editionSlug: editionSlug! }}
+          >
             <ArrowLeft className="h-4 w-4 mr-2" />
             <span className="hidden sm:inline">Back</span>
           </Link>

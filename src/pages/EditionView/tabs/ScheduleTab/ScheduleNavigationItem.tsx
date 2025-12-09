@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useParams } from "@tanstack/react-router";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -13,9 +13,16 @@ export function ScheduleNavigationItem({
   label,
   icon: Icon,
 }: ScheduleNavigationItemProps) {
+  const { festivalSlug, editionSlug } = useParams({ strict: false });
+  const routePath =
+    view === "timeline"
+      ? "/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline"
+      : "/festivals/$festivalSlug/editions/$editionSlug/schedule/list";
+
   return (
     <Link
-      to={(view === "timeline" ? "./timeline" : "./list") as any}
+      to={routePath}
+      params={{ festivalSlug: festivalSlug!, editionSlug: editionSlug! }}
       activeProps={{
         className: cn(
           `flex gap-2 items-center justify-center  py-2 md:py-3 rounded-lg

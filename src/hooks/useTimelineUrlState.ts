@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from "react";
 import { useSearch, useNavigate } from "@tanstack/react-router";
+import type { TimelineSearch } from "@/lib/searchSchemas";
 
 export type TimelineView = "horizontal" | "list";
 export type TimeFilter = "all" | "morning" | "afternoon" | "evening";
@@ -41,7 +42,7 @@ export function useTimelineUrlState() {
       const currentState = getStateFromUrl();
       const newState = { ...currentState, ...updates };
 
-      const newSearchParams: Record<string, string> = {};
+      const newSearchParams: TimelineSearch = {};
 
       // Only add non-default values to URL
       if (newState.timelineView !== defaultState.timelineView) {
@@ -57,21 +58,21 @@ export function useTimelineUrlState() {
         newSearchParams.stages = newState.selectedStages.join(",");
       }
 
-      navigate({ search: (() => newSearchParams) as any, replace: true });
+      navigate({ search: newSearchParams as any, replace: true });
     },
     [getStateFromUrl, navigate],
   );
 
   const clearTimelineFilters = useCallback(() => {
     const currentState = getStateFromUrl();
-    const newSearchParams: Record<string, string> = {};
+    const newSearchParams: TimelineSearch = {};
 
     // Keep view when clearing filters
     if (currentState.timelineView !== defaultState.timelineView) {
       newSearchParams.view = currentState.timelineView;
     }
 
-    navigate({ search: (() => newSearchParams) as any, replace: true });
+    navigate({ search: newSearchParams as any, replace: true });
   }, [getStateFromUrl, navigate]);
 
   const state = useMemo(() => getStateFromUrl(), [getStateFromUrl]);

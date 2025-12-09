@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
+import type { FilterSortSearch } from "@/lib/searchSchemas";
 
 export type SortOption =
   | "name-asc"
@@ -68,7 +69,7 @@ export function useUrlState() {
       const currentState = getStateFromUrl();
       const newState = { ...currentState, ...updates };
 
-      const newParams: Record<string, string> = {};
+      const newParams: FilterSortSearch = {};
 
       // Only add non-default values to URL
       if (newState.sort !== defaultState.sort) {
@@ -102,21 +103,21 @@ export function useUrlState() {
         newParams.votePerspective = newState.votePerspective;
       }
 
-      navigate({ search: (() => newParams) as any, replace: true });
+      navigate({ search: newParams as any, replace: true });
     },
     [getStateFromUrl, navigate],
   );
 
   const clearFilters = useCallback(() => {
     const currentState = getStateFromUrl();
-    const newParams: Record<string, string> = {};
+    const newParams: FilterSortSearch = {};
 
     // Keep invite parameter when clearing filters
     if (currentState.invite) {
       newParams.invite = currentState.invite;
     }
 
-    navigate({ search: (() => newParams) as any, replace: true });
+    navigate({ search: newParams as any, replace: true });
   }, [getStateFromUrl, navigate]);
 
   return {

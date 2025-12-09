@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { LoadingState } from "./components/LoadingState";
 import { EmptyState } from "./components/EmptyState";
@@ -14,7 +14,6 @@ import { PageTitle } from "@/components/PageTitle/PageTitle";
 
 export function ExploreSetPage() {
   const { edition, basePath } = useFestivalEdition();
-  const { festivalSlug, editionSlug } = useParams({ strict: false });
   const navigate = useNavigate();
   const { user, showAuthDialog } = useAuth();
   const voteMutation = useVote();
@@ -108,10 +107,7 @@ export function ExploreSetPage() {
 
       setTimeout(() => {
         if (isLastSet) {
-          navigate({
-            to: "/festivals/$festivalSlug/editions/$editionSlug/sets",
-            params: { festivalSlug: festivalSlug!, editionSlug: editionSlug! },
-          });
+          navigate({ from: "/festivals/$festivalSlug/editions/$editionSlug/explore", to: "../sets" });
         } else {
           setDirection(null);
         }
@@ -146,10 +142,7 @@ export function ExploreSetPage() {
     setSkippedCount((prev) => prev + 1);
     setTimeout(() => {
       if (isLastSet) {
-        navigate({
-          to: "/festivals/$festivalSlug/editions/$editionSlug/sets",
-          params: { festivalSlug: festivalSlug!, editionSlug: editionSlug! },
-        });
+        navigate({ from: "/festivals/$festivalSlug/editions/$editionSlug/explore", to: "../sets" });
       } else {
         setCurrentIndex((prev) => prev + 1);
         setDirection(null);

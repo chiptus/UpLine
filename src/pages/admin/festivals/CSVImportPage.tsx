@@ -102,13 +102,19 @@ export function CSVImportPage() {
   function handleFestivalChange(festivalId: string) {
     setSelectedFestivalId(festivalId);
     setSelectedEditionId("");
-    navigate({ to: "/admin/festivals/$festivalId/$editionId/import", params: { festivalId, editionId: "" }, replace: true });
+    // Don't navigate with empty editionId - just update state
+    // User will select an edition which will then trigger navigation
   }
 
   function handleEditionChange(editionId: string) {
     setSelectedEditionId(editionId);
-    if (selectedFestivalId) {
-      navigate({ to: "/admin/festivals/$festivalId/$editionId/import", params: { festivalId: selectedFestivalId, editionId }, replace: true });
+    if (selectedFestivalId && editionId) {
+      navigate({
+        to: "/admin/festivals/$festivalId/$editionId/import",
+        params: { festivalId: selectedFestivalId, editionId },
+        search: (prev: any) => ({ ...prev }),
+        replace: true,
+      });
     }
   }
 

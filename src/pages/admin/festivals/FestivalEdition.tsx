@@ -20,7 +20,7 @@ export default function FestivalEdition() {
     ) {
       navigate({
         to: "/admin/festivals/$festivalSlug/editions/$editionSlug/stages",
-        params: { festivalSlug, editionSlug },
+        params: { festivalSlug: festivalSlug as string, editionSlug: editionSlug as string },
       });
     }
   }, [location.pathname, festivalSlug, editionSlug, navigate]);
@@ -67,10 +67,17 @@ export default function FestivalEdition() {
   const currentSubTab = getCurrentSubTab();
 
   function handleSubTabChange(value: string) {
-    navigate({
-      to: `/admin/festivals/$festivalSlug/editions/$editionSlug/${value}`,
-      params: { festivalSlug, editionSlug },
-    });
+    if (value === "sets") {
+      navigate({
+        to: "/admin/festivals/$festivalSlug/editions/$editionSlug/sets",
+        params: { festivalSlug: festivalSlug as string, editionSlug: editionSlug as string },
+      });
+    } else {
+      navigate({
+        to: "/admin/festivals/$festivalSlug/editions/$editionSlug/stages",
+        params: { festivalSlug: festivalSlug as string, editionSlug: editionSlug as string },
+      });
+    }
   }
 
   return (

@@ -7,8 +7,10 @@ interface ViteTypeOptions {
 }
 
 interface ImportMetaEnv {
-  readonly SUPABASE_URL: string;
-  readonly SUPABASE_PUBLISHABLE_KEY: string;
+  readonly VITE_SUPABASE_URL: string;
+  readonly VITE_SUPABASE_PUBLISHABLE_KEY: string;
+  readonly VITE_PUBLIC_POSTHOG_KEY: string;
+  readonly VITE_PUBLIC_POSTHOG_HOST: string;
   // more env variables...
 }
 

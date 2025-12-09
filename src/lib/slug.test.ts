@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { generateSlug, isValidSlug, sanitizeSlug } from "../slug";
+import { generateSlug, isValidSlug, sanitizeSlug } from "./slug";
 
 describe("generateSlug", () => {
   it("converts basic text to lowercase slug", () => {

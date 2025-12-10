@@ -103,7 +103,7 @@ export function useUrlState() {
         newParams.votePerspective = newState.votePerspective;
       }
 
-      navigate({ search: newParams as any, replace: true });
+      navigate({ to: ".", search: () => newParams, replace: true });
     },
     [getStateFromUrl, navigate],
   );
@@ -117,7 +117,7 @@ export function useUrlState() {
       newParams.invite = currentState.invite;
     }
 
-    navigate({ search: newParams as any, replace: true });
+    navigate({ to: ".", search: () => newParams, replace: true });
   }, [getStateFromUrl, navigate]);
 
   return {

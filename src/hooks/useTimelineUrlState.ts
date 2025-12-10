@@ -58,7 +58,7 @@ export function useTimelineUrlState() {
         newSearchParams.stages = newState.selectedStages.join(",");
       }
 
-      navigate({ search: newSearchParams as any, replace: true });
+      navigate({ to: ".", search: () => newSearchParams, replace: true });
     },
     [getStateFromUrl, navigate],
   );
@@ -72,7 +72,7 @@ export function useTimelineUrlState() {
       newSearchParams.view = currentState.timelineView;
     }
 
-    navigate({ search: newSearchParams as any, replace: true });
+    navigate({ to: ".", search: () => newSearchParams, replace: true });
   }, [getStateFromUrl, navigate]);
 
   const state = useMemo(() => getStateFromUrl(), [getStateFromUrl]);

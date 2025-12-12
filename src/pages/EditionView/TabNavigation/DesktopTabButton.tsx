@@ -12,13 +12,13 @@ const tabRoutes = {
 } as const;
 
 export function DesktopTabButton({ config }: TabButtonProps) {
-  const { festivalSlug, editionSlug } = useParams({ strict: false });
+  const { festivalSlug, editionSlug } = useParams();
 
   return (
     <Link
       key={config.key}
       to={tabRoutes[config.key]}
-      params={{ festivalSlug: festivalSlug as string, editionSlug: editionSlug as string }}
+      params={{ festivalSlug, editionSlug }}
       activeProps={{
         className: cn(
           `flex items-center justify-center gap-2

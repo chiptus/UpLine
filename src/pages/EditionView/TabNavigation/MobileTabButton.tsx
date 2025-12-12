@@ -11,13 +11,13 @@ const tabRoutes = {
 } as const;
 
 export function MobileTabButton({ config }: TabButtonProps) {
-  const { festivalSlug, editionSlug } = useParams({ strict: false });
+  const { festivalSlug, editionSlug } = useParams();
 
   return (
     <Link
       key={config.key}
       to={tabRoutes[config.key]}
-      params={{ festivalSlug: festivalSlug as string, editionSlug: editionSlug as string }}
+      params={{ festivalSlug, editionSlug }}
       activeProps={{
         className: `flex-1 flex flex-col items-center justify-center
           py-2 px-1 transition-colors duration-200 min-h-16 text-purple-400`,

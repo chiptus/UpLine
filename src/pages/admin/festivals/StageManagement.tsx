@@ -14,7 +14,7 @@ import { EditStageDialog } from "./StageManagement/EditStageDialog";
 interface StageManagementProps {}
 
 export function StageManagement(_props: StageManagementProps) {
-  const { edition } = useRouteContext({ strict: false }) as { edition: FestivalEdition };
+  const { edition } = useRouteContext();
   const { data: stages = [], isLoading } = useStagesByEditionQuery(edition.id);
   const deleteStageMutation = useDeleteStageMutation();
 

@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useFestivalEditionBySlugQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionBySlug";
 
 export default function FestivalEdition() {
-  const { festivalSlug, editionSlug } = useParams({ strict: false });
+  const { festivalSlug, editionSlug } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
 

@@ -14,7 +14,7 @@ interface SetManagementProps {}
 
 export function SetManagement(_props: SetManagementProps) {
   // All hooks must be at the top level
-  const { edition } = useRouteContext({ strict: false }) as { edition: FestivalEdition };
+  const { edition } = useRouteContext();
   const { data: sets = [], isLoading } = useSetsQuery();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSet, setEditingSet] = useState<FestivalSet | null>(null);

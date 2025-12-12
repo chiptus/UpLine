@@ -18,7 +18,7 @@ import { FestivalIndicator } from "@/components/layout/AppHeader/FestivalIndicat
 
 export function SetDetails() {
   const { user } = useAuth();
-  const { setSlug } = useParams({ strict: false });
+  const { setSlug } = useParams();
   const { edition, festival } = useFestivalEdition();
   const { state: urlState } = useUrlState();
   const setQuery = useSetBySlugQuery({

@@ -39,9 +39,22 @@ const defaultState: FilterSortState = {
 
 export function useUrlState() {
   const navigate = useNavigate();
-  const searchParams = useSearch({ strict: false }) as Record<string, string>;
+  const search = useSearch({ strict: false });
 
   const getStateFromUrl = useCallback((): FilterSortState => {
+    const searchParams = search as {
+      sort?: string;
+      stages?: string;
+      genres?: string;
+      minRating?: string;
+      timelineView?: string;
+      use24Hour?: string;
+      groupId?: string;
+      invite?: string;
+      sortLocked?: string;
+      votePerspective?: string;
+    };
+
     return {
       sort: (searchParams.sort as SortOption) || defaultState.sort,
       stages:
@@ -62,7 +75,7 @@ export function useUrlState() {
       votePerspective:
         searchParams.votePerspective || defaultState.votePerspective,
     };
-  }, [searchParams]);
+  }, [search]);
 
   const updateUrlState = useCallback(
     (updates: Partial<FilterSortState>) => {

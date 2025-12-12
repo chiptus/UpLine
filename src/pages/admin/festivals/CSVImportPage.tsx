@@ -112,7 +112,7 @@ export function CSVImportPage() {
       navigate({
         to: "/admin/festivals/$festivalId/$editionId/import",
         params: { festivalId: selectedFestivalId, editionId },
-        search: (prev: any) => ({ ...prev }),
+        search: (prev) => ({ ...prev }),
         replace: true,
       });
     }

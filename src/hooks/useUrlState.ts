@@ -39,41 +39,36 @@ const defaultState: FilterSortState = {
 
 export function useUrlState() {
   const navigate = useNavigate();
-  const search = useSearch({ strict: false });
+  const search = useSearch();
 
   const getStateFromUrl = useCallback((): FilterSortState => {
-    const searchParams = search as {
-      sort?: string;
-      stages?: string;
-      genres?: string;
-      minRating?: string;
-      timelineView?: string;
-      use24Hour?: string;
-      groupId?: string;
-      invite?: string;
-      sortLocked?: string;
-      votePerspective?: string;
-    };
+    const validSortOptions: SortOption[] = ["name-asc", "name-desc", "rating-desc", "popularity-desc", "date-asc"];
+    const validTimelineViews: TimelineView[] = ["horizontal", "list"];
+
+    const sortValue = search.sort && validSortOptions.includes(search.sort)
+      ? search.sort
+      : defaultState.sort;
+    const timelineViewValue = search.timelineView && validTimelineViews.includes(search.timelineView)
+      ? search.timelineView
+      : defaultState.timelineView;
 
     return {
-      sort: (searchParams.sort as SortOption) || defaultState.sort,
+      sort: sortValue,
       stages:
-        searchParams.stages?.split(",").filter(Boolean) || defaultState.stages,
+        search.stages?.split(",").filter(Boolean) || defaultState.stages,
       genres:
-        searchParams.genres?.split(",").filter(Boolean) || defaultState.genres,
+        search.genres?.split(",").filter(Boolean) || defaultState.genres,
       minRating:
-        parseInt(searchParams.minRating || "0") || defaultState.minRating,
-      timelineView:
-        (searchParams.timelineView as TimelineView) ||
-        defaultState.timelineView,
+        parseInt(search.minRating || "0") || defaultState.minRating,
+      timelineView: timelineViewValue,
       use24Hour:
-        searchParams.use24Hour === "true" || defaultState.use24Hour,
-      groupId: searchParams.groupId || defaultState.groupId,
-      invite: searchParams.invite || defaultState.invite,
+        search.use24Hour === "true" || defaultState.use24Hour,
+      groupId: search.groupId || defaultState.groupId,
+      invite: search.invite || defaultState.invite,
       sortLocked:
-        searchParams.sortLocked === "true" || defaultState.sortLocked,
+        search.sortLocked === "true" || defaultState.sortLocked,
       votePerspective:
-        searchParams.votePerspective || defaultState.votePerspective,
+        search.votePerspective || defaultState.votePerspective,
     };
   }, [search]);
 

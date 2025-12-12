@@ -53,8 +53,8 @@ function getUserTimezone(): string {
 export function CSVImportPage() {
   const { festivalId: urlFestivalId, editionId: urlEditionId } = useParams({ strict: false });
   const navigate = useNavigate();
-  const search = useSearch({ strict: false });
-  const defaultTab = ((search as { tab?: string })?.tab as "stages" | "sets") || "stages";
+  const search = useSearch();
+  const defaultTab = (search.tab === "sets" ? "sets" : "stages") satisfies "stages" | "sets";
 
   const [selectedFestivalId, setSelectedFestivalId] = useState<string>(
     urlFestivalId || "",

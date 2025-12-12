@@ -7,13 +7,13 @@ import {
 } from "@/hooks/queries/useInviteValidationQuery";
 
 export function useInviteValidation() {
-  const search = useSearch({ strict: false });
+  const search = useSearch();
   const [inviteToken, setInviteToken] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Extract token from search params
   useEffect(() => {
-    const token = (search as { invite?: string })?.invite;
+    const token = search.invite;
     if (token) {
       setInviteToken(token);
     }

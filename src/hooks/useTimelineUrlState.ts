@@ -20,19 +20,26 @@ const defaultState: TimelineState = {
 };
 
 export function useTimelineUrlState() {
-  const search = useSearch({ strict: false });
+  const search = useSearch();
   const navigate = useNavigate();
 
   const getStateFromUrl = useCallback((): TimelineState => {
-    const params = search as Record<string, string | undefined>;
+    const validTimelineViews: TimelineView[] = ["horizontal", "list"];
+    const validTimeFilters: TimeFilter[] = ["all", "morning", "afternoon", "evening"];
+
+    const timelineViewValue = search.view && validTimelineViews.includes(search.view)
+      ? search.view
+      : defaultState.timelineView;
+    const timeFilterValue = search.time && validTimeFilters.includes(search.time)
+      ? search.time
+      : defaultState.selectedTime;
+
     return {
-      timelineView:
-        (params.view as TimelineView) || defaultState.timelineView,
-      selectedDay: params.day || defaultState.selectedDay,
-      selectedTime:
-        (params.time as TimeFilter) || defaultState.selectedTime,
+      timelineView: timelineViewValue,
+      selectedDay: search.day || defaultState.selectedDay,
+      selectedTime: timeFilterValue,
       selectedStages:
-        params.stages?.split(",").filter(Boolean) ||
+        search.stages?.split(",").filter(Boolean) ||
         defaultState.selectedStages,
     };
   }, [search]);

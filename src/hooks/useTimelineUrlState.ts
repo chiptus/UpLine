@@ -24,20 +24,10 @@ export function useTimelineUrlState() {
   const navigate = useNavigate();
 
   const getStateFromUrl = useCallback((): TimelineState => {
-    const validTimelineViews: TimelineView[] = ["horizontal", "list"];
-    const validTimeFilters: TimeFilter[] = ["all", "morning", "afternoon", "evening"];
-
-    const timelineViewValue = search.view && validTimelineViews.includes(search.view)
-      ? search.view
-      : defaultState.timelineView;
-    const timeFilterValue = search.time && validTimeFilters.includes(search.time)
-      ? search.time
-      : defaultState.selectedTime;
-
     return {
-      timelineView: timelineViewValue,
+      timelineView: search.view || defaultState.timelineView,
       selectedDay: search.day || defaultState.selectedDay,
-      selectedTime: timeFilterValue,
+      selectedTime: search.time || defaultState.selectedTime,
       selectedStages:
         search.stages?.split(",").filter(Boolean) ||
         defaultState.selectedStages,

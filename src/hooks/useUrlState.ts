@@ -42,25 +42,15 @@ export function useUrlState() {
   const search = useSearch();
 
   const getStateFromUrl = useCallback((): FilterSortState => {
-    const validSortOptions: SortOption[] = ["name-asc", "name-desc", "rating-desc", "popularity-desc", "date-asc"];
-    const validTimelineViews: TimelineView[] = ["horizontal", "list"];
-
-    const sortValue = search.sort && validSortOptions.includes(search.sort)
-      ? search.sort
-      : defaultState.sort;
-    const timelineViewValue = search.timelineView && validTimelineViews.includes(search.timelineView)
-      ? search.timelineView
-      : defaultState.timelineView;
-
     return {
-      sort: sortValue,
+      sort: search.sort || defaultState.sort,
       stages:
         search.stages?.split(",").filter(Boolean) || defaultState.stages,
       genres:
         search.genres?.split(",").filter(Boolean) || defaultState.genres,
       minRating:
         parseInt(search.minRating || "0") || defaultState.minRating,
-      timelineView: timelineViewValue,
+      timelineView: search.timelineView || defaultState.timelineView,
       use24Hour:
         search.use24Hour === "true" || defaultState.use24Hour,
       groupId: search.groupId || defaultState.groupId,

@@ -20,7 +20,7 @@ export default function FestivalEdition() {
     ) {
       navigate({
         to: "/admin/festivals/$festivalSlug/editions/$editionSlug/stages",
-        params: { festivalSlug: festivalSlug as string, editionSlug: editionSlug as string },
+        params: { festivalSlug, editionSlug },
       });
     }
   }, [location.pathname, festivalSlug, editionSlug, navigate]);
@@ -70,12 +70,12 @@ export default function FestivalEdition() {
     if (value === "sets") {
       navigate({
         to: "/admin/festivals/$festivalSlug/editions/$editionSlug/sets",
-        params: { festivalSlug: festivalSlug as string, editionSlug: editionSlug as string },
+        params: { festivalSlug, editionSlug },
       });
     } else {
       navigate({
         to: "/admin/festivals/$festivalSlug/editions/$editionSlug/stages",
-        params: { festivalSlug: festivalSlug as string, editionSlug: editionSlug as string },
+        params: { festivalSlug, editionSlug },
       });
     }
   }

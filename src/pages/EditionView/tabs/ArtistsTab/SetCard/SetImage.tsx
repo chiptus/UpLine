@@ -24,7 +24,7 @@ export function SetImage({ className = "", size = "lg" }: SetImageProps) {
   return (
     <Link
       to="/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug"
-      params={{ festivalSlug: festivalSlug as string, editionSlug: editionSlug as string, setSlug: set.slug }}
+      params={{ festivalSlug, editionSlug, setSlug: set.slug }}
       className="block flex-shrink-0"
     >
       {isMultiArtist ? (

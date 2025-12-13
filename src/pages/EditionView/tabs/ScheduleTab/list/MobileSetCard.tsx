@@ -24,7 +24,7 @@ export function MobileSetCard({ set }: MobileSetCardProps) {
         <div className="mb-3">
           <Link
             to="/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug"
-            params={{ festivalSlug: festivalSlug as string, editionSlug: editionSlug as string, setSlug: set.slug as string }}
+            params={{ festivalSlug, editionSlug, setSlug: set.slug }}
             className="text-white font-semibold hover:text-purple-300 transition-colors block text-lg"
           >
             {set.name}

@@ -11,7 +11,7 @@ export const Route = createFileRoute(
 )({
   component: FestivalEdition,
   beforeLoad: async ({ params, location, context }) => {
-    if (location.pathname.endsWith(params.editionSlug)) {
+    if (params?.editionSlug && location.pathname.endsWith(params.editionSlug)) {
       throw redirect({
         to: "/admin/festivals/$festivalSlug/editions/$editionSlug/stages",
         params,

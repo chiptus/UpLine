@@ -6,7 +6,7 @@ export const Route = createFileRoute(
 )({
   component: EditionLayoutWrapper,
   beforeLoad: ({ params, location }) => {
-    if (location.pathname.endsWith(params.editionSlug)) {
+    if (params?.editionSlug && location.pathname.endsWith(params.editionSlug)) {
       throw redirect({
         to: "/festivals/$festivalSlug/editions/$editionSlug/sets",
         params,

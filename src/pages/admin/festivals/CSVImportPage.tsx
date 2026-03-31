@@ -58,9 +58,7 @@ export function CSVImportPage() {
   const search = useSearch({
     from: "/admin/festivals/$festivalId/$editionId/import",
   });
-  const defaultTab = (search.tab === "sets" ? "sets" : "stages") satisfies
-    | "stages"
-    | "sets";
+  const defaultTab = search.tab || "stages";
 
   const [selectedFestivalId, setSelectedFestivalId] = useState<string>(
     urlFestivalId || "",

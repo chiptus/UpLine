@@ -4,7 +4,7 @@ import EditionLayout from "@/pages/EditionView/EditionLayout";
 export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug",
 )({
-  component: EditionLayoutWrapper,
+  component: EditionLayout,
   beforeLoad: ({ params, location }) => {
     if (params?.editionSlug && location.pathname.endsWith(params.editionSlug)) {
       throw redirect({
@@ -15,7 +15,3 @@ export const Route = createFileRoute(
     }
   },
 });
-
-function EditionLayoutWrapper() {
-  return <EditionLayout />;
-}

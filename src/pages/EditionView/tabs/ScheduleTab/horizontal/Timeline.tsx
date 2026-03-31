@@ -19,8 +19,11 @@ export function Timeline() {
     editionSets,
     stagesQuery.data,
   );
-  const { state: filters } = useTimelineUrlState();
-  const { selectedDay, selectedTime, selectedStages } = filters;
+  const {
+    day: selectedDay,
+    time: selectedTime,
+    stages: selectedStages,
+  } = useTimelineUrlState();
 
   const timelineData = useMemo(() => {
     if (!edition || !edition.start_date || !edition.end_date) {

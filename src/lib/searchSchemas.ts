@@ -11,25 +11,25 @@ export const sortOptionSchema = z.enum([
 export const timelineViewSchema = z.enum(["horizontal", "list"]);
 
 export const filterSortSearchSchema = z.object({
-  sort: sortOptionSchema.optional(),
-  stages: z.string().optional(),
-  genres: z.string().optional(),
-  minRating: z.string().optional(),
-  timelineView: timelineViewSchema.optional(),
-  use24Hour: z.string().optional(),
+  sort: sortOptionSchema.catch("popularity-desc"),
+  stages: z.array(z.string()).catch([]),
+  genres: z.array(z.string()).catch([]),
+  minRating: z.number().catch(0),
+  timelineView: timelineViewSchema.catch("list"),
+  use24Hour: z.boolean().catch(true),
   groupId: z.string().optional(),
   invite: z.string().optional(),
-  sortLocked: z.string().optional(),
+  sortLocked: z.boolean().catch(false),
   votePerspective: z.string().optional(),
 });
 
 export type FilterSortSearch = z.infer<typeof filterSortSearchSchema>;
 
 export const timelineSearchSchema = z.object({
-  view: timelineViewSchema.optional(),
-  day: z.string().optional(),
-  time: z.enum(["all", "morning", "afternoon", "evening"]).optional(),
-  stages: z.string().optional(),
+  view: timelineViewSchema.catch("list"),
+  day: z.string().catch("all"),
+  time: z.enum(["all", "morning", "afternoon", "evening"]).catch("all"),
+  stages: z.array(z.string()).catch([]),
 });
 
 export type TimelineSearch = z.infer<typeof timelineSearchSchema>;

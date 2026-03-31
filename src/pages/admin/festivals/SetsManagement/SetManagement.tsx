@@ -10,9 +10,7 @@ import { useFestivalEditionBySlugQuery } from "@/hooks/queries/festivals/edition
 import { SetFormDialog } from "../SetFormDialog";
 import { SetsTable } from "../SetsTable";
 
-interface SetManagementProps {}
-
-export function SetManagement(_props: SetManagementProps) {
+export function SetManagement() {
   const { festivalSlug, editionSlug } = useParams({
     from: "/admin/festivals/$festivalSlug/editions/$editionSlug/sets",
   });

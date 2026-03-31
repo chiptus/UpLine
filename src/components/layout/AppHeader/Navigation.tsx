@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouter } from "@tanstack/react-router";
 import { ArrowLeft, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -49,6 +49,7 @@ export function Navigation({
   isMobile,
 }: NavigationProps) {
   const { user } = useAuth();
+  const router = useRouter();
 
   return (
     <div className="flex items-center gap-3">
@@ -57,7 +58,7 @@ export function Navigation({
         <TooltipButton
           variant="outline"
           size={isMobile ? "sm" : "default"}
-          onClick={() => window.history.back()}
+          onClick={() => router.history.back()}
           className="border-purple-400/50 text-purple-300 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-colors"
           tooltip={backLabel}
           isMobile={isMobile}

@@ -22,8 +22,11 @@ export function ListSchedule() {
     editionSets,
     stagesQuery.data,
   );
-  const { state: filters } = useTimelineUrlState();
-  const { selectedDay, selectedTime, selectedStages } = filters;
+  const {
+    day: selectedDay,
+    time: selectedTime,
+    stages: selectedStages,
+  } = useTimelineUrlState();
 
   const timeSlots = useMemo(() => {
     if (!scheduleDays.length) return [];

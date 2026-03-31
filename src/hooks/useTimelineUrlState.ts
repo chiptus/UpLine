@@ -1,82 +1,75 @@
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { useSearch, useNavigate } from "@tanstack/react-router";
 import type { TimelineSearch } from "@/lib/searchSchemas";
 
-export type TimelineView = "horizontal" | "list";
-export type TimeFilter = "all" | "morning" | "afternoon" | "evening";
-
-export interface TimelineState {
-  timelineView: TimelineView;
-  selectedDay: string; // Dynamic based on festival dates
-  selectedTime: TimeFilter;
-  selectedStages: string[];
-}
-
-const defaultState: TimelineState = {
-  timelineView: "list",
-  selectedDay: "all",
-  selectedTime: "all",
-  selectedStages: [],
-};
+export type TimelineView = TimelineSearch["view"];
+export type TimeFilter = TimelineSearch["time"];
 
 export function useTimelineUrlState() {
-  const search = useSearch({ strict: false });
+  const state = useSearch({ strict: false }) as TimelineSearch;
   const navigate = useNavigate();
 
-  const getStateFromUrl = useCallback((): TimelineState => {
-    return {
-      timelineView: search.view || defaultState.timelineView,
-      selectedDay: search.day || defaultState.selectedDay,
-      selectedTime: search.time || defaultState.selectedTime,
-      selectedStages:
-        search.stages?.split(",").filter(Boolean) ||
-        defaultState.selectedStages,
-    };
-  }, [search]);
-
-  const updateTimelineState = useCallback(
-    (updates: Partial<TimelineState>) => {
-      const currentState = getStateFromUrl();
-      const newState = { ...currentState, ...updates };
-
-      const newSearchParams: TimelineSearch = {};
-
-      // Only add non-default values to URL
-      if (newState.timelineView !== defaultState.timelineView) {
-        newSearchParams.view = newState.timelineView;
-      }
-      if (newState.selectedDay !== defaultState.selectedDay) {
-        newSearchParams.day = newState.selectedDay;
-      }
-      if (newState.selectedTime !== defaultState.selectedTime) {
-        newSearchParams.time = newState.selectedTime;
-      }
-      if (newState.selectedStages.length > 0) {
-        newSearchParams.stages = newState.selectedStages.join(",");
-      }
-
-      navigate({ to: ".", search: () => newSearchParams, replace: true });
+  const updateView = useCallback(
+    (view: TimelineView) => {
+      navigate({
+        to: ".",
+        search: (prev) => ({ ...prev, view }),
+        replace: true,
+      });
     },
-    [getStateFromUrl, navigate],
+    [navigate],
   );
 
-  const clearTimelineFilters = useCallback(() => {
-    const currentState = getStateFromUrl();
-    const newSearchParams: TimelineSearch = {};
+  const updateDay = useCallback(
+    (day: string) => {
+      navigate({
+        to: ".",
+        search: (prev) => ({ ...prev, day }),
+        replace: true,
+      });
+    },
+    [navigate],
+  );
 
-    // Keep view when clearing filters
-    if (currentState.timelineView !== defaultState.timelineView) {
-      newSearchParams.view = currentState.timelineView;
-    }
+  const updateTime = useCallback(
+    (time: TimeFilter) => {
+      navigate({
+        to: ".",
+        search: (prev) => ({ ...prev, time }),
+        replace: true,
+      });
+    },
+    [navigate],
+  );
 
-    navigate({ to: ".", search: () => newSearchParams, replace: true });
-  }, [getStateFromUrl, navigate]);
+  const updateStages = useCallback(
+    (stages: string[]) => {
+      navigate({
+        to: ".",
+        search: (prev) => ({ ...prev, stages }),
+        replace: true,
+      });
+    },
+    [navigate],
+  );
 
-  const state = useMemo(() => getStateFromUrl(), [getStateFromUrl]);
+  const clearFilters = useCallback(() => {
+    navigate({
+      to: ".",
+      search: (prev) => ({ view: (prev as TimelineSearch).view }),
+      replace: true,
+    });
+  }, [navigate]);
 
   return {
-    state,
-    updateState: updateTimelineState,
-    clearFilters: clearTimelineFilters,
+    view: state.view,
+    day: state.day,
+    time: state.time,
+    stages: state.stages,
+    updateView,
+    updateDay,
+    updateTime,
+    updateStages,
+    clearFilters,
   };
 }

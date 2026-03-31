@@ -5,9 +5,13 @@ import type { TimelineSearch } from "@/lib/searchSchemas";
 export type TimelineView = TimelineSearch["view"];
 export type TimeFilter = TimelineSearch["time"];
 
-export function useTimelineUrlState() {
-  const state = useSearch({ strict: false }) as TimelineSearch;
-  const navigate = useNavigate();
+export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
+  const route =
+    `/festivals/$festivalSlug/editions/$editionSlug/schedule/${tab}` as const;
+  const state = useSearch({
+    from: route,
+  });
+  const navigate = useNavigate({ from: route });
 
   const updateView = useCallback(
     (view: TimelineView) => {
@@ -56,7 +60,7 @@ export function useTimelineUrlState() {
   const clearFilters = useCallback(() => {
     navigate({
       to: ".",
-      search: (prev) => ({ view: (prev as TimelineSearch).view }),
+      search: (prev) => ({ view: prev.view }),
       replace: true,
     });
   }, [navigate]);

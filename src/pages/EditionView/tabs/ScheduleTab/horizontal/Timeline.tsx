@@ -23,7 +23,7 @@ export function Timeline() {
     day: selectedDay,
     time: selectedTime,
     stages: selectedStages,
-  } = useTimelineUrlState();
+  } = useTimelineUrlState("timeline");
 
   const timelineData = useMemo(() => {
     if (!edition || !edition.start_date || !edition.end_date) {

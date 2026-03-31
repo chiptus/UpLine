@@ -6,7 +6,8 @@ import { FilterContainer } from "@/components/filters/FilterContainer";
 
 export function TimelineControls() {
   const [isExpanded, setIsExpanded] = useState(false);
-  const { stages, updateStages, clearFilters } = useTimelineUrlState();
+  const { stages, updateStages, clearFilters } =
+    useTimelineUrlState("timeline");
 
   function handleStageToggle(stageId: string) {
     const newStages = stages.includes(stageId)

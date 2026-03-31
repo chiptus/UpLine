@@ -7,7 +7,7 @@ import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { PageTitle } from "@/components/PageTitle/PageTitle";
 
 export function ArtistsTab() {
-  const { state: urlState, updateUrlState, clearFilters } = useUrlState();
+  const { state: urlState, updateUrlState, clearFilters } = useUrlState("sets");
   const { edition, festival } = useFestivalEdition();
 
   // Fetch sets for the current edition

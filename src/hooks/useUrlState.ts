@@ -6,9 +6,13 @@ export type FilterSortState = FilterSortSearch;
 export type SortOption = FilterSortSearch["sort"];
 export type TimelineView = FilterSortSearch["timelineView"];
 
-export function useUrlState() {
-  const navigate = useNavigate();
-  const state = useSearch({ strict: false }) as FilterSortSearch;
+export function useUrlState(page: "sets" | "set-detail" = "sets") {
+  const route =
+    page === "sets"
+      ? (`/festivals/$festivalSlug/editions/$editionSlug/sets` as const)
+      : (`/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug` as const);
+  const state = useSearch({ from: route });
+  const navigate = useNavigate({ from: route });
 
   const updateUrlState = useCallback(
     (updates: Partial<FilterSortSearch>) => {
@@ -24,7 +28,7 @@ export function useUrlState() {
   const clearFilters = useCallback(() => {
     navigate({
       to: ".",
-      search: (prev) => ({ invite: (prev as FilterSortSearch).invite }),
+      search: (prev) => ({ invite: prev.invite }),
       replace: true,
     });
   }, [navigate]);

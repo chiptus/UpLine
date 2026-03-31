@@ -16,7 +16,7 @@ export function ListFilters() {
     updateTime,
     updateStages,
     clearFilters,
-  } = useTimelineUrlState();
+  } = useTimelineUrlState("list");
 
   function handleStageToggle(stageId: string) {
     const newStages = stages.includes(stageId)

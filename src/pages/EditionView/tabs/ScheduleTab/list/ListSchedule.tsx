@@ -26,7 +26,7 @@ export function ListSchedule() {
     day: selectedDay,
     time: selectedTime,
     stages: selectedStages,
-  } = useTimelineUrlState();
+  } = useTimelineUrlState("list");
 
   const timeSlots = useMemo(() => {
     if (!scheduleDays.length) return [];

@@ -106,8 +106,6 @@ export function CSVImportPage() {
   function handleFestivalChange(festivalId: string) {
     setSelectedFestivalId(festivalId);
     setSelectedEditionId("");
-    // Don't navigate with empty editionId - just update state
-    // User will select an edition which will then trigger navigation
   }
 
   function handleEditionChange(editionId: string) {

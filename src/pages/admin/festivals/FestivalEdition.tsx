@@ -64,8 +64,7 @@ export default function FestivalEdition() {
     );
   }
 
-  // Determine current subtab based on URL
-  function getCurrentSubTab() {
+  function getCurrentSubTab(): "sets" | "stages" {
     const path = location.pathname;
     if (path.includes("/sets")) return "sets";
     return "stages";
@@ -79,7 +78,7 @@ export default function FestivalEdition() {
         to: "/admin/festivals/$festivalSlug/editions/$editionSlug/sets",
         params: { festivalSlug, editionSlug },
       });
-    } else {
+    } else if (value === "stages") {
       navigate({
         to: "/admin/festivals/$festivalSlug/editions/$editionSlug/stages",
         params: { festivalSlug, editionSlug },

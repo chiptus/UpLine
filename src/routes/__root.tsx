@@ -1,4 +1,4 @@
-import { createRootRoute, Outlet } from "@tanstack/react-router";
+import { createRootRoute, Outlet, useSearch } from "@tanstack/react-router";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -16,10 +16,7 @@ import { InviteLandingPage } from "@/components/invite/InviteLandingPage";
 import { OnboardingDialog } from "@/components/onboarding/OnboardingDialog";
 import { useProfileQuery } from "@/hooks/queries/auth/useProfile";
 import { useMemo, useEffect } from "react";
-import {
-  shouldRedirectFromWww,
-  getNonWwwRedirectUrl,
-} from "@/lib/subdomain";
+import { shouldRedirectFromWww, getNonWwwRedirectUrl } from "@/lib/subdomain";
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -47,8 +44,9 @@ function RootComponent() {
 
 function RootContent() {
   const { user, loading: authLoading, needsOnboarding } = useAuth();
+  const search = useSearch({ strict: false }) as { invite?: string };
   const { inviteValidation, isValidating, hasValidInvite } =
-    useInviteValidation();
+    useInviteValidation(search.invite);
 
   const { isLoading: profileLoading } = useProfileQuery(user?.id);
 

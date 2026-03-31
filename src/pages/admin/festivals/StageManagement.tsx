@@ -17,13 +17,14 @@ export function StageManagement(_props: StageManagementProps) {
   const { festivalSlug, editionSlug } = useParams({
     from: "/admin/festivals/$festivalSlug/editions/$editionSlug/stages",
   });
-  const { data: edition, isLoading: editionLoading } =
-    useFestivalEditionBySlugQuery({ festivalSlug, editionSlug });
-  const { data: stages = [], isLoading: stagesLoading } =
-    useStagesByEditionQuery(edition?.id ?? "");
+  const editionQuery = useFestivalEditionBySlugQuery({
+    festivalSlug,
+    editionSlug,
+  });
+  const stagesQuery = useStagesByEditionQuery(editionQuery.data?.id ?? "");
   const deleteStageMutation = useDeleteStageMutation();
 
-  const isLoading = editionLoading || stagesLoading;
+  const isLoading = editionQuery.isLoading || stagesQuery.isLoading;
 
   const [editingStage, setEditingStage] = useState<Stage | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -50,7 +51,7 @@ export function StageManagement(_props: StageManagementProps) {
     deleteStageMutation.mutate(stage.id);
   }
 
-  if (isLoading || !edition) {
+  if (isLoading || !editionQuery.data) {
     return (
       <Card>
         <CardContent className="flex items-center justify-center p-8">
@@ -61,8 +62,8 @@ export function StageManagement(_props: StageManagementProps) {
     );
   }
 
-  const filteredStages = stages.filter(
-    (stage) => stage.festival_edition_id === edition.id,
+  const filteredStages = (stagesQuery.data || []).filter(
+    (stage) => stage.festival_edition_id === editionQuery.data.id,
   );
 
   return (
@@ -78,8 +79,8 @@ export function StageManagement(_props: StageManagementProps) {
               <Link
                 to="/admin/festivals/$festivalId/$editionId/import"
                 params={{
-                  festivalId: edition.festival_id,
-                  editionId: edition.id,
+                  festivalId: editionQuery.data.festival_id,
+                  editionId: editionQuery.data.id,
                 }}
                 search={{ tab: "stages" }}
               >
@@ -87,7 +88,7 @@ export function StageManagement(_props: StageManagementProps) {
                 Import CSV
               </Link>
             </Button>
-            <CreateStageDialog editionId={edition.id} />
+            <CreateStageDialog editionId={editionQuery.data.id} />
           </div>
         </CardTitle>
       </CardHeader>

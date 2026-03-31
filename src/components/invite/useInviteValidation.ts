@@ -1,29 +1,18 @@
-import { useState, useEffect } from "react";
-import { useSearch } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import {
   useInviteValidationQuery,
   useInviteMutation,
 } from "@/hooks/queries/useInviteValidationQuery";
 
-export function useInviteValidation() {
-  const search = useSearch({ strict: false });
-  const [inviteToken, setInviteToken] = useState<string | null>(null);
+export function useInviteValidation(inviteToken: string | undefined) {
   const { toast } = useToast();
-
-  // Extract token from search params
-  useEffect(() => {
-    const token = search.invite;
-    if (token) {
-      setInviteToken(token);
-    }
-  }, [search]);
 
   const {
     data: inviteValidation,
     isLoading: isValidating,
     error: validationError,
-  } = useInviteValidationQuery(inviteToken);
+  } = useInviteValidationQuery(inviteToken || null);
 
   const inviteMutation = useInviteMutation();
 
@@ -69,7 +58,6 @@ export function useInviteValidation() {
         userId,
       });
 
-      // Show success message with group name if available
       toast({
         title: "Success",
         description: `Welcome to ${inviteValidation?.group_name || "the group"}!`,
@@ -78,22 +66,16 @@ export function useInviteValidation() {
       return true;
     } catch (error) {
       console.error("failed validating invite", error);
-      // Error handling is done in the mutation
       return false;
     }
   }
 
-  function clearInvite() {
-    setInviteToken(null);
-  }
-
   return {
-    inviteToken,
+    inviteToken: inviteToken || null,
     inviteValidation,
     isValidating,
     validationError: validationError?.message || null,
     useInvite,
-    clearInvite,
     hasValidInvite: inviteValidation?.is_valid === true,
   };
 }

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Plus, Music, Upload } from "lucide-react";
 import { FestivalSet } from "@/hooks/queries/sets/useSets";
-import { useSetsQuery } from "@/hooks/queries/sets/useSets";
+import { useSetsByEditionQuery } from "@/hooks/queries/sets/useSetsByEdition";
 import { useDeleteSetMutation } from "@/hooks/queries/sets/useDeleteSet";
 import { useFestivalEditionBySlugQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionBySlug";
 import { SetFormDialog } from "../SetFormDialog";
@@ -14,14 +14,16 @@ export function SetManagement() {
   const { festivalSlug, editionSlug } = useParams({
     from: "/admin/festivals/$festivalSlug/editions/$editionSlug/sets",
   });
-  const { data: edition, isLoading: editionLoading } =
-    useFestivalEditionBySlugQuery({ festivalSlug, editionSlug });
-  const { data: sets = [], isLoading: setsLoading } = useSetsQuery();
+  const editionQuery = useFestivalEditionBySlugQuery({
+    festivalSlug,
+    editionSlug,
+  });
+  const setsQuery = useSetsByEditionQuery(editionQuery.data?.id);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSet, setEditingSet] = useState<FestivalSet | null>(null);
   const deleteSetMutation = useDeleteSetMutation();
 
-  const isLoading = editionLoading || setsLoading;
+  const isLoading = editionQuery.isLoading || setsQuery.isLoading;
 
   function handleCreate() {
     setEditingSet(null);
@@ -50,7 +52,7 @@ export function SetManagement() {
     setEditingSet(null);
   }
 
-  if (isLoading || !edition) {
+  if (isLoading || !editionQuery.data) {
     return (
       <Card>
         <CardContent className="flex items-center justify-center p-8">
@@ -60,10 +62,6 @@ export function SetManagement() {
       </Card>
     );
   }
-
-  const filteredSets = sets.filter(
-    (set) => set.festival_edition_id === edition.id,
-  );
 
   return (
     <Card>
@@ -78,8 +76,8 @@ export function SetManagement() {
               <Link
                 to="/admin/festivals/$festivalId/$editionId/import"
                 params={{
-                  festivalId: edition.festival_id,
-                  editionId: edition.id,
+                  festivalId: editionQuery.data.festival_id,
+                  editionId: editionQuery.data.id,
                 }}
                 search={{ tab: "sets" }}
               >
@@ -99,10 +97,10 @@ export function SetManagement() {
       </CardHeader>
       <CardContent>
         <SetsTable
-          sets={filteredSets}
+          sets={setsQuery.data || []}
           onEdit={handleEdit}
           onDelete={handleDelete}
-          editionId={edition.id}
+          editionId={editionQuery.data.id}
         />
       </CardContent>
 
@@ -110,7 +108,7 @@ export function SetManagement() {
         isOpen={isDialogOpen}
         onClose={handleCloseDialog}
         editingSet={editingSet}
-        editionId={edition.id}
+        editionId={editionQuery.data.id}
       />
     </Card>
   );

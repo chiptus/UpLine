@@ -12,7 +12,9 @@ const tabRoutes = {
 } as const;
 
 export function DesktopTabButton({ config }: TabButtonProps) {
-  const { festivalSlug, editionSlug } = useParams();
+  const { festivalSlug, editionSlug } = useParams({
+    from: "/festivals/$festivalSlug/editions/$editionSlug",
+  });
 
   return (
     <Link

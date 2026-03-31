@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Link, useRouteContext } from "@tanstack/react-router";
+import { Link, useParams } from "@tanstack/react-router";
 import { useStagesByEditionQuery } from "@/hooks/queries/stages/useStagesByEdition";
-import { FestivalEdition } from "@/hooks/queries/festivals/editions/types";
 import { useDeleteStageMutation } from "@/hooks/queries/stages/useDeleteStage";
 import { Stage } from "@/hooks/queries/stages/types";
 import { Button } from "@/components/ui/button";
@@ -10,13 +9,21 @@ import { Loader2, MapPin, Upload } from "lucide-react";
 import { StagesTable } from "./StageManagement/StagesTable";
 import { CreateStageDialog } from "./StageManagement/CreateStageDialog";
 import { EditStageDialog } from "./StageManagement/EditStageDialog";
+import { useFestivalEditionBySlugQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionBySlug";
 
 interface StageManagementProps {}
 
 export function StageManagement(_props: StageManagementProps) {
-  const { edition } = useRouteContext();
-  const { data: stages = [], isLoading } = useStagesByEditionQuery(edition.id);
+  const { festivalSlug, editionSlug } = useParams({
+    from: "/admin/festivals/$festivalSlug/editions/$editionSlug/stages",
+  });
+  const { data: edition, isLoading: editionLoading } =
+    useFestivalEditionBySlugQuery({ festivalSlug, editionSlug });
+  const { data: stages = [], isLoading: stagesLoading } =
+    useStagesByEditionQuery(edition?.id ?? "");
   const deleteStageMutation = useDeleteStageMutation();
+
+  const isLoading = editionLoading || stagesLoading;
 
   const [editingStage, setEditingStage] = useState<Stage | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -43,12 +50,7 @@ export function StageManagement(_props: StageManagementProps) {
     deleteStageMutation.mutate(stage.id);
   }
 
-  // Filter stages by selected edition
-  const filteredStages = stages.filter(
-    (stage) => stage.festival_edition_id === edition.id,
-  );
-
-  if (isLoading) {
+  if (isLoading || !edition) {
     return (
       <Card>
         <CardContent className="flex items-center justify-center p-8">
@@ -58,6 +60,10 @@ export function StageManagement(_props: StageManagementProps) {
       </Card>
     );
   }
+
+  const filteredStages = stages.filter(
+    (stage) => stage.festival_edition_id === edition.id,
+  );
 
   return (
     <Card>
@@ -71,7 +77,10 @@ export function StageManagement(_props: StageManagementProps) {
             <Button variant="outline" asChild>
               <Link
                 to="/admin/festivals/$festivalId/$editionId/import"
-                params={{ festivalId: edition.festival_id, editionId: edition.id }}
+                params={{
+                  festivalId: edition.festival_id,
+                  editionId: edition.id,
+                }}
                 search={{ tab: "stages" }}
               >
                 <Upload className="h-4 w-4 mr-2" />

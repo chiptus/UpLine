@@ -12,13 +12,16 @@ export default function AdminFestivals() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const navigate = useNavigate();
-  const { festivalSlug = "" } = useParams();
+  const { festivalSlug = "" } = useParams({ strict: false });
 
   function handleFestivalChange(festivalSlug: string) {
     if (festivalSlug === "none") {
       navigate({ to: "/admin/festivals" });
     } else {
-      navigate({ to: "/admin/festivals/$festivalSlug", params: { festivalSlug } });
+      navigate({
+        to: "/admin/festivals/$festivalSlug",
+        params: { festivalSlug },
+      });
     }
   }
 

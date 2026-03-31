@@ -6,13 +6,13 @@ interface SetHeaderProps {
 }
 
 export function SetHeader({ set }: SetHeaderProps) {
-  const { festivalSlug, editionSlug } = useParams();
+  const { festivalSlug = "", editionSlug = "" } = useParams({ strict: false });
 
   return (
     <div className="mb-2">
       <Link
         to="/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug"
-        params={{ festivalSlug, editionSlug, setSlug: set.slug }}
+        params={{ festivalSlug, editionSlug, setSlug: set.slug ?? "" }}
         className="text-white font-semibold hover:text-purple-300 transition-colors block text-sm whitespace-nowrap overflow-hidden text-ellipsis"
       >
         {set.name}

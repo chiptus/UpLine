@@ -8,7 +8,7 @@ import { useFestivalBySlugQuery } from "@/hooks/queries/festivals/useFestivalByS
 import { Loader2, Info, ChevronDown, ChevronUp } from "lucide-react";
 
 export default function FestivalDetail() {
-  const { festivalSlug, editionSlug = "" } = useParams();
+  const { festivalSlug, editionSlug = "" } = useParams({ strict: false });
   const [showFestivalInfo, setShowFestivalInfo] = useState(false);
   const navigate = useNavigate();
 

@@ -1,24 +1,29 @@
 import { useState } from "react";
-import { Link, useRouteContext } from "@tanstack/react-router";
+import { Link, useParams } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Plus, Music, Upload } from "lucide-react";
 import { FestivalSet } from "@/hooks/queries/sets/useSets";
 import { useSetsQuery } from "@/hooks/queries/sets/useSets";
-import { FestivalEdition } from "@/hooks/queries/festivals/editions/types";
 import { useDeleteSetMutation } from "@/hooks/queries/sets/useDeleteSet";
+import { useFestivalEditionBySlugQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionBySlug";
 import { SetFormDialog } from "../SetFormDialog";
 import { SetsTable } from "../SetsTable";
 
 interface SetManagementProps {}
 
 export function SetManagement(_props: SetManagementProps) {
-  // All hooks must be at the top level
-  const { edition } = useRouteContext();
-  const { data: sets = [], isLoading } = useSetsQuery();
+  const { festivalSlug, editionSlug } = useParams({
+    from: "/admin/festivals/$festivalSlug/editions/$editionSlug/sets",
+  });
+  const { data: edition, isLoading: editionLoading } =
+    useFestivalEditionBySlugQuery({ festivalSlug, editionSlug });
+  const { data: sets = [], isLoading: setsLoading } = useSetsQuery();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSet, setEditingSet] = useState<FestivalSet | null>(null);
   const deleteSetMutation = useDeleteSetMutation();
+
+  const isLoading = editionLoading || setsLoading;
 
   function handleCreate() {
     setEditingSet(null);
@@ -47,12 +52,7 @@ export function SetManagement(_props: SetManagementProps) {
     setEditingSet(null);
   }
 
-  // Filter sets by selected edition
-  const filteredSets = sets.filter(
-    (set) => set.festival_edition_id === edition.id,
-  );
-
-  if (isLoading) {
+  if (isLoading || !edition) {
     return (
       <Card>
         <CardContent className="flex items-center justify-center p-8">
@@ -62,6 +62,10 @@ export function SetManagement(_props: SetManagementProps) {
       </Card>
     );
   }
+
+  const filteredSets = sets.filter(
+    (set) => set.festival_edition_id === edition.id,
+  );
 
   return (
     <Card>
@@ -75,7 +79,10 @@ export function SetManagement(_props: SetManagementProps) {
             <Button variant="outline" asChild>
               <Link
                 to="/admin/festivals/$festivalId/$editionId/import"
-                params={{ festivalId: edition.festival_id, editionId: edition.id }}
+                params={{
+                  festivalId: edition.festival_id,
+                  editionId: edition.id,
+                }}
                 search={{ tab: "sets" }}
               >
                 <Upload className="h-4 w-4 mr-2" />

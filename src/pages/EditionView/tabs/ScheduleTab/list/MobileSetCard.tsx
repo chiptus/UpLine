@@ -11,7 +11,7 @@ interface MobileSetCardProps {
 }
 
 export function MobileSetCard({ set }: MobileSetCardProps) {
-  const { festivalSlug, editionSlug } = useParams();
+  const { festivalSlug = "", editionSlug = "" } = useParams({ strict: false });
   const duration =
     set.startTime && set.endTime
       ? differenceInMinutes(set.endTime, set.startTime)
@@ -24,7 +24,7 @@ export function MobileSetCard({ set }: MobileSetCardProps) {
         <div className="mb-3">
           <Link
             to="/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug"
-            params={{ festivalSlug, editionSlug, setSlug: set.slug }}
+            params={{ festivalSlug, editionSlug, setSlug: set.slug ?? "" }}
             className="text-white font-semibold hover:text-purple-300 transition-colors block text-lg"
           >
             {set.name}

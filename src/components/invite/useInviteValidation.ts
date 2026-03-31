@@ -7,7 +7,7 @@ import {
 } from "@/hooks/queries/useInviteValidationQuery";
 
 export function useInviteValidation() {
-  const search = useSearch();
+  const search = useSearch({ strict: false });
   const [inviteToken, setInviteToken] = useState<string | null>(null);
   const { toast } = useToast();
 

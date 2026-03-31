@@ -39,26 +39,20 @@ const defaultState: FilterSortState = {
 
 export function useUrlState() {
   const navigate = useNavigate();
-  const search = useSearch();
+  const search = useSearch({ strict: false });
 
   const getStateFromUrl = useCallback((): FilterSortState => {
     return {
       sort: search.sort || defaultState.sort,
-      stages:
-        search.stages?.split(",").filter(Boolean) || defaultState.stages,
-      genres:
-        search.genres?.split(",").filter(Boolean) || defaultState.genres,
-      minRating:
-        parseInt(search.minRating || "0") || defaultState.minRating,
+      stages: search.stages?.split(",").filter(Boolean) || defaultState.stages,
+      genres: search.genres?.split(",").filter(Boolean) || defaultState.genres,
+      minRating: parseInt(search.minRating || "0") || defaultState.minRating,
       timelineView: search.timelineView || defaultState.timelineView,
-      use24Hour:
-        search.use24Hour === "true" || defaultState.use24Hour,
+      use24Hour: search.use24Hour === "true" || defaultState.use24Hour,
       groupId: search.groupId || defaultState.groupId,
       invite: search.invite || defaultState.invite,
-      sortLocked:
-        search.sortLocked === "true" || defaultState.sortLocked,
-      votePerspective:
-        search.votePerspective || defaultState.votePerspective,
+      sortLocked: search.sortLocked === "true" || defaultState.sortLocked,
+      votePerspective: search.votePerspective || defaultState.votePerspective,
     };
   }, [search]);
 

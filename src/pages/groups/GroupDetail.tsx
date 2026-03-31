@@ -20,7 +20,7 @@ import { useGroupMembersQuery } from "@/hooks/queries/groups/useGroupMembers";
 import { useRemoveMemberMutation } from "@/hooks/queries/groups/useRemoveMember";
 
 function GroupDetail() {
-  const { groupSlug } = useParams();
+  const { groupSlug } = useParams({ from: "/groups/$groupSlug" });
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();

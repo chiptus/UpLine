@@ -20,7 +20,7 @@ const defaultState: TimelineState = {
 };
 
 export function useTimelineUrlState() {
-  const search = useSearch();
+  const search = useSearch({ strict: false });
   const navigate = useNavigate();
 
   const getStateFromUrl = useCallback((): TimelineState => {

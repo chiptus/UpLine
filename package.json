@@ -131,7 +131,8 @@
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "oxlint --fix",
-      "prettier --write"
+      "prettier --write",
+      "bash -c 'pnpm run typecheck'"
     ],
     "*.{json,css,scss,md}": [
       "prettier --write"

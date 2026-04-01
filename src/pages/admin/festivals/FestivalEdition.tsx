@@ -6,7 +6,6 @@ import {
 } from "@tanstack/react-router";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, MapPin, Music } from "lucide-react";
-import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useFestivalEditionBySlugQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionBySlug";
 
@@ -16,21 +15,6 @@ export default function FestivalEdition() {
   });
   const location = useLocation();
   const navigate = useNavigate();
-
-  // Redirect to stages if we're at the index route
-  useEffect(() => {
-    if (
-      festivalSlug &&
-      editionSlug &&
-      location.pathname ===
-        `/admin/festivals/${festivalSlug}/editions/${editionSlug}`
-    ) {
-      navigate({
-        to: "/admin/festivals/$festivalSlug/editions/$editionSlug/stages",
-        params: { festivalSlug, editionSlug },
-      });
-    }
-  }, [location.pathname, festivalSlug, editionSlug, navigate]);
 
   const editionQuery = useFestivalEditionBySlugQuery({
     festivalSlug,

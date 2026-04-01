@@ -17,9 +17,15 @@ import { OnboardingDialog } from "@/components/onboarding/OnboardingDialog";
 import { useProfileQuery } from "@/hooks/queries/auth/useProfile";
 import { useMemo, useEffect } from "react";
 import { shouldRedirectFromWww, getNonWwwRedirectUrl } from "@/lib/subdomain";
+import { z } from "zod";
+
+const rootSearchSchema = z.object({
+  invite: z.string().optional(),
+});
 
 export const Route = createRootRoute({
   component: RootComponent,
+  validateSearch: rootSearchSchema,
 });
 
 function RootComponent() {
@@ -44,7 +50,7 @@ function RootComponent() {
 
 function RootContent() {
   const { user, loading: authLoading, needsOnboarding } = useAuth();
-  const search = useSearch({ strict: false }) as { invite?: string };
+  const search = useSearch({ from: "__root__" });
   const { inviteValidation, isValidating, hasValidInvite } =
     useInviteValidation(search.invite);
 

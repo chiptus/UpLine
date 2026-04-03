@@ -106,6 +106,11 @@ export function CSVImportPage() {
   function handleFestivalChange(festivalId: string) {
     setSelectedFestivalId(festivalId);
     setSelectedEditionId("");
+    navigate({
+      to: "/admin/festivals/import",
+      search: (prev) => ({ tab: prev.tab }),
+      replace: true,
+    });
   }
 
   function handleEditionChange(editionId: string) {

@@ -44,7 +44,6 @@ export const Route = createFileRoute(
 )({
   component: FestivalEdition,
   beforeLoad: async ({ params, location, context }) => {
-    const queryClient = (context as { queryClient: QueryClient }).queryClient;
     if (params?.editionSlug && location.pathname.endsWith(params.editionSlug)) {
       throw redirect({
         to: "/admin/festivals/$festivalSlug/editions/$editionSlug/stages",
@@ -53,7 +52,7 @@ export const Route = createFileRoute(
       });
     }
 
-    // Prefetch edition data so it's available to all child routes
+    const queryClient = (context as { queryClient: QueryClient }).queryClient;
     await queryClient.ensureQueryData({
       queryKey: editionsKeys.bySlug(params.festivalSlug, params.editionSlug),
       queryFn: () =>

@@ -6,19 +6,15 @@ export type FilterSortState = FilterSortSearch;
 export type SortOption = FilterSortSearch["sort"];
 export type TimelineView = FilterSortSearch["timelineView"];
 
-export function useUrlState(page: "sets" | "set-detail" = "sets") {
-  const route =
-    page === "sets"
-      ? (`/festivals/$festivalSlug/editions/$editionSlug/sets` as const)
-      : (`/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug` as const);
-  const state = useSearch({ from: route });
-  const navigate = useNavigate({ from: route });
+export function useUrlState() {
+  const state = useSearch({ strict: false }) as FilterSortSearch;
+  const navigate = useNavigate();
 
   const updateUrlState = useCallback(
     (updates: Partial<FilterSortSearch>) => {
       navigate({
         to: ".",
-        search: (prev: FilterSortSearch) => ({ ...prev, ...updates }),
+        search: (prev) => ({ ...prev, ...updates }),
         replace: true,
       });
     },
@@ -28,7 +24,7 @@ export function useUrlState(page: "sets" | "set-detail" = "sets") {
   const clearFilters = useCallback(() => {
     navigate({
       to: ".",
-      search: (prev: FilterSortSearch) => ({ invite: prev.invite }),
+      search: (prev) => ({ invite: (prev as FilterSortSearch).invite }),
       replace: true,
     });
   }, [navigate]);

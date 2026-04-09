@@ -22,7 +22,7 @@ export function SetDetails() {
     from: "/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug",
   });
   const { edition, festival } = useFestivalEdition();
-  const { state: urlState } = useUrlState("set-detail");
+  const { state: urlState } = useUrlState();
   const setQuery = useSetBySlugQuery({
     slug: setSlug,
     editionId: edition?.id,

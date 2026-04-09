@@ -18,7 +18,7 @@ export function useUrlState(page: "sets" | "set-detail" = "sets") {
     (updates: Partial<FilterSortSearch>) => {
       navigate({
         to: ".",
-        search: (prev) => ({ ...prev, ...updates }),
+        search: (prev: FilterSortSearch) => ({ ...prev, ...updates }),
         replace: true,
       });
     },
@@ -28,7 +28,7 @@ export function useUrlState(page: "sets" | "set-detail" = "sets") {
   const clearFilters = useCallback(() => {
     navigate({
       to: ".",
-      search: (prev) => ({ invite: prev.invite }),
+      search: (prev: FilterSortSearch) => ({ invite: prev.invite }),
       replace: true,
     });
   }, [navigate]);

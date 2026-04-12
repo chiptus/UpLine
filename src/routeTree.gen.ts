@@ -26,6 +26,7 @@ import { Route as AdminFestivalsFestivalSlugRouteImport } from "./routes/admin/f
 import { Route as AdminArtistsDuplicatesRouteImport } from "./routes/admin/artists/duplicates";
 import { Route as FestivalsFestivalSlugEditionsEditionSlugRouteImport } from "./routes/festivals/$festivalSlug/editions/$editionSlug";
 import { Route as FestivalsFestivalSlugEditionsEditionSlugSocialRouteImport } from "./routes/festivals/$festivalSlug/editions/$editionSlug/social";
+import { Route as FestivalsFestivalSlugEditionsEditionSlugSetsRouteImport } from "./routes/festivals/$festivalSlug/editions/$editionSlug/sets";
 import { Route as FestivalsFestivalSlugEditionsEditionSlugScheduleRouteImport } from "./routes/festivals/$festivalSlug/editions/$editionSlug/schedule";
 import { Route as FestivalsFestivalSlugEditionsEditionSlugMapRouteImport } from "./routes/festivals/$festivalSlug/editions/$editionSlug/map";
 import { Route as FestivalsFestivalSlugEditionsEditionSlugInfoRouteImport } from "./routes/festivals/$festivalSlug/editions/$editionSlug/info";
@@ -128,6 +129,12 @@ const FestivalsFestivalSlugEditionsEditionSlugSocialRoute =
     path: "/social",
     getParentRoute: () => FestivalsFestivalSlugEditionsEditionSlugRoute,
   } as any);
+const FestivalsFestivalSlugEditionsEditionSlugSetsRoute =
+  FestivalsFestivalSlugEditionsEditionSlugSetsRouteImport.update({
+    id: "/sets",
+    path: "/sets",
+    getParentRoute: () => FestivalsFestivalSlugEditionsEditionSlugRoute,
+  } as any);
 const FestivalsFestivalSlugEditionsEditionSlugScheduleRoute =
   FestivalsFestivalSlugEditionsEditionSlugScheduleRouteImport.update({
     id: "/schedule",
@@ -166,15 +173,15 @@ const AdminFestivalsFestivalIdEditionIdImportRoute =
   } as any);
 const FestivalsFestivalSlugEditionsEditionSlugSetsIndexRoute =
   FestivalsFestivalSlugEditionsEditionSlugSetsIndexRouteImport.update({
-    id: "/sets/",
-    path: "/sets/",
-    getParentRoute: () => FestivalsFestivalSlugEditionsEditionSlugRoute,
+    id: "/",
+    path: "/",
+    getParentRoute: () => FestivalsFestivalSlugEditionsEditionSlugSetsRoute,
   } as any);
 const FestivalsFestivalSlugEditionsEditionSlugSetsSetSlugRoute =
   FestivalsFestivalSlugEditionsEditionSlugSetsSetSlugRouteImport.update({
-    id: "/sets/$setSlug",
-    path: "/sets/$setSlug",
-    getParentRoute: () => FestivalsFestivalSlugEditionsEditionSlugRoute,
+    id: "/$setSlug",
+    path: "/$setSlug",
+    getParentRoute: () => FestivalsFestivalSlugEditionsEditionSlugSetsRoute,
   } as any);
 const FestivalsFestivalSlugEditionsEditionSlugScheduleTimelineRoute =
   FestivalsFestivalSlugEditionsEditionSlugScheduleTimelineRouteImport.update({
@@ -224,13 +231,14 @@ export interface FileRoutesByFullPath {
   "/festivals/$festivalSlug/editions/$editionSlug/info": typeof FestivalsFestivalSlugEditionsEditionSlugInfoRoute;
   "/festivals/$festivalSlug/editions/$editionSlug/map": typeof FestivalsFestivalSlugEditionsEditionSlugMapRoute;
   "/festivals/$festivalSlug/editions/$editionSlug/schedule": typeof FestivalsFestivalSlugEditionsEditionSlugScheduleRouteWithChildren;
+  "/festivals/$festivalSlug/editions/$editionSlug/sets": typeof FestivalsFestivalSlugEditionsEditionSlugSetsRouteWithChildren;
   "/festivals/$festivalSlug/editions/$editionSlug/social": typeof FestivalsFestivalSlugEditionsEditionSlugSocialRoute;
   "/admin/festivals/$festivalSlug/editions/$editionSlug/sets": typeof AdminFestivalsFestivalSlugEditionsEditionSlugSetsRoute;
   "/admin/festivals/$festivalSlug/editions/$editionSlug/stages": typeof AdminFestivalsFestivalSlugEditionsEditionSlugStagesRoute;
   "/festivals/$festivalSlug/editions/$editionSlug/schedule/list": typeof FestivalsFestivalSlugEditionsEditionSlugScheduleListRoute;
   "/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline": typeof FestivalsFestivalSlugEditionsEditionSlugScheduleTimelineRoute;
   "/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug": typeof FestivalsFestivalSlugEditionsEditionSlugSetsSetSlugRoute;
-  "/festivals/$festivalSlug/editions/$editionSlug/sets": typeof FestivalsFestivalSlugEditionsEditionSlugSetsIndexRoute;
+  "/festivals/$festivalSlug/editions/$editionSlug/sets/": typeof FestivalsFestivalSlugEditionsEditionSlugSetsIndexRoute;
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute;
@@ -287,6 +295,7 @@ export interface FileRoutesById {
   "/festivals/$festivalSlug/editions/$editionSlug/info": typeof FestivalsFestivalSlugEditionsEditionSlugInfoRoute;
   "/festivals/$festivalSlug/editions/$editionSlug/map": typeof FestivalsFestivalSlugEditionsEditionSlugMapRoute;
   "/festivals/$festivalSlug/editions/$editionSlug/schedule": typeof FestivalsFestivalSlugEditionsEditionSlugScheduleRouteWithChildren;
+  "/festivals/$festivalSlug/editions/$editionSlug/sets": typeof FestivalsFestivalSlugEditionsEditionSlugSetsRouteWithChildren;
   "/festivals/$festivalSlug/editions/$editionSlug/social": typeof FestivalsFestivalSlugEditionsEditionSlugSocialRoute;
   "/admin/festivals/$festivalSlug/editions/$editionSlug/sets": typeof AdminFestivalsFestivalSlugEditionsEditionSlugSetsRoute;
   "/admin/festivals/$festivalSlug/editions/$editionSlug/stages": typeof AdminFestivalsFestivalSlugEditionsEditionSlugStagesRoute;
@@ -320,13 +329,14 @@ export interface FileRouteTypes {
     | "/festivals/$festivalSlug/editions/$editionSlug/info"
     | "/festivals/$festivalSlug/editions/$editionSlug/map"
     | "/festivals/$festivalSlug/editions/$editionSlug/schedule"
+    | "/festivals/$festivalSlug/editions/$editionSlug/sets"
     | "/festivals/$festivalSlug/editions/$editionSlug/social"
     | "/admin/festivals/$festivalSlug/editions/$editionSlug/sets"
     | "/admin/festivals/$festivalSlug/editions/$editionSlug/stages"
     | "/festivals/$festivalSlug/editions/$editionSlug/schedule/list"
     | "/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline"
     | "/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug"
-    | "/festivals/$festivalSlug/editions/$editionSlug/sets";
+    | "/festivals/$festivalSlug/editions/$editionSlug/sets/";
   fileRoutesByTo: FileRoutesByTo;
   to:
     | "/"
@@ -382,6 +392,7 @@ export interface FileRouteTypes {
     | "/festivals/$festivalSlug/editions/$editionSlug/info"
     | "/festivals/$festivalSlug/editions/$editionSlug/map"
     | "/festivals/$festivalSlug/editions/$editionSlug/schedule"
+    | "/festivals/$festivalSlug/editions/$editionSlug/sets"
     | "/festivals/$festivalSlug/editions/$editionSlug/social"
     | "/admin/festivals/$festivalSlug/editions/$editionSlug/sets"
     | "/admin/festivals/$festivalSlug/editions/$editionSlug/stages"
@@ -524,6 +535,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof FestivalsFestivalSlugEditionsEditionSlugSocialRouteImport;
       parentRoute: typeof FestivalsFestivalSlugEditionsEditionSlugRoute;
     };
+    "/festivals/$festivalSlug/editions/$editionSlug/sets": {
+      id: "/festivals/$festivalSlug/editions/$editionSlug/sets";
+      path: "/sets";
+      fullPath: "/festivals/$festivalSlug/editions/$editionSlug/sets";
+      preLoaderRoute: typeof FestivalsFestivalSlugEditionsEditionSlugSetsRouteImport;
+      parentRoute: typeof FestivalsFestivalSlugEditionsEditionSlugRoute;
+    };
     "/festivals/$festivalSlug/editions/$editionSlug/schedule": {
       id: "/festivals/$festivalSlug/editions/$editionSlug/schedule";
       path: "/schedule";
@@ -568,17 +586,17 @@ declare module "@tanstack/react-router" {
     };
     "/festivals/$festivalSlug/editions/$editionSlug/sets/": {
       id: "/festivals/$festivalSlug/editions/$editionSlug/sets/";
-      path: "/sets";
-      fullPath: "/festivals/$festivalSlug/editions/$editionSlug/sets";
+      path: "/";
+      fullPath: "/festivals/$festivalSlug/editions/$editionSlug/sets/";
       preLoaderRoute: typeof FestivalsFestivalSlugEditionsEditionSlugSetsIndexRouteImport;
-      parentRoute: typeof FestivalsFestivalSlugEditionsEditionSlugRoute;
+      parentRoute: typeof FestivalsFestivalSlugEditionsEditionSlugSetsRoute;
     };
     "/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug": {
       id: "/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug";
-      path: "/sets/$setSlug";
+      path: "/$setSlug";
       fullPath: "/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug";
       preLoaderRoute: typeof FestivalsFestivalSlugEditionsEditionSlugSetsSetSlugRouteImport;
-      parentRoute: typeof FestivalsFestivalSlugEditionsEditionSlugRoute;
+      parentRoute: typeof FestivalsFestivalSlugEditionsEditionSlugSetsRoute;
     };
     "/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline": {
       id: "/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline";
@@ -707,14 +725,31 @@ const FestivalsFestivalSlugEditionsEditionSlugScheduleRouteWithChildren =
     FestivalsFestivalSlugEditionsEditionSlugScheduleRouteChildren,
   );
 
+interface FestivalsFestivalSlugEditionsEditionSlugSetsRouteChildren {
+  FestivalsFestivalSlugEditionsEditionSlugSetsSetSlugRoute: typeof FestivalsFestivalSlugEditionsEditionSlugSetsSetSlugRoute;
+  FestivalsFestivalSlugEditionsEditionSlugSetsIndexRoute: typeof FestivalsFestivalSlugEditionsEditionSlugSetsIndexRoute;
+}
+
+const FestivalsFestivalSlugEditionsEditionSlugSetsRouteChildren: FestivalsFestivalSlugEditionsEditionSlugSetsRouteChildren =
+  {
+    FestivalsFestivalSlugEditionsEditionSlugSetsSetSlugRoute:
+      FestivalsFestivalSlugEditionsEditionSlugSetsSetSlugRoute,
+    FestivalsFestivalSlugEditionsEditionSlugSetsIndexRoute:
+      FestivalsFestivalSlugEditionsEditionSlugSetsIndexRoute,
+  };
+
+const FestivalsFestivalSlugEditionsEditionSlugSetsRouteWithChildren =
+  FestivalsFestivalSlugEditionsEditionSlugSetsRoute._addFileChildren(
+    FestivalsFestivalSlugEditionsEditionSlugSetsRouteChildren,
+  );
+
 interface FestivalsFestivalSlugEditionsEditionSlugRouteChildren {
   FestivalsFestivalSlugEditionsEditionSlugExploreRoute: typeof FestivalsFestivalSlugEditionsEditionSlugExploreRoute;
   FestivalsFestivalSlugEditionsEditionSlugInfoRoute: typeof FestivalsFestivalSlugEditionsEditionSlugInfoRoute;
   FestivalsFestivalSlugEditionsEditionSlugMapRoute: typeof FestivalsFestivalSlugEditionsEditionSlugMapRoute;
   FestivalsFestivalSlugEditionsEditionSlugScheduleRoute: typeof FestivalsFestivalSlugEditionsEditionSlugScheduleRouteWithChildren;
+  FestivalsFestivalSlugEditionsEditionSlugSetsRoute: typeof FestivalsFestivalSlugEditionsEditionSlugSetsRouteWithChildren;
   FestivalsFestivalSlugEditionsEditionSlugSocialRoute: typeof FestivalsFestivalSlugEditionsEditionSlugSocialRoute;
-  FestivalsFestivalSlugEditionsEditionSlugSetsSetSlugRoute: typeof FestivalsFestivalSlugEditionsEditionSlugSetsSetSlugRoute;
-  FestivalsFestivalSlugEditionsEditionSlugSetsIndexRoute: typeof FestivalsFestivalSlugEditionsEditionSlugSetsIndexRoute;
 }
 
 const FestivalsFestivalSlugEditionsEditionSlugRouteChildren: FestivalsFestivalSlugEditionsEditionSlugRouteChildren =
@@ -727,12 +762,10 @@ const FestivalsFestivalSlugEditionsEditionSlugRouteChildren: FestivalsFestivalSl
       FestivalsFestivalSlugEditionsEditionSlugMapRoute,
     FestivalsFestivalSlugEditionsEditionSlugScheduleRoute:
       FestivalsFestivalSlugEditionsEditionSlugScheduleRouteWithChildren,
+    FestivalsFestivalSlugEditionsEditionSlugSetsRoute:
+      FestivalsFestivalSlugEditionsEditionSlugSetsRouteWithChildren,
     FestivalsFestivalSlugEditionsEditionSlugSocialRoute:
       FestivalsFestivalSlugEditionsEditionSlugSocialRoute,
-    FestivalsFestivalSlugEditionsEditionSlugSetsSetSlugRoute:
-      FestivalsFestivalSlugEditionsEditionSlugSetsSetSlugRoute,
-    FestivalsFestivalSlugEditionsEditionSlugSetsIndexRoute:
-      FestivalsFestivalSlugEditionsEditionSlugSetsIndexRoute,
   };
 
 const FestivalsFestivalSlugEditionsEditionSlugRouteWithChildren =

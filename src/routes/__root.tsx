@@ -1,4 +1,8 @@
-import { createRootRoute, Outlet, useSearch } from "@tanstack/react-router";
+import {
+  createRootRouteWithContext,
+  Outlet,
+  useSearch,
+} from "@tanstack/react-router";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -18,12 +22,17 @@ import { useProfileQuery } from "@/hooks/queries/auth/useProfile";
 import { useMemo, useEffect } from "react";
 import { shouldRedirectFromWww, getNonWwwRedirectUrl } from "@/lib/subdomain";
 import { z } from "zod";
+import type { QueryClient } from "@tanstack/react-query";
 
 const rootSearchSchema = z.object({
   invite: z.string().optional(),
 });
 
-export const Route = createRootRoute({
+interface RouterContext {
+  queryClient: QueryClient;
+}
+
+export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootComponent,
   validateSearch: rootSearchSchema,
 });

@@ -1,5 +1,5 @@
 import { ScheduleNavigation } from "./ScheduleTab/ScheduleNavigation";
-import { Outlet } from "react-router-dom";
+import { Outlet } from "@tanstack/react-router";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { PageTitle } from "@/components/PageTitle/PageTitle";
 

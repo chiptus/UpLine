@@ -6,17 +6,17 @@ import { FilterContainer } from "@/components/filters/FilterContainer";
 
 export function TimelineControls() {
   const [isExpanded, setIsExpanded] = useState(false);
-  const { state, updateState, clearFilters } = useTimelineUrlState();
-  const { selectedStages } = state;
+  const { stages, updateStages, clearFilters } =
+    useTimelineUrlState("timeline");
 
   function handleStageToggle(stageId: string) {
-    const newStages = selectedStages.includes(stageId)
-      ? selectedStages.filter((id) => id !== stageId)
-      : [...selectedStages, stageId];
-    updateState({ selectedStages: newStages });
+    const newStages = stages.includes(stageId)
+      ? stages.filter((id) => id !== stageId)
+      : [...stages, stageId];
+    updateStages(newStages);
   }
 
-  const activeFilterCount = selectedStages.length;
+  const activeFilterCount = stages.length;
   const hasActiveFilters = activeFilterCount > 0;
 
   return (
@@ -37,14 +37,12 @@ export function TimelineControls() {
       {isExpanded && (
         <div className="mt-4">
           <TimelineNavigation
-            selectedStages={selectedStages}
+            selectedStages={stages}
             onStageToggle={handleStageToggle}
             onJumpToToday={() => {
-              // TODO: Implement jump to today functionality
               console.log("Jump to today");
             }}
             onJumpToTime={(timeOfDay) => {
-              // TODO: Implement jump to time functionality
               console.log("Jump to", timeOfDay);
             }}
           />

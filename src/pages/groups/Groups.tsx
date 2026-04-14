@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserGroupsQuery } from "@/hooks/queries/groups/useUserGroups";
 import { useUserPermissionsQuery } from "@/hooks/queries/auth/useUserPermissions";
@@ -96,7 +96,7 @@ function Groups() {
           isOpen={createDialogOpen}
           onOpenChange={setCreateDialogOpen}
           onGroupCreated={(groupSlug) => {
-            navigate(`/groups/${groupSlug}`);
+            navigate({ to: "/groups/$groupSlug", params: { groupSlug } });
             setCreateDialogOpen(false);
           }}
         />

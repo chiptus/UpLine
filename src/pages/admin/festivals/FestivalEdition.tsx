@@ -1,31 +1,14 @@
-import { useParams, useLocation, useNavigate, Outlet } from "react-router-dom";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useParams, useLocation, Outlet, Link } from "@tanstack/react-router";
 import { Loader2, MapPin, Music } from "lucide-react";
-import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useFestivalEditionBySlugQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionBySlug";
+import { cn } from "@/lib/utils";
 
 export default function FestivalEdition() {
-  const { festivalSlug, editionSlug } = useParams<{
-    festivalSlug: string;
-    editionSlug: string;
-  }>();
+  const { festivalSlug, editionSlug } = useParams({
+    from: "/admin/festivals/$festivalSlug/editions/$editionSlug",
+  });
   const location = useLocation();
-  const navigate = useNavigate();
-
-  // Redirect to stages if we're at the index route
-  useEffect(() => {
-    if (
-      festivalSlug &&
-      editionSlug &&
-      location.pathname ===
-        `/admin/festivals/${festivalSlug}/editions/${editionSlug}`
-    ) {
-      navigate(
-        `/admin/festivals/${festivalSlug}/editions/${editionSlug}/stages`,
-      );
-    }
-  }, [location.pathname, festivalSlug, editionSlug, navigate]);
 
   const editionQuery = useFestivalEditionBySlugQuery({
     festivalSlug,
@@ -59,20 +42,8 @@ export default function FestivalEdition() {
     );
   }
 
-  // Determine current subtab based on URL
-  function getCurrentSubTab() {
-    const path = location.pathname;
-    if (path.includes("/sets")) return "sets";
-    return "stages";
-  }
-
-  const currentSubTab = getCurrentSubTab();
-
-  function handleSubTabChange(value: string) {
-    navigate(
-      `/admin/festivals/${festivalSlug}/editions/${editionSlug}/${value}`,
-    );
-  }
+  const isOnSets = location.pathname.includes("/sets");
+  const isOnStages = location.pathname.includes("/stages");
 
   return (
     <div className="space-y-6">
@@ -85,32 +56,38 @@ export default function FestivalEdition() {
           </CardTitle>
         </CardHeader>
       </Card>
-      <Tabs
-        value={currentSubTab}
-        onValueChange={handleSubTabChange}
-        className="w-full"
-      >
-        <TabsList className="grid w-full grid-cols-2 bg-white/10 backdrop-blur-md">
-          <TabsTrigger
-            value="stages"
-            className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-white"
+      <div className="w-full">
+        <div className="grid w-full grid-cols-2 gap-2 bg-white/10 backdrop-blur-md p-1 rounded-lg">
+          <Link
+            to="/admin/festivals/$festivalSlug/editions/$editionSlug/stages"
+            params={{ festivalSlug, editionSlug }}
+            className={cn(
+              "flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors",
+              "text-white font-medium",
+              isOnStages ? "bg-purple-600" : "hover:bg-white/10",
+            )}
           >
-            <MapPin className="h-4 w-4 mr-2" />
+            <MapPin className="h-4 w-4" />
             Stages
-          </TabsTrigger>
-          <TabsTrigger
-            value="sets"
-            className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-white"
+          </Link>
+          <Link
+            to="/admin/festivals/$festivalSlug/editions/$editionSlug/sets"
+            params={{ festivalSlug, editionSlug }}
+            className={cn(
+              "flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors",
+              "text-white font-medium",
+              isOnSets ? "bg-purple-600" : "hover:bg-white/10",
+            )}
           >
-            <Music className="h-4 w-4 mr-2" />
+            <Music className="h-4 w-4" />
             Sets
-          </TabsTrigger>
-        </TabsList>
+          </Link>
+        </div>
 
         <div className="mt-6">
-          <Outlet context={{ edition: currentEdition }} />
+          <Outlet />
         </div>
-      </Tabs>
+      </div>
     </div>
   );
 }

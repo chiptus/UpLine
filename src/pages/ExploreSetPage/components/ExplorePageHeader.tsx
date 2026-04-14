@@ -1,11 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { ExplorationProgress } from "../ExplorationProgress";
 import { ProgressInfoTooltip } from "./ProgressInfoTooltip";
 
 interface ExplorePageHeaderProps {
-  basePath: string;
   editionName: string;
   currentIndex: number;
   totalSets: number;
@@ -15,7 +14,6 @@ interface ExplorePageHeaderProps {
 }
 
 export function ExplorePageHeader({
-  basePath,
   editionName,
   currentIndex,
   totalSets,
@@ -32,7 +30,10 @@ export function ExplorePageHeader({
           size="sm"
           className="text-white hover:bg-white/20 flex items-center "
         >
-          <Link to={`${basePath}/sets`}>
+          <Link
+            from="/festivals/$festivalSlug/editions/$editionSlug/explore"
+            to="../sets"
+          >
             <ArrowLeft className="h-4 w-4 mr-2" />
             <span className="hidden sm:inline">Back</span>
           </Link>

@@ -2,25 +2,17 @@ import { AppHeader } from "@/components/layout/AppHeader";
 import { MainTabNavigation } from "./TabNavigation/TabNavigation";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
-import { Outlet } from "react-router-dom";
+import { Outlet } from "@tanstack/react-router";
 import { useCustomLinksQuery } from "@/hooks/queries/custom-links/useCustomLinks";
 
 export default function EditionView() {
-  const { festival, edition, isContextReady } = useFestivalEdition();
-  const customLinksQuery = useCustomLinksQuery(festival?.id);
+  const { festival, edition } = useFestivalEdition();
+  const customLinksQuery = useCustomLinksQuery(festival.id);
 
-  if (!isContextReady) {
+  if (!edition) {
     return (
       <div className="min-h-screen bg-app-gradient flex items-center justify-center">
-        <div className="text-white text-xl">Loading festival...</div>
-      </div>
-    );
-  }
-
-  if (!festival || !edition) {
-    return (
-      <div className="min-h-screen bg-app-gradient flex items-center justify-center">
-        <div className="text-white text-xl">Loading festival...</div>
+        <div className="text-white text-xl">Loading edition...</div>
       </div>
     );
   }

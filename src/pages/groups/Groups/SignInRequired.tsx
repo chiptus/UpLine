@@ -6,7 +6,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link } from "@tanstack/react-router";
 
 export function SignInRequired() {
   return (

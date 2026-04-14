@@ -9,3 +9,4 @@ yarn.lock
 .idea
 coverage
 *.log
+src/routeTree.gen.ts

@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@tanstack/react-router";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { LoadingState } from "./components/LoadingState";
 import { EmptyState } from "./components/EmptyState";
@@ -13,7 +13,7 @@ import { useExplorableSets } from "./useExplorableSets";
 import { PageTitle } from "@/components/PageTitle/PageTitle";
 
 export function ExploreSetPage() {
-  const { edition, basePath } = useFestivalEdition();
+  const { edition } = useFestivalEdition();
   const navigate = useNavigate();
   const { user, showAuthDialog } = useAuth();
   const voteMutation = useVote();
@@ -45,7 +45,7 @@ export function ExploreSetPage() {
   const nextSet = !isLastSet ? explorableSets[currentIndex + 1] : undefined;
 
   if (!edition || totalExplorableSets === 0) {
-    return <EmptyState basePath={basePath} />;
+    return <EmptyState />;
   }
   const totalSets = explorableSetsQuery.totalSets;
   const currentIndexInAllSets =
@@ -55,7 +55,6 @@ export function ExploreSetPage() {
     <div className="relative min-h-screen bg-gradient-to-b from-purple-900 to-black">
       <PageTitle title={`Explore Sets - ${edition.name}`} />
       <ExplorePageHeader
-        basePath={basePath}
         editionName={edition.name}
         currentIndex={currentIndexInAllSets}
         totalSets={totalSets}
@@ -108,7 +107,10 @@ export function ExploreSetPage() {
 
       setTimeout(() => {
         if (isLastSet) {
-          navigate(`${basePath}/sets`);
+          navigate({
+            from: "/festivals/$festivalSlug/editions/$editionSlug/explore",
+            to: "../sets",
+          });
         } else {
           setDirection(null);
         }
@@ -143,7 +145,10 @@ export function ExploreSetPage() {
     setSkippedCount((prev) => prev + 1);
     setTimeout(() => {
       if (isLastSet) {
-        navigate(`${basePath}/sets`);
+        navigate({
+          from: "/festivals/$festivalSlug/editions/$editionSlug/explore",
+          to: "../sets",
+        });
       } else {
         setCurrentIndex((prev) => prev + 1);
         setDirection(null);

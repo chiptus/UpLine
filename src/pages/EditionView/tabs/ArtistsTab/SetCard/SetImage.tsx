@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useParams } from "@tanstack/react-router";
 import { ArtistImageLoader } from "@/components/ArtistImageLoader";
 import { useFestivalSet } from "../FestivalSetContext";
 import { MixedArtistImage } from "@/pages/SetDetails/MixedArtistImage";
@@ -10,6 +10,9 @@ interface SetImageProps {
 
 export function SetImage({ className = "", size = "lg" }: SetImageProps) {
   const { set } = useFestivalSet();
+  const { festivalSlug, editionSlug } = useParams({
+    from: "/festivals/$festivalSlug/editions/$editionSlug",
+  });
   const isMultiArtist = set.artists.length > 1;
 
   const sizeClasses = {
@@ -21,7 +24,11 @@ export function SetImage({ className = "", size = "lg" }: SetImageProps) {
   const containerClass = `${sizeClasses[size]} ${className} overflow-hidden rounded-lg hover:opacity-90 transition-opacity cursor-pointer`;
 
   return (
-    <Link to={`./${set.slug}`} className="block flex-shrink-0">
+    <Link
+      to="/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug"
+      params={{ festivalSlug, editionSlug, setSlug: set.slug }}
+      className="block flex-shrink-0"
+    >
       {isMultiArtist ? (
         <MixedArtistImage
           artists={set.artists}

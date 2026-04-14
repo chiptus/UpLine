@@ -1,26 +1,45 @@
 import { cn } from "@/lib/utils";
-import { NavLink } from "react-router-dom";
+import { Link, useParams } from "@tanstack/react-router";
 import { TabButtonProps } from "./types";
 
-export function DesktopTabButton({ config, basePath }: TabButtonProps) {
+const tabRoutes = {
+  sets: "/festivals/$festivalSlug/editions/$editionSlug/sets",
+  schedule: "/festivals/$festivalSlug/editions/$editionSlug/schedule",
+  map: "/festivals/$festivalSlug/editions/$editionSlug/map",
+  info: "/festivals/$festivalSlug/editions/$editionSlug/info",
+  social: "/festivals/$festivalSlug/editions/$editionSlug/social",
+  explore: "/festivals/$festivalSlug/editions/$editionSlug/explore",
+} as const;
+
+export function DesktopTabButton({ config }: TabButtonProps) {
+  const { festivalSlug, editionSlug } = useParams({
+    from: "/festivals/$festivalSlug/editions/$editionSlug",
+  });
+
   return (
-    <NavLink
+    <Link
       key={config.key}
-      to={`${basePath}/${config.key}`}
-      className={({ isActive }) =>
-        cn(
-          `
-          flex items-center justify-center gap-2
+      to={tabRoutes[config.key]}
+      params={{ festivalSlug, editionSlug }}
+      activeProps={{
+        className: cn(
+          `flex items-center justify-center gap-2
           px-6 py-3 rounded-lg
-          transition-all duration-200 active:scale-95`,
-          isActive
-            ? "bg-purple-600 text-white shadow-lg"
-            : "text-purple-200 hover:text-white hover:bg-white/10",
-        )
-      }
+          transition-all duration-200 active:scale-95
+          bg-purple-600 text-white shadow-lg`,
+        ),
+      }}
+      inactiveProps={{
+        className: cn(
+          `flex items-center justify-center gap-2
+          px-6 py-3 rounded-lg
+          transition-all duration-200 active:scale-95
+          text-purple-200 hover:text-white hover:bg-white/10`,
+        ),
+      }}
     >
       <config.icon className="h-5 w-5" />
       <span className="font-medium">{config.label}</span>
-    </NavLink>
+    </Link>
   );
 }

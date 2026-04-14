@@ -13,7 +13,7 @@ import {
   createFestivalSubdomainUrl,
   isMainGetuplineDomain,
 } from "@/lib/subdomain";
-import { Link } from "react-router-dom";
+import { Link } from "@tanstack/react-router";
 import { useCustomLinksQuery } from "@/hooks/queries/custom-links/useCustomLinks";
 import { PageTitle } from "@/components/PageTitle/PageTitle";
 import { TopBar } from "@/components/layout/TopBar";
@@ -101,10 +101,22 @@ function FestivalCard({ festival }: { festival: Festival }) {
     (link) => link.link_type === "website",
   )?.url;
 
+  function handleClick(e: React.MouseEvent) {
+    const isMain = isMainGetuplineDomain();
+
+    if (isMain) {
+      e.preventDefault();
+      const subdomainUrl = createFestivalSubdomainUrl(festival.slug);
+      window.location.href = subdomainUrl;
+    }
+  }
+
   return (
     <Link
       className="block cursor-pointer max-w-[90vw] w-full"
-      to={`/festivals/${festival.slug}`}
+      to="/festivals/$festivalSlug"
+      params={{ festivalSlug: festival.slug }}
+      onClick={handleClick}
     >
       <Card className="bg-white/10 border-purple-400/30 hover:bg-white/15 transition-all duration-300 cursor-pointer group">
         <CardHeader>

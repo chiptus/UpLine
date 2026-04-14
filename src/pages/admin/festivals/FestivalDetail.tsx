@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, useNavigate, Outlet } from "react-router-dom";
+import { useParams, useNavigate, Outlet } from "@tanstack/react-router";
 import { FestivalEditionManagement } from "./FestivalEditionManagement";
 import { FestivalInfoDetails } from "@/pages/admin/festivals/info/FestivalInfoDetails";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -8,10 +8,7 @@ import { useFestivalBySlugQuery } from "@/hooks/queries/festivals/useFestivalByS
 import { Loader2, Info, ChevronDown, ChevronUp } from "lucide-react";
 
 export default function FestivalDetail() {
-  const { festivalSlug, editionSlug = "" } = useParams<{
-    festivalSlug: string;
-    editionSlug?: string;
-  }>();
+  const { festivalSlug, editionSlug = "" } = useParams({ strict: false });
   const [showFestivalInfo, setShowFestivalInfo] = useState(false);
   const navigate = useNavigate();
 
@@ -42,8 +39,12 @@ export default function FestivalDetail() {
     );
   }
 
-  function handleEditionSelect(editionSlug: string) {
-    navigate(`/admin/festivals/${festivalSlug}/editions/${editionSlug}/stages`);
+  function handleEditionSelect(editionSlug: string | undefined) {
+    if (!editionSlug || !festivalSlug) return;
+    navigate({
+      to: "/admin/festivals/$festivalSlug/editions/$editionSlug/stages",
+      params: { festivalSlug, editionSlug },
+    });
   }
 
   const festival = festivalQuery.data;

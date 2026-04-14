@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { UserAvatar } from "./UserAvatar";
 import { Database } from "@/integrations/supabase/types";
-import { Link } from "react-router-dom";
+import { Link } from "@tanstack/react-router";
 import { useUserPermissionsQuery } from "@/hooks/queries/auth/useUserPermissions";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];

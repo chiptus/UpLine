@@ -2,7 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Festival, festivalsKeys } from "./types";
 
-async function fetchFestivalBySlug(festivalSlug: string): Promise<Festival> {
+export async function fetchFestivalBySlug(
+  festivalSlug: string,
+): Promise<Festival> {
   const { data, error } = await supabase
     .from("festivals")
     .select("*")

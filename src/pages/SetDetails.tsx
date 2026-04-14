@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams } from "@tanstack/react-router";
 import { ArtistImageCard } from "./SetDetails/SetImageCard";
 import { MixedArtistImage } from "./SetDetails/MixedArtistImage";
 import { SetInfoCard } from "./SetDetails/SetInfoCard";
@@ -18,7 +18,9 @@ import { FestivalIndicator } from "@/components/layout/AppHeader/FestivalIndicat
 
 export function SetDetails() {
   const { user } = useAuth();
-  const { setSlug } = useParams<{ setSlug: string }>();
+  const { setSlug } = useParams({
+    from: "/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug",
+  });
   const { edition, festival } = useFestivalEdition();
   const { state: urlState } = useUrlState();
   const setQuery = useSetBySlugQuery({

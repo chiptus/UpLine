@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Outlet, useNavigate, useParams } from "react-router-dom";
+import { Outlet, useNavigate, useParams } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Plus } from "lucide-react";
 import { FestivalDialog } from "./FestivalDialog";
@@ -12,15 +12,16 @@ export default function AdminFestivals() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const navigate = useNavigate();
-  const { festivalSlug = "" } = useParams<{
-    festivalSlug?: string;
-  }>();
+  const { festivalSlug = "" } = useParams({ strict: false });
 
   function handleFestivalChange(festivalSlug: string) {
     if (festivalSlug === "none") {
-      navigate("/admin/festivals");
+      navigate({ to: "/admin/festivals" });
     } else {
-      navigate(`/admin/festivals/${festivalSlug}`);
+      navigate({
+        to: "/admin/festivals/$festivalSlug",
+        params: { festivalSlug },
+      });
     }
   }
 

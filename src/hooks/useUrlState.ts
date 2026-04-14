@@ -1,129 +1,41 @@
 import { useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearch } from "@tanstack/react-router";
+import { type FilterSortSearch } from "@/lib/searchSchemas";
 
-export type SortOption =
-  | "name-asc"
-  | "name-desc"
-  | "rating-desc"
-  | "popularity-desc"
-  | "date-asc";
-export type TimelineView = "horizontal" | "list";
-export type MainTab = "artists" | "timeline" | "map" | "info" | "social";
-
-export interface FilterSortState {
-  sort: SortOption;
-  stages: string[];
-  genres: string[];
-  minRating: number;
-  timelineView: TimelineView;
-  use24Hour: boolean;
-  groupId?: string;
-  invite?: string;
-  sortLocked?: boolean;
-  votePerspective?: string; // For filtering votes by group
-}
-
-const defaultState: FilterSortState = {
-  sort: "popularity-desc",
-  stages: [],
-  genres: [],
-  minRating: 0,
-  timelineView: "list",
-  use24Hour: true,
-  groupId: undefined,
-  invite: undefined,
-  sortLocked: false,
-  votePerspective: undefined,
-};
+export type FilterSortState = FilterSortSearch;
+export type SortOption = FilterSortSearch["sort"];
+export type TimelineView = FilterSortSearch["timelineView"];
 
 export function useUrlState() {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const getStateFromUrl = useCallback((): FilterSortState => {
-    return {
-      sort: (searchParams.get("sort") as SortOption) || defaultState.sort,
-      stages:
-        searchParams.get("stages")?.split(",").filter(Boolean) ||
-        defaultState.stages,
-      genres:
-        searchParams.get("genres")?.split(",").filter(Boolean) ||
-        defaultState.genres,
-      minRating:
-        parseInt(searchParams.get("minRating") || "0") ||
-        defaultState.minRating,
-      timelineView:
-        (searchParams.get("timelineView") as TimelineView) ||
-        defaultState.timelineView,
-      use24Hour:
-        searchParams.get("use24Hour") === "true" || defaultState.use24Hour,
-      groupId: searchParams.get("groupId") || defaultState.groupId,
-      invite: searchParams.get("invite") || defaultState.invite,
-      sortLocked:
-        searchParams.get("sortLocked") === "true" || defaultState.sortLocked,
-      votePerspective:
-        searchParams.get("votePerspective") || defaultState.votePerspective,
-    };
-  }, [searchParams]);
+  const search = useSearch({
+    from: "/festivals/$festivalSlug/editions/$editionSlug/sets",
+  });
+  const navigate = useNavigate({
+    from: "/festivals/$festivalSlug/editions/$editionSlug/sets",
+  });
 
   const updateUrlState = useCallback(
-    (updates: Partial<FilterSortState>) => {
-      const currentState = getStateFromUrl();
-      const newState = { ...currentState, ...updates };
-
-      const newParams = new URLSearchParams();
-
-      // Only add non-default values to URL
-      if (newState.sort !== defaultState.sort) {
-        newParams.set("sort", newState.sort);
-      }
-      if (newState.stages.length > 0) {
-        newParams.set("stages", newState.stages.join(","));
-      }
-      if (newState.genres.length > 0) {
-        newParams.set("genres", newState.genres.join(","));
-      }
-      if (newState.minRating > 0) {
-        newParams.set("minRating", newState.minRating.toString());
-      }
-      if (newState.timelineView !== defaultState.timelineView) {
-        newParams.set("timelineView", newState.timelineView);
-      }
-      if (newState.use24Hour !== defaultState.use24Hour) {
-        newParams.set("use24Hour", newState.use24Hour.toString());
-      }
-      if (newState.groupId) {
-        newParams.set("groupId", newState.groupId);
-      }
-      if (newState.invite) {
-        newParams.set("invite", newState.invite);
-      }
-      if (newState.sortLocked) {
-        newParams.set("sortLocked", newState.sortLocked.toString());
-      }
-      if (newState.votePerspective) {
-        newParams.set("votePerspective", newState.votePerspective);
-      }
-
-      setSearchParams(newParams, { replace: true });
+    (updates: Partial<FilterSortSearch>) => {
+      navigate({
+        to: ".",
+        search: (prev) => ({ ...prev, ...updates }),
+        replace: true,
+      });
     },
-    [getStateFromUrl, setSearchParams],
+    [navigate],
   );
 
   const clearFilters = useCallback(() => {
-    const currentState = getStateFromUrl();
-    const newParams = new URLSearchParams();
+    navigate({
+      to: ".",
+      search: (prev) => ({
+        invite: prev.invite,
+        groupId: prev.groupId,
+        votePerspective: prev.votePerspective,
+      }),
+      replace: true,
+    });
+  }, [navigate]);
 
-    // Keep invite parameter when clearing filters
-    if (currentState.invite) {
-      newParams.set("invite", currentState.invite);
-    }
-
-    setSearchParams(newParams, { replace: true });
-  }, [getStateFromUrl, setSearchParams]);
-
-  return {
-    state: getStateFromUrl(),
-    updateUrlState,
-    clearFilters,
-  };
+  return { state: search, updateUrlState, clearFilters };
 }

@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "ignorePatterns": ["dist"],
+  "ignorePatterns": ["dist", "src/routeTree.gen.ts"],
   "overrides": [
     {
       "files": ["**/*.{ts,tsx}"],

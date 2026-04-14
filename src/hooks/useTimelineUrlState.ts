@@ -1,80 +1,79 @@
 import { useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearch, useNavigate } from "@tanstack/react-router";
+import type { TimelineSearch } from "@/lib/searchSchemas";
 
-export type TimelineView = "horizontal" | "list";
-export type TimeFilter = "all" | "morning" | "afternoon" | "evening";
+export type TimelineView = TimelineSearch["view"];
+export type TimeFilter = TimelineSearch["time"];
 
-export interface TimelineState {
-  timelineView: TimelineView;
-  selectedDay: string; // Dynamic based on festival dates
-  selectedTime: TimeFilter;
-  selectedStages: string[];
-}
+export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
+  const route =
+    `/festivals/$festivalSlug/editions/$editionSlug/schedule/${tab}` as const;
+  const state = useSearch({
+    from: route,
+  });
+  const navigate = useNavigate({ from: route });
 
-const defaultState: TimelineState = {
-  timelineView: "list",
-  selectedDay: "all",
-  selectedTime: "all",
-  selectedStages: [],
-};
-
-export function useTimelineUrlState() {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const getStateFromUrl = useCallback((): TimelineState => {
-    return {
-      timelineView:
-        (searchParams.get("view") as TimelineView) || defaultState.timelineView,
-      selectedDay: searchParams.get("day") || defaultState.selectedDay,
-      selectedTime:
-        (searchParams.get("time") as TimeFilter) || defaultState.selectedTime,
-      selectedStages:
-        searchParams.get("stages")?.split(",").filter(Boolean) ||
-        defaultState.selectedStages,
-    };
-  }, [searchParams]);
-
-  const updateTimelineState = useCallback(
-    (updates: Partial<TimelineState>) => {
-      const currentState = getStateFromUrl();
-      const newState = { ...currentState, ...updates };
-
-      const newParams = new URLSearchParams();
-
-      // Only add non-default values to URL
-      if (newState.timelineView !== defaultState.timelineView) {
-        newParams.set("view", newState.timelineView);
-      }
-      if (newState.selectedDay !== defaultState.selectedDay) {
-        newParams.set("day", newState.selectedDay);
-      }
-      if (newState.selectedTime !== defaultState.selectedTime) {
-        newParams.set("time", newState.selectedTime);
-      }
-      if (newState.selectedStages.length > 0) {
-        newParams.set("stages", newState.selectedStages.join(","));
-      }
-
-      setSearchParams(newParams, { replace: true });
+  const updateView = useCallback(
+    (view: TimelineView) => {
+      navigate({
+        to: ".",
+        search: (prev) => ({ ...prev, view }),
+        replace: true,
+      });
     },
-    [getStateFromUrl, setSearchParams],
+    [navigate],
   );
 
-  const clearTimelineFilters = useCallback(() => {
-    const currentState = getStateFromUrl();
-    const newParams = new URLSearchParams();
+  const updateDay = useCallback(
+    (day: string) => {
+      navigate({
+        to: ".",
+        search: (prev) => ({ ...prev, day }),
+        replace: true,
+      });
+    },
+    [navigate],
+  );
 
-    // Keep view when clearing filters
-    if (currentState.timelineView !== defaultState.timelineView) {
-      newParams.set("view", currentState.timelineView);
-    }
+  const updateTime = useCallback(
+    (time: TimeFilter) => {
+      navigate({
+        to: ".",
+        search: (prev) => ({ ...prev, time }),
+        replace: true,
+      });
+    },
+    [navigate],
+  );
 
-    setSearchParams(newParams, { replace: true });
-  }, [getStateFromUrl, setSearchParams]);
+  const updateStages = useCallback(
+    (stages: string[]) => {
+      navigate({
+        to: ".",
+        search: (prev) => ({ ...prev, stages }),
+        replace: true,
+      });
+    },
+    [navigate],
+  );
+
+  const clearFilters = useCallback(() => {
+    navigate({
+      to: ".",
+      search: (prev) => ({ view: prev.view }),
+      replace: true,
+    });
+  }, [navigate]);
 
   return {
-    state: getStateFromUrl(),
-    updateState: updateTimelineState,
-    clearFilters: clearTimelineFilters,
+    view: state.view,
+    day: state.day,
+    time: state.time,
+    stages: state.stages,
+    updateView,
+    updateDay,
+    updateTime,
+    updateStages,
+    clearFilters,
   };
 }

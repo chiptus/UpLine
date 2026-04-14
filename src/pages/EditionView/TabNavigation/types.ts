@@ -19,5 +19,4 @@ export type TabConfig = {
 
 export interface TabButtonProps {
   config: TabConfig;
-  basePath: string;
 }

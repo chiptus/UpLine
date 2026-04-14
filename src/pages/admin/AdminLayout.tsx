@@ -1,6 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { TopBar } from "@/components/layout/TopBar";
-import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "@tanstack/react-router";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUserPermissionsQuery } from "@/hooks/queries/auth/useUserPermissions";
 import { useEffect } from "react";
@@ -21,12 +21,12 @@ export default function AdminLayout() {
     if (authLoading || isLoadingPermissions) return;
 
     if (!user) {
-      navigate("/");
+      navigate({ to: "/" });
       return;
     }
 
     if (!canEdit) {
-      navigate("/");
+      navigate({ to: "/" });
     }
   }, [user, authLoading, navigate, isLoadingPermissions, canEdit]);
 
@@ -43,16 +43,16 @@ export default function AdminLayout() {
   function handleTabChange(value: string) {
     switch (value) {
       case "artists":
-        navigate("/admin");
+        navigate({ to: "/admin" });
         break;
       case "festivals":
-        navigate("/admin/festivals");
+        navigate({ to: "/admin/festivals" });
         break;
       case "analytics":
-        navigate("/admin/analytics");
+        navigate({ to: "/admin/analytics" });
         break;
       case "admins":
-        navigate("/admin/admins");
+        navigate({ to: "/admin/admins" });
         break;
     }
   }

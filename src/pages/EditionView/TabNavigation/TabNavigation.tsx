@@ -5,7 +5,7 @@ import { MobileTabButton } from "./MobileTabButton";
 import { config } from "./config";
 
 export function MainTabNavigation() {
-  const { basePath, festival } = useFestivalEdition();
+  const { festival } = useFestivalEdition();
   const { data: festivalInfo } = useFestivalInfoQuery(festival?.id);
 
   const visibleTabs = config.filter((config) => {
@@ -22,11 +22,7 @@ export function MainTabNavigation() {
         <div className="bg-white/10 backdrop-blur-md rounded-lg p-2">
           <div className="flex gap-1 justify-center">
             {visibleTabs.map((config) => (
-              <DesktopTabButton
-                key={config.key}
-                config={config}
-                basePath={basePath}
-              />
+              <DesktopTabButton key={config.key} config={config} />
             ))}
           </div>
         </div>
@@ -36,11 +32,7 @@ export function MainTabNavigation() {
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-md border-t border-purple-400/20 safe-area-pb">
         <div className="flex">
           {visibleTabs.map((config) => (
-            <MobileTabButton
-              key={config.key}
-              config={config}
-              basePath={basePath}
-            />
+            <MobileTabButton key={config.key} config={config} />
           ))}
         </div>
       </div>

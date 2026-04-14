@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, Link } from "@tanstack/react-router";
 import { TopBar } from "@/components/layout/TopBar";
 import {
   Card,
@@ -20,7 +20,7 @@ import { useGroupMembersQuery } from "@/hooks/queries/groups/useGroupMembers";
 import { useRemoveMemberMutation } from "@/hooks/queries/groups/useRemoveMember";
 
 function GroupDetail() {
-  const { groupSlug } = useParams<{ groupSlug: string }>();
+  const { groupSlug } = useParams({ from: "/groups/$groupSlug" });
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
@@ -42,12 +42,12 @@ function GroupDetail() {
     if (authLoading) return; // Wait for auth to load
 
     if (!groupSlug) {
-      navigate("/groups");
+      navigate({ to: "/groups" });
       return;
     }
 
     if (!user) {
-      navigate("/"); // Redirect to home to sign in
+      navigate({ to: "/" }); // Redirect to home to sign in
       return;
     }
 
@@ -58,7 +58,7 @@ function GroupDetail() {
         description: "Failed to fetch group details",
         variant: "destructive",
       });
-      navigate("/groups");
+      navigate({ to: "/groups" });
     }
   }, [groupSlug, user, authLoading, groupError, navigate, toast]);
 

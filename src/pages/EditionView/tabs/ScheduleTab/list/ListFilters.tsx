@@ -8,20 +8,25 @@ import { FilterContainer } from "@/components/filters/FilterContainer";
 
 export function ListFilters() {
   const [isExpanded, setIsExpanded] = useState(false);
-  const { state, updateState, clearFilters } = useTimelineUrlState();
-  const { selectedDay, selectedTime, selectedStages } = state;
+  const {
+    day,
+    time,
+    stages,
+    updateDay,
+    updateTime,
+    updateStages,
+    clearFilters,
+  } = useTimelineUrlState("list");
 
   function handleStageToggle(stageId: string) {
-    const newStages = selectedStages.includes(stageId)
-      ? selectedStages.filter((id) => id !== stageId)
-      : [...selectedStages, stageId];
-    updateState({ selectedStages: newStages });
+    const newStages = stages.includes(stageId)
+      ? stages.filter((id) => id !== stageId)
+      : [...stages, stageId];
+    updateStages(newStages);
   }
 
   const activeFilterCount =
-    (selectedDay !== "all" ? 1 : 0) +
-    (selectedTime !== "all" ? 1 : 0) +
-    selectedStages.length;
+    (day !== "all" ? 1 : 0) + (time !== "all" ? 1 : 0) + stages.length;
   const hasActiveFilters = activeFilterCount > 0;
   const shouldShowFilters = isExpanded;
 
@@ -44,16 +49,10 @@ export function ListFilters() {
       {shouldShowFilters && (
         <div className="mt-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
-            <DayFilterSelect
-              selectedDay={selectedDay}
-              onDayChange={(day) => updateState({ selectedDay: day })}
-            />
-            <TimeFilterSelect
-              selectedTime={selectedTime}
-              onTimeChange={(time) => updateState({ selectedTime: time })}
-            />
+            <DayFilterSelect selectedDay={day} onDayChange={updateDay} />
+            <TimeFilterSelect selectedTime={time} onTimeChange={updateTime} />
             <StageFilterButtons
-              selectedStages={selectedStages}
+              selectedStages={stages}
               onStageToggle={handleStageToggle}
             />
           </div>

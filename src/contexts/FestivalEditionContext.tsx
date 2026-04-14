@@ -5,12 +5,11 @@ import {
   useEffect,
   useMemo,
 } from "react";
-import { useMatches, useNavigate } from "@tanstack/react-router";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useFestivalBySlugQuery } from "@/hooks/queries/festivals/useFestivalBySlug";
 import { Festival } from "@/hooks/queries/festivals/types";
 import { useFestivalEditionBySlugQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionBySlug";
 import { FestivalEdition } from "@/hooks/queries/festivals/editions/types";
-import { getSubdomainInfo } from "@/lib/subdomain";
 import { TopBar } from "@/components/layout/TopBar";
 import { useToast } from "@/hooks/use-toast";
 
@@ -39,23 +38,14 @@ export function useFestivalEdition() {
 }
 
 function useParseSlugs() {
-  const matches = useMatches();
-  const subdomainInfo = getSubdomainInfo();
+  const { pathname } = useLocation();
 
   return useMemo(() => {
-    const festivalMatch = matches.find((m) =>
-      m.routeId.startsWith("/festivals/$festivalSlug"),
-    );
-    const editionMatch = matches.find((m) =>
-      m.routeId.startsWith("/festivals/$festivalSlug/editions/$editionSlug"),
-    );
+    const festivalMatch = pathname.match(/^\/festivals\/([^/]+)/);
+    const editionMatch = pathname.match(/^\/festivals\/[^/]+\/editions\/([^/]+)/);
 
-    const festivalSlug =
-      (festivalMatch?.params as { festivalSlug?: string })?.festivalSlug ||
-      subdomainInfo.festivalSlug ||
-      "";
-    const editionSlug =
-      (editionMatch?.params as { editionSlug?: string })?.editionSlug || "";
+    const festivalSlug = festivalMatch?.[1] ?? "";
+    const editionSlug = editionMatch?.[1] ?? "";
 
     let basePath = "";
     if (festivalSlug) {
@@ -64,7 +54,7 @@ function useParseSlugs() {
     }
 
     return { festivalSlug, editionSlug, basePath };
-  }, [matches, subdomainInfo]);
+  }, [pathname]);
 }
 
 export function FestivalEditionProvider({

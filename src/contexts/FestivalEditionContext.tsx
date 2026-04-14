@@ -9,7 +9,6 @@ import { useToast } from "@/hooks/use-toast";
 interface FestivalEditionContextType {
   festival: Festival;
   edition: FestivalEdition | null;
-  basePath: string;
 }
 
 const FestivalEditionContext = createContext<
@@ -46,13 +45,9 @@ export function FestivalEditionProvider({
 
   const edition = editionQuery.data ?? null;
 
-  let basePath = `/festivals/${festival.slug}`;
-  if (editionSlug) basePath += `/editions/${editionSlug}`;
-
   const contextValue: FestivalEditionContextType = {
     festival,
     edition,
-    basePath,
   };
 
   useEffect(() => {

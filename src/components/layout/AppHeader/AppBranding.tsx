@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Music } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 
 interface AppBrandingProps {
   isMobile: boolean;
@@ -9,7 +8,6 @@ interface AppBrandingProps {
 
 export function AppBranding({ isMobile }: AppBrandingProps) {
   const { user, profile } = useAuth();
-  const { basePath } = useFestivalEdition();
 
   function getGreeting() {
     const hour = new Date().getHours();
@@ -23,7 +21,7 @@ export function AppBranding({ isMobile }: AppBrandingProps) {
 
   return (
     <div className="flex items-center gap-4 flex-1">
-      <Link to={basePath}>
+      <Link to="/">
         <div className="flex items-center gap-3">
           <Music className="h-6 w-6 text-purple-400" />
           <h1 className="text-xl md:text-2xl font-bold text-white">UpLine</h1>

@@ -2,7 +2,6 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import EditionLayout from "@/pages/EditionView/EditionLayout";
 import { editionsKeys } from "@/hooks/queries/festivals/editions/types";
 import { fetchFestivalEditionBySlug } from "@/hooks/queries/festivals/editions/useFestivalEditionBySlug";
-import type { QueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug",
@@ -17,8 +16,7 @@ export const Route = createFileRoute(
       });
     }
 
-    const queryClient = (context as { queryClient: QueryClient }).queryClient;
-    await queryClient.ensureQueryData({
+    await context.queryClient.ensureQueryData({
       queryKey: editionsKeys.bySlug(params.festivalSlug, params.editionSlug),
       queryFn: () =>
         fetchFestivalEditionBySlug({

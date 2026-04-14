@@ -1,5 +1,3 @@
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
-
 interface FestivalIndicatorProps {
   isTitleVisible?: boolean;
   logoUrl?: string | null;
@@ -11,8 +9,6 @@ export function FestivalIndicator({
   logoUrl,
   title,
 }: FestivalIndicatorProps) {
-  const { festival } = useFestivalEdition();
-
   if (isTitleVisible || !logoUrl) {
     return <div className="flex-1" />;
   }
@@ -22,7 +18,7 @@ export function FestivalIndicator({
       <div className="flex items-center gap-2">
         <img
           src={logoUrl}
-          alt={`${festival?.name || title} logo`}
+          alt={`${title} logo`}
           className="size-8 md:size-12 object-contain rounded"
         />
       </div>

@@ -13,7 +13,7 @@ import { useExplorableSets } from "./useExplorableSets";
 import { PageTitle } from "@/components/PageTitle/PageTitle";
 
 export function ExploreSetPage() {
-  const { edition, basePath } = useFestivalEdition();
+  const { edition } = useFestivalEdition();
   const navigate = useNavigate();
   const { user, showAuthDialog } = useAuth();
   const voteMutation = useVote();
@@ -45,7 +45,7 @@ export function ExploreSetPage() {
   const nextSet = !isLastSet ? explorableSets[currentIndex + 1] : undefined;
 
   if (!edition || totalExplorableSets === 0) {
-    return <EmptyState basePath={basePath} />;
+    return <EmptyState />;
   }
   const totalSets = explorableSetsQuery.totalSets;
   const currentIndexInAllSets =
@@ -107,7 +107,10 @@ export function ExploreSetPage() {
 
       setTimeout(() => {
         if (isLastSet) {
-          navigate({ from: "/festivals/$festivalSlug/editions/$editionSlug/explore", to: "../sets" });
+          navigate({
+            from: "/festivals/$festivalSlug/editions/$editionSlug/explore",
+            to: "../sets",
+          });
         } else {
           setDirection(null);
         }
@@ -142,7 +145,10 @@ export function ExploreSetPage() {
     setSkippedCount((prev) => prev + 1);
     setTimeout(() => {
       if (isLastSet) {
-        navigate({ from: "/festivals/$festivalSlug/editions/$editionSlug/explore", to: "../sets" });
+        navigate({
+          from: "/festivals/$festivalSlug/editions/$editionSlug/explore",
+          to: "../sets",
+        });
       } else {
         setCurrentIndex((prev) => prev + 1);
         setDirection(null);

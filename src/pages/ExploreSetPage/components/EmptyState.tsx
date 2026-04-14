@@ -1,12 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { Link } from "@tanstack/react-router";
+import { Link, useParams } from "@tanstack/react-router";
 
-interface EmptyStateProps {
-  basePath: string;
-}
-
-export function EmptyState({ basePath }: EmptyStateProps) {
+export function EmptyState() {
+  const { festivalSlug, editionSlug } = useParams({
+    from: "/festivals/$festivalSlug/editions/$editionSlug/explore",
+  });
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-900 to-black flex flex-col items-center justify-center p-4">
       <div className="text-white text-center">
@@ -15,7 +14,10 @@ export function EmptyState({ basePath }: EmptyStateProps) {
           You have explored all available sets in this edition
         </p>
         <Button asChild variant="outline">
-          <Link to={basePath}>
+          <Link
+            to="/festivals/$festivalSlug/editions/$editionSlug/sets"
+            params={{ festivalSlug, editionSlug }}
+          >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Go Back
           </Link>

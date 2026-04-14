@@ -5,7 +5,32 @@ import { PostHogProvider } from "posthog-js/react";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 import NotFound from "./pages/NotFound";
+import { getSubdomainInfo } from "@/lib/subdomain";
 import "./index.css";
+
+const { festivalSlug: subdomainFestivalSlug, isSubdomain } = getSubdomainInfo();
+
+function getSubdomainRewrite() {
+  if (!isSubdomain || !subdomainFestivalSlug) return undefined;
+
+  const prefix = `/festivals/${subdomainFestivalSlug}`;
+
+  return {
+    input: ({ url }: { url: URL }) => {
+      if (url.pathname.startsWith(prefix)) return undefined;
+      const newUrl = new URL(url.toString());
+      newUrl.pathname =
+        prefix + (url.pathname === "/" ? "" : url.pathname);
+      return newUrl;
+    },
+    output: ({ url }: { url: URL }) => {
+      if (!url.pathname.startsWith(prefix)) return undefined;
+      const newUrl = new URL(url.toString());
+      newUrl.pathname = url.pathname.slice(prefix.length) || "/";
+      return newUrl;
+    },
+  };
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,6 +44,8 @@ const queryClient = new QueryClient({
   },
 });
 
+const subdomainRewrite = getSubdomainRewrite();
+
 const router = createRouter({
   routeTree,
   context: {
@@ -27,6 +54,7 @@ const router = createRouter({
   defaultPreload: "intent",
   defaultPreloadStaleTime: 0,
   defaultNotFoundComponent: NotFound,
+  ...(subdomainRewrite ? { rewrite: subdomainRewrite } : {}),
 });
 
 declare module "@tanstack/react-router" {

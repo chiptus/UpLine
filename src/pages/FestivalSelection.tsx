@@ -12,9 +12,8 @@ import { useEffect } from "react";
 import {
   createFestivalSubdomainUrl,
   isMainGetuplineDomain,
-  getSubdomainInfo,
 } from "@/lib/subdomain";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useCustomLinksQuery } from "@/hooks/queries/custom-links/useCustomLinks";
 import { PageTitle } from "@/components/PageTitle/PageTitle";
 import { TopBar } from "@/components/layout/TopBar";
@@ -23,8 +22,6 @@ import { AppHeader } from "@/components/layout/AppHeader";
 export default function FestivalSelection() {
   const { data: availableFestivals = [], isLoading: festivalsLoading } =
     useFestivalsQuery();
-  const navigate = useNavigate();
-  const subdomainInfo = getSubdomainInfo();
 
   function handleFestivalClick(festival: Festival) {
     const subdomainUrl = createFestivalSubdomainUrl(festival.slug);
@@ -38,22 +35,10 @@ export default function FestivalSelection() {
   }
 
   useEffect(() => {
-    if (festivalsLoading) return;
-
-    if (subdomainInfo.festivalSlug && subdomainInfo.isSubdomain) {
-      const festival = availableFestivals.find(
-        (f) => f.slug === subdomainInfo.festivalSlug,
-      );
-      if (festival) {
-        navigate({
-          to: "/festivals/$festivalSlug",
-          params: { festivalSlug: festival.slug },
-        });
-      }
-    } else if (availableFestivals.length === 1) {
+    if (!festivalsLoading && availableFestivals.length === 1) {
       handleFestivalClick(availableFestivals[0]);
     }
-  }, [availableFestivals, festivalsLoading, subdomainInfo, navigate]);
+  }, [availableFestivals, festivalsLoading]);
 
   if (festivalsLoading) {
     return (

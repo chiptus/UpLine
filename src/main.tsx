@@ -41,8 +41,10 @@ const router = createRouter({
       return url;
     },
     output: ({ url }) => {
+      if (!url.hostname.includes("getupline.com")) return url;
+
       if (url.pathname.startsWith("/festivals")) {
-        const [,, festivalSlug] = url.pathname.split("/");
+        const [, , festivalSlug] = url.pathname.split("/");
         url.hostname = `${festivalSlug}.getupline.com`;
         url.pathname = url.pathname.replace(`/festivals/${festivalSlug}`, "");
       }

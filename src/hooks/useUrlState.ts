@@ -1,13 +1,17 @@
 import { useCallback } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import type { FilterSortSearch } from "@/lib/searchSchemas";
+import {
+  filterSortSearchSchema,
+  type FilterSortSearch,
+} from "@/lib/searchSchemas";
 
 export type FilterSortState = FilterSortSearch;
 export type SortOption = FilterSortSearch["sort"];
 export type TimelineView = FilterSortSearch["timelineView"];
 
 export function useUrlState() {
-  const state = useSearch({ strict: false }) as FilterSortSearch;
+  const rawSearch = useSearch({ strict: false });
+  const state = filterSortSearchSchema.parse(rawSearch);
   const navigate = useNavigate();
 
   const updateUrlState = useCallback(

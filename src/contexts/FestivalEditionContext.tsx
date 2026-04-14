@@ -5,7 +5,7 @@ import {
   useEffect,
   useMemo,
 } from "react";
-import { useLocation, useNavigate } from "@tanstack/react-router";
+import { useMatches, useNavigate } from "@tanstack/react-router";
 import { useFestivalBySlugQuery } from "@/hooks/queries/festivals/useFestivalBySlug";
 import { Festival } from "@/hooks/queries/festivals/types";
 import { useFestivalEditionBySlugQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionBySlug";
@@ -38,44 +38,33 @@ export function useFestivalEdition() {
   return context;
 }
 
-function getSlugs(pathname: string) {
-  // Get festival slug from subdomain or URL path
-  const subdomainInfo = getSubdomainInfo();
-  let festivalSlug = subdomainInfo.festivalSlug || "";
-
-  let basePath = "";
-  // For main domain, extract festival slug from URL path
-  if (pathname.includes("/festivals/")) {
-    const festivalMatch = pathname.match(/\/festivals\/([^/]+)/);
-    if (festivalMatch) {
-      festivalSlug = festivalMatch[1];
-      pathname = pathname.replace(`/festivals/${festivalSlug}`, "");
-      basePath = `/festivals/${festivalSlug}`;
-    }
-  }
-
-  if (!pathname.includes("/editions")) {
-    return {
-      festivalSlug,
-      basePath,
-    };
-  }
-
-  const editionMatch = pathname.match(/\/editions\/([^/]+)/);
-  const editionSlug = editionMatch ? editionMatch[1] : "";
-
-  return {
-    basePath: basePath + `/editions/${editionSlug}`,
-    festivalSlug,
-    editionSlug,
-  };
-}
-
 function useParseSlugs() {
-  const location = useLocation();
-  const pathname = location.pathname;
+  const matches = useMatches();
+  const subdomainInfo = getSubdomainInfo();
 
-  return useMemo(() => getSlugs(pathname), [pathname]);
+  return useMemo(() => {
+    const festivalMatch = matches.find((m) =>
+      m.routeId.startsWith("/festivals/$festivalSlug"),
+    );
+    const editionMatch = matches.find((m) =>
+      m.routeId.startsWith("/festivals/$festivalSlug/editions/$editionSlug"),
+    );
+
+    const festivalSlug =
+      (festivalMatch?.params as { festivalSlug?: string })?.festivalSlug ||
+      subdomainInfo.festivalSlug ||
+      "";
+    const editionSlug =
+      (editionMatch?.params as { editionSlug?: string })?.editionSlug || "";
+
+    let basePath = "";
+    if (festivalSlug) {
+      basePath = `/festivals/${festivalSlug}`;
+      if (editionSlug) basePath += `/editions/${editionSlug}`;
+    }
+
+    return { festivalSlug, editionSlug, basePath };
+  }, [matches, subdomainInfo]);
 }
 
 export function FestivalEditionProvider({

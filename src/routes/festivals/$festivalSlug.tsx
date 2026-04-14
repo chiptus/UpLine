@@ -16,9 +16,7 @@ export const Route = createFileRoute("/festivals/$festivalSlug")({
 
 function FestivalLayout() {
   const { festival } = Route.useLoaderData();
-  const { editionSlug } = useParams({ strict: false }) as {
-    editionSlug?: string;
-  };
+  const { editionSlug } = useParams({ strict: false });
 
   return (
     <FestivalEditionProvider festival={festival} editionSlug={editionSlug}>

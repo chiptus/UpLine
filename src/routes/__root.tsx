@@ -13,7 +13,6 @@ import { AppFooter } from "@/components/layout/AppFooter";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { FestivalEditionProvider } from "@/contexts/FestivalEditionContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useInviteValidation } from "@/components/invite/useInviteValidation";
 import { InviteLandingPage } from "@/components/invite/InviteLandingPage";
@@ -45,9 +44,7 @@ function RootComponent() {
         <Sonner />
         <CookieConsentBanner />
         <AuthProvider>
-          <FestivalEditionProvider>
-            <RootContent />
-          </FestivalEditionProvider>
+          <RootContent />
         </AuthProvider>
         <OfflineIndicator />
         <SpeedInsights />

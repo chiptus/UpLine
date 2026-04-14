@@ -17,7 +17,7 @@ async function fetchFestivalBySlug(festivalSlug: string) {
   return data;
 }
 
-async function fetchFestivalEditionBySlug({
+export async function fetchFestivalEditionBySlug({
   editionSlug,
   festivalSlug,
 }: {

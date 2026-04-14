@@ -1,12 +1,5 @@
-import {
-  createContext,
-  PropsWithChildren,
-  useContext,
-  useEffect,
-  useMemo,
-} from "react";
-import { useLocation, useNavigate } from "@tanstack/react-router";
-import { useFestivalBySlugQuery } from "@/hooks/queries/festivals/useFestivalBySlug";
+import { createContext, PropsWithChildren, useContext, useEffect } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { Festival } from "@/hooks/queries/festivals/types";
 import { useFestivalEditionBySlugQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionBySlug";
 import { FestivalEdition } from "@/hooks/queries/festivals/editions/types";
@@ -14,12 +7,8 @@ import { TopBar } from "@/components/layout/TopBar";
 import { useToast } from "@/hooks/use-toast";
 
 interface FestivalEditionContextType {
-  // Current state
-  festival: Festival | null;
+  festival: Festival;
   edition: FestivalEdition | null;
-
-  // Utils
-  isContextReady: boolean;
   basePath: string;
 }
 
@@ -37,69 +26,34 @@ export function useFestivalEdition() {
   return context;
 }
 
-function useParseSlugs() {
-  const { pathname } = useLocation();
-
-  return useMemo(() => {
-    const festivalMatch = pathname.match(/^\/festivals\/([^/]+)/);
-    const editionMatch = pathname.match(/^\/festivals\/[^/]+\/editions\/([^/]+)/);
-
-    const festivalSlug = festivalMatch?.[1] ?? "";
-    const editionSlug = editionMatch?.[1] ?? "";
-
-    let basePath = "";
-    if (festivalSlug) {
-      basePath = `/festivals/${festivalSlug}`;
-      if (editionSlug) basePath += `/editions/${editionSlug}`;
-    }
-
-    return { festivalSlug, editionSlug, basePath };
-  }, [pathname]);
+interface FestivalEditionProviderProps {
+  festival: Festival;
+  editionSlug?: string;
 }
 
 export function FestivalEditionProvider({
   children,
-}: PropsWithChildren<unknown>) {
-  const { festivalSlug, editionSlug, basePath } = useParseSlugs();
+  festival,
+  editionSlug = "",
+}: PropsWithChildren<FestivalEditionProviderProps>) {
   const navigate = useNavigate();
-
-  const festivalQuery = useFestivalBySlugQuery(festivalSlug);
+  const { toast } = useToast();
 
   const editionQuery = useFestivalEditionBySlugQuery({
-    festivalSlug,
+    festivalSlug: festival.slug,
     editionSlug,
   });
 
-  const festival = festivalQuery.data;
-  const edition = editionQuery.data;
+  const edition = editionQuery.data ?? null;
 
-  const isContextReady = !!(
-    // Either we're on root (no context needed)
-    (
-      (!festivalSlug && !editionSlug) ||
-      // Or we have valid festival context
-      (festivalSlug && festival) ||
-      // Or we have valid edition context
-      (editionSlug && edition && festival)
-    )
-  );
+  let basePath = `/festivals/${festival.slug}`;
+  if (editionSlug) basePath += `/editions/${editionSlug}`;
 
   const contextValue: FestivalEditionContextType = {
-    festival: festival || null,
-    edition: edition || null,
-    isContextReady,
+    festival,
+    edition,
     basePath,
   };
-  const { toast } = useToast();
-  useEffect(() => {
-    if (festivalQuery.error) {
-      toast({
-        title: "Festival not found",
-        description: `Festival with slug ${festivalSlug} not found`,
-        variant: "destructive",
-      });
-    }
-  }, [festivalQuery.error, toast, festivalSlug]);
 
   useEffect(() => {
     if (editionQuery.error) {
@@ -108,23 +62,18 @@ export function FestivalEditionProvider({
         description: `Festival edition with slug ${editionSlug} not found`,
         variant: "destructive",
       });
-    }
-  }, [editionQuery.error, toast, editionSlug]);
-
-  useEffect(() => {
-    if (festivalQuery.error || editionQuery.error) {
       navigate({ to: "/" });
     }
-  }, [festivalQuery.error, editionQuery.error, navigate]);
+  }, [editionQuery.error, toast, editionSlug, navigate]);
 
-  if (festivalQuery.error || editionQuery.error) {
+  if (editionQuery.error) {
     return (
       <FestivalEditionContext.Provider value={contextValue}>
         <div className="min-h-screen bg-app-gradient">
           <div className="container mx-auto px-4 py-8">
             <TopBar backLabel="Back to Festivals" />
             <h1 className="text-4xl font-bold text-white text-center mb-8">
-              No valid festival or edition found
+              No valid festival edition found
             </h1>
           </div>
         </div>

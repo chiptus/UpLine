@@ -3,8 +3,9 @@ import {
   PropsWithChildren,
   useContext,
   useEffect,
+  useMemo,
 } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useFestivalBySlugQuery } from "@/hooks/queries/festivals/useFestivalBySlug";
 import { Festival } from "@/hooks/queries/festivals/types";
 import { useFestivalEditionBySlugQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionBySlug";
@@ -13,40 +14,57 @@ import { TopBar } from "@/components/layout/TopBar";
 import { useToast } from "@/hooks/use-toast";
 
 interface FestivalEditionContextType {
+  // Current state
   festival: Festival | null;
   edition: FestivalEdition | null;
+
+  // Utils
   isContextReady: boolean;
   basePath: string;
 }
-
-const defaultContext: FestivalEditionContextType = {
-  festival: null,
-  edition: null,
-  isContextReady: true,
-  basePath: "/",
-};
 
 const FestivalEditionContext = createContext<
   FestivalEditionContextType | undefined
 >(undefined);
 
 export function useFestivalEdition() {
-  return useContext(FestivalEditionContext) ?? defaultContext;
+  const context = useContext(FestivalEditionContext);
+  if (context === undefined) {
+    throw new Error(
+      "useFestivalEdition must be used within a FestivalEditionProvider",
+    );
+  }
+  return context;
 }
 
-interface FestivalEditionProviderProps {
-  festivalSlug: string;
-  editionSlug?: string;
+function useParseSlugs() {
+  const { pathname } = useLocation();
+
+  return useMemo(() => {
+    const festivalMatch = pathname.match(/^\/festivals\/([^/]+)/);
+    const editionMatch = pathname.match(/^\/festivals\/[^/]+\/editions\/([^/]+)/);
+
+    const festivalSlug = festivalMatch?.[1] ?? "";
+    const editionSlug = editionMatch?.[1] ?? "";
+
+    let basePath = "";
+    if (festivalSlug) {
+      basePath = `/festivals/${festivalSlug}`;
+      if (editionSlug) basePath += `/editions/${editionSlug}`;
+    }
+
+    return { festivalSlug, editionSlug, basePath };
+  }, [pathname]);
 }
 
 export function FestivalEditionProvider({
   children,
-  festivalSlug,
-  editionSlug = "",
-}: PropsWithChildren<FestivalEditionProviderProps>) {
+}: PropsWithChildren<unknown>) {
+  const { festivalSlug, editionSlug, basePath } = useParseSlugs();
   const navigate = useNavigate();
 
   const festivalQuery = useFestivalBySlugQuery(festivalSlug);
+
   const editionQuery = useFestivalEditionBySlugQuery({
     festivalSlug,
     editionSlug,
@@ -56,13 +74,15 @@ export function FestivalEditionProvider({
   const edition = editionQuery.data;
 
   const isContextReady = !!(
-    (!festivalSlug && !editionSlug) ||
-    (festivalSlug && festival) ||
-    (editionSlug && edition && festival)
+    // Either we're on root (no context needed)
+    (
+      (!festivalSlug && !editionSlug) ||
+      // Or we have valid festival context
+      (festivalSlug && festival) ||
+      // Or we have valid edition context
+      (editionSlug && edition && festival)
+    )
   );
-
-  let basePath = `/festivals/${festivalSlug}`;
-  if (editionSlug) basePath += `/editions/${editionSlug}`;
 
   const contextValue: FestivalEditionContextType = {
     festival: festival || null,
@@ -70,9 +90,7 @@ export function FestivalEditionProvider({
     isContextReady,
     basePath,
   };
-
   const { toast } = useToast();
-
   useEffect(() => {
     if (festivalQuery.error) {
       toast({

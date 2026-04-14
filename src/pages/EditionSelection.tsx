@@ -14,14 +14,12 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useFestivalEditionsForFestivalQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionsForFestival";
 import { FestivalEdition } from "@/hooks/queries/festivals/editions/types";
 import { useEffect } from "react";
-import { getSubdomainInfo } from "@/lib/subdomain";
 import { TopBar } from "@/components/layout/TopBar";
 
 export default function EditionSelection() {
   const { festival } = useFestivalEdition();
   const editionListQuery = useFestivalEditionsForFestivalQuery(festival?.id);
   const navigate = useNavigate();
-  const subdomainInfo = getSubdomainInfo();
 
   useEffect(() => {
     if (
@@ -29,30 +27,12 @@ export default function EditionSelection() {
       !editionListQuery.isLoading &&
       editionListQuery.data?.length === 1
     ) {
-      // If we're on a subdomain, navigate to /editions/slug
-      // If we're on main domain, navigate to /festivals/festival-slug/editions/slug
-      const editionSlug = editionListQuery.data[0].slug;
-      const festivalSlug = festival.slug;
-
-      if (subdomainInfo.isSubdomain) {
-        navigate({
-          to: "/festivals/$festivalSlug/editions/$editionSlug",
-          params: { festivalSlug, editionSlug },
-        });
-      } else {
-        navigate({
-          to: "/festivals/$festivalSlug/editions/$editionSlug",
-          params: { festivalSlug, editionSlug },
-        });
-      }
+      navigate({
+        to: "/festivals/$festivalSlug/editions/$editionSlug",
+        params: { festivalSlug: festival.slug, editionSlug: editionListQuery.data[0].slug },
+      });
     }
-  }, [
-    editionListQuery.data,
-    editionListQuery.isLoading,
-    festival?.slug,
-    navigate,
-    subdomainInfo.isSubdomain,
-  ]);
+  }, [editionListQuery.data, editionListQuery.isLoading, festival?.slug, navigate]);
 
   if (!festival) {
     return (
@@ -163,9 +143,7 @@ export default function EditionSelection() {
           {availableEditions.map((edition) => {
             const editionStatus = getEditionStatus(edition);
 
-            const linkPath = subdomainInfo.isSubdomain
-              ? `/editions/${edition.slug}`
-              : `/festivals/${festival.slug}/editions/${edition.slug}`;
+            const linkPath = `/festivals/${festival.slug}/editions/${edition.slug}`;
 
             return (
               <Link key={festival.id} to={linkPath} className="block">

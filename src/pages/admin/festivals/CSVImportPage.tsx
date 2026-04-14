@@ -51,14 +51,12 @@ function getUserTimezone(): string {
 }
 
 export function CSVImportPage() {
-  const params = useParams({ strict: false }) as {
-    festivalId?: string;
-    editionId?: string;
-  };
-  const { festivalId: urlFestivalId, editionId: urlEditionId } = params;
+  const { festivalId: urlFestivalId, editionId: urlEditionId } = useParams({
+    strict: false,
+  });
   const navigate = useNavigate();
-  const search = useSearch({ strict: false }) as { tab?: string };
-  const defaultTab = search.tab || "stages";
+  const { tab } = useSearch({ strict: false });
+  const defaultTab = tab || "stages";
 
   const [selectedFestivalId, setSelectedFestivalId] = useState<string>(
     urlFestivalId || "",

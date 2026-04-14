@@ -6,7 +6,9 @@ interface SetHeaderProps {
 }
 
 export function SetHeader({ set }: SetHeaderProps) {
-  const { festivalSlug = "", editionSlug = "" } = useParams({ strict: false });
+  const { festivalSlug, editionSlug } = useParams({
+    from: "/festivals/$festivalSlug/editions/$editionSlug",
+  });
 
   return (
     <div className="mb-2">

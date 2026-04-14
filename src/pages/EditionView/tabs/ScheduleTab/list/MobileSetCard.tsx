@@ -11,7 +11,9 @@ interface MobileSetCardProps {
 }
 
 export function MobileSetCard({ set }: MobileSetCardProps) {
-  const { festivalSlug = "", editionSlug = "" } = useParams({ strict: false });
+  const { festivalSlug, editionSlug } = useParams({
+    from: "/festivals/$festivalSlug/editions/$editionSlug",
+  });
   const duration =
     set.startTime && set.endTime
       ? differenceInMinutes(set.endTime, set.startTime)

@@ -15,7 +15,8 @@ import { useArtistsQuery } from "@/hooks/queries/artists/useArtists";
 import { useMatchingSetsQuery } from "@/hooks/queries/sets/useMatchingSetsQuery";
 import { SetPreviewRow } from "./SetPreviewRow";
 import { PageImportControls } from "./PageImportControls";
-import { useSetSelections } from "./useSetSelections";
+import { useArtistSelections } from "./useArtistSelections";
+import { useSetMatchSelections } from "./useSetMatchSelections";
 import type { ArtistMapping } from "@/services/csv/setImporter";
 import type { ImportResult } from "@/services/csv/types";
 
@@ -80,16 +81,16 @@ export function SetsPreviewTable({
     return map;
   }, [artistsQuery.data]);
 
-  const {
-    artistSelections,
-    setSelections,
-    handleArtistSelectionChange,
-    handleSetSelectionChange,
-  } = useSetSelections({
-    sets,
+  const { artistSelections, handleArtistSelectionChange } = useArtistSelections(
+    {
+      sets,
+      artistsByName,
+    },
+  );
+
+  const { setSelections, handleSetSelectionChange } = useSetMatchSelections({
     pageSets,
     pageStart,
-    artistsByName,
     matchingSetsData: matchingSetsQuery.data,
   });
 

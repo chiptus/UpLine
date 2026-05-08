@@ -17,7 +17,6 @@ import {
   type StageImportData,
 } from "@/services/csv/csvParser";
 import type { ImportResult } from "@/services/csv/types";
-import { useArtistsQuery } from "@/hooks/queries/artists/useArtists";
 import { StagesTabContent } from "@/pages/admin/festivals/CSVImportDialog/StagesTabContent";
 import { SetsTabContent } from "@/pages/admin/festivals/CSVImportDialog/SetsTabContent";
 import { ImportProgress } from "@/pages/admin/festivals/CSVImportDialog/ImportProgress";
@@ -25,10 +24,8 @@ import { ImportResults } from "@/pages/admin/festivals/CSVImportDialog/ImportRes
 import { StagesPreviewTable } from "@/pages/admin/festivals/CSVImportDialog/StagesPreviewTable";
 import {
   SetsPreviewTable,
-  type ArtistSelection,
   type SetSelection,
 } from "@/pages/admin/festivals/CSVImportDialog/SetsPreviewTable";
-import { validateSetSelections } from "@/services/csv/setSelectionValidator";
 import { useFestivalsQuery } from "@/hooks/queries/festivals/useFestivals";
 import { useFestivalEditionsForFestivalQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionsForFestival";
 import {
@@ -64,25 +61,22 @@ export function CSVImportPage() {
   const [selectedEditionId, setSelectedEditionId] = useState<string>(
     urlEditionId || "",
   );
-  const [isImporting, setIsImporting] = useState(false);
+  const [isImportingStages, setIsImportingStages] = useState(false);
   const [stagesFile, setStagesFile] = useState<File | null>(null);
   const [setsFile, setSetsFile] = useState<File | null>(null);
   const [timezone, setTimezone] = useState(getUserTimezone());
-  const [progress, setProgress] = useState({ current: 0, total: 0, label: "" });
-  const [importResults, setImportResults] = useState<ImportResult[]>([]);
+  const [stagesProgress, setStagesProgress] = useState({
+    current: 0,
+    total: 0,
+    label: "",
+  });
+  const [stagesResult, setStagesResult] = useState<ImportResult | null>(null);
 
   const [stagesPreview, setStagesPreview] = useState<StageImportData[]>([]);
   const [setsPreview, setSetsPreview] = useState<SetImportData[]>([]);
-  const [artistSelections, setArtistSelections] = useState<
-    Map<number, ArtistSelection[]>
-  >(new Map());
-  const [setSelections, setSetSelections] = useState<Map<number, SetSelection>>(
-    new Map(),
-  );
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const artistsQuery = useArtistsQuery();
   const festivalsQuery = useFestivalsQuery({ all: true });
   const editionsQuery = useFestivalEditionsForFestivalQuery(
     selectedFestivalId,
@@ -174,15 +168,8 @@ export function CSVImportPage() {
     });
   }
 
-  async function handleImport() {
-    if (!stagesFile && !setsFile) {
-      toast({
-        title: "No files selected",
-        description: "Please select at least one CSV file to import",
-        variant: "destructive",
-      });
-      return;
-    }
+  async function handleImportStages() {
+    if (!stagesFile) return;
 
     if (!selectedEditionId) {
       toast({
@@ -193,116 +180,39 @@ export function CSVImportPage() {
       return;
     }
 
-    if (!artistsQuery.data) {
-      toast({
-        title: "Artists data not loaded",
-        description: "Please wait for artists data to load",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (setsFile && setSelections.size > 0) {
-      const validationErrors = validateSetSelections(setSelections);
-      if (validationErrors.length > 0) {
-        toast({
-          title: "Set selection conflicts",
-          description: validationErrors[0].message,
-          variant: "destructive",
-        });
-        return;
-      }
-    }
-
-    setIsImporting(true);
-    setImportResults([]);
-    const results: ImportResult[] = [];
+    setIsImportingStages(true);
+    setStagesResult(null);
 
     try {
-      if (stagesFile) {
-        setProgress({ current: 0, total: 0, label: "Importing stages..." });
-        const stagesContent = await readFileAsText(stagesFile);
-        const stagesData = parseStagesCSV(stagesContent);
+      const stagesContent = await readFileAsText(stagesFile);
+      const stagesData = parseStagesCSV(stagesContent);
 
-        const stagesResult = await importStages(
-          stagesData,
-          selectedEditionId,
-          (current, total) => {
-            setProgress({
-              current,
-              total,
-              label: `Importing stages (${current}/${total})...`,
-            });
-          },
-        );
-        results.push(stagesResult);
-      }
+      setStagesProgress({ current: 0, total: 0, label: "Importing stages..." });
 
-      if (setsFile) {
-        setProgress({
-          current: 0,
-          total: 0,
-          label: "Importing sets...",
-        });
-        const setsContent = await readFileAsText(setsFile);
-        const setsData = parseSetsCSV(setsContent);
+      const result = await importStages(
+        stagesData,
+        selectedEditionId,
+        (current, total) => {
+          setStagesProgress({
+            current,
+            total,
+            label: `Importing stages (${current}/${total})...`,
+          });
+        },
+      );
 
-        const artistMappings = new Map<number, ArtistMapping[]>();
-        artistSelections.forEach((selections, index) => {
-          artistMappings.set(
-            index,
-            selections.map((sel) => ({
-              csvName: sel.csvName,
-              artistId: sel.artistId,
-              shouldCreate: sel.isCreating,
-            })),
-          );
-        });
+      setStagesResult(result);
+      queryClient.invalidateQueries({ queryKey: ["stages"] });
 
-        const setsResult = await importSetsWithMappings(
-          setsData,
-          selectedEditionId,
-          artistMappings,
-          setSelections,
-          timezone,
-          (current, total) => {
-            setProgress({
-              current,
-              total,
-              label: `Importing sets (${current}/${total})...`,
-            });
-          },
-        );
-        results.push(setsResult);
-      }
-
-      const successCount = results.filter((r) => r.success).length;
-      const failureCount = results.filter((r) => !r.success).length;
-      const allErrors = results.flatMap((r) => r.errors || []);
-
-      setImportResults(results);
-
-      if (successCount > 0 && failureCount === 0 && allErrors.length === 0) {
-        toast({
-          title: "Import successful",
-          description: results.map((r) => r.message).join(". "),
-        });
-
-        queryClient.invalidateQueries({ queryKey: ["stages"] });
-        queryClient.invalidateQueries({ queryKey: ["sets"] });
-        queryClient.invalidateQueries({ queryKey: ["artists"] });
-
+      if (result.success) {
+        toast({ title: "Stages imported", description: result.message });
         setStagesFile(null);
-        setSetsFile(null);
         setStagesPreview([]);
-        setSetsPreview([]);
-        setProgress({ current: 0, total: 0, label: "" });
-        setImportResults([]);
       } else {
         toast({
-          title: "Import completed with issues",
-          description: `${results.map((r) => r.message).join(". ")}${allErrors.length > 0 ? ` See details below for ${allErrors.length} error${allErrors.length === 1 ? "" : "s"}.` : ""}`,
-          variant: failureCount > 0 ? "destructive" : "default",
+          title: "Stages import failed",
+          description: result.message,
+          variant: "destructive",
         });
       }
     } catch (error) {
@@ -312,9 +222,43 @@ export function CSVImportPage() {
         variant: "destructive",
       });
     } finally {
-      setIsImporting(false);
-      setProgress({ current: 0, total: 0, label: "" });
+      setIsImportingStages(false);
+      setStagesProgress({ current: 0, total: 0, label: "" });
     }
+  }
+
+  async function handleImportPage(
+    pageSets: SetImportData[],
+    artistMappings: Map<number, ArtistMapping[]>,
+    pageSetSelections: Map<number, SetSelection>,
+    onProgress?: (completed: number, total: number) => void,
+  ): Promise<ImportResult> {
+    const result = await importSetsWithMappings(
+      pageSets,
+      selectedEditionId,
+      artistMappings,
+      pageSetSelections,
+      timezone,
+      onProgress,
+    );
+
+    queryClient.invalidateQueries({ queryKey: ["sets"] });
+    queryClient.invalidateQueries({ queryKey: ["artists"] });
+
+    if (result.success) {
+      toast({
+        title: `Page imported`,
+        description: result.message,
+      });
+    } else {
+      toast({
+        title: "Page import failed",
+        description: result.message,
+        variant: "destructive",
+      });
+    }
+
+    return result;
   }
 
   const selectedFestival = festivalsQuery.data?.find(
@@ -417,6 +361,32 @@ export function CSVImportPage() {
                 {stagesPreview.length > 0 && (
                   <StagesPreviewTable stages={stagesPreview} />
                 )}
+                <ImportProgress
+                  progress={stagesProgress}
+                  isImporting={isImportingStages}
+                />
+                {stagesResult && <ImportResults results={[stagesResult]} />}
+                <div className="flex justify-end pt-2">
+                  <Button
+                    onClick={handleImportStages}
+                    disabled={
+                      isImportingStages || !stagesFile || !selectedEditionId
+                    }
+                    size="lg"
+                  >
+                    {isImportingStages ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {stagesProgress.label || "Importing..."}
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="mr-2 h-4 w-4" />
+                        Import Stages
+                      </>
+                    )}
+                  </Button>
+                </div>
               </TabsContent>
 
               <TabsContent value="sets" className="space-y-4 mt-4">
@@ -431,40 +401,11 @@ export function CSVImportPage() {
                     sets={setsPreview}
                     timezone={timezone}
                     editionId={selectedEditionId}
-                    onArtistSelectionsChange={setArtistSelections}
-                    onSetSelectionsChange={setSetSelections}
+                    onImportPage={handleImportPage}
                   />
                 )}
               </TabsContent>
             </Tabs>
-
-            <ImportProgress progress={progress} isImporting={isImporting} />
-
-            <ImportResults results={importResults} />
-
-            <div className="flex justify-end gap-2 pt-4 mt-6 border-t">
-              <Button
-                onClick={handleImport}
-                disabled={
-                  isImporting ||
-                  (!stagesFile && !setsFile) ||
-                  !selectedEditionId
-                }
-                size="lg"
-              >
-                {isImporting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {progress.label || "Importing..."}
-                  </>
-                ) : (
-                  <>
-                    <Upload className="mr-2 h-4 w-4" />
-                    Import Data
-                  </>
-                )}
-              </Button>
-            </div>
           </CardContent>
         </Card>
       )}

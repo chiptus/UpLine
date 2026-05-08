@@ -7,7 +7,15 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  AlertCircle,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  Upload,
+} from "lucide-react";
 import type { SetImportData } from "@/services/csv/csvParser";
 import {
   validateSetData,
@@ -17,6 +25,8 @@ import { useState, useEffect, useMemo } from "react";
 import { useArtistsQuery } from "@/hooks/queries/artists/useArtists";
 import { useMatchingSetsQuery } from "@/hooks/queries/sets/useMatchingSetsQuery";
 import { SetPreviewRow } from "./SetPreviewRow";
+import type { ArtistMapping } from "@/services/csv/setImporter";
+import type { ImportResult } from "@/services/csv/types";
 
 export interface ArtistSelection {
   csvName: string;
@@ -29,23 +39,37 @@ export interface SetSelection {
   matchedSetId?: string;
 }
 
+const PAGE_SIZE = 20;
+
 interface SetsPreviewTableProps {
   sets: SetImportData[];
   timezone: string;
   editionId: string;
-  onArtistSelectionsChange?: (
-    selections: Map<number, ArtistSelection[]>,
-  ) => void;
-  onSetSelectionsChange?: (selections: Map<number, SetSelection>) => void;
+  onImportPage: (
+    pageSets: SetImportData[],
+    artistMappings: Map<number, ArtistMapping[]>,
+    setSelections: Map<number, SetSelection>,
+    onProgress?: (completed: number, total: number) => void,
+  ) => Promise<ImportResult>;
 }
 
 export function SetsPreviewTable({
   sets,
   timezone,
   editionId,
-  onArtistSelectionsChange,
-  onSetSelectionsChange,
+  onImportPage,
 }: SetsPreviewTableProps) {
+  const [currentPage, setCurrentPage] = useState(0);
+  const [importedPages, setImportedPages] = useState<Set<number>>(new Set());
+  const [pageResults, setPageResults] = useState<Map<number, ImportResult>>(
+    new Map(),
+  );
+  const [isImportingPage, setIsImportingPage] = useState(false);
+  const [importProgress, setImportProgress] = useState({
+    current: 0,
+    total: 0,
+  });
+
   const [artistSelections, setArtistSelections] = useState<
     Map<number, ArtistSelection[]>
   >(new Map());
@@ -53,8 +77,16 @@ export function SetsPreviewTable({
     new Map(),
   );
 
+  const totalPages = Math.ceil(sets.length / PAGE_SIZE);
+  const pageStart = currentPage * PAGE_SIZE;
+  const pageEnd = Math.min(pageStart + PAGE_SIZE, sets.length);
+  const pageSets = useMemo(
+    () => sets.slice(pageStart, pageEnd),
+    [sets, pageStart, pageEnd],
+  );
+
   const artistsQuery = useArtistsQuery();
-  const matchingSetsQuery = useMatchingSetsQuery(sets, editionId);
+  const matchingSetsQuery = useMatchingSetsQuery(pageSets, editionId);
 
   const matchingSets = matchingSetsQuery.data || new Map();
   const isLoadingMatches = matchingSetsQuery.isLoading;
@@ -67,95 +99,112 @@ export function SetsPreviewTable({
     return map;
   }, [artistsQuery.data]);
 
+  // Initialize artist selections for all sets (pure JS, fast)
   useEffect(() => {
-    const initialArtistSelections = new Map<number, ArtistSelection[]>();
+    const initialArtistSelections = new Map<number, ArtistSelection[]>(
+      artistSelections,
+    );
 
     sets.forEach((set, index) => {
+      if (initialArtistSelections.has(index)) return;
+
       const artistNames = set.artist_names
         .split(",")
         .map((name) => name.trim())
         .filter((name) => name.length > 0);
 
-      const selections: ArtistSelection[] = artistNames.map((csvName) => {
-        const artistId = artistsByName.get(csvName.toLowerCase());
-
-        return {
-          csvName,
-          artistId: artistId || null,
-          isCreating: !artistId,
-        };
-      });
-
-      initialArtistSelections.set(index, selections);
+      initialArtistSelections.set(
+        index,
+        artistNames.map((csvName) => {
+          const artistId = artistsByName.get(csvName.toLowerCase());
+          return { csvName, artistId: artistId || null, isCreating: !artistId };
+        }),
+      );
     });
 
     setArtistSelections(initialArtistSelections);
-    onArtistSelectionsChange?.(initialArtistSelections);
-  }, [sets, artistsByName, onArtistSelectionsChange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sets, artistsByName]);
 
+  // Initialize set selections for current page when matches load
   useEffect(() => {
-    const initialSetSelections = new Map<number, SetSelection>();
+    if (!matchingSetsQuery.data) return;
 
-    sets.forEach((_set, index) => {
-      if (!matchingSetsQuery.data) return;
+    const updated = new Map<number, SetSelection>(setSelections);
 
-      const matchingSetsForRow = matchingSetsQuery.data?.get(index) || [];
-      if (matchingSetsForRow.length > 0) {
-        initialSetSelections.set(index, {
-          action: "match",
-          matchedSetId: matchingSetsForRow[0].id,
-        });
-      } else {
-        initialSetSelections.set(index, {
-          action: "create",
-        });
-      }
+    pageSets.forEach((_set, localIndex) => {
+      const originalIndex = pageStart + localIndex;
+      if (updated.has(originalIndex)) return;
+
+      const matchingSetsForRow = matchingSetsQuery.data?.get(localIndex) || [];
+      updated.set(
+        originalIndex,
+        matchingSetsForRow.length > 0
+          ? { action: "match", matchedSetId: matchingSetsForRow[0].id }
+          : { action: "create" },
+      );
     });
 
-    setSetSelections(initialSetSelections);
-    onSetSelectionsChange?.(initialSetSelections);
-  }, [sets, matchingSetsQuery.data, onSetSelectionsChange]);
+    setSetSelections(updated);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [matchingSetsQuery.data, pageStart]);
 
   if (sets.length === 0) {
     return null;
   }
 
-  const validationResults: SetValidationResult[] = sets.map((set, index) =>
-    validateSetData(set, index, timezone),
+  const pageValidationResults: SetValidationResult[] = pageSets.map(
+    (set, localIndex) => validateSetData(set, pageStart + localIndex, timezone),
   );
 
-  const validCount = validationResults.filter((r) => r.isValid).length;
-  const invalidCount = validationResults.length - validCount;
+  const totalValidCount = sets.reduce((acc, set, index) => {
+    const result = validateSetData(set, index, timezone);
+    return acc + (result.isValid ? 1 : 0);
+  }, 0);
+  const totalInvalidCount = sets.length - totalValidCount;
 
   const hasSeparateDateFields = sets.some(
     (set) => set.date_start !== undefined || set.date_end !== undefined,
   );
 
+  const currentPageResult = pageResults.get(currentPage);
+  const isCurrentPageImported = importedPages.has(currentPage);
+  const allPagesImported = importedPages.size === totalPages;
+
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-2">
           <CardTitle className="text-base">
             Preview: {sets.length} set{sets.length !== 1 ? "s" : ""} (timezone:{" "}
             {timezone})
           </CardTitle>
-          <div className="flex gap-2">
-            {validCount > 0 && (
+          <div className="flex gap-2 flex-wrap">
+            {totalValidCount > 0 && (
               <Badge variant="outline" className="gap-1">
                 <CheckCircle2 className="h-3 w-3 text-green-600" />
-                {validCount} valid
+                {totalValidCount} valid
               </Badge>
             )}
-            {invalidCount > 0 && (
+            {totalInvalidCount > 0 && (
               <Badge variant="destructive" className="gap-1">
                 <AlertCircle className="h-3 w-3" />
-                {invalidCount} invalid
+                {totalInvalidCount} invalid
+              </Badge>
+            )}
+            {allPagesImported && (
+              <Badge
+                variant="outline"
+                className="gap-1 border-green-500 text-green-700"
+              >
+                <CheckCircle2 className="h-3 w-3 text-green-600" />
+                All pages imported
               </Badge>
             )}
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
         <div className="rounded-md border">
           <Table>
             <TableHeader>
@@ -182,28 +231,162 @@ export function SetsPreviewTable({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sets.map((set, index) => (
-                <SetPreviewRow
-                  key={index}
-                  set={set}
-                  index={index}
-                  validation={validationResults[index]}
-                  hasSeparateDateFields={hasSeparateDateFields}
-                  matchingSets={matchingSets.get(index) || []}
-                  setSelection={setSelections.get(index)}
-                  artistSelections={artistSelections.get(index) || []}
-                  isLoadingMatches={isLoadingMatches}
-                  editionId={editionId}
-                  onArtistSelectionChange={handleArtistSelectionChange}
-                  onSetSelectionChange={handleSetSelectionChange}
-                />
-              ))}
+              {pageSets.map((set, localIndex) => {
+                const originalIndex = pageStart + localIndex;
+                return (
+                  <SetPreviewRow
+                    key={originalIndex}
+                    set={set}
+                    index={originalIndex}
+                    validation={pageValidationResults[localIndex]}
+                    hasSeparateDateFields={hasSeparateDateFields}
+                    matchingSets={matchingSets.get(localIndex) || []}
+                    setSelection={setSelections.get(originalIndex)}
+                    artistSelections={artistSelections.get(originalIndex) || []}
+                    isLoadingMatches={isLoadingMatches}
+                    editionId={editionId}
+                    onArtistSelectionChange={handleArtistSelectionChange}
+                    onSetSelectionChange={handleSetSelectionChange}
+                  />
+                );
+              })}
             </TableBody>
           </Table>
+        </div>
+
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => p - 1)}
+              disabled={currentPage === 0 || isImportingPage}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <div className="flex gap-1">
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i}
+                  onClick={() => !isImportingPage && setCurrentPage(i)}
+                  className={[
+                    "h-7 w-7 rounded text-xs font-medium transition-colors",
+                    i === currentPage
+                      ? "bg-primary text-primary-foreground"
+                      : importedPages.has(i)
+                        ? "bg-green-100 text-green-700 hover:bg-green-200"
+                        : "hover:bg-muted text-muted-foreground",
+                  ].join(" ")}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => p + 1)}
+              disabled={currentPage === totalPages - 1 || isImportingPage}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <span className="text-sm text-muted-foreground">
+              Rows {pageStart + 1}–{pageEnd} of {sets.length}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {currentPageResult && (
+              <span
+                className={`text-sm ${currentPageResult.success ? "text-green-600" : "text-destructive"}`}
+              >
+                {currentPageResult.success
+                  ? `✓ ${currentPageResult.inserted ?? 0} imported`
+                  : `✗ ${currentPageResult.message}`}
+                {(currentPageResult.errors?.length ?? 0) > 0 &&
+                  ` (${currentPageResult.errors!.length} errors)`}
+              </span>
+            )}
+            {isImportingPage && importProgress.total > 0 && (
+              <span className="text-sm text-muted-foreground">
+                {importProgress.current}/{importProgress.total}
+              </span>
+            )}
+            <Button
+              onClick={handleImportCurrentPage}
+              disabled={isImportingPage || isCurrentPageImported}
+              size="sm"
+            >
+              {isImportingPage ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Importing...
+                </>
+              ) : isCurrentPageImported ? (
+                <>
+                  <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
+                  Imported
+                </>
+              ) : (
+                <>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Import page {currentPage + 1} of {totalPages}
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>
   );
+
+  async function handleImportCurrentPage() {
+    const pageMappings = new Map<number, ArtistMapping[]>();
+    const pageSetSelections = new Map<number, SetSelection>();
+
+    pageSets.forEach((_set, localIndex) => {
+      const originalIndex = pageStart + localIndex;
+      const sels = artistSelections.get(originalIndex);
+      if (sels) {
+        pageMappings.set(
+          localIndex,
+          sels.map((s) => ({
+            csvName: s.csvName,
+            artistId: s.artistId,
+            shouldCreate: s.isCreating,
+          })),
+        );
+      }
+      const sel = setSelections.get(originalIndex);
+      if (sel) pageSetSelections.set(localIndex, sel);
+    });
+
+    setIsImportingPage(true);
+    setImportProgress({ current: 0, total: pageSets.length });
+
+    try {
+      const result = await onImportPage(
+        pageSets,
+        pageMappings,
+        pageSetSelections,
+        (completed, total) => setImportProgress({ current: completed, total }),
+      );
+
+      const newPageResults = new Map(pageResults);
+      newPageResults.set(currentPage, result);
+      setPageResults(newPageResults);
+
+      if (result.success) {
+        setImportedPages((prev) => new Set([...prev, currentPage]));
+        if (currentPage < totalPages - 1) {
+          setCurrentPage((p) => p + 1);
+        }
+      }
+    } finally {
+      setIsImportingPage(false);
+      setImportProgress({ current: 0, total: 0 });
+    }
+  }
 
   function handleArtistSelectionChange(
     setIndex: number,
@@ -231,13 +414,11 @@ export function SetsPreviewTable({
     const newMap = new Map(artistSelections);
     newMap.set(setIndex, newSelections);
     setArtistSelections(newMap);
-    onArtistSelectionsChange?.(newMap);
   }
 
   function handleSetSelectionChange(setIndex: number, selection: SetSelection) {
     const newMap = new Map(setSelections);
     newMap.set(setIndex, selection);
     setSetSelections(newMap);
-    onSetSelectionsChange?.(newMap);
   }
 }

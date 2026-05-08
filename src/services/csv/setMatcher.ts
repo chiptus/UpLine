@@ -10,6 +10,13 @@ export interface MatchingSet {
   time_start: string | null;
 }
 
+function normalizeArtistName(name: string) {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[.,;!?]+$/, "");
+}
+
 export async function findMatchingSets({
   existingSets,
   importedSets,
@@ -25,6 +32,13 @@ export async function findMatchingSets({
 }): Promise<Map<number, MatchingSet[]>> {
   const matchMap = new Map<number, MatchingSet[]>();
 
+  // First pass: pure JS matching, no DB calls
+  const pendingMatches: Array<{
+    importedIndex: number;
+    existingSet: (typeof existingSets)[0];
+    setArtistNames: string[];
+  }> = [];
+
   for (let index = 0; index < importedSets.length; index++) {
     const set = importedSets[index];
     const artistNames = set.artist_names
@@ -32,17 +46,17 @@ export async function findMatchingSets({
       .map((name) => name.trim())
       .filter((name) => name.length > 0);
 
-    if (artistNames.length === 0) {
-      matchMap.set(index, []);
+    matchMap.set(index, []);
+
+    if (
+      artistNames.length === 0 ||
+      !existingSets ||
+      existingSets.length === 0
+    ) {
       continue;
     }
 
-    if (!existingSets || existingSets.length === 0) {
-      matchMap.set(index, []);
-      continue;
-    }
-
-    const matches: MatchingSet[] = [];
+    const csvArtistNamesLower = artistNames.map(normalizeArtistName).sort();
 
     for (const existingSet of existingSets) {
       if (!existingSet.set_artists || existingSet.set_artists.length === 0) {
@@ -56,18 +70,9 @@ export async function findMatchingSets({
         )
         .filter((name): name is string => name !== null && name !== undefined);
 
-      function normalizeArtistName(name: string) {
-        return name
-          .toLowerCase()
-          .trim()
-          .replace(/[.,;!?]+$/, "");
-      }
-
-      const csvArtistNamesLower = artistNames.map(normalizeArtistName);
-      const setArtistNamesLower = setArtistNames.map(normalizeArtistName);
-
-      csvArtistNamesLower.sort();
-      setArtistNamesLower.sort();
+      const setArtistNamesLower = setArtistNames
+        .map(normalizeArtistName)
+        .sort();
 
       const artistsMatch =
         setArtistNamesLower.length === csvArtistNamesLower.length &&
@@ -76,23 +81,45 @@ export async function findMatchingSets({
         );
 
       if (artistsMatch) {
-        const { count: voteCount } = await supabase
-          .from("votes")
-          .select("*", { count: "exact", head: true })
-          .eq("set_id", existingSet.id);
-
-        matches.push({
-          id: existingSet.id,
-          name: existingSet.name,
-          stage_name: existingSet.stages?.name || null,
-          artist_names: setArtistNames,
-          vote_count: voteCount || 0,
-          time_start: existingSet.time_start,
+        pendingMatches.push({
+          importedIndex: index,
+          existingSet,
+          setArtistNames,
         });
       }
     }
+  }
 
-    matchMap.set(index, matches);
+  if (pendingMatches.length === 0) {
+    return matchMap;
+  }
+
+  // Batch fetch vote counts for all matched sets in one query
+  const matchedSetIds = [
+    ...new Set(pendingMatches.map((m) => m.existingSet.id)),
+  ];
+  const { data: votes } = await supabase
+    .from("votes")
+    .select("set_id")
+    .in("set_id", matchedSetIds);
+
+  const voteCountMap = new Map<string, number>();
+  votes?.forEach((v) => {
+    voteCountMap.set(v.set_id, (voteCountMap.get(v.set_id) || 0) + 1);
+  });
+
+  // Second pass: build match map with pre-fetched vote counts
+  for (const { importedIndex, existingSet, setArtistNames } of pendingMatches) {
+    const existing = matchMap.get(importedIndex) ?? [];
+    existing.push({
+      id: existingSet.id,
+      name: existingSet.name,
+      stage_name: existingSet.stages?.name || null,
+      artist_names: setArtistNames,
+      vote_count: voteCountMap.get(existingSet.id) || 0,
+      time_start: existingSet.time_start,
+    });
+    matchMap.set(importedIndex, existing);
   }
 
   return matchMap;

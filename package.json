@@ -6,8 +6,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:staging": "vite --mode staging",
+    "dev:local": "vite --mode local",
     "build": "vite build",
     "build:dev": "vite build --mode development",
+    "build:staging": "vite build --mode staging",
     "lint": "oxlint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -24,6 +27,8 @@
     "test:setup:full": "bash scripts/setup-local-supabase.sh",
     "types:generate": "supabase gen types typescript --project-id qssmazlqrmxiudxckxvi > src/integrations/supabase/types.ts",
     "types:generate:local": "supabase gen types typescript --local > src/integrations/supabase/types.ts",
+    "db:sync:staging": "bash scripts/sync-from-prod.sh staging",
+    "db:sync:local": "bash scripts/sync-from-prod.sh local",
     "typecheck": "tsc --noEmit --project tsconfig.app.json",
     "prepare": "husky"
   },

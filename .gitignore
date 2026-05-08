@@ -38,3 +38,6 @@ supabase/.branches
 dev-dist
 
 dump.sql
+
+# Sync script credentials (DB connection strings — never commit)
+scripts/.env.sync

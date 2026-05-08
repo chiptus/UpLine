@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import type { SetImportData } from "@/services/csv/csvParser";
 import type { MatchingSet } from "@/services/csv/setMatcher";
 import type { ArtistSelection, SetSelection } from "./SetsPreviewTable";
@@ -16,25 +16,21 @@ export function useSetSelections({
   artistsByName: Map<string, string>;
   matchingSetsData: Map<number, MatchingSet[]> | undefined;
 }) {
-  const [artistSelections, setArtistSelections] = useState<
+  const [artistOverrides, setArtistOverrides] = useState<
     Map<number, ArtistSelection[]>
   >(new Map());
-  const [setSelections, setSetSelections] = useState<Map<number, SetSelection>>(
+  const [setOverrides, setSetOverrides] = useState<Map<number, SetSelection>>(
     new Map(),
   );
 
-  useEffect(() => {
-    const updated = new Map<number, ArtistSelection[]>(artistSelections);
-
+  const defaultArtistSelections = useMemo(() => {
+    const map = new Map<number, ArtistSelection[]>();
     sets.forEach((set, index) => {
-      if (updated.has(index)) return;
-
       const artistNames = set.artist_names
         .split(",")
         .map((n) => n.trim())
         .filter(Boolean);
-
-      updated.set(
+      map.set(
         index,
         artistNames.map((csvName) => {
           const artistId = artistsByName.get(csvName.toLowerCase());
@@ -42,32 +38,34 @@ export function useSetSelections({
         }),
       );
     });
-
-    setArtistSelections(updated);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return map;
   }, [sets, artistsByName]);
 
-  useEffect(() => {
-    if (!matchingSetsData) return;
-
-    const updated = new Map<number, SetSelection>(setSelections);
-
+  const defaultSetSelections = useMemo(() => {
+    if (!matchingSetsData) return new Map<number, SetSelection>();
+    const map = new Map<number, SetSelection>();
     pageSets.forEach((_set, localIndex) => {
       const originalIndex = pageStart + localIndex;
-      if (updated.has(originalIndex)) return;
-
       const matches = matchingSetsData.get(localIndex) || [];
-      updated.set(
+      map.set(
         originalIndex,
         matches.length > 0
           ? { action: "match", matchedSetId: matches[0].id }
           : { action: "create" },
       );
     });
+    return map;
+  }, [matchingSetsData, pageSets, pageStart]);
 
-    setSetSelections(updated);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [matchingSetsData, pageStart]);
+  const artistSelections = useMemo(
+    () => new Map([...defaultArtistSelections, ...artistOverrides]),
+    [defaultArtistSelections, artistOverrides],
+  );
+
+  const setSelections = useMemo(
+    () => new Map([...defaultSetSelections, ...setOverrides]),
+    [defaultSetSelections, setOverrides],
+  );
 
   function handleArtistSelectionChange(
     setIndex: number,
@@ -81,15 +79,11 @@ export function useSetSelections({
       value === "create"
         ? { ...sel, artistId: null, isCreating: true }
         : { ...sel, artistId: value, isCreating: false };
-    const newMap = new Map(artistSelections);
-    newMap.set(setIndex, next);
-    setArtistSelections(newMap);
+    setArtistOverrides((prev) => new Map(prev).set(setIndex, next));
   }
 
   function handleSetSelectionChange(setIndex: number, selection: SetSelection) {
-    const newMap = new Map(setSelections);
-    newMap.set(setIndex, selection);
-    setSetSelections(newMap);
+    setSetOverrides((prev) => new Map(prev).set(setIndex, selection));
   }
 
   return {

@@ -94,9 +94,42 @@ If you add a column that holds free-form user input or a personal identifier, **
 
 ### Promoting a migration to staging, then prod
 
-1. Develop locally (`supabase migration new …`, edit, `supabase db reset`).
-2. Push to staging: `supabase link --project-ref <staging-ref> && supabase db push`.
-3. Verify in the staging app (`pnpm run dev:staging`).
-4. Push to prod: `supabase link --project-ref qssmazlqrmxiudxckxvi && supabase db push`.
+Branching model:
+
+- `develop` — staging branch. Auto-deployed by Vercel; auto-migrated by `.github/workflows/db-migrate.yml`.
+- `main` — prod branch. Auto-deployed by Vercel; auto-migrated by the same workflow.
+
+Day-to-day flow:
+
+1. Develop locally on a feature branch (`supabase migration new …`, edit, `supabase db reset` to verify).
+2. PR into `develop`. On merge:
+   - Vercel deploys the staging URL with staging env vars.
+   - If your PR touched `supabase/migrations/**`, the **DB Migrate** workflow runs and pushes migrations to the staging Supabase project.
+3. Verify in staging.
+4. PR `develop` → `main`. On merge, the same workflow runs against prod.
+
+You can also trigger the workflow manually from the Actions tab (workflow_dispatch) if you need to re-run a migration push.
+
+### CI secrets required
+
+The DB-migrate workflow reads these from GitHub Actions secrets (Settings -> Secrets and variables -> Actions):
+
+| Secret | Where to find it |
+| --- | --- |
+| `SUPABASE_ACCESS_TOKEN` | https://supabase.com/dashboard/account/tokens — generate a personal access token |
+| `PROD_PROJECT_REF` | `qssmazlqrmxiudxckxvi` (already public, but kept as a secret for symmetry with staging) |
+| `STAGING_PROJECT_REF` | the staging project's ref (visible in its dashboard URL) |
+| `PROD_DB_PASSWORD` | Project Settings -> Database -> Database password |
+| `STAGING_DB_PASSWORD` | Same, for the staging project |
+
+The workflow also references `staging` and `production` GitHub **environments**. They don't need any settings to function, but you can add required-reviewer protection rules to the `production` environment (Settings -> Environments) to gate prod migrations behind manual approval.
+
+### Manual fallback
+
+If you need to push a migration without going through CI:
+
+```bash
+supabase link --project-ref <ref> && supabase db push
+```
 
 Re-link to whichever project you intend to operate on — the Supabase CLI keeps a single linked project at a time.

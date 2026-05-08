@@ -7,16 +7,21 @@
 #   pnpm run db:sync:local
 #
 # What it does:
-#   1. pg_dump the `public` schema (data only) from PROD_DB_URL.
-#   2. TRUNCATE the target's public tables and restore the dump.
-#   3. Run scripts/anonymize.sql against the target to scrub PII.
-#   4. Leaves auth.users untouched on the target — create test users separately.
+#   1. Sync auth.users from prod into target. Existing target users are preserved
+#      (ON CONFLICT DO NOTHING); newly inserted rows have their emails rewritten
+#      to user-<short-id>@example.test, no password, no OAuth metadata.
+#   2. pg_dump the `public` schema (data only) from PROD_DB_URL, TRUNCATE the
+#      target's public tables, and restore the dump.
+#   3. Run scripts/anonymize.sql against the target to scrub remaining PII in
+#      the public schema.
 #
 # Required env vars (put them in scripts/.env.sync, which is gitignored):
 #   PROD_DB_URL      Postgres connection string for the prod project
 #                    (Supabase Dashboard -> Project Settings -> Database -> Connection string -> URI)
 #   STAGING_DB_URL   Same, for the staging project
 #   LOCAL_DB_URL     Defaults to the Supabase CLI local DB if unset
+#
+# Skip auth syncing with: SYNC_AUTH=0 pnpm run db:sync:staging
 #
 set -euo pipefail
 
@@ -36,6 +41,7 @@ if [[ -f "$ENV_FILE" ]]; then
 fi
 
 : "${PROD_DB_URL:?PROD_DB_URL is required (see scripts/.env.sync.example)}"
+SYNC_AUTH="${SYNC_AUTH:-1}"
 
 case "$TARGET" in
   staging)
@@ -58,24 +64,72 @@ fi
 
 echo "About to OVERWRITE the public schema in:"
 echo "  $TARGET_URL"
-echo "with data from prod."
+if [[ "$SYNC_AUTH" == "1" ]]; then
+  echo "and upsert anonymized auth.users from prod (existing target users kept)."
+fi
 read -r -p "Type 'yes' to continue: " CONFIRM
 if [[ "$CONFIRM" != "yes" ]]; then
   echo "Aborted."
   exit 1
 fi
 
-DUMP_FILE="$(mktemp -t upline-prod-dump.XXXXXX.sql)"
-trap 'rm -f "$DUMP_FILE"' EXIT
+TMP_DIR="$(mktemp -d -t upline-sync.XXXXXX)"
+trap 'rm -rf "$TMP_DIR"' EXIT
+
+if [[ "$SYNC_AUTH" == "1" ]]; then
+  echo "Syncing auth.users from prod (anonymized)…"
+  AUTH_CSV="$TMP_DIR/auth-users.csv"
+
+  psql "$PROD_DB_URL" -v ON_ERROR_STOP=1 -At -c "\
+    \\copy ( \
+      SELECT id, email, email_confirmed_at, created_at, updated_at, aud, role \
+      FROM auth.users \
+    ) TO '$AUTH_CSV' WITH (FORMAT csv)"
+
+  psql "$TARGET_URL" -v ON_ERROR_STOP=1 -v authcsv="$AUTH_CSV" <<'SQL'
+CREATE TEMP TABLE _sync_auth_users (
+  id uuid PRIMARY KEY,
+  email varchar,
+  email_confirmed_at timestamptz,
+  created_at timestamptz,
+  updated_at timestamptz,
+  aud varchar,
+  role varchar
+);
+
+\copy _sync_auth_users FROM :'authcsv' WITH (FORMAT csv)
+
+INSERT INTO auth.users (
+  instance_id, id, aud, role, email,
+  email_confirmed_at, created_at, updated_at,
+  raw_app_meta_data, raw_user_meta_data,
+  is_super_admin
+)
+SELECT
+  '00000000-0000-0000-0000-000000000000'::uuid,
+  s.id,
+  COALESCE(s.aud, 'authenticated'),
+  COALESCE(s.role, 'authenticated'),
+  'user-' || substring(s.id::text, 1, 8) || '@example.test',
+  s.email_confirmed_at,
+  s.created_at,
+  s.updated_at,
+  '{"provider":"synced","providers":["synced"]}'::jsonb,
+  '{}'::jsonb,
+  false
+FROM _sync_auth_users s
+ON CONFLICT (id) DO NOTHING;
+SQL
+fi
 
 echo "Dumping public schema data from prod…"
+DUMP_FILE="$TMP_DIR/public-dump.sql"
 pg_dump \
   --no-owner \
   --no-privileges \
   --data-only \
   --schema=public \
   --disable-triggers \
-  --column-inserts=false \
   --file="$DUMP_FILE" \
   "$PROD_DB_URL"
 
@@ -99,9 +153,12 @@ SQL
 echo "Restoring dump into target…"
 psql "$TARGET_URL" -v ON_ERROR_STOP=1 -f "$DUMP_FILE"
 
-echo "Running anonymizer…"
+echo "Running anonymizer on public schema…"
 psql "$TARGET_URL" -v ON_ERROR_STOP=1 -f "$SCRIPT_DIR/anonymize.sql"
 
-echo "Done. Target has prod data with PII scrubbed."
-echo "Note: auth.users on the target was not modified. Sign in there with"
-echo "      whatever test accounts you've already created."
+echo "Done."
+if [[ "$SYNC_AUTH" == "1" ]]; then
+  echo "auth.users: synced rows have anonymized emails (user-<id>@example.test)"
+  echo "  with no password — they exist for FK integrity, not for sign-in."
+  echo "  Existing test accounts on the target were preserved."
+fi

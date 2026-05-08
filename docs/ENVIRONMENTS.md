@@ -70,12 +70,23 @@ pnpm run db:sync:local     # overwrites local public schema with prod data
 
 Both prompt for confirmation before touching the target. The script:
 
-1. `pg_dump`s the `public` schema (data only) from prod.
-2. `TRUNCATE`s the target's `public` tables.
-3. Restores the dump.
-4. Runs `scripts/anonymize.sql` to scrub PII (`profiles.username`, `artist_notes.note_content`, `group_invites.invite_token`).
+1. **Syncs `auth.users`** from prod into a temp table on the target, then upserts with `ON CONFLICT (id) DO NOTHING`. New rows have:
+   - `email` rewritten to `user-<short-id>@example.test`
+   - no `encrypted_password` (synced users can't sign in)
+   - `raw_user_meta_data` / `raw_app_meta_data` stripped of OAuth/profile info
+   - `is_super_admin = false`
 
-`auth.users` is **never** copied — keep test accounts on staging/local separate from real users. A consequence is that `user_id` columns in synced data point to UUIDs that don't exist in the target's `auth.users`. That's fine for read-only browsing of data, but writes that join against `auth.users` (e.g. RLS checks) will only work for rows owned by your test user.
+   Your existing test accounts on the target are **preserved** because of the `ON CONFLICT` clause. They keep their original emails and passwords, so you can still log in as them.
+2. `pg_dump`s the `public` schema (data only) from prod.
+3. `TRUNCATE`s the target's `public` tables.
+4. Restores the dump. FK references from `public.*` to `auth.users(id)` now resolve, so RLS policies that check `auth.uid()` work for any user — log in as a test account and you can read/write any synced row that user owns.
+5. Runs `scripts/anonymize.sql` to scrub remaining PII (`profiles.username`, `artist_notes.note_content`, `group_invites.invite_token`).
+
+To skip auth syncing (public schema only):
+
+```bash
+SYNC_AUTH=0 pnpm run db:sync:staging
+```
 
 ### When PII shape changes
 

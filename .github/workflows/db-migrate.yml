@@ -69,14 +69,14 @@ jobs:
           TARGET: ${{ steps.target.outputs.target || 'staging' }}
           MARKER: "<!-- db-migrate-status -->"
         run: |
-          EXISTING=$(gh api "repos/$REPO/issues/$PR/comments" --jq ".[] | select(.body | contains(\"$MARKER\")) | .id" | head -n1)
           if [[ "$OUTCOME" == "success" ]]; then
-            [[ -n "$EXISTING" ]] && gh api -X DELETE "repos/$REPO/issues/comments/$EXISTING" || true
+            BODY="$MARKER"$'\n'"✅ **DB Migrate succeeded** for \`$TARGET\` — [workflow run]($RUN_URL)."
           else
-            BODY="$MARKER"$'\n'"❌ **DB Migrate failed** for \`$TARGET\` — see [workflow run]($RUN_URL)."
-            if [[ -n "$EXISTING" ]]; then
-              gh api -X PATCH "repos/$REPO/issues/comments/$EXISTING" -f body="$BODY"
-            else
-              gh pr comment "$PR" --body "$BODY"
-            fi
+            BODY="$MARKER"$'\n'"❌ **DB Migrate failed** for \`$TARGET\` — [workflow run]($RUN_URL)."
+          fi
+          EXISTING=$(gh api "repos/$REPO/issues/$PR/comments" --jq ".[] | select(.body | contains(\"$MARKER\")) | .id" | head -n1)
+          if [[ -n "$EXISTING" ]]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$EXISTING" -f body="$BODY"
+          else
+            gh pr comment "$PR" --body "$BODY"
           fi

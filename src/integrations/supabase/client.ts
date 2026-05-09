@@ -3,12 +3,16 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "./types";
 import { createSupabaseStorage } from "@/lib/crossDomainStorage";
 
-const SUPABASE_URL =
-  import.meta.env.VITE_SUPABASE_URL ||
-  "https://qssmazlqrmxiudxckxvi.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY =
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFzc21hemxxcm14aXVkeGNreHZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAzOTk4NjUsImV4cCI6MjA2NTk3NTg2NX0.4bltEUMgtxiDIbZDB9NLLKmeEDARt3yLjAbnO02RD_M";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+  throw new Error(
+    "Missing VITE_SUPABASE_URL or VITE_SUPABASE_PUBLISHABLE_KEY. " +
+      "For local dev: copy .env.local.example to .env.local and run `supabase start`. " +
+      "For deploys: set them in your hosting provider's environment variables.",
+  );
+}
 
 export const supabase = createClient<Database>(
   SUPABASE_URL,

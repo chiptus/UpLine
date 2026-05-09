@@ -37,6 +37,15 @@ async function importSetsWithArtistMap({
   const currentUser = await supabase.auth.getUser();
   const userId = currentUser.data.user?.id || "";
 
+  const { data: stagesData } = await supabase
+    .from("stages")
+    .select("id, name")
+    .eq("festival_edition_id", editionId);
+
+  const stagesByName = new Map<string, string>(
+    (stagesData ?? []).map((s) => [s.name.toLowerCase(), s.id]),
+  );
+
   const results: Array<string> = [];
   const errors: Array<string> = [];
   const total = sets.length;
@@ -50,6 +59,7 @@ async function importSetsWithArtistMap({
       importedSet: set,
       setMappings,
       setSelection,
+      stagesByName,
       editionId,
       timezone,
       userId,
@@ -86,6 +96,7 @@ async function importSingleSet({
   setMappings,
   userId,
   timezone,
+  stagesByName,
   editionId,
   setSelection,
 }: {
@@ -93,6 +104,7 @@ async function importSingleSet({
   userId: string;
   importedSet: SetImportData;
   setMappings: ArtistMapping[] | undefined;
+  stagesByName: Map<string, string>;
   editionId: string;
   setSelection: SetSelection | undefined;
 }): Promise<
@@ -162,21 +174,16 @@ async function importSingleSet({
 
     let stageId = "";
     if (importedSet.stage_name) {
-      const { data: stage, error: stageError } = await supabase
-        .from("stages")
-        .select("id")
-        .eq("name", importedSet.stage_name)
-        .eq("festival_edition_id", editionId)
-        .single();
-
-      if (stageError || !stage) {
+      const stageIdFound = stagesByName.get(
+        importedSet.stage_name.toLowerCase(),
+      );
+      if (!stageIdFound) {
         errors.push(
           `Stage "${importedSet.stage_name}" not found for set "${setName}"`,
         );
         return { type: "error", errors };
       }
-
-      stageId = stage.id;
+      stageId = stageIdFound;
     }
 
     const timeStartInput =

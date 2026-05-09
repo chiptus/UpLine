@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  type CsvRow,
   type DiffResult,
   type StageMismatchResolution,
   type OrphanResolution,
@@ -68,12 +67,18 @@ export function ScheduleImportWizard({ festivalEditionId }: Props) {
     setCommitting(true);
     setCommitError(null);
     try {
-      const payload = buildCommitPayload(diff, stageMismatchResolutions, orphanResolutions);
+      const payload = buildCommitPayload(
+        diff,
+        stageMismatchResolutions,
+        orphanResolutions,
+      );
       const result = await callCommitSchedule(festivalEditionId, payload);
       setCommitResult(result);
       setStep("result");
       queryClient.invalidateQueries({ queryKey: setsKeys.all });
-      queryClient.invalidateQueries({ queryKey: stagesKeys.byEdition(festivalEditionId) });
+      queryClient.invalidateQueries({
+        queryKey: stagesKeys.byEdition(festivalEditionId),
+      });
       queryClient.invalidateQueries({ queryKey: artistsKeys.all });
     } catch (err) {
       setCommitError(err instanceof Error ? err.message : "Commit failed.");
@@ -118,7 +123,10 @@ export function ScheduleImportWizard({ festivalEditionId }: Props) {
       stageMismatchResolutions={stageMismatchResolutions}
       orphanResolutions={orphanResolutions}
       onStageMismatchChange={(csvValue, resolution) =>
-        setStageMismatchResolutions((prev) => ({ ...prev, [csvValue]: resolution }))
+        setStageMismatchResolutions((prev) => ({
+          ...prev,
+          [csvValue]: resolution,
+        }))
       }
       onOrphanChange={(setId, resolution) =>
         setOrphanResolutions((prev) => ({ ...prev, [setId]: resolution }))

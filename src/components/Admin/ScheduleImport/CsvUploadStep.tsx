@@ -2,8 +2,19 @@ import { useRef, useState } from "react";
 import { Upload, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { parseScheduleCsv, callDiffSchedule, type DiffResult } from "@/services/scheduleImportService";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  parseScheduleCsv,
+  callDiffSchedule,
+  type CsvRow,
+  type DiffResult,
+} from "@/services/scheduleImportService";
 
 const TIMEZONES = [
   { value: "Europe/Lisbon", label: "Lisbon (WET/WEST)" },
@@ -39,7 +50,9 @@ export function CsvUploadStep({ festivalEditionId, onDiffReady }: Props) {
       try {
         const parsed = parseScheduleCsv(content);
         if (parsed.length === 0) {
-          setError("No valid rows found. Make sure your CSV has an 'Artists' column.");
+          setError(
+            "No valid rows found. Make sure your CSV has an 'Artists' column.",
+          );
           setRows([]);
         } else {
           setRows(parsed);
@@ -60,7 +73,9 @@ export function CsvUploadStep({ festivalEditionId, onDiffReady }: Props) {
       const diff = await callDiffSchedule(festivalEditionId, timezone, rows);
       onDiffReady(diff);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to analyse schedule.");
+      setError(
+        err instanceof Error ? err.message : "Failed to analyse schedule.",
+      );
     } finally {
       setLoading(false);
     }
@@ -100,7 +115,9 @@ export function CsvUploadStep({ festivalEditionId, onDiffReady }: Props) {
             <p className="text-sm text-muted-foreground">Click to upload CSV</p>
           )}
           {rows.length > 0 && (
-            <p className="text-xs text-muted-foreground mt-1">{rows.length} rows parsed</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {rows.length} rows parsed
+            </p>
           )}
         </div>
         <input
@@ -111,15 +128,15 @@ export function CsvUploadStep({ festivalEditionId, onDiffReady }: Props) {
           onChange={handleFileChange}
         />
         <p className="text-xs text-muted-foreground">
-          Required column: <code>Artists</code> (use <code>|</code> for B2B, e.g. <code>Carl Cox | Peggy Gou</code>).
-          Optional: <code>Set Name</code>, <code>Stage</code>, <code>Date</code> (YYYY-MM-DD),{" "}
-          <code>Start Time</code> (HH:MM), <code>End Time</code> (HH:MM), <code>Description</code>.
+          Required column: <code>Artists</code> (use <code>|</code> for B2B,
+          e.g. <code>Carl Cox | Peggy Gou</code>). Optional:{" "}
+          <code>Set Name</code>, <code>Stage</code>, <code>Date</code>{" "}
+          (YYYY-MM-DD), <code>Start Time</code> (HH:MM), <code>End Time</code>{" "}
+          (HH:MM), <code>Description</code>.
         </p>
       </div>
 
-      {error && (
-        <p className="text-sm text-destructive">{error}</p>
-      )}
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
       <Button
         onClick={handleAnalyse}

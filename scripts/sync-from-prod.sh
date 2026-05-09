@@ -82,7 +82,7 @@ if [[ "$SYNC_AUTH" == "1" ]]; then
 
   psql "$PROD_DB_URL" -v ON_ERROR_STOP=1 -c "\copy (SELECT id, email, email_confirmed_at, created_at, updated_at, aud, role FROM auth.users) TO '$AUTH_CSV' WITH (FORMAT csv)"
 
-  psql "$TARGET_URL" -v ON_ERROR_STOP=1 -v authcsv="$AUTH_CSV" <<'SQL'
+  psql "$TARGET_URL" -v ON_ERROR_STOP=1 <<SQL
 CREATE TEMP TABLE _sync_auth_users (
   id uuid PRIMARY KEY,
   email varchar,
@@ -93,7 +93,7 @@ CREATE TEMP TABLE _sync_auth_users (
   role varchar
 );
 
-\copy _sync_auth_users FROM :'authcsv' WITH (FORMAT csv)
+\copy _sync_auth_users FROM '$AUTH_CSV' WITH (FORMAT csv)
 
 INSERT INTO auth.users (
   instance_id, id, aud, role, email,

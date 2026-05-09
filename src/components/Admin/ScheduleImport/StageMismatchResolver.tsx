@@ -1,8 +1,18 @@
+import { useId } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { AlertTriangle } from "lucide-react";
-import { type DiffResult, type StageMismatchResolution } from "@/services/scheduleImportService";
+import {
+  type DiffResult,
+  type StageMismatchResolution,
+} from "@/services/scheduleImportService";
 
 type Mismatch = DiffResult["conflicts"]["stageNameMismatches"][number];
 type DbStage = { id: string; name: string };
@@ -14,7 +24,12 @@ type Props = {
   onChange: (csvValue: string, resolution: StageMismatchResolution) => void;
 };
 
-export function StageMismatchResolver({ mismatches, dbStages, resolutions, onChange }: Props) {
+export function StageMismatchResolver({
+  mismatches,
+  dbStages,
+  resolutions,
+  onChange,
+}: Props) {
   if (mismatches.length === 0) return null;
 
   return (
@@ -24,67 +39,103 @@ export function StageMismatchResolver({ mismatches, dbStages, resolutions, onCha
         Stage name conflicts — resolve before committing
       </div>
 
-      {mismatches.map((mismatch) => {
-        const resolution = resolutions[mismatch.csvValue] ?? {
-          action: "map",
-          dbStageName: mismatch.closestDbValue,
-        };
+      {mismatches.map((mismatch) => (
+        <MismatchRow
+          key={mismatch.csvValue}
+          mismatch={mismatch}
+          dbStages={dbStages}
+          resolution={
+            resolutions[mismatch.csvValue] ?? {
+              action: "map",
+              dbStageName: mismatch.closestDbValue,
+            }
+          }
+          onChange={onChange}
+        />
+      ))}
+    </div>
+  );
+}
 
-        return (
-          <div key={mismatch.csvValue} className="rounded-lg border p-4 space-y-3">
-            <p className="text-sm">
-              CSV value: <code className="bg-muted px-1 rounded">{mismatch.csvValue}</code>
-            </p>
+type MismatchRowProps = {
+  mismatch: Mismatch;
+  dbStages: DbStage[];
+  resolution: StageMismatchResolution;
+  onChange: (csvValue: string, resolution: StageMismatchResolution) => void;
+};
 
-            <RadioGroup
-              value={resolution.action}
-              onValueChange={(action) => {
-                if (action === "map") {
-                  onChange(mismatch.csvValue, { action: "map", dbStageName: mismatch.closestDbValue });
-                } else {
-                  onChange(mismatch.csvValue, { action: "create" });
+function MismatchRow({
+  mismatch,
+  dbStages,
+  resolution,
+  onChange,
+}: MismatchRowProps) {
+  const baseId = useId();
+  const mapId = `${baseId}-map`;
+  const createId = `${baseId}-create`;
+
+  return (
+    <div className="rounded-lg border p-4 space-y-3">
+      <p className="text-sm">
+        CSV value:{" "}
+        <code className="bg-muted px-1 rounded">{mismatch.csvValue}</code>
+      </p>
+
+      <RadioGroup
+        value={resolution.action}
+        onValueChange={(action) => {
+          if (action === "map") {
+            onChange(mismatch.csvValue, {
+              action: "map",
+              dbStageName: mismatch.closestDbValue,
+            });
+          } else {
+            onChange(mismatch.csvValue, { action: "create" });
+          }
+        }}
+        className="space-y-2"
+      >
+        <div className="flex items-start gap-3">
+          <RadioGroupItem value="map" id={mapId} className="mt-0.5" />
+          <div className="flex-1 space-y-1.5">
+            <Label htmlFor={mapId} className="cursor-pointer">
+              Map to existing stage
+            </Label>
+            {resolution.action === "map" && (
+              <Select
+                value={resolution.dbStageName}
+                onValueChange={(name) =>
+                  onChange(mismatch.csvValue, {
+                    action: "map",
+                    dbStageName: name,
+                  })
                 }
-              }}
-              className="space-y-2"
-            >
-              <div className="flex items-start gap-3">
-                <RadioGroupItem value="map" id={`map-${mismatch.csvValue}`} className="mt-0.5" />
-                <div className="flex-1 space-y-1.5">
-                  <Label htmlFor={`map-${mismatch.csvValue}`} className="cursor-pointer">
-                    Map to existing stage
-                  </Label>
-                  {resolution.action === "map" && (
-                    <Select
-                      value={resolution.dbStageName}
-                      onValueChange={(name) =>
-                        onChange(mismatch.csvValue, { action: "map", dbStageName: name })
-                      }
-                    >
-                      <SelectTrigger className="w-64">
-                        <SelectValue placeholder="Select stage…" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {dbStages.map((s) => (
-                          <SelectItem key={s.id} value={s.name}>
-                            {s.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <RadioGroupItem value="create" id={`create-${mismatch.csvValue}`} />
-                <Label htmlFor={`create-${mismatch.csvValue}`} className="cursor-pointer">
-                  Create new stage <span className="font-normal text-muted-foreground">"{mismatch.csvValue}"</span>
-                </Label>
-              </div>
-            </RadioGroup>
+              >
+                <SelectTrigger className="w-64">
+                  <SelectValue placeholder="Select stage…" />
+                </SelectTrigger>
+                <SelectContent>
+                  {dbStages.map((s) => (
+                    <SelectItem key={s.id} value={s.name}>
+                      {s.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
-        );
-      })}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <RadioGroupItem value="create" id={createId} />
+          <Label htmlFor={createId} className="cursor-pointer">
+            Create new stage{" "}
+            <span className="font-normal text-muted-foreground">
+              "{mismatch.csvValue}"
+            </span>
+          </Label>
+        </div>
+      </RadioGroup>
     </div>
   );
 }

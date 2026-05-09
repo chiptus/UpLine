@@ -28,14 +28,14 @@ jobs:
     name: Push migrations
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    environment: ${{ (github.ref == 'refs/heads/main' || github.event.inputs.target == 'prod') && 'production' || 'staging' }}
+    environment: ${{ ((github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'prod') || github.event_name == 'push') && 'production' || 'staging' }}
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: supabase/setup-cli@v1
         with:
-          version: latest
+          version: 2.58.5
 
       - name: Resolve target
         id: target
@@ -65,11 +65,5 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           TARGET: ${{ steps.target.outputs.target }}
         run: |
-          gh pr comment "${{ github.event.pull_request.number }}" --body "$(cat <<EOF
-          ❌ **DB Migrate failed** — \`$TARGET\` was not updated.
-
-          [View workflow run]($RUN_URL)
-
-          Common causes: a migration that conflicts with the current schema, a dependency on objects that don't exist, or an out-of-order timestamp. Fix the migration and push again to re-run.
-          EOF
-          )"
+          gh pr comment "${{ github.event.pull_request.number }}" \
+            --body "❌ **DB Migrate failed** — \`$TARGET\` was not updated. [View workflow run]($RUN_URL). Common causes: a migration that conflicts with the current schema, a dependency on objects that don't exist, or an out-of-order timestamp. Fix the migration and push again to re-run."

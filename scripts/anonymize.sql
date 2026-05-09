@@ -1,11 +1,13 @@
--- Scrubs PII from a freshly-restored prod dump.
+-- Scrubs PII from a freshly-restored prod dump (public schema only).
 -- Run after restoring data into staging or local. Idempotent.
 --
--- Notes on what is and isn't synced:
---   * auth.users is NOT copied. Test accounts on the target are kept as-is.
---     This means user_id columns may reference UUIDs that don't exist in the
---     target's auth.users — which is fine for read-only testing of public data.
---   * Any new column that holds free-text user input should be added here.
+-- auth.users IS synced separately by sync-from-prod.sh, with emails rewritten
+-- to user-<short-id>@example.test at load time and no password set. Existing
+-- target accounts are preserved via ON CONFLICT (id) DO NOTHING. Skip the auth
+-- sync entirely with SYNC_AUTH=0.
+--
+-- Any new public-schema column that holds free-text user input should be
+-- added below.
 
 BEGIN;
 

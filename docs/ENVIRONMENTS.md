@@ -4,14 +4,14 @@ UpLine runs against three Supabase environments.
 
 | Env | Project | Used by | Auto-pause? |
 | --- | --- | --- | --- |
-| **prod** | `qssmazlqrmxiudxckxvi` | `pnpm run dev`, `pnpm run build` | no |
+| **local** | Supabase CLI (`supabase start`) | `pnpm run dev` (default), e2e tests | n/a |
 | **staging** | a second free Supabase project | `pnpm run dev:staging`, `pnpm run build:staging` | yes (after 7 days idle) |
-| **local** | Supabase CLI (`supabase start`) | `pnpm run dev:local`, e2e tests | n/a |
+| **prod** | `qssmazlqrmxiudxckxvi` | `pnpm run dev:prod`, `pnpm run build` | no |
 
 The frontend reads `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY` from a Vite env file picked by `--mode`. Vite loads them in this order (later overrides earlier):
 
 ```
-.env  ->  .env.[mode]  ->  .env.local  ->  .env.[mode].local
+.env  ->  .env.local  ->  .env.[mode]  ->  .env.[mode].local
 ```
 
 `.env.local` and `.env.[mode].local` are gitignored. `.env.example`, `.env.staging.example`, and `.env.local.example` are committed as templates.
@@ -56,9 +56,9 @@ You'll need `pg_dump` and `psql` on your machine — both ship with the Postgres
 ### Run the app against an env
 
 ```bash
-pnpm run dev            # prod (default — be careful, this is real data)
+pnpm run dev            # local supabase (default — requires `supabase start` running)
 pnpm run dev:staging    # staging
-pnpm run dev:local      # local supabase
+pnpm run dev:prod       # prod (be careful — real data)
 ```
 
 ### Sync prod data into staging or local
@@ -80,7 +80,7 @@ Both prompt for confirmation before touching the target. The script:
 2. `pg_dump`s the `public` schema (data only) from prod.
 3. `TRUNCATE`s the target's `public` tables.
 4. Restores the dump. FK references from `public.*` to `auth.users(id)` now resolve, so RLS policies that check `auth.uid()` work for any user — log in as a test account and you can read/write any synced row that user owns.
-5. Runs `scripts/anonymize.sql` to scrub remaining PII (`profiles.username`, `artist_notes.note_content`, `group_invites.invite_token`).
+5. Runs `scripts/anonymize.sql` to scrub remaining PII — personally identifiable information — in the public schema (`profiles.username`, `artist_notes.note_content`, `group_invites.invite_token`).
 
 To skip auth syncing (public schema only):
 

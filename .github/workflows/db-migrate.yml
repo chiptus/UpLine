@@ -58,12 +58,25 @@ jobs:
           supabase link --project-ref "$PROJECT_REF" --password "$DB_PASSWORD"
           supabase db push --password "$DB_PASSWORD"
 
-      - name: Comment on PR if migration failed
-        if: failure() && github.event_name == 'pull_request'
+      - name: Update PR comment with migration status
+        if: always() && github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OUTCOME: ${{ job.status }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          TARGET: ${{ steps.target.outputs.target }}
+          TARGET: ${{ steps.target.outputs.target || 'staging' }}
+          MARKER: "<!-- db-migrate-status -->"
         run: |
-          gh pr comment "${{ github.event.pull_request.number }}" \
-            --body "❌ **DB Migrate failed** — \`$TARGET\` was not updated. [View workflow run]($RUN_URL). Common causes: a migration that conflicts with the current schema, a dependency on objects that don't exist, or an out-of-order timestamp. Fix the migration and push again to re-run."
+          EXISTING=$(gh api "repos/$REPO/issues/$PR/comments" --jq ".[] | select(.body | contains(\"$MARKER\")) | .id" | head -n1)
+          if [[ "$OUTCOME" == "success" ]]; then
+            [[ -n "$EXISTING" ]] && gh api -X DELETE "repos/$REPO/issues/comments/$EXISTING" || true
+          else
+            BODY="$MARKER"$'\n'"❌ **DB Migrate failed** for \`$TARGET\` — see [workflow run]($RUN_URL)."
+            if [[ -n "$EXISTING" ]]; then
+              gh api -X PATCH "repos/$REPO/issues/comments/$EXISTING" -f body="$BODY"
+            else
+              gh pr comment "$PR" --body "$BODY"
+            fi
+          fi

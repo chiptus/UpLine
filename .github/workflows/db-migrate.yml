@@ -52,7 +52,7 @@ jobs:
       - name: Push migrations
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-          PROJECT_REF: ${{ steps.target.outputs.target == 'prod' && secrets.PROD_PROJECT_REF || secrets.STAGING_PROJECT_REF }}
+          PROJECT_REF: ${{ steps.target.outputs.target == 'prod' && vars.PROD_PROJECT_REF || vars.STAGING_PROJECT_REF }}
           DB_PASSWORD: ${{ steps.target.outputs.target == 'prod' && secrets.PROD_DB_PASSWORD || secrets.STAGING_DB_PASSWORD }}
         run: |
           supabase link --project-ref "$PROJECT_REF" --password "$DB_PASSWORD"

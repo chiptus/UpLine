@@ -111,13 +111,20 @@ Caveat about staging drift: an abandoned PR can leave a stray migration applied 
 
 ### CI secrets required
 
-The DB-migrate workflow reads these from GitHub Actions secrets (Settings -> Secrets and variables -> Actions):
+The DB-migrate workflow reads these from GitHub Actions (Settings -> Secrets and variables -> Actions). Project refs are **variables** (not sensitive); the access token and DB passwords are **secrets**.
 
-| Secret | Where to find it |
+**Variables** (Variables tab):
+
+| Name | Where to find it |
+| --- | --- |
+| `PROD_PROJECT_REF` | `qssmazlqrmxiudxckxvi` |
+| `STAGING_PROJECT_REF` | the staging project's ref (visible in its dashboard URL) |
+
+**Secrets** (Secrets tab):
+
+| Name | Where to find it |
 | --- | --- |
 | `SUPABASE_ACCESS_TOKEN` | https://supabase.com/dashboard/account/tokens — generate a personal access token |
-| `PROD_PROJECT_REF` | `qssmazlqrmxiudxckxvi` (already public, but kept as a secret for symmetry with staging) |
-| `STAGING_PROJECT_REF` | the staging project's ref (visible in its dashboard URL) |
 | `PROD_DB_PASSWORD` | Project Settings -> Database -> Database password |
 | `STAGING_DB_PASSWORD` | Same, for the staging project |
 

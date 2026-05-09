@@ -3,7 +3,7 @@ import { Upload, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { parseScheduleCsv, callDiffSchedule, type CsvRow, type DiffResult } from "@/services/scheduleImportService";
+import { parseScheduleCsv, callDiffSchedule, type DiffResult } from "@/services/scheduleImportService";
 
 const TIMEZONES = [
   { value: "Europe/Lisbon", label: "Lisbon (WET/WEST)" },
@@ -16,7 +16,7 @@ const TIMEZONES = [
 
 type Props = {
   festivalEditionId: string;
-  onDiffReady: (diff: DiffResult, rows: CsvRow[], timezone: string) => void;
+  onDiffReady: (diff: DiffResult) => void;
 };
 
 export function CsvUploadStep({ festivalEditionId, onDiffReady }: Props) {
@@ -58,7 +58,7 @@ export function CsvUploadStep({ festivalEditionId, onDiffReady }: Props) {
     setError(null);
     try {
       const diff = await callDiffSchedule(festivalEditionId, timezone, rows);
-      onDiffReady(diff, rows, timezone);
+      onDiffReady(diff);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to analyse schedule.");
     } finally {

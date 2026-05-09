@@ -6,6 +6,10 @@ import { tanstackRouter } from "@tanstack/router-plugin/vite";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  test: {
+    exclude: ["supabase/**", "tests/e2e/**", "node_modules/**"],
+    passWithNoTests: true,
+  },
   server: {
     host: "::",
     port: 8080,

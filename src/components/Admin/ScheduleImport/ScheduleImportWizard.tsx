@@ -11,6 +11,9 @@ import {
   callCommitSchedule,
 } from "@/services/scheduleImportService";
 import { useStagesByEditionQuery } from "@/hooks/queries/stages/useStagesByEdition";
+import { setsKeys } from "@/hooks/queries/sets/useSets";
+import { stagesKeys } from "@/hooks/queries/stages/types";
+import { artistsKeys } from "@/hooks/queries/artists/useArtists";
 import { CsvUploadStep } from "./CsvUploadStep";
 import { DiffReviewStep } from "./DiffReviewStep";
 import { CommitResultCard } from "./CommitResultCard";
@@ -69,9 +72,9 @@ export function ScheduleImportWizard({ festivalEditionId }: Props) {
       const result = await callCommitSchedule(festivalEditionId, payload);
       setCommitResult(result);
       setStep("result");
-      queryClient.invalidateQueries({ queryKey: ["sets", festivalEditionId] });
-      queryClient.invalidateQueries({ queryKey: ["stages", festivalEditionId] });
-      queryClient.invalidateQueries({ queryKey: ["artists"] });
+      queryClient.invalidateQueries({ queryKey: setsKeys.all });
+      queryClient.invalidateQueries({ queryKey: stagesKeys.byEdition(festivalEditionId) });
+      queryClient.invalidateQueries({ queryKey: artistsKeys.all });
     } catch (err) {
       setCommitError(err instanceof Error ? err.message : "Commit failed.");
     } finally {

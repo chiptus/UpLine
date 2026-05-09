@@ -187,7 +187,7 @@ Deno.test("computeDiff: B2B artist order in CSV does not affect match", () => {
   assertEquals(result.cleanOperations.setsToUpdate.length, 1);
 });
 
-Deno.test("computeDiff: exact stage name match resolves stage_id", () => {
+Deno.test("computeDiff: exact stage name match uses canonical DB name in payload", () => {
   const artist = makeArtist("Carl Cox");
   const stage = makeStage("stage-1", "Main Stage");
   const result = computeDiff(
@@ -197,7 +197,7 @@ Deno.test("computeDiff: exact stage name match resolves stage_id", () => {
     [artist],
     "Europe/Lisbon",
   );
-  assertEquals(result.cleanOperations.setsToCreate[0].stage_id, "stage-1");
+  assertEquals(result.cleanOperations.setsToCreate[0].stageName, "Main Stage");
 });
 
 Deno.test("computeDiff: stage name mismatch surfaced as conflict", () => {
@@ -239,8 +239,8 @@ Deno.test("computeDiff: end time before start time triggers midnight advance", (
   );
   const created = result.cleanOperations.setsToCreate[0];
   // start should be 2026-07-11T23:00:00Z, end should be 2026-07-12T01:00:00Z
-  assertEquals(created.time_start, "2026-07-11T23:00:00.000Z");
-  assertEquals(created.time_end, "2026-07-12T01:00:00.000Z");
+  assertEquals(created.timeStart, "2026-07-11T23:00:00.000Z");
+  assertEquals(created.timeEnd, "2026-07-12T01:00:00.000Z");
 });
 
 Deno.test("computeDiff: set name falls back to b2b join when not provided", () => {

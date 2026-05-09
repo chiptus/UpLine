@@ -23,9 +23,9 @@ export type DbSet = {
 export type SetPayload = {
   name: string;
   description: string | null;
-  stage_id: string | null;
-  time_start: string | null;
-  time_end: string | null;
+  stageName: string | null;
+  timeStart: string | null;
+  timeEnd: string | null;
   artistSlugs: string[];
 };
 
@@ -96,6 +96,7 @@ export function computeDiff(
   timezone: string,
 ): DiffResult {
   const stageByNameLower = new Map(dbStages.map((s) => [s.name.toLowerCase(), s]));
+  const stageById = new Map(dbStages.map((s) => [s.id, s]));
   const existingArtistSlugs = new Set(dbArtists.map((a) => a.slug));
 
   const setsByArtistKey = new Map<string, DbSet[]>();
@@ -129,12 +130,17 @@ export function computeDiff(
       }
     }
 
+    // resolvedStageId: used only for set matching (narrowing candidates by stage)
+    // resolvedStageName: goes into the set payload and is passed to the RPC
     let resolvedStageId: string | null = null;
+    let resolvedStageName: string | null = null;
+
     if (row.stage) {
       const lower = row.stage.toLowerCase();
       const exactMatch = stageByNameLower.get(lower);
       if (exactMatch) {
         resolvedStageId = exactMatch.id;
+        resolvedStageName = exactMatch.name;
       } else {
         const strip = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
         const closeMatch = dbStages.find((s) => {
@@ -153,6 +159,9 @@ export function computeDiff(
           stagesToCreate.push({ name: row.stage });
           seenNewStageNames.add(row.stage);
         }
+        // For mismatches and new stages, keep the CSV value as stageName.
+        // The frontend will resolve mismatches before committing.
+        resolvedStageName = row.stage;
       }
     }
 
@@ -188,9 +197,9 @@ export function computeDiff(
     const payload: SetPayload = {
       name: setName,
       description: row.description ?? null,
-      stage_id: resolvedStageId,
-      time_start: timeStart,
-      time_end: timeEnd,
+      stageName: resolvedStageName,
+      timeStart,
+      timeEnd,
       artistSlugs,
     };
 
@@ -207,7 +216,7 @@ export function computeDiff(
     .map((s) => ({
       id: s.id,
       name: s.name,
-      stage: dbStages.find((st) => st.id === s.stage_id)?.name ?? null,
+      stage: stageById.get(s.stage_id ?? "")?.name ?? null,
       timeStart: s.time_start,
     }));
 

@@ -19,7 +19,10 @@
       "Bash(npx oxlint:*)",
       "WebSearch",
       "WebFetch(domain:tanstack.com)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(deno test *)",
+      "Bash(git commit -m ' *)",
+      "Bash(pnpm vitest *)"
     ],
     "deny": []
   }

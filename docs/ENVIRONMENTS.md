@@ -94,21 +94,19 @@ If you add a column that holds free-form user input or a personal identifier, **
 
 ### Promoting a migration to staging, then prod
 
-Branching model:
-
-- `develop` — staging branch. Auto-deployed by Vercel; auto-migrated by `.github/workflows/db-migrate.yml`.
-- `main` — prod branch. Auto-deployed by Vercel; auto-migrated by the same workflow.
+Branching model: there is only `main`. Feature branches are PR'd directly to it. Vercel preview deploys (any non-`main` branch) point at the **staging** Supabase project, so you test the PR against staging before merging.
 
 Day-to-day flow:
 
 1. Develop locally on a feature branch (`supabase migration new …`, edit, `supabase db reset` to verify).
-2. PR into `develop`. On merge:
-   - Vercel deploys the staging URL with staging env vars.
-   - If your PR touched `supabase/migrations/**`, the **DB Migrate** workflow runs and pushes migrations to the staging Supabase project.
-3. Verify in staging.
-4. PR `develop` → `main`. On merge, the same workflow runs against prod.
+2. Open a PR against `main`. Vercel auto-deploys a preview URL wired to staging Supabase.
+3. **If the PR includes a migration**, push it to staging before testing the preview:
+   - GitHub → **Actions** → **DB Migrate** → **Run workflow** → target = `staging`.
+   - The workflow runs `supabase db push` on the *PR branch's* migration set, so staging gets the new migration.
+4. Test the preview URL.
+5. Merge to `main`. The **DB Migrate** workflow auto-runs against prod (only when `supabase/migrations/**` actually changed).
 
-You can also trigger the workflow manually from the Actions tab (workflow_dispatch) if you need to re-run a migration push.
+Caveat about staging drift: because staging migrations are pushed from PR branches, an abandoned PR can leave a stray migration applied to staging that no longer exists in `main`. Postgres can't roll it back automatically. If staging gets confused, the recovery is `supabase db reset --linked` (with staging linked) — destructive, but staging is meant to be disposable.
 
 ### CI secrets required
 
@@ -122,7 +120,7 @@ The DB-migrate workflow reads these from GitHub Actions secrets (Settings -> Sec
 | `PROD_DB_PASSWORD` | Project Settings -> Database -> Database password |
 | `STAGING_DB_PASSWORD` | Same, for the staging project |
 
-The workflow also references `staging` and `production` GitHub **environments**. They don't need any settings to function, but you can add required-reviewer protection rules to the `production` environment (Settings -> Environments) to gate prod migrations behind manual approval.
+The workflow also references `staging` and `production` GitHub **environments**. They don't need any settings to function, but you should add a required-reviewer protection rule to the `production` environment (Settings -> Environments -> production -> Required reviewers). Without it, every merge to `main` that touches a migration applies it to prod immediately.
 
 ### Manual fallback
 

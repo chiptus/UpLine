@@ -11,9 +11,13 @@
 
 BEGIN;
 
--- profiles.username may contain a real handle. Replace with a synthetic value.
+-- profiles.username may contain a real handle, and profiles.email is UNIQUE
+-- and would collide if a real user signs in to staging (the new auth.users
+-- row created by Supabase would conflict with the synced profile's email).
+-- Both replaced with synthetic values matching the auth.users anonymization.
 UPDATE public.profiles
-   SET username = 'user_' || substring(id::text, 1, 8);
+   SET username = 'user_' || substring(id::text, 1, 8),
+       email    = 'user-' || substring(id::text, 1, 8) || '@example.test';
 
 -- artist_notes.note_content is free-form user text. Wipe it.
 UPDATE public.artist_notes

@@ -80,12 +80,11 @@ if [[ "$SYNC_AUTH" == "1" ]]; then
   echo "Syncing auth.users from prod (anonymized)…"
   AUTH_CSV="$TMP_DIR/auth-users.csv"
 
-  psql "$PROD_DB_URL" -v ON_ERROR_STOP=1 -c "\copy (SELECT id, email, email_confirmed_at, created_at, updated_at, aud, role FROM auth.users) TO '$AUTH_CSV' WITH (FORMAT csv)"
+  psql "$PROD_DB_URL" -v ON_ERROR_STOP=1 -c "\copy (SELECT id, email_confirmed_at, created_at, updated_at, aud, role FROM auth.users) TO '$AUTH_CSV' WITH (FORMAT csv)"
 
   psql "$TARGET_URL" -v ON_ERROR_STOP=1 <<SQL
 CREATE TEMP TABLE _sync_auth_users (
   id uuid PRIMARY KEY,
-  email varchar,
   email_confirmed_at timestamptz,
   created_at timestamptz,
   updated_at timestamptz,

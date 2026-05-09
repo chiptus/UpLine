@@ -4,7 +4,7 @@
 | --- | --- | --- |
 | **local** | Supabase CLI (`supabase start`) | `pnpm run dev` (default), e2e tests |
 | **staging** | a second Supabase project | `pnpm run dev:staging`, Vercel preview deploys |
-| **prod** | `qssmazlqrmxiudxckxvi` | `pnpm run dev:prod`, Vercel production |
+| **prod** | `qssmazlqrmxiudxckxvi` | Vercel production only |
 
 The frontend reads `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY` from a Vite env file picked by `--mode`. Vite load order (later overrides earlier):
 
@@ -73,7 +73,6 @@ Project Settings → Environment Variables. For each Supabase var, add it twice:
 ```bash
 pnpm run dev                # local supabase (requires `supabase start`)
 pnpm run dev:staging        # staging
-pnpm run dev:prod           # prod (real data — be careful)
 pnpm run db:sync:staging    # overwrite staging public schema with prod data, anonymized
 pnpm run db:sync:local      # same, into local supabase
 ```

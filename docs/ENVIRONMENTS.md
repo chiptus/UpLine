@@ -99,14 +99,15 @@ Branching model: there is only `main`. Feature branches are PR'd directly to it.
 Day-to-day flow:
 
 1. Develop locally on a feature branch (`supabase migration new …`, edit, `supabase db reset` to verify).
-2. Open a PR against `main`. Vercel auto-deploys a preview URL wired to staging Supabase.
-3. **If the PR includes a migration**, push it to staging before testing the preview:
-   - GitHub → **Actions** → **DB Migrate** → **Run workflow** → target = `staging`.
-   - The workflow runs `supabase db push` on the *PR branch's* migration set, so staging gets the new migration.
-4. Test the preview URL.
-5. Merge to `main`. The **DB Migrate** workflow auto-runs against prod (only when `supabase/migrations/**` actually changed).
+2. Open a PR against `main`. Two things happen automatically:
+   - Vercel deploys a preview URL wired to staging Supabase.
+   - If the PR touched `supabase/migrations/**`, the **DB Migrate** workflow pushes those migrations to staging. Subsequent commits to the PR re-run it (`supabase db push` is idempotent — already-applied migrations are skipped).
+3. Test the preview URL against staging.
+4. Merge to `main`. The same workflow runs against prod.
 
-Caveat about staging drift: because staging migrations are pushed from PR branches, an abandoned PR can leave a stray migration applied to staging that no longer exists in `main`. Postgres can't roll it back automatically. If staging gets confused, the recovery is `supabase db reset --linked` (with staging linked) — destructive, but staging is meant to be disposable.
+You can also trigger the workflow manually from the Actions tab (workflow_dispatch) — useful for re-running a push or migrating staging when no migration file changed.
+
+Caveat about staging drift: an abandoned PR can leave a stray migration applied to staging that no longer exists in `main`. Postgres can't roll it back automatically. If staging gets confused, recovery is `supabase db reset --linked` (with staging linked) — destructive, but staging is meant to be disposable. Re-seed afterwards with `pnpm run db:sync:staging`.
 
 ### CI secrets required
 

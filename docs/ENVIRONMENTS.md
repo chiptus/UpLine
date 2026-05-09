@@ -139,3 +139,15 @@ supabase link --project-ref <ref> && supabase db push
 ```
 
 Re-link to whichever project you intend to operate on — the Supabase CLI keeps a single linked project at a time.
+
+### Auth email templates
+
+The magic-link / OTP email template lives at `supabase/templates/magic_link.html` and is wired into `supabase/config.toml`, so local Supabase (`supabase start`) picks it up automatically.
+
+**For prod and staging, the template currently has to be updated by hand:**
+
+1. Open the file in your editor and edit it.
+2. Supabase Dashboard → the project → Authentication → Email Templates → Magic Link.
+3. Paste the HTML and save. Repeat for the other project.
+
+Both projects should be updated together so they don't drift. Automating this via the Supabase Management API (`PATCH /v1/projects/{ref}/config/auth`) is straightforward; we just haven't done it yet.

@@ -150,7 +150,8 @@ BEGIN
     INSERT INTO set_artists (set_id, artist_id)
     SELECT v_new_set_id, a.id
     FROM jsonb_array_elements_text(v_set_elem->'artistSlugs') AS slug_val
-    JOIN artists a ON a.slug = slug_val;
+    JOIN artists a ON a.slug = slug_val
+    ON CONFLICT (set_id, artist_id) DO NOTHING;
   END LOOP;
 
   -- 5. Archive orphaned sets

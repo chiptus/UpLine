@@ -125,7 +125,6 @@ pg_dump \
   --no-privileges \
   --data-only \
   --schema=public \
-  --disable-triggers \
   --file="$DUMP_FILE" \
   "$PROD_DB_URL"
 
@@ -147,7 +146,11 @@ END $$;
 SQL
 
 echo "Restoring dump into target…"
-psql "$TARGET_URL" -v ON_ERROR_STOP=1 -f "$DUMP_FILE"
+psql "$TARGET_URL" -v ON_ERROR_STOP=1 <<SQL
+SET session_replication_role = replica;
+\i $DUMP_FILE
+RESET session_replication_role;
+SQL
 
 echo "Running anonymizer on public schema…"
 psql "$TARGET_URL" -v ON_ERROR_STOP=1 -f "$SCRIPT_DIR/anonymize.sql"

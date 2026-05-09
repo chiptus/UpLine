@@ -20,6 +20,73 @@ ALTER TABLE public.artists
 ALTER TABLE public.stages
   ADD CONSTRAINT stages_edition_name_unique UNIQUE (festival_edition_id, name);
 
+-- Helpers for commit_schedule. Named with the commit_schedule__ prefix so it
+-- is obvious they're internal to that RPC.
+
+CREATE OR REPLACE FUNCTION public.commit_schedule__slugify(p_name TEXT)
+RETURNS TEXT
+LANGUAGE sql
+IMMUTABLE
+SET search_path = public
+AS $$
+  SELECT LOWER(
+    REGEXP_REPLACE(
+      REGEXP_REPLACE(TRIM(p_name), '[^a-zA-Z0-9\s]', '', 'g'),
+      '\s+', '-', 'g'
+    )
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION public.commit_schedule__resolve_stage_id(
+  p_festival_edition_id UUID,
+  p_stage_name          TEXT
+)
+RETURNS UUID
+LANGUAGE sql
+STABLE
+SET search_path = public
+AS $$
+  SELECT s.id
+  FROM stages s
+  WHERE s.festival_edition_id = p_festival_edition_id
+    AND s.name = p_stage_name
+  LIMIT 1;
+$$;
+
+CREATE OR REPLACE FUNCTION public.commit_schedule__parse_ts(p_value TEXT)
+RETURNS TIMESTAMPTZ
+LANGUAGE sql
+IMMUTABLE
+AS $$
+  SELECT CASE WHEN p_value IS NOT NULL THEN p_value::TIMESTAMPTZ END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.commit_schedule__sync_set_artists(
+  p_set_id              UUID,
+  p_festival_edition_id UUID,
+  p_artist_slugs        JSONB
+)
+RETURNS VOID
+LANGUAGE plpgsql
+SET search_path = public
+AS $$
+BEGIN
+  -- Edition-scoped delete defends against a forged set id even if the caller
+  -- already verified it.
+  DELETE FROM set_artists sa
+  USING sets s
+  WHERE sa.set_id = s.id
+    AND s.id = p_set_id
+    AND s.festival_edition_id = p_festival_edition_id;
+
+  INSERT INTO set_artists (set_id, artist_id)
+  SELECT p_set_id, a.id
+  FROM jsonb_array_elements_text(p_artist_slugs) AS slug_val
+  JOIN artists a ON a.slug = slug_val
+  ON CONFLICT (set_id, artist_id) DO NOTHING;
+END;
+$$;
+
 -- RPC: commit_schedule
 -- Executes a fully resolved schedule import inside a single transaction.
 -- Called by the commit-schedule Edge Function using the service role key.
@@ -65,22 +132,11 @@ BEGIN
     SET
       name        = v_set_elem->>'name',
       description = NULLIF(v_set_elem->>'description', ''),
-      stage_id    = (
-        SELECT s.id FROM stages s
-        WHERE s.festival_edition_id = p_festival_edition_id
-          AND s.name = v_set_elem->>'stageName'
-        LIMIT 1
+      stage_id    = commit_schedule__resolve_stage_id(
+        p_festival_edition_id, v_set_elem->>'stageName'
       ),
-      time_start  = CASE
-                      WHEN (v_set_elem->>'timeStart') IS NOT NULL
-                      THEN (v_set_elem->>'timeStart')::TIMESTAMPTZ
-                      ELSE NULL
-                    END,
-      time_end    = CASE
-                      WHEN (v_set_elem->>'timeEnd') IS NOT NULL
-                      THEN (v_set_elem->>'timeEnd')::TIMESTAMPTZ
-                      ELSE NULL
-                    END,
+      time_start  = commit_schedule__parse_ts(v_set_elem->>'timeStart'),
+      time_end    = commit_schedule__parse_ts(v_set_elem->>'timeEnd'),
       updated_at  = NOW()
     WHERE id = v_set_id
       AND festival_edition_id = p_festival_edition_id;
@@ -93,20 +149,9 @@ BEGIN
 
     v_sets_updated := v_sets_updated + v_row_count;
 
-    -- Sync set_artists: delete existing links and re-insert from CSV.
-    -- The DELETE is scoped via the sets table to enforce edition isolation,
-    -- defending against a forged set id even though the UPDATE above already verified it.
-    DELETE FROM set_artists sa
-    USING sets s
-    WHERE sa.set_id = s.id
-      AND s.id = v_set_id
-      AND s.festival_edition_id = p_festival_edition_id;
-
-    INSERT INTO set_artists (set_id, artist_id)
-    SELECT v_set_id, a.id
-    FROM jsonb_array_elements_text(v_set_elem->'artistSlugs') AS slug_val
-    JOIN artists a ON a.slug = slug_val
-    ON CONFLICT (set_id, artist_id) DO NOTHING;
+    PERFORM commit_schedule__sync_set_artists(
+      v_set_id, p_festival_edition_id, v_set_elem->'artistSlugs'
+    );
   END LOOP;
 
   -- 4. Insert new sets
@@ -118,40 +163,22 @@ BEGIN
     VALUES (
       p_festival_edition_id,
       v_set_elem->>'name',
-      LOWER(
-        REGEXP_REPLACE(
-          REGEXP_REPLACE(TRIM(v_set_elem->>'name'), '[^a-zA-Z0-9\s]', '', 'g'),
-          '\s+', '-', 'g'
-        )
-      ),
+      commit_schedule__slugify(v_set_elem->>'name'),
       NULLIF(v_set_elem->>'description', ''),
-      (
-        SELECT s.id FROM stages s
-        WHERE s.festival_edition_id = p_festival_edition_id
-          AND s.name = v_set_elem->>'stageName'
-        LIMIT 1
+      commit_schedule__resolve_stage_id(
+        p_festival_edition_id, v_set_elem->>'stageName'
       ),
-      CASE
-        WHEN (v_set_elem->>'timeStart') IS NOT NULL
-        THEN (v_set_elem->>'timeStart')::TIMESTAMPTZ
-        ELSE NULL
-      END,
-      CASE
-        WHEN (v_set_elem->>'timeEnd') IS NOT NULL
-        THEN (v_set_elem->>'timeEnd')::TIMESTAMPTZ
-        ELSE NULL
-      END,
+      commit_schedule__parse_ts(v_set_elem->>'timeStart'),
+      commit_schedule__parse_ts(v_set_elem->>'timeEnd'),
       p_user_id
     )
     RETURNING id INTO v_new_set_id;
 
     v_sets_created := v_sets_created + 1;
 
-    INSERT INTO set_artists (set_id, artist_id)
-    SELECT v_new_set_id, a.id
-    FROM jsonb_array_elements_text(v_set_elem->'artistSlugs') AS slug_val
-    JOIN artists a ON a.slug = slug_val
-    ON CONFLICT (set_id, artist_id) DO NOTHING;
+    PERFORM commit_schedule__sync_set_artists(
+      v_new_set_id, p_festival_edition_id, v_set_elem->'artistSlugs'
+    );
   END LOOP;
 
   -- 5. Archive orphaned sets

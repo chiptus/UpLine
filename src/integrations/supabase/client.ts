@@ -10,7 +10,7 @@ if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
   throw new Error(
     "Missing VITE_SUPABASE_URL or VITE_SUPABASE_PUBLISHABLE_KEY. " +
       "For local dev: copy .env.local.example to .env.local and run `supabase start`. " +
-      "For deploys: set them in your hosting provider's environment variables.",
+      "For deploys: set them as environment variables in your hosting provider.",
   );
 }
 

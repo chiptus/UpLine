@@ -39,6 +39,8 @@ AS $$
 DECLARE
   v_set_elem       JSONB;
   v_new_set_id     UUID;
+  v_set_id         UUID;
+  v_row_count      INT;
   v_sets_created   INT := 0;
   v_sets_updated   INT := 0;
   v_sets_archived  INT := 0;
@@ -57,6 +59,8 @@ BEGIN
 
   -- 3. Update existing sets
   FOR v_set_elem IN SELECT value FROM jsonb_array_elements(p_sets_to_update) LOOP
+    v_set_id := (v_set_elem->>'id')::UUID;
+
     UPDATE sets
     SET
       name        = v_set_elem->>'name',
@@ -78,16 +82,28 @@ BEGIN
                       ELSE NULL
                     END,
       updated_at  = NOW()
-    WHERE id = (v_set_elem->>'id')::UUID
+    WHERE id = v_set_id
       AND festival_edition_id = p_festival_edition_id;
 
-    v_sets_updated := v_sets_updated + 1;
+    GET DIAGNOSTICS v_row_count = ROW_COUNT;
 
-    -- Sync set_artists: delete existing links and re-insert from CSV
-    DELETE FROM set_artists WHERE set_id = (v_set_elem->>'id')::UUID;
+    IF v_row_count = 0 THEN
+      RAISE EXCEPTION 'Set % not found in edition %', v_set_id, p_festival_edition_id;
+    END IF;
+
+    v_sets_updated := v_sets_updated + v_row_count;
+
+    -- Sync set_artists: delete existing links and re-insert from CSV.
+    -- The DELETE is scoped via the sets table to enforce edition isolation,
+    -- defending against a forged set id even though the UPDATE above already verified it.
+    DELETE FROM set_artists sa
+    USING sets s
+    WHERE sa.set_id = s.id
+      AND s.id = v_set_id
+      AND s.festival_edition_id = p_festival_edition_id;
 
     INSERT INTO set_artists (set_id, artist_id)
-    SELECT (v_set_elem->>'id')::UUID, a.id
+    SELECT v_set_id, a.id
     FROM jsonb_array_elements_text(v_set_elem->'artistSlugs') AS slug_val
     JOIN artists a ON a.slug = slug_val
     ON CONFLICT (set_id, artist_id) DO NOTHING;

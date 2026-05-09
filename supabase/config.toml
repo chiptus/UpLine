@@ -2,3 +2,15 @@ project_id = "qssmazlqrmxiudxckxvi"
 
 [functions.sync-artist-data]
 verify_jwt = false
+
+[auth.email]
+# Match prod: passwordless sign-in via magic link without a separate
+# confirmation step. Toggled in the Supabase dashboard for remote projects
+# (config.toml is only binding for `supabase start`).
+enable_confirmations = false
+# 6-digit OTP to match the email template copy.
+otp_length = 6
+
+[auth.email.template.magic_link]
+subject = "Welcome to the Festival!"
+content_path = "./supabase/templates/magic_link.html"

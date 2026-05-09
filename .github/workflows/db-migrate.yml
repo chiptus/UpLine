@@ -1,0 +1,81 @@
+name: DB Migrate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/migrations/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "supabase/migrations/**"
+      - ".github/workflows/db-migrate.yml"
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Which environment to migrate"
+        required: true
+        type: choice
+        options: [staging, prod]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  migrate:
+    name: Push migrations
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: ${{ ((github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'prod') || github.event_name == 'push') && 'production' || 'staging' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.58.5
+
+      - name: Resolve target
+        id: target
+        run: |
+          case "${{ github.event_name }}" in
+            workflow_dispatch) TARGET="${{ github.event.inputs.target }}" ;;
+            pull_request)      TARGET="staging" ;;
+            push)              TARGET="prod" ;;
+            *) echo "Unknown event"; exit 1 ;;
+          esac
+          echo "target=$TARGET" >> "$GITHUB_OUTPUT"
+          echo "Migrating: $TARGET"
+
+      - name: Push migrations
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          PROJECT_REF: ${{ steps.target.outputs.target == 'prod' && vars.PROD_PROJECT_REF || vars.STAGING_PROJECT_REF }}
+          DB_PASSWORD: ${{ steps.target.outputs.target == 'prod' && secrets.PROD_DB_PASSWORD || secrets.STAGING_DB_PASSWORD }}
+        run: |
+          supabase link --project-ref "$PROJECT_REF" --password "$DB_PASSWORD"
+          supabase db push --password "$DB_PASSWORD"
+
+      - name: Update PR comment with migration status
+        if: always() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OUTCOME: ${{ job.status }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          TARGET: ${{ steps.target.outputs.target || 'staging' }}
+          MARKER: "<!-- db-migrate-status -->"
+        run: |
+          if [[ "$OUTCOME" == "success" ]]; then
+            BODY="$MARKER"$'\n'"✅ **DB Migrate succeeded** for \`$TARGET\` — [workflow run]($RUN_URL)."
+          else
+            BODY="$MARKER"$'\n'"❌ **DB Migrate failed** for \`$TARGET\` — [workflow run]($RUN_URL)."
+          fi
+          EXISTING=$(gh api "repos/$REPO/issues/$PR/comments" --jq ".[] | select(.body | contains(\"$MARKER\")) | .id" | head -n1)
+          if [[ -n "$EXISTING" ]]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$EXISTING" -f body="$BODY"
+          else
+            gh pr comment "$PR" --body "$BODY"
+          fi

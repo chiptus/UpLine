@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   type DiffResult,
   type StageMismatchResolution,
   type OrphanResolution,
-  type CommitResult,
   buildCommitPayload,
   callCommitSchedule,
 } from "@/services/scheduleImportService";
@@ -33,9 +32,25 @@ export function ScheduleImportWizard({ festivalEditionId }: Props) {
   const [orphanResolutions, setOrphanResolutions] = useState<
     Record<string, OrphanResolution>
   >({});
-  const [committing, setCommitting] = useState(false);
-  const [commitResult, setCommitResult] = useState<CommitResult | null>(null);
-  const [commitError, setCommitError] = useState<string | null>(null);
+
+  const commitMutation = useMutation({
+    mutationFn: (currentDiff: DiffResult) => {
+      const payload = buildCommitPayload(
+        currentDiff,
+        stageMismatchResolutions,
+        orphanResolutions,
+      );
+      return callCommitSchedule(festivalEditionId, payload);
+    },
+    onSuccess: () => {
+      setStep("result");
+      queryClient.invalidateQueries({ queryKey: setsKeys.all });
+      queryClient.invalidateQueries({
+        queryKey: stagesKeys.byEdition(festivalEditionId),
+      });
+      queryClient.invalidateQueries({ queryKey: artistsKeys.all });
+    },
+  });
 
   function handleDiffReady(newDiff: DiffResult) {
     setDiff(newDiff);
@@ -48,8 +63,7 @@ export function ScheduleImportWizard({ festivalEditionId }: Props) {
       ),
     );
     setOrphanResolutions({});
-    setCommitResult(null);
-    setCommitError(null);
+    commitMutation.reset();
     setStep("review");
   }
 
@@ -58,33 +72,12 @@ export function ScheduleImportWizard({ festivalEditionId }: Props) {
     setDiff(null);
     setStageMismatchResolutions({});
     setOrphanResolutions({});
-    setCommitResult(null);
-    setCommitError(null);
+    commitMutation.reset();
   }
 
-  async function handleCommit() {
+  function handleCommit() {
     if (!diff) return;
-    setCommitting(true);
-    setCommitError(null);
-    try {
-      const payload = buildCommitPayload(
-        diff,
-        stageMismatchResolutions,
-        orphanResolutions,
-      );
-      const result = await callCommitSchedule(festivalEditionId, payload);
-      setCommitResult(result);
-      setStep("result");
-      queryClient.invalidateQueries({ queryKey: setsKeys.all });
-      queryClient.invalidateQueries({
-        queryKey: stagesKeys.byEdition(festivalEditionId),
-      });
-      queryClient.invalidateQueries({ queryKey: artistsKeys.all });
-    } catch (err) {
-      setCommitError(err instanceof Error ? err.message : "Commit failed.");
-    } finally {
-      setCommitting(false);
-    }
+    commitMutation.mutate(diff);
   }
 
   function canCommit() {
@@ -110,8 +103,10 @@ export function ScheduleImportWizard({ festivalEditionId }: Props) {
     );
   }
 
-  if (step === "result" && commitResult) {
-    return <CommitResultCard result={commitResult} onReset={handleReset} />;
+  if (step === "result" && commitMutation.data) {
+    return (
+      <CommitResultCard result={commitMutation.data} onReset={handleReset} />
+    );
   }
 
   if (!diff) return null;
@@ -133,8 +128,8 @@ export function ScheduleImportWizard({ festivalEditionId }: Props) {
       }
       onCommit={handleCommit}
       onReset={handleReset}
-      committing={committing}
-      commitError={commitError}
+      committing={commitMutation.isPending}
+      commitError={commitMutation.error?.message ?? null}
       canCommit={canCommit()}
     />
   );

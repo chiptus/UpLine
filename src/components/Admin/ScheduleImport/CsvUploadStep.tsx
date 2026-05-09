@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Upload, Loader2 } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -30,55 +31,44 @@ type Props = {
   onDiffReady: (diff: DiffResult) => void;
 };
 
+async function readFile(file: File): Promise<CsvRow[]> {
+  const content = await file.text();
+  const parsed = parseScheduleCsv(content);
+  if (parsed.length === 0) {
+    throw new Error(
+      "No valid rows found. Make sure your CSV has an 'Artists' column.",
+    );
+  }
+  return parsed;
+}
+
 export function CsvUploadStep({ festivalEditionId, onDiffReady }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [timezone, setTimezone] = useState("Europe/Lisbon");
   const [fileName, setFileName] = useState<string | null>(null);
-  const [rows, setRows] = useState<CsvRow[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
+  const readFileMutation = useMutation({ mutationFn: readFile });
+  const analyseMutation = useMutation({
+    mutationFn: (rows: CsvRow[]) =>
+      callDiffSchedule(festivalEditionId, timezone, rows),
+    onSuccess: onDiffReady,
+  });
+
+  const rows = readFileMutation.data ?? [];
+  const error =
+    analyseMutation.error?.message ?? readFileMutation.error?.message ?? null;
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setFileName(file.name);
-    setError(null);
-
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const content = ev.target?.result as string;
-      try {
-        const parsed = parseScheduleCsv(content);
-        if (parsed.length === 0) {
-          setError(
-            "No valid rows found. Make sure your CSV has an 'Artists' column.",
-          );
-          setRows([]);
-        } else {
-          setRows(parsed);
-        }
-      } catch {
-        setError("Failed to parse CSV. Check the file format.");
-        setRows([]);
-      }
-    };
-    reader.readAsText(file);
+    analyseMutation.reset();
+    readFileMutation.mutate(file);
   }
 
-  async function handleAnalyse() {
+  function handleAnalyse() {
     if (rows.length === 0) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const diff = await callDiffSchedule(festivalEditionId, timezone, rows);
-      onDiffReady(diff);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to analyse schedule.",
-      );
-    } finally {
-      setLoading(false);
-    }
+    analyseMutation.mutate(rows);
   }
 
   return (
@@ -140,10 +130,10 @@ export function CsvUploadStep({ festivalEditionId, onDiffReady }: Props) {
 
       <Button
         onClick={handleAnalyse}
-        disabled={rows.length === 0 || loading}
+        disabled={rows.length === 0 || analyseMutation.isPending}
         className="w-full"
       >
-        {loading ? (
+        {analyseMutation.isPending ? (
           <>
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
             Analysing…

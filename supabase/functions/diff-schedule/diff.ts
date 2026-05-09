@@ -77,7 +77,11 @@ export function advanceDateByOne(dateStr: string): string {
   return d.toISOString().split("T")[0];
 }
 
-export function localToUtc(dateStr: string, timeStr: string, timezone: string): string {
+export function localToUtc(
+  dateStr: string,
+  timeStr: string,
+  timezone: string,
+): string {
   const localIso = `${dateStr}T${timeStr}:00`;
   const naiveUtc = new Date(localIso + "Z");
   // sv-SE locale gives "YYYY-MM-DD HH:MM:SS" — unambiguously parseable as UTC
@@ -88,17 +92,24 @@ export function localToUtc(dateStr: string, timeStr: string, timezone: string): 
   return new Date(naiveUtc.getTime() + offsetMs).toISOString();
 }
 
-export function computeDiff(
-  rows: CsvRow[],
+type DbIndexes = {
+  stageByNameLower: Map<string, DbStage>;
+  stageById: Map<string, DbStage>;
+  existingArtistSlugs: Set<string>;
+  setsByArtistKey: Map<string, DbSet[]>;
+};
+
+type StageResolution =
+  | { kind: "exact"; id: string; name: string }
+  | { kind: "mismatch"; resolvedName: string; closest: DbStage }
+  | { kind: "new"; resolvedName: string }
+  | { kind: "none" };
+
+function buildIndexes(
   dbStages: DbStage[],
   dbSets: DbSet[],
   dbArtists: DbArtist[],
-  timezone: string,
-): DiffResult {
-  const stageByNameLower = new Map(dbStages.map((s) => [s.name.toLowerCase(), s]));
-  const stageById = new Map(dbStages.map((s) => [s.id, s]));
-  const existingArtistSlugs = new Set(dbArtists.map((a) => a.slug));
-
+): DbIndexes {
   const setsByArtistKey = new Map<string, DbSet[]>();
   for (const set of dbSets) {
     const slugs = set.set_artists.map((sa) => sa.artists.slug);
@@ -107,6 +118,104 @@ export function computeDiff(
     bucket.push(set);
     setsByArtistKey.set(key, bucket);
   }
+  return {
+    stageByNameLower: new Map(dbStages.map((s) => [s.name.toLowerCase(), s])),
+    stageById: new Map(dbStages.map((s) => [s.id, s])),
+    existingArtistSlugs: new Set(dbArtists.map((a) => a.slug)),
+    setsByArtistKey,
+  };
+}
+
+function resolveArtists(
+  row: CsvRow,
+  existingSlugs: Set<string>,
+  seenNewSlugs: Set<string>,
+  artistsToCreate: { name: string; slug: string }[],
+): string[] {
+  const slugs: string[] = [];
+  for (const name of row.artists) {
+    const slug = toSlug(name);
+    slugs.push(slug);
+    if (!existingSlugs.has(slug) && !seenNewSlugs.has(slug)) {
+      artistsToCreate.push({ name, slug });
+      seenNewSlugs.add(slug);
+    }
+  }
+  return slugs;
+}
+
+function resolveStage(
+  rawStage: string | undefined,
+  dbStages: DbStage[],
+  stageByNameLower: Map<string, DbStage>,
+): StageResolution {
+  if (!rawStage) return { kind: "none" };
+
+  const lower = rawStage.toLowerCase();
+  const exactMatch = stageByNameLower.get(lower);
+  if (exactMatch) {
+    return { kind: "exact", id: exactMatch.id, name: exactMatch.name };
+  }
+
+  function strip(s: string) {
+    return s.toLowerCase().replace(/[^a-z0-9]/g, "");
+  }
+  const closeMatch = dbStages.find((s) => {
+    const a = strip(s.name);
+    const b = strip(lower);
+    return a === b || a.includes(b) || b.includes(a);
+  });
+
+  if (closeMatch) {
+    return { kind: "mismatch", resolvedName: rawStage, closest: closeMatch };
+  }
+  return { kind: "new", resolvedName: rawStage };
+}
+
+function computeTimes(
+  row: CsvRow,
+  timezone: string,
+): { timeStart: string | null; timeEnd: string | null } {
+  let timeStart: string | null = null;
+  let timeEnd: string | null = null;
+  if (row.date && row.startTime) {
+    timeStart = localToUtc(row.date, row.startTime, timezone);
+  }
+  if (row.date && row.endTime) {
+    const crossesMidnight =
+      row.startTime != null && row.endTime < row.startTime;
+    const endDate = crossesMidnight ? advanceDateByOne(row.date) : row.date;
+    timeEnd = localToUtc(endDate, row.endTime, timezone);
+  }
+  return { timeStart, timeEnd };
+}
+
+function findMatchingSet(
+  candidates: DbSet[],
+  resolvedStageId: string | null,
+  date: string | undefined,
+): DbSet | null {
+  if (candidates.length === 0) return null;
+  if (candidates.length === 1) return candidates[0];
+  return (
+    (resolvedStageId
+      ? (candidates.find((s) => s.stage_id === resolvedStageId) ?? null)
+      : null) ??
+    (date
+      ? (candidates.find((s) => s.time_start?.startsWith(date)) ?? null)
+      : null) ??
+    candidates[0]
+  );
+}
+
+export function computeDiff(
+  rows: CsvRow[],
+  dbStages: DbStage[],
+  dbSets: DbSet[],
+  dbArtists: DbArtist[],
+  timezone: string,
+): DiffResult {
+  const indexes = buildIndexes(dbStages, dbSets, dbArtists);
 
   const matchedSetIds = new Set<string>();
   const seenNewArtistSlugs = new Set<string>();
@@ -115,87 +224,57 @@ export function computeDiff(
 
   const artistsToCreate: { name: string; slug: string }[] = [];
   const stagesToCreate: { name: string }[] = [];
-  const stageNameMismatches: DiffResult["conflicts"]["stageNameMismatches"] = [];
+  const stageNameMismatches: DiffResult["conflicts"]["stageNameMismatches"] =
+    [];
   const setsToCreate: SetPayload[] = [];
   const setsToUpdate: ({ id: string } & SetPayload)[] = [];
 
   for (const row of rows) {
-    const artistSlugs: string[] = [];
-    for (const name of row.artists) {
-      const slug = toSlug(name);
-      artistSlugs.push(slug);
-      if (!existingArtistSlugs.has(slug) && !seenNewArtistSlugs.has(slug)) {
-        artistsToCreate.push({ name, slug });
-        seenNewArtistSlugs.add(slug);
-      }
-    }
+    const artistSlugs = resolveArtists(
+      row,
+      indexes.existingArtistSlugs,
+      seenNewArtistSlugs,
+      artistsToCreate,
+    );
 
-    // resolvedStageId: used only for set matching (narrowing candidates by stage)
-    // resolvedStageName: goes into the set payload and is passed to the RPC
+    const stage = resolveStage(row.stage, dbStages, indexes.stageByNameLower);
     let resolvedStageId: string | null = null;
     let resolvedStageName: string | null = null;
-
-    if (row.stage) {
-      const lower = row.stage.toLowerCase();
-      const exactMatch = stageByNameLower.get(lower);
-      if (exactMatch) {
-        resolvedStageId = exactMatch.id;
-        resolvedStageName = exactMatch.name;
-      } else {
-        const strip = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
-        const closeMatch = dbStages.find((s) => {
-          const a = strip(s.name);
-          const b = strip(lower);
-          return a === b || a.includes(b) || b.includes(a);
-        });
-        if (closeMatch && !seenMismatchedStages.has(row.stage)) {
+    switch (stage.kind) {
+      case "exact":
+        resolvedStageId = stage.id;
+        resolvedStageName = stage.name;
+        break;
+      case "mismatch":
+        resolvedStageName = stage.resolvedName;
+        if (!seenMismatchedStages.has(stage.resolvedName)) {
           stageNameMismatches.push({
-            csvValue: row.stage,
-            closestDbValue: closeMatch.name,
-            dbStageId: closeMatch.id,
+            csvValue: stage.resolvedName,
+            closestDbValue: stage.closest.name,
+            dbStageId: stage.closest.id,
           });
-          seenMismatchedStages.add(row.stage);
-        } else if (!closeMatch && !seenNewStageNames.has(row.stage)) {
-          stagesToCreate.push({ name: row.stage });
-          seenNewStageNames.add(row.stage);
+          seenMismatchedStages.add(stage.resolvedName);
         }
-        // For mismatches and new stages, keep the CSV value as stageName.
-        // The frontend will resolve mismatches before committing.
-        resolvedStageName = row.stage;
-      }
+        break;
+      case "new":
+        resolvedStageName = stage.resolvedName;
+        if (!seenNewStageNames.has(stage.resolvedName)) {
+          stagesToCreate.push({ name: stage.resolvedName });
+          seenNewStageNames.add(stage.resolvedName);
+        }
+        break;
+      case "none":
+        break;
     }
 
-    let timeStart: string | null = null;
-    let timeEnd: string | null = null;
-    if (row.date && row.startTime) {
-      timeStart = localToUtc(row.date, row.startTime, timezone);
-    }
-    if (row.date && row.endTime) {
-      const crossesMidnight = row.startTime != null && row.endTime < row.startTime;
-      const endDate = crossesMidnight ? advanceDateByOne(row.date) : row.date;
-      timeEnd = localToUtc(endDate, row.endTime, timezone);
-    }
+    const { timeStart, timeEnd } = computeTimes(row, timezone);
 
-    const setName = row.setName?.trim() || row.artists.join(" b2b ");
-    const key = artistKey(artistSlugs);
-    const candidates = setsByArtistKey.get(key) ?? [];
-
-    let matched: DbSet | null = null;
-    if (candidates.length === 1) {
-      matched = candidates[0];
-    } else if (candidates.length > 1) {
-      matched =
-        (resolvedStageId
-          ? candidates.find((s) => s.stage_id === resolvedStageId) ?? null
-          : null) ??
-        (row.date
-          ? candidates.find((s) => s.time_start?.startsWith(row.date!)) ?? null
-          : null) ??
-        candidates[0];
-    }
+    const candidates =
+      indexes.setsByArtistKey.get(artistKey(artistSlugs)) ?? [];
+    const matched = findMatchingSet(candidates, resolvedStageId, row.date);
 
     const payload: SetPayload = {
-      name: setName,
+      name: row.setName?.trim() || row.artists.join(" b2b "),
       description: row.description ?? null,
       stageName: resolvedStageName,
       timeStart,
@@ -216,7 +295,7 @@ export function computeDiff(
     .map((s) => ({
       id: s.id,
       name: s.name,
-      stage: stageById.get(s.stage_id ?? "")?.name ?? null,
+      stage: indexes.stageById.get(s.stage_id ?? "")?.name ?? null,
       timeStart: s.time_start,
     }));
 
@@ -229,7 +308,12 @@ export function computeDiff(
       setsOrphaned: orphanedSets.length,
     },
     newArtistNames: artistsToCreate.map((a) => a.name),
-    cleanOperations: { artistsToCreate, stagesToCreate, setsToCreate, setsToUpdate },
+    cleanOperations: {
+      artistsToCreate,
+      stagesToCreate,
+      setsToCreate,
+      setsToUpdate,
+    },
     conflicts: { stageNameMismatches, orphanedSets },
   };
 }

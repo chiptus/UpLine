@@ -1,24 +1,53 @@
--- Add unique constraint on artists.slug (required for ON CONFLICT upsert in commit_schedule)
--- First deduplicate any existing conflicting slugs by appending the short ID
-WITH duplicates AS (
-  SELECT slug, MIN(id) AS keep_id
-  FROM public.artists
-  GROUP BY slug
-  HAVING COUNT(*) > 1
-)
+-- Add unique constraint on artists.slug (required for ON CONFLICT upsert in commit_schedule).
+-- Deduplicate first: append the full id (guaranteed unique) to any slug with collisions,
+-- keeping the row with the lowest id on its original slug.
 UPDATE public.artists a
-SET slug = a.slug || '-' || SUBSTRING(a.id::text, 1, 6)
-WHERE EXISTS (
-  SELECT 1 FROM duplicates d
-  WHERE d.slug = a.slug AND a.id != d.keep_id
+SET slug = a.slug || '-' || a.id::text
+WHERE a.id IN (
+  SELECT id
+  FROM (
+    SELECT id, ROW_NUMBER() OVER (PARTITION BY slug ORDER BY id) AS rn
+    FROM public.artists
+  ) ranked
+  WHERE rn > 1
 );
 
-ALTER TABLE public.artists
-  ADD CONSTRAINT artists_slug_unique UNIQUE (slug);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'artists_slug_unique'
+  ) THEN
+    ALTER TABLE public.artists
+      ADD CONSTRAINT artists_slug_unique UNIQUE (slug);
+  END IF;
+END$$;
 
--- Add unique constraint on stages(festival_edition_id, name) for upsert
-ALTER TABLE public.stages
-  ADD CONSTRAINT stages_edition_name_unique UNIQUE (festival_edition_id, name);
+-- Add unique constraint on stages(festival_edition_id, name) for upsert.
+-- Same dedup approach: any (edition, name) collisions get the offending row's
+-- id suffixed onto the stage name.
+UPDATE public.stages s
+SET name = s.name || ' (' || s.id::text || ')'
+WHERE s.id IN (
+  SELECT id
+  FROM (
+    SELECT id,
+           ROW_NUMBER() OVER (PARTITION BY festival_edition_id, name ORDER BY id) AS rn
+    FROM public.stages
+  ) ranked
+  WHERE rn > 1
+);
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname IN ('stages_edition_name_unique', 'stages_name_festival_edition_id_key')
+  ) THEN
+    ALTER TABLE public.stages
+      ADD CONSTRAINT stages_edition_name_unique UNIQUE (festival_edition_id, name);
+  END IF;
+END$$;
 
 -- Helpers for commit_schedule. Named with the commit_schedule__ prefix so it
 -- is obvious they're internal to that RPC.

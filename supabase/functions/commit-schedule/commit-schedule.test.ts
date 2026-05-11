@@ -208,7 +208,7 @@ Deno.test(
 
     await db.from("artists").insert({ name: "Late Night DJ", slug });
 
-    const { data, error } = await db.rpc("commit_schedule", {
+    const { error } = await db.rpc("commit_schedule", {
       p_festival_edition_id: editionId,
       p_user_id: userId,
       p_artists_to_create: [],

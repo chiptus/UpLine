@@ -89,7 +89,9 @@ export function parseScheduleCsv(csvContent: string): CsvRow[] {
 
   const headers = lines[0].map((h) => h.trim().toLowerCase());
 
-  const col = (name: string) => headers.indexOf(name);
+  function col(name: string) {
+    return headers.indexOf(name);
+  }
   const artistsCol = col("artists");
   const setNameCol = col("set name");
   const stageCol = col("stage");
@@ -98,10 +100,11 @@ export function parseScheduleCsv(csvContent: string): CsvRow[] {
   const endTimeCol = col("end time");
   const descriptionCol = col("description");
 
-  return lines.slice(1)
+  return lines
+    .slice(1)
     .filter((row) => row.some((cell) => cell.trim()))
     .map((row) => {
-      const artistsRaw = artistsCol >= 0 ? row[artistsCol] ?? "" : "";
+      const artistsRaw = artistsCol >= 0 ? (row[artistsCol] ?? "") : "";
       const artists = artistsRaw
         .split("|")
         .map((a) => a.trim())
@@ -109,12 +112,20 @@ export function parseScheduleCsv(csvContent: string): CsvRow[] {
 
       return {
         artists,
-        setName: setNameCol >= 0 ? row[setNameCol]?.trim() || undefined : undefined,
+        setName:
+          setNameCol >= 0 ? row[setNameCol]?.trim() || undefined : undefined,
         stage: stageCol >= 0 ? row[stageCol]?.trim() || undefined : undefined,
         date: dateCol >= 0 ? row[dateCol]?.trim() || undefined : undefined,
-        startTime: startTimeCol >= 0 ? row[startTimeCol]?.trim() || undefined : undefined,
-        endTime: endTimeCol >= 0 ? row[endTimeCol]?.trim() || undefined : undefined,
-        description: descriptionCol >= 0 ? row[descriptionCol]?.trim() || undefined : undefined,
+        startTime:
+          startTimeCol >= 0
+            ? row[startTimeCol]?.trim() || undefined
+            : undefined,
+        endTime:
+          endTimeCol >= 0 ? row[endTimeCol]?.trim() || undefined : undefined,
+        description:
+          descriptionCol >= 0
+            ? row[descriptionCol]?.trim() || undefined
+            : undefined,
       };
     })
     .filter((row) => row.artists.length > 0);
@@ -170,7 +181,10 @@ export function buildCommitPayload(
 
   return {
     artistsToCreate: diff.cleanOperations.artistsToCreate,
-    stagesToCreate: [...diff.cleanOperations.stagesToCreate, ...extraStagesToCreate],
+    stagesToCreate: [
+      ...diff.cleanOperations.stagesToCreate,
+      ...extraStagesToCreate,
+    ],
     setsToCreate: diff.cleanOperations.setsToCreate.map((s) => ({
       ...s,
       stageName: resolveSetStageName(s),

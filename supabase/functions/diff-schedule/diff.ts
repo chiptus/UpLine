@@ -92,6 +92,13 @@ export function localToUtc(
   return new Date(naiveUtc.getTime() + offsetMs).toISOString();
 }
 
+export function utcToLocalDate(utcIso: string, timezone: string): string {
+  // sv-SE renders as "YYYY-MM-DD HH:MM:SS" so we can take the date portion.
+  return new Date(utcIso)
+    .toLocaleString("sv-SE", { timeZone: timezone })
+    .split(" ")[0];
+}
+
 type DbIndexes = {
   stageByNameLower: Map<string, DbStage>;
   stageById: Map<string, DbStage>;
@@ -194,6 +201,7 @@ function findMatchingSet(
   candidates: DbSet[],
   resolvedStageId: string | null,
   date: string | undefined,
+  timezone: string,
 ): DbSet | null {
   if (candidates.length === 0) return null;
   if (candidates.length === 1) return candidates[0];
@@ -202,7 +210,11 @@ function findMatchingSet(
       ? (candidates.find((s) => s.stage_id === resolvedStageId) ?? null)
       : null) ??
     (date
-      ? (candidates.find((s) => s.time_start?.startsWith(date)) ?? null)
+      ? (candidates.find(
+          (s) =>
+            s.time_start != null &&
+            utcToLocalDate(s.time_start, timezone) === date,
+        ) ?? null)
       : null) ??
     candidates[0]
   );
@@ -271,7 +283,12 @@ export function computeDiff(
 
     const candidates =
       indexes.setsByArtistKey.get(artistKey(artistSlugs)) ?? [];
-    const matched = findMatchingSet(candidates, resolvedStageId, row.date);
+    const matched = findMatchingSet(
+      candidates,
+      resolvedStageId,
+      row.date,
+      timezone,
+    );
 
     const payload: SetPayload = {
       name: row.setName?.trim() || row.artists.join(" b2b "),

@@ -42,6 +42,7 @@ BEGIN
   FROM stages s
   WHERE s.festival_edition_id = p_festival_edition_id
     AND s.name = p_stage_name
+    AND s.archived = false
   LIMIT 1;
 
   IF v_stage_id IS NULL THEN
@@ -122,11 +123,15 @@ BEGIN
     SET name = EXCLUDED.name,
         archived = false;
 
-  -- 2. Upsert new stages (matched on edition + name)
+  -- 2. Upsert new stages (matched on edition + name).
+  -- Same archive concern as artists above: an archived stage with the same
+  -- (edition, name) would be classified as new by the diff. DO NOTHING would
+  -- leave it archived; unarchive so sets resolve to a visible stage.
   INSERT INTO stages (festival_edition_id, name)
   SELECT p_festival_edition_id, elem->>'name'
   FROM jsonb_array_elements(p_stages_to_create) AS elem
-  ON CONFLICT (festival_edition_id, name) DO NOTHING;
+  ON CONFLICT (festival_edition_id, name) DO UPDATE
+    SET archived = false;
 
   -- 3. Update existing sets
   FOR v_set_elem IN SELECT value FROM jsonb_array_elements(p_sets_to_update) LOOP

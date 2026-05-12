@@ -71,15 +71,30 @@ CREATE OR REPLACE FUNCTION public.commit_schedule__resolve_stage_id(
   p_stage_name          TEXT
 )
 RETURNS UUID
-LANGUAGE sql
+LANGUAGE plpgsql
 STABLE
 SET search_path = public
 AS $$
+DECLARE
+  v_stage_id UUID;
+BEGIN
+  IF p_stage_name IS NULL THEN
+    RETURN NULL;
+  END IF;
+
   SELECT s.id
+  INTO v_stage_id
   FROM stages s
   WHERE s.festival_edition_id = p_festival_edition_id
     AND s.name = p_stage_name
   LIMIT 1;
+
+  IF v_stage_id IS NULL THEN
+    RAISE EXCEPTION 'Stage % not found in edition %', p_stage_name, p_festival_edition_id;
+  END IF;
+
+  RETURN v_stage_id;
+END;
 $$;
 
 CREATE OR REPLACE FUNCTION public.commit_schedule__parse_ts(p_value TEXT)

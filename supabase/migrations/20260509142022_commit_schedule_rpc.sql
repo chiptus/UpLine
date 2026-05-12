@@ -203,6 +203,13 @@ BEGIN
     )
     RETURNING id INTO v_new_set_id;
 
+    -- Always suffix the slug with a short id chunk so two sets with the same
+    -- name (common when an artist plays multiple days) don't collide on the
+    -- (edition, slug) lookup used by the set detail pages.
+    UPDATE sets
+    SET slug = slug || '-' || SUBSTRING(v_new_set_id::text, 1, 8)
+    WHERE id = v_new_set_id;
+
     v_sets_created := v_sets_created + 1;
 
     PERFORM commit_schedule__sync_set_artists(

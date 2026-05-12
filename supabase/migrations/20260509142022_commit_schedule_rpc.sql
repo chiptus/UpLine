@@ -58,10 +58,13 @@ LANGUAGE sql
 IMMUTABLE
 SET search_path = public
 AS $$
-  SELECT LOWER(
+  -- Matches src/lib/slug.ts generateSlug and diff-schedule's toSlug:
+  -- replace non-alphanumeric runs with a single hyphen, trim, collapse.
+  SELECT TRIM(
+    BOTH '-' FROM
     REGEXP_REPLACE(
-      REGEXP_REPLACE(TRIM(p_name), '[^a-zA-Z0-9\s]', '', 'g'),
-      '\s+', '-', 'g'
+      REGEXP_REPLACE(LOWER(TRIM(p_name)), '[^a-z0-9]+', '-', 'g'),
+      '-+', '-', 'g'
     )
   );
 $$;

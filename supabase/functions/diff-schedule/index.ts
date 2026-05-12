@@ -1,6 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { getAdminClient, requireAdmin, corsHeaders } from "../_shared/auth.ts";
-import { computeDiff, type DbArtist, type DbSet, type DbStage } from "./diff.ts";
+import {
+  computeDiff,
+  type DbArtist,
+  type DbSet,
+  type DbStage,
+} from "./diff.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -21,8 +26,13 @@ serve(async (req) => {
 
     if (!festivalEditionId || !timezone || !Array.isArray(rows)) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields: festivalEditionId, timezone, rows" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        JSON.stringify({
+          error: "Missing required fields: festivalEditionId, timezone, rows",
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
       );
     }
 
@@ -36,13 +46,12 @@ serve(async (req) => {
         .eq("archived", false),
       db
         .from("sets")
-        .select("id, name, description, stage_id, time_start, time_end, set_artists(artist_id, artists(id, name, slug))")
+        .select(
+          "id, name, description, stage_id, time_start, time_end, set_artists(artist_id, artists(id, name, slug))",
+        )
         .eq("festival_edition_id", festivalEditionId)
         .eq("archived", false),
-      db
-        .from("artists")
-        .select("id, name, slug")
-        .eq("archived", false),
+      db.from("artists").select("id, name, slug").eq("archived", false),
     ]);
 
     if (stagesRes.error) throw stagesRes.error;
@@ -62,7 +71,8 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error("diff-schedule error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    const message = error instanceof Error ? error.message : String(error);
+    return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

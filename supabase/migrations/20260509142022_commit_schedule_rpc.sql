@@ -1,8 +1,10 @@
 -- Helpers for commit_schedule. Named with the commit_schedule__ prefix so it
 -- is obvious they're internal to that RPC.
 --
--- Depends on the artists_slug_unique and stages_edition_name_unique constraints
--- (added in 20260509142020 and 20260509142021) for the ON CONFLICT upserts below.
+-- The ON CONFLICT clauses below rely on artists_slug_unique and
+-- stages_edition_name_unique. The constraints are added in the next two
+-- migrations (20260509142023, 20260509142024); ON CONFLICT is resolved at
+-- function-call time, not at CREATE FUNCTION time, so the ordering is fine.
 
 CREATE OR REPLACE FUNCTION public.commit_schedule__slugify(p_name TEXT)
 RETURNS TEXT

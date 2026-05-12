@@ -111,11 +111,16 @@ DECLARE
   v_sets_updated   INT := 0;
   v_sets_archived  INT := 0;
 BEGIN
-  -- 1. Upsert new artists (matched on slug)
+  -- 1. Upsert new artists (matched on slug).
+  -- The diff step only loads archived = false artists, so if a slug collides
+  -- with an existing archived artist the CSV row was treated as new. Update
+  -- the name AND unarchive so sets aren't linked to a hidden artist.
   INSERT INTO artists (name, slug)
   SELECT elem->>'name', elem->>'slug'
   FROM jsonb_array_elements(p_artists_to_create) AS elem
-  ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name;
+  ON CONFLICT (slug) DO UPDATE
+    SET name = EXCLUDED.name,
+        archived = false;
 
   -- 2. Upsert new stages (matched on edition + name)
   INSERT INTO stages (festival_edition_id, name)

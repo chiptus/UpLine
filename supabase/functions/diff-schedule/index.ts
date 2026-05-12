@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getAdminClient, requireAdmin, corsHeaders } from "../_shared/auth.ts";
 import {
   computeDiff,
@@ -6,6 +7,22 @@ import {
   type DbSet,
   type DbStage,
 } from "./diff.ts";
+
+const csvRowSchema = z.object({
+  artists: z.array(z.string()),
+  setName: z.string().optional(),
+  stage: z.string().optional(),
+  date: z.string().optional(),
+  startTime: z.string().optional(),
+  endTime: z.string().optional(),
+  description: z.string().optional(),
+});
+
+const diffRequestSchema = z.object({
+  festivalEditionId: z.string().uuid(),
+  timezone: z.string().min(1),
+  rows: z.array(csvRowSchema),
+});
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -21,13 +38,12 @@ serve(async (req) => {
   }
 
   try {
-    const body = await req.json();
-    const { festivalEditionId, timezone, rows } = body;
-
-    if (!festivalEditionId || !timezone || !Array.isArray(rows)) {
+    const parsed = diffRequestSchema.safeParse(await req.json());
+    if (!parsed.success) {
       return new Response(
         JSON.stringify({
-          error: "Missing required fields: festivalEditionId, timezone, rows",
+          error: "Invalid request",
+          issues: parsed.error.issues,
         }),
         {
           status: 400,
@@ -35,6 +51,8 @@ serve(async (req) => {
         },
       );
     }
+
+    const { festivalEditionId, timezone, rows } = parsed.data;
 
     const db = getAdminClient();
 

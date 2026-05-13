@@ -72,7 +72,30 @@ RETURNS VOID
 LANGUAGE plpgsql
 SET search_path = public
 AS $$
+DECLARE
+  v_input_count    INT;
+  v_resolved_count INT;
 BEGIN
+  -- Validate that every distinct input slug resolves to an artist before we
+  -- delete the existing links. The diff path is supposed to create missing
+  -- artists in step 1 of commit_schedule, so a mismatch means a bad payload
+  -- (typo, race, manual call) — bail loudly rather than silently producing
+  -- a set with a partial roster.
+  SELECT COUNT(DISTINCT slug_val)
+    INTO v_input_count
+  FROM jsonb_array_elements_text(p_artist_slugs) AS slug_val;
+
+  SELECT COUNT(DISTINCT a.id)
+    INTO v_resolved_count
+  FROM jsonb_array_elements_text(p_artist_slugs) AS slug_val
+  JOIN artists a ON a.slug = slug_val;
+
+  IF v_resolved_count <> v_input_count THEN
+    RAISE EXCEPTION
+      'Unknown artist slug(s) in payload for set % (got % distinct slugs, resolved %)',
+      p_set_id, v_input_count, v_resolved_count;
+  END IF;
+
   -- Edition-scoped delete defends against a forged set id even if the caller
   -- already verified it.
   DELETE FROM set_artists sa

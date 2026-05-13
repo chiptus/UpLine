@@ -3,20 +3,20 @@ import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getAdminClient, requireAdmin, corsHeaders } from "../_shared/auth.ts";
 
 const setPayloadSchema = z.object({
-  name: z.string(),
+  name: z.string().min(1),
   description: z.string().nullish(),
   stageName: z.string().nullish(),
   timeStart: z.string().nullish(),
   timeEnd: z.string().nullish(),
-  artistSlugs: z.array(z.string()),
+  artistSlugs: z.array(z.string().min(1)).min(1),
 });
 
 const commitRequestSchema = z.object({
   festivalEditionId: z.string().uuid(),
   artistsToCreate: z
-    .array(z.object({ name: z.string(), slug: z.string() }))
+    .array(z.object({ name: z.string().min(1), slug: z.string().min(1) }))
     .default([]),
-  stagesToCreate: z.array(z.object({ name: z.string() })).default([]),
+  stagesToCreate: z.array(z.object({ name: z.string().min(1) })).default([]),
   setsToCreate: z.array(setPayloadSchema).default([]),
   setsToUpdate: z
     .array(setPayloadSchema.extend({ id: z.string().uuid() }))

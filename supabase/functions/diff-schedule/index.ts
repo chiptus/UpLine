@@ -9,7 +9,7 @@ import {
 } from "./diff.ts";
 
 const csvRowSchema = z.object({
-  artists: z.array(z.string()),
+  artists: z.array(z.string().min(1)).min(1),
   setName: z.string().optional(),
   stage: z.string().optional(),
   date: z.string().optional(),

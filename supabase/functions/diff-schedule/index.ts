@@ -8,19 +8,37 @@ import {
   type DbStage,
 } from "./diff.ts";
 
+function isValidTimezone(tz: string): boolean {
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone: tz });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 const csvRowSchema = z.object({
   artists: z.array(z.string().min(1)).min(1),
   setName: z.string().optional(),
   stage: z.string().optional(),
-  date: z.string().optional(),
-  startTime: z.string().optional(),
-  endTime: z.string().optional(),
+  date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "date must be YYYY-MM-DD")
+    .optional(),
+  startTime: z
+    .string()
+    .regex(/^\d{2}:\d{2}$/, "startTime must be HH:MM")
+    .optional(),
+  endTime: z
+    .string()
+    .regex(/^\d{2}:\d{2}$/, "endTime must be HH:MM")
+    .optional(),
   description: z.string().optional(),
 });
 
 const diffRequestSchema = z.object({
   festivalEditionId: z.string().uuid(),
-  timezone: z.string().min(1),
+  timezone: z.string().min(1).refine(isValidTimezone, "Invalid IANA timezone"),
   rows: z.array(csvRowSchema),
 });
 

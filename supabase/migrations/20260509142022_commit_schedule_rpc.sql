@@ -214,8 +214,5 @@ BEGIN
     'setsUpdated', v_sets_updated,
     'setsArchived', v_sets_archived
   );
-
-EXCEPTION WHEN OTHERS THEN
-  RAISE EXCEPTION 'commit_schedule failed: %', SQLERRM;
 END;
 $$;

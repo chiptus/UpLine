@@ -202,21 +202,23 @@ function findMatchingSet(
   resolvedStageId: string | null,
   date: string | undefined,
   timezone: string,
+  alreadyMatched: Set<string>,
 ): DbSet | null {
-  if (candidates.length === 0) return null;
-  if (candidates.length === 1) return candidates[0];
+  const available = candidates.filter((s) => !alreadyMatched.has(s.id));
+  if (available.length === 0) return null;
+  if (available.length === 1) return available[0];
   return (
     (resolvedStageId
-      ? (candidates.find((s) => s.stage_id === resolvedStageId) ?? null)
+      ? (available.find((s) => s.stage_id === resolvedStageId) ?? null)
       : null) ??
     (date
-      ? (candidates.find(
+      ? (available.find(
           (s) =>
             s.time_start != null &&
             utcToLocalDate(s.time_start, timezone) === date,
         ) ?? null)
       : null) ??
-    candidates[0]
+    available[0]
   );
 }
 
@@ -288,6 +290,7 @@ export function computeDiff(
       resolvedStageId,
       row.date,
       timezone,
+      matchedSetIds,
     );
 
     const payload: SetPayload = {

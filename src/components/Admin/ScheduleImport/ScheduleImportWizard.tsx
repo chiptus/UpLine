@@ -26,6 +26,7 @@ export function ScheduleImportWizard({ festivalEditionId }: Props) {
 
   const [step, setStep] = useState<Step>("upload");
   const [diff, setDiff] = useState<DiffResult | null>(null);
+  const [timezone, setTimezone] = useState<string | null>(null);
   const [stageMismatchResolutions, setStageMismatchResolutions] = useState<
     Record<string, StageMismatchResolution>
   >({});
@@ -52,8 +53,9 @@ export function ScheduleImportWizard({ festivalEditionId }: Props) {
     },
   });
 
-  function handleDiffReady(newDiff: DiffResult) {
+  function handleDiffReady(newDiff: DiffResult, newTimezone: string) {
     setDiff(newDiff);
+    setTimezone(newTimezone);
     setStageMismatchResolutions(
       Object.fromEntries(
         newDiff.conflicts.stageNameMismatches.map((m) => [
@@ -70,6 +72,7 @@ export function ScheduleImportWizard({ festivalEditionId }: Props) {
   function handleReset() {
     setStep("upload");
     setDiff(null);
+    setTimezone(null);
     setStageMismatchResolutions({});
     setOrphanResolutions({});
     commitMutation.reset();
@@ -109,11 +112,12 @@ export function ScheduleImportWizard({ festivalEditionId }: Props) {
     );
   }
 
-  if (!diff) return null;
+  if (!diff || !timezone) return null;
 
   return (
     <DiffReviewStep
       diff={diff}
+      timezone={timezone}
       dbStages={stagesQuery.data ?? []}
       stageMismatchResolutions={stageMismatchResolutions}
       orphanResolutions={orphanResolutions}

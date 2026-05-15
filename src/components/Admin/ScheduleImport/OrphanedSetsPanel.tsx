@@ -11,12 +11,14 @@ type OrphanedSet = DiffResult["conflicts"]["orphanedSets"][number];
 
 type Props = {
   orphanedSets: OrphanedSet[];
+  timezone: string;
   resolutions: Record<string, OrphanResolution>;
   onChange: (setId: string, resolution: OrphanResolution) => void;
 };
 
 export function OrphanedSetsPanel({
   orphanedSets,
+  timezone,
   resolutions,
   onChange,
 }: Props) {
@@ -57,6 +59,7 @@ export function OrphanedSetsPanel({
           <OrphanedItem
             key={set.id}
             set={set}
+            timezone={timezone}
             resolution={resolutions[set.id] ?? "keep"}
             onChange={(resolution) => onChange(set.id, resolution)}
           />
@@ -68,13 +71,19 @@ export function OrphanedSetsPanel({
 
 type OrphanedItemProps = {
   set: OrphanedSet;
+  timezone: string;
   resolution: OrphanResolution;
   onChange: (resolution: OrphanResolution) => void;
 };
 
-function OrphanedItem({ set, resolution, onChange }: OrphanedItemProps) {
+function OrphanedItem({
+  set,
+  timezone,
+  resolution,
+  onChange,
+}: OrphanedItemProps) {
   const isArchive = resolution === "archive";
-  const time = formatTime(set.timeStart);
+  const time = formatTime(set.timeStart, timezone);
   const switchId = `orphan-${set.id}`;
 
   return (
@@ -99,9 +108,12 @@ function OrphanedItem({ set, resolution, onChange }: OrphanedItemProps) {
   );
 }
 
-function formatTime(iso: string | null) {
+function formatTime(iso: string | null, timezone: string) {
   if (!iso) return null;
+  // Format in the festival timezone so review decisions don't flip across
+  // midnight/DST for admins in a different timezone than the festival.
   return new Date(iso).toLocaleString(undefined, {
+    timeZone: timezone,
     month: "short",
     day: "numeric",
     hour: "2-digit",

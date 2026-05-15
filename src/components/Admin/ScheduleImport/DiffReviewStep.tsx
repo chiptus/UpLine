@@ -14,10 +14,14 @@ type DbStage = { id: string; name: string };
 
 type Props = {
   diff: DiffResult;
+  timezone: string;
   dbStages: DbStage[];
   stageMismatchResolutions: Record<string, StageMismatchResolution>;
   orphanResolutions: Record<string, OrphanResolution>;
-  onStageMismatchChange: (csvValue: string, resolution: StageMismatchResolution) => void;
+  onStageMismatchChange: (
+    csvValue: string,
+    resolution: StageMismatchResolution,
+  ) => void;
   onOrphanChange: (setId: string, resolution: OrphanResolution) => void;
   onCommit: () => void;
   onReset: () => void;
@@ -28,6 +32,7 @@ type Props = {
 
 export function DiffReviewStep({
   diff,
+  timezone,
   dbStages,
   stageMismatchResolutions,
   orphanResolutions,
@@ -56,6 +61,7 @@ export function DiffReviewStep({
 
         <OrphanedSetsPanel
           orphanedSets={diff.conflicts.orphanedSets}
+          timezone={timezone}
           resolutions={orphanResolutions}
           onChange={onOrphanChange}
         />
@@ -64,7 +70,9 @@ export function DiffReviewStep({
           <div className="flex items-start gap-2 rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
             <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
             <div>
-              <p className="font-medium">Import failed — no changes were saved.</p>
+              <p className="font-medium">
+                Import failed — no changes were saved.
+              </p>
               <p className="mt-0.5">{commitError}</p>
             </div>
           </div>

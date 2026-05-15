@@ -13,7 +13,7 @@ import { CsvDropZone } from "./CsvDropZone";
 
 type Props = {
   festivalEditionId: string;
-  onDiffReady: (diff: DiffResult) => void;
+  onDiffReady: (diff: DiffResult, timezone: string) => void;
 };
 
 async function readFile(file: File): Promise<CsvRow[]> {
@@ -35,7 +35,7 @@ export function CsvUploadStep({ festivalEditionId, onDiffReady }: Props) {
   const analyseMutation = useMutation({
     mutationFn: (rows: CsvRow[]) =>
       callDiffSchedule(festivalEditionId, timezone, rows),
-    onSuccess: onDiffReady,
+    onSuccess: (diff) => onDiffReady(diff, timezone),
   });
 
   const rows = readFileMutation.data ?? [];

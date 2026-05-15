@@ -42,3 +42,22 @@ jobs:
           name: coverage-report
           path: coverage/
           retention-days: 7
+
+  deno-test:
+    name: Run Edge Function Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v2.x
+
+      - name: Run Deno tests for Edge Functions
+        # Integration tests under supabase/functions auto-skip when
+        # SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY aren't set, so unit
+        # tests like diff.test.ts still run while integration tests
+        # are skipped in the absence of a live DB.
+        run: deno test --allow-env --allow-net --allow-read supabase/functions/

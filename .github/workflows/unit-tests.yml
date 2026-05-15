@@ -61,8 +61,8 @@ jobs:
         # tests like diff.test.ts still run while integration tests
         # are skipped in the absence of a live DB.
         #
-        # --no-lock because the Edge Function tests pull from esm.sh,
-        # which regenerates bundle hashes over time and makes a checked-in
-        # deno.lock drift constantly. We have no production dependency on
-        # the lockfile (Edge Functions resolve fresh at deploy).
-        run: deno test --no-lock --allow-env --allow-net --allow-read supabase/functions/
+        # --no-check skips typechecking the supabase-js dependency tree
+        # (which pulls @types/node and requires a node_modules); the
+        # frontend tsc step already covers TS validation for everything
+        # in this repo that we author.
+        run: deno test --no-check --allow-env --allow-net --allow-read supabase/functions/

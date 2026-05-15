@@ -41,6 +41,3 @@ dump.sql
 
 # Sync script credentials (DB connection strings — never commit)
 scripts/.env.sync
-
-# Deno lockfile — see .github/workflows/unit-tests.yml for rationale
-deno.lock

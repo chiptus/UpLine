@@ -1,5 +1,4 @@
 // might be able to remove this as it's not used
-// TEMP: trigger deploy workflow test — revert before merge
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { SoundCloudUserSchema } from "../_shared/soundcloud-api/schemas.ts";

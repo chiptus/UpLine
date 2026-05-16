@@ -81,7 +81,7 @@ jobs:
   comment:
     name: Update PR comment
     needs: [resolve, migrate, functions]
-    if: always() && github.event_name == 'pull_request'
+    if: always() && github.event_name == 'pull_request' && needs.resolve.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

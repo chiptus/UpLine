@@ -16,7 +16,7 @@ jobs:
     name: Push migrations (${{ inputs.target }})
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    environment: ${{ inputs.target == 'prod' && 'production' || 'staging' }}
+    environment: ${{ inputs.target == 'prod' && 'production' || (inputs.target == 'staging' && 'staging' || '') }}
 
     steps:
       - name: Validate target

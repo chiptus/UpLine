@@ -35,4 +35,4 @@ jobs:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           PROJECT_REF: ${{ inputs.target == 'prod' && vars.PROD_PROJECT_REF || vars.STAGING_PROJECT_REF }}
         run: |
-          supabase functions deploy --project-ref "$PROJECT_REF"
+          supabase functions deploy --use-api --project-ref "$PROJECT_REF"

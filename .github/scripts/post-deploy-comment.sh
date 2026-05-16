@@ -28,6 +28,19 @@ line() {
   echo ""
   line "DB migrations" "$MIGRATE_RESULT"
   line "Edge functions" "$FUNCTIONS_RESULT"
+
+  if [[ "$MIGRATE_RESULT" == "failure" && "$TARGET" == "staging" ]]; then
+    echo ""
+    echo "> ⚠️ **Migration failed on staging.** This often means migration history drift — another PR applied migrations that aren't in this branch. To recover, you may need to reset and re-seed staging:"
+    echo ">"
+    echo "> \`\`\`sh"
+    echo "> supabase link --project-ref <STAGING_PROJECT_REF>"
+    echo "> supabase db reset --linked    # wipes staging data"
+    echo "> pnpm run db:sync:staging      # re-sync anonymized prod data"
+    echo "> \`\`\`"
+    echo ">"
+    echo "> Then re-run this workflow."
+  fi
 } > body.md
 
 EXISTING=$(gh api "repos/$REPO/issues/$PR/comments" --jq ".[] | select(.body | contains(\"$MARKER\")) | .id" | head -n1)

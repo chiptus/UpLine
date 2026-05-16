@@ -99,7 +99,9 @@ Deno.test(
     const slug = `test-update-artist-${Date.now()}`;
 
     // Create artist and set
-    await db.from("artists").insert({ name: "Update Test", slug });
+    await db
+      .from("artists")
+      .insert({ name: "Update Test", slug, added_by: userId });
     const { data: artist } = await db
       .from("artists")
       .select("id")
@@ -206,7 +208,9 @@ Deno.test(
     const userId = await getTestUserId(db);
     const slug = `test-midnight-${Date.now()}`;
 
-    await db.from("artists").insert({ name: "Late Night DJ", slug });
+    await db
+      .from("artists")
+      .insert({ name: "Late Night DJ", slug, added_by: userId });
 
     const { error } = await db.rpc("commit_schedule", {
       p_festival_edition_id: editionId,

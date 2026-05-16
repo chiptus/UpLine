@@ -116,5 +116,5 @@ jobs:
           if [[ -n "$EXISTING" ]]; then
             gh api -X PATCH "repos/$REPO/issues/comments/$EXISTING" -F body=@body.md
           else
-            gh pr comment "$PR" --body-file body.md
+            gh api -X POST "repos/$REPO/issues/$PR/comments" -F body=@body.md
           fi

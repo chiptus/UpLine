@@ -27,7 +27,7 @@ TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
 {
   echo "$MARKER"
   echo "**Deploy → \`$TARGET\`** — [workflow run]($RUN_URL)"
-  echo "_Last updated: $TIMESTAMP_"
+  echo "_Last updated: ${TIMESTAMP}_"
   echo ""
   line "DB migrations" "$MIGRATE_RESULT"
   line "Edge functions" "$FUNCTIONS_RESULT"

@@ -16,6 +16,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { ZONE_COUNTRIES } from "./zoneCountries";
 
 type Props = {
   value: string;
@@ -26,6 +27,7 @@ type TzInfo = {
   zone: string;
   region: string;
   city: string;
+  primaryCountry: string;
   offsetLabel: string;
   offsetMinutes: number;
   abbreviation: string;
@@ -103,6 +105,12 @@ export function TimezonePicker({ value, onChange }: Props) {
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-medium truncate">
                           {tz.city}
+                          {tz.primaryCountry && (
+                            <span className="font-normal text-muted-foreground">
+                              {" · "}
+                              {tz.primaryCountry}
+                            </span>
+                          )}
                         </div>
                         <div className="text-xs text-muted-foreground truncate">
                           {tz.zone}
@@ -137,8 +145,11 @@ function useTimezoneCatalog() {
   return useMemo(() => {
     const now = new Date();
     const zones = listZones();
+    const countryNames = makeCountryNameResolver();
 
-    const entries: TzInfo[] = zones.map((zone) => buildEntry(zone, now));
+    const entries: TzInfo[] = zones.map((zone) =>
+      buildEntry(zone, now, countryNames),
+    );
 
     // Sort within each region by offset, then city.
     entries.sort((a, b) => {
@@ -177,7 +188,11 @@ function listZones(): string[] {
   return FALLBACK_ZONES;
 }
 
-function buildEntry(zone: string, now: Date): TzInfo {
+function buildEntry(
+  zone: string,
+  now: Date,
+  countryNames: (code: string) => string,
+): TzInfo {
   const firstSlash = zone.indexOf("/");
   // Group by the top-level path segment (America/Argentina/Buenos_Aires
   // rolls up into "America", not its own "America/Argentina" group).
@@ -189,8 +204,19 @@ function buildEntry(zone: string, now: Date): TzInfo {
   const offsetMinutes = parseOffsetMinutes(offsetLabel);
   const abbreviation = formatAbbreviation(zone, now);
 
+  // Country lookup: first code is the primary (shown in the row); all codes
+  // contribute resolved names to the search index so a zone shared by
+  // multiple countries (Europe/Berlin → DE, DK, NO, SE, …) matches any of
+  // them.
+  const countryCodes = ZONE_COUNTRIES[zone] ?? [];
+  const countryAllNames = countryCodes
+    .map((code) => countryNames(code))
+    .filter(Boolean);
+  const primaryCountry = countryAllNames[0] ?? "";
+
   // Concatenate every term cmdk should match against. Include the
-  // condensed offset ("+0100") so people can type "+01" and find it.
+  // condensed offset ("+0100") so people can type "+01" and find it,
+  // and include all country names + ISO codes for country search.
   const offsetCondensed = offsetLabel.replace(/[^+\-0-9]/g, "");
   const searchValue = [
     zone,
@@ -199,6 +225,8 @@ function buildEntry(zone: string, now: Date): TzInfo {
     abbreviation,
     offsetLabel,
     offsetCondensed,
+    ...countryAllNames,
+    ...countryCodes,
   ]
     .filter(Boolean)
     .join(" ");
@@ -207,10 +235,28 @@ function buildEntry(zone: string, now: Date): TzInfo {
     zone,
     region,
     city,
+    primaryCountry,
     offsetLabel,
     offsetMinutes,
     abbreviation,
     searchValue,
+  };
+}
+
+function makeCountryNameResolver(): (code: string) => string {
+  let formatter: Intl.DisplayNames | null = null;
+  try {
+    formatter = new Intl.DisplayNames(["en"], { type: "region" });
+  } catch {
+    // Older runtimes without DisplayNames — fall back to returning the code.
+  }
+  return (code) => {
+    if (!formatter) return code;
+    try {
+      return formatter.of(code) ?? code;
+    } catch {
+      return code;
+    }
   };
 }
 

@@ -14,7 +14,7 @@ async function updateArtist(variables: {
   updates: UpdateArtistUpdates;
 }): Promise<Omit<Artist, "votes">> {
   const { id, updates } = variables;
-  const { genre_ids, ...rest } = updates;
+  const { genre_ids, soundcloud_followers: _sf, ...rest } = updates;
 
   // If name is being updated, regenerate slug
   const updateData = { ...rest };

@@ -10,9 +10,10 @@ async function updateSet(variables: {
   updates: Partial<Omit<FestivalSet, "artists" | "votes" | "stages">>;
 }) {
   const { id, updates } = variables;
+  const { stage_name: _sn, ...rest } = updates;
 
   // If name is being updated, regenerate slug
-  const updateData = { ...updates };
+  const updateData = { ...rest };
   if (updates.name) {
     updateData.slug = generateSlug(updates.name);
   }

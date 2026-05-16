@@ -18,11 +18,13 @@ async function createSet(
     | "slug"
   >,
 ): Promise<FestivalSet> {
+  const { stage_name: _sn, ...rest } = setData;
+
   // First, create the set without slug
   const { data, error } = await supabase
     .from("sets")
     .insert({
-      ...setData,
+      ...rest,
       slug: generateSlug(setData.name),
       archived: false, // Explicit default
     })

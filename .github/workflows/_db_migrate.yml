@@ -32,11 +32,30 @@ jobs:
         with:
           version: 2.58.5
 
-      - name: Push migrations
+      - name: Link project
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           PROJECT_REF: ${{ inputs.target == 'prod' && vars.PROD_PROJECT_REF || vars.STAGING_PROJECT_REF }}
           DB_PASSWORD: ${{ inputs.target == 'prod' && secrets.PROD_DB_PASSWORD || secrets.STAGING_DB_PASSWORD }}
+        run: supabase link --project-ref "$PROJECT_REF" --password "$DB_PASSWORD"
+
+      - name: Reset staging DB (staging only)
+        if: inputs.target == 'staging'
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          PROJECT_REF: ${{ vars.STAGING_PROJECT_REF }}
+          PROD_PROJECT_REF: ${{ vars.PROD_PROJECT_REF }}
+          DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
         run: |
-          supabase link --project-ref "$PROJECT_REF" --password "$DB_PASSWORD"
-          supabase db push --password "$DB_PASSWORD"
+          if [[ "$PROJECT_REF" == "$PROD_PROJECT_REF" ]]; then
+            echo "Refusing to reset: STAGING_PROJECT_REF == PROD_PROJECT_REF" >&2
+            exit 1
+          fi
+          echo "Resetting staging DB ($PROJECT_REF) before applying migrations..."
+          echo "y" | supabase db reset --linked --password "$DB_PASSWORD"
+
+      - name: Push migrations
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          DB_PASSWORD: ${{ inputs.target == 'prod' && secrets.PROD_DB_PASSWORD || secrets.STAGING_DB_PASSWORD }}
+        run: supabase db push --password "$DB_PASSWORD"

@@ -1,0 +1,2 @@
+-- TEMP: trigger deploy workflow test — revert before merge
+-- This migration is a no-op (comment only).

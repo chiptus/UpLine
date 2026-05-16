@@ -28,9 +28,7 @@ jobs:
 
       - uses: actions/checkout@v4
 
-      - uses: supabase/setup-cli@v1
-        with:
-          version: 2.105.0
+      - uses: supabase/setup-cli@v2
 
       - name: Push migrations
         env:

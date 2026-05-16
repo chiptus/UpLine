@@ -2,8 +2,7 @@
   "version": "5",
   "specifiers": {
     "jsr:@std/assert@1": "1.0.19",
-    "jsr:@std/internal@^1.0.12": "1.0.13",
-    "npm:@types/node@*": "24.2.0"
+    "jsr:@std/internal@^1.0.12": "1.0.13"
   },
   "jsr": {
     "@std/assert@1.0.19": {
@@ -14,17 +13,6 @@
     },
     "@std/internal@1.0.13": {
       "integrity": "2f9546691d4ac2d32859c82dff284aaeac980ddeca38430d07941e7e288725c0"
-    }
-  },
-  "npm": {
-    "@types/node@24.2.0": {
-      "integrity": "sha512-3xyG3pMCq3oYCNg7/ZP+E1ooTaGB4cG8JWRsqqOYQdbWNY4zbaV0Ennrd7stjiJEFZCaybcIgpTjJWHRfBSIDw==",
-      "dependencies": [
-        "undici-types"
-      ]
-    },
-    "undici-types@7.10.0": {
-      "integrity": "sha512-t5Fy/nfn+14LuOc2KNYg75vZqClpAiqscVvMygNnlsHBFpSXdJaYtXMcdNLpl/Qvc3P2cB3s6lOV51nqsFq4ag=="
     }
   },
   "redirects": {

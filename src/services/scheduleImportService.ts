@@ -1,26 +1,5 @@
+import Papa from "papaparse";
 import { supabase } from "@/integrations/supabase/client";
-
-function parseCSV(csvContent: string): string[][] {
-  const lines = csvContent.trim().split("\n");
-  return lines.map((line) => {
-    const result: string[] = [];
-    let current = "";
-    let inQuotes = false;
-    for (let i = 0; i < line.length; i++) {
-      const char = line[i];
-      if (char === '"') {
-        inQuotes = !inQuotes;
-      } else if (char === "," && !inQuotes) {
-        result.push(current.trim());
-        current = "";
-      } else {
-        current += char;
-      }
-    }
-    result.push(current.trim());
-    return result.map((field) => field.replace(/^"|"$/g, ""));
-  });
-}
 
 export type CsvRow = {
   artists: string[];
@@ -84,48 +63,27 @@ export type StageMismatchResolution =
 export type OrphanResolution = "archive" | "keep";
 
 export function parseScheduleCsv(csvContent: string): CsvRow[] {
-  const lines = parseCSV(csvContent);
-  if (lines.length < 2) return [];
+  const parsed = Papa.parse<Record<string, string>>(csvContent, {
+    header: true,
+    skipEmptyLines: true,
+    transformHeader: (h) => h.trim().toLowerCase(),
+  });
 
-  const headers = lines[0].map((h) => h.trim().toLowerCase());
-
-  function col(name: string) {
-    return headers.indexOf(name);
-  }
-  const artistsCol = col("artists");
-  const setNameCol = col("set name");
-  const stageCol = col("stage");
-  const dateCol = col("date");
-  const startTimeCol = col("start time");
-  const endTimeCol = col("end time");
-  const descriptionCol = col("description");
-
-  return lines
-    .slice(1)
-    .filter((row) => row.some((cell) => cell.trim()))
+  return parsed.data
     .map((row) => {
-      const artistsRaw = artistsCol >= 0 ? (row[artistsCol] ?? "") : "";
-      const artists = artistsRaw
+      const artists = (row.artists ?? "")
         .split("|")
         .map((a) => a.trim())
         .filter(Boolean);
 
       return {
         artists,
-        setName:
-          setNameCol >= 0 ? row[setNameCol]?.trim() || undefined : undefined,
-        stage: stageCol >= 0 ? row[stageCol]?.trim() || undefined : undefined,
-        date: dateCol >= 0 ? row[dateCol]?.trim() || undefined : undefined,
-        startTime:
-          startTimeCol >= 0
-            ? row[startTimeCol]?.trim() || undefined
-            : undefined,
-        endTime:
-          endTimeCol >= 0 ? row[endTimeCol]?.trim() || undefined : undefined,
-        description:
-          descriptionCol >= 0
-            ? row[descriptionCol]?.trim() || undefined
-            : undefined,
+        setName: row["set name"]?.trim() || undefined,
+        stage: row.stage?.trim() || undefined,
+        date: row.date?.trim() || undefined,
+        startTime: row["start time"]?.trim() || undefined,
+        endTime: row["end time"]?.trim() || undefined,
+        description: row.description?.trim() || undefined,
       };
     })
     .filter((row) => row.artists.length > 0);

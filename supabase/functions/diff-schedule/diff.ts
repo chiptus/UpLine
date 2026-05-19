@@ -1,3 +1,12 @@
+import { artistKey } from "./diffHelpers.ts";
+import {
+  buildIndexes,
+  computeTimes,
+  findMatchingSet,
+  resolveArtists,
+  resolveStage,
+} from "./diffResolvers.ts";
+
 export type CsvRow = {
   artists: string[];
   setName?: string;
@@ -58,169 +67,6 @@ export type DiffResult = {
     }[];
   };
 };
-
-export function toSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-export function artistKey(slugs: string[]): string {
-  return [...slugs].sort().join("|");
-}
-
-export function advanceDateByOne(dateStr: string): string {
-  const d = new Date(dateStr + "T00:00:00Z");
-  d.setUTCDate(d.getUTCDate() + 1);
-  return d.toISOString().split("T")[0];
-}
-
-export function localToUtc(
-  dateStr: string,
-  timeStr: string,
-  timezone: string,
-): string {
-  const localIso = `${dateStr}T${timeStr}:00`;
-  const naiveUtc = new Date(localIso + "Z");
-  // sv-SE locale gives "YYYY-MM-DD HH:MM:SS" — unambiguously parseable as UTC
-  const localInTz = new Date(
-    naiveUtc.toLocaleString("sv-SE", { timeZone: timezone }) + "Z",
-  );
-  const offsetMs = naiveUtc.getTime() - localInTz.getTime();
-  return new Date(naiveUtc.getTime() + offsetMs).toISOString();
-}
-
-export function utcToLocalDate(utcIso: string, timezone: string): string {
-  // sv-SE renders as "YYYY-MM-DD HH:MM:SS" so we can take the date portion.
-  return new Date(utcIso)
-    .toLocaleString("sv-SE", { timeZone: timezone })
-    .split(" ")[0];
-}
-
-type DbIndexes = {
-  stageByNameLower: Map<string, DbStage>;
-  stageById: Map<string, DbStage>;
-  existingArtistSlugs: Set<string>;
-  setsByArtistKey: Map<string, DbSet[]>;
-};
-
-type StageResolution =
-  | { kind: "exact"; id: string; name: string }
-  | { kind: "mismatch"; resolvedName: string; closest: DbStage }
-  | { kind: "new"; resolvedName: string }
-  | { kind: "none" };
-
-function buildIndexes(
-  dbStages: DbStage[],
-  dbSets: DbSet[],
-  dbArtists: DbArtist[],
-): DbIndexes {
-  const setsByArtistKey = new Map<string, DbSet[]>();
-  for (const set of dbSets) {
-    const slugs = set.set_artists.map((sa) => sa.artists.slug);
-    const key = artistKey(slugs);
-    const bucket = setsByArtistKey.get(key) ?? [];
-    bucket.push(set);
-    setsByArtistKey.set(key, bucket);
-  }
-  return {
-    stageByNameLower: new Map(dbStages.map((s) => [s.name.toLowerCase(), s])),
-    stageById: new Map(dbStages.map((s) => [s.id, s])),
-    existingArtistSlugs: new Set(dbArtists.map((a) => a.slug)),
-    setsByArtistKey,
-  };
-}
-
-function resolveArtists(
-  row: CsvRow,
-  existingSlugs: Set<string>,
-  seenNewSlugs: Set<string>,
-  artistsToCreate: { name: string; slug: string }[],
-): string[] {
-  const slugs: string[] = [];
-  for (const name of row.artists) {
-    const slug = toSlug(name);
-    slugs.push(slug);
-    if (!existingSlugs.has(slug) && !seenNewSlugs.has(slug)) {
-      artistsToCreate.push({ name, slug });
-      seenNewSlugs.add(slug);
-    }
-  }
-  return slugs;
-}
-
-function resolveStage(
-  rawStage: string | undefined,
-  dbStages: DbStage[],
-  stageByNameLower: Map<string, DbStage>,
-): StageResolution {
-  if (!rawStage) return { kind: "none" };
-
-  const lower = rawStage.toLowerCase();
-  const exactMatch = stageByNameLower.get(lower);
-  if (exactMatch) {
-    return { kind: "exact", id: exactMatch.id, name: exactMatch.name };
-  }
-
-  function strip(s: string) {
-    return s.toLowerCase().replace(/[^a-z0-9]/g, "");
-  }
-  const closeMatch = dbStages.find((s) => {
-    const a = strip(s.name);
-    const b = strip(lower);
-    return a === b || a.includes(b) || b.includes(a);
-  });
-
-  if (closeMatch) {
-    return { kind: "mismatch", resolvedName: rawStage, closest: closeMatch };
-  }
-  return { kind: "new", resolvedName: rawStage };
-}
-
-function computeTimes(
-  row: CsvRow,
-  timezone: string,
-): { timeStart: string | null; timeEnd: string | null } {
-  let timeStart: string | null = null;
-  let timeEnd: string | null = null;
-  if (row.date && row.startTime) {
-    timeStart = localToUtc(row.date, row.startTime, timezone);
-  }
-  if (row.date && row.endTime) {
-    const crossesMidnight =
-      row.startTime != null && row.endTime < row.startTime;
-    const endDate = crossesMidnight ? advanceDateByOne(row.date) : row.date;
-    timeEnd = localToUtc(endDate, row.endTime, timezone);
-  }
-  return { timeStart, timeEnd };
-}
-
-function findMatchingSet(
-  candidates: DbSet[],
-  resolvedStageId: string | null,
-  date: string | undefined,
-  timezone: string,
-  alreadyMatched: Set<string>,
-): DbSet | null {
-  const available = candidates.filter((s) => !alreadyMatched.has(s.id));
-  if (available.length === 0) return null;
-  if (available.length === 1) return available[0];
-  return (
-    (resolvedStageId
-      ? (available.find((s) => s.stage_id === resolvedStageId) ?? null)
-      : null) ??
-    (date
-      ? (available.find(
-          (s) =>
-            s.time_start != null &&
-            utcToLocalDate(s.time_start, timezone) === date,
-        ) ?? null)
-      : null) ??
-    available[0]
-  );
-}
 
 export function computeDiff(
   rows: CsvRow[],

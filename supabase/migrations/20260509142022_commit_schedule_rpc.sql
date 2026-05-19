@@ -63,6 +63,46 @@ AS $$
   SELECT CASE WHEN p_value IS NOT NULL THEN p_value::TIMESTAMPTZ END;
 $$;
 
+-- Upsert artists in the import payload. The diff step only loads
+-- archived = false artists, so if a slug collides with an existing archived
+-- artist the CSV row was treated as new. Update the name AND unarchive so
+-- sets aren't linked to a hidden artist. added_by is required (NOT NULL) and
+-- attributes the create to the importing user.
+CREATE OR REPLACE FUNCTION public.commit_schedule__upsert_artists(
+  p_artists_to_create JSONB,
+  p_user_id           UUID
+)
+RETURNS VOID
+LANGUAGE sql
+SET search_path = public
+AS $$
+  INSERT INTO artists (name, slug, added_by)
+  SELECT elem->>'name', elem->>'slug', p_user_id
+  FROM jsonb_array_elements(p_artists_to_create) AS elem
+  ON CONFLICT (slug) DO UPDATE
+    SET name = EXCLUDED.name,
+        archived = false;
+$$;
+
+-- Upsert stages in the import payload. Same archive concern as artists:
+-- an archived stage with the same (edition, name) would be classified as
+-- new by the diff. DO NOTHING would leave it archived; unarchive so sets
+-- resolve to a visible stage.
+CREATE OR REPLACE FUNCTION public.commit_schedule__upsert_stages(
+  p_festival_edition_id UUID,
+  p_stages_to_create    JSONB
+)
+RETURNS VOID
+LANGUAGE sql
+SET search_path = public
+AS $$
+  INSERT INTO stages (festival_edition_id, name)
+  SELECT p_festival_edition_id, elem->>'name'
+  FROM jsonb_array_elements(p_stages_to_create) AS elem
+  ON CONFLICT (festival_edition_id, name) DO UPDATE
+    SET archived = false;
+$$;
+
 CREATE OR REPLACE FUNCTION public.commit_schedule__sync_set_artists(
   p_set_id              UUID,
   p_festival_edition_id UUID,
@@ -137,28 +177,10 @@ DECLARE
   v_sets_updated   INT := 0;
   v_sets_archived  INT := 0;
 BEGIN
-  -- 1. Upsert new artists (matched on slug).
-  -- The diff step only loads archived = false artists, so if a slug collides
-  -- with an existing archived artist the CSV row was treated as new. Update
-  -- the name AND unarchive so sets aren't linked to a hidden artist.
-  INSERT INTO artists (name, slug)
-  SELECT elem->>'name', elem->>'slug'
-  FROM jsonb_array_elements(p_artists_to_create) AS elem
-  ON CONFLICT (slug) DO UPDATE
-    SET name = EXCLUDED.name,
-        archived = false;
+  PERFORM commit_schedule__upsert_artists(p_artists_to_create, p_user_id);
+  PERFORM commit_schedule__upsert_stages(p_festival_edition_id, p_stages_to_create);
 
-  -- 2. Upsert new stages (matched on edition + name).
-  -- Same archive concern as artists above: an archived stage with the same
-  -- (edition, name) would be classified as new by the diff. DO NOTHING would
-  -- leave it archived; unarchive so sets resolve to a visible stage.
-  INSERT INTO stages (festival_edition_id, name)
-  SELECT p_festival_edition_id, elem->>'name'
-  FROM jsonb_array_elements(p_stages_to_create) AS elem
-  ON CONFLICT (festival_edition_id, name) DO UPDATE
-    SET archived = false;
-
-  -- 3. Update existing sets
+  -- Update existing sets
   FOR v_set_elem IN SELECT value FROM jsonb_array_elements(p_sets_to_update) LOOP
     v_set_id := (v_set_elem->>'id')::UUID;
 
@@ -188,7 +210,7 @@ BEGIN
     );
   END LOOP;
 
-  -- 4. Insert new sets
+  -- Insert new sets
   FOR v_set_elem IN SELECT value FROM jsonb_array_elements(p_sets_to_create) LOOP
     INSERT INTO sets (
       festival_edition_id, name, slug, description, stage_id,
@@ -222,7 +244,7 @@ BEGIN
     );
   END LOOP;
 
-  -- 5. Archive orphaned sets
+  -- Archive orphaned sets
   IF p_set_ids_to_archive IS NOT NULL AND array_length(p_set_ids_to_archive, 1) > 0 THEN
     UPDATE sets
     SET archived = true, updated_at = NOW()

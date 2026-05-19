@@ -1,3 +1,4 @@
+import type { Database } from "../_shared/database.types.ts";
 import { artistKey } from "./diffHelpers.ts";
 import {
   buildIndexes,
@@ -17,15 +18,19 @@ export type CsvRow = {
   description?: string;
 };
 
-export type DbStage = { id: string; name: string };
-export type DbArtist = { id: string; name: string; slug: string };
-export type DbSet = {
-  id: string;
-  name: string;
-  description: string | null;
-  stage_id: string | null;
-  time_start: string | null;
-  time_end: string | null;
+// Narrow the generated row types to just the columns the diff needs.
+// The diff query selects a subset; mirroring it here keeps the consumer
+// surface tight while still letting tsc catch column drift.
+type StageRow = Database["public"]["Tables"]["stages"]["Row"];
+type ArtistRow = Database["public"]["Tables"]["artists"]["Row"];
+type SetRow = Database["public"]["Tables"]["sets"]["Row"];
+
+export type DbStage = Pick<StageRow, "id" | "name">;
+export type DbArtist = Pick<ArtistRow, "id" | "name" | "slug">;
+export type DbSet = Pick<
+  SetRow,
+  "id" | "name" | "description" | "stage_id" | "time_start" | "time_end"
+> & {
   set_artists: { artist_id: string; artists: DbArtist }[];
 };
 

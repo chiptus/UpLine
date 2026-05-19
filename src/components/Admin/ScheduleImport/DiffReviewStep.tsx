@@ -1,4 +1,5 @@
 import { AlertCircle, Loader2 } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -67,15 +68,11 @@ export function DiffReviewStep({
         />
 
         {commitError && (
-          <div className="flex items-start gap-2 rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-            <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
-            <div>
-              <p className="font-medium">
-                Import failed — no changes were saved.
-              </p>
-              <p className="mt-0.5">{commitError}</p>
-            </div>
-          </div>
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Import failed — no changes were saved.</AlertTitle>
+            <AlertDescription>{commitError}</AlertDescription>
+          </Alert>
         )}
 
         <div className="flex gap-3">

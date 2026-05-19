@@ -56,17 +56,6 @@ jobs:
           deno-version: v2.x
 
       - name: Run Deno tests for Edge Functions
-        # Each function has its own deno.json + deno.lock per Supabase's
-        # recommended layout. Deno's config discovery walks up from CWD, so
-        # we cd into each function directory to pick up its config and lock.
-        #
-        # --no-check skips typechecking the supabase-js dependency tree
-        # (which pulls @types/node and would require a node_modules);
-        # frontend tsc already covers TS validation for code we author.
-        #
-        # Integration tests under commit-schedule auto-skip when
-        # SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY aren't set, so the unit
-        # tests still run while live-DB tests are skipped.
         run: |
           set -e
           for fn in supabase/functions/*/; do

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Archive } from "lucide-react";
+import { formatDateTime } from "@/lib/timeUtils";
 import {
   type DiffResult,
   type OrphanResolution,
@@ -24,16 +25,9 @@ export function OrphanedSetsPanel({
 }: Props) {
   if (orphanedSets.length === 0) return null;
 
-  function allArchived() {
-    return orphanedSets.every(
-      (s) => (resolutions[s.id] ?? "keep") === "archive",
-    );
-  }
-
-  function toggleAll() {
-    const target: OrphanResolution = allArchived() ? "keep" : "archive";
-    orphanedSets.forEach((s) => onChange(s.id, target));
-  }
+  const everyArchived = orphanedSets.every(
+    (s) => (resolutions[s.id] ?? "keep") === "archive",
+  );
 
   return (
     <div className="space-y-3">
@@ -44,7 +38,7 @@ export function OrphanedSetsPanel({
           CSV
         </div>
         <Button variant="ghost" size="sm" onClick={toggleAll}>
-          {allArchived() ? "Keep all" : "Archive all"}
+          {everyArchived ? "Keep all" : "Archive all"}
         </Button>
       </div>
 
@@ -67,6 +61,11 @@ export function OrphanedSetsPanel({
       </div>
     </div>
   );
+
+  function toggleAll() {
+    const target: OrphanResolution = everyArchived ? "keep" : "archive";
+    orphanedSets.forEach((s) => onChange(s.id, target));
+  }
 }
 
 type OrphanedItemProps = {
@@ -83,7 +82,9 @@ function OrphanedItem({
   onChange,
 }: OrphanedItemProps) {
   const isArchive = resolution === "archive";
-  const time = formatTime(set.timeStart, timezone);
+  // Format in the festival timezone so review decisions don't flip across
+  // midnight/DST for admins in a different timezone than the festival.
+  const time = formatDateTime(set.timeStart, false, timezone);
   const switchId = `orphan-${set.id}`;
 
   return (
@@ -106,17 +107,4 @@ function OrphanedItem({
       </div>
     </div>
   );
-}
-
-function formatTime(iso: string | null, timezone: string) {
-  if (!iso) return null;
-  // Format in the festival timezone so review decisions don't flip across
-  // midnight/DST for admins in a different timezone than the festival.
-  return new Date(iso).toLocaleString(undefined, {
-    timeZone: timezone,
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 }

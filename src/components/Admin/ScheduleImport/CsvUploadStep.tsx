@@ -16,17 +16,6 @@ type Props = {
   onDiffReady: (diff: DiffResult, timezone: string) => void;
 };
 
-async function readFile(file: File): Promise<CsvRow[]> {
-  const content = await file.text();
-  const parsed = parseScheduleCsv(content);
-  if (parsed.length === 0) {
-    throw new Error(
-      "No valid rows found. Make sure your CSV has an 'Artists' column.",
-    );
-  }
-  return parsed;
-}
-
 export function CsvUploadStep({ festivalEditionId, onDiffReady }: Props) {
   const [timezone, setTimezone] = useState("Europe/Lisbon");
   const [fileName, setFileName] = useState<string | null>(null);
@@ -80,4 +69,15 @@ export function CsvUploadStep({ festivalEditionId, onDiffReady }: Props) {
       </Button>
     </div>
   );
+}
+
+async function readFile(file: File): Promise<CsvRow[]> {
+  const content = await file.text();
+  const parsed = parseScheduleCsv(content);
+  if (parsed.length === 0) {
+    throw new Error(
+      "No valid rows found. Make sure your CSV has an 'Artists' column.",
+    );
+  }
+  return parsed;
 }

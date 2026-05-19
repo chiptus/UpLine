@@ -28,6 +28,7 @@
     "types:generate:local": "supabase gen types typescript --local > src/integrations/supabase/types.ts",
     "db:sync:staging": "bash scripts/sync-from-prod.sh staging",
     "db:sync:local": "bash scripts/sync-from-prod.sh local",
+    "db:recreate:staging": "bash scripts/recreate-staging.sh",
     "typecheck": "tsc --noEmit --project tsconfig.app.json",
     "prepare": "husky"
   },

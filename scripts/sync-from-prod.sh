@@ -67,10 +67,12 @@ echo "  $TARGET_URL"
 if [[ "$SYNC_AUTH" == "1" ]]; then
   echo "and upsert anonymized auth.users from prod (existing target users kept)."
 fi
-read -r -p "Type 'yes' to continue: " CONFIRM
-if [[ "$CONFIRM" != "yes" ]]; then
-  echo "Aborted."
-  exit 1
+if [[ "${SKIP_CONFIRM:-0}" != "1" ]]; then
+  read -r -p "Type 'yes' to continue: " CONFIRM
+  if [[ "$CONFIRM" != "yes" ]]; then
+    echo "Aborted."
+    exit 1
+  fi
 fi
 
 TMP_DIR="$(mktemp -d -t upline-sync.XXXXXX)"

@@ -5,6 +5,7 @@ import { PostHogProvider } from "posthog-js/react";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 import NotFound from "./pages/NotFound";
+import { RouteLoadingFallback } from "./components/layout/RouteLoadingFallback";
 import "./index.css";
 
 const queryClient = new QueryClient({
@@ -27,6 +28,7 @@ const router = createRouter({
   defaultPreload: "intent",
   defaultPreloadStaleTime: 0,
   defaultNotFoundComponent: NotFound,
+  defaultPendingComponent: RouteLoadingFallback,
   rewrite: {
     input: ({ url }) => {
       if (!url.hostname.includes("getupline.com")) return url;

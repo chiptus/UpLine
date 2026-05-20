@@ -7,7 +7,8 @@ COMMENT ON COLUMN public.festivals.logo_url IS 'URL to the festival logo image s
 
 -- Create the festival-assets storage bucket for storing festival logos
 INSERT INTO storage.buckets (id, name, public)
-VALUES ('festival-assets', 'festival-assets', true);
+VALUES ('festival-assets', 'festival-assets', true)
+ON CONFLICT (id) DO NOTHING;
 
 -- Set up RLS policy for the storage bucket
 -- Allow public read access to all files in the festival-assets bucket

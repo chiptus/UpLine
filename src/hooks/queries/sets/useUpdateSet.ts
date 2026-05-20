@@ -25,7 +25,6 @@ async function updateSet(variables: { id: string; updates: UpdateSetInput }) {
   const { id, updates } = variables;
 
   const updateData: SetUpdate = {
-    updated_at: new Date().toISOString(),
     name: updates.name,
     description: updates.description,
     festival_edition_id: updates.festival_edition_id,

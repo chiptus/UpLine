@@ -14,12 +14,6 @@ export type DbIndexes = {
   setsByArtistKey: Map<string, DbSet[]>;
 };
 
-export type StageResolution =
-  | { kind: "exact"; id: string; name: string }
-  | { kind: "mismatch"; resolvedName: string; closest: DbStage }
-  | { kind: "new"; resolvedName: string }
-  | { kind: "none" };
-
 export function buildIndexes(
   dbStages: DbStage[],
   dbSets: DbSet[],
@@ -41,23 +35,30 @@ export function buildIndexes(
   };
 }
 
+// Pure: returns the slug for every artist name in the row, plus the subset
+// that doesn't already exist in the DB. De-duplicating new artists across
+// rows is the caller's job — this function never mutates its arguments.
 export function resolveArtists(
-  row: CsvRow,
+  artistNames: string[],
   existingSlugs: Set<string>,
-  seenNewSlugs: Set<string>,
-  artistsToCreate: { name: string; slug: string }[],
-): string[] {
+): { slugs: string[]; newArtists: { name: string; slug: string }[] } {
   const slugs: string[] = [];
-  for (const name of row.artists) {
+  const newArtists: { name: string; slug: string }[] = [];
+  for (const name of artistNames) {
     const slug = toSlug(name);
     slugs.push(slug);
-    if (!existingSlugs.has(slug) && !seenNewSlugs.has(slug)) {
-      artistsToCreate.push({ name, slug });
-      seenNewSlugs.add(slug);
+    if (!existingSlugs.has(slug)) {
+      newArtists.push({ name, slug });
     }
   }
-  return slugs;
+  return { slugs, newArtists };
 }
+
+export type StageResolution =
+  | { kind: "exact"; id: string; name: string }
+  | { kind: "mismatch"; resolvedName: string; closest: DbStage }
+  | { kind: "new"; resolvedName: string }
+  | { kind: "none" };
 
 export function resolveStage(
   rawStage: string | undefined,
@@ -72,10 +73,14 @@ export function resolveStage(
     return { kind: "exact", id: exactMatch.id, name: exactMatch.name };
   }
 
+  const strippedInput = strip(lower);
   const closeMatch = dbStages.find((s) => {
-    const a = strip(s.name);
-    const b = strip(lower);
-    return a === b || a.includes(b) || b.includes(a);
+    const strippedDb = strip(s.name);
+    return (
+      strippedDb === strippedInput ||
+      strippedDb.includes(strippedInput) ||
+      strippedInput.includes(strippedDb)
+    );
   });
 
   if (closeMatch) {
@@ -85,7 +90,7 @@ export function resolveStage(
 }
 
 export function computeTimes(
-  row: CsvRow,
+  row: Pick<CsvRow, "date" | "startTime" | "endTime">,
   timezone: string,
 ): { timeStart: string | null; timeEnd: string | null } {
   let timeStart: string | null = null;
@@ -110,21 +115,20 @@ export function findMatchingSet(
   alreadyMatched: Set<string>,
 ): DbSet | null {
   const available = candidates.filter((s) => !alreadyMatched.has(s.id));
-  if (available.length === 0) return null;
-  if (available.length === 1) return available[0];
-  return (
-    (resolvedStageId
-      ? (available.find((s) => s.stage_id === resolvedStageId) ?? null)
-      : null) ??
-    (date
-      ? (available.find(
-          (s) =>
-            s.time_start != null &&
-            utcToLocalDate(s.time_start, timezone) === date,
-        ) ?? null)
-      : null) ??
-    available[0]
-  );
+  if (available.length <= 1) return available[0] ?? null;
+
+  if (resolvedStageId) {
+    const byStage = available.find((s) => s.stage_id === resolvedStageId);
+    if (byStage) return byStage;
+  }
+  if (date) {
+    const byDate = available.find(
+      (s) =>
+        s.time_start != null && utcToLocalDate(s.time_start, timezone) === date,
+    );
+    if (byDate) return byDate;
+  }
+  return available[0];
 }
 
 function strip(s: string): string {

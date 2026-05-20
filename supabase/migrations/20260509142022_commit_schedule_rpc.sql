@@ -160,35 +160,23 @@ BEGIN
 END;
 $$;
 
--- RPC: commit_schedule
--- Executes a fully resolved schedule import inside a single transaction.
--- Called by the commit-schedule Edge Function using the service role key.
-CREATE OR REPLACE FUNCTION public.commit_schedule(
-  p_festival_edition_id  UUID,
-  p_user_id              UUID,
-  p_artists_to_create    JSONB,   -- [{ name, slug }]
-  p_stages_to_create     JSONB,   -- [{ name }]
-  p_sets_to_create       JSONB,   -- [{ name, description, stageName, timeStart, timeEnd, artistSlugs }]
-  p_sets_to_update       JSONB,   -- [{ id, name, description, stageName, timeStart, timeEnd, artistSlugs }]
-  p_set_ids_to_archive   UUID[]
+-- Update existing sets from the payload, re-syncing each set's artist roster.
+-- Raises if a payload id doesn't match a set in the edition. Returns the
+-- number of sets updated.
+CREATE OR REPLACE FUNCTION public.commit_schedule__update_sets(
+  p_festival_edition_id UUID,
+  p_sets_to_update      JSONB
 )
-RETURNS JSONB
+RETURNS INT
 LANGUAGE plpgsql
 SET search_path = public
 AS $$
 DECLARE
-  v_set_elem       JSONB;
-  v_new_set_id     UUID;
-  v_set_id         UUID;
-  v_row_count      INT;
-  v_sets_created   INT := 0;
-  v_sets_updated   INT := 0;
-  v_sets_archived  INT := 0;
+  v_set_elem  JSONB;
+  v_set_id    UUID;
+  v_row_count INT;
+  v_updated   INT := 0;
 BEGIN
-  PERFORM commit_schedule__upsert_artists(p_artists_to_create, p_user_id);
-  PERFORM commit_schedule__upsert_stages(p_festival_edition_id, p_stages_to_create);
-
-  -- Update existing sets
   FOR v_set_elem IN SELECT value FROM jsonb_array_elements(p_sets_to_update) LOOP
     v_set_id := (v_set_elem->>'id')::UUID;
 
@@ -211,14 +199,33 @@ BEGIN
       RAISE EXCEPTION 'Set % not found in edition %', v_set_id, p_festival_edition_id;
     END IF;
 
-    v_sets_updated := v_sets_updated + v_row_count;
+    v_updated := v_updated + v_row_count;
 
     PERFORM commit_schedule__sync_set_artists(
       v_set_id, p_festival_edition_id, v_set_elem->'artistSlugs'
     );
   END LOOP;
 
-  -- Insert new sets
+  RETURN v_updated;
+END;
+$$;
+
+-- Insert new sets from the payload and sync each set's artist roster.
+-- Returns the number of sets created.
+CREATE OR REPLACE FUNCTION public.commit_schedule__create_sets(
+  p_festival_edition_id UUID,
+  p_user_id             UUID,
+  p_sets_to_create      JSONB
+)
+RETURNS INT
+LANGUAGE plpgsql
+SET search_path = public
+AS $$
+DECLARE
+  v_set_elem   JSONB;
+  v_new_set_id UUID;
+  v_created    INT := 0;
+BEGIN
   FOR v_set_elem IN SELECT value FROM jsonb_array_elements(p_sets_to_create) LOOP
     INSERT INTO sets (
       festival_edition_id, name, slug, description, stage_id,
@@ -245,22 +252,77 @@ BEGIN
     SET slug = slug || '-' || SUBSTRING(v_new_set_id::text, 1, 8)
     WHERE id = v_new_set_id;
 
-    v_sets_created := v_sets_created + 1;
+    v_created := v_created + 1;
 
     PERFORM commit_schedule__sync_set_artists(
       v_new_set_id, p_festival_edition_id, v_set_elem->'artistSlugs'
     );
   END LOOP;
 
-  -- Archive orphaned sets
-  IF p_set_ids_to_archive IS NOT NULL AND array_length(p_set_ids_to_archive, 1) > 0 THEN
+  RETURN v_created;
+END;
+$$;
+
+-- Archive sets the diff flagged as orphaned (present in the DB, absent from
+-- the CSV). Returns the number of sets archived.
+CREATE OR REPLACE FUNCTION public.commit_schedule__archive_sets(
+  p_festival_edition_id UUID,
+  p_set_ids_to_archive  UUID[]
+)
+RETURNS INT
+LANGUAGE plpgsql
+SET search_path = public
+AS $$
+DECLARE
+  v_archived INT := 0;
+BEGIN
+  IF p_set_ids_to_archive IS NOT NULL
+     AND array_length(p_set_ids_to_archive, 1) > 0 THEN
     UPDATE sets
     SET archived = true, updated_at = NOW()
     WHERE id = ANY(p_set_ids_to_archive)
       AND festival_edition_id = p_festival_edition_id;
 
-    GET DIAGNOSTICS v_sets_archived = ROW_COUNT;
+    GET DIAGNOSTICS v_archived = ROW_COUNT;
   END IF;
+
+  RETURN v_archived;
+END;
+$$;
+
+-- RPC: commit_schedule
+-- Executes a fully resolved schedule import inside a single transaction.
+-- Called by the commit-schedule Edge Function using the service role key.
+CREATE OR REPLACE FUNCTION public.commit_schedule(
+  p_festival_edition_id  UUID,
+  p_user_id              UUID,
+  p_artists_to_create    JSONB,   -- [{ name, slug }]
+  p_stages_to_create     JSONB,   -- [{ name }]
+  p_sets_to_create       JSONB,   -- [{ name, description, stageName, timeStart, timeEnd, artistSlugs }]
+  p_sets_to_update       JSONB,   -- [{ id, name, description, stageName, timeStart, timeEnd, artistSlugs }]
+  p_set_ids_to_archive   UUID[]
+)
+RETURNS JSONB
+LANGUAGE plpgsql
+SET search_path = public
+AS $$
+DECLARE
+  v_sets_created  INT;
+  v_sets_updated  INT;
+  v_sets_archived INT;
+BEGIN
+  PERFORM commit_schedule__upsert_artists(p_artists_to_create, p_user_id);
+  PERFORM commit_schedule__upsert_stages(p_festival_edition_id, p_stages_to_create);
+
+  v_sets_updated  := commit_schedule__update_sets(
+    p_festival_edition_id, p_sets_to_update
+  );
+  v_sets_created  := commit_schedule__create_sets(
+    p_festival_edition_id, p_user_id, p_sets_to_create
+  );
+  v_sets_archived := commit_schedule__archive_sets(
+    p_festival_edition_id, p_set_ids_to_archive
+  );
 
   RETURN jsonb_build_object(
     'setsCreated', v_sets_created,
@@ -280,6 +342,9 @@ REVOKE EXECUTE ON FUNCTION public.commit_schedule__parse_ts(TEXT) FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.commit_schedule__upsert_artists(JSONB, UUID) FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.commit_schedule__upsert_stages(UUID, JSONB) FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.commit_schedule__sync_set_artists(UUID, UUID, JSONB) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.commit_schedule__update_sets(UUID, JSONB) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.commit_schedule__create_sets(UUID, UUID, JSONB) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.commit_schedule__archive_sets(UUID, UUID[]) FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.commit_schedule(UUID, UUID, JSONB, JSONB, JSONB, JSONB, UUID[]) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION public.commit_schedule__slugify(TEXT) TO service_role;
@@ -288,4 +353,7 @@ GRANT EXECUTE ON FUNCTION public.commit_schedule__parse_ts(TEXT) TO service_role
 GRANT EXECUTE ON FUNCTION public.commit_schedule__upsert_artists(JSONB, UUID) TO service_role;
 GRANT EXECUTE ON FUNCTION public.commit_schedule__upsert_stages(UUID, JSONB) TO service_role;
 GRANT EXECUTE ON FUNCTION public.commit_schedule__sync_set_artists(UUID, UUID, JSONB) TO service_role;
+GRANT EXECUTE ON FUNCTION public.commit_schedule__update_sets(UUID, JSONB) TO service_role;
+GRANT EXECUTE ON FUNCTION public.commit_schedule__create_sets(UUID, UUID, JSONB) TO service_role;
+GRANT EXECUTE ON FUNCTION public.commit_schedule__archive_sets(UUID, UUID[]) TO service_role;
 GRANT EXECUTE ON FUNCTION public.commit_schedule(UUID, UUID, JSONB, JSONB, JSONB, JSONB, UUID[]) TO service_role;

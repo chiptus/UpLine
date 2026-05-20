@@ -153,7 +153,6 @@ export function SetFormDialog({
         data.stage_id && data.stage_id !== "none" ? data.stage_id : null,
       time_start: data.time_start ? toISOString(data.time_start) : null,
       time_end: data.time_end ? toISOString(data.time_end) : null,
-      created_by: user.id,
     };
 
     let setId: string;
@@ -164,7 +163,10 @@ export function SetFormDialog({
       });
       setId = updatedSet.id;
     } else {
-      const newSet = await createSetMutation.mutateAsync(submitData);
+      const newSet = await createSetMutation.mutateAsync({
+        ...submitData,
+        created_by: user.id,
+      });
       setId = newSet.id;
     }
 

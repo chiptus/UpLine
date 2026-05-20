@@ -1,25 +1,45 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 import { generateSlug } from "@/lib/slug";
-import { FestivalSet, setsKeys } from "./useSets";
+import { setsKeys } from "./useSets";
+
+type SetUpdate = Database["public"]["Tables"]["sets"]["Update"];
+
+export type UpdateSetInput = Partial<
+  Pick<
+    SetUpdate,
+    | "name"
+    | "description"
+    | "festival_edition_id"
+    | "stage_id"
+    | "time_start"
+    | "time_end"
+    | "archived"
+  >
+>;
 
 // Mutation function
-async function updateSet(variables: {
-  id: string;
-  updates: Partial<Omit<FestivalSet, "artists" | "votes" | "stages">>;
-}) {
+async function updateSet(variables: { id: string; updates: UpdateSetInput }) {
   const { id, updates } = variables;
 
-  // If name is being updated, regenerate slug
-  const updateData = { ...updates };
-  if (updates.name) {
+  const updateData: SetUpdate = {
+    name: updates.name,
+    description: updates.description,
+    festival_edition_id: updates.festival_edition_id,
+    stage_id: updates.stage_id,
+    time_start: updates.time_start,
+    time_end: updates.time_end,
+    archived: updates.archived,
+  };
+  if (updates.name !== undefined) {
     updateData.slug = generateSlug(updates.name);
   }
 
   const { data, error } = await supabase
     .from("sets")
-    .update({ ...updateData, updated_at: new Date().toISOString() })
+    .update(updateData)
     .eq("id", id)
     .select()
     .single();

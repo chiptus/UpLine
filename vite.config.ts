@@ -23,6 +23,7 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,woff,woff2}"],
         navigateFallback: "/index.html",
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
       },
       includeAssets: [
         "favicon.svg",

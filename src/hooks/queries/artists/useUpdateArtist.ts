@@ -1,12 +1,27 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 import { generateSlug } from "@/lib/slug";
 import { Artist, artistsKeys } from "./useArtists";
 
+type ArtistUpdate = Database["public"]["Tables"]["artists"]["Update"];
+
 export type UpdateArtistUpdates = Partial<
-  Omit<Artist, "artist_music_genres"> & { genre_ids: string[] }
->;
+  Pick<
+    ArtistUpdate,
+    | "name"
+    | "description"
+    | "estimated_date"
+    | "image_url"
+    | "soundcloud_url"
+    | "spotify_url"
+    | "stage"
+    | "time_start"
+    | "time_end"
+    | "archived"
+  >
+> & { genre_ids?: string[] };
 
 // Mutation function
 async function updateArtist(variables: {
@@ -14,20 +29,28 @@ async function updateArtist(variables: {
   updates: UpdateArtistUpdates;
 }): Promise<Omit<Artist, "votes">> {
   const { id, updates } = variables;
-  const { genre_ids, ...rest } = updates;
+  const { genre_ids } = updates;
 
-  // If name is being updated, regenerate slug
-  const updateData = { ...rest };
-  if (updates.name) {
+  const updateData: ArtistUpdate = {
+    updated_at: new Date().toISOString(),
+    name: updates.name,
+    description: updates.description,
+    estimated_date: updates.estimated_date,
+    image_url: updates.image_url,
+    soundcloud_url: updates.soundcloud_url,
+    spotify_url: updates.spotify_url,
+    stage: updates.stage,
+    time_start: updates.time_start,
+    time_end: updates.time_end,
+    archived: updates.archived,
+  };
+  if (updates.name !== undefined) {
     updateData.slug = generateSlug(updates.name);
   }
 
   const { data, error } = await supabase
     .from("artists")
-    .update({
-      ...updateData,
-      updated_at: new Date().toISOString(),
-    })
+    .update(updateData)
     .eq("id", id)
     .select(
       `

@@ -61,7 +61,7 @@ jobs:
           for fn in supabase/functions/*/; do
             if compgen -G "$fn"*.test.ts > /dev/null; then
               echo "::group::deno test $fn"
-              (cd "$fn" && deno test --no-check --allow-env --allow-net --allow-read)
+              (cd "$fn" && deno test --allow-env --allow-net --allow-read)
               echo "::endgroup::"
             fi
           done

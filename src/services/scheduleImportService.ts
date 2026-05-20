@@ -69,6 +69,15 @@ export function parseScheduleCsv(csvContent: string): CsvRow[] {
     transformHeader: (h) => h.trim().toLowerCase(),
   });
 
+  // "Delimiter" errors are benign (a single-column CSV has no delimiter to
+  // auto-detect); quote/field-count errors mean genuinely corrupted rows.
+  const fatalErrors = parsed.errors.filter((e) => e.type !== "Delimiter");
+  if (fatalErrors.length > 0) {
+    const first = fatalErrors[0];
+    const where = first.row != null ? ` (row ${first.row + 1})` : "";
+    throw new Error(`Could not parse CSV${where}: ${first.message}`);
+  }
+
   return parsed.data
     .map((row) => {
       const artists = (row.artists ?? "")

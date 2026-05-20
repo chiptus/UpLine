@@ -88,6 +88,11 @@ $$;
 -- an archived stage with the same (edition, name) would be classified as
 -- new by the diff. DO NOTHING would leave it archived; unarchive so sets
 -- resolve to a visible stage.
+--
+-- The slug is suffixed with an id chunk (same approach as new sets below):
+-- two distinct names can slugify to the same value ("Main Stage" vs
+-- "Main-Stage"), which would otherwise violate stages_slug_festival_edition
+-- _unique and abort the whole import.
 CREATE OR REPLACE FUNCTION public.commit_schedule__upsert_stages(
   p_festival_edition_id UUID,
   p_stages_to_create    JSONB
@@ -101,6 +106,7 @@ AS $$
     p_festival_edition_id,
     elem->>'name',
     commit_schedule__slugify(elem->>'name')
+      || '-' || substr(gen_random_uuid()::text, 1, 8)
   FROM jsonb_array_elements(p_stages_to_create) AS elem
   ON CONFLICT (festival_edition_id, name) DO UPDATE
     SET archived = false;

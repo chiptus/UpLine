@@ -2,12 +2,19 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getAdminClient, requireAdmin, corsHeaders } from "../_shared/auth.ts";
 
+// timeStart/timeEnd arrive as ISO strings or null. Coerce "" (and undefined)
+// to null so the RPC's ::timestamptz cast doesn't choke on an empty string.
+const nullableTimestamp = z
+  .string()
+  .nullish()
+  .transform((v) => v || null);
+
 const setPayloadSchema = z.object({
   name: z.string().min(1),
   description: z.string().nullish(),
   stageName: z.string().nullish(),
-  timeStart: z.string().nullish(),
-  timeEnd: z.string().nullish(),
+  timeStart: nullableTimestamp,
+  timeEnd: nullableTimestamp,
   artistSlugs: z.array(z.string().min(1)).min(1),
 });
 

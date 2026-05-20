@@ -270,3 +270,23 @@ BEGIN
   );
 END;
 $$;
+
+-- commit_schedule and its helpers are only meant to be invoked by the
+-- commit-schedule Edge Function (service role). Postgres grants EXECUTE to
+-- PUBLIC by default; revoke that so an authenticated PostgREST client can't
+-- call the RPC directly and bypass the Edge Function's admin-only gate.
+REVOKE EXECUTE ON FUNCTION public.commit_schedule__slugify(TEXT) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.commit_schedule__resolve_stage_id(UUID, TEXT) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.commit_schedule__parse_ts(TEXT) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.commit_schedule__upsert_artists(JSONB, UUID) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.commit_schedule__upsert_stages(UUID, JSONB) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.commit_schedule__sync_set_artists(UUID, UUID, JSONB) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.commit_schedule(UUID, UUID, JSONB, JSONB, JSONB, JSONB, UUID[]) FROM PUBLIC;
+
+GRANT EXECUTE ON FUNCTION public.commit_schedule__slugify(TEXT) TO service_role;
+GRANT EXECUTE ON FUNCTION public.commit_schedule__resolve_stage_id(UUID, TEXT) TO service_role;
+GRANT EXECUTE ON FUNCTION public.commit_schedule__parse_ts(TEXT) TO service_role;
+GRANT EXECUTE ON FUNCTION public.commit_schedule__upsert_artists(JSONB, UUID) TO service_role;
+GRANT EXECUTE ON FUNCTION public.commit_schedule__upsert_stages(UUID, JSONB) TO service_role;
+GRANT EXECUTE ON FUNCTION public.commit_schedule__sync_set_artists(UUID, UUID, JSONB) TO service_role;
+GRANT EXECUTE ON FUNCTION public.commit_schedule(UUID, UUID, JSONB, JSONB, JSONB, JSONB, UUID[]) TO service_role;

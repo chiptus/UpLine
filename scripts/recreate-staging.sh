@@ -13,8 +13,8 @@
 # Required env vars (put them in scripts/.env.sync, which is gitignored):
 #   STAGING_PROJECT_REF      Supabase project ref for staging
 #   STAGING_DB_PASSWORD      Staging DB password (for `supabase link`)
-#   STAGING_DB_URL           Direct postgres URL for staging
-#   PROD_DB_URL              Direct postgres URL for prod
+#   STAGING_DB_URL           Postgres connection URL for staging
+#   PROD_DB_URL              Postgres connection URL for prod
 #   STAGING_URL              Staging project URL (https://<ref>.supabase.co)
 #   STAGING_SERVICE_ROLE_KEY Staging service role key (for the admin Auth API)
 #

@@ -146,33 +146,11 @@ BEGIN
 END $$;
 SQL
 
-echo "Relaxing artists.slug uniqueness for restore…"
-# Prod may pre-date the slug-dedupe migration, so its data can contain
-# duplicate slugs that would violate the target's constraint. Drop it now
-# and re-add it (with a dedupe pass) after the restore.
-psql "$TARGET_URL" -v ON_ERROR_STOP=1 \
-  -c "ALTER TABLE public.artists DROP CONSTRAINT IF EXISTS artists_slug_unique;"
-
 echo "Restoring dump into target…"
 psql "$TARGET_URL" -v ON_ERROR_STOP=1 <<SQL
 SET session_replication_role = replica;
 \i $DUMP_FILE
 RESET session_replication_role;
-SQL
-
-echo "Deduping artists.slug and restoring uniqueness…"
-psql "$TARGET_URL" -v ON_ERROR_STOP=1 <<'SQL'
-UPDATE public.artists a
-SET slug = a.slug || '-' || a.id::text
-WHERE a.id IN (
-  SELECT id
-  FROM (
-    SELECT id, ROW_NUMBER() OVER (PARTITION BY slug ORDER BY id) AS rn
-    FROM public.artists
-  ) ranked
-  WHERE rn > 1
-);
-ALTER TABLE public.artists ADD CONSTRAINT artists_slug_unique UNIQUE (slug);
 SQL
 
 echo "Running anonymizer on public schema…"

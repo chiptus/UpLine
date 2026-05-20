@@ -16,10 +16,12 @@ export function parseScheduleCsv(csvContent: string): CsvRow[] {
 
   return parsed.data
     .map((row) => {
-      const artists = (row.artists ?? "")
-        .split("|")
-        .map((a) => a.trim())
-        .filter(Boolean);
+      const artists = dedupeArtists(
+        (row.artists ?? "")
+          .split("|")
+          .map((a) => a.trim())
+          .filter(Boolean),
+      );
 
       return {
         artists,
@@ -32,4 +34,16 @@ export function parseScheduleCsv(csvContent: string): CsvRow[] {
       };
     })
     .filter((row) => row.artists.length > 0);
+}
+
+// A B2B cell like "Carl Cox | Carl Cox" must not list the same artist twice:
+// duplicates change the diff's roster key and send duplicate slugs downstream.
+function dedupeArtists(names: string[]): string[] {
+  const seen = new Set<string>();
+  return names.filter((name) => {
+    const key = name.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }

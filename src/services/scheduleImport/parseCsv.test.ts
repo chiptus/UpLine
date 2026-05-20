@@ -58,4 +58,11 @@ describe("parseScheduleCsv", () => {
     const csv = ["Artists,Stage", '"Carl Cox,Main'].join("\n");
     expect(() => parseScheduleCsv(csv)).toThrow(/Could not parse CSV/);
   });
+
+  it("de-duplicates repeated artists within a row (case-insensitive)", () => {
+    const csv = ["Artists,Stage", "Carl Cox | carl cox | Peggy Gou,Main"].join(
+      "\n",
+    );
+    expect(parseScheduleCsv(csv)[0].artists).toEqual(["Carl Cox", "Peggy Gou"]);
+  });
 });

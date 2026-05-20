@@ -21,37 +21,19 @@ async function updateArtist(variables: {
 
   const updateData: ArtistUpdate = {
     updated_at: new Date().toISOString(),
+    name: updates.name,
+    description: updates.description,
+    estimated_date: updates.estimated_date,
+    image_url: updates.image_url,
+    soundcloud_url: updates.soundcloud_url,
+    spotify_url: updates.spotify_url,
+    stage: updates.stage,
+    time_start: updates.time_start,
+    time_end: updates.time_end,
+    archived: updates.archived,
   };
   if (updates.name !== undefined) {
-    updateData.name = updates.name;
     updateData.slug = generateSlug(updates.name);
-  }
-  if (updates.description !== undefined) {
-    updateData.description = updates.description;
-  }
-  if (updates.estimated_date !== undefined) {
-    updateData.estimated_date = updates.estimated_date;
-  }
-  if (updates.image_url !== undefined) {
-    updateData.image_url = updates.image_url;
-  }
-  if (updates.soundcloud_url !== undefined) {
-    updateData.soundcloud_url = updates.soundcloud_url;
-  }
-  if (updates.spotify_url !== undefined) {
-    updateData.spotify_url = updates.spotify_url;
-  }
-  if (updates.stage !== undefined) {
-    updateData.stage = updates.stage;
-  }
-  if (updates.time_start !== undefined) {
-    updateData.time_start = updates.time_start;
-  }
-  if (updates.time_end !== undefined) {
-    updateData.time_end = updates.time_end;
-  }
-  if (updates.archived !== undefined) {
-    updateData.archived = updates.archived;
   }
 
   const { data, error } = await supabase

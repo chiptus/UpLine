@@ -85,39 +85,30 @@ AS $$
 $$;
 
 -- Upsert stages in the import payload. The diff step only loads
--- archived = false stages, so a payload stage that matches an existing one
--- in the edition by name OR by slug is treated as the same stage: just
--- unarchive it. Matching on slug too means two names that slugify to the
--- same value ("Main Stage" vs "Main-Stage") collapse onto one stage instead
--- of violating stages_slug_festival_edition_unique and aborting the import.
+-- archived = false stages, so an archived stage with the same (edition, name)
+-- looks new to the diff; DO UPDATE unarchives it rather than leaving sets
+-- pointed at a hidden stage.
+--
+-- Matching on name alone is enough: slugify and the diff's strip() both
+-- collapse non-alphanumerics, so any two names that would collide on
+-- (edition, slug) also strip-collide and are flagged by the diff as a
+-- mismatch -- they never reach here as a plain new stage.
 CREATE OR REPLACE FUNCTION public.commit_schedule__upsert_stages(
   p_festival_edition_id UUID,
   p_stages_to_create    JSONB
 )
 RETURNS VOID
-LANGUAGE plpgsql
+LANGUAGE sql
 SET search_path = public
 AS $$
-DECLARE
-  v_name TEXT;
-  v_slug TEXT;
-BEGIN
-  FOR v_name IN
-    SELECT elem->>'name' FROM jsonb_array_elements(p_stages_to_create) AS elem
-  LOOP
-    v_slug := commit_schedule__slugify(v_name);
-
-    UPDATE stages
-    SET archived = false
-    WHERE festival_edition_id = p_festival_edition_id
-      AND (name = v_name OR slug = v_slug);
-
-    IF NOT FOUND THEN
-      INSERT INTO stages (festival_edition_id, name, slug)
-      VALUES (p_festival_edition_id, v_name, v_slug);
-    END IF;
-  END LOOP;
-END;
+  INSERT INTO stages (festival_edition_id, name, slug)
+  SELECT
+    p_festival_edition_id,
+    elem->>'name',
+    commit_schedule__slugify(elem->>'name')
+  FROM jsonb_array_elements(p_stages_to_create) AS elem
+  ON CONFLICT (festival_edition_id, name) DO UPDATE
+    SET archived = false;
 $$;
 
 CREATE OR REPLACE FUNCTION public.commit_schedule__sync_set_artists(

@@ -12,7 +12,7 @@ import { AlertTriangle } from "lucide-react";
 import {
   type DiffResult,
   type StageMismatchResolution,
-} from "@/services/scheduleImportService";
+} from "@/services/scheduleImport/types";
 
 type Mismatch = DiffResult["conflicts"]["stageNameMismatches"][number];
 type DbStage = { id: string; name: string };

@@ -2,12 +2,9 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import {
-  parseScheduleCsv,
-  callDiffSchedule,
-  type CsvRow,
-  type DiffResult,
-} from "@/services/scheduleImportService";
+import { parseScheduleCsv } from "@/services/scheduleImport/parseCsv";
+import { callDiffSchedule } from "@/services/scheduleImport/api";
+import { type CsvRow, type DiffResult } from "@/services/scheduleImport/types";
 import { TimezonePicker } from "./TimezonePicker";
 import { CsvDropZone } from "./CsvDropZone";
 

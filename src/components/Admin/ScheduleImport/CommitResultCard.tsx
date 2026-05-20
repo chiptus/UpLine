@@ -1,7 +1,7 @@
 import { CheckCircle2, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { type CommitResult } from "@/services/scheduleImportService";
+import { type CommitResult } from "@/services/scheduleImport/types";
 
 type Props = {
   result: CommitResult;
@@ -17,10 +17,19 @@ export function CommitResultCard({ result, onReset }: Props) {
           <span className="font-medium">Schedule imported successfully</span>
         </div>
         <ul className="text-sm text-muted-foreground space-y-1">
-          <li>{result.setsCreated} set{result.setsCreated !== 1 ? "s" : ""} created</li>
-          <li>{result.setsUpdated} set{result.setsUpdated !== 1 ? "s" : ""} updated</li>
+          <li>
+            {result.setsCreated} set{result.setsCreated !== 1 ? "s" : ""}{" "}
+            created
+          </li>
+          <li>
+            {result.setsUpdated} set{result.setsUpdated !== 1 ? "s" : ""}{" "}
+            updated
+          </li>
           {result.setsArchived > 0 && (
-            <li>{result.setsArchived} set{result.setsArchived !== 1 ? "s" : ""} archived</li>
+            <li>
+              {result.setsArchived} set{result.setsArchived !== 1 ? "s" : ""}{" "}
+              archived
+            </li>
           )}
         </ul>
         <Button variant="outline" onClick={onReset}>

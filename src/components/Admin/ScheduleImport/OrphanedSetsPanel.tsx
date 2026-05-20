@@ -6,7 +6,7 @@ import { formatDateTime } from "@/lib/timeUtils";
 import {
   type DiffResult,
   type OrphanResolution,
-} from "@/services/scheduleImportService";
+} from "@/services/scheduleImport/types";
 
 type OrphanedSet = DiffResult["conflicts"]["orphanedSets"][number];
 

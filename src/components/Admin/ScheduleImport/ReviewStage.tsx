@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { buildCommitPayload } from "@/services/scheduleImport/buildCommitPayload";
+import { callCommitSchedule } from "@/services/scheduleImport/api";
 import {
   type CommitResult,
   type DiffResult,
   type OrphanResolution,
   type StageMismatchResolution,
-  buildCommitPayload,
-  callCommitSchedule,
-} from "@/services/scheduleImportService";
+} from "@/services/scheduleImport/types";
 import { artistsKeys } from "@/hooks/queries/artists/useArtists";
 import { setsKeys } from "@/hooks/queries/sets/useSets";
 import { stagesKeys } from "@/hooks/queries/stages/types";

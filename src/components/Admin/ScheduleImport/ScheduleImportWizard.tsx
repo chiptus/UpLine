@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   type CommitResult,
   type DiffResult,
-} from "@/services/scheduleImportService";
+} from "@/services/scheduleImport/types";
 import { CsvUploadStep } from "./CsvUploadStep";
 import { ReviewStage } from "./ReviewStage";
 import { CommitResultCard } from "./CommitResultCard";

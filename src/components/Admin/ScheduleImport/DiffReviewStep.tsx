@@ -6,7 +6,7 @@ import {
   type DiffResult,
   type StageMismatchResolution,
   type OrphanResolution,
-} from "@/services/scheduleImportService";
+} from "@/services/scheduleImport/types";
 import { DiffSummaryBanner } from "./DiffSummaryBanner";
 import { StageMismatchResolver } from "./StageMismatchResolver";
 import { OrphanedSetsPanel } from "./OrphanedSetsPanel";

@@ -122,8 +122,8 @@ if [[ -z "$USER_ID" ]]; then
 fi
 
 echo "→ Promoting '$ADMIN_EMAIL' to super_admin…"
-psql "$STAGING_DB_URL" -v ON_ERROR_STOP=1 \
-  -c "SELECT public.bootstrap_super_admin('$ADMIN_EMAIL');"
+psql "$STAGING_DB_URL" -v ON_ERROR_STOP=1 -v email="$ADMIN_EMAIL" \
+  -c "SELECT public.bootstrap_super_admin(:'email');"
 
 cat <<MSG
 

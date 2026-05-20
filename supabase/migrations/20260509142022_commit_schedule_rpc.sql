@@ -96,8 +96,11 @@ RETURNS VOID
 LANGUAGE sql
 SET search_path = public
 AS $$
-  INSERT INTO stages (festival_edition_id, name)
-  SELECT p_festival_edition_id, elem->>'name'
+  INSERT INTO stages (festival_edition_id, name, slug)
+  SELECT
+    p_festival_edition_id,
+    elem->>'name',
+    commit_schedule__slugify(elem->>'name')
   FROM jsonb_array_elements(p_stages_to_create) AS elem
   ON CONFLICT (festival_edition_id, name) DO UPDATE
     SET archived = false;

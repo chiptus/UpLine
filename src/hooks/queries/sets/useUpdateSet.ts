@@ -3,15 +3,25 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { generateSlug } from "@/lib/slug";
-import { FestivalSet, setsKeys } from "./useSets";
+import { setsKeys } from "./useSets";
 
 type SetUpdate = Database["public"]["Tables"]["sets"]["Update"];
 
+export type UpdateSetInput = Partial<
+  Pick<
+    SetUpdate,
+    | "name"
+    | "description"
+    | "festival_edition_id"
+    | "stage_id"
+    | "time_start"
+    | "time_end"
+    | "archived"
+  >
+>;
+
 // Mutation function
-async function updateSet(variables: {
-  id: string;
-  updates: Partial<Omit<FestivalSet, "artists" | "votes" | "stages">>;
-}) {
+async function updateSet(variables: { id: string; updates: UpdateSetInput }) {
   const { id, updates } = variables;
 
   const updateData: SetUpdate = {

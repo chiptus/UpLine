@@ -8,8 +8,20 @@ import { Artist, artistsKeys } from "./useArtists";
 type ArtistUpdate = Database["public"]["Tables"]["artists"]["Update"];
 
 export type UpdateArtistUpdates = Partial<
-  Omit<Artist, "artist_music_genres"> & { genre_ids: string[] }
->;
+  Pick<
+    ArtistUpdate,
+    | "name"
+    | "description"
+    | "estimated_date"
+    | "image_url"
+    | "soundcloud_url"
+    | "spotify_url"
+    | "stage"
+    | "time_start"
+    | "time_end"
+    | "archived"
+  >
+> & { genre_ids?: string[] };
 
 // Mutation function
 async function updateArtist(variables: {

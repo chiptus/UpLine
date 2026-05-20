@@ -1,10 +1,5 @@
 import { assertEquals } from "jsr:@std/assert@1";
-import {
-  advanceDateByOne,
-  artistKey,
-  localToUtc,
-  toSlug,
-} from "./diffHelpers.ts";
+import { advanceDateByOne, artistKey, localToUtc, toSlug } from "./helpers.ts";
 
 Deno.test("toSlug converts name to lowercase hyphenated slug", () => {
   assertEquals(toSlug("Carl Cox"), "carl-cox");

@@ -1,11 +1,11 @@
-import type { CsvRow, DbArtist, DbSet, DbStage } from "./diff.ts";
+import type { CsvRow, DbArtist, DbSet, DbStage } from "./types.ts";
 import {
   advanceDateByOne,
   artistKey,
   localToUtc,
   toSlug,
   utcToLocalDate,
-} from "./diffHelpers.ts";
+} from "./helpers.ts";
 
 export type DbIndexes = {
   stageByNameLower: Map<string, DbStage>;
@@ -35,9 +35,6 @@ export function buildIndexes(
   };
 }
 
-// Pure: returns the slug for every artist name in the row, plus the subset
-// that doesn't already exist in the DB. De-duplicating new artists across
-// rows is the caller's job — this function never mutates its arguments.
 export function resolveArtists(
   artistNames: string[],
   existingSlugs: Set<string>,

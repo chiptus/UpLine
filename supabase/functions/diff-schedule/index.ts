@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { getAdminClient, requireAdmin, corsHeaders } from "../_shared/auth.ts";
-import { computeDiff } from "./diff.ts";
+import { computeDiff } from "./computeDiff.ts";
 
 function isValidTimezone(tz: string): boolean {
   try {

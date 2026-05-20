@@ -1,8 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 import { generateSlug } from "@/lib/slug";
 import { Artist, artistsKeys } from "./useArtists";
+
+type ArtistUpdate = Database["public"]["Tables"]["artists"]["Update"];
 
 export type UpdateArtistUpdates = Partial<
   Omit<Artist, "artist_music_genres"> & { genre_ids: string[] }
@@ -14,20 +17,46 @@ async function updateArtist(variables: {
   updates: UpdateArtistUpdates;
 }): Promise<Omit<Artist, "votes">> {
   const { id, updates } = variables;
-  const { genre_ids, soundcloud_followers: _sf, ...rest } = updates;
+  const { genre_ids } = updates;
 
-  // If name is being updated, regenerate slug
-  const updateData = { ...rest };
-  if (updates.name) {
+  const updateData: ArtistUpdate = {
+    updated_at: new Date().toISOString(),
+  };
+  if (updates.name !== undefined) {
+    updateData.name = updates.name;
     updateData.slug = generateSlug(updates.name);
+  }
+  if (updates.description !== undefined) {
+    updateData.description = updates.description;
+  }
+  if (updates.estimated_date !== undefined) {
+    updateData.estimated_date = updates.estimated_date;
+  }
+  if (updates.image_url !== undefined) {
+    updateData.image_url = updates.image_url;
+  }
+  if (updates.soundcloud_url !== undefined) {
+    updateData.soundcloud_url = updates.soundcloud_url;
+  }
+  if (updates.spotify_url !== undefined) {
+    updateData.spotify_url = updates.spotify_url;
+  }
+  if (updates.stage !== undefined) {
+    updateData.stage = updates.stage;
+  }
+  if (updates.time_start !== undefined) {
+    updateData.time_start = updates.time_start;
+  }
+  if (updates.time_end !== undefined) {
+    updateData.time_end = updates.time_end;
+  }
+  if (updates.archived !== undefined) {
+    updateData.archived = updates.archived;
   }
 
   const { data, error } = await supabase
     .from("artists")
-    .update({
-      ...updateData,
-      updated_at: new Date().toISOString(),
-    })
+    .update(updateData)
     .eq("id", id)
     .select(
       `

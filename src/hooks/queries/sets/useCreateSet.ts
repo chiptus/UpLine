@@ -1,8 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 import { generateSlug } from "@/lib/slug";
 import { FestivalSet, setsKeys } from "./useSets";
+
+type SetInsert = Database["public"]["Tables"]["sets"]["Insert"];
 
 // Mutation function
 async function createSet(
@@ -18,16 +21,22 @@ async function createSet(
     | "slug"
   >,
 ): Promise<FestivalSet> {
-  const { stage_name: _sn, ...rest } = setData;
+  const insertData: SetInsert = {
+    name: setData.name,
+    description: setData.description,
+    festival_edition_id: setData.festival_edition_id,
+    stage_id: setData.stage_id,
+    time_start: setData.time_start,
+    time_end: setData.time_end,
+    created_by: setData.created_by,
+    slug: generateSlug(setData.name),
+    archived: false,
+  };
 
   // First, create the set without slug
   const { data, error } = await supabase
     .from("sets")
-    .insert({
-      ...rest,
-      slug: generateSlug(setData.name),
-      archived: false, // Explicit default
-    })
+    .insert(insertData)
     .select()
     .single();
 

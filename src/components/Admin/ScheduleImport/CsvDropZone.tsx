@@ -15,6 +15,8 @@ export function CsvDropZone({ fileName, rowCount, onFileSelected }: Props) {
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) onFileSelected(file);
+    // Clear the value so re-selecting the same file still fires onChange.
+    e.target.value = "";
   }
 
   return (

@@ -31,6 +31,7 @@ export function CsvUploadStep({ festivalEditionId, onDiffReady }: Props) {
   function handleFileSelected(file: File) {
     setFileName(file.name);
     analyseMutation.reset();
+    readFileMutation.reset();
     readFileMutation.mutate(file);
   }
 
@@ -52,7 +53,11 @@ export function CsvUploadStep({ festivalEditionId, onDiffReady }: Props) {
 
       <Button
         onClick={handleAnalyse}
-        disabled={rows.length === 0 || analyseMutation.isPending}
+        disabled={
+          rows.length === 0 ||
+          readFileMutation.isPending ||
+          analyseMutation.isPending
+        }
         className="w-full"
       >
         {analyseMutation.isPending ? (

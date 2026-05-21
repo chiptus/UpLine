@@ -55,12 +55,15 @@ BEGIN
 END;
 $$;
 
+-- Treat NULL, '' and whitespace-only as "no timestamp" so a malformed caller
+-- (the RPC is reachable outside the Edge Function) can't abort the whole
+-- transaction with a cast error on an empty string.
 CREATE OR REPLACE FUNCTION public.commit_schedule__parse_ts(p_value TEXT)
 RETURNS TIMESTAMPTZ
 LANGUAGE sql
 IMMUTABLE
 AS $$
-  SELECT CASE WHEN p_value IS NOT NULL THEN p_value::TIMESTAMPTZ END;
+  SELECT NULLIF(TRIM(p_value), '')::TIMESTAMPTZ;
 $$;
 
 -- Upsert artists in the import payload. The diff step only loads

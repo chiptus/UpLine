@@ -12,8 +12,21 @@ function isValidTimezone(tz: string): boolean {
   }
 }
 
+// Drop case-insensitive duplicates, keeping the first occurrence's casing.
+// Mirrors parseCsv's dedupeArtists so a direct (non-wizard) caller can't skew
+// the diff's roster key or send duplicate slugs downstream.
+function dedupeArtists(names: string[]): string[] {
+  const seen = new Set<string>();
+  return names.filter((name) => {
+    const key = name.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 const csvRowSchema = z.object({
-  artists: z.array(z.string().min(1)).min(1),
+  artists: z.array(z.string().trim().min(1)).min(1).transform(dedupeArtists),
   setName: z.string().optional(),
   stage: z.string().optional(),
   date: z

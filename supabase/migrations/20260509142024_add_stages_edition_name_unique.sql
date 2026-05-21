@@ -4,14 +4,15 @@
 -- if that lands first this migration becomes a no-op.
 --
 -- Dedupe first: any (edition, name) collisions get the offending row's id
--- suffixed onto the stage name.
+-- suffixed onto the stage name. Order by archived ASC so an active stage
+-- keeps the canonical name and an archived duplicate is the one renamed.
 UPDATE public.stages s
 SET name = s.name || ' (' || s.id::text || ')'
 WHERE s.id IN (
   SELECT id
   FROM (
     SELECT id,
-           ROW_NUMBER() OVER (PARTITION BY festival_edition_id, name ORDER BY id) AS rn
+           ROW_NUMBER() OVER (PARTITION BY festival_edition_id, name ORDER BY archived ASC, id) AS rn
     FROM public.stages
   ) ranked
   WHERE rn > 1

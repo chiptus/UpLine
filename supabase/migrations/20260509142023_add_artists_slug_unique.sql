@@ -3,13 +3,15 @@
 -- itself is a table-wide invariant so it lives in its own migration.
 --
 -- Dedupe first: append the full id (guaranteed unique) to any slug with
--- collisions, keeping the row with the lowest id on its original slug.
+-- collisions, keeping the canonical row on its original slug. Order by
+-- archived ASC so an active artist keeps the slug and an archived duplicate
+-- is the one rewritten -- otherwise slug-based links to the active row break.
 UPDATE public.artists a
 SET slug = a.slug || '-' || a.id::text
 WHERE a.id IN (
   SELECT id
   FROM (
-    SELECT id, ROW_NUMBER() OVER (PARTITION BY slug ORDER BY id) AS rn
+    SELECT id, ROW_NUMBER() OVER (PARTITION BY slug ORDER BY archived ASC, id) AS rn
     FROM public.artists
   ) ranked
   WHERE rn > 1

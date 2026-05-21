@@ -81,7 +81,7 @@ SET search_path = public
 AS $$
   INSERT INTO artists (name, slug, added_by)
   SELECT elem->>'name', elem->>'slug', p_user_id
-  FROM jsonb_array_elements(p_artists_to_create) AS elem
+  FROM jsonb_array_elements(COALESCE(p_artists_to_create, '[]'::jsonb)) AS elem
   ON CONFLICT (slug) DO UPDATE
     SET name = EXCLUDED.name,
         archived = false;
@@ -109,7 +109,7 @@ AS $$
     p_festival_edition_id,
     elem->>'name',
     commit_schedule__slugify(elem->>'name')
-  FROM jsonb_array_elements(p_stages_to_create) AS elem
+  FROM jsonb_array_elements(COALESCE(p_stages_to_create, '[]'::jsonb)) AS elem
   ON CONFLICT (festival_edition_id, name) DO UPDATE
     SET archived = false;
 $$;
@@ -180,7 +180,9 @@ DECLARE
   v_row_count INT;
   v_updated   INT := 0;
 BEGIN
-  FOR v_set_elem IN SELECT value FROM jsonb_array_elements(p_sets_to_update) LOOP
+  FOR v_set_elem IN
+    SELECT value FROM jsonb_array_elements(COALESCE(p_sets_to_update, '[]'::jsonb))
+  LOOP
     v_set_id := (v_set_elem->>'id')::UUID;
 
     UPDATE sets
@@ -229,7 +231,9 @@ DECLARE
   v_new_set_id UUID;
   v_created    INT := 0;
 BEGIN
-  FOR v_set_elem IN SELECT value FROM jsonb_array_elements(p_sets_to_create) LOOP
+  FOR v_set_elem IN
+    SELECT value FROM jsonb_array_elements(COALESCE(p_sets_to_create, '[]'::jsonb))
+  LOOP
     INSERT INTO sets (
       festival_edition_id, name, slug, description, stage_id,
       time_start, time_end, created_by

@@ -81,7 +81,9 @@ serve(async (req) => {
           "id, name, description, stage_id, time_start, time_end, set_artists(artist_id, artists(id, name, slug))",
         )
         .eq("festival_edition_id", festivalEditionId)
-        .eq("archived", false),
+        .eq("archived", false)
+        .order("time_start", { nullsFirst: false })
+        .order("id"),
       db.from("artists").select("id, name, slug").eq("archived", false),
     ]);
 

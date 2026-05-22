@@ -65,4 +65,14 @@ describe("parseScheduleCsv", () => {
     );
     expect(parseScheduleCsv(csv)[0].artists).toEqual(["Carl Cox", "Peggy Gou"]);
   });
+
+  it("throws when an artist name has no letters or digits", () => {
+    const csv = ["Artists,Stage", "!!!,Main"].join("\n");
+    expect(() => parseScheduleCsv(csv)).toThrow(/no letters or digits/);
+  });
+
+  it("throws when a stage name has no letters or digits", () => {
+    const csv = ["Artists,Stage", "Carl Cox,---"].join("\n");
+    expect(() => parseScheduleCsv(csv)).toThrow(/no letters or digits/);
+  });
 });

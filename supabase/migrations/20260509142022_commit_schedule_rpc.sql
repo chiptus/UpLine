@@ -58,10 +58,12 @@ $$;
 -- Treat NULL, '' and whitespace-only as "no timestamp" so a malformed caller
 -- (the RPC is reachable outside the Edge Function) can't abort the whole
 -- transaction with a cast error on an empty string.
+-- STABLE, not IMMUTABLE: text -> timestamptz depends on the session TimeZone
+-- when the input carries no explicit offset.
 CREATE OR REPLACE FUNCTION public.commit_schedule__parse_ts(p_value TEXT)
 RETURNS TIMESTAMPTZ
 LANGUAGE sql
-IMMUTABLE
+STABLE
 AS $$
   SELECT NULLIF(TRIM(p_value), '')::TIMESTAMPTZ;
 $$;

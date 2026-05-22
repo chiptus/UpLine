@@ -53,6 +53,12 @@ Deno.test("resolveStage treats an unknown name as new", () => {
   assertEquals(result, { kind: "new", resolvedName: "Secret Forest" });
 });
 
+Deno.test("resolveStage does not substring-match a short DB stage name", () => {
+  const stage = makeStage("s1", "A");
+  const result = resolveStage("Beach", [stage], new Map([["a", stage]]));
+  assertEquals(result, { kind: "new", resolvedName: "Beach" });
+});
+
 Deno.test("resolveStage returns none when no stage given", () => {
   assertEquals(resolveStage(undefined, [], new Map()), { kind: "none" });
 });

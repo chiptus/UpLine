@@ -47,7 +47,9 @@ const csvRowSchema = z.object({
 const diffRequestSchema = z.object({
   festivalEditionId: z.string().uuid(),
   timezone: z.string().min(1).refine(isValidTimezone, "Invalid IANA timezone"),
-  rows: z.array(csvRowSchema),
+  rows: z
+    .array(csvRowSchema)
+    .max(5000, "Too many rows — split the import (max 5000 rows)"),
 });
 
 serve(async (req) => {

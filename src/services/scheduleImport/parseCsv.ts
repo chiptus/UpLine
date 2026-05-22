@@ -14,7 +14,7 @@ export function parseScheduleCsv(csvContent: string): CsvRow[] {
     throw new Error(`Could not parse CSV${where}: ${first.message}`);
   }
 
-  return parsed.data
+  const rows = parsed.data
     .map((row) => {
       const artists = dedupeArtists(
         (row.artists ?? "")
@@ -34,6 +34,30 @@ export function parseScheduleCsv(csvContent: string): CsvRow[] {
       };
     })
     .filter((row) => row.artists.length > 0);
+
+  for (const row of rows) {
+    for (const artist of row.artists) {
+      if (!hasSluggableChars(artist)) {
+        throw new Error(
+          `Artist name "${artist}" has no letters or digits and can't be imported.`,
+        );
+      }
+    }
+    if (row.stage && !hasSluggableChars(row.stage)) {
+      throw new Error(
+        `Stage name "${row.stage}" has no letters or digits and can't be imported.`,
+      );
+    }
+  }
+
+  return rows;
+}
+
+// A name with no [a-z0-9] slugifies to an empty string, which downstream
+// breaks slug-based lookups and the slug unique constraints. Reject it here
+// with a clear message instead of failing opaquely at commit time.
+function hasSluggableChars(value: string): boolean {
+  return /[a-z0-9]/i.test(value);
 }
 
 // A B2B cell like "Carl Cox | Carl Cox" must not list the same artist twice:

@@ -73,10 +73,13 @@ export function resolveStage(
   const strippedInput = strip(lower);
   const closeMatch = dbStages.find((s) => {
     const strippedDb = strip(s.name);
+    if (strippedDb === strippedInput) return true;
+    // Substring matching false-positives on short names (a DB stage "a"
+    // matches any CSV stage containing the letter), so require both
+    // stripped names to be long enough before comparing as substrings.
+    if (strippedDb.length < 3 || strippedInput.length < 3) return false;
     return (
-      strippedDb === strippedInput ||
-      strippedDb.includes(strippedInput) ||
-      strippedInput.includes(strippedDb)
+      strippedDb.includes(strippedInput) || strippedInput.includes(strippedDb)
     );
   });
 

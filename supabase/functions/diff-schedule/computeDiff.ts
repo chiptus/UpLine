@@ -16,76 +16,6 @@ import type {
   SetPayload,
 } from "./types.ts";
 
-// Everything computeDiff accumulates while walking the CSV rows.
-type DiffState = {
-  matchedSetIds: Set<string>;
-  seenNewArtistSlugs: Set<string>;
-  seenNewStageNames: Set<string>;
-  seenMismatchedStages: Set<string>;
-  artistsToCreate: { name: string; slug: string }[];
-  stagesToCreate: { name: string }[];
-  stageNameMismatches: DiffResult["conflicts"]["stageNameMismatches"];
-  setsToCreate: SetPayload[];
-  setsToUpdate: ({ id: string } & SetPayload)[];
-};
-
-function createState(): DiffState {
-  return {
-    matchedSetIds: new Set(),
-    seenNewArtistSlugs: new Set(),
-    seenNewStageNames: new Set(),
-    seenMismatchedStages: new Set(),
-    artistsToCreate: [],
-    stagesToCreate: [],
-    stageNameMismatches: [],
-    setsToCreate: [],
-    setsToUpdate: [],
-  };
-}
-
-// Registers any artists not yet seen across the import as new.
-function collectNewArtists(
-  state: DiffState,
-  newArtists: { name: string; slug: string }[],
-): void {
-  for (const artist of newArtists) {
-    if (!state.seenNewArtistSlugs.has(artist.slug)) {
-      state.seenNewArtistSlugs.add(artist.slug);
-      state.artistsToCreate.push(artist);
-    }
-  }
-}
-
-// Records a stage resolution into state and returns the id/name to use for
-// the row's set payload.
-function applyStageResolution(
-  state: DiffState,
-  stage: StageResolution,
-): { id: string | null; name: string | null } {
-  switch (stage.kind) {
-    case "exact":
-      return { id: stage.id, name: stage.name };
-    case "mismatch":
-      if (!state.seenMismatchedStages.has(stage.resolvedName)) {
-        state.seenMismatchedStages.add(stage.resolvedName);
-        state.stageNameMismatches.push({
-          csvValue: stage.resolvedName,
-          closestDbValue: stage.closest.name,
-          dbStageId: stage.closest.id,
-        });
-      }
-      return { id: null, name: stage.resolvedName };
-    case "new":
-      if (!state.seenNewStageNames.has(stage.resolvedName)) {
-        state.seenNewStageNames.add(stage.resolvedName);
-        state.stagesToCreate.push({ name: stage.resolvedName });
-      }
-      return { id: null, name: stage.resolvedName };
-    case "none":
-      return { id: null, name: null };
-  }
-}
-
 export function computeDiff(
   rows: CsvRow[],
   dbStages: DbStage[],
@@ -161,4 +91,74 @@ export function computeDiff(
     },
     conflicts: { stageNameMismatches: state.stageNameMismatches, orphanedSets },
   };
+}
+
+// Everything computeDiff accumulates while walking the CSV rows.
+type DiffState = {
+  matchedSetIds: Set<string>;
+  seenNewArtistSlugs: Set<string>;
+  seenNewStageNames: Set<string>;
+  seenMismatchedStages: Set<string>;
+  artistsToCreate: { name: string; slug: string }[];
+  stagesToCreate: { name: string }[];
+  stageNameMismatches: DiffResult["conflicts"]["stageNameMismatches"];
+  setsToCreate: SetPayload[];
+  setsToUpdate: ({ id: string } & SetPayload)[];
+};
+
+function createState(): DiffState {
+  return {
+    matchedSetIds: new Set(),
+    seenNewArtistSlugs: new Set(),
+    seenNewStageNames: new Set(),
+    seenMismatchedStages: new Set(),
+    artistsToCreate: [],
+    stagesToCreate: [],
+    stageNameMismatches: [],
+    setsToCreate: [],
+    setsToUpdate: [],
+  };
+}
+
+// Registers any artists not yet seen across the import as new.
+function collectNewArtists(
+  state: DiffState,
+  newArtists: { name: string; slug: string }[],
+): void {
+  for (const artist of newArtists) {
+    if (!state.seenNewArtistSlugs.has(artist.slug)) {
+      state.seenNewArtistSlugs.add(artist.slug);
+      state.artistsToCreate.push(artist);
+    }
+  }
+}
+
+// Records a stage resolution into state and returns the id/name to use for
+// the row's set payload.
+function applyStageResolution(
+  state: DiffState,
+  stage: StageResolution,
+): { id: string | null; name: string | null } {
+  switch (stage.kind) {
+    case "exact":
+      return { id: stage.id, name: stage.name };
+    case "mismatch":
+      if (!state.seenMismatchedStages.has(stage.resolvedName)) {
+        state.seenMismatchedStages.add(stage.resolvedName);
+        state.stageNameMismatches.push({
+          csvValue: stage.resolvedName,
+          closestDbValue: stage.closest.name,
+          dbStageId: stage.closest.id,
+        });
+      }
+      return { id: null, name: stage.resolvedName };
+    case "new":
+      if (!state.seenNewStageNames.has(stage.resolvedName)) {
+        state.seenNewStageNames.add(stage.resolvedName);
+        state.stagesToCreate.push({ name: stage.resolvedName });
+      }
+      return { id: null, name: stage.resolvedName };
+    case "none":
+      return { id: null, name: null };
+  }
 }

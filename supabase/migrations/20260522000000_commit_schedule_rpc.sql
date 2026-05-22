@@ -3,7 +3,7 @@
 --
 -- The ON CONFLICT clauses below rely on artists_slug_unique and
 -- stages_edition_name_unique. The constraints are added in the next two
--- migrations (20260509142023, 20260509142024); ON CONFLICT is resolved at
+-- migrations (20260522000001, 20260522000002); ON CONFLICT is resolved at
 -- function-call time, not at CREATE FUNCTION time, so the ordering is fine.
 
 CREATE OR REPLACE FUNCTION public.commit_schedule__slugify(p_name TEXT)

@@ -127,6 +127,15 @@ DECLARE
   v_input_count    INT;
   v_resolved_count INT;
 BEGIN
+  -- A set must have at least one artist. A NULL/empty roster means a bad
+  -- payload (omitted field, manual call) — bail before the DELETE below
+  -- silently strips the set's roster.
+  IF p_artist_slugs IS NULL
+     OR jsonb_typeof(p_artist_slugs) <> 'array'
+     OR jsonb_array_length(p_artist_slugs) = 0 THEN
+    RAISE EXCEPTION 'Empty artist roster in payload for set %', p_set_id;
+  END IF;
+
   -- Validate that every distinct input slug resolves to an artist before we
   -- delete the existing links. The diff path is supposed to create missing
   -- artists in step 1 of commit_schedule, so a mismatch means a bad payload
@@ -166,6 +175,10 @@ $$;
 -- Update existing sets from the payload, re-syncing each set's artist roster.
 -- Raises if a payload id doesn't match a set in the edition. Returns the
 -- number of sets updated.
+--
+-- stage_id/time_start/time_end are preserved when the payload omits them
+-- (resolves to NULL): a CSV without Date/Time columns corrects names and
+-- rosters without wiping schedule metadata already on the matched sets.
 CREATE OR REPLACE FUNCTION public.commit_schedule__update_sets(
   p_festival_edition_id UUID,
   p_sets_to_update      JSONB
@@ -189,11 +202,18 @@ BEGIN
     SET
       name        = v_set_elem->>'name',
       description = NULLIF(v_set_elem->>'description', ''),
-      stage_id    = commit_schedule__resolve_stage_id(
-        p_festival_edition_id, v_set_elem->>'stageName'
+      stage_id    = COALESCE(
+        commit_schedule__resolve_stage_id(
+          p_festival_edition_id, v_set_elem->>'stageName'
+        ),
+        sets.stage_id
       ),
-      time_start  = commit_schedule__parse_ts(v_set_elem->>'timeStart'),
-      time_end    = commit_schedule__parse_ts(v_set_elem->>'timeEnd'),
+      time_start  = COALESCE(
+        commit_schedule__parse_ts(v_set_elem->>'timeStart'), sets.time_start
+      ),
+      time_end    = COALESCE(
+        commit_schedule__parse_ts(v_set_elem->>'timeEnd'), sets.time_end
+      ),
       updated_at  = NOW()
     WHERE id = v_set_id
       AND festival_edition_id = p_festival_edition_id;

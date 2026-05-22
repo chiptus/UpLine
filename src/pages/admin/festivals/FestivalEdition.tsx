@@ -1,5 +1,5 @@
 import { useParams, useLocation, Outlet, Link } from "@tanstack/react-router";
-import { Loader2, MapPin, Music } from "lucide-react";
+import { Loader2, MapPin, Music, Upload } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useFestivalEditionBySlugQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionBySlug";
 import { cn } from "@/lib/utils";
@@ -44,6 +44,7 @@ export default function FestivalEdition() {
 
   const isOnSets = location.pathname.includes("/sets");
   const isOnStages = location.pathname.includes("/stages");
+  const isOnImport = location.pathname.includes("/import");
 
   return (
     <div className="space-y-6">
@@ -57,7 +58,7 @@ export default function FestivalEdition() {
         </CardHeader>
       </Card>
       <div className="w-full">
-        <div className="grid w-full grid-cols-2 gap-2 bg-white/10 backdrop-blur-md p-1 rounded-lg">
+        <div className="grid w-full grid-cols-3 gap-2 bg-white/10 backdrop-blur-md p-1 rounded-lg">
           <Link
             to="/admin/festivals/$festivalSlug/editions/$editionSlug/stages"
             params={{ festivalSlug, editionSlug }}
@@ -81,6 +82,18 @@ export default function FestivalEdition() {
           >
             <Music className="h-4 w-4" />
             Sets
+          </Link>
+          <Link
+            to="/admin/festivals/$festivalSlug/editions/$editionSlug/import"
+            params={{ festivalSlug, editionSlug }}
+            className={cn(
+              "flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors",
+              "text-white font-medium",
+              isOnImport ? "bg-purple-600" : "hover:bg-white/10",
+            )}
+          >
+            <Upload className="h-4 w-4" />
+            Import
           </Link>
         </div>
 

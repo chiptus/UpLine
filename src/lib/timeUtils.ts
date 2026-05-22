@@ -1,5 +1,5 @@
 import { format, isValid, parseISO, isSameDay } from "date-fns";
-import { fromZonedTime, toZonedTime } from "date-fns-tz";
+import { formatInTimeZone, fromZonedTime, toZonedTime } from "date-fns-tz";
 
 export function formatTimeRange(
   startTime: string | null,
@@ -53,6 +53,7 @@ export function formatTimeRange(
 export function formatDateTime(
   dateTime: string | null,
   use24Hour: boolean = false,
+  timezone?: string,
 ): string | null {
   if (!dateTime) return null;
 
@@ -60,6 +61,7 @@ export function formatDateTime(
   if (!isValid(date)) return null;
 
   const dateTimeFormat = use24Hour ? "MMM d, HH:mm" : "MMM d, h:mm a";
+  if (timezone) return formatInTimeZone(date, timezone, dateTimeFormat);
   return format(date, dateTimeFormat);
 }
 

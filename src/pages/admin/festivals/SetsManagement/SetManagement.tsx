@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Link, useParams } from "@tanstack/react-router";
+import { useParams } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Plus, Music, Upload } from "lucide-react";
+import { Loader2, Plus, Music } from "lucide-react";
 import { FestivalSet } from "@/hooks/queries/sets/useSets";
 import { useSetsByEditionQuery } from "@/hooks/queries/sets/useSetsByEdition";
 import { useDeleteSetMutation } from "@/hooks/queries/sets/useDeleteSet";
@@ -72,19 +72,6 @@ export function SetManagement() {
             Set Management
           </span>
           <div className="flex gap-2">
-            <Button variant="outline" asChild>
-              <Link
-                to="/admin/festivals/$festivalId/$editionId/import"
-                params={{
-                  festivalId: editionQuery.data.festival_id,
-                  editionId: editionQuery.data.id,
-                }}
-                search={{ tab: "sets" }}
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                Import CSV
-              </Link>
-            </Button>
             <Button
               onClick={handleCreate}
               className="bg-purple-600 hover:bg-purple-700"

@@ -42,3 +42,26 @@ jobs:
           name: coverage-report
           path: coverage/
           retention-days: 7
+
+  deno-test:
+    name: Run Edge Function Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v2.x
+
+      - name: Run Deno tests for Edge Functions
+        run: |
+          set -e
+          for fn in supabase/functions/*/; do
+            if compgen -G "$fn"*.test.ts > /dev/null; then
+              echo "::group::deno test $fn"
+              (cd "$fn" && deno test --allow-env --allow-net --allow-read)
+              echo "::endgroup::"
+            fi
+          done

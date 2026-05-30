@@ -27,49 +27,38 @@ describe("isAtLeast", () => {
 });
 
 describe("canShow predicates", () => {
-  it("admins always see everything", () => {
-    expect(canShowDay("draft", true)).toBe(true);
-    expect(canShowStage("draft", true)).toBe(true);
-    expect(canShowTime("draft", true)).toBe(true);
-  });
-
-  it("draft hides everything for non-admins", () => {
-    expect(canShowDay("draft", false)).toBe(false);
-    expect(canShowStage("draft", false)).toBe(false);
-    expect(canShowTime("draft", false)).toBe(false);
+  it("draft hides everything", () => {
+    expect(canShowDay("draft")).toBe(false);
+    expect(canShowStage("draft")).toBe(false);
+    expect(canShowTime("draft")).toBe(false);
   });
 
   it("days exposes day only", () => {
-    expect(canShowDay("days", false)).toBe(true);
-    expect(canShowStage("days", false)).toBe(false);
-    expect(canShowTime("days", false)).toBe(false);
+    expect(canShowDay("days")).toBe(true);
+    expect(canShowStage("days")).toBe(false);
+    expect(canShowTime("days")).toBe(false);
   });
 
   it("stages exposes day + stage, hides time", () => {
-    expect(canShowDay("stages", false)).toBe(true);
-    expect(canShowStage("stages", false)).toBe(true);
-    expect(canShowTime("stages", false)).toBe(false);
+    expect(canShowDay("stages")).toBe(true);
+    expect(canShowStage("stages")).toBe(true);
+    expect(canShowTime("stages")).toBe(false);
   });
 
   it("full exposes everything", () => {
-    expect(canShowDay("full", false)).toBe(true);
-    expect(canShowStage("full", false)).toBe(true);
-    expect(canShowTime("full", false)).toBe(true);
+    expect(canShowDay("full")).toBe(true);
+    expect(canShowStage("full")).toBe(true);
+    expect(canShowTime("full")).toBe(true);
   });
 });
 
 describe("maskSetForReveal", () => {
-  it("returns the set untouched for admins regardless of level", () => {
-    expect(maskSetForReveal(baseSet, "draft", true)).toEqual(baseSet);
-    expect(maskSetForReveal(baseSet, "days", true)).toEqual(baseSet);
+  it("returns the set untouched at full", () => {
+    expect(maskSetForReveal(baseSet, "full")).toEqual(baseSet);
   });
 
-  it("returns the set untouched at full for non-admins", () => {
-    expect(maskSetForReveal(baseSet, "full", false)).toEqual(baseSet);
-  });
-
-  it("nulls everything at draft for non-admins", () => {
-    const masked = maskSetForReveal(baseSet, "draft", false);
+  it("nulls everything at draft", () => {
+    const masked = maskSetForReveal(baseSet, "draft");
     expect(masked.time_start).toBeNull();
     expect(masked.time_end).toBeNull();
     expect(masked.stage_id).toBeNull();
@@ -77,14 +66,14 @@ describe("maskSetForReveal", () => {
   });
 
   it("keeps time_start, nulls time_end and stage_id at days", () => {
-    const masked = maskSetForReveal(baseSet, "days", false);
+    const masked = maskSetForReveal(baseSet, "days");
     expect(masked.time_start).toBe(baseSet.time_start);
     expect(masked.time_end).toBeNull();
     expect(masked.stage_id).toBeNull();
   });
 
   it("keeps time_start and stage_id, nulls time_end at stages", () => {
-    const masked = maskSetForReveal(baseSet, "stages", false);
+    const masked = maskSetForReveal(baseSet, "stages");
     expect(masked.time_start).toBe(baseSet.time_start);
     expect(masked.time_end).toBeNull();
     expect(masked.stage_id).toBe(baseSet.stage_id);
@@ -92,7 +81,7 @@ describe("maskSetForReveal", () => {
 
   it("does not mutate the original set", () => {
     const original = { ...baseSet };
-    maskSetForReveal(baseSet, "draft", false);
+    maskSetForReveal(baseSet, "draft");
     expect(baseSet).toEqual(original);
   });
 });

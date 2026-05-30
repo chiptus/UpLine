@@ -13,16 +13,16 @@ export function isAtLeast(level: RevealLevel, threshold: RevealLevel): boolean {
   return ORDER[level] >= ORDER[threshold];
 }
 
-export function canShowDay(level: RevealLevel, isAdmin: boolean): boolean {
-  return isAdmin || isAtLeast(level, "days");
+export function canShowDay(level: RevealLevel): boolean {
+  return isAtLeast(level, "days");
 }
 
-export function canShowStage(level: RevealLevel, isAdmin: boolean): boolean {
-  return isAdmin || isAtLeast(level, "stages");
+export function canShowStage(level: RevealLevel): boolean {
+  return isAtLeast(level, "stages");
 }
 
-export function canShowTime(level: RevealLevel, isAdmin: boolean): boolean {
-  return isAdmin || isAtLeast(level, "full");
+export function canShowTime(level: RevealLevel): boolean {
+  return isAtLeast(level, "full");
 }
 
 export type MaskableSet = {
@@ -34,14 +34,13 @@ export type MaskableSet = {
 export function maskSetForReveal<T extends MaskableSet>(
   set: T,
   level: RevealLevel,
-  isAdmin: boolean,
 ): T {
-  if (isAdmin || level === "full") return set;
+  if (level === "full") return set;
 
   return {
     ...set,
-    stage_id: canShowStage(level, isAdmin) ? set.stage_id : null,
-    time_start: canShowDay(level, isAdmin) ? set.time_start : null,
-    time_end: canShowTime(level, isAdmin) ? set.time_end : null,
+    stage_id: canShowStage(level) ? set.stage_id : null,
+    time_start: canShowDay(level) ? set.time_start : null,
+    time_end: canShowTime(level) ? set.time_end : null,
   };
 }

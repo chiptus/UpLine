@@ -14,11 +14,11 @@ export function useScheduleReveal() {
 
   return {
     level,
-    canShowDay: canShowDay(level, false),
-    canShowStage: canShowStage(level, false),
-    canShowTime: canShowTime(level, false),
+    canShowDay: canShowDay(level),
+    canShowStage: canShowStage(level),
+    canShowTime: canShowTime(level),
     maskSet<T extends MaskableSet>(set: T): T {
-      return maskSetForReveal(set, level, false);
+      return maskSetForReveal(set, level);
     },
   };
 }

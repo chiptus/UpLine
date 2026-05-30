@@ -2,18 +2,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { festivalsKeys } from "../types";
+import type { Database } from "@/integrations/supabase/types";
+
+type UpdateEditionData =
+  Database["public"]["Tables"]["festival_editions"]["Update"];
 
 async function updateFestivalEdition(
   editionId: string,
-  editionData: {
-    name: string;
-    slug: string;
-    start_date: string | null;
-    end_date: string | null;
-    description?: string | null;
-    year?: number;
-    published?: boolean;
-  },
+  editionData: UpdateEditionData,
 ) {
   const { data, error } = await supabase
     .from("festival_editions")
@@ -36,15 +32,7 @@ export function useUpdateFestivalEditionMutation() {
       editionData,
     }: {
       editionId: string;
-      editionData: {
-        name: string;
-        slug: string;
-        start_date: string | null;
-        end_date: string | null;
-        description?: string | null;
-        year?: number;
-        published?: boolean;
-      };
+      editionData: UpdateEditionData;
     }) => updateFestivalEdition(editionId, editionData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: festivalsKeys.all() });

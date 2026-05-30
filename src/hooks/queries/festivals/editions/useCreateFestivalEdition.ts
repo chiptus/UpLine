@@ -2,6 +2,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { festivalsKeys } from "../types";
+import type { Database } from "@/integrations/supabase/types";
+
+type RevealLevel = Database["public"]["Enums"]["schedule_reveal_level"];
 
 async function createFestivalEdition(editionData: {
   name: string;
@@ -12,6 +15,7 @@ async function createFestivalEdition(editionData: {
   description?: string | null;
   year: number;
   published?: boolean;
+  schedule_reveal_level?: RevealLevel;
 }) {
   const { data, error } = await supabase
     .from("festival_editions")

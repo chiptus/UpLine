@@ -2,6 +2,7 @@ import { ScheduleNavigation } from "./ScheduleTab/ScheduleNavigation";
 import { Outlet } from "@tanstack/react-router";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { PageTitle } from "@/components/PageTitle/PageTitle";
+import { ScheduleRevealAdminPanel } from "./ScheduleTab/ScheduleRevealAdminPanel";
 
 export function ScheduleTab() {
   const { festival } = useFestivalEdition();
@@ -10,6 +11,7 @@ export function ScheduleTab() {
     <>
       <PageTitle title="Schedule" prefix={festival?.name} />
       <div className="space-y-3 md:space-y-6">
+        <ScheduleRevealAdminPanel />
         <ScheduleNavigation />
 
         <Outlet />

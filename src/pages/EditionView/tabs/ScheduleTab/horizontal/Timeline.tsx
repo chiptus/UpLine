@@ -9,6 +9,7 @@ import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
 import { format } from "date-fns";
 import { useStagesByEditionQuery } from "@/hooks/queries/stages/useStagesByEdition";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
+import { ScheduleNotRevealedPlaceholder } from "../ScheduleNotRevealedPlaceholder";
 
 export function Timeline() {
   const { edition } = useFestivalEdition();
@@ -117,11 +118,7 @@ export function Timeline() {
   // The timeline view is only meaningful at the 'full' reveal level (exact times revealed).
   // At lower levels show the placeholder; multi-mode rendering for days/stages is tracked separately.
   if (!canShowTime) {
-    return (
-      <div className="text-center text-purple-300 py-12">
-        <p>Schedule not yet published.</p>
-      </div>
-    );
+    return <ScheduleNotRevealedPlaceholder />;
   }
 
   return (

@@ -8,6 +8,7 @@ import type { ScheduleSet } from "@/hooks/useScheduleData";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
 import { useStagesByEditionQuery } from "@/hooks/queries/stages/useStagesByEdition";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
+import { ScheduleNotRevealedPlaceholder } from "../ScheduleNotRevealedPlaceholder";
 
 interface TimeSlot {
   time: Date;
@@ -144,11 +145,7 @@ export function ListSchedule() {
   }
 
   if (!canShowTime) {
-    return (
-      <div className="text-center text-purple-300 py-12">
-        <p>Schedule not yet published.</p>
-      </div>
-    );
+    return <ScheduleNotRevealedPlaceholder />;
   }
 
   if (!timeSlots.length) {

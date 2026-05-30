@@ -4,18 +4,25 @@ import {
   type CommitResult,
   type DiffResult,
 } from "@/services/scheduleImport/types";
+import type { RevealLevel } from "@/lib/scheduleReveal";
 import { CsvUploadStep } from "./CsvUploadStep";
 import { ReviewStage } from "./ReviewStage";
 import { CommitResultCard } from "./CommitResultCard";
 
-type Props = { festivalEditionId: string };
+type Props = {
+  festivalEditionId: string;
+  currentRevealLevel: RevealLevel;
+};
 
 type WizardState =
   | { step: "upload" }
   | { step: "review"; diff: DiffResult; timezone: string }
   | { step: "result"; result: CommitResult };
 
-export function ScheduleImportWizard({ festivalEditionId }: Props) {
+export function ScheduleImportWizard({
+  festivalEditionId,
+  currentRevealLevel,
+}: Props) {
   const [state, setState] = useState<WizardState>({ step: "upload" });
 
   function reset() {
@@ -46,6 +53,7 @@ export function ScheduleImportWizard({ festivalEditionId }: Props) {
         festivalEditionId={festivalEditionId}
         diff={state.diff}
         timezone={state.timezone}
+        currentRevealLevel={currentRevealLevel}
         onCommitted={(result) => setState({ step: "result", result })}
         onReset={reset}
       />

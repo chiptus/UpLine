@@ -1,4 +1,4 @@
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, AlertTriangle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +7,7 @@ import {
   type StageMismatchResolution,
   type OrphanResolution,
 } from "@/services/scheduleImport/types";
+import type { RevealLevel } from "@/lib/scheduleReveal";
 import { DiffSummaryBanner } from "./DiffSummaryBanner";
 import { StageMismatchResolver } from "./StageMismatchResolver";
 import { OrphanedSetsPanel } from "./OrphanedSetsPanel";
@@ -29,6 +30,14 @@ type Props = {
   committing: boolean;
   commitError: string | null;
   canCommit: boolean;
+  currentRevealLevel: RevealLevel;
+};
+
+const LEVEL_DESCRIPTION: Record<RevealLevel, string> = {
+  draft: "draft (not visible to the public)",
+  days: "days revealed",
+  stages: "stages revealed",
+  full: "full schedule revealed",
 };
 
 export function DiffReviewStep({
@@ -44,7 +53,9 @@ export function DiffReviewStep({
   committing,
   commitError,
   canCommit,
+  currentRevealLevel,
 }: Props) {
+  const showLiveWarning = currentRevealLevel !== "draft";
   return (
     <Card>
       <CardHeader>
@@ -66,6 +77,25 @@ export function DiffReviewStep({
           resolutions={orphanResolutions}
           onChange={onOrphanChange}
         />
+
+        {showLiveWarning && (
+          <Alert>
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>
+              Schedule is {LEVEL_DESCRIPTION[currentRevealLevel]}.
+            </AlertTitle>
+            <AlertDescription>
+              Committing will update what the public sees immediately:{" "}
+              {diff.summary.setsToCreate} new ·{" "}
+              {diff.cleanOperations.setsToUpdate.length} updated ·{" "}
+              {
+                Object.values(orphanResolutions).filter((r) => r === "archive")
+                  .length
+              }{" "}
+              archived.
+            </AlertDescription>
+          </Alert>
+        )}
 
         {commitError && (
           <Alert variant="destructive">

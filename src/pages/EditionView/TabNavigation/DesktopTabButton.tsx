@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Link, useParams } from "@tanstack/react-router";
 import { TabButtonProps } from "./types";
+import { ScheduleTabIndicator } from "./ScheduleTabIndicator";
 
 const tabRoutes = {
   sets: "/festivals/$festivalSlug/editions/$editionSlug/sets",
@@ -38,7 +39,10 @@ export function DesktopTabButton({ config }: TabButtonProps) {
         ),
       }}
     >
-      <config.icon className="h-5 w-5" />
+      <span className="relative inline-flex">
+        <config.icon className="h-5 w-5" />
+        {config.key === "schedule" && <ScheduleTabIndicator />}
+      </span>
       <span className="font-medium">{config.label}</span>
     </Link>
   );

@@ -11,6 +11,6 @@ Festivals progressively reveal their schedule in phases (lineup → days → sta
 
 ## Consequences
 
-- Reading set timing/stage fields for non-admins must be column-masked based on the edition's reveal level. RLS alone can't mask columns, so the implementation will need a view (or RPC) that returns nulled fields when the viewer is non-admin and the level doesn't yet expose them.
+- Reading set timing/stage fields for non-admins is masked **on the client** based on the edition's reveal level. We deliberately chose this over a server-side view for simplicity. The trade-off: the embargoed fields (`time_start` time-of-day, `time_end`, `stage_id`) are still sent on the wire — anyone with devtools or direct Supabase access can read them. Acceptable because the schedule is embargoed, not secret. If we ever need true leak-proofness, the upgrade path is a `public_sets` view + revoke of public SELECT on `sets`.
 - "Stages always implies days" is enforced by the ordering. If we ever need "stages without days," the enum must be replaced with independent flags — that's a breaking change.
 - The Schedule tab's UI for `days` and `stages` is deliberately deferred: it shows the existing "coming soon" placeholder until `full`, while the progressive reveal manifests on Artist-tab SetCards. A multi-mode Schedule tab is tracked as a separate task.

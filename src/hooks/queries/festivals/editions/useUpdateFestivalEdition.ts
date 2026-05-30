@@ -36,6 +36,7 @@ export function useUpdateFestivalEditionMutation() {
     }) => updateFestivalEdition(editionId, editionData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: festivalsKeys.all() });
+      queryClient.invalidateQueries({ queryKey: ["festival-editions"] });
       toast({
         title: "Success",
         description: "Festival edition updated successfully",

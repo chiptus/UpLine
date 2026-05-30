@@ -1,4 +1,4 @@
-import { AlertCircle, AlertTriangle, Loader2 } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import type { RevealLevel } from "@/lib/scheduleReveal";
 import { DiffSummaryBanner } from "./DiffSummaryBanner";
 import { StageMismatchResolver } from "./StageMismatchResolver";
 import { OrphanedSetsPanel } from "./OrphanedSetsPanel";
+import { LiveCommitWarning } from "./LiveCommitWarning";
 
 type DbStage = { id: string; name: string };
 
@@ -33,13 +34,6 @@ type Props = {
   currentRevealLevel: RevealLevel;
 };
 
-const LEVEL_DESCRIPTION: Record<RevealLevel, string> = {
-  draft: "draft (not visible to the public)",
-  days: "days revealed",
-  stages: "stages revealed",
-  full: "full schedule revealed",
-};
-
 export function DiffReviewStep({
   diff,
   timezone,
@@ -55,7 +49,9 @@ export function DiffReviewStep({
   canCommit,
   currentRevealLevel,
 }: Props) {
-  const showLiveWarning = currentRevealLevel !== "draft";
+  const setsToArchive = Object.values(orphanResolutions).filter(
+    (r) => r === "archive",
+  ).length;
   return (
     <Card>
       <CardHeader>
@@ -78,24 +74,12 @@ export function DiffReviewStep({
           onChange={onOrphanChange}
         />
 
-        {showLiveWarning && (
-          <Alert>
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>
-              Schedule is {LEVEL_DESCRIPTION[currentRevealLevel]}.
-            </AlertTitle>
-            <AlertDescription>
-              Committing will update what the public sees immediately:{" "}
-              {diff.summary.setsToCreate} new ·{" "}
-              {diff.cleanOperations.setsToUpdate.length} updated ·{" "}
-              {
-                Object.values(orphanResolutions).filter((r) => r === "archive")
-                  .length
-              }{" "}
-              archived.
-            </AlertDescription>
-          </Alert>
-        )}
+        <LiveCommitWarning
+          level={currentRevealLevel}
+          setsToCreate={diff.summary.setsToCreate}
+          setsToUpdate={diff.cleanOperations.setsToUpdate.length}
+          setsToArchive={setsToArchive}
+        />
 
         {commitError && (
           <Alert variant="destructive">

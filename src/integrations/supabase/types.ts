@@ -257,6 +257,7 @@ export type Database = {
           location: string | null;
           name: string;
           published: boolean | null;
+          schedule_reveal_level: Database["public"]["Enums"]["schedule_reveal_level"];
           slug: string;
           start_date: string | null;
           updated_at: string;
@@ -273,6 +274,7 @@ export type Database = {
           location?: string | null;
           name: string;
           published?: boolean | null;
+          schedule_reveal_level?: Database["public"]["Enums"]["schedule_reveal_level"];
           slug: string;
           start_date?: string | null;
           updated_at?: string;
@@ -289,6 +291,7 @@ export type Database = {
           location?: string | null;
           name?: string;
           published?: boolean | null;
+          schedule_reveal_level?: Database["public"]["Enums"]["schedule_reveal_level"];
           slug?: string;
           start_date?: string | null;
           updated_at?: string;
@@ -833,6 +836,7 @@ export type Database = {
     Enums: {
       admin_role: "super_admin" | "admin" | "moderator";
       link_type: "website" | "tickets" | "custom";
+      schedule_reveal_level: "draft" | "days" | "stages" | "full";
     };
     CompositeTypes: {
       [_ in never]: never;

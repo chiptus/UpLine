@@ -27,17 +27,11 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Loader2, Plus, Edit2, Trash2, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { generateSlug, isValidSlug, sanitizeSlug } from "@/lib/slug";
 import type { Database } from "@/integrations/supabase/types";
+import { ScheduleRevealLevelField } from "./ScheduleRevealLevelField";
 
 type RevealLevel = Database["public"]["Enums"]["schedule_reveal_level"];
 
@@ -366,42 +360,13 @@ export function FestivalEditionManagement({
                       : "Only visible to admins"}
                   </p>
                 </div>
-                <div>
-                  <Label htmlFor="schedule_reveal_level">Schedule reveal</Label>
-                  <Select
-                    value={formData.schedule_reveal_level}
-                    onValueChange={(value) =>
-                      setFormData({
-                        ...formData,
-                        schedule_reveal_level: value as RevealLevel,
-                      })
-                    }
-                  >
-                    <SelectTrigger id="schedule_reveal_level">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="draft">
-                        Draft — nothing revealed
-                      </SelectItem>
-                      <SelectItem value="days">
-                        Days — date visible, stage and time hidden
-                      </SelectItem>
-                      <SelectItem value="stages">
-                        Stages — date and stage visible, time hidden
-                      </SelectItem>
-                      <SelectItem value="full">
-                        Full — exact times revealed
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {!formData.published &&
-                    formData.schedule_reveal_level !== "draft" && (
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Configured but not active — edition is not published.
-                      </p>
-                    )}
-                </div>
+                <ScheduleRevealLevelField
+                  value={formData.schedule_reveal_level}
+                  onChange={(level) =>
+                    setFormData({ ...formData, schedule_reveal_level: level })
+                  }
+                  editionPublished={formData.published}
+                />
                 <div className="flex justify-end gap-2">
                   <Button
                     type="button"

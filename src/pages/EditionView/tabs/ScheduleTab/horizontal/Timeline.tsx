@@ -115,8 +115,6 @@ export function Timeline() {
     );
   }
 
-  // The timeline view is only meaningful at the 'full' reveal level (exact times revealed).
-  // At lower levels show the placeholder; multi-mode rendering for days/stages is tracked separately.
   if (!canShowTime) {
     return <ScheduleNotRevealedPlaceholder />;
   }

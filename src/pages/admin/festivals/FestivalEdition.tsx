@@ -3,6 +3,7 @@ import { Loader2, MapPin, Music, Upload } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useFestivalEditionBySlugQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionBySlug";
 import { cn } from "@/lib/utils";
+import { ScheduleRevealControl } from "./ScheduleRevealControl";
 
 export default function FestivalEdition() {
   const { festivalSlug, editionSlug } = useParams({
@@ -50,10 +51,15 @@ export default function FestivalEdition() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
+          <CardTitle className="flex flex-wrap items-center justify-between gap-3">
             <span className="flex items-center gap-2">
               Edition: {currentEdition.name}
             </span>
+            <ScheduleRevealControl
+              editionId={currentEdition.id}
+              level={currentEdition.schedule_reveal_level ?? "draft"}
+              editionPublished={currentEdition.published ?? false}
+            />
           </CardTitle>
         </CardHeader>
       </Card>

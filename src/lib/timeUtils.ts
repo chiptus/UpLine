@@ -135,6 +135,18 @@ export function combineDateAndTime(
   return `${datePart} ${timePart}`;
 }
 
+export function formatDayOnly(
+  dateTime: string | null,
+  timezone?: string,
+): string | null {
+  if (!dateTime) return null;
+  const date = parseISO(dateTime);
+  if (!isValid(date)) return null;
+  const dayFormat = "EEE, MMM d";
+  if (timezone) return formatInTimeZone(date, timezone, dayFormat);
+  return format(date, dayFormat);
+}
+
 export function convertLocalTimeToUTC(
   timeString: string | undefined,
   timezone: string,

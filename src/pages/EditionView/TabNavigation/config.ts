@@ -7,6 +7,7 @@ import {
   MessageSquareIcon,
 } from "lucide-react";
 import { TabConfig } from "./types";
+import { ScheduleTabIndicator } from "./ScheduleTabIndicator";
 
 export const config: TabConfig[] = [
   {
@@ -22,6 +23,7 @@ export const config: TabConfig[] = [
     label: "Schedule",
     shortLabel: "Schedule",
     enabled: true,
+    Indicator: ScheduleTabIndicator,
   },
   {
     icon: HeartIcon,

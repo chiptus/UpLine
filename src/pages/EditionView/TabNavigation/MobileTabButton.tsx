@@ -1,6 +1,5 @@
 import { Link, useParams, useMatchRoute } from "@tanstack/react-router";
 import { TabButtonProps } from "./types";
-import { ScheduleTabIndicator } from "./ScheduleTabIndicator";
 
 const tabRoutes = {
   sets: "/festivals/$festivalSlug/editions/$editionSlug/sets",
@@ -31,7 +30,7 @@ export function MobileTabButton({ config }: TabButtonProps) {
         <config.icon
           className={`h-6 w-6 ${isActive ? "text-purple-400" : "text-gray-400"}`}
         />
-        {config.key === "schedule" && <ScheduleTabIndicator />}
+        {config.Indicator && <config.Indicator />}
       </span>
       <span
         className={`text-xs font-medium text-center leading-tight ${isActive ? "text-purple-400" : "text-gray-400"}`}

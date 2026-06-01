@@ -40,7 +40,17 @@ export function maskSetForReveal<T extends MaskableSet>(
   return {
     ...set,
     stage_id: canShowStage(level) ? set.stage_id : null,
-    time_start: canShowDay(level) ? set.time_start : null,
+    time_start: maskTimeStart(set.time_start, level),
     time_end: canShowTime(level) ? set.time_end : null,
   };
+}
+
+function maskTimeStart(
+  timeStart: string | null,
+  level: RevealLevel,
+): string | null {
+  if (timeStart === null) return null;
+  if (!canShowDay(level)) return null;
+  if (canShowTime(level)) return timeStart;
+  return timeStart.slice(0, 10) + "T00:00:00";
 }

@@ -65,16 +65,16 @@ describe("maskSetForReveal", () => {
     expect(masked.name).toBe(baseSet.name);
   });
 
-  it("keeps time_start, nulls time_end and stage_id at days", () => {
+  it("keeps date portion of time_start, nulls time_end and stage_id at days", () => {
     const masked = maskSetForReveal(baseSet, "days");
-    expect(masked.time_start).toBe(baseSet.time_start);
+    expect(masked.time_start).toBe("2025-08-01T00:00:00");
     expect(masked.time_end).toBeNull();
     expect(masked.stage_id).toBeNull();
   });
 
-  it("keeps time_start and stage_id, nulls time_end at stages", () => {
+  it("keeps date portion of time_start and stage_id, nulls time_end at stages", () => {
     const masked = maskSetForReveal(baseSet, "stages");
-    expect(masked.time_start).toBe(baseSet.time_start);
+    expect(masked.time_start).toBe("2025-08-01T00:00:00");
     expect(masked.time_end).toBeNull();
     expect(masked.stage_id).toBe(baseSet.stage_id);
   });

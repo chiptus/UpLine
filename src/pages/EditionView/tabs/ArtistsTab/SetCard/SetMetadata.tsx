@@ -1,13 +1,15 @@
 import { Clock } from "lucide-react";
-import { formatTimeRange } from "@/lib/timeUtils";
+import { formatDayOnly, formatTimeRange } from "@/lib/timeUtils";
 import { GenreBadge } from "@/components/GenreBadge";
 import { StageBadge } from "@/components/StageBadge";
 import { useFestivalSet } from "../FestivalSetContext";
 import { useStageQuery } from "@/hooks/queries/stages/useStageQuery";
+import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 
 export function SetMetadata() {
   const { set, use24Hour } = useFestivalSet();
-  const stageQuery = useStageQuery(set?.stage_id);
+  const { canShowStage, canShowDay, canShowTime } = useScheduleReveal();
+  const stageQuery = useStageQuery(canShowStage ? set?.stage_id : null);
   const uniqueGenres = set.artists
     ?.flatMap((a) => a.artist_music_genres || [])
     .filter(
@@ -16,11 +18,12 @@ export function SetMetadata() {
         index,
     );
 
-  const timeRangeFormatted = formatTimeRange(
-    set.time_start,
-    set.time_end,
-    use24Hour,
-  );
+  const timeRangeFormatted = canShowTime
+    ? formatTimeRange(set.time_start, set.time_end, use24Hour)
+    : null;
+
+  const dayOnlyFormatted =
+    canShowDay && !canShowTime ? formatDayOnly(set.time_start) : null;
 
   return (
     <div className="flex items-center flex-wrap gap-2">
@@ -39,7 +42,7 @@ export function SetMetadata() {
 
       {/* Stage and Time Information */}
       <div className="flex flex-wrap gap-2 items-center">
-        {stageQuery.data && (
+        {canShowStage && stageQuery.data && (
           <StageBadge
             stageName={stageQuery.data.name}
             stageColor={stageQuery.data.color || undefined}
@@ -50,6 +53,12 @@ export function SetMetadata() {
           <div className="flex items-center gap-1 text-sm text-purple-200">
             <Clock className="h-3 w-3" />
             <span>{timeRangeFormatted}</span>
+          </div>
+        )}
+        {dayOnlyFormatted && (
+          <div className="flex items-center gap-1 text-sm text-purple-200">
+            <Clock className="h-3 w-3" />
+            <span>{dayOnlyFormatted}</span>
           </div>
         )}
       </div>

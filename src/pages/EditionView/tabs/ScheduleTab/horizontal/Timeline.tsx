@@ -8,9 +8,12 @@ import { useSetsByEditionQuery as useEditionSetsQuery } from "@/hooks/queries/se
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
 import { format } from "date-fns";
 import { useStagesByEditionQuery } from "@/hooks/queries/stages/useStagesByEdition";
+import { useScheduleReveal } from "@/hooks/useScheduleReveal";
+import { ScheduleNotRevealedPlaceholder } from "../ScheduleNotRevealedPlaceholder";
 
 export function Timeline() {
   const { edition } = useFestivalEdition();
+  const { canShowTime } = useScheduleReveal();
   const { data: editionSets = [], isLoading: setsLoading } =
     useEditionSetsQuery(edition?.id);
   const stagesQuery = useStagesByEditionQuery(edition?.id);
@@ -112,13 +115,8 @@ export function Timeline() {
     );
   }
 
-  // Check if schedule is published
-  if (!edition?.published) {
-    return (
-      <div className="text-center text-purple-300 py-12">
-        <p>Schedule not yet published.</p>
-      </div>
-    );
+  if (!canShowTime) {
+    return <ScheduleNotRevealedPlaceholder />;
   }
 
   return (

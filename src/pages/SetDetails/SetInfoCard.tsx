@@ -10,10 +10,11 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, ExternalLink, Music, Play } from "lucide-react";
 import { SetVotingButtons } from "./SetVotingButtons";
 import { FestivalSet } from "@/hooks/queries/sets/useSets";
-import { formatTimeRange } from "@/lib/timeUtils";
+import { formatDayOnly, formatTimeRange } from "@/lib/timeUtils";
 import { GenreBadge } from "@/components/GenreBadge";
 import { StagePin } from "@/components/StagePin";
 import { MarkdownText } from "@/components/ui/markdown-text";
+import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 
 interface SetInfoCardProps {
   set: FestivalSet;
@@ -27,6 +28,12 @@ export function SetInfoCard({
   use24Hour = false,
 }: SetInfoCardProps) {
   const artist = set.artists[0];
+  const { canShowStage, canShowDay, canShowTime } = useScheduleReveal();
+  const timeRangeFormatted = canShowTime
+    ? formatTimeRange(set.time_start, set.time_end, use24Hour)
+    : null;
+  const dayOnlyFormatted =
+    canShowDay && !canShowTime ? formatDayOnly(set.time_start) : null;
   return (
     <div className="lg:col-span-2">
       <Card className="bg-white/10 backdrop-blur-md border-purple-400/30 h-full">
@@ -60,13 +67,17 @@ export function SetInfoCard({
 
               {/* Performance Information */}
               <div className="flex flex-wrap gap-4 mb-4 text-purple-200">
-                <StagePin stageId={set.stage_id} />
-                {formatTimeRange(set.time_start, set.time_end, use24Hour) && (
+                {canShowStage && <StagePin stageId={set.stage_id} />}
+                {timeRangeFormatted && (
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4" />
-                    <span className="text-sm">
-                      {formatTimeRange(set.time_start, set.time_end, use24Hour)}
-                    </span>
+                    <span className="text-sm">{timeRangeFormatted}</span>
+                  </div>
+                )}
+                {dayOnlyFormatted && (
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    <span className="text-sm">{dayOnlyFormatted}</span>
                   </div>
                 )}
               </div>

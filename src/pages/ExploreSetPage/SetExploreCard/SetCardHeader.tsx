@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Clock } from "lucide-react";
 import { StageBadge } from "@/components/StageBadge";
 import { useStageQuery } from "@/hooks/queries/stages/useStageQuery";
+import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 
 interface SetCardHeaderProps {
   stageId?: string;
@@ -9,7 +10,8 @@ interface SetCardHeaderProps {
 }
 
 export function SetCardHeader({ stageId, timeStart }: SetCardHeaderProps) {
-  const stageQuery = useStageQuery(stageId);
+  const { canShowStage, canShowDay, canShowTime } = useScheduleReveal();
+  const stageQuery = useStageQuery(canShowStage ? stageId : null);
 
   function formatTime(dateString: string | null) {
     if (!dateString) return "";
@@ -31,24 +33,29 @@ export function SetCardHeader({ stageId, timeStart }: SetCardHeaderProps) {
     });
   }
 
+  const dateLabel = canShowDay ? formatDate(timeStart) : "";
+  const timeLabel = canShowTime && timeStart ? formatTime(timeStart) : "";
+
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <Badge
-          variant="secondary"
-          className="bg-purple-600/80 text-white border-0"
-        >
-          {formatDate(timeStart)}
-        </Badge>
-        {timeStart && (
+        {dateLabel && (
+          <Badge
+            variant="secondary"
+            className="bg-purple-600/80 text-white border-0"
+          >
+            {dateLabel}
+          </Badge>
+        )}
+        {timeLabel && (
           <div className="flex items-center text-sm text-gray-300">
             <Clock className="h-4 w-4 mr-1" />
-            {formatTime(timeStart)}
+            {timeLabel}
           </div>
         )}
       </div>
 
-      {stageQuery.data && (
+      {canShowStage && stageQuery.data && (
         <StageBadge
           stageName={stageQuery.data.name}
           stageColor={stageQuery.data.color || undefined}

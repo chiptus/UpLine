@@ -20,5 +20,10 @@ export const Route = createFileRoute(
 
 function FestivalScheduleImport() {
   const edition = Route.useLoaderData();
-  return <ScheduleImportWizard festivalEditionId={edition.id} />;
+  return (
+    <ScheduleImportWizard
+      festivalEditionId={edition.id}
+      currentRevealLevel={edition.schedule_reveal_level ?? "draft"}
+    />
+  );
 }

@@ -7,9 +7,11 @@ import {
   type StageMismatchResolution,
   type OrphanResolution,
 } from "@/services/scheduleImport/types";
+import type { RevealLevel } from "@/lib/scheduleReveal";
 import { DiffSummaryBanner } from "./DiffSummaryBanner";
 import { StageMismatchResolver } from "./StageMismatchResolver";
 import { OrphanedSetsPanel } from "./OrphanedSetsPanel";
+import { LiveCommitWarning } from "./LiveCommitWarning";
 
 type DbStage = { id: string; name: string };
 
@@ -29,6 +31,7 @@ type Props = {
   committing: boolean;
   commitError: string | null;
   canCommit: boolean;
+  currentRevealLevel: RevealLevel;
 };
 
 export function DiffReviewStep({
@@ -44,7 +47,11 @@ export function DiffReviewStep({
   committing,
   commitError,
   canCommit,
+  currentRevealLevel,
 }: Props) {
+  const setsToArchive = Object.values(orphanResolutions).filter(
+    (r) => r === "archive",
+  ).length;
   return (
     <Card>
       <CardHeader>
@@ -65,6 +72,13 @@ export function DiffReviewStep({
           timezone={timezone}
           resolutions={orphanResolutions}
           onChange={onOrphanChange}
+        />
+
+        <LiveCommitWarning
+          level={currentRevealLevel}
+          setsToCreate={diff.summary.setsToCreate}
+          setsToUpdate={diff.cleanOperations.setsToUpdate.length}
+          setsToArchive={setsToArchive}
         />
 
         {commitError && (

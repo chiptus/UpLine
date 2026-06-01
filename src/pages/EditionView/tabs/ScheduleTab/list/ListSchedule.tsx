@@ -7,6 +7,8 @@ import { TimeSlotGroup } from "./TimeSlotGroup";
 import type { ScheduleSet } from "@/hooks/useScheduleData";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
 import { useStagesByEditionQuery } from "@/hooks/queries/stages/useStagesByEdition";
+import { useScheduleReveal } from "@/hooks/useScheduleReveal";
+import { ScheduleNotRevealedPlaceholder } from "../ScheduleNotRevealedPlaceholder";
 
 interface TimeSlot {
   time: Date;
@@ -15,6 +17,7 @@ interface TimeSlot {
 
 export function ListSchedule() {
   const { edition } = useFestivalEdition();
+  const { canShowTime } = useScheduleReveal();
   const { data: editionSets = [], isLoading: setsLoading } =
     useEditionSetsQuery(edition?.id);
   const stagesQuery = useStagesByEditionQuery(edition?.id);
@@ -141,12 +144,8 @@ export function ListSchedule() {
     );
   }
 
-  if (!edition?.published) {
-    return (
-      <div className="text-center text-purple-300 py-12">
-        <p>Schedule not yet published.</p>
-      </div>
-    );
+  if (!canShowTime) {
+    return <ScheduleNotRevealedPlaceholder />;
   }
 
   if (!timeSlots.length) {

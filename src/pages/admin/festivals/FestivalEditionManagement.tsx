@@ -30,6 +30,10 @@ import { Switch } from "@/components/ui/switch";
 import { Loader2, Plus, Edit2, Trash2, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { generateSlug, isValidSlug, sanitizeSlug } from "@/lib/slug";
+import type { Database } from "@/integrations/supabase/types";
+import { ScheduleRevealLevelField } from "./ScheduleRevealLevelField";
+
+type RevealLevel = Database["public"]["Enums"]["schedule_reveal_level"];
 
 interface EditionFormData {
   name: string;
@@ -38,6 +42,7 @@ interface EditionFormData {
   start_date?: string;
   end_date?: string;
   published: boolean;
+  schedule_reveal_level: RevealLevel;
 }
 
 export function FestivalEditionManagement({
@@ -69,6 +74,7 @@ export function FestivalEditionManagement({
     start_date: "",
     end_date: "",
     published: false,
+    schedule_reveal_level: "draft",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [slugError, setSlugError] = useState("");
@@ -102,6 +108,7 @@ export function FestivalEditionManagement({
       start_date: "",
       end_date: "",
       published: false,
+      schedule_reveal_level: "draft",
     });
     setEditingEdition(null);
     setSlugError("");
@@ -120,6 +127,7 @@ export function FestivalEditionManagement({
       start_date: edition.start_date || "",
       end_date: edition.end_date || "",
       published: edition.published || false,
+      schedule_reveal_level: edition.schedule_reveal_level ?? "draft",
     });
     setEditingEdition(edition);
     setSlugError("");
@@ -352,6 +360,13 @@ export function FestivalEditionManagement({
                       : "Only visible to admins"}
                   </p>
                 </div>
+                <ScheduleRevealLevelField
+                  value={formData.schedule_reveal_level}
+                  onChange={(level) =>
+                    setFormData({ ...formData, schedule_reveal_level: level })
+                  }
+                  editionPublished={formData.published}
+                />
                 <div className="flex justify-end gap-2">
                   <Button
                     type="button"

@@ -12,12 +12,14 @@ import { artistsKeys } from "@/hooks/queries/artists/useArtists";
 import { setsKeys } from "@/hooks/queries/sets/useSets";
 import { stagesKeys } from "@/hooks/queries/stages/types";
 import { useStagesByEditionQuery } from "@/hooks/queries/stages/useStagesByEdition";
+import type { RevealLevel } from "@/lib/scheduleReveal";
 import { DiffReviewStep } from "./DiffReviewStep";
 
 type Props = {
   festivalEditionId: string;
   diff: DiffResult;
   timezone: string;
+  currentRevealLevel: RevealLevel;
   onCommitted: (result: CommitResult) => void;
   onReset: () => void;
 };
@@ -26,6 +28,7 @@ export function ReviewStage({
   festivalEditionId,
   diff,
   timezone,
+  currentRevealLevel,
   onCommitted,
   onReset,
 }: Props) {
@@ -90,6 +93,7 @@ export function ReviewStage({
       committing={commitMutation.isPending}
       commitError={commitMutation.error?.message ?? null}
       canCommit={canCommit}
+      currentRevealLevel={currentRevealLevel}
     />
   );
 }

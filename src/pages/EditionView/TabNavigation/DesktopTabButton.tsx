@@ -38,7 +38,10 @@ export function DesktopTabButton({ config }: TabButtonProps) {
         ),
       }}
     >
-      <config.icon className="h-5 w-5" />
+      <span className="relative inline-flex">
+        <config.icon className="h-5 w-5" />
+        {config.Indicator && <config.Indicator />}
+      </span>
       <span className="font-medium">{config.label}</span>
     </Link>
   );

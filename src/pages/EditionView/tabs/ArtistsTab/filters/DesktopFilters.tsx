@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import type { FilterSortState } from "@/hooks/useUrlState";
 import { useStagesByEditionQuery } from "@/hooks/queries/stages/useStagesByEdition";
+import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 
 interface DesktopFiltersProps {
   state: FilterSortState;
@@ -15,6 +16,7 @@ export function DesktopFilters({
   onStateChange,
   editionId,
 }: DesktopFiltersProps) {
+  const { canShowStage } = useScheduleReveal();
   const { data: stages = [], isLoading: stagesLoading } =
     useStagesByEditionQuery(editionId);
 
@@ -35,32 +37,34 @@ export function DesktopFilters({
   return (
     <div className="space-y-4">
       {/* Stage Filter */}
-      <div>
-        <h4 className="text-sm font-medium text-purple-200 mb-2">Stages</h4>
-        <div className="flex flex-wrap gap-2">
-          {stagesLoading ? (
-            <div className="text-sm text-purple-300">Loading stages...</div>
-          ) : (
-            stages.map((stage) => (
-              <Button
-                key={stage.id}
-                variant={
-                  state.stages.includes(stage.id) ? "default" : "outline"
-                }
-                size="sm"
-                onClick={() => handleStageToggle(stage.id)}
-                className={
-                  state.stages.includes(stage.id)
-                    ? "bg-purple-600 hover:bg-purple-700"
-                    : "border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white"
-                }
-              >
-                {stage.name}
-              </Button>
-            ))
-          )}
+      {canShowStage && (
+        <div>
+          <h4 className="text-sm font-medium text-purple-200 mb-2">Stages</h4>
+          <div className="flex flex-wrap gap-2">
+            {stagesLoading ? (
+              <div className="text-sm text-purple-300">Loading stages...</div>
+            ) : (
+              stages.map((stage) => (
+                <Button
+                  key={stage.id}
+                  variant={
+                    state.stages.includes(stage.id) ? "default" : "outline"
+                  }
+                  size="sm"
+                  onClick={() => handleStageToggle(stage.id)}
+                  className={
+                    state.stages.includes(stage.id)
+                      ? "bg-purple-600 hover:bg-purple-700"
+                      : "border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white"
+                  }
+                >
+                  {stage.name}
+                </Button>
+              ))
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Genre Filter */}
       <div>

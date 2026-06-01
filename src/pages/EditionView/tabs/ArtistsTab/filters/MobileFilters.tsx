@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/select";
 import type { FilterSortState } from "@/hooks/useUrlState";
 import { useStagesByEditionQuery } from "@/hooks/queries/stages/useStagesByEdition";
+import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 
 interface MobileFiltersProps {
   state: FilterSortState;
@@ -21,6 +22,7 @@ export function MobileFilters({
   onStateChange,
   editionId,
 }: MobileFiltersProps) {
+  const { canShowStage } = useScheduleReveal();
   const { data: stages = [], isLoading: stagesLoading } =
     useStagesByEditionQuery(editionId);
 
@@ -43,37 +45,43 @@ export function MobileFilters({
   return (
     <div className="space-y-4">
       {/* Stage Filter Select */}
-      <div>
-        <h4 className="text-sm font-medium text-purple-200 mb-2">Stage</h4>
-        <Select
-          value={state.stages.length === 1 ? state.stages[0] : "all"}
-          onValueChange={handleStageSelect}
-        >
-          <SelectTrigger className="w-full bg-white/10 border-purple-400/30 text-purple-100">
-            <SelectValue placeholder="All Stages" />
-          </SelectTrigger>
-          <SelectContent className="bg-gray-800 border-purple-400/30">
-            <SelectItem value="all" className="text-purple-100">
-              All Stages
-            </SelectItem>
-            {stagesLoading ? (
-              <SelectItem value="loading" disabled className="text-purple-300">
-                Loading stages...
+      {canShowStage && (
+        <div>
+          <h4 className="text-sm font-medium text-purple-200 mb-2">Stage</h4>
+          <Select
+            value={state.stages.length === 1 ? state.stages[0] : "all"}
+            onValueChange={handleStageSelect}
+          >
+            <SelectTrigger className="w-full bg-white/10 border-purple-400/30 text-purple-100">
+              <SelectValue placeholder="All Stages" />
+            </SelectTrigger>
+            <SelectContent className="bg-gray-800 border-purple-400/30">
+              <SelectItem value="all" className="text-purple-100">
+                All Stages
               </SelectItem>
-            ) : (
-              stages.map((stage) => (
+              {stagesLoading ? (
                 <SelectItem
-                  key={stage.id}
-                  value={stage.id}
-                  className="text-purple-100"
+                  value="loading"
+                  disabled
+                  className="text-purple-300"
                 >
-                  {stage.name}
+                  Loading stages...
                 </SelectItem>
-              ))
-            )}
-          </SelectContent>
-        </Select>
-      </div>
+              ) : (
+                stages.map((stage) => (
+                  <SelectItem
+                    key={stage.id}
+                    value={stage.id}
+                    className="text-purple-100"
+                  >
+                    {stage.name}
+                  </SelectItem>
+                ))
+              )}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       {/* Genre Filter Select */}
       <div>

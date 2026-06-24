@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, useParams } from "@tanstack/react-router";
 import { FestivalEditionProvider } from "@/contexts/FestivalEditionContext";
-import { festivalsKeys } from "@/hooks/queries/festivals/types";
-import { fetchFestivalBySlug } from "@/hooks/queries/festivals/useFestivalBySlug";
+import { festivalsKeys } from "@/api/festivals/types";
+import { fetchFestivalBySlug } from "@/api/festivals/useFestivalBySlug";
 
 export const Route = createFileRoute("/festivals/$festivalSlug")({
   loader: async ({ params, context }) => {

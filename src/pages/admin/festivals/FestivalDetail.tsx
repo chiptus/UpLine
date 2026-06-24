@@ -4,7 +4,7 @@ import { FestivalEditionManagement } from "./FestivalEditionManagement";
 import { FestivalInfoDetails } from "@/pages/admin/festivals/info/FestivalInfoDetails";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useFestivalBySlugQuery } from "@/hooks/queries/festivals/useFestivalBySlug";
+import { useFestivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 import { Loader2, Info, ChevronDown, ChevronUp } from "lucide-react";
 
 export default function FestivalDetail() {

@@ -1,6 +1,6 @@
-import { useFestivalsQuery } from "@/hooks/queries/festivals/useFestivals";
-import { useDeleteFestivalMutation } from "@/hooks/queries/festivals/useDeleteFestival";
-import { Festival } from "@/hooks/queries/festivals/types";
+import { useFestivalsQuery } from "@/api/festivals/useFestivals";
+import { useDeleteFestivalMutation } from "@/api/festivals/useDeleteFestival";
+import { Festival } from "@/api/festivals/types";
 import {
   Table,
   TableBody,

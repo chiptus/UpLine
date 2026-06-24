@@ -134,7 +134,7 @@ src/api/festivals/
    reads to `useSuspenseQuery`, add an `errorComponent`. `enabled`/conditional
    queries stay `useQuery` (see caveat 2).
 3. **Effort 3 — Auth hoist** (enables auth-dependent queries in the router). See
-   below; this is its own design and ADR.
+   below; tracked as its own follow-up ticket (#50).
 
 Restructure slices land first; router slices follow. Do **not** combine a
 feature's restructure and its router change in the same slice.
@@ -202,7 +202,7 @@ Per feature, on routes that own the data:
   (`$festivalSlug` → `$editionSlug` → `$setSlug`). This is the reference
   implementation reviewers sign off on before rollout.
 
-### Effort 3 — Auth hoist (separate; its own design + ADR)
+### Effort 3 — Auth hoist (separate; tracked in #50)
 
 Build per the **Auth hoist** decision above. Sequence the reactivity carefully
 (`router.invalidate()` on auth state change) and verify the 23 `useAuth`

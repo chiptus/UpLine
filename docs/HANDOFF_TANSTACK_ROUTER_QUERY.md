@@ -1,28 +1,31 @@
-# Handoff: Adopt TanStack Router + Query patterns
+# Handoff: API modules + TanStack Router/Query adoption
 
 **Branch:** `claude/tanstack-router-query-stuAq`
 **Status:** Plan only — no code changes made yet.
 **Reference:** [TkDodo — "TanStack Router and Query"](https://tkdodo.eu/blog/tan-stack-router-and-query)
 
-This document hands off a migration to deepen the integration between TanStack
-Router and TanStack Query, following TkDodo's recommended patterns. Read it
-top-to-bottom before touching code; the **Caveats** section is load-bearing.
+This plan was refined in a grilling session. It now has **three sequential
+efforts**, not one. Read top-to-bottom before touching code; the **Caveats** and
+**Decisions** sections are load-bearing.
 
 ---
 
 ## TL;DR
 
 The app is already on TanStack Router (file-based routing, `routeTree.gen.ts`)
-and the *basic* Router+Query wiring exists. What's missing are the three deeper
-patterns from the blog:
+with basic Router+Query wiring. Three deeper patterns from the blog are missing
+(`queryOptions` factories, loader prefetch via `ensureQueryData`,
+`useSuspenseQuery`), and adopting them well first means **restructuring the data
+layer** into self-contained, feature-sliced API modules.
 
-1. `queryOptions()` factories (single source of truth for a query) — **0 usages today**
-2. Route `loader`s prefetching via `queryClient.ensureQueryData` — **only 2 of ~80 routes**
-3. `useSuspenseQuery` in components — **0 usages today**
+The work is split into three efforts, done in order:
 
-Goal: remove the duplication between query hooks and loaders, and let data load
-through the router (prefetch in loader → guaranteed-available data in component),
-while keeping TanStack Query as the cache / source of truth.
+1. **Restructure** `src/hooks/queries/` → `src/api/` (mechanical, no behavior change)
+2. **Router adoption** — loaders + `useSuspenseQuery` per feature
+3. **Auth hoist** — session into router context so auth queries can prefetch
+
+Each effort is done **feature-by-feature**, and the three efforts are kept
+**separate** (don't bundle a restructure and a router change in one slice).
 
 ---
 
@@ -30,36 +33,137 @@ while keeping TanStack Query as the cache / source of truth.
 
 Already in place:
 
-- ✅ `QueryClient` passed via router `context` — `src/main.tsx`
-  ```ts
-  const router = createRouter({ routeTree, context: { queryClient }, defaultPreload: "intent", ... });
-  ```
+- ✅ `QueryClient` passed via router `context`, `defaultPreload: "intent"`,
+  `defaultPreloadStaleTime: 0` — `src/main.tsx`
 - ✅ `createRootRouteWithContext<{ queryClient: QueryClient }>()` — `src/routes/__root.tsx`
-- ✅ Query-key factories per feature — e.g. `src/hooks/queries/festivals/types.ts` (`festivalsKeys`)
-- ✅ `fetchX` functions separated from `useXQuery` hooks — e.g. `fetchFestivalBySlug` in `useFestivalBySlug.ts`
-- ✅ `defaultPreload: "intent"` and global `defaultPendingComponent: RouteLoadingFallback`, `defaultNotFoundComponent: NotFound`
+- ✅ Global `defaultPendingComponent: RouteLoadingFallback`, `defaultNotFoundComponent: NotFound`
+- ✅ Query-key factories per feature — e.g. `festivalsKeys` in `src/hooks/queries/festivals/types.ts`
+- ✅ `fetchX` functions separated from `useXQuery` hooks — e.g. `fetchFestivalBySlug`
 
-Not yet adopted:
+Not yet adopted (verified counts):
 
-- ❌ `queryOptions()` factories (`grep -rn "queryOptions(" src` → 0)
-- ❌ `useSuspenseQuery` (`grep -rn "useSuspenseQuery" src` → 0)
-- ❌ Loaders only on 2 routes:
+- ❌ `queryOptions()` factories — **0 usages**
+- ❌ `useSuspenseQuery` — **0 usages**
+- ❌ Loaders on only **2** routes, both inlining `{ queryKey, queryFn }`:
   - `src/routes/festivals/$festivalSlug.tsx`
   - `src/routes/admin/festivals/$festivalSlug/editions/$editionSlug/import.tsx`
 
-Both existing loaders **inline** `{ queryKey, queryFn }`, duplicating what the
-hooks already define — exactly the duplication `queryOptions` removes.
-
 ### Scale
-~73 files under `src/hooks/queries/`, ~80 route files under `src/routes/`.
+
+- **73** files under `src/hooks/queries/`
+- **31** route files (`*.tsx`) under `src/routes/`
+- **25** files in `src/hooks/queries/` use an `enabled:` guard (conditional queries)
+- `staleTime: 5_000` global default in `main.tsx`
+
+---
+
+## Decisions (locked in the grilling session)
+
+### Target structure: `src/api/`, feature-sliced, flattened
+
+- The data layer moves from `src/hooks/queries/` to **`src/api/`**. It is the
+  central data-access module; it no longer lives under `hooks/` because each
+  file is now more than a hook.
+- **Flat**: one directory per feature. Today's nested sub-features are promoted
+  to top-level siblings:
+  - `festivals/editions/` → `editions/`
+  - `artists/notes/` → `artist-notes/`
+  - `groups/invites/` → `invites/`
+  - The two loose root files (`useAdminRolesQuery.ts`, `useInviteValidationQuery.ts`)
+    get their own feature folders.
+
+### Per-feature layout
+
+```
+src/api/festivals/
+  types.ts              // entity Row type (Festival) + key factory (festivalsKeys)
+  useFestivalBySlug.ts  // per-endpoint types + fetch + queryOptions factory + hook
+  useFestivals.ts
+  useCreateFestival.ts
+  ...
+```
+
+- **`types.ts` (shared, per feature):** holds the entity Row type (`Festival`,
+  imported by ~10+ UI files outside the folder) **and** the query-key factory
+  (`festivalsKeys`, shared across endpoints and across features — e.g. edition
+  mutations invalidate `festivalsKeys.all()`).
+- **One file per endpoint**, keeping the existing **`use`-prefixed filename**
+  (`useFestivalBySlug.ts`). Each file is self-contained and holds, together:
+  1. the endpoint's own request/response types (e.g. `CreateFestivalInput`)
+  2. the `fetchX` / mutate function
+  3. a **per-file `queryOptions` factory export** (e.g. `festivalBySlugQuery(slug)`)
+  4. the hook, consuming its own factory
+
+  ```ts
+  // src/api/festivals/useFestivalBySlug.ts
+  import { queryOptions, useQuery } from "@tanstack/react-query";
+  import { supabase } from "@/integrations/supabase/client";
+  import { Festival, festivalsKeys } from "./types";
+
+  export async function fetchFestivalBySlug(slug: string): Promise<Festival> {
+    const { data, error } = await supabase
+      .from("festivals").select("*")
+      .eq("archived", false).eq("slug", slug).single();
+    if (error) throw new Error("Failed to load festival");
+    return data;
+  }
+
+  export function festivalBySlugQuery(slug: string) {
+    return queryOptions({
+      queryKey: festivalsKeys.bySlug(slug),
+      queryFn: () => fetchFestivalBySlug(slug),
+    });
+  }
+
+  export function useFestivalBySlugQuery(slug: string | undefined) {
+    return useQuery({ ...festivalBySlugQuery(slug!), enabled: !!slug });
+  }
+  ```
+
+  This breaks the import cycle the original plan worried about: the factory and
+  the hook live together, and both import keys/types from the pure `types.ts`.
+
+### Sequencing: three separate, vertical efforts
+
+1. **Effort 1 — Restructure** (`src/hooks/queries/` → `src/api/`). Feature by
+   feature: move files, add per-file `queryOptions` factories, repoint hooks to
+   consume their own factory, update consumer import paths. **No behavior
+   change.** This is the big mechanical, reviewable diff.
+2. **Effort 2 — Router adoption.** Feature by feature: add route `loader`s using
+   `context.queryClient.ensureQueryData(theQueryFactory(...))`, convert eligible
+   reads to `useSuspenseQuery`, add an `errorComponent`. `enabled`/conditional
+   queries stay `useQuery` (see caveat 2).
+3. **Effort 3 — Auth hoist** (enables auth-dependent queries in the router). See
+   below; this is its own design and ADR.
+
+Restructure slices land first; router slices follow. Do **not** combine a
+feature's restructure and its router change in the same slice.
+
+### Auth hoist (Effort 3)
+
+Auth-dependent queries (`useProfile`, `useUserPermissions`, `useUserVotes`,
+`useGroupVotes`) can't prefetch in loaders today because `AuthProvider` (and the
+`user` it owns) is rendered *inside* `__root`'s component, below the router.
+
+Decision: **resolve the session into router context, narrow `AuthProvider`.**
+
+- Root `beforeLoad` resolves the session into `context.user`, making it available
+  to loaders.
+- `supabase.auth.onAuthStateChange` calls `router.invalidate()` for reactivity
+  (login/logout re-runs `beforeLoad` + loaders).
+- `AuthProvider` **stays** but stops owning the session listener. It reads `user`
+  from router context and keeps everything else it does today: `profile`,
+  `needsOnboarding`, the `AuthDialog` modal, `SIGNED_IN` invite processing,
+  `signOut`.
+- The **23 `useAuth` consumers keep the same `useAuth` API** — only the source of
+  `user` changes. This removes today's duplicate session source.
 
 ---
 
 ## Guiding principles (from the post)
 
 - **Router and Query are complementary.** Router owns URL state + *when* to load
-  (loaders); Query owns caching, dedup, background refetch, invalidation. Don't
-  move server-cache concerns into loaders.
+  (loaders); Query owns caching, dedup, background refetch, invalidation.
 - **One definition per query** via `queryOptions()` — the same object feeds
   `ensureQueryData` (loader) and `useSuspenseQuery` / `useQuery` (component).
 - **`ensureQueryData` in loaders**, not `prefetchQuery` — it returns data and
@@ -69,112 +173,75 @@ hooks already define — exactly the duplication `queryOptions` removes.
 
 ---
 
-## Phase 0 — Foundations (low risk, do first)
+## Phase plan
 
-1. **Confirm `staleTime`.** `main.tsx` sets `queries.staleTime: 5_000`. A
-   non-trivial `staleTime` keeps loader-prefetched data from instantly
-   refetching on mount. Confirm 5s is intended or override per-query in the
-   factory.
+### Effort 1 — Restructure (do first, per feature)
 
-2. **Pick where `queryOptions` factories live.** Recommendation: co-locate in
-   each feature's existing `types.ts` (already holds key factories). Example:
-   ```ts
-   // src/hooks/queries/festivals/types.ts
-   import { queryOptions } from "@tanstack/react-query";
-   import { fetchFestivalBySlug } from "./useFestivalBySlug";
+Suggested order, leaf-data first (fewest dependents):
 
-   export const festivalQueries = {
-     bySlug: (slug: string) =>
-       queryOptions({
-         queryKey: festivalsKeys.bySlug(slug),
-         queryFn: () => fetchFestivalBySlug(slug),
-       }),
-   };
-   ```
-   ⚠️ **Import-cycle risk:** `types.ts` importing from `useFestivalBySlug.ts`,
-   which imports from `types.ts`. Cleanest fix: move each `fetchX` function
-   *into* `types.ts` (or a sibling `api.ts`) and have the `useXQuery` hook import
-   the factory. **Lock this structural decision in before scaling.**
-
-3. **Repoint hooks to consume the factory** so there's exactly one definition:
-   ```ts
-   export function useFestivalBySlugQuery(slug?: string) {
-     return useQuery({ ...festivalQueries.bySlug(slug!), enabled: !!slug });
-   }
-   ```
-
----
-
-## Phase 1 — Pilot vertical slice (festival → edition → set)
-
-Convert one complete path end-to-end as the reference implementation:
-
-- `src/routes/festivals/$festivalSlug.tsx` — already has a loader; switch it to
-  `context.queryClient.ensureQueryData(festivalQueries.bySlug(params.festivalSlug))`.
-- `.../editions/$editionSlug.tsx` — add loader using an `editionQueries` factory.
-- A leaf such as `.../sets/$setSlug.tsx` — in the component, replace
-  `useSetBySlug` (`useQuery`) with `useSuspenseQuery(setQueries.bySlug(...))` and
-  delete the null-guards.
-- Add an `errorComponent` to these routes (today they lean only on the global
-  not-found + pending components).
-- Verify preloading: `defaultPreload: "intent"` means hovering a link warms the
-  cache via the loader.
-
-This slice is the thing reviewers sign off on before rollout.
-
----
-
-## Phase 2 — Roll out by feature folder
-
-Apply the Phase 0/1 template feature-by-feature, leaf-data first (fewest
-dependents):
-
-1. `festivals`, `festivals/editions`
+1. `festivals`, `editions`
 2. `sets`, `stages`, `genres`
 3. `festival-info`, `custom-links`, `knowledge`
-4. `artists` (+ `artists/notes`)
-5. `groups` (+ `groups/invites`), `voting`
-6. `auth` (see caveat 1)
+4. `artists` (+ `artist-notes`)
+5. `groups` (+ `invites`), `voting`
+6. `auth`, plus loose `admin-roles` / `invite-validation`
 
-Per feature: add `queryOptions` factory → repoint the hook → add `loader` +
-`ensureQueryData` to the owning route(s) → switch required reads to
-`useSuspenseQuery` → add `errorComponent`.
+Per feature: create `src/api/<feature>/`, move files, add per-file
+`queryOptions` factory, repoint the hook to consume it, fix consumer imports.
+Verify build + tests green; no behavior should change.
 
----
+### Effort 2 — Router adoption (per feature, after Effort 1)
 
-## Phase 3 — Cleanup & guardrails
+Per feature, on routes that own the data:
+
+- Add `loader` using `context.queryClient.ensureQueryData(factory(...))`.
+- Replace non-conditional `useQuery` reads with `useSuspenseQuery(factory(...))`;
+  delete the null-guards that only existed because data could be `undefined`.
+- Add an `errorComponent` to the route.
+- Pilot first slice end-to-end: festival → edition → set
+  (`$festivalSlug` → `$editionSlug` → `$setSlug`). This is the reference
+  implementation reviewers sign off on before rollout.
+
+### Effort 3 — Auth hoist (separate; its own design + ADR)
+
+Build per the **Auth hoist** decision above. Sequence the reactivity carefully
+(`router.invalidate()` on auth state change) and verify the 23 `useAuth`
+consumers still behave identically.
+
+### Cleanup & guardrails (after each effort)
 
 - Remove dead null-checks / `enabled` guards that only existed because data could
-  be `undefined`.
-- Update `CLAUDE.md` data-fetching guideline (point 4) to describe the
-  loader-prefetch pattern; optionally add a convention: "queries consumed by a
-  route with a loader should use a `queryOptions` factory + `useSuspenseQuery`."
+  be `undefined` (Effort 2 only).
+- Update `CLAUDE.md`: point data-fetching guidance at `src/api/` and the
+  loader-prefetch pattern.
 
 ---
 
 ## Caveats specific to this codebase (read these)
 
-1. **Auth-dependent queries can't be naively prefetched in loaders.**
-   `useProfile`, `useUserPermissions`, `useUserVotes`, `useGroupVotes` depend on
-   the authenticated user, which comes from `AuthContext` rendered *inside*
-   `__root`'s component — not available in loaders. Options: keep these as
-   `useQuery` (no loader prefetch), **or** resolve auth/session into the router
-   context via `beforeLoad` so `context.user` is available to loaders.
-   **Recommendation: leave auth queries as-is in the first pass.**
-
-2. **`enabled` queries don't map to `useSuspenseQuery`.** Anywhere a query is
-   conditional (`enabled: !!x`), suspense is wrong — keep `useQuery`. Many hooks
-   use this pattern.
-
-3. **Realtime subscriptions** write into the Query cache (per CLAUDE.md). The
-   behavior is unaffected, but confirm `staleTime` doesn't fight live updates.
-
+1. **Auth-dependent queries** — addressed by Effort 3. Until then they stay
+   `useQuery` (no loader prefetch).
+2. **`enabled` queries don't map to `useSuspenseQuery`.** 25 files use the
+   pattern; conditional queries keep `useQuery` even after the router pass.
+3. **Realtime subscriptions** write into the Query cache (per CLAUDE.md).
+   Confirm `staleTime` doesn't fight live updates.
 4. **Subdomain `rewrite` logic** in `main.tsx` makes `$festivalSlug` implicit on
    `*.getupline.com`. Loaders read `params.festivalSlug` — verify rewrites
    populate params correctly under preload/suspense.
+5. **No `export ... from` and no barrel files** (CLAUDE.md). Import factories
+   directly from each endpoint file.
 
-5. **No `export ... from` and no barrel files** (CLAUDE.md). Import
-   `queryOptions` factories directly from each `types.ts`.
+---
+
+## Open questions (resolve at build time)
+
+- **`staleTime`.** Global is `5_000`. Confirm it's intended, or override
+  per-query in factories so loader-prefetched data doesn't instantly refetch.
+- **`errorComponent`: global vs per-route.** Today routes lean only on the global
+  not-found + pending components. Decide whether to add a global default error
+  component or wire them per-route in Effort 2.
+- **Auth reactivity mechanics.** Exact `router.invalidate()` wiring and where the
+  `onAuthStateChange` subscription lives once `AuthProvider` is narrowed.
 
 ---
 
@@ -184,15 +251,16 @@ Per feature: add `queryOptions` factory → repoint the hook → add `loader` +
 - Query hooks end in `Query`, mutation hooks end in `Mutation`.
 - Prefer `mutation.mutate(vars, { onSuccess, onError })` over `await mutateAsync`
   in try/catch.
-- No comments unless necessary; no barrel exports.
+- No comments unless necessary; no barrel exports; import directly from file path.
 - Auto-commit code changes per user message.
 
 ---
 
 ## Effort estimate
 
-~73 hooks + ~80 routes. Phase 0–1 is ~½ day and de-risks the rest; Phases 2–3
-are mechanical and parallelizable by feature folder.
+73 endpoint files + 31 routes. Effort 1 (restructure) is the bulk but mechanical
+and parallelizable by feature folder. Effort 2 is route-by-route. Effort 3 (auth
+hoist) is small in files but high in care.
 
 ## Quick verification commands
 

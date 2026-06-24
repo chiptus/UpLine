@@ -145,18 +145,20 @@ Auth-dependent queries (`useProfile`, `useUserPermissions`, `useUserVotes`,
 `useGroupVotes`) can't prefetch in loaders today because `AuthProvider` (and the
 `user` it owns) is rendered *inside* `__root`'s component, below the router.
 
-Decision: **resolve the session into router context, narrow `AuthProvider`.**
+Decision: **the router resolves the session independently; `AuthProvider` stays
+fully intact.**
 
-- Root `beforeLoad` resolves the session into `context.user`, making it available
-  to loaders.
-- `supabase.auth.onAuthStateChange` calls `router.invalidate()` for reactivity
-  (login/logout re-runs `beforeLoad` + loaders).
-- `AuthProvider` **stays** but stops owning the session listener. It reads `user`
-  from router context and keeps everything else it does today: `profile`,
-  `needsOnboarding`, the `AuthDialog` modal, `SIGNED_IN` invite processing,
-  `signOut`.
-- The **23 `useAuth` consumers keep the same `useAuth` API** — only the source of
-  `user` changes. This removes today's duplicate session source.
+- Root `beforeLoad` calls `supabase.auth.getSession()` to put `user` in
+  `context.user`, making it available to loaders.
+- A router-side `supabase.auth.onAuthStateChange` listener calls
+  `router.invalidate()` for reactivity (login/logout re-runs `beforeLoad` +
+  loaders).
+- `AuthProvider` is **not** changed: it keeps its own session state, `profile`,
+  `needsOnboarding`, the `AuthDialog` modal, `SIGNED_IN` invite processing, and
+  `signOut`. The **23 `useAuth` consumers are untouched.**
+- Both the router and `AuthProvider` project from the supabase client (the real
+  source of truth). This accepts a second `getSession`/listener as the deliberate
+  price of keeping the heavily-used provider risk-free.
 
 ---
 
@@ -204,9 +206,10 @@ Per feature, on routes that own the data:
 
 ### Effort 3 — Auth hoist (separate; tracked in #50)
 
-Build per the **Auth hoist** decision above. Sequence the reactivity carefully
-(`router.invalidate()` on auth state change) and verify the 23 `useAuth`
-consumers still behave identically.
+Build per the **Auth hoist** decision above. The router resolves the session
+independently and `AuthProvider` stays intact, so the 23 `useAuth` consumers
+need no changes. Sequence the reactivity carefully (`router.invalidate()` on
+auth state change).
 
 ### Cleanup & guardrails (after each effort)
 

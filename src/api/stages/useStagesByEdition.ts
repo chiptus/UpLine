@@ -30,7 +30,7 @@ export function stagesByEditionQuery(editionId: string) {
 
 export function useStagesByEditionQuery(editionId: string | undefined) {
   return useQuery({
-    ...stagesByEditionQuery(editionId!),
+    ...stagesByEditionQuery(editionId ?? ""),
     enabled: !!editionId,
   });
 }

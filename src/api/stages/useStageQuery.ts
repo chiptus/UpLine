@@ -30,7 +30,7 @@ export function stageQuery(stageId: string) {
 
 export function useStageQuery(stageId: string | undefined | null) {
   return useQuery({
-    ...stageQuery(stageId!),
+    ...stageQuery(stageId ?? ""),
     enabled: !!stageId,
   });
 }

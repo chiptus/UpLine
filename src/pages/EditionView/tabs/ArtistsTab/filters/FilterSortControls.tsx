@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import type { SortOption, FilterSortState } from "@/hooks/useUrlState";
-import { useGenres } from "@/hooks/queries/genres/useGenres";
+import { useGenres } from "@/api/genres/useGenres";
 import { SortControls } from "./SortControls";
 import { MobileFilters } from "./MobileFilters";
 import { DesktopFilters } from "./DesktopFilters";

@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { useGenres } from "@/hooks/queries/genres/useGenres";
+import { useGenres } from "@/api/genres/useGenres";
 
 interface GenreBadgeProps {
   genreId: string;

@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useFestivalEditionsForFestivalQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionsForFestival";
+import { useFestivalEditionsForFestivalQuery } from "@/api/editions/useFestivalEditionsForFestival";
 import { useFestivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
-import { useCreateFestivalEditionMutation } from "@/hooks/queries/festivals/editions/useCreateFestivalEdition";
-import { useUpdateFestivalEditionMutation } from "@/hooks/queries/festivals/editions/useUpdateFestivalEdition";
-import { useDeleteFestivalEditionMutation } from "@/hooks/queries/festivals/editions/useDeleteFestivalEdition";
-import { FestivalEdition } from "@/hooks/queries/festivals/editions/types";
+import { useCreateFestivalEditionMutation } from "@/api/editions/useCreateFestivalEdition";
+import { useUpdateFestivalEditionMutation } from "@/api/editions/useUpdateFestivalEdition";
+import { useDeleteFestivalEditionMutation } from "@/api/editions/useDeleteFestivalEdition";
+import { FestivalEdition } from "@/api/editions/types";
 import { useToast } from "@/hooks/use-toast";
 import {
   Table,

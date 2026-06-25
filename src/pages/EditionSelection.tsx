@@ -11,8 +11,8 @@ import { Button } from "@/components/ui/button";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useFestivalEditionsForFestivalQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionsForFestival";
-import { FestivalEdition } from "@/hooks/queries/festivals/editions/types";
+import { useFestivalEditionsForFestivalQuery } from "@/api/editions/useFestivalEditionsForFestival";
+import { FestivalEdition } from "@/api/editions/types";
 import { useEffect } from "react";
 import { TopBar } from "@/components/layout/TopBar";
 
@@ -29,10 +29,18 @@ export default function EditionSelection() {
     ) {
       navigate({
         to: "/festivals/$festivalSlug/editions/$editionSlug",
-        params: { festivalSlug: festival.slug, editionSlug: editionListQuery.data[0].slug },
+        params: {
+          festivalSlug: festival.slug,
+          editionSlug: editionListQuery.data[0].slug,
+        },
       });
     }
-  }, [editionListQuery.data, editionListQuery.isLoading, festival?.slug, navigate]);
+  }, [
+    editionListQuery.data,
+    editionListQuery.isLoading,
+    festival?.slug,
+    navigate,
+  ]);
 
   if (!festival) {
     return (

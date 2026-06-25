@@ -6,7 +6,7 @@ import { Loader2, Plus, Music } from "lucide-react";
 import { FestivalSet } from "@/hooks/queries/sets/useSets";
 import { useSetsByEditionQuery } from "@/hooks/queries/sets/useSetsByEdition";
 import { useDeleteSetMutation } from "@/hooks/queries/sets/useDeleteSet";
-import { useFestivalEditionBySlugQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionBySlug";
+import { useFestivalEditionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { SetFormDialog } from "../SetFormDialog";
 import { SetsTable } from "../SetsTable";
 

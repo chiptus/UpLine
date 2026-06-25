@@ -1,7 +1,7 @@
 import { useParams, useLocation, Outlet, Link } from "@tanstack/react-router";
 import { Loader2, MapPin, Music, Upload } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useFestivalEditionBySlugQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionBySlug";
+import { useFestivalEditionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { cn } from "@/lib/utils";
 import { ScheduleRevealControl } from "./ScheduleRevealControl";
 

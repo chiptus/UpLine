@@ -8,7 +8,7 @@ import { Loader2, MapPin } from "lucide-react";
 import { StagesTable } from "./StageManagement/StagesTable";
 import { CreateStageDialog } from "./StageManagement/CreateStageDialog";
 import { EditStageDialog } from "./StageManagement/EditStageDialog";
-import { useFestivalEditionBySlugQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionBySlug";
+import { useFestivalEditionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 
 interface StageManagementProps {}
 

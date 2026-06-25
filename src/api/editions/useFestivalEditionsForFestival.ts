@@ -1,8 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { FestivalEdition, editionsKeys } from "./types";
 
-async function fetchFestivalEditions(
+export async function fetchFestivalEditions(
   festivalId: string,
   { all }: { all?: boolean } = {},
 ): Promise<FestivalEdition[]> {
@@ -29,13 +29,22 @@ async function fetchFestivalEditions(
   return data || [];
 }
 
+export function editionsForFestivalQuery(
+  festivalId: string,
+  { all }: { all?: boolean } = {},
+) {
+  return queryOptions({
+    queryKey: editionsKeys.all(festivalId),
+    queryFn: () => fetchFestivalEditions(festivalId, { all }),
+  });
+}
+
 export function useFestivalEditionsForFestivalQuery(
   festivalId: string | undefined,
   { all }: { all?: boolean } = {},
 ) {
   return useQuery({
-    queryKey: editionsKeys.all(festivalId || ""),
-    queryFn: () => fetchFestivalEditions(festivalId!, { all }),
+    ...editionsForFestivalQuery(festivalId || "", { all }),
     enabled: !!festivalId,
   });
 }

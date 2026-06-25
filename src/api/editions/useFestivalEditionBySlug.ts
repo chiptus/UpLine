@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { FestivalEdition, editionsKeys } from "./types";
 import { fetchFestivalBySlug } from "@/api/festivals/useFestivalBySlug";
@@ -10,7 +10,6 @@ export async function fetchFestivalEditionBySlug({
   festivalSlug: string;
   editionSlug: string;
 }): Promise<FestivalEdition> {
-  // First get the festival ID from the slug
   const festival = await fetchFestivalBySlug(festivalSlug);
 
   const query = supabase
@@ -30,6 +29,23 @@ export async function fetchFestivalEditionBySlug({
   return data;
 }
 
+export function editionBySlugQuery({
+  editionSlug,
+  festivalSlug,
+}: {
+  festivalSlug: string;
+  editionSlug: string;
+}) {
+  return queryOptions({
+    queryKey: editionsKeys.bySlug(festivalSlug, editionSlug),
+    queryFn: () =>
+      fetchFestivalEditionBySlug({
+        festivalSlug,
+        editionSlug,
+      }),
+  });
+}
+
 export function useFestivalEditionBySlugQuery({
   editionSlug,
   festivalSlug,
@@ -38,12 +54,10 @@ export function useFestivalEditionBySlugQuery({
   editionSlug?: string;
 }) {
   return useQuery({
-    queryKey: editionsKeys.bySlug(festivalSlug!, editionSlug!),
-    queryFn: () =>
-      fetchFestivalEditionBySlug({
-        festivalSlug: festivalSlug!,
-        editionSlug: editionSlug!,
-      }),
+    ...editionBySlugQuery({
+      festivalSlug: festivalSlug!,
+      editionSlug: editionSlug!,
+    }),
     enabled: !!festivalSlug && !!editionSlug,
   });
 }

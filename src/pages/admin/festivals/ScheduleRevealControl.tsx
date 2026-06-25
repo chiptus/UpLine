@@ -1,6 +1,6 @@
 import { Check, Undo2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useUpdateFestivalEditionMutation } from "@/hooks/queries/festivals/editions/useUpdateFestivalEdition";
+import { useUpdateFestivalEditionMutation } from "@/api/editions/useUpdateFestivalEdition";
 import type { RevealLevel } from "@/lib/scheduleReveal";
 
 type Props = {

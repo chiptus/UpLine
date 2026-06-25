@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { FestivalSet, setsKeys } from "./useSets";
+import { FestivalSet, setsKeys } from "./types";
 
 // Business logic function
 async function fetchSetsByEdition(editionId: string): Promise<FestivalSet[]> {
@@ -46,11 +46,16 @@ async function fetchSetsByEdition(editionId: string): Promise<FestivalSet[]> {
   return transformedData;
 }
 
-// Hook
+export function setsByEditionQuery(editionId: string) {
+  return queryOptions({
+    queryKey: setsKeys.byEdition(editionId),
+    queryFn: () => fetchSetsByEdition(editionId),
+  });
+}
+
 export function useSetsByEditionQuery(editionId: string | undefined) {
   return useQuery({
-    queryKey: setsKeys.byEdition(editionId || ""),
-    queryFn: () => fetchSetsByEdition(editionId!),
+    ...setsByEditionQuery(editionId || ""),
     enabled: !!editionId,
   });
 }

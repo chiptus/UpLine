@@ -2,7 +2,7 @@ import { FilterSortControls } from "./filters/FilterSortControls";
 import { useSetFiltering } from "./useSetFiltering";
 import { useUrlState } from "@/hooks/useUrlState";
 import { SetsPanel } from "./SetsPanel";
-import { useSetsByEditionQuery } from "@/hooks/queries/sets/useSetsByEdition";
+import { useSetsByEditionQuery } from "@/api/sets/useSetsByEdition";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { PageTitle } from "@/components/PageTitle/PageTitle";
 

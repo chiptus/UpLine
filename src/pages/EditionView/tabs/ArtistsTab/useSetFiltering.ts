@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import type { FilterSortState } from "@/hooks/useUrlState";
-import { FestivalSet } from "@/hooks/queries/sets/useSets";
+import { FestivalSet } from "@/api/sets/types";
 import { useGroupMembersQuery } from "@/hooks/queries/groups/useGroupMembers";
 
 export function useSetFiltering(

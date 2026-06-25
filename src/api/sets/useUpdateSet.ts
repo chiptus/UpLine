@@ -3,7 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { generateSlug } from "@/lib/slug";
-import { setsKeys } from "./useSets";
+import { setsKeys } from "./types";
 
 type SetUpdate = Database["public"]["Tables"]["sets"]["Update"];
 

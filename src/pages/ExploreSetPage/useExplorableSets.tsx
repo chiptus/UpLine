@@ -1,4 +1,4 @@
-import { useSetsByEditionQuery } from "@/hooks/queries/sets/useSetsByEdition";
+import { useSetsByEditionQuery } from "@/api/sets/useSetsByEdition";
 import { useMemo } from "react";
 
 export function useExplorableSets({

@@ -9,7 +9,7 @@ import {
   type StageMismatchResolution,
 } from "@/services/scheduleImport/types";
 import { artistsKeys } from "@/hooks/queries/artists/useArtists";
-import { setsKeys } from "@/hooks/queries/sets/useSets";
+import { setsKeys } from "@/api/sets/types";
 import { stagesKeys } from "@/hooks/queries/stages/types";
 import { useStagesByEditionQuery } from "@/hooks/queries/stages/useStagesByEdition";
 import type { RevealLevel } from "@/lib/scheduleReveal";

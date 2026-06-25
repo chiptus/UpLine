@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { setsKeys } from "./useSets";
+import { setsKeys } from "./types";
 
 // Mutation function
 async function removeArtistFromSet(variables: {

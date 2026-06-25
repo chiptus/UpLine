@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Festival, festivalsKeys } from "./types";
 
@@ -24,9 +24,13 @@ async function fetchFestivals({ all }: { all?: boolean } = {}): Promise<
   return data || [];
 }
 
-export function useFestivalsQuery({ all }: { all?: boolean } = {}) {
-  return useQuery({
+export function festivalsQuery({ all }: { all?: boolean } = {}) {
+  return queryOptions({
     queryKey: festivalsKeys.all(),
     queryFn: () => fetchFestivals({ all }),
   });
+}
+
+export function useFestivalsQuery({ all }: { all?: boolean } = {}) {
+  return useQuery(festivalsQuery({ all }));
 }

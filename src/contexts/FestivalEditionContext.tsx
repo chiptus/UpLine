@@ -1,6 +1,6 @@
 import { createContext, PropsWithChildren, useContext, useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Festival } from "@/hooks/queries/festivals/types";
+import { Festival } from "@/api/festivals/types";
 import { useFestivalEditionBySlugQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionBySlug";
 import { FestivalEdition } from "@/hooks/queries/festivals/editions/types";
 import { TopBar } from "@/components/layout/TopBar";

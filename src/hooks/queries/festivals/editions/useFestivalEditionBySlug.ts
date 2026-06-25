@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { FestivalEdition, editionsKeys } from "./types";
-import { fetchFestivalBySlug } from "../useFestivalBySlug";
+import { fetchFestivalBySlug } from "@/api/festivals/useFestivalBySlug";
 
 export async function fetchFestivalEditionBySlug({
   editionSlug,

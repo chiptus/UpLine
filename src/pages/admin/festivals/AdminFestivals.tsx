@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Plus } from "lucide-react";
 import { FestivalDialog } from "./FestivalDialog";
 import { FestivalManagementTable } from "./FestivalManagementTable";
-import { Festival } from "@/hooks/queries/festivals/types";
+import { Festival } from "@/api/festivals/types";
 import { Button } from "@/components/ui/button";
 
 export default function AdminFestivals() {

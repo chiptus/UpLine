@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useFestivalEditionsForFestivalQuery } from "@/hooks/queries/festivals/editions/useFestivalEditionsForFestival";
-import { useFestivalBySlugQuery } from "@/hooks/queries/festivals/useFestivalBySlug";
+import { useFestivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 import { useCreateFestivalEditionMutation } from "@/hooks/queries/festivals/editions/useCreateFestivalEdition";
 import { useUpdateFestivalEditionMutation } from "@/hooks/queries/festivals/editions/useUpdateFestivalEdition";
 import { useDeleteFestivalEditionMutation } from "@/hooks/queries/festivals/editions/useDeleteFestivalEdition";

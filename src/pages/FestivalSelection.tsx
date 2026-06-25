@@ -6,8 +6,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useFestivalsQuery } from "@/hooks/queries/festivals/useFestivals";
-import { Festival } from "@/hooks/queries/festivals/types";
+import { useFestivalsQuery } from "@/api/festivals/useFestivals";
+import { Festival } from "@/api/festivals/types";
 import { useEffect } from "react";
 import {
   createFestivalSubdomainUrl,

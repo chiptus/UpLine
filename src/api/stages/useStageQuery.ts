@@ -1,8 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Stage, stagesKeys } from "./types";
+import type { Stage } from "./types";
+import { stagesKeys } from "./types";
 
-async function fetchStage(stageId: string): Promise<Stage | null> {
+export async function fetchStage(stageId: string): Promise<Stage | null> {
   const { data, error } = await supabase
     .from("stages")
     .select("*")
@@ -12,7 +13,6 @@ async function fetchStage(stageId: string): Promise<Stage | null> {
 
   if (error) {
     if (error.code === "PGRST116") {
-      // No rows returned
       return null;
     }
     throw new Error("Failed to load stage");
@@ -21,10 +21,16 @@ async function fetchStage(stageId: string): Promise<Stage | null> {
   return data;
 }
 
+export function stageQuery(stageId: string) {
+  return queryOptions({
+    queryKey: stagesKeys.byId(stageId),
+    queryFn: () => fetchStage(stageId),
+  });
+}
+
 export function useStageQuery(stageId: string | undefined | null) {
   return useQuery({
-    queryKey: stagesKeys.byId(stageId || ""),
-    queryFn: () => fetchStage(stageId!),
+    ...stageQuery(stageId!),
     enabled: !!stageId,
   });
 }

@@ -10,8 +10,8 @@ import {
 } from "@/services/scheduleImport/types";
 import { artistsKeys } from "@/hooks/queries/artists/useArtists";
 import { setsKeys } from "@/api/sets/types";
-import { stagesKeys } from "@/hooks/queries/stages/types";
-import { useStagesByEditionQuery } from "@/hooks/queries/stages/useStagesByEdition";
+import { stagesKeys } from "@/api/stages/types";
+import { useStagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import type { RevealLevel } from "@/lib/scheduleReveal";
 import { DiffReviewStep } from "./DiffReviewStep";
 

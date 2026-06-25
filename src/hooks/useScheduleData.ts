@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { formatDateTime } from "@/lib/timeUtils";
 import { format, startOfDay } from "date-fns";
 import type { FestivalSet } from "@/api/sets/types";
-import { Stage } from "./queries/stages/types";
+import type { Stage } from "@/api/stages/types";
 import { sortStagesByOrder } from "@/lib/stageUtils";
 
 export interface ScheduleDay {

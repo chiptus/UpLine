@@ -1,4 +1,4 @@
-import { useStageQuery } from "@/hooks/queries/stages/useStageQuery";
+import { useStageQuery } from "@/api/stages/useStageQuery";
 import { MapPin } from "lucide-react";
 
 export function StagePin({ stageId }: { stageId: string | null }) {

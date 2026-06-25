@@ -1,5 +1,5 @@
-import { useUpdateStageMutation } from "@/hooks/queries/stages/useUpdateStage";
-import { Stage } from "@/hooks/queries/stages/types";
+import { useUpdateStageMutation } from "@/api/stages/useUpdateStage";
+import type { Stage } from "@/api/stages/types";
 import {
   Dialog,
   DialogContent,

@@ -1,4 +1,4 @@
-import type { Stage } from "@/hooks/queries/stages/types";
+import type { Stage } from "@/api/stages/types";
 
 /**
  * Sorts stages by priority: stages with order > 0 come first (sorted by order),

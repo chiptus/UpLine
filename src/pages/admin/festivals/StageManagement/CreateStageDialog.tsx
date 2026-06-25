@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useCreateStageMutation } from "@/hooks/queries/stages/useCreateStage";
+import { useCreateStageMutation } from "@/api/stages/useCreateStage";
 import {
   Dialog,
   DialogContent,

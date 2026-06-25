@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useParams } from "@tanstack/react-router";
-import { useStagesByEditionQuery } from "@/hooks/queries/stages/useStagesByEdition";
-import { useDeleteStageMutation } from "@/hooks/queries/stages/useDeleteStage";
-import { Stage } from "@/hooks/queries/stages/types";
+import { useStagesByEditionQuery } from "@/api/stages/useStagesByEdition";
+import { useDeleteStageMutation } from "@/api/stages/useDeleteStage";
+import type { Stage } from "@/api/stages/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, MapPin } from "lucide-react";
 import { StagesTable } from "./StageManagement/StagesTable";

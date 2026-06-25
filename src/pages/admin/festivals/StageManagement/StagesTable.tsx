@@ -1,4 +1,4 @@
-import { Stage } from "@/hooks/queries/stages/types";
+import type { Stage } from "@/api/stages/types";
 import {
   Table,
   TableBody,

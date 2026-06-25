@@ -6,7 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useStagesByEditionQuery } from "@/hooks/queries/stages/useStagesByEdition";
+import { useStagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 
 export function StageSelector({
   value,

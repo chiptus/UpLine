@@ -3,7 +3,7 @@ import { formatDayOnly, formatTimeRange } from "@/lib/timeUtils";
 import { GenreBadge } from "@/components/GenreBadge";
 import { StageBadge } from "@/components/StageBadge";
 import { useFestivalSet } from "../FestivalSetContext";
-import { useStageQuery } from "@/hooks/queries/stages/useStageQuery";
+import { useStageQuery } from "@/api/stages/useStageQuery";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 
 export function SetMetadata() {

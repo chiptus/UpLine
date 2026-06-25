@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import type { FilterSortState } from "@/hooks/useUrlState";
-import { useStagesByEditionQuery } from "@/hooks/queries/stages/useStagesByEdition";
+import { useStagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 
 interface DesktopFiltersProps {

@@ -4,7 +4,7 @@ import { calculateTimelineData } from "@/lib/timelineCalculator";
 import { StageLabels } from "./StageLabels";
 import { TimelineContainer } from "./TimelineContainer";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
-import { useSetsByEditionQuery as useEditionSetsQuery } from "@/hooks/queries/sets/useSetsByEdition";
+import { useSetsByEditionQuery as useEditionSetsQuery } from "@/api/sets/useSetsByEdition";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
 import { format } from "date-fns";
 import { useStagesByEditionQuery } from "@/hooks/queries/stages/useStagesByEdition";

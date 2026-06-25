@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useScheduleData } from "@/hooks/useScheduleData";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
-import { useSetsByEditionQuery as useEditionSetsQuery } from "@/hooks/queries/sets/useSetsByEdition";
+import { useSetsByEditionQuery as useEditionSetsQuery } from "@/api/sets/useSetsByEdition";
 import { isSameDay, format } from "date-fns";
 import { TimeSlotGroup } from "./TimeSlotGroup";
 import type { ScheduleSet } from "@/hooks/useScheduleData";

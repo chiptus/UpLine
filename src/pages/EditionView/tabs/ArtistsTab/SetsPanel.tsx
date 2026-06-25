@@ -1,4 +1,4 @@
-import { FestivalSet } from "@/hooks/queries/sets/useSets";
+import { FestivalSet } from "@/api/sets/types";
 
 import { EmptyArtistsState } from "./EmptyArtistsState";
 import { FestivalSetProvider } from "./FestivalSetContext";

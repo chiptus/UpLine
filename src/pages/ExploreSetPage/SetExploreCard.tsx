@@ -1,4 +1,4 @@
-import { FestivalSet } from "@/hooks/queries/sets/useSets";
+import { FestivalSet } from "@/api/sets/types";
 import { Card } from "@/components/ui/card";
 import { motion, PanInfo } from "framer-motion";
 import { useState } from "react";

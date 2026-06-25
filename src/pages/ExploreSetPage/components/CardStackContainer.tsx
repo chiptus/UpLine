@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { SetExploreCard } from "../SetExploreCard";
-import { FestivalSet } from "@/hooks/queries/sets/useSets";
+import { FestivalSet } from "@/api/sets/types";
 
 interface CardStackContainerProps {
   currentSet: FestivalSet | undefined;

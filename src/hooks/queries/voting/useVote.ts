@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { userVotesKeys } from "./useUserVotes";
-import { setsKeys } from "../sets/useSets";
+import { setsKeys } from "@/api/sets/types";
 
 // Mutation function
 async function vote(variables: {

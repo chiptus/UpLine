@@ -8,7 +8,7 @@ import { ArtistLoadingState } from "./SetDetails/SetLoadingState";
 import { SetGroupVoting } from "./SetDetails/SetGroupVoting";
 import { SetNotes } from "./SetDetails/SetNotes";
 import { useUrlState } from "@/hooks/useUrlState";
-import { useSetBySlugQuery } from "@/hooks/queries/sets/useSetBySlug";
+import { useSetBySlugQuery } from "@/api/sets/useSetBySlug";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useVoteCount } from "@/hooks/useVoteCount";

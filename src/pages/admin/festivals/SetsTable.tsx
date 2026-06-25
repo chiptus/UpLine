@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Edit2, Trash2 } from "lucide-react";
 import { formatTimeRange } from "@/lib/timeUtils";
-import { FestivalSet } from "@/hooks/queries/sets/useSets";
+import { FestivalSet } from "@/api/sets/types";
 
 interface SetsTableProps {
   sets: FestivalSet[];

@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { FestivalSet } from "./queries/sets/useSets";
+import { FestivalSet } from "@/api/sets/types";
 
 export function useVoteCount(set: FestivalSet | undefined) {
   const voteCounts = useMemo(() => {

@@ -1,27 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { Database } from "@/integrations/supabase/types";
-import { Artist } from "../artists/useArtists";
-
-export type FestivalSet = Database["public"]["Tables"]["sets"]["Row"] & {
-  artists: Artist[];
-  votes: { vote_type: number; user_id: string }[];
-  stage_name?: string | null;
-};
-
-export type Stage = Database["public"]["Tables"]["stages"]["Row"];
-
-// Query key factory
-export const setsKeys = {
-  all: ["sets"] as const,
-  lists: () => [...setsKeys.all, "list"] as const,
-  list: (filters?: unknown) => [...setsKeys.lists(), filters] as const,
-  details: () => [...setsKeys.all, "detail"] as const,
-  detail: (id: string) => [...setsKeys.details(), id] as const,
-  bySlug: (params: unknown) => [...setsKeys.details(), params] as const,
-  byEdition: (editionId: string) =>
-    [...setsKeys.all, "edition", editionId] as const,
-};
+import { FestivalSet, setsKeys } from "./types";
 
 // Business logic function
 async function fetchSets(): Promise<FestivalSet[]> {
@@ -65,10 +44,13 @@ async function fetchSets(): Promise<FestivalSet[]> {
   return transformedData;
 }
 
-// Hook
-export function useSetsQuery() {
-  return useQuery({
+export function setsQuery() {
+  return queryOptions({
     queryKey: setsKeys.lists(),
     queryFn: fetchSets,
   });
+}
+
+export function useSetsQuery() {
+  return useQuery(setsQuery());
 }

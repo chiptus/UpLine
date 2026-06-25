@@ -1,5 +1,5 @@
 import { createContext, useContext, ReactNode } from "react";
-import { FestivalSet } from "@/hooks/queries/sets/useSets";
+import { FestivalSet } from "@/api/sets/types";
 
 interface FestivalSetContextValue {
   set: FestivalSet;

@@ -1,5 +1,5 @@
 import { VotingActions } from "../VotingActions";
-import { FestivalSet } from "@/hooks/queries/sets/useSets";
+import { FestivalSet } from "@/api/sets/types";
 
 interface VotingSectionProps {
   currentSet: FestivalSet | undefined;

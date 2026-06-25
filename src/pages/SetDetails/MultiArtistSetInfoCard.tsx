@@ -8,7 +8,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Clock, Users } from "lucide-react";
 import { SetVotingButtons } from "./SetVotingButtons";
-import { FestivalSet } from "@/hooks/queries/sets/useSets";
+import { FestivalSet } from "@/api/sets/types";
 import { formatDayOnly, formatTimeRange } from "@/lib/timeUtils";
 import { GenreBadge } from "@/components/GenreBadge";
 import { IndividualArtistCard } from "./IndividualArtistCard";

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { FestivalSet } from "@/hooks/queries/sets/useSets";
+import { FestivalSet } from "@/api/sets/types";
 import { useUserVotes } from "@/hooks/queries/voting/useUserVotes";
 import { useVote } from "@/hooks/queries/voting/useVote";
 import { useVoteCount } from "@/hooks/useVoteCount";

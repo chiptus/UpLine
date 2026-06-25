@@ -3,11 +3,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useArtistsQuery } from "@/hooks/queries/artists/useArtists";
-import { FestivalSet } from "@/hooks/queries/sets/useSets";
-import { useCreateSetMutation } from "@/hooks/queries/sets/useCreateSet";
-import { useUpdateSetMutation } from "@/hooks/queries/sets/useUpdateSet";
-import { useAddArtistToSetMutation } from "@/hooks/queries/sets/useAddArtistToSet";
-import { useRemoveArtistFromSetMutation } from "@/hooks/queries/sets/useRemoveArtistFromSet";
+import { FestivalSet } from "@/api/sets/types";
+import { useCreateSetMutation } from "@/api/sets/useCreateSet";
+import { useUpdateSetMutation } from "@/api/sets/useUpdateSet";
+import { useAddArtistToSetMutation } from "@/api/sets/useAddArtistToSet";
+import { useRemoveArtistFromSetMutation } from "@/api/sets/useRemoveArtistFromSet";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Dialog,

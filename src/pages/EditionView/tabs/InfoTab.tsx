@@ -7,7 +7,7 @@ import { CustomLinks } from "./InfoTab/CustomLinks";
 import { NoInfo } from "./InfoTab/NoInfo";
 import { LoadingInfo } from "./InfoTab/LoadingInfo";
 import { SocialLinkItem } from "./InfoTab/SocialLinkItem";
-import { useCustomLinksQuery } from "@/hooks/queries/custom-links/useCustomLinks";
+import { useCustomLinksQuery } from "@/api/custom-links/useCustomLinks";
 
 export function InfoTab() {
   const { edition, festival } = useFestivalEdition();

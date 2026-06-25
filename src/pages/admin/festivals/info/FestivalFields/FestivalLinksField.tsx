@@ -4,8 +4,8 @@ import { Input } from "@/components/ui/input";
 import { ExternalLink, Plus, Trash2 } from "lucide-react";
 import { EditableField } from "./shared/EditableField";
 import { EditContainer } from "./shared/EditContainer";
-import { CustomLink } from "@/hooks/queries/custom-links/useCustomLinks";
-import { useBulkUpdateCustomLinksMutation } from "@/hooks/queries/custom-links/useCustomLinksMutation";
+import { CustomLink } from "@/api/custom-links/types";
+import { useBulkUpdateCustomLinksMutation } from "@/api/custom-links/useCustomLinksMutation";
 
 interface FestivalLinksFieldProps {
   festivalId: string;

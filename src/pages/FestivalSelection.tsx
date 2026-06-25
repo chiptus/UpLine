@@ -14,7 +14,7 @@ import {
   isMainGetuplineDomain,
 } from "@/lib/subdomain";
 import { Link } from "@tanstack/react-router";
-import { useCustomLinksQuery } from "@/hooks/queries/custom-links/useCustomLinks";
+import { useCustomLinksQuery } from "@/api/custom-links/useCustomLinks";
 import { PageTitle } from "@/components/PageTitle/PageTitle";
 import { TopBar } from "@/components/layout/TopBar";
 import { AppHeader } from "@/components/layout/AppHeader";

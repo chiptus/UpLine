@@ -27,7 +27,7 @@ export function customLinksQuery(festivalId: string) {
 
 export function useCustomLinksQuery(festivalId: string | undefined) {
   return useQuery({
-    ...customLinksQuery(festivalId!),
+    ...customLinksQuery(festivalId ?? ""),
     enabled: !!festivalId,
   });
 }

@@ -32,7 +32,7 @@ export function userKnowledgeQuery(userId: string) {
 
 export function useUserKnowledgeQuery(userId: string | undefined) {
   return useQuery({
-    ...userKnowledgeQuery(userId ?? ""),
+    ...userKnowledgeQuery(userId!),
     enabled: !!userId,
   });
 }

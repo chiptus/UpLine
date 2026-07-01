@@ -7,24 +7,27 @@ export function useKnowledge() {
   const { data: userKnowledge = {} } = useUserKnowledgeQuery(user?.id);
   const knowledgeToggleMutation = useKnowledgeToggleMutation();
 
-  async function handleKnowledgeToggle(artistId: string) {
+  function handleKnowledgeToggle(artistId: string) {
     if (!user) {
       return { requiresAuth: true };
     }
 
     const isKnown = userKnowledge[artistId];
 
-    try {
-      await knowledgeToggleMutation.mutateAsync({
+    knowledgeToggleMutation.mutate(
+      {
         artistId,
         userId: user.id,
         isKnown,
-      });
-      return { requiresAuth: false };
-    } catch (error) {
-      console.error("failed toggling knowledge", error);
-      return { requiresAuth: false };
-    }
+      },
+      {
+        onError: (error) => {
+          console.error("failed toggling knowledge", error);
+        },
+      },
+    );
+
+    return { requiresAuth: false };
   }
 
   return {

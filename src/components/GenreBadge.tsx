@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { useGenres } from "@/api/genres/useGenres";
+import { useGenresQuery } from "@/api/genres/useGenres";
 
 interface GenreBadgeProps {
   genreId: string;
@@ -7,9 +7,9 @@ interface GenreBadgeProps {
 }
 
 export function GenreBadge({ genreId, size = "default" }: GenreBadgeProps) {
-  const { genres, loading, error } = useGenres();
+  const { data: genres = [], isLoading, error } = useGenresQuery();
 
-  if (loading || error) return null;
+  if (isLoading || error) return null;
 
   const genre = genres.find((g) => g.id === genreId);
   if (!genre) return null;

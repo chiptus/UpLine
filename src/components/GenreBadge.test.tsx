@@ -1,9 +1,23 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
+import type { UseQueryResult } from "@tanstack/react-query";
 import { GenreBadge } from "./GenreBadge";
 import * as useGenresModule from "@/api/genres/useGenres";
+import type { Genre } from "@/api/genres/types";
 
 vi.mock("@/api/genres/useGenres");
+
+function mockGenresQuery(result: {
+  data?: Genre[];
+  isLoading?: boolean;
+  error?: Error | null;
+}) {
+  vi.spyOn(useGenresModule, "useGenresQuery").mockReturnValue({
+    data: result.data ?? [],
+    isLoading: result.isLoading ?? false,
+    error: result.error ?? null,
+  } as unknown as UseQueryResult<Genre[], Error>);
+}
 
 describe("GenreBadge", () => {
   beforeEach(() => {
@@ -11,13 +25,11 @@ describe("GenreBadge", () => {
   });
 
   it("renders genre name when genre is found", () => {
-    vi.spyOn(useGenresModule, "useGenres").mockReturnValue({
-      genres: [
+    mockGenresQuery({
+      data: [
         { id: "1", name: "Rock" },
         { id: "2", name: "Pop" },
       ],
-      loading: false,
-      error: null,
     });
 
     render(<GenreBadge genreId="1" />);
@@ -25,35 +37,25 @@ describe("GenreBadge", () => {
   });
 
   it("renders null when loading", () => {
-    vi.spyOn(useGenresModule, "useGenres").mockReturnValue({
-      genres: [],
-      loading: true,
-      error: null,
-    });
+    mockGenresQuery({ isLoading: true });
 
     const { container } = render(<GenreBadge genreId="1" />);
     expect(container.firstChild).toBeNull();
   });
 
   it("renders null when error", () => {
-    vi.spyOn(useGenresModule, "useGenres").mockReturnValue({
-      genres: [],
-      loading: false,
-      error: new Error("Failed to load"),
-    });
+    mockGenresQuery({ error: new Error("Failed to load") });
 
     const { container } = render(<GenreBadge genreId="1" />);
     expect(container.firstChild).toBeNull();
   });
 
   it("renders null when genre is not found", () => {
-    vi.spyOn(useGenresModule, "useGenres").mockReturnValue({
-      genres: [
+    mockGenresQuery({
+      data: [
         { id: "1", name: "Rock" },
         { id: "2", name: "Pop" },
       ],
-      loading: false,
-      error: null,
     });
 
     const { container } = render(<GenreBadge genreId="999" />);
@@ -61,11 +63,7 @@ describe("GenreBadge", () => {
   });
 
   it("renders with default size", () => {
-    vi.spyOn(useGenresModule, "useGenres").mockReturnValue({
-      genres: [{ id: "1", name: "Rock" }],
-      loading: false,
-      error: null,
-    });
+    mockGenresQuery({ data: [{ id: "1", name: "Rock" }] });
 
     const { container } = render(<GenreBadge genreId="1" />);
     const badge = container.querySelector("div");
@@ -73,11 +71,7 @@ describe("GenreBadge", () => {
   });
 
   it("renders with small size", () => {
-    vi.spyOn(useGenresModule, "useGenres").mockReturnValue({
-      genres: [{ id: "1", name: "Rock" }],
-      loading: false,
-      error: null,
-    });
+    mockGenresQuery({ data: [{ id: "1", name: "Rock" }] });
 
     const { container } = render(<GenreBadge genreId="1" size="sm" />);
     const badge = container.querySelector("div");
@@ -85,11 +79,7 @@ describe("GenreBadge", () => {
   });
 
   it("has correct styling classes", () => {
-    vi.spyOn(useGenresModule, "useGenres").mockReturnValue({
-      genres: [{ id: "1", name: "Rock" }],
-      loading: false,
-      error: null,
-    });
+    mockGenresQuery({ data: [{ id: "1", name: "Rock" }] });
 
     const { container } = render(<GenreBadge genreId="1" />);
     const badge = container.querySelector("div");
@@ -97,14 +87,12 @@ describe("GenreBadge", () => {
   });
 
   it("finds correct genre from multiple genres", () => {
-    vi.spyOn(useGenresModule, "useGenres").mockReturnValue({
-      genres: [
+    mockGenresQuery({
+      data: [
         { id: "1", name: "Rock" },
         { id: "2", name: "Pop" },
         { id: "3", name: "Jazz" },
       ],
-      loading: false,
-      error: null,
     });
 
     render(<GenreBadge genreId="2" />);
@@ -114,11 +102,7 @@ describe("GenreBadge", () => {
   });
 
   it("renders when genres list is empty", () => {
-    vi.spyOn(useGenresModule, "useGenres").mockReturnValue({
-      genres: [],
-      loading: false,
-      error: null,
-    });
+    mockGenresQuery({ data: [] });
 
     const { container } = render(<GenreBadge genreId="1" />);
     expect(container.firstChild).toBeNull();

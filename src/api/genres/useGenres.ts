@@ -26,13 +26,3 @@ export function genresQuery() {
 export function useGenresQuery() {
   return useQuery(genresQuery());
 }
-
-export function useGenres() {
-  const { data: genres = [], isLoading, error } = useGenresQuery();
-
-  return {
-    genres,
-    loading: isLoading,
-    error,
-  };
-}

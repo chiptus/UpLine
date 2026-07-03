@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useUserPermissionsQuery } from "@/hooks/queries/auth/useUserPermissions";
+import { useUserPermissionsQuery } from "@/api/auth/useUserPermissions";
 
 export function AdminActions({
   isMobile,

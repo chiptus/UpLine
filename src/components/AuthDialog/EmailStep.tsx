@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { useSignInWithOtpMutation } from "@/hooks/queries/auth/useSignInWithOtpMutation";
+import { useSignInWithOtpMutation } from "@/api/auth/useSignInWithOtpMutation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

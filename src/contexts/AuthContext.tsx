@@ -8,10 +8,10 @@ import {
 } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { useProfileQuery } from "@/hooks/queries/auth/useProfile";
+import { useProfileQuery } from "@/api/auth/useProfile";
 import { useToast } from "@/hooks/use-toast";
 import { AuthDialog } from "@/components/AuthDialog/AuthDialog";
-import { Profile } from "@/hooks/queries/auth/useProfile";
+import { Profile } from "@/api/auth/types";
 
 interface AuthContextType {
   // Auth state

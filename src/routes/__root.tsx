@@ -17,7 +17,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useInviteValidation } from "@/components/invite/useInviteValidation";
 import { InviteLandingPage } from "@/components/invite/InviteLandingPage";
 import { OnboardingDialog } from "@/components/onboarding/OnboardingDialog";
-import { useProfileQuery } from "@/hooks/queries/auth/useProfile";
+import { useProfileQuery } from "@/api/auth/useProfile";
 import { useMemo, useEffect } from "react";
 import { shouldRedirectFromWww, getNonWwwRedirectUrl } from "@/lib/subdomain";
 import { z } from "zod";

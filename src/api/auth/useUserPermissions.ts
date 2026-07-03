@@ -1,14 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { userPermissionsKeys } from "./types";
 
-// Query key factory
-export const userPermissionsKeys = {
-  all: ["permissions"] as const,
-  user: (userId: string | undefined, permission: string) =>
-    [...userPermissionsKeys.all, { userId, permission }] as const,
-};
-
-// Business logic function
 async function checkUserPermissions(
   userId: string,
   permission: "edit_artists" | "is_admin",
@@ -42,15 +35,23 @@ async function checkUserPermissions(
   }
 }
 
-// Hook
+export function userPermissionsQuery(
+  userId: string,
+  permission: "edit_artists" | "is_admin",
+) {
+  return queryOptions({
+    queryKey: userPermissionsKeys.user(userId, permission),
+    queryFn: () => checkUserPermissions(userId, permission),
+    staleTime: 5 * 60 * 1000, // 5 minutes - permissions don't change often
+  });
+}
+
 export function useUserPermissionsQuery(
   userId: string | undefined,
   permission: "edit_artists" | "is_admin",
 ) {
   return useQuery({
-    queryKey: userPermissionsKeys.user(userId, permission),
-    queryFn: () => checkUserPermissions(userId!, permission),
+    ...userPermissionsQuery(userId!, permission),
     enabled: !!userId,
-    staleTime: 5 * 60 * 1000, // 5 minutes - permissions don't change often
   });
 }

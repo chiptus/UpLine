@@ -7,7 +7,7 @@ import { VotingExplanationStep } from "./steps/VotingExplanationStep";
 import { TimelineExplanationStep } from "./steps/TimelineExplanationStep";
 import { WelcomeStep } from "./steps/WelcomeStep";
 import { useAuth } from "@/contexts/AuthContext";
-import { useUpdateProfileMutation } from "@/hooks/queries/auth/useUpdateProfile";
+import { useUpdateProfileMutation } from "@/api/auth/useUpdateProfile";
 import { useToast } from "@/hooks/use-toast";
 
 export type OnboardingStep =

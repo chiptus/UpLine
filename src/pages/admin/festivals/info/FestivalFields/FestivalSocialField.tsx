@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { ExternalLink } from "lucide-react";
 import { EditableField } from "./shared/EditableField";
 import { EditContainer } from "./shared/EditContainer";
-import { useFestivalInfoMutation } from "@/hooks/queries/festival-info/useFestivalInfoMutation";
+import { useFestivalInfoMutation } from "@/api/festival-info/useFestivalInfoMutation";
 
 interface FestivalSocialFieldProps {
   festivalId: string;

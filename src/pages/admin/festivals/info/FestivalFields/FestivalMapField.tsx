@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Loader2, Upload } from "lucide-react";
 import { EditableField } from "./shared/EditableField";
 import { EditContainer } from "./shared/EditContainer";
-import { useFestivalInfoMutation } from "@/hooks/queries/festival-info/useFestivalInfoMutation";
+import { useFestivalInfoMutation } from "@/api/festival-info/useFestivalInfoMutation";
 import { useMapUpload } from "./shared/useMapUpload";
 
 interface FestivalMapFieldProps {

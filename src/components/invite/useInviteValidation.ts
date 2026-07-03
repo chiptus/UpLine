@@ -3,7 +3,7 @@ import { useToast } from "@/components/ui/use-toast";
 import {
   useInviteValidationQuery,
   useInviteMutation,
-} from "@/hooks/queries/useInviteValidationQuery";
+} from "@/api/invite-validation/useInviteValidationQuery";
 
 export function useInviteValidation(inviteToken: string | undefined) {
   const { toast } = useToast();

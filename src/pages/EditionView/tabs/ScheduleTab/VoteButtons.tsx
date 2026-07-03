@@ -9,8 +9,8 @@ import { cn } from "@/lib/utils";
 import type { ScheduleSet } from "@/hooks/useScheduleData";
 import { useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useUserVotes } from "@/hooks/queries/voting/useUserVotes";
-import { useVote } from "@/hooks/queries/voting/useVote";
+import { useUserVotes } from "@/api/voting/useUserVotes";
+import { useVote } from "@/api/voting/useVote";
 
 interface VoteButtonsProps {
   set: ScheduleSet;

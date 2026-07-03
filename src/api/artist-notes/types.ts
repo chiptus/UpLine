@@ -1,4 +1,4 @@
-import { artistsKeys } from "../useArtists";
+import { artistsKeys } from "@/api/artists/types";
 
 export type SetNote = {
   id: string;

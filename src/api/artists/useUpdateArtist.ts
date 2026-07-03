@@ -3,7 +3,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { generateSlug } from "@/lib/slug";
-import { Artist, artistsKeys } from "./useArtists";
+import type { Artist } from "./types";
+import { artistsKeys } from "./types";
 
 type ArtistUpdate = Database["public"]["Tables"]["artists"]["Update"];
 

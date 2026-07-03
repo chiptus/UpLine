@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { useArtistsQuery } from "@/hooks/queries/artists/useArtists";
+import { useArtistsQuery } from "@/api/artists/useArtists";
 import { AddArtistDialog } from "./AddArtistDialog";
 import { BulkEditorHeader } from "./components/BulkEditorHeader";
 import { BulkEditorSearchAndActions } from "./components/BulkEditorSearchAndActions";

@@ -1,5 +1,5 @@
 import { Table, TableBody } from "@/components/ui/table";
-import type { Artist } from "@/hooks/queries/artists/useArtists";
+import type { Artist } from "@/api/artists/types";
 import type { SortConfig, SortingKey } from "../hooks/useArtistSorting";
 import { BulkEditorTableHeader } from "./BulkEditorTableHeader";
 import { BulkEditorTableRow } from "./BulkEditorTableRow";

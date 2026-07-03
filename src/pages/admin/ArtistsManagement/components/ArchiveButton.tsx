@@ -11,7 +11,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Archive } from "lucide-react";
-import { useBulkArchiveArtistsMutation } from "@/hooks/queries/artists/useBulkArchiveArtists";
+import { useBulkArchiveArtistsMutation } from "@/api/artists/useBulkArchiveArtists";
 
 interface ArchiveButtonProps {
   selectedIds: Set<string>;

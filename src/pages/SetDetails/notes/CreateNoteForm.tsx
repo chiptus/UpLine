@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useCreateNoteMutation } from "@/hooks/queries/artists/notes/useCreateNoteMutation";
+import { useCreateNoteMutation } from "@/api/artist-notes/useCreateNoteMutation";
 import { SaveIcon, XIcon } from "lucide-react";
 import { useState } from "react";
 

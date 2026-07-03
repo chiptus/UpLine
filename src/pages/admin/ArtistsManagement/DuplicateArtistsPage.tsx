@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, Copy, ArrowLeft, Zap } from "lucide-react";
-import { useDuplicateArtistsQuery } from "@/hooks/queries/artists/useDuplicateArtists";
+import { useDuplicateArtistsQuery } from "@/api/artists/useDuplicateArtists";
 import { DuplicateGroupCard } from "./DuplicateGroupCard";
 import { BulkMergeDialog } from "./BulkMergeDialog";
 import { Link } from "@tanstack/react-router";

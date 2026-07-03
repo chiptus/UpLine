@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import type { Artist } from "@/hooks/queries/artists/useArtists";
+import type { Artist } from "@/api/artists/types";
 
 export type SortingKey = keyof Omit<Artist, "artist_music_genres"> | "genres";
 

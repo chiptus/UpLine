@@ -1,6 +1,6 @@
 import { Users } from "lucide-react";
 import { SoundCloudBadge } from "./SoundCloudBadge";
-import { Artist } from "@/hooks/queries/artists/useArtists";
+import { Artist } from "@/api/artists/types";
 import { MarkdownText } from "@/components/ui/markdown-text";
 
 interface PrimaryArtistDisplayProps {

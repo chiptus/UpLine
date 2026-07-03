@@ -9,8 +9,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Merge, X } from "lucide-react";
-import type { Artist } from "@/hooks/queries/artists/useArtists";
-import { useMergeArtistsMutation } from "@/hooks/queries/artists/useMergeArtists";
+import type { Artist } from "@/api/artists/types";
+import { useMergeArtistsMutation } from "@/api/artists/useMergeArtists";
 import { useToast } from "@/components/ui/use-toast";
 import { ArtistComparisonCard } from "./components/ArtistComparisonCard";
 import { MergePreviewDialog } from "./components/MergePreviewDialog";

@@ -9,8 +9,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
-import type { DuplicateGroup } from "@/hooks/queries/artists/useDuplicateArtists";
-import { useBulkMergeArtistsMutation } from "@/hooks/queries/artists/useBulkMergeArtists";
+import type { DuplicateGroup } from "@/api/artists/useDuplicateArtists";
+import { useBulkMergeArtistsMutation } from "@/api/artists/useBulkMergeArtists";
 import { BulkMergeStrategySelector } from "./components/BulkMergeStrategySelector";
 import { BulkMergeProgressDialog } from "./components/BulkMergeProgressDialog";
 import { BulkMergeCompleteDialog } from "./components/BulkMergeCompleteDialog";

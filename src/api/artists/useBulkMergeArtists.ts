@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Artist, artistsKeys } from "./useArtists";
+import type { Artist } from "./types";
+import { artistsKeys } from "./types";
 import {
   duplicateArtistsKeys,
   type DuplicateGroup,

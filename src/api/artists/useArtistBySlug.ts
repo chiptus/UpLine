@@ -1,8 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Artist, artistsKeys } from "./useArtists";
+import type { Artist } from "./types";
+import { artistsKeys } from "./types";
 
-// Business logic function
 async function fetchArtistBySlug(slug: string): Promise<Artist> {
   const { data, error } = await supabase
     .from("artists")
@@ -24,11 +24,16 @@ async function fetchArtistBySlug(slug: string): Promise<Artist> {
   return data;
 }
 
-// Hook
-export function useArtistBySlugQuery(slug: string) {
-  return useQuery({
+export function artistBySlugQuery(slug: string) {
+  return queryOptions({
     queryKey: artistsKeys.bySlug(slug),
     queryFn: () => fetchArtistBySlug(slug),
+  });
+}
+
+export function useArtistBySlugQuery(slug: string) {
+  return useQuery({
+    ...artistBySlugQuery(slug),
     enabled: !!slug,
   });
 }

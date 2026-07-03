@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Edit3, StickyNote } from "lucide-react";
-import { useArtistNotesQuery } from "@/hooks/queries/artists/notes/useArtistNotes";
+import { useArtistNotesQuery } from "@/api/artist-notes/useArtistNotes";
 import { SetNoteItem } from "./notes/SetNoteItem";
 import { CreateNoteForm } from "./notes/CreateNoteForm";
 

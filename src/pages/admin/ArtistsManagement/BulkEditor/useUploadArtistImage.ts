@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { uploadArtistLogo } from "@/services/storage";
-import { artistsKeys } from "../../../../hooks/queries/artists/useArtists";
+import { artistsKeys } from "@/api/artists/types";
 
 interface UploadArtistImageVariables {
   file: File;

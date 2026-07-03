@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { SetNote } from "@/hooks/queries/artists/notes/types";
-import { useDeleteNoteMutation } from "@/hooks/queries/artists/notes/useDeleteNoteMutation";
+import { SetNote } from "@/api/artist-notes/types";
+import { useDeleteNoteMutation } from "@/api/artist-notes/useDeleteNoteMutation";
 import { Trash2Icon } from "lucide-react";
 
 export function SetNoteItem({

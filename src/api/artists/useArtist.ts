@@ -1,8 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Artist, artistsKeys } from "./useArtists";
+import type { Artist } from "./types";
+import { artistsKeys } from "./types";
 
-// Business logic function
 async function fetchArtist(id: string): Promise<Artist> {
   const { data, error } = await supabase
     .from("artists")
@@ -24,11 +24,16 @@ async function fetchArtist(id: string): Promise<Artist> {
   return data;
 }
 
-// Hook
-export function useArtistQuery(id: string) {
-  return useQuery({
+export function artistQuery(id: string) {
+  return queryOptions({
     queryKey: artistsKeys.detail(id),
     queryFn: () => fetchArtist(id),
+  });
+}
+
+export function useArtistQuery(id: string) {
+  return useQuery({
+    ...artistQuery(id),
     enabled: !!id,
   });
 }

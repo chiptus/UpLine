@@ -1,6 +1,6 @@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import type { Artist } from "@/hooks/queries/artists/useArtists";
+import type { Artist } from "@/api/artists/types";
 import { GenreBadge } from "@/components/GenreBadge";
 
 interface FieldSelectorProps {

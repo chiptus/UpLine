@@ -8,7 +8,7 @@ import {
   type OrphanResolution,
   type StageMismatchResolution,
 } from "@/services/scheduleImport/types";
-import { artistsKeys } from "@/hooks/queries/artists/useArtists";
+import { artistsKeys } from "@/api/artists/types";
 import { setsKeys } from "@/api/sets/types";
 import { stagesKeys } from "@/api/stages/types";
 import { useStagesByEditionQuery } from "@/api/stages/useStagesByEdition";

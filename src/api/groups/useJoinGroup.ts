@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { userGroupsKeys } from "./useUserGroups";
+import { groupsKeys } from "./types";
 
 // Mutation function
 async function joinGroup(variables: { groupId: string; userId: string }) {
@@ -28,7 +28,7 @@ export function useJoinGroupMutation() {
     mutationFn: joinGroup,
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: userGroupsKeys.user(variables.userId),
+        queryKey: groupsKeys.user(variables.userId),
       });
       toast({
         title: "Success",

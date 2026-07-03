@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
-import { useUserGroupsQuery } from "@/hooks/queries/groups/useUserGroups";
+import { useUserGroupsQuery } from "@/api/groups/useUserGroups";
 import { useGroupVotesQuery } from "@/api/voting/useGroupVotes";
 import { Users } from "lucide-react";
 import { VOTE_CONFIG, VOTES_TYPES, getVoteConfig } from "@/lib/voteConfig";

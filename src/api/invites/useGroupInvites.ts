@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { GroupInvite, inviteKeys } from "./types";
 
@@ -23,12 +23,18 @@ async function getGroupInvites(groupId: string): Promise<Array<GroupInvite>> {
   );
 }
 
-export function useGroupInvitesQuery(groupId: string) {
-  return useQuery({
+export function groupInvitesQuery(groupId: string) {
+  return queryOptions({
     queryKey: inviteKeys.group(groupId),
     queryFn: () => getGroupInvites(groupId),
-    enabled: !!groupId,
     staleTime: 30 * 1000, // 30 seconds
     gcTime: 2 * 60 * 1000, // 2 minutes
+  });
+}
+
+export function useGroupInvitesQuery(groupId: string) {
+  return useQuery({
+    ...groupInvitesQuery(groupId),
+    enabled: !!groupId,
   });
 }

@@ -12,10 +12,10 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Link, Copy, Trash2, Calendar, Users } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { useGroupInvitesQuery } from "@/hooks/queries/groups/invites/useGroupInvites";
-import { useGenerateInviteMutation } from "@/hooks/queries/groups/invites/useGenerateInviteMutation";
-import { useDeleteInviteMutation } from "@/hooks/queries/groups/invites/useDeleteInviteMutation";
-import { GroupInvite } from "@/hooks/queries/groups/invites/types";
+import { useGroupInvitesQuery } from "@/api/invites/useGroupInvites";
+import { useGenerateInviteMutation } from "@/api/invites/useGenerateInviteMutation";
+import { useDeleteInviteMutation } from "@/api/invites/useDeleteInviteMutation";
+import { GroupInvite } from "@/api/invites/types";
 
 interface InviteManagementProps {
   groupId: string;

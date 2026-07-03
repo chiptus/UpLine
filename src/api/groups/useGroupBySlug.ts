@@ -1,14 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { Group } from "@/types/groups";
-
-// Query key factory
-export const groupBySlugKeys = {
-  all: ["groups"] as const,
-  bySlug: () => [...groupBySlugKeys.all, "by-slug"] as const,
-  detail: (slug: string, userId: string) =>
-    [...groupBySlugKeys.bySlug(), slug, userId] as const,
-};
+import type { Group } from "./types";
+import { groupsKeys } from "./types";
 
 interface UseGroupBySlugParams {
   slug?: string;
@@ -59,10 +52,16 @@ async function fetchGroupBySlug(slug: string, userId: string): Promise<Group> {
   return data;
 }
 
+export function groupBySlugQuery(slug: string, userId: string) {
+  return queryOptions({
+    queryKey: groupsKeys.bySlugDetail(slug, userId),
+    queryFn: () => fetchGroupBySlug(slug, userId),
+  });
+}
+
 export function useGroupBySlugQuery({ slug, userId }: UseGroupBySlugParams) {
   return useQuery({
-    queryKey: groupBySlugKeys.detail(slug!, userId!),
-    queryFn: () => fetchGroupBySlug(slug!, userId!),
+    ...groupBySlugQuery(slug!, userId!),
     enabled: !!slug && !!userId,
   });
 }

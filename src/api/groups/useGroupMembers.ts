@@ -1,13 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { GroupMember } from "@/types/groups";
-
-// Query key factory
-export const groupMembersKeys = {
-  all: ["groups"] as const,
-  members: (groupId: string) =>
-    [...groupMembersKeys.all, "members", groupId] as const,
-};
+import type { GroupMember } from "./types";
+import { groupsKeys } from "./types";
 
 // Business logic function
 async function fetchGroupMembers(groupId: string): Promise<GroupMember[]> {
@@ -49,11 +43,17 @@ async function fetchGroupMembers(groupId: string): Promise<GroupMember[]> {
   return membersWithProfiles;
 }
 
+export function groupMembersQuery(groupId: string) {
+  return queryOptions({
+    queryKey: groupsKeys.members(groupId),
+    queryFn: () => fetchGroupMembers(groupId),
+  });
+}
+
 // Hook
 export function useGroupMembersQuery(groupId: string) {
   return useQuery({
-    queryKey: groupMembersKeys.members(groupId),
-    queryFn: () => fetchGroupMembers(groupId),
+    ...groupMembersQuery(groupId),
     enabled: !!groupId,
   });
 }

@@ -1,6 +1,6 @@
 import { GroupCard } from "./GroupCard";
 import { Card, CardContent } from "@/components/ui/card";
-import { Group } from "@/types/groups";
+import { Group } from "@/api/groups/types";
 import { Users } from "lucide-react";
 
 export function MyGroupsList({

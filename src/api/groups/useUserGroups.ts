@@ -1,13 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { Group } from "@/types/groups";
-
-// Query key factory
-export const userGroupsKeys = {
-  all: ["groups"] as const,
-  user: (userId: string, params?: unknown) =>
-    [...userGroupsKeys.all, "user", userId, params] as const,
-};
+import type { Group } from "./types";
+import { groupsKeys } from "./types";
 
 // Check if user is admin
 async function isUserAdmin(userId: string): Promise<boolean> {
@@ -122,13 +116,22 @@ async function fetchUserGroups(
   );
 }
 
+export function userGroupsQuery(
+  userId: string,
+  params: { all?: boolean } = {},
+) {
+  return queryOptions({
+    queryKey: groupsKeys.user(userId, params),
+    queryFn: () => fetchUserGroups(userId, params),
+  });
+}
+
 export function useUserGroupsQuery(
   userId: string | undefined,
   params: { all?: boolean } = {},
 ) {
   return useQuery({
-    queryKey: userGroupsKeys.user(userId!, params),
-    queryFn: () => fetchUserGroups(userId!, params),
+    ...userGroupsQuery(userId!, params),
     enabled: !!userId,
   });
 }

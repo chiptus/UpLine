@@ -1,49 +1,45 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { userGroupsKeys } from "./useUserGroups";
+import { groupsKeys } from "./types";
 
 // Mutation function
-async function deleteGroup(variables: { groupId: string; userId: string }) {
+async function leaveGroup(variables: { groupId: string; userId: string }) {
   const { groupId, userId } = variables;
 
   const { error } = await supabase
-    .from("groups")
-    .update({ archived: true })
-    .eq("id", groupId)
-    .eq("created_by", userId);
+    .from("group_members")
+    .delete()
+    .eq("group_id", groupId)
+    .eq("user_id", userId);
 
   if (error) {
-    throw new Error("Failed to delete group");
+    throw new Error("Failed to leave group");
   }
 
   return true;
 }
 
 // Hook
-export function useDeleteGroupMutation() {
+export function useLeaveGroupMutation() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: deleteGroup,
+    mutationFn: leaveGroup,
     onSuccess: (_data, variables) => {
-      // Invalidate all group-related queries
       queryClient.invalidateQueries({
-        queryKey: userGroupsKeys.user(variables.userId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: userGroupsKeys.all,
+        queryKey: groupsKeys.user(variables.userId),
       });
       toast({
         title: "Success",
-        description: "Group deleted successfully",
+        description: "Left group successfully",
       });
     },
     onError: (error) => {
       toast({
         title: "Error",
-        description: error?.message || "Failed to delete group",
+        description: error?.message || "Failed to leave group",
         variant: "destructive",
       });
     },

@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { userGroupsKeys } from "./useUserGroups";
+import { groupsKeys } from "./types";
 import { generateSlug } from "@/lib/slug";
 
 // Mutation function
@@ -50,10 +50,10 @@ export function useCreateGroupMutation() {
     mutationFn: createGroup,
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: userGroupsKeys.user(variables.userId),
+        queryKey: groupsKeys.user(variables.userId),
       });
       queryClient.invalidateQueries({
-        queryKey: userGroupsKeys.all,
+        queryKey: groupsKeys.all,
       });
       toast({
         title: "Success",

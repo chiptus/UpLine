@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Loader2, Edit } from "lucide-react";
-import { useFestivalInfoQuery } from "@/hooks/queries/festival-info/useFestivalInfo";
+import { useFestivalInfoQuery } from "@/api/festival-info/useFestivalInfo";
 import { useCustomLinksQuery } from "@/api/custom-links/useCustomLinks";
 import { FestivalMapField } from "./FestivalFields/FestivalMapField";
 import { FestivalInfoField } from "./FestivalFields/FestivalInfoField";

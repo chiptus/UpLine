@@ -1,4 +1,4 @@
-import { FestivalInfo } from "@/hooks/queries/festival-info/useFestivalInfo";
+import { FestivalInfo } from "@/api/festival-info/types";
 import { LucideIcon } from "lucide-react";
 import { ComponentType } from "react";
 

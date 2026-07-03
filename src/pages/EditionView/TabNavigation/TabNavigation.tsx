@@ -1,5 +1,5 @@
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
-import { useFestivalInfoQuery } from "@/hooks/queries/festival-info/useFestivalInfo";
+import { useFestivalInfoQuery } from "@/api/festival-info/useFestivalInfo";
 import { DesktopTabButton } from "./DesktopTabButton";
 import { MobileTabButton } from "./MobileTabButton";
 import { config } from "./config";

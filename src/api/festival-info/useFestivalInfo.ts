@@ -1,14 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Tables } from "@/integrations/supabase/types";
-
-export type FestivalInfo = Tables<"festival_info">;
-
-export const festivalInfoKeys = {
-  all: ["festivalInfo"] as const,
-  byFestival: (festivalId: string) =>
-    [...festivalInfoKeys.all, festivalId] as const,
-};
+import { FestivalInfo, festivalInfoKeys } from "./types";
 
 async function fetchFestivalInfo(festivalId: string): Promise<FestivalInfo> {
   const { data, error } = await supabase
@@ -29,10 +21,16 @@ async function fetchFestivalInfo(festivalId: string): Promise<FestivalInfo> {
   return data;
 }
 
+export function festivalInfoQuery(festivalId: string) {
+  return queryOptions({
+    queryKey: festivalInfoKeys.byFestival(festivalId),
+    queryFn: () => fetchFestivalInfo(festivalId),
+  });
+}
+
 export function useFestivalInfoQuery(festivalId: string | undefined) {
   return useQuery({
-    queryKey: festivalInfoKeys.byFestival(festivalId || ""),
-    queryFn: () => fetchFestivalInfo(festivalId!),
+    ...festivalInfoQuery(festivalId!),
     enabled: !!festivalId,
   });
 }

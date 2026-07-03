@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
 import { EditableField } from "./shared/EditableField";
 import { EditContainer } from "./shared/EditContainer";
-import { useFestivalInfoMutation } from "@/hooks/queries/festival-info/useFestivalInfoMutation";
+import { useFestivalInfoMutation } from "@/api/festival-info/useFestivalInfoMutation";
 import { parseMarkdown } from "@/lib/markdown";
 import { getTextAlignmentClasses } from "@/lib/textAlignment";
 

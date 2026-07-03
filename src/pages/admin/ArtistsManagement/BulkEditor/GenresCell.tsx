@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { GenreMultiSelect } from "../GenreMultiSelect";
-import { useGenresQuery } from "@/hooks/queries/genres/useGenres";
+import { useGenresQuery } from "@/api/genres/useGenres";
 import { Check, X } from "lucide-react";
 
 interface GenresCellProps {

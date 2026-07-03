@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import type { SortOption, FilterSortState } from "@/hooks/useUrlState";
-import { useGenres } from "@/hooks/queries/genres/useGenres";
+import { useGenresQuery } from "@/api/genres/useGenres";
 import { SortControls } from "./SortControls";
 import { MobileFilters } from "./MobileFilters";
 import { DesktopFilters } from "./DesktopFilters";
@@ -24,7 +24,7 @@ export function FilterSortControls({
 }: FilterSortControlsProps) {
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const { genres } = useGenres();
+  const { data: genres = [] } = useGenresQuery();
 
   useEffect(() => {
     function checkMobile() {

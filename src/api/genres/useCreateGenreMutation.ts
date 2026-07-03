@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { genresKeys } from "./types";
 
 interface CreateGenreParams {
   name: string;
@@ -29,8 +30,7 @@ export function useCreateGenreMutation() {
       return data;
     },
     onSuccess: () => {
-      // Invalidate genres query if it exists
-      queryClient.invalidateQueries({ queryKey: ["genres"] });
+      queryClient.invalidateQueries({ queryKey: genresKeys.all() });
 
       toast({
         title: "Success",

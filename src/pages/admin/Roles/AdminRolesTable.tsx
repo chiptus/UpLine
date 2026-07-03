@@ -1,10 +1,8 @@
 import { useState } from "react";
-import {
-  useAdminRolesQuery,
-  useAddAdminMutation,
-  useRemoveAdminMutation,
-  useUpdateAdminRoleMutation,
-} from "@/api/admin-roles/useAdminRolesQuery";
+import { useAdminRolesQuery } from "@/api/admin-roles/useAdminRolesQuery";
+import { useAddAdminMutation } from "@/api/admin-roles/useAddAdminMutation";
+import { useRemoveAdminMutation } from "@/api/admin-roles/useRemoveAdminMutation";
+import { useUpdateAdminRoleMutation } from "@/api/admin-roles/useUpdateAdminRoleMutation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

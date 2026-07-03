@@ -1,14 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Tables } from "@/integrations/supabase/types";
-
-export type CustomLink = Tables<"custom_links">;
-
-export const customLinksKeys = {
-  all: ["customLinks"] as const,
-  byFestival: (festivalId: string) =>
-    [...customLinksKeys.all, festivalId] as const,
-};
+import { CustomLink, customLinksKeys } from "./types";
 
 async function fetchCustomLinks(festivalId: string): Promise<CustomLink[]> {
   const { data, error } = await supabase
@@ -26,10 +18,16 @@ async function fetchCustomLinks(festivalId: string): Promise<CustomLink[]> {
   return data || [];
 }
 
+export function customLinksQuery(festivalId: string) {
+  return queryOptions({
+    queryKey: customLinksKeys.byFestival(festivalId),
+    queryFn: () => fetchCustomLinks(festivalId),
+  });
+}
+
 export function useCustomLinksQuery(festivalId: string | undefined) {
   return useQuery({
-    queryKey: customLinksKeys.byFestival(festivalId || ""),
-    queryFn: () => fetchCustomLinks(festivalId!),
+    ...customLinksQuery(festivalId ?? ""),
     enabled: !!festivalId,
   });
 }

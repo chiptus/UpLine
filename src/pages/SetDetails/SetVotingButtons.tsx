@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { FestivalSet } from "@/api/sets/types";
-import { useUserVotes } from "@/hooks/queries/voting/useUserVotes";
-import { useVote } from "@/hooks/queries/voting/useVote";
+import { useUserVotes } from "@/api/voting/useUserVotes";
+import { useVote } from "@/api/voting/useVote";
 import { useVoteCount } from "@/hooks/useVoteCount";
 import { VOTE_CONFIG, getVoteConfig } from "@/lib/voteConfig";
 

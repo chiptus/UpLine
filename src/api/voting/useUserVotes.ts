@@ -1,13 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { userVotesKeys } from "./types";
 
-// Query key factory
-export const userVotesKeys = {
-  all: ["votes"] as const,
-  user: (userId: string) => [...userVotesKeys.all, "user", userId] as const,
-};
-
-// Business logic function
 async function fetchUserVotes(userId: string): Promise<Record<string, number>> {
   const { data, error } = await supabase
     .from("votes")
@@ -29,11 +23,16 @@ async function fetchUserVotes(userId: string): Promise<Record<string, number>> {
   return votes;
 }
 
-// Hook
+export function userVotesQuery(userId: string) {
+  return queryOptions({
+    queryKey: userVotesKeys.user(userId),
+    queryFn: () => fetchUserVotes(userId),
+  });
+}
+
 export function useUserVotes(userId: string | undefined) {
   return useQuery({
-    queryKey: userVotesKeys.user(userId!),
-    queryFn: () => fetchUserVotes(userId!),
+    ...userVotesQuery(userId!),
     enabled: !!userId,
   });
 }

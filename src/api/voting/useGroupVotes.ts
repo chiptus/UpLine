@@ -1,5 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { groupVotesKeys } from "./types";
 
 export interface GroupVote {
   vote_type: number;
@@ -7,14 +8,6 @@ export interface GroupVote {
   username: string | null;
 }
 
-// Query key factory
-export const groupVotesKeys = {
-  all: ["groups"] as const,
-  votes: (setId: string, groupId: string) =>
-    [...groupVotesKeys.all, "votes", setId, groupId] as const,
-};
-
-// Business logic function
 async function fetchGroupVotes(
   setId: string,
   groupId: string,
@@ -73,10 +66,16 @@ async function fetchGroupVotes(
   });
 }
 
-export function useGroupVotesQuery(setId: string, groupId: string) {
-  return useQuery({
+export function groupVotesQuery(setId: string, groupId: string) {
+  return queryOptions({
     queryKey: groupVotesKeys.votes(setId, groupId),
     queryFn: () => fetchGroupVotes(setId, groupId),
+  });
+}
+
+export function useGroupVotesQuery(setId: string, groupId: string) {
+  return useQuery({
+    ...groupVotesQuery(setId, groupId),
     enabled: !!setId && !!groupId,
   });
 }

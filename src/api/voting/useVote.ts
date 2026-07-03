@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { userVotesKeys } from "./useUserVotes";
+import { userVotesKeys } from "./types";
 import { setsKeys } from "@/api/sets/types";
 
 // Mutation function

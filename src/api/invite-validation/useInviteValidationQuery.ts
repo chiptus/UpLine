@@ -1,8 +1,8 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { queryOptions, useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import type { InviteValidation } from "@/types/invites";
-import { inviteKeys } from "./groups/invites/types";
+import { inviteKeys } from "@/hooks/queries/groups/invites/types";
 
 async function validateInviteToken(
   token: string,
@@ -23,14 +23,20 @@ async function validateInviteToken(
   return null;
 }
 
-export function useInviteValidationQuery(token: string | null) {
-  return useQuery({
-    queryKey: inviteKeys.validation(token || ""),
-    queryFn: () => validateInviteToken(token!),
-    enabled: !!token,
+export function inviteValidationQuery(token: string) {
+  return queryOptions({
+    queryKey: inviteKeys.validation(token),
+    queryFn: () => validateInviteToken(token),
     staleTime: 0, // Always fresh check for invites
     gcTime: 0, // Don't cache invite validations
     retry: false, // Don't retry failed validations
+  });
+}
+
+export function useInviteValidationQuery(token: string | null) {
+  return useQuery({
+    ...inviteValidationQuery(token!),
+    enabled: !!token,
   });
 }
 

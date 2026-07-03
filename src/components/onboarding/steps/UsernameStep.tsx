@@ -1,4 +1,4 @@
-import { useUpdateProfileMutation } from "@/hooks/queries/auth/useUpdateProfile";
+import { useUpdateProfileMutation } from "@/api/auth/useUpdateProfile";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

@@ -2,7 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { TopBar } from "@/components/layout/TopBar";
 import { Outlet, useNavigate, useLocation } from "@tanstack/react-router";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useUserPermissionsQuery } from "@/hooks/queries/auth/useUserPermissions";
+import { useUserPermissionsQuery } from "@/api/auth/useUserPermissions";
 import { useEffect } from "react";
 import { Music, Calendar, BarChart3, UserPlus } from "lucide-react";
 

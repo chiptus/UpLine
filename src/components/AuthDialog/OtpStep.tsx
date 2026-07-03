@@ -1,6 +1,6 @@
 import { useForm, Controller } from "react-hook-form";
-import { useSignInWithOtpMutation } from "@/hooks/queries/auth/useSignInWithOtpMutation";
-import { useVerifyOtpMutation } from "@/hooks/queries/auth/useVerifyOtpMutation";
+import { useSignInWithOtpMutation } from "@/api/auth/useSignInWithOtpMutation";
+import { useVerifyOtpMutation } from "@/api/auth/useVerifyOtpMutation";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {

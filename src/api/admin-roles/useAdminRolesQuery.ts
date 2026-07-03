@@ -1,19 +1,19 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { Database } from "@/integrations/supabase/types";
+import { adminQueries, type AdminRoleRow } from "./types";
 
-type AdminRole = Database["public"]["Tables"]["admin_roles"]["Row"] & {
+export type AdminRole = AdminRoleRow & {
   profile?: {
     username: string | null;
     email: string | null;
   };
-};
-
-// Query Keys
-export const adminQueries = {
-  all: () => ["admin"] as const,
-  roles: () => [...adminQueries.all(), "roles"] as const,
 };
 
 // Query Functions
@@ -48,14 +48,18 @@ async function fetchAdminRoles(): Promise<AdminRole[]> {
   return [];
 }
 
-// Hooks
-export function useAdminRolesQuery() {
-  return useQuery({
+export function adminRolesQuery() {
+  return queryOptions({
     queryKey: adminQueries.roles(),
     queryFn: fetchAdminRoles,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
+}
+
+// Hooks
+export function useAdminRolesQuery() {
+  return useQuery(adminRolesQuery());
 }
 
 export function useAddAdminMutation() {

@@ -1,9 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Stage, stagesKeys } from "./types";
+import type { Stage } from "./types";
+import { stagesKeys } from "./types";
 import { sortStagesByOrder } from "@/lib/stageUtils";
 
-async function fetchStagesByEdition(editionId: string): Promise<Stage[]> {
+export async function fetchStagesByEdition(
+  editionId: string,
+): Promise<Stage[]> {
   const { data, error } = await supabase
     .from("stages")
     .select("*")
@@ -15,14 +18,19 @@ async function fetchStagesByEdition(editionId: string): Promise<Stage[]> {
     throw new Error("Failed to load stages for edition");
   }
 
-  // Apply custom sorting using shared utility
   return sortStagesByOrder(data || []);
+}
+
+export function stagesByEditionQuery(editionId: string) {
+  return queryOptions({
+    queryKey: stagesKeys.byEdition(editionId),
+    queryFn: () => fetchStagesByEdition(editionId),
+  });
 }
 
 export function useStagesByEditionQuery(editionId: string | undefined) {
   return useQuery({
-    queryKey: stagesKeys.byEdition(editionId || ""),
-    queryFn: () => fetchStagesByEdition(editionId!),
+    ...stagesByEditionQuery(editionId ?? ""),
     enabled: !!editionId,
   });
 }

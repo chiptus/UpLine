@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Clock } from "lucide-react";
 import { StageBadge } from "@/components/StageBadge";
-import { useStageQuery } from "@/hooks/queries/stages/useStageQuery";
+import { useStageQuery } from "@/api/stages/useStageQuery";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 
 interface SetCardHeaderProps {

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { MapPin } from "lucide-react";
-import { useStagesByEditionQuery } from "@/hooks/queries/stages/useStagesByEdition";
+import { useStagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 
 interface StageFilterButtonsProps {

@@ -6,7 +6,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { FilterSortState } from "@/hooks/useUrlState";
-import { useStagesByEditionQuery } from "@/hooks/queries/stages/useStagesByEdition";
+import { useStagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 
 interface MobileFiltersProps {

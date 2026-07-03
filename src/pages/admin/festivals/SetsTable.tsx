@@ -1,4 +1,4 @@
-import { useStagesByEditionQuery } from "@/hooks/queries/stages/useStagesByEdition";
+import { useStagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import {
   Table,
   TableBody,

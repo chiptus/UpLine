@@ -1,6 +1,6 @@
 import { differenceInMinutes } from "date-fns";
 import type { ScheduleSet, ScheduleDay } from "@/hooks/useScheduleData";
-import type { Stage } from "@/hooks/queries/stages/types";
+import type { Stage } from "@/api/stages/types";
 import { sortStagesByOrder } from "@/lib/stageUtils";
 
 export interface HorizontalTimelineSet extends ScheduleSet {

@@ -1,11 +1,11 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { StagePin } from "./StagePin";
-import * as useStageQueryModule from "@/hooks/queries/stages/useStageQuery";
+import * as useStageQueryModule from "@/api/stages/useStageQuery";
 
 type StageQueryResult = ReturnType<typeof useStageQueryModule.useStageQuery>;
 
-vi.mock("@/hooks/queries/stages/useStageQuery");
+vi.mock("@/api/stages/useStageQuery");
 
 describe("StagePin", () => {
   beforeEach(() => {

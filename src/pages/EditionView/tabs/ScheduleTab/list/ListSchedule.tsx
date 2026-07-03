@@ -6,7 +6,7 @@ import { isSameDay, format } from "date-fns";
 import { TimeSlotGroup } from "./TimeSlotGroup";
 import type { ScheduleSet } from "@/hooks/useScheduleData";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
-import { useStagesByEditionQuery } from "@/hooks/queries/stages/useStagesByEdition";
+import { useStagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 import { ScheduleNotRevealedPlaceholder } from "../ScheduleNotRevealedPlaceholder";
 

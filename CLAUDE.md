@@ -143,3 +143,17 @@ In this codebase, it is acceptable and preferred to define helper functions (suc
 
 - never run "supabase db push"
 - don't run supabase db reset
+
+## Agent skills
+
+### Issue tracker
+
+Issues (and external PRs) are tracked in GitHub Issues for `chiptus/UpLine`, via the `gh` CLI. External PRs are a triage surface. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default vocabulary: `needs-triage` / `needs-info` / `ready-for-agent` / `ready-for-human` / `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.

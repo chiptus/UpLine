@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UserPlus } from "lucide-react";
-import { useInviteToGroupMutation } from "@/hooks/queries/groups/useInviteToGroup";
+import { useInviteToGroupMutation } from "@/api/groups/useInviteToGroup";
 
 interface AddMemberFormProps {
   groupId: string;

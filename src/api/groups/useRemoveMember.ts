@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { groupMembersKeys } from "./useGroupMembers";
+import { groupsKeys } from "./types";
 
 // Mutation function
 async function removeMemberFromGroup(variables: {
@@ -55,7 +55,7 @@ export function useRemoveMemberMutation(groupId: string) {
     onSuccess: () => {
       // Invalidate group members query to refresh the list
       queryClient.invalidateQueries({
-        queryKey: groupMembersKeys.members(groupId),
+        queryKey: groupsKeys.members(groupId),
       });
 
       toast({

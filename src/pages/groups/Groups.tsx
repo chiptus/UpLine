@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/contexts/AuthContext";
-import { useUserGroupsQuery } from "@/hooks/queries/groups/useUserGroups";
+import { useUserGroupsQuery } from "@/api/groups/useUserGroups";
 import { useUserPermissionsQuery } from "@/api/auth/useUserPermissions";
-import { useDeleteGroupMutation } from "@/hooks/queries/groups/useDeleteGroup";
+import { useDeleteGroupMutation } from "@/api/groups/useDeleteGroup";
 import { DeleteGroupDialog } from "./Groups/DeleteGroupDialog";
 import { CreateGroupDialog } from "./Groups/CreateGroupDialog";
 import { SignInRequired } from "./Groups/SignInRequired";

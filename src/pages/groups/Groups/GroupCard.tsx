@@ -9,8 +9,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Users, Trash2, Crown } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { useLeaveGroupMutation } from "@/hooks/queries/groups/useLeaveGroup";
-import { Group } from "@/types/groups";
+import { useLeaveGroupMutation } from "@/api/groups/useLeaveGroup";
+import { Group } from "@/api/groups/types";
 import { useAuth } from "@/contexts/AuthContext";
 
 export function GroupCard({
@@ -26,7 +26,11 @@ export function GroupCard({
   const leaveGroupMutation = useLeaveGroupMutation();
 
   return (
-    <Link to="/groups/$groupSlug" params={{ groupSlug: group.slug }} className="block">
+    <Link
+      to="/groups/$groupSlug"
+      params={{ groupSlug: group.slug }}
+      className="block"
+    >
       <Card className="bg-white/10 border-purple-400/30">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">

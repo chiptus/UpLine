@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Users, ChevronDown } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useUserGroupsQuery } from "@/hooks/queries/groups/useUserGroups";
+import { useUserGroupsQuery } from "@/api/groups/useUserGroups";
 
 interface GroupFilterDropdownProps {
   selectedGroupId?: string;

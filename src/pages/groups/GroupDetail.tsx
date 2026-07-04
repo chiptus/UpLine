@@ -15,9 +15,9 @@ import { useToast } from "@/components/ui/use-toast";
 import { InviteManagement } from "./GroupDetail/InviteManagement";
 import { AddMemberForm } from "./GroupDetail/AddMemberForm";
 import { Button } from "@/components/ui/button";
-import { useGroupBySlugQuery } from "@/hooks/queries/groups/useGroupBySlug";
-import { useGroupMembersQuery } from "@/hooks/queries/groups/useGroupMembers";
-import { useRemoveMemberMutation } from "@/hooks/queries/groups/useRemoveMember";
+import { useGroupBySlugQuery } from "@/api/groups/useGroupBySlug";
+import { useGroupMembersQuery } from "@/api/groups/useGroupMembers";
+import { useRemoveMemberMutation } from "@/api/groups/useRemoveMember";
 
 function GroupDetail() {
   const { groupSlug } = useParams({ from: "/groups/$groupSlug" });

@@ -1,14 +1,13 @@
 import { useParams } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArtistImageCard } from "./SetDetails/SetImageCard";
 import { MixedArtistImage } from "./SetDetails/MixedArtistImage";
 import { SetInfoCard } from "./SetDetails/SetInfoCard";
 import { MultiArtistSetInfoCard } from "./SetDetails/MultiArtistSetInfoCard";
-import { ArtistNotFoundState } from "./SetDetails/SetNotFoundState";
-import { ArtistLoadingState } from "./SetDetails/SetLoadingState";
 import { SetGroupVoting } from "./SetDetails/SetGroupVoting";
 import { SetNotes } from "./SetDetails/SetNotes";
 import { useUrlState } from "@/hooks/useUrlState";
-import { useSetBySlugQuery } from "@/api/sets/useSetBySlug";
+import { setBySlugQuery } from "@/api/sets/useSetBySlug";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useVoteCount } from "@/hooks/useVoteCount";
@@ -23,25 +22,16 @@ export function SetDetails() {
   });
   const { edition, festival } = useFestivalEdition();
   const { state: urlState } = useUrlState();
-  const setQuery = useSetBySlugQuery({
-    slug: setSlug,
-    editionId: edition?.id,
-  });
+  const { data: currentSet } = useSuspenseQuery(
+    setBySlugQuery(setSlug, edition!.id),
+  );
 
-  const { getVoteCount } = useVoteCount(setQuery.data);
+  const { getVoteCount } = useVoteCount(currentSet);
 
-  const setTitle = setQuery.data?.name;
+  const setTitle = currentSet.name;
 
   const netVoteScore = 2 * getVoteCount(2) + getVoteCount(1) - getVoteCount(-1);
 
-  if (setQuery.isLoading) {
-    return <ArtistLoadingState />;
-  }
-
-  if (!setQuery.data) {
-    return <ArtistNotFoundState />;
-  }
-  const currentSet = setQuery.data;
   const isMultiArtistSet = currentSet.artists.length > 1;
   const primaryArtist = currentSet.artists[0];
 

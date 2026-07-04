@@ -20,9 +20,14 @@ import { TimezoneItem } from "./TimezoneItem";
 type Props = {
   value: string;
   onChange: (value: string) => void;
+  description?: string;
 };
 
-export function TimezonePicker({ value, onChange }: Props) {
+export function TimezonePicker({
+  value,
+  onChange,
+  description = "All times in the CSV are interpreted as local festival time.",
+}: Props) {
   const triggerId = useId();
   const [open, setOpen] = useState(false);
 
@@ -84,9 +89,7 @@ export function TimezonePicker({ value, onChange }: Props) {
           </Command>
         </PopoverContent>
       </Popover>
-      <p className="text-sm text-muted-foreground">
-        All times in the CSV are interpreted as local festival time.
-      </p>
+      <p className="text-sm text-muted-foreground">{description}</p>
     </div>
   );
 }

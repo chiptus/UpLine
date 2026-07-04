@@ -1,16 +1,18 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Link, useParams } from "@tanstack/react-router";
 import { Clock } from "lucide-react";
-import { format, differenceInMinutes } from "date-fns";
+import { differenceInMinutes } from "date-fns";
+import { formatTimeOnly } from "@/lib/timeUtils";
 import { VoteButtons } from "../VoteButtons";
 import { StageBadge } from "@/components/StageBadge";
 import type { ScheduleSet } from "@/hooks/useScheduleData";
 
 interface MobileSetCardProps {
   set: ScheduleSet & { stageName: string; stageColor?: string };
+  timezone?: string;
 }
 
-export function MobileSetCard({ set }: MobileSetCardProps) {
+export function MobileSetCard({ set, timezone }: MobileSetCardProps) {
   const { festivalSlug, editionSlug } = useParams({
     from: "/festivals/$festivalSlug/editions/$editionSlug",
   });
@@ -51,8 +53,12 @@ export function MobileSetCard({ set }: MobileSetCardProps) {
           {set.startTime && set.endTime && (
             <div className="flex items-center gap-1">
               <span>
-                {format(set.startTime, "HH:mm")} -{" "}
-                {format(set.endTime, "HH:mm")}
+                {formatTimeOnly(
+                  set.startTime.toISOString(),
+                  set.endTime.toISOString(),
+                  true,
+                  timezone,
+                )}
               </span>
             </div>
           )}

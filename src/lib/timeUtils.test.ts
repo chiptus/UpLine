@@ -5,8 +5,12 @@ import {
   formatTimeOnly,
   toDatetimeLocal,
   toISOString,
+  toDatetimeLocalInTimeZone,
   combineDateAndTime,
   convertLocalTimeToUTC,
+  getFestivalDayKey,
+  getFestivalDayLabel,
+  getFestivalHour,
 } from "./timeUtils";
 
 describe("formatTimeRange", () => {
@@ -139,6 +143,24 @@ describe("formatTimeOnly", () => {
     const result = formatTimeOnly("2024-12-15T14:00:00Z", "invalid");
     expect(result).toBeTruthy();
     expect(result).not.toContain("-");
+  });
+
+  it("formats in the given timezone instead of the browser zone", () => {
+    // 14:00 UTC is 14:00 in Lisbon (WET, UTC+0 in December) and 09:00 in New York (UTC-5).
+    const lisbon = formatTimeOnly(
+      "2024-12-15T14:00:00Z",
+      null,
+      true,
+      "Europe/Lisbon",
+    );
+    const newYork = formatTimeOnly(
+      "2024-12-15T14:00:00Z",
+      null,
+      true,
+      "America/New_York",
+    );
+    expect(lisbon).toBe("14:00");
+    expect(newYork).toBe("09:00");
   });
 });
 
@@ -291,5 +313,132 @@ describe("convertLocalTimeToUTC", () => {
     );
     expect(result1).toBeTruthy();
     expect(result2).toBeTruthy();
+  });
+
+  it("handles a DST boundary correctly", () => {
+    // US DST starts 2024-03-10: 2:00 AM local jumps to 3:00 AM (EST -05:00 -> EDT -04:00).
+    const beforeDst = convertLocalTimeToUTC(
+      "2024-03-10 01:30:00",
+      "America/New_York",
+    );
+    const afterDst = convertLocalTimeToUTC(
+      "2024-03-10 03:30:00",
+      "America/New_York",
+    );
+    expect(beforeDst).toBe("2024-03-10T06:30:00.000Z");
+    expect(afterDst).toBe("2024-03-10T07:30:00.000Z");
+  });
+});
+
+describe("toDatetimeLocalInTimeZone", () => {
+  it("returns empty string for null input", () => {
+    expect(toDatetimeLocalInTimeZone(null, "Europe/Lisbon")).toBe("");
+  });
+
+  it("returns empty string for invalid input", () => {
+    expect(toDatetimeLocalInTimeZone("invalid", "Europe/Lisbon")).toBe("");
+  });
+
+  it("converts UTC ISO string to a festival-zone datetime-local string", () => {
+    // 14:00 UTC is 14:00 in Lisbon (WET, UTC+0 in December).
+    const result = toDatetimeLocalInTimeZone(
+      "2024-12-15T14:00:00Z",
+      "Europe/Lisbon",
+    );
+    expect(result).toBe("2024-12-15T14:00");
+  });
+
+  it("is independent of the machine's local zone", () => {
+    const lisbon = toDatetimeLocalInTimeZone(
+      "2024-12-15T14:00:00Z",
+      "Europe/Lisbon",
+    );
+    const newYork = toDatetimeLocalInTimeZone(
+      "2024-12-15T14:00:00Z",
+      "America/New_York",
+    );
+    expect(lisbon).not.toBe(newYork);
+  });
+
+  it("round-trips with convertLocalTimeToUTC", () => {
+    const original = "2024-12-15T14:00:00.000Z";
+    const local = toDatetimeLocalInTimeZone(original, "America/New_York");
+    const backToUtc = convertLocalTimeToUTC(local, "America/New_York");
+    expect(backToUtc).toBe(original);
+  });
+});
+
+describe("getFestivalDayKey", () => {
+  it("returns null for null input", () => {
+    expect(getFestivalDayKey(null, "Europe/Lisbon")).toBeNull();
+  });
+
+  it("returns null for invalid input", () => {
+    expect(getFestivalDayKey("invalid", "Europe/Lisbon")).toBeNull();
+  });
+
+  it("groups a post-midnight set under the festival's calendar day", () => {
+    // Lisbon observes WEST (UTC+1) in July: 23:30 UTC on Jul 15 is 00:30 on Jul 16 locally.
+    const dayKey = getFestivalDayKey("2024-07-15T23:30:00Z", "Europe/Lisbon");
+    expect(dayKey).toBe("2024-07-16");
+  });
+
+  it("groups a near-midnight set under the correct festival day", () => {
+    // 22:55 UTC on Jul 15 is 23:55 in Lisbon (UTC+1) on Jul 15 - still Jul 15.
+    const dayKey = getFestivalDayKey("2024-07-15T22:55:00Z", "Europe/Lisbon");
+    expect(dayKey).toBe("2024-07-15");
+  });
+
+  it("is independent of the machine's local zone", () => {
+    const lisbon = getFestivalDayKey("2024-07-15T23:30:00Z", "Europe/Lisbon");
+    const newYork = getFestivalDayKey(
+      "2024-07-15T23:30:00Z",
+      "America/New_York",
+    );
+    expect(lisbon).toBe("2024-07-16");
+    expect(newYork).toBe("2024-07-15");
+  });
+
+  it("falls back to UTC calendar day when no timezone is given", () => {
+    expect(getFestivalDayKey("2024-12-15T23:30:00Z")).toBe("2024-12-15");
+  });
+});
+
+describe("getFestivalDayLabel", () => {
+  it("returns null for null input", () => {
+    expect(getFestivalDayLabel(null)).toBeNull();
+  });
+
+  it("returns null for invalid input", () => {
+    expect(getFestivalDayLabel("invalid")).toBeNull();
+  });
+
+  it("formats a day-key into a human-readable label", () => {
+    expect(getFestivalDayLabel("2024-12-16")).toBe("Monday, Dec 16");
+  });
+});
+
+describe("getFestivalHour", () => {
+  it("returns null for null input", () => {
+    expect(getFestivalHour(null, "Europe/Lisbon")).toBeNull();
+  });
+
+  it("returns null for invalid input", () => {
+    expect(getFestivalHour("invalid", "Europe/Lisbon")).toBeNull();
+  });
+
+  it("computes the wall-clock hour in the festival's timezone", () => {
+    // Lisbon observes WEST (UTC+1) in July: 23:30 UTC becomes 00:30 the next day locally.
+    expect(getFestivalHour("2024-07-15T23:30:00Z", "Europe/Lisbon")).toBe(0);
+  });
+
+  it("is independent of the machine's local zone", () => {
+    const lisbon = getFestivalHour("2024-07-15T23:30:00Z", "Europe/Lisbon");
+    const newYork = getFestivalHour(
+      "2024-07-15T23:30:00Z",
+      "America/New_York",
+    );
+    expect(lisbon).toBe(0);
+    expect(newYork).toBe(19);
   });
 });

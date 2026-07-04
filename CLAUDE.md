@@ -41,6 +41,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```
 src/
+├── api/                # Feature-sliced data-access modules (TanStack Query)
 ├── components/          # Reusable UI components
 │   ├── ui/             # shadcn/ui base components
 │   ├── Admin/          # Admin dashboard components
@@ -48,7 +49,6 @@ src/
 │   ├── Index/          # Main page components
 │   └── legal/          # Legal pages (privacy, terms)
 ├── hooks/              # Custom React hooks
-│   ├── queries/        # TanStack Query hooks
 │   └── useAuth.ts      # Authentication logic
 ├── integrations/
 │   └── supabase/       # Supabase client and types
@@ -90,7 +90,7 @@ src/
 1. **TypeScript**: Full type coverage with generated Supabase types
 2. **Styling**: Use Tailwind utilities and existing component patterns
 3. **Components**: Follow shadcn/ui patterns for new UI components
-4. **Data Fetching**: Use TanStack Query hooks in `hooks/queries/`
+4. **Data Fetching**: Use TanStack Query hooks in `src/api/` — feature-sliced modules, one folder per feature with a shared `types.ts` (entity type + query-key factory) and one `use`-prefixed file per endpoint holding its `queryOptions` factory + hook (see `docs/adr/0001-api-modules.md`)
 5. **Authentication**: Use `useAuth` hook for auth state and actions
 6. **Routing**: Add new routes to `App.tsx` above the catch-all "\*" route
 

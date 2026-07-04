@@ -24,7 +24,7 @@ export function ListSchedule() {
   const { scheduleDays, loading, error } = useScheduleData(
     editionSets,
     stagesQuery.data,
-    undefined,
+    false,
     festival.timezone,
   );
   const {

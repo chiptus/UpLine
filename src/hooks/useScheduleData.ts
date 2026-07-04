@@ -65,11 +65,18 @@ export function useScheduleData({
       return [];
     }
 
-    // Filter sets with performance times and stages
-    const performingSets = sets.filter((set) => set.time_start && set.stage_id);
+    // Filter sets with performance times and stages, and drop any whose
+    // time_start doesn't parse into a valid festival day (so dayKey is
+    // always a real key below, never a sentinel).
+    const performingSets = sets
+      .filter((set) => set.time_start && set.stage_id)
+      .flatMap((set) => {
+        const dayKey = getFestivalDayKey(set.time_start, timezone);
+        return dayKey ? [{ set, dayKey }] : [];
+      });
 
     // Parse and enhance set data
-    const enhancedSets: EnhancedSet[] = performingSets.map((set) => {
+    const enhancedSets: EnhancedSet[] = performingSets.map(({ set, dayKey }) => {
       const startTime = set.time_start ? new Date(set.time_start) : undefined;
       const endTime = set.time_end ? new Date(set.time_end) : undefined;
 
@@ -82,7 +89,7 @@ export function useScheduleData({
         endTime,
         votes: set.votes || [],
         formattedTimeRange: formatDateTime(set.time_start, use24Hour, timezone),
-        dayKey: getFestivalDayKey(set.time_start, timezone) || "",
+        dayKey,
         artists: (set.artists || []).map((artist) => ({
           id: artist.id,
           name: artist.name,
@@ -93,8 +100,6 @@ export function useScheduleData({
     // Group sets by festival calendar day
     const dayGroups = enhancedSets.reduce(
       (acc, set) => {
-        if (!set.dayKey) return acc;
-
         if (!acc[set.dayKey]) {
           acc[set.dayKey] = [];
         }

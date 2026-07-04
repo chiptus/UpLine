@@ -44,12 +44,19 @@ export interface ScheduleSet extends ScheduleArtist {
 
 type EnhancedSet = ScheduleSet & { dayKey: string };
 
-export function useScheduleData(
-  sets: FestivalSet[] | undefined,
-  stages: Array<Stage> | undefined,
-  use24Hour: boolean = false,
-  timezone?: string,
-) {
+interface UseScheduleDataOptions {
+  sets: FestivalSet[] | undefined;
+  stages: Array<Stage> | undefined;
+  use24Hour?: boolean;
+  timezone?: string;
+}
+
+export function useScheduleData({
+  sets,
+  stages,
+  use24Hour = false,
+  timezone,
+}: UseScheduleDataOptions) {
   const loading = false;
   const error = null;
 

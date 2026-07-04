@@ -21,12 +21,11 @@ export function ListSchedule() {
   const { data: editionSets = [], isLoading: setsLoading } =
     useEditionSetsQuery(edition?.id);
   const stagesQuery = useStagesByEditionQuery(edition?.id);
-  const { scheduleDays, loading, error } = useScheduleData(
-    editionSets,
-    stagesQuery.data,
-    false,
-    festival.timezone,
-  );
+  const { scheduleDays, loading, error } = useScheduleData({
+    sets: editionSets,
+    stages: stagesQuery.data,
+    timezone: festival.timezone,
+  });
   const {
     day: selectedDay,
     time: selectedTime,

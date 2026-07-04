@@ -1,5 +1,5 @@
 import type { Database } from "@/integrations/supabase/types";
-import type { Artist } from "@/hooks/queries/artists/useArtists";
+import type { Artist } from "@/api/artists/types";
 
 export type FestivalSet = Database["public"]["Tables"]["sets"]["Row"] & {
   artists: Artist[];

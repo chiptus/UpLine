@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SetNote, artistNotesKeys } from "./types";
 
@@ -40,10 +40,16 @@ async function fetchArtistNotes(artistId: string): Promise<SetNote[]> {
   return notesWithAuthor;
 }
 
-export function useArtistNotesQuery(artistId: string) {
-  return useQuery({
+export function artistNotesQuery(artistId: string) {
+  return queryOptions({
     queryKey: artistNotesKeys.notes(artistId),
     queryFn: () => fetchArtistNotes(artistId),
+  });
+}
+
+export function useArtistNotesQuery(artistId: string) {
+  return useQuery({
+    ...artistNotesQuery(artistId),
     enabled: !!artistId,
   });
 }

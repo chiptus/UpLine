@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Music, Play } from "lucide-react";
-import { Artist } from "@/hooks/queries/artists/useArtists";
+import { Artist } from "@/api/artists/types";
 import { GenreBadge } from "@/components/GenreBadge";
 import { ArtistImageLoader } from "@/components/ArtistImageLoader";
 import { MarkdownText } from "@/components/ui/markdown-text";

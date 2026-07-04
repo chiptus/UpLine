@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { artistsKeys } from "../useArtists";
+import { artistsKeys } from "@/api/artists/types";
 
 async function deleteArtistNote(noteId: string) {
   const { error } = await supabase

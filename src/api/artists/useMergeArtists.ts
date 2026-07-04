@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { artistsKeys } from "./useArtists";
+import { artistsKeys } from "./types";
 import { duplicateArtistsKeys } from "./useDuplicateArtists";
 
 export interface MergeArtistsParams {

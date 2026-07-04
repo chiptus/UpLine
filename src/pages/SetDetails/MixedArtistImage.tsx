@@ -1,5 +1,5 @@
 import { ArtistImageLoader } from "@/components/ArtistImageLoader";
-import { Artist } from "@/hooks/queries/artists/useArtists";
+import { Artist } from "@/api/artists/types";
 
 interface MixedArtistImageProps {
   artists: Artist[];

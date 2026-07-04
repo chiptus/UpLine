@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, Merge, Trash2, Calendar, Link as LinkIcon } from "lucide-react";
-import type { DuplicateGroup } from "@/hooks/queries/artists/useDuplicateArtists";
+import type { DuplicateGroup } from "@/api/artists/useDuplicateArtists";
 import { ArtistComparisonModal } from "./ArtistComparisonModal";
 import { GenreBadge } from "@/components/GenreBadge";
-import { Artist } from "@/hooks/queries/artists/useArtists";
+import { Artist } from "@/api/artists/types";
 
 interface DuplicateGroupCardProps {
   group: DuplicateGroup;

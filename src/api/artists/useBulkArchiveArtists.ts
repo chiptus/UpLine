@@ -1,43 +1,42 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { artistsKeys } from "./useArtists";
+import { artistsKeys } from "./types";
 
-// Mutation function
-async function archiveArtist(artistId: string) {
+async function bulkArchiveArtists(artistIds: string[]) {
   const { error } = await supabase
     .from("artists")
     .update({ archived: true })
-    .eq("id", artistId);
+    .in("id", artistIds);
 
   if (error) {
-    console.error("Error archiving artist:", error);
-    throw new Error("Failed to archive artist");
+    console.error("Error bulk archiving artists:", error);
+    throw new Error("Failed to archive artists");
   }
 
-  return true;
+  return artistIds;
 }
 
-// Hook
-export function useArchiveArtistMutation() {
+export function useBulkArchiveArtistsMutation() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: archiveArtist,
-    onSuccess: () => {
+    mutationFn: bulkArchiveArtists,
+    onSuccess: (results) => {
       queryClient.invalidateQueries({
         queryKey: artistsKeys.all,
       });
+
       toast({
-        title: "Success",
-        description: "Artist archived successfully",
+        title: "Bulk Archive Complete",
+        description: `Successfully archived ${results.length} artist(s).`,
       });
     },
     onError: (error) => {
       toast({
-        title: "Error",
-        description: error?.message || "Failed to archive artist",
+        title: "Bulk Archive Error",
+        description: error?.message || "Failed to archive artists",
         variant: "destructive",
       });
     },

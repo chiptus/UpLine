@@ -1,6 +1,6 @@
 import { TableRow, TableCell } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { Artist } from "@/hooks/queries/artists/useArtists";
+import type { Artist } from "@/api/artists/types";
 import { TextCell } from "../BulkEditor/TextCell";
 import { TextareaCell } from "../BulkEditor/TextareaCell";
 import { UrlCell } from "../BulkEditor/UrlCell";
@@ -9,7 +9,7 @@ import { ImageCell } from "../BulkEditor/ImageCell";
 import {
   UpdateArtistUpdates,
   useUpdateArtistMutation,
-} from "@/hooks/queries/artists/useUpdateArtist";
+} from "@/api/artists/useUpdateArtist";
 
 interface BulkEditorTableRowProps {
   artist: Artist;

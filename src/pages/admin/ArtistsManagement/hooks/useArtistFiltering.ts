@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import type { Artist } from "@/hooks/queries/artists/useArtists";
+import type { Artist } from "@/api/artists/types";
 
 export function useArtistFiltering() {
   const [searchTerm, setSearchTerm] = useState("");

@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { Artist } from "./useArtists";
+import type { Artist } from "./types";
 
 export type DuplicateGroup = {
   name: string;
@@ -74,9 +74,13 @@ async function fetchDuplicateArtists(): Promise<DuplicateGroup[]> {
   return duplicateGroups.sort((a, b) => b.count - a.count);
 }
 
-export function useDuplicateArtistsQuery() {
-  return useQuery({
+export function duplicateArtistsQuery() {
+  return queryOptions({
     queryKey: duplicateArtistsKeys.groups(),
     queryFn: fetchDuplicateArtists,
   });
+}
+
+export function useDuplicateArtistsQuery() {
+  return useQuery(duplicateArtistsQuery());
 }

@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
-import { Artist } from "@/hooks/queries/artists/useArtists";
+import { Artist } from "@/api/artists/types";
 
 interface ArchiveArtistDialogProps {
   artist: Artist;

@@ -2,7 +2,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { generateSlug } from "@/lib/slug";
-import { Artist, artistsKeys } from "./useArtists";
+import type { Artist } from "./types";
+import { artistsKeys } from "./types";
 
 // Mutation function
 async function createArtist(

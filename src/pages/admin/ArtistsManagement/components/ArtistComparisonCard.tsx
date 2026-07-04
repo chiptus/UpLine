@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Calendar, LinkIcon, Music, FileText } from "lucide-react";
-import type { Artist } from "@/hooks/queries/artists/useArtists";
+import type { Artist } from "@/api/artists/types";
 import { GenreBadge } from "@/components/GenreBadge";
 
 interface ArtistComparisonCardProps {

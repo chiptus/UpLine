@@ -6,31 +6,35 @@ Quick guide to valid commit types and examples for UpLine.
 
 | Type | Use When | Example |
 |------|----------|---------|
-| `feat` | Adding a new feature | `feat: add group invite notifications` |
-| `fix` | Fixing a bug | `fix: artist filtering by stage count` |
-| `refactor` | Restructuring code without behavior change | `refactor: extract ArtistCard to separate file` |
-| `perf` | Improving performance | `perf: memoize group members list` |
-| `test` | Adding or updating tests | `test: add e2e test for vote submission` |
-| `docs` | Documentation changes | `docs: update README testing section` |
+| `feat` | Adding a new feature | `feat(groups): add group invite notifications` |
+| `fix` | Fixing a bug | `fix(voting): prevent duplicate votes on refresh` |
+| `refactor` | Restructuring code without behavior change | `refactor(components): extract ArtistCard to separate file` |
+| `perf` | Improving performance | `perf(filters): memoize group members list` |
+| `test` | Adding or updating tests | `test(e2e): add vote submission flow` |
+| `docs` | Documentation changes | `docs(readme): update testing section` |
 | `style` | Code style (lint, formatting) | `style: format components with prettier` |
-| `ci` | CI/CD configuration | `ci: add Playwright workflow step` |
-| `chore` | Dependency updates, config | `chore: update TanStack Query to v5` |
+| `ci` | CI/CD configuration | `ci(github): add Playwright workflow step` |
+| `chore` | Dependency updates, config | `chore(deps): update TanStack Query to v5` |
 | `revert` | Reverting a prior commit | `revert: remove experimental vote UI` |
 
 ## Title Rules
 
-- **Format**: `<type>: <subject>`
+- **Format**: `<type>(<scope>): <subject>`
+  - `<type>`: required (see types above)
+  - `<scope>`: optional but recommended; the module/feature affected (e.g., `groups`, `voting`, `auth`, `filters`, `components`)
+  - `<subject>`: required
 - **Subject line**: 
   - Lowercase start (even if a name: `feat: add supabase integration`, not `feat: add Supabase Integration`)
   - Imperative mood: "add", "fix", "update" — not "adds", "fixed", "updated"
   - No period at the end
-  - ~50 characters max (GitHub wraps longer titles)
+  - ~50 characters max total (GitHub wraps longer titles)
 - **Examples**:
-  - ✅ `feat: add group invite notifications`
-  - ✅ `fix: prevent duplicate votes on refresh`
-  - ❌ `feat: adds group invite notifications` (not imperative)
-  - ❌ `feat: add group invite notifications.` (period)
-  - ❌ `feat: Add Group Invite Notifications` (not lowercase)
+  - ✅ `feat(groups): add group invite notifications`
+  - ✅ `fix(voting): prevent duplicate votes on refresh`
+  - ✅ `feat: add group invite notifications` (scope optional)
+  - ❌ `feat(groups): adds group invite notifications` (not imperative)
+  - ❌ `feat(groups): add group invite notifications.` (period)
+  - ❌ `feat(Groups): add group invite notifications` (scope not capitalized)
 
 ## PR Description Tips
 
@@ -41,7 +45,7 @@ Quick guide to valid commit types and examples for UpLine.
 
 ## Example PR
 
-**Title**: `feat: add group invite notifications`
+**Title**: `feat(groups): add invite notifications`
 
 **Description**:
 ```

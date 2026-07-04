@@ -8,9 +8,10 @@ Create a pull request with a commitlint-compliant title, short 1–2 line descri
    - Run `git status` to review what you're committing.
    - Confirm all desired changes are staged; discard or stash anything not intended for this PR.
 
-2. **Craft a commitlint-compliant title** in the form `<type>: <subject>`.
+2. **Craft a commitlint-compliant title** in the form `<type>(<scope>): <subject>`.
    - Valid `<type>`: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`, `ci`, `revert`.
-   - `<subject>`: lowercase, imperative mood, no period. Under 50 characters total (e.g., `feat: add group invite notifications`).
+   - `<scope>`: optional but recommended; the module/feature affected (e.g., `groups`, `voting`, `auth`, `filters`, `components`).
+   - `<subject>`: lowercase, imperative mood, no period. Under 50 characters total (e.g., `feat(groups): add invite notifications`).
    - This title becomes the PR title _and_ your commit message.
 
 3. **Write a 1–2 line description**.
@@ -30,12 +31,13 @@ Create a pull request with a commitlint-compliant title, short 1–2 line descri
 5. **Create the pull request** using the CLI or web interface.
    - Title: your commitlint-compliant string from step 2.
    - Description body: 1–2 lines from step 3, followed by a `## Verification` section with your steps.
-   - Example structure:
+   - Example structure (title `feat(groups): add invite notifications`):
      ```
-     Adds group invite notifications so users know when added to a group.
+     Adds group invite notifications so users know when added to a group. 
+     Notification appears in sidebar within 2 seconds.
 
      ## Verification
-     - Load a group and invite a new member; notification appears in 2 seconds.
+     - Load a group and invite a new member; notification appears in sidebar.
      - Invite an already-member; error message "User already in group" shown.
      - Invite a deleted user; error message "User not found" shown.
      ```

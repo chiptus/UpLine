@@ -69,6 +69,7 @@ export function formatTimeOnly(
   startTime: string | null,
   endTime: string | null,
   use24Hour: boolean = false,
+  timezone?: string,
 ): string | null {
   if (!startTime) return null;
 
@@ -78,12 +79,17 @@ export function formatTimeOnly(
   if (!isValid(start)) return null;
 
   const timeFormat = use24Hour ? "HH:mm" : "h:mm a";
-
-  if (end && isValid(end)) {
-    return `${format(start, timeFormat)} - ${format(end, timeFormat)}`;
+  function formatTime(date: Date) {
+    return timezone
+      ? formatInTimeZone(date, timezone, timeFormat)
+      : format(date, timeFormat);
   }
 
-  return format(start, timeFormat);
+  if (end && isValid(end)) {
+    return `${formatTime(start)} - ${formatTime(end)}`;
+  }
+
+  return formatTime(start);
 }
 
 // Get user's timezone
@@ -111,6 +117,18 @@ export function toDatetimeLocal(isoString: string | null): string {
 // Helper function to convert local datetime-local to UTC ISO string
 export function toISOString(datetimeLocal: string): string {
   return convertLocalTimeToUTC(datetimeLocal, getUserTimeZone()) || "";
+}
+
+// Festival-timezone variant of toDatetimeLocal: UTC ISO string -> datetime-local
+// wall-clock string in an explicit IANA zone, instead of the browser's zone.
+export function toDatetimeLocalInTimeZone(
+  isoString: string | null,
+  timezone: string,
+): string {
+  if (!isoString) return "";
+  const utcDate = new Date(isoString);
+  if (!isValid(utcDate)) return "";
+  return formatInTimeZone(utcDate, timezone, "yyyy-MM-dd'T'HH:mm");
 }
 
 export function combineDateAndTime(
@@ -145,6 +163,41 @@ export function formatDayOnly(
   const dayFormat = "EEE, MMM d";
   if (timezone) return formatInTimeZone(date, timezone, dayFormat);
   return format(date, dayFormat);
+}
+
+// The festival calendar day (yyyy-MM-dd) a UTC timestamp falls on, computed in
+// the festival's own timezone so a post-midnight set groups under the
+// festival's day rather than the viewer's.
+export function getFestivalDayKey(
+  dateTime: string | null,
+  timezone?: string,
+): string | null {
+  if (!dateTime) return null;
+  const date = parseISO(dateTime);
+  if (!isValid(date)) return null;
+  if (timezone) return formatInTimeZone(date, timezone, "yyyy-MM-dd");
+  return format(date, "yyyy-MM-dd");
+}
+
+// Human-readable label for a day-key produced by getFestivalDayKey.
+export function getFestivalDayLabel(dayKey: string | null): string | null {
+  if (!dayKey) return null;
+  const date = parseISO(dayKey);
+  if (!isValid(date)) return null;
+  return format(date, "EEEE, MMM d");
+}
+
+// The wall-clock hour (0-23) a UTC timestamp falls on in the festival's
+// timezone, for time-of-day filters (morning/afternoon/evening).
+export function getFestivalHour(
+  dateTime: string | null,
+  timezone?: string,
+): number | null {
+  if (!dateTime) return null;
+  const date = parseISO(dateTime);
+  if (!isValid(date)) return null;
+  if (timezone) return Number(formatInTimeZone(date, timezone, "H"));
+  return date.getHours();
 }
 
 export function convertLocalTimeToUTC(

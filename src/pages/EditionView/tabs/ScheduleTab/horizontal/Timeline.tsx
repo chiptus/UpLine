@@ -18,10 +18,10 @@ export function Timeline() {
     useEditionSetsQuery(edition?.id);
   const stagesQuery = useStagesByEditionQuery(edition?.id);
 
-  const { scheduleDays, loading, error } = useScheduleData(
-    editionSets,
-    stagesQuery.data,
-  );
+  const { scheduleDays, loading, error } = useScheduleData({
+    sets: editionSets,
+    stages: stagesQuery.data,
+  });
   const {
     day: selectedDay,
     time: selectedTime,

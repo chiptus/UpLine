@@ -1,6 +1,9 @@
 import { useMemo } from "react";
-import { formatDateTime } from "@/lib/timeUtils";
-import { format, startOfDay } from "date-fns";
+import {
+  formatDateTime,
+  getFestivalDayKey,
+  getFestivalDayLabel,
+} from "@/lib/timeUtils";
 import type { FestivalSet } from "@/api/sets/types";
 import type { Stage } from "@/api/stages/types";
 import { sortStagesByOrder } from "@/lib/stageUtils";
@@ -39,11 +42,21 @@ export interface ScheduleSet extends ScheduleArtist {
   artists: ScheduleArtist[];
 }
 
-export function useScheduleData(
-  sets: FestivalSet[] | undefined,
-  stages: Array<Stage> | undefined,
-  use24Hour: boolean = false,
-) {
+type EnhancedSet = ScheduleSet & { dayKey: string };
+
+interface UseScheduleDataOptions {
+  sets: FestivalSet[] | undefined;
+  stages: Array<Stage> | undefined;
+  use24Hour?: boolean;
+  timezone?: string;
+}
+
+export function useScheduleData({
+  sets,
+  stages,
+  use24Hour = false,
+  timezone,
+}: UseScheduleDataOptions) {
   const loading = false;
   const error = null;
 
@@ -52,11 +65,18 @@ export function useScheduleData(
       return [];
     }
 
-    // Filter sets with performance times and stages
-    const performingSets = sets.filter((set) => set.time_start && set.stage_id);
+    // Filter sets with performance times and stages, and drop any whose
+    // time_start doesn't parse into a valid festival day (so dayKey is
+    // always a real key below, never a sentinel).
+    const performingSets = sets
+      .filter((set) => set.time_start && set.stage_id)
+      .flatMap((set) => {
+        const dayKey = getFestivalDayKey(set.time_start, timezone);
+        return dayKey ? [{ set, dayKey }] : [];
+      });
 
     // Parse and enhance set data
-    const enhancedSets: ScheduleSet[] = performingSets.map((set) => {
+    const enhancedSets: EnhancedSet[] = performingSets.map(({ set, dayKey }) => {
       const startTime = set.time_start ? new Date(set.time_start) : undefined;
       const endTime = set.time_end ? new Date(set.time_end) : undefined;
 
@@ -68,7 +88,8 @@ export function useScheduleData(
         startTime,
         endTime,
         votes: set.votes || [],
-        formattedTimeRange: formatDateTime(set.time_start, use24Hour),
+        formattedTimeRange: formatDateTime(set.time_start, use24Hour, timezone),
+        dayKey,
         artists: (set.artists || []).map((artist) => ({
           id: artist.id,
           name: artist.name,
@@ -76,27 +97,22 @@ export function useScheduleData(
       };
     });
 
-    // Group sets by day
+    // Group sets by festival calendar day
     const dayGroups = enhancedSets.reduce(
       (acc, set) => {
-        if (!set.startTime) return acc;
-
-        const dayKey = format(startOfDay(set.startTime), "yyyy-MM-dd");
-        if (!acc[dayKey]) {
-          acc[dayKey] = [];
+        if (!acc[set.dayKey]) {
+          acc[set.dayKey] = [];
         }
-        acc[dayKey].push(set);
+        acc[set.dayKey].push(set);
         return acc;
       },
-      {} as Record<string, ScheduleSet[]>,
+      {} as Record<string, EnhancedSet[]>,
     );
 
     // Convert to ScheduleDay format
     const scheduleDays: ScheduleDay[] = Object.entries(dayGroups)
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([dateKey, daySets]) => {
-        const date = new Date(dateKey);
-
         // Group by stage
         const stageGroups = daySets.reduce(
           (acc, set) => {
@@ -138,13 +154,13 @@ export function useScheduleData(
 
         return {
           date: dateKey,
-          displayDate: format(date, "EEEE, MMM d"),
+          displayDate: getFestivalDayLabel(dateKey) || dateKey,
           stages: sortStagesByOrder(scheduleStages),
         };
       });
 
     return scheduleDays;
-  }, [sets, use24Hour, stages]);
+  }, [sets, use24Hour, stages, timezone]);
 
   const allStages = useMemo(() => {
     const stageSet = new Set<string>();

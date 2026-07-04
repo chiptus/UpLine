@@ -12,6 +12,10 @@ _Avoid_: Event
 A single instance of a festival in a given year (e.g. Boom 2025). Owns its own lineup, schedule, stages, and voting.
 _Avoid_: Year, instance, event
 
+**Festival timezone**:
+The IANA timezone (e.g. `Europe/Lisbon`) in which a **festival** physically takes place. Set once per festival and inherited by all its **editions**. Set times are stored as UTC but always _displayed_ in the festival timezone, so every viewer sees the same wall-clock time regardless of their own location.
+_Avoid_: Local time (ambiguous — means the viewer's zone), user timezone
+
 **Lineup**:
 The set of artists associated with an edition. Visible to voters once the edition is published.
 _Avoid_: Roster, bill

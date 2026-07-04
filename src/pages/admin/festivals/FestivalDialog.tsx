@@ -17,12 +17,16 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Loader2 } from "lucide-react";
 import { generateSlug, isValidSlug, sanitizeSlug } from "@/lib/slug";
+import { TimezonePicker } from "@/components/Admin/ScheduleImport/TimezonePicker";
+
+const DEFAULT_FESTIVAL_TIMEZONE = "Europe/Lisbon";
 
 interface FestivalFormData {
   name: string;
   slug: string;
   description?: string;
   published: boolean;
+  timezone: string;
 }
 
 interface FestivalDialogProps {
@@ -45,6 +49,7 @@ export function FestivalDialog({
     slug: "",
     description: "",
     published: false,
+    timezone: DEFAULT_FESTIVAL_TIMEZONE,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [slugError, setSlugError] = useState("");
@@ -58,6 +63,7 @@ export function FestivalDialog({
           slug: editingFestival.slug || generateSlug(editingFestival.name),
           description: editingFestival.description || "",
           published: editingFestival.published || false,
+          timezone: editingFestival.timezone || DEFAULT_FESTIVAL_TIMEZONE,
         });
       } else {
         setFormData({
@@ -65,6 +71,7 @@ export function FestivalDialog({
           slug: "",
           description: "",
           published: false,
+          timezone: DEFAULT_FESTIVAL_TIMEZONE,
         });
       }
       setSlugError("");
@@ -203,6 +210,13 @@ export function FestivalDialog({
               rows={3}
             />
           </div>
+          <TimezonePicker
+            value={formData.timezone}
+            onChange={(timezone) =>
+              setFormData((prev) => ({ ...prev, timezone }))
+            }
+            description="All schedule times for this festival are displayed in this timezone."
+          />
           <div className="flex items-center space-x-2">
             <Switch
               id="published"

@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useScheduleData } from "@/hooks/useScheduleData";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { useSetsByEditionQuery as useEditionSetsQuery } from "@/api/sets/useSetsByEdition";
-import { isSameDay, format } from "date-fns";
+import { getFestivalDayKey, getFestivalHour } from "@/lib/timeUtils";
 import { TimeSlotGroup } from "./TimeSlotGroup";
 import type { ScheduleSet } from "@/hooks/useScheduleData";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
@@ -16,15 +16,16 @@ interface TimeSlot {
 }
 
 export function ListSchedule() {
-  const { edition } = useFestivalEdition();
+  const { edition, festival } = useFestivalEdition();
   const { canShowTime } = useScheduleReveal();
   const { data: editionSets = [], isLoading: setsLoading } =
     useEditionSetsQuery(edition?.id);
   const stagesQuery = useStagesByEditionQuery(edition?.id);
-  const { scheduleDays, loading, error } = useScheduleData(
-    editionSets,
-    stagesQuery.data,
-  );
+  const { scheduleDays, loading, error } = useScheduleData({
+    sets: editionSets,
+    stages: stagesQuery.data,
+    timezone: festival.timezone,
+  });
   const {
     day: selectedDay,
     time: selectedTime,
@@ -39,7 +40,10 @@ export function ListSchedule() {
       if (selectedDay === "all") return true;
       if (!set.startTime) return false;
 
-      const setDate = format(set.startTime, "yyyy-MM-dd");
+      const setDate = getFestivalDayKey(
+        set.startTime.toISOString(),
+        festival.timezone,
+      );
       return setDate === selectedDay;
     }
 
@@ -48,7 +52,11 @@ export function ListSchedule() {
       if (selectedTime === "all") return true;
       if (!set.startTime) return false;
 
-      const hour = set.startTime.getHours();
+      const hour = getFestivalHour(
+        set.startTime.toISOString(),
+        festival.timezone,
+      );
+      if (hour === null) return false;
       switch (selectedTime) {
         case "morning":
           return hour >= 6 && hour < 12;
@@ -126,6 +134,7 @@ export function ListSchedule() {
     selectedTime,
     selectedStages,
     stagesQuery.data,
+    festival.timezone,
   ]);
 
   if (loading || setsLoading) {
@@ -161,12 +170,18 @@ export function ListSchedule() {
       {timeSlots.map((slot, index) => {
         const prevSlot = index > 0 ? timeSlots[index - 1] : null;
         const showDateHeader =
-          !prevSlot || !isSameDay(slot.time, prevSlot.time);
+          !prevSlot ||
+          getFestivalDayKey(slot.time.toISOString(), festival.timezone) !==
+            getFestivalDayKey(
+              prevSlot.time.toISOString(),
+              festival.timezone,
+            );
 
         return (
           <TimeSlotGroup
             key={slot.time.toISOString()}
             timeSlot={slot}
+            timezone={festival.timezone}
             showDateHeader={showDateHeader}
           />
         );

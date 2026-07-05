@@ -1,10 +1,12 @@
-import { format, differenceInMinutes } from "date-fns";
+import { differenceInMinutes } from "date-fns";
+import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 import { useEffect, useState, useRef } from "react";
 
 interface TimeScaleProps {
   timeSlots: Date[];
   totalWidth: number;
   scrollContainerRef: React.RefObject<HTMLDivElement>;
+  timezone: string;
 }
 
 const dateFormat = "MMMM d";
@@ -13,6 +15,7 @@ export function TimeScale({
   timeSlots,
   totalWidth,
   scrollContainerRef,
+  timezone,
 }: TimeScaleProps) {
   const [scrollLeft, setScrollLeft] = useState(0);
   const timeScaleRef = useRef<HTMLDivElement>(null);
@@ -23,18 +26,21 @@ export function TimeScale({
       if (index === 0) {
         changes.push({ date: timeSlot, position: 0 });
       } else {
-        const prevDate = format(timeSlots[index - 1], "yyyy-MM-dd");
-        const currentDate = format(timeSlot, "yyyy-MM-dd");
+        const prevDate = formatInTimeZone(
+          timeSlots[index - 1],
+          timezone,
+          "yyyy-MM-dd",
+        );
+        const currentDate = formatInTimeZone(timeSlot, timezone, "yyyy-MM-dd");
         if (prevDate !== currentDate) {
-          // Calculate position based on midnight of the new date, not the timeSlot time
-          const midnightOfNewDate = new Date(timeSlot);
-          midnightOfNewDate.setHours(0, 0, 0, 0);
+          // Position based on festival-timezone midnight of the new date
+          const midnightOfNewDate = fromZonedTime(
+            `${currentDate}T00:00:00`,
+            timezone,
+          );
 
           // Calculate position relative to festival start
           const festivalStart = timeSlots[0];
-          const festivalStartMidnight = new Date(festivalStart);
-          festivalStartMidnight.setHours(0, 0, 0, 0);
-
           const minutesFromStart = differenceInMinutes(
             midnightOfNewDate,
             festivalStart,
@@ -108,7 +114,9 @@ export function TimeScale({
           opacity: scrolledIntoCurrentDay >= 0 ? 1 : 0,
         }}
       >
-        {currentDate ? format(currentDate.date, dateFormat) : "Loading..."}
+        {currentDate
+          ? formatInTimeZone(currentDate.date, timezone, dateFormat)
+          : "Loading..."}
       </div>
 
       {/* Upcoming day sticky label - appears when approaching next day */}
@@ -123,7 +131,7 @@ export function TimeScale({
             ), // Fade in effect
           }}
         >
-          {format(nextDate.date, dateFormat)}
+          {formatInTimeZone(nextDate.date, timezone, dateFormat)}
         </div>
       )}
 
@@ -170,7 +178,7 @@ export function TimeScale({
                 style={{ left: `${index * 120}px` }}
               >
                 <div className="text-sm font-medium text-purple-300 mb-2 mt-10">
-                  {format(timeSlot, "HH:mm")}
+                  {formatInTimeZone(timeSlot, timezone, "HH:mm")}
                 </div>
                 <div className="w-px h-4 bg-purple-400/30"></div>
               </div>

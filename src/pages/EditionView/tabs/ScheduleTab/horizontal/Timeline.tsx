@@ -6,13 +6,13 @@ import { TimelineContainer } from "./TimelineContainer";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { useSetsByEditionQuery as useEditionSetsQuery } from "@/api/sets/useSetsByEdition";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
-import { format } from "date-fns";
+import { getFestivalHour } from "@/lib/timeUtils";
 import { useStagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 import { ScheduleNotRevealedPlaceholder } from "../ScheduleNotRevealedPlaceholder";
 
 export function Timeline() {
-  const { edition } = useFestivalEdition();
+  const { edition, festival } = useFestivalEdition();
   const { canShowTime } = useScheduleReveal();
   const { data: editionSets = [], isLoading: setsLoading } =
     useEditionSetsQuery(edition?.id);
@@ -21,6 +21,7 @@ export function Timeline() {
   const { scheduleDays, loading, error } = useScheduleData({
     sets: editionSets,
     stages: stagesQuery.data,
+    timezone: festival.timezone,
   });
   const {
     day: selectedDay,
@@ -36,11 +37,8 @@ export function Timeline() {
     // Apply filters to scheduleDays
     const filteredScheduleDays = scheduleDays.map((day) => {
       // Filter by day
-      if (selectedDay !== "all") {
-        const dayDate = format(day.date, "yyyy-MM-dd");
-        if (dayDate !== selectedDay) {
-          return { ...day, stages: [] }; // Empty day if not selected
-        }
+      if (selectedDay !== "all" && day.date !== selectedDay) {
+        return { ...day, stages: [] }; // Empty day if not selected
       }
 
       // Filter stages and sets
@@ -57,7 +55,11 @@ export function Timeline() {
           sets: stage.sets.filter((set) => {
             // Filter by time
             if (selectedTime !== "all" && set.startTime) {
-              const hour = set.startTime.getHours();
+              const hour = getFestivalHour(
+                set.startTime.toISOString(),
+                festival.timezone,
+              );
+              if (hour === null) return false;
               switch (selectedTime) {
                 case "morning":
                   return hour >= 6 && hour < 12;
@@ -89,6 +91,7 @@ export function Timeline() {
     selectedTime,
     selectedStages,
     stagesQuery.data,
+    festival.timezone,
   ]);
 
   if (loading || setsLoading) {
@@ -123,7 +126,10 @@ export function Timeline() {
     <div className="space-y-8">
       <div className="relative bg-white/5 rounded-lg p-4">
         <StageLabels stages={timelineData.stages} />
-        <TimelineContainer timelineData={timelineData} />
+        <TimelineContainer
+          timelineData={timelineData}
+          timezone={festival.timezone}
+        />
       </div>
     </div>
   );

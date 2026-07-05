@@ -8,9 +8,10 @@ interface StageRowProps {
     sets: HorizontalTimelineSet[];
   };
   totalWidth: number;
+  timezone: string;
 }
 
-export function StageRow({ stage, totalWidth }: StageRowProps) {
+export function StageRow({ stage, totalWidth, timezone }: StageRowProps) {
   return (
     <div key={stage.name} className="flex items-start">
       {/* Timeline Track */}
@@ -34,7 +35,7 @@ export function StageRow({ stage, totalWidth }: StageRowProps) {
               }}
             >
               <div className="h-full pr-1">
-                <SetBlock set={set} />
+                <SetBlock set={set} timezone={timezone} />
               </div>
             </div>
           );

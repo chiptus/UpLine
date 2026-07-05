@@ -5,9 +5,13 @@ import type { TimelineData } from "@/lib/timelineCalculator";
 
 interface TimelineContainerProps {
   timelineData: TimelineData;
+  timezone: string;
 }
 
-export function TimelineContainer({ timelineData }: TimelineContainerProps) {
+export function TimelineContainer({
+  timelineData,
+  timezone,
+}: TimelineContainerProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   return (
@@ -20,6 +24,7 @@ export function TimelineContainer({ timelineData }: TimelineContainerProps) {
         timeSlots={timelineData.timeSlots}
         totalWidth={timelineData.totalWidth}
         scrollContainerRef={scrollContainerRef}
+        timezone={timezone}
       />
 
       {/* Stage Rows */}
@@ -29,6 +34,7 @@ export function TimelineContainer({ timelineData }: TimelineContainerProps) {
             key={stage.name}
             stage={stage}
             totalWidth={timelineData.totalWidth}
+            timezone={timezone}
           />
         ))}
       </div>

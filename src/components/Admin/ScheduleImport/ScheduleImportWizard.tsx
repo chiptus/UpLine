@@ -12,6 +12,7 @@ import { CommitResultCard } from "./CommitResultCard";
 type Props = {
   festivalEditionId: string;
   currentRevealLevel: RevealLevel;
+  defaultTimezone?: string;
 };
 
 type WizardState =
@@ -22,6 +23,7 @@ type WizardState =
 export function ScheduleImportWizard({
   festivalEditionId,
   currentRevealLevel,
+  defaultTimezone,
 }: Props) {
   const [state, setState] = useState<WizardState>({ step: "upload" });
 
@@ -38,6 +40,7 @@ export function ScheduleImportWizard({
         <CardContent>
           <CsvUploadStep
             festivalEditionId={festivalEditionId}
+            defaultTimezone={defaultTimezone}
             onDiffReady={(diff, timezone) =>
               setState({ step: "review", diff, timezone })
             }

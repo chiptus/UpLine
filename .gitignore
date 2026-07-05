@@ -41,3 +41,6 @@ dump.sql
 
 # Sync script credentials (DB connection strings — never commit)
 scripts/.env.sync
+
+# Transient agent worktrees (harness-managed, auto-cleaned)
+.claude/worktrees/

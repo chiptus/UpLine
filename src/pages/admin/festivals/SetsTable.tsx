@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Edit2, Trash2 } from "lucide-react";
 import { formatTimeRange } from "@/lib/timeUtils";
 import { FestivalSet } from "@/api/sets/types";
+import { FestivalTimeHint } from "@/components/FestivalTimeHint";
 
 interface SetsTableProps {
   sets: FestivalSet[];
@@ -48,9 +49,10 @@ export function SetsTable({
   return (
     <div className="rounded-md border">
       {timezone && (
-        <div className="border-b px-4 py-2 text-xs text-muted-foreground">
-          Times in {timezone}
-        </div>
+        <FestivalTimeHint
+          timezone={timezone}
+          className="block border-b px-4 py-2 text-muted-foreground"
+        />
       )}
       <Table>
         <TableHeader>

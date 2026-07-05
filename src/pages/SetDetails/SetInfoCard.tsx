@@ -16,6 +16,7 @@ import { StagePin } from "@/components/StagePin";
 import { MarkdownText } from "@/components/ui/markdown-text";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
+import { FestivalTimeHint } from "@/components/FestivalTimeHint";
 
 interface SetInfoCardProps {
   set: FestivalSet;
@@ -85,9 +86,7 @@ export function SetInfoCard({
                   </div>
                 )}
                 {(timeRangeFormatted || dayOnlyFormatted) && (
-                  <span className="w-full text-xs text-purple-200/70">
-                    Times in {festival.timezone}
-                  </span>
+                  <FestivalTimeHint timezone={festival.timezone} />
                 )}
               </div>
             </div>

@@ -22,7 +22,7 @@ export function SetDetails() {
   });
   const { festival } = useFestivalEdition();
   const { edition } = useRouteContext({
-    from: "/festivals/$festivalSlug/editions/$editionSlug",
+    from: "/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug",
   });
   const { state: urlState } = useUrlState();
   const { data: currentSet } = useSuspenseQuery(

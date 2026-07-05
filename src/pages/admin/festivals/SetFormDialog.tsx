@@ -29,8 +29,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { ArtistMultiSelect } from "./SetsManagement/ArtistMultiSelect";
-import { toDatetimeLocal, toISOString } from "@/lib/timeUtils";
+import {
+  toDatetimeLocalInTimeZone,
+  convertLocalTimeToUTC,
+} from "@/lib/timeUtils";
 import { StageSelector } from "./StageSelector";
+import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 
 // Form validation schema
 const setFormSchema = z.object({
@@ -60,6 +64,7 @@ export function SetFormDialog({
 }: SetFormDialogProps) {
   const { data: artists = [] } = useArtistsQuery();
   const { user } = useAuth();
+  const { festival } = useFestivalEdition();
 
   // Track if user has manually edited the name
   const [hasManuallyEditedName, setHasManuallyEditedName] = useState(false);
@@ -96,8 +101,14 @@ export function SetFormDialog({
           name: editingSet.name,
           description: editingSet.description || "",
           stage_id: editingSet.stage_id || "none",
-          time_start: toDatetimeLocal(editingSet.time_start),
-          time_end: toDatetimeLocal(editingSet.time_end),
+          time_start: toDatetimeLocalInTimeZone(
+            editingSet.time_start,
+            festival.timezone,
+          ),
+          time_end: toDatetimeLocalInTimeZone(
+            editingSet.time_end,
+            festival.timezone,
+          ),
           estimated_date: "",
           artist_ids: editingSet.artists?.map((a) => a.id) || [],
         });
@@ -115,7 +126,7 @@ export function SetFormDialog({
         });
       }
     }
-  }, [isOpen, editingSet, form]);
+  }, [isOpen, editingSet, form, festival.timezone]);
 
   // Generate set name from selected artists
   const generateSetName = useCallback(
@@ -151,8 +162,12 @@ export function SetFormDialog({
       festival_edition_id: editionId,
       stage_id:
         data.stage_id && data.stage_id !== "none" ? data.stage_id : null,
-      time_start: data.time_start ? toISOString(data.time_start) : null,
-      time_end: data.time_end ? toISOString(data.time_end) : null,
+      time_start: data.time_start
+        ? convertLocalTimeToUTC(data.time_start, festival.timezone)
+        : null,
+      time_end: data.time_end
+        ? convertLocalTimeToUTC(data.time_end, festival.timezone)
+        : null,
     };
 
     let setId: string;
@@ -299,6 +314,9 @@ export function SetFormDialog({
               )}
             />
 
+            <p className="text-xs text-muted-foreground">
+              Times in {festival.timezone}
+            </p>
             <div className="grid grid-cols-3 gap-4">
               <FormField
                 control={form.control}

@@ -1,32 +1,46 @@
+---
+description: Create a pull request with a commitlint-compliant title, a 1-2 line description, and manual verification steps. Use when the user asks to open, create, or raise a PR.
+allowed-tools: Bash(git *)
+---
+
 # Create PR
 
-## Title
+Create a pull request for the current branch. Produce all three parts below. Do not open the PR until each part meets its rule.
+
+## 1. Title — required
 
 Format: `<type>(<scope>): <subject>`
 
-**Type**: `feat`, `fix`, `refactor`, `perf`, `test`, `docs`, `style`, `ci`, `chore`, `revert`
+- **Type**: one of `feat`, `fix`, `refactor`, `perf`, `test`, `docs`, `style`, `ci`, `chore`, `revert`.
+- **Scope**: the module/feature affected (e.g., `groups`, `voting`, `auth`, `filters`, `components`). Include it.
+- **Subject**: lowercase, imperative mood, no period.
 
-**Scope**: Module/feature affected (e.g., `groups`, `voting`, `auth`, `filters`, `components`)
+Reject the title if it lacks a valid type, lacks a scope, or exceeds ~50 characters. Example: `feat(groups): add invite notifications`.
 
-**Subject**: Lowercase, imperative mood, no period (e.g., `add invite notifications`)
+## 2. Description — required, 1-2 lines
 
-## Description
+Write exactly one or two lines. First line: what changed + why. Optional second line: one observable outcome. Do not repeat the title. Do not add headings, bullet lists, or a body beyond these lines.
 
-1–2 lines. First line: what + why. Second line (optional): observable outcome. Don't repeat the title.
+If you have written more than two lines, cut it down before continuing.
 
-Example:
 ```
 Adds group invite notifications so users know when added to a group.
 Notification appears in sidebar within 2 seconds.
 ```
 
-## Verification (if needed)
+## 3. Verification — required
 
-3–5 bullets: golden path, then edge cases. Write as testable actions, not assertions.
+List 3-5 bullets: the golden path first, then edge cases. Each bullet is a testable action a reviewer can perform, not an assertion that it works. Put them under a `## Verification` heading in the PR body.
 
-Example:
+Only omit this section if the diff has no runtime behavior to exercise (pure docs, config, or comment changes). If you omit it, say why in the description.
+
 ```
+## Verification
 - Load a group and invite a new member; notification appears.
 - Invite already-member; error shown.
 - Invite deleted user; error shown.
 ```
+
+## Before opening
+
+Confirm the branch is pushed, then create the PR with the title from step 1 and a body containing the description (step 2) followed by the Verification section (step 3).

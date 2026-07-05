@@ -1,4 +1,4 @@
-import { useParams } from "@tanstack/react-router";
+import { useParams, useRouteContext } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArtistImageCard } from "./SetDetails/SetImageCard";
 import { MixedArtistImage } from "./SetDetails/MixedArtistImage";
@@ -20,10 +20,13 @@ export function SetDetails() {
   const { setSlug } = useParams({
     from: "/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug",
   });
-  const { edition, festival } = useFestivalEdition();
+  const { festival } = useFestivalEdition();
+  const { edition } = useRouteContext({
+    from: "/festivals/$festivalSlug/editions/$editionSlug",
+  });
   const { state: urlState } = useUrlState();
   const { data: currentSet } = useSuspenseQuery(
-    setBySlugQuery(setSlug, edition!.id),
+    setBySlugQuery(setSlug, edition.id),
   );
 
   const { getVoteCount } = useVoteCount(currentSet);

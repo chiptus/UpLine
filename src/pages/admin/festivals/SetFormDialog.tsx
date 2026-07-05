@@ -34,7 +34,6 @@ import {
   convertLocalTimeToUTC,
 } from "@/lib/timeUtils";
 import { StageSelector } from "./StageSelector";
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 
 // Form validation schema
 const setFormSchema = z.object({
@@ -54,6 +53,7 @@ interface SetFormDialogProps {
   onClose: () => void;
   editingSet: FestivalSet | null;
   editionId: string;
+  timezone?: string;
 }
 
 export function SetFormDialog({
@@ -61,10 +61,11 @@ export function SetFormDialog({
   onClose,
   editingSet,
   editionId,
+  timezone,
 }: SetFormDialogProps) {
   const { data: artists = [] } = useArtistsQuery();
   const { user } = useAuth();
-  const { festival } = useFestivalEdition();
+  const tz = timezone ?? "Europe/Lisbon";
 
   // Track if user has manually edited the name
   const [hasManuallyEditedName, setHasManuallyEditedName] = useState(false);
@@ -101,14 +102,8 @@ export function SetFormDialog({
           name: editingSet.name,
           description: editingSet.description || "",
           stage_id: editingSet.stage_id || "none",
-          time_start: toDatetimeLocalInTimeZone(
-            editingSet.time_start,
-            festival.timezone,
-          ),
-          time_end: toDatetimeLocalInTimeZone(
-            editingSet.time_end,
-            festival.timezone,
-          ),
+          time_start: toDatetimeLocalInTimeZone(editingSet.time_start, tz),
+          time_end: toDatetimeLocalInTimeZone(editingSet.time_end, tz),
           estimated_date: "",
           artist_ids: editingSet.artists?.map((a) => a.id) || [],
         });
@@ -126,7 +121,7 @@ export function SetFormDialog({
         });
       }
     }
-  }, [isOpen, editingSet, form, festival.timezone]);
+  }, [isOpen, editingSet, form, tz]);
 
   // Generate set name from selected artists
   const generateSetName = useCallback(
@@ -163,10 +158,10 @@ export function SetFormDialog({
       stage_id:
         data.stage_id && data.stage_id !== "none" ? data.stage_id : null,
       time_start: data.time_start
-        ? convertLocalTimeToUTC(data.time_start, festival.timezone)
+        ? convertLocalTimeToUTC(data.time_start, tz)
         : null,
       time_end: data.time_end
-        ? convertLocalTimeToUTC(data.time_end, festival.timezone)
+        ? convertLocalTimeToUTC(data.time_end, tz)
         : null,
     };
 
@@ -315,7 +310,7 @@ export function SetFormDialog({
             />
 
             <p className="text-xs text-muted-foreground">
-              Times in {festival.timezone}
+              Times in {tz}
             </p>
             <div className="grid grid-cols-3 gap-4">
               <FormField

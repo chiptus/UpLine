@@ -47,6 +47,11 @@ export function SetsTable({
 
   return (
     <div className="rounded-md border">
+      {timezone && (
+        <div className="border-b px-4 py-2 text-xs text-muted-foreground">
+          Times in {timezone}
+        </div>
+      )}
       <Table>
         <TableHeader>
           <TableRow>

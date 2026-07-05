@@ -84,6 +84,11 @@ export function SetInfoCard({
                     <span className="text-sm">{dayOnlyFormatted}</span>
                   </div>
                 )}
+                {(timeRangeFormatted || dayOnlyFormatted) && (
+                  <span className="w-full text-xs text-purple-200/70">
+                    Times in {festival.timezone}
+                  </span>
+                )}
               </div>
             </div>
           </div>

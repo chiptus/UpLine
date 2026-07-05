@@ -65,6 +65,11 @@ export function SetMetadata() {
             <span>{dayOnlyFormatted}</span>
           </div>
         )}
+        {(timeRangeFormatted || dayOnlyFormatted) && (
+          <span className="text-xs text-purple-200/60">
+            {festival.timezone}
+          </span>
+        )}
       </div>
     </div>
   );

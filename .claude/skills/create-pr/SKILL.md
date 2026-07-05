@@ -17,11 +17,9 @@ Format: `<type>(<scope>): <subject>`
 
 Reject the title if it lacks a valid type, lacks a scope, or exceeds ~50 characters. Example: `feat(groups): add invite notifications`.
 
-## 2. Description — required, 1-2 lines
+## 2. Description — required, keep it short
 
-Write exactly one or two lines. First line: what changed + why. Optional second line: one observable outcome. Do not repeat the title. Do not add headings, bullet lists, or a body beyond these lines.
-
-If you have written more than two lines, cut it down before continuing.
+Aim for one or two lines. First line: what changed + why. Optional second line: one observable outcome. Don't repeat the title, and don't pad it into a full body with headings or bullet lists.
 
 ```
 Adds group invite notifications so users know when added to a group.
@@ -30,7 +28,7 @@ Notification appears in sidebar within 2 seconds.
 
 ## 3. Verification — required
 
-List 3-5 bullets: the golden path first, then edge cases. Each bullet is a testable action a reviewer can perform, not an assertion that it works. Put them under a `## Verification` heading in the PR body.
+List a few bullets — the golden path first, then edge cases. Each bullet is a testable action a reviewer can perform, not an assertion that it works. Put them under a `## Verification` heading in the PR body.
 
 Only omit this section if the diff has no runtime behavior to exercise (pure docs, config, or comment changes). If you omit it, say why in the description.
 

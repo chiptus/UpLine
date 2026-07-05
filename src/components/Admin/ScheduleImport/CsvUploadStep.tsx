@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { parseScheduleCsv } from "@/services/scheduleImport/parseCsv";
 import { callDiffSchedule } from "@/services/scheduleImport/api";
 import { type CsvRow, type DiffResult } from "@/services/scheduleImport/types";
+import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { TimezonePicker } from "./TimezonePicker";
 import { CsvDropZone } from "./CsvDropZone";
 
@@ -14,7 +15,10 @@ type Props = {
 };
 
 export function CsvUploadStep({ festivalEditionId, onDiffReady }: Props) {
-  const [timezone, setTimezone] = useState("Europe/Lisbon");
+  const { festival } = useFestivalEdition();
+  const [timezone, setTimezone] = useState(
+    festival.timezone || "Europe/Lisbon",
+  );
   const [fileName, setFileName] = useState<string | null>(null);
 
   const readFileMutation = useMutation({ mutationFn: readFile });

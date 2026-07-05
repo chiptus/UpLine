@@ -1,14 +1,19 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { FestivalSet, setsKeys } from "./types";
+import { fetchFestivalEditionBySlug } from "@/api/editions/useFestivalEditionBySlug";
 
 async function fetchSetBySlug({
+  festivalSlug,
+  editionSlug,
   slug,
-  editionId,
 }: {
+  festivalSlug: string;
+  editionSlug: string;
   slug: string;
-  editionId: string;
 }): Promise<FestivalSet> {
+  const edition = await fetchFestivalEditionBySlug({ festivalSlug, editionSlug });
+
   const { data, error } = await supabase
     .from("sets")
     .select(
@@ -25,7 +30,7 @@ async function fetchSetBySlug({
     `,
     )
     .eq("slug", slug)
-    .eq("festival_edition_id", editionId)
+    .eq("festival_edition_id", edition.id)
     .eq("archived", false)
     .single();
 
@@ -51,19 +56,36 @@ async function fetchSetBySlug({
   return transformedData;
 }
 
-export function setBySlugQuery(slug: string, editionId: string) {
+export function setBySlugQuery({
+  festivalSlug,
+  editionSlug,
+  slug,
+}: {
+  festivalSlug: string;
+  editionSlug: string;
+  slug: string;
+}) {
   return queryOptions({
-    queryKey: setsKeys.bySlug({ slug, editionId }),
-    queryFn: () => fetchSetBySlug({ slug, editionId }),
+    queryKey: setsKeys.bySlug({ festivalSlug, editionSlug, slug }),
+    queryFn: () => fetchSetBySlug({ festivalSlug, editionSlug, slug }),
   });
 }
 
 export function useSetBySlugQuery({
+  festivalSlug,
+  editionSlug,
   slug,
-  editionId,
-}: { slug?: string; editionId?: string } = {}) {
+}: {
+  festivalSlug?: string;
+  editionSlug?: string;
+  slug?: string;
+} = {}) {
   return useQuery({
-    ...setBySlugQuery(slug!, editionId!),
-    enabled: !!slug && !!editionId,
+    ...setBySlugQuery({
+      festivalSlug: festivalSlug!,
+      editionSlug: editionSlug!,
+      slug: slug!,
+    }),
+    enabled: !!festivalSlug && !!editionSlug && !!slug,
   });
 }

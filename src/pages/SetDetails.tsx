@@ -17,13 +17,13 @@ import { FestivalIndicator } from "@/components/layout/AppHeader/FestivalIndicat
 
 export function SetDetails() {
   const { user } = useAuth();
-  const { setSlug } = useParams({
+  const { festivalSlug, editionSlug, setSlug } = useParams({
     from: "/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug",
   });
-  const { edition, festival } = useFestivalEdition();
+  const { festival } = useFestivalEdition();
   const { state: urlState } = useUrlState();
   const { data: currentSet } = useSuspenseQuery(
-    setBySlugQuery(setSlug, edition!.id),
+    setBySlugQuery({ festivalSlug, editionSlug, slug: setSlug }),
   );
 
   const { getVoteCount } = useVoteCount(currentSet);

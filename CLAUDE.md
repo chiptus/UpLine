@@ -144,6 +144,8 @@ In this codebase, it is acceptable and preferred to define helper functions (suc
 - never run "supabase db push"
 - don't run supabase db reset
 
+- **PR creation**: Always Read `.claude/skills/create-pr/SKILL.md` directly and follow it exactly (title format, description length, verification bullets) before opening or updating a PR — regardless of how the task was triggered (explicit `/create-pr`, an auto-delivered instruction block, etc). Don't rely on a paraphrased or summarized version of the skill's rules.
+
 ## Agent skills
 
 ### Issue tracker

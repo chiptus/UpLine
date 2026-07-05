@@ -6,6 +6,7 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 import NotFound from "./pages/NotFound";
 import { RouteLoadingFallback } from "./components/layout/RouteLoadingFallback";
+import { RouteErrorFallback } from "./components/layout/RouteErrorFallback";
 import "./index.css";
 
 const queryClient = new QueryClient({
@@ -29,6 +30,7 @@ const router = createRouter({
   defaultPreloadStaleTime: 0,
   defaultNotFoundComponent: NotFound,
   defaultPendingComponent: RouteLoadingFallback,
+  defaultErrorComponent: RouteErrorFallback,
   rewrite: {
     input: ({ url }) => {
       if (!url.hostname.includes("getupline.com")) return url;

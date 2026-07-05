@@ -5,9 +5,11 @@ import { StageBadge } from "@/components/StageBadge";
 import { useFestivalSet } from "../FestivalSetContext";
 import { useStageQuery } from "@/api/stages/useStageQuery";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
+import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 
 export function SetMetadata() {
   const { set, use24Hour } = useFestivalSet();
+  const { festival } = useFestivalEdition();
   const { canShowStage, canShowDay, canShowTime } = useScheduleReveal();
   const stageQuery = useStageQuery(canShowStage ? set?.stage_id : null);
   const uniqueGenres = set.artists
@@ -19,11 +21,13 @@ export function SetMetadata() {
     );
 
   const timeRangeFormatted = canShowTime
-    ? formatTimeRange(set.time_start, set.time_end, use24Hour)
+    ? formatTimeRange(set.time_start, set.time_end, use24Hour, festival.timezone)
     : null;
 
   const dayOnlyFormatted =
-    canShowDay && !canShowTime ? formatDayOnly(set.time_start) : null;
+    canShowDay && !canShowTime
+      ? formatDayOnly(set.time_start, festival.timezone)
+      : null;
 
   return (
     <div className="flex items-center flex-wrap gap-2">

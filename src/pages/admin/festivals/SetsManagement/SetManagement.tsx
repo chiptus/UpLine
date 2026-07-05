@@ -7,6 +7,7 @@ import { FestivalSet } from "@/api/sets/types";
 import { useSetsByEditionQuery } from "@/api/sets/useSetsByEdition";
 import { useDeleteSetMutation } from "@/api/sets/useDeleteSet";
 import { useFestivalEditionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
+import { useFestivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 import { SetFormDialog } from "../SetFormDialog";
 import { SetsTable } from "../SetsTable";
 
@@ -18,6 +19,7 @@ export function SetManagement() {
     festivalSlug,
     editionSlug,
   });
+  const festivalQuery = useFestivalBySlugQuery(festivalSlug);
   const setsQuery = useSetsByEditionQuery(editionQuery.data?.id);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSet, setEditingSet] = useState<FestivalSet | null>(null);
@@ -88,6 +90,7 @@ export function SetManagement() {
           onEdit={handleEdit}
           onDelete={handleDelete}
           editionId={editionQuery.data.id}
+          timezone={festivalQuery.data?.timezone}
         />
       </CardContent>
 

@@ -18,6 +18,7 @@ interface SetsTableProps {
   onEdit: (set: FestivalSet) => void;
   onDelete: (set: FestivalSet) => void;
   editionId: string;
+  timezone?: string;
 }
 
 export function SetsTable({
@@ -25,6 +26,7 @@ export function SetsTable({
   onEdit,
   onDelete,
   editionId,
+  timezone,
 }: SetsTableProps) {
   const { data: stages = [] } = useStagesByEditionQuery(editionId);
 
@@ -62,7 +64,12 @@ export function SetsTable({
               <TableCell>{getStageName(set.stage_id)}</TableCell>
               <TableCell>
                 {set.time_start && set.time_end
-                  ? formatTimeRange(set.time_start, set.time_end, true)
+                  ? formatTimeRange(
+                      set.time_start,
+                      set.time_end,
+                      true,
+                      timezone,
+                    )
                   : "—"}
               </TableCell>
               <TableCell>

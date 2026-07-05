@@ -15,13 +15,11 @@ export const Route = createFileRoute(
       });
     }
 
-    const edition = await context.queryClient.ensureQueryData(
+    await context.queryClient.ensureQueryData(
       editionBySlugQuery({
         festivalSlug: params.festivalSlug,
         editionSlug: params.editionSlug,
       }),
     );
-
-    return { edition };
   },
 });

@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
-import { useAuth } from "@/contexts/AuthContext";
-import { useUserGroupsQuery } from "@/api/groups/useUserGroups";
+import { Suspense, useState } from "react";
+import { useNavigate, useRouteContext } from "@tanstack/react-router";
+import type { User } from "@supabase/supabase-js";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { userGroupsQuery } from "@/api/groups/useUserGroups";
 import { useUserPermissionsQuery } from "@/api/auth/useUserPermissions";
 import { useDeleteGroupMutation } from "@/api/groups/useDeleteGroup";
 import { DeleteGroupDialog } from "./Groups/DeleteGroupDialog";
@@ -12,20 +13,24 @@ import { MyGroupsList } from "./Groups/MyGroupsList";
 import { Button } from "@/components/ui/button";
 
 function Groups() {
+  const { user } = useRouteContext({ from: "/groups/" });
+
+  if (!user) {
+    return <SignInRequired />;
+  }
+
+  return <GroupsContent user={user} />;
+}
+
+function GroupsContent({ user }: { user: User }) {
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
   const [showAllGroups, setShowAllGroups] = useState(false);
 
   const { data: isAdmin = false } = useUserPermissionsQuery(
-    user?.id,
+    user.id,
     "is_admin",
   );
-  const { data: groups = [], isLoading: groupsLoading } = useUserGroupsQuery(
-    user?.id,
-    { all: showAllGroups },
-  );
   const deleteGroupMutation = useDeleteGroupMutation();
-  const loading = authLoading || groupsLoading;
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -40,7 +45,7 @@ function Groups() {
   }
 
   function confirmDeleteGroup() {
-    if (!groupToDelete || !user) return;
+    if (!groupToDelete) return;
 
     deleteGroupMutation.mutate(
       {
@@ -55,10 +60,6 @@ function Groups() {
       },
     );
     // The mutation automatically handles success/error toasts
-  }
-
-  if (!user) {
-    return <SignInRequired />;
   }
 
   return (
@@ -85,12 +86,17 @@ function Groups() {
           </div>
         )}
 
-        <MyGroupsList
-          groups={groups}
-          loading={loading}
-          onDelete={handleDeleteGroup}
-          showMembershipBadges={showAllGroups}
-        />
+        <Suspense
+          fallback={
+            <div className="text-center text-white">Loading groups...</div>
+          }
+        >
+          <GroupsList
+            userId={user.id}
+            showAllGroups={showAllGroups}
+            onDelete={handleDeleteGroup}
+          />
+        </Suspense>
 
         <CreateGroupDialog
           isOpen={createDialogOpen}
@@ -112,6 +118,29 @@ function Groups() {
         />
       </div>
     </div>
+  );
+}
+
+function GroupsList({
+  userId,
+  showAllGroups,
+  onDelete,
+}: {
+  userId: string;
+  showAllGroups: boolean;
+  onDelete: (id: string, name: string) => void;
+}) {
+  const { data: groups } = useSuspenseQuery(
+    userGroupsQuery(userId, { all: showAllGroups }),
+  );
+
+  return (
+    <MyGroupsList
+      groups={groups}
+      loading={false}
+      onDelete={onDelete}
+      showMembershipBadges={showAllGroups}
+    />
   );
 }
 

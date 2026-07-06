@@ -12,7 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Link, Copy, Trash2, Calendar, Users } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { useGroupInvitesQuery } from "@/api/invites/useGroupInvites";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { groupInvitesQuery } from "@/api/invites/useGroupInvites";
 import { useGenerateInviteMutation } from "@/api/invites/useGenerateInviteMutation";
 import { useDeleteInviteMutation } from "@/api/invites/useDeleteInviteMutation";
 import { GroupInvite } from "@/api/invites/types";
@@ -32,7 +33,7 @@ export function InviteManagement({
   const { toast } = useToast();
 
   // React Query hooks
-  const { data: invites = [] } = useGroupInvitesQuery(groupId);
+  const { data: invites } = useSuspenseQuery(groupInvitesQuery(groupId));
   const generateInviteMutation = useGenerateInviteMutation(groupId);
   const deleteInviteMutation = useDeleteInviteMutation(groupId);
 

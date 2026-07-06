@@ -15,7 +15,7 @@ export type TabConfig = {
   icon: LucideIcon;
   label: string;
   shortLabel: string;
-  enabled: boolean | ((festivalInfo?: FestivalInfo) => boolean);
+  enabled: boolean | ((festivalInfo?: FestivalInfo | null) => boolean);
   Indicator?: ComponentType;
 };
 

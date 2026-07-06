@@ -2,12 +2,14 @@ import { createFileRoute, Outlet, useParams } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { FestivalEditionProvider } from "@/contexts/FestivalEditionContext";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
+import { festivalInfoQuery } from "@/api/festival-info/useFestivalInfo";
 
 export const Route = createFileRoute("/festivals/$festivalSlug")({
   loader: async ({ params, context }) => {
-    await context.queryClient.ensureQueryData(
+    const festival = await context.queryClient.ensureQueryData(
       festivalBySlugQuery(params.festivalSlug),
     );
+    await context.queryClient.ensureQueryData(festivalInfoQuery(festival.id));
   },
   component: FestivalLayout,
 });

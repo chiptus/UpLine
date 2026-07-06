@@ -1,12 +1,15 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
-import { useFestivalInfoQuery } from "@/api/festival-info/useFestivalInfo";
+import { festivalInfoQuery } from "@/api/festival-info/useFestivalInfo";
 import { DesktopTabButton } from "./DesktopTabButton";
 import { MobileTabButton } from "./MobileTabButton";
 import { config } from "./config";
 
 export function MainTabNavigation() {
   const { festival } = useFestivalEdition();
-  const { data: festivalInfo } = useFestivalInfoQuery(festival?.id);
+  const { data: festivalInfo } = useSuspenseQuery(
+    festivalInfoQuery(festival.id),
+  );
 
   const visibleTabs = config.filter((config) => {
     if (typeof config.enabled === "boolean") {

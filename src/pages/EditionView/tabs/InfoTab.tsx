@@ -1,22 +1,21 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
-import { useFestivalInfoQuery } from "@/api/festival-info/useFestivalInfo";
+import { festivalInfoQuery } from "@/api/festival-info/useFestivalInfo";
 import { PageTitle } from "@/components/PageTitle/PageTitle";
 import { EditionTitle } from "./InfoTab/EditionTitle";
 import { InfoText } from "./InfoTab/InfoText";
 import { CustomLinks } from "./InfoTab/CustomLinks";
 import { NoInfo } from "./InfoTab/NoInfo";
-import { LoadingInfo } from "./InfoTab/LoadingInfo";
 import { SocialLinkItem } from "./InfoTab/SocialLinkItem";
 import { useCustomLinksQuery } from "@/api/custom-links/useCustomLinks";
 
 export function InfoTab() {
   const { edition, festival } = useFestivalEdition();
-  const { data: festivalInfo, isLoading } = useFestivalInfoQuery(festival?.id);
+  const { data: festivalInfo } = useSuspenseQuery(
+    festivalInfoQuery(festival.id),
+  );
 
   const customLinksQuery = useCustomLinksQuery(festival?.id || "");
-  if (isLoading) {
-    return <LoadingInfo />;
-  }
 
   const customLinks = customLinksQuery.data || [];
   const noInfoAvailable =

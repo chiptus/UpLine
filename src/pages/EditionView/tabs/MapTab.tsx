@@ -1,21 +1,13 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
-import { useFestivalInfoQuery } from "@/api/festival-info/useFestivalInfo";
+import { festivalInfoQuery } from "@/api/festival-info/useFestivalInfo";
 import { PageTitle } from "@/components/PageTitle/PageTitle";
 
 export function MapTab() {
   const { festival } = useFestivalEdition();
-  const { data: festivalInfo, isLoading } = useFestivalInfoQuery(festival?.id);
-
-  if (isLoading) {
-    return (
-      <>
-        <PageTitle title="Map" prefix={festival?.name} />
-        <div className="text-center text-purple-300 py-12">
-          <p>Loading map...</p>
-        </div>
-      </>
-    );
-  }
+  const { data: festivalInfo } = useSuspenseQuery(
+    festivalInfoQuery(festival.id),
+  );
 
   if (!festivalInfo?.map_image_url) {
     return (

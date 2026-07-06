@@ -2,18 +2,16 @@ import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { FestivalInfo, festivalInfoKeys } from "./types";
 
-async function fetchFestivalInfo(festivalId: string): Promise<FestivalInfo> {
+async function fetchFestivalInfo(
+  festivalId: string,
+): Promise<FestivalInfo | null> {
   const { data, error } = await supabase
     .from("festival_info")
     .select("*")
     .eq("festival_id", festivalId)
-    .single();
+    .maybeSingle();
 
   if (error) {
-    if (error.code === "PGRST116") {
-      throw new Error("Festival info not found");
-    }
-
     console.error("Error fetching festival info:", error);
     throw new Error("Failed to fetch festival info");
   }

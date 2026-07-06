@@ -22,6 +22,8 @@ import { useMemo, useEffect } from "react";
 import { shouldRedirectFromWww, getNonWwwRedirectUrl } from "@/lib/subdomain";
 import { z } from "zod";
 import type { QueryClient } from "@tanstack/react-query";
+import type { User } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
 
 const rootSearchSchema = z.object({
   invite: z.string().optional(),
@@ -29,11 +31,18 @@ const rootSearchSchema = z.object({
 
 interface RouterContext {
   queryClient: QueryClient;
+  user: User | null;
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootComponent,
   validateSearch: rootSearchSchema,
+  beforeLoad: async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    return { user: session?.user ?? null };
+  },
 });
 
 function RootComponent() {

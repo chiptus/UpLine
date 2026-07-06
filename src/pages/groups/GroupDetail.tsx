@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { useParams, useRouteContext, Link } from "@tanstack/react-router";
+import type { User } from "@supabase/supabase-js";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { TopBar } from "@/components/layout/TopBar";
 import {
   Card,
@@ -10,66 +12,15 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, UserMinus, Crown } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/components/ui/use-toast";
 import { InviteManagement } from "./GroupDetail/InviteManagement";
 import { AddMemberForm } from "./GroupDetail/AddMemberForm";
 import { Button } from "@/components/ui/button";
-import { useGroupBySlugQuery } from "@/api/groups/useGroupBySlug";
-import { useGroupMembersQuery } from "@/api/groups/useGroupMembers";
+import { groupBySlugQuery } from "@/api/groups/useGroupBySlug";
+import { groupMembersQuery } from "@/api/groups/useGroupMembers";
 import { useRemoveMemberMutation } from "@/api/groups/useRemoveMember";
 
 function GroupDetail() {
-  const { groupSlug } = useParams({ from: "/groups/$groupSlug" });
-  const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
-  const { toast } = useToast();
-  const [removingMember, setRemovingMember] = useState<string | null>(null);
-
-  // React Query hooks
-  const {
-    data: group,
-    isLoading: groupLoading,
-    error: groupError,
-  } = useGroupBySlugQuery({ slug: groupSlug, userId: user?.id });
-  const { data: members = [], isLoading: membersLoading } =
-    useGroupMembersQuery(group?.id || "");
-  const removeMemberMutation = useRemoveMemberMutation(group?.id || "");
-
-  const loading = groupLoading || membersLoading;
-
-  useEffect(() => {
-    if (authLoading) return; // Wait for auth to load
-
-    if (!groupSlug) {
-      navigate({ to: "/groups" });
-      return;
-    }
-
-    if (!user) {
-      navigate({ to: "/" }); // Redirect to home to sign in
-      return;
-    }
-
-    // Handle group fetch errors
-    if (groupError) {
-      toast({
-        title: "Error",
-        description: "Failed to fetch group details",
-        variant: "destructive",
-      });
-      navigate({ to: "/groups" });
-    }
-  }, [groupSlug, user, authLoading, groupError, navigate, toast]);
-
-  // Show loading while checking authentication
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-app-gradient flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
-      </div>
-    );
-  }
+  const { user } = useRouteContext({ from: "/groups/$groupSlug" });
 
   if (!user) {
     return (
@@ -91,34 +42,18 @@ function GroupDetail() {
     );
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-app-gradient flex items-center justify-center">
-        <div className="text-white text-xl">Loading group details...</div>
-      </div>
-    );
-  }
+  return <GroupDetailContent user={user} />;
+}
 
-  if (!group) {
-    return (
-      <div className="min-h-screen bg-app-gradient flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Group not found</CardTitle>
-            <CardDescription>
-              The group you're looking for doesn't exist or you don't have
-              access to it
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild className="w-full">
-              <Link to="/groups">Back to Groups</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+function GroupDetailContent({ user }: { user: User }) {
+  const { groupSlug } = useParams({ from: "/groups/$groupSlug" });
+  const [removingMember, setRemovingMember] = useState<string | null>(null);
+
+  const { data: group } = useSuspenseQuery(
+    groupBySlugQuery(groupSlug, user.id),
+  );
+  const { data: members } = useSuspenseQuery(groupMembersQuery(group.id));
+  const removeMemberMutation = useRemoveMemberMutation(group.id);
 
   const isCreator = group.created_by === user.id;
 
@@ -256,8 +191,6 @@ function GroupDetail() {
   );
 
   async function handleRemoveMember(memberId: string, memberUserId: string) {
-    if (!group?.id || !user) return;
-
     if (
       window.confirm(
         "Are you sure you want to remove this member from the group?",

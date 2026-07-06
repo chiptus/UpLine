@@ -3,11 +3,12 @@ import { MainTabNavigation } from "./TabNavigation/TabNavigation";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { Outlet } from "@tanstack/react-router";
-import { useCustomLinksQuery } from "@/api/custom-links/useCustomLinks";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { customLinksQuery } from "@/api/custom-links/useCustomLinks";
 
 export default function EditionView() {
   const { festival, edition } = useFestivalEdition();
-  const customLinksQuery = useCustomLinksQuery(festival.id);
+  const { data: customLinks } = useSuspenseQuery(customLinksQuery(festival.id));
 
   if (!edition) {
     return (
@@ -17,7 +18,6 @@ export default function EditionView() {
     );
   }
 
-  const customLinks = customLinksQuery.data || [];
   const websiteUrl = customLinks.find(
     (link) => link.link_type === "website",
   )?.url;

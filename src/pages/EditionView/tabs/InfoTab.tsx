@@ -7,17 +7,15 @@ import { InfoText } from "./InfoTab/InfoText";
 import { CustomLinks } from "./InfoTab/CustomLinks";
 import { NoInfo } from "./InfoTab/NoInfo";
 import { SocialLinkItem } from "./InfoTab/SocialLinkItem";
-import { useCustomLinksQuery } from "@/api/custom-links/useCustomLinks";
+import { customLinksQuery } from "@/api/custom-links/useCustomLinks";
 
 export function InfoTab() {
   const { edition, festival } = useFestivalEdition();
   const { data: festivalInfo } = useSuspenseQuery(
     festivalInfoQuery(festival.id),
   );
+  const { data: customLinks } = useSuspenseQuery(customLinksQuery(festival.id));
 
-  const customLinksQuery = useCustomLinksQuery(festival?.id || "");
-
-  const customLinks = customLinksQuery.data || [];
   const noInfoAvailable =
     !festivalInfo?.info_text &&
     !festivalInfo?.facebook_url &&

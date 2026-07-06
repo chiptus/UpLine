@@ -1,4 +1,6 @@
 import { useMemo } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { useRouteContext } from "@tanstack/react-router";
 import { useScheduleData } from "@/hooks/useScheduleData";
 import { calculateTimelineData } from "@/lib/timelineCalculator";
 import { StageLabels } from "./StageLabels";
@@ -7,20 +9,23 @@ import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { useSetsByEditionQuery as useEditionSetsQuery } from "@/api/sets/useSetsByEdition";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
 import { getFestivalHour } from "@/lib/timeUtils";
-import { useStagesByEditionQuery } from "@/api/stages/useStagesByEdition";
+import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 import { ScheduleNotRevealedPlaceholder } from "../ScheduleNotRevealedPlaceholder";
 
 export function Timeline() {
-  const { edition, festival } = useFestivalEdition();
+  const { festival } = useFestivalEdition();
+  const { edition } = useRouteContext({
+    from: "/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline",
+  });
   const { canShowTime } = useScheduleReveal();
   const { data: editionSets = [], isLoading: setsLoading } =
-    useEditionSetsQuery(edition?.id);
-  const stagesQuery = useStagesByEditionQuery(edition?.id);
+    useEditionSetsQuery(edition.id);
+  const { data: stages } = useSuspenseQuery(stagesByEditionQuery(edition.id));
 
   const { scheduleDays, loading, error } = useScheduleData({
     sets: editionSets,
-    stages: stagesQuery.data,
+    stages,
     timezone: festival.timezone,
   });
   const {
@@ -30,7 +35,7 @@ export function Timeline() {
   } = useTimelineUrlState("timeline");
 
   const timelineData = useMemo(() => {
-    if (!edition || !edition.start_date || !edition.end_date) {
+    if (!edition.start_date || !edition.end_date) {
       return null;
     }
 
@@ -82,7 +87,7 @@ export function Timeline() {
       new Date(edition.start_date),
       new Date(edition.end_date),
       filteredScheduleDays,
-      stagesQuery.data || [],
+      stages,
     );
   }, [
     edition,
@@ -90,7 +95,7 @@ export function Timeline() {
     selectedDay,
     selectedTime,
     selectedStages,
-    stagesQuery.data,
+    stages,
     festival.timezone,
   ]);
 

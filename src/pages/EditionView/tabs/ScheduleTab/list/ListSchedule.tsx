@@ -1,4 +1,6 @@
 import { useMemo } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { useRouteContext } from "@tanstack/react-router";
 import { useScheduleData } from "@/hooks/useScheduleData";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { useSetsByEditionQuery as useEditionSetsQuery } from "@/api/sets/useSetsByEdition";
@@ -6,7 +8,7 @@ import { getFestivalDayKey, getFestivalHour } from "@/lib/timeUtils";
 import { TimeSlotGroup } from "./TimeSlotGroup";
 import type { ScheduleSet } from "@/hooks/useScheduleData";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
-import { useStagesByEditionQuery } from "@/api/stages/useStagesByEdition";
+import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 import { ScheduleNotRevealedPlaceholder } from "../ScheduleNotRevealedPlaceholder";
 
@@ -16,14 +18,17 @@ interface TimeSlot {
 }
 
 export function ListSchedule() {
-  const { edition, festival } = useFestivalEdition();
+  const { festival } = useFestivalEdition();
+  const { edition } = useRouteContext({
+    from: "/festivals/$festivalSlug/editions/$editionSlug/schedule/list",
+  });
   const { canShowTime } = useScheduleReveal();
   const { data: editionSets = [], isLoading: setsLoading } =
-    useEditionSetsQuery(edition?.id);
-  const stagesQuery = useStagesByEditionQuery(edition?.id);
+    useEditionSetsQuery(edition.id);
+  const { data: stages } = useSuspenseQuery(stagesByEditionQuery(edition.id));
   const { scheduleDays, loading, error } = useScheduleData({
     sets: editionSets,
-    stages: stagesQuery.data,
+    stages,
     timezone: festival.timezone,
   });
   const {
@@ -89,7 +94,7 @@ export function ListSchedule() {
         }
 
         // Find the stage data to get color information
-        const stageData = stagesQuery.data?.find((s) => s.id === stage.id);
+        const stageData = stages.find((s) => s.id === stage.id);
 
         stage.sets.forEach((set) => {
           if (set.startTime && matchesDay(set) && matchesTime(set)) {
@@ -133,7 +138,7 @@ export function ListSchedule() {
     selectedDay,
     selectedTime,
     selectedStages,
-    stagesQuery.data,
+    stages,
     festival.timezone,
   ]);
 

@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { PostHogProvider } from "posthog-js/react";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
+import { supabase } from "./integrations/supabase/client";
 import { routeTree } from "./routeTree.gen";
 import NotFound from "./pages/NotFound";
 import { RouteLoadingFallback } from "./components/layout/RouteLoadingFallback";
@@ -25,6 +26,7 @@ const router = createRouter({
   routeTree,
   context: {
     queryClient,
+    user: null,
   },
   defaultPreload: "intent",
   defaultPreloadStaleTime: 0,
@@ -62,6 +64,10 @@ declare module "@tanstack/react-router" {
     router: typeof router;
   }
 }
+
+supabase.auth.onAuthStateChange(() => {
+  router.invalidate();
+});
 
 createRoot(document.getElementById("root")!).render(
   <PostHogProvider

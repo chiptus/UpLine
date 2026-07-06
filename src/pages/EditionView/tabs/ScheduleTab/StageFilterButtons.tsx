@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { MapPin } from "lucide-react";
-import { useStagesByEditionQuery } from "@/api/stages/useStagesByEdition";
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { useRouteContext } from "@tanstack/react-router";
+import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 
 interface StageFilterButtonsProps {
   selectedStages: string[];
@@ -12,8 +13,10 @@ export function StageFilterButtons({
   selectedStages,
   onStageToggle,
 }: StageFilterButtonsProps) {
-  const { edition } = useFestivalEdition();
-  const { data: stages = [] } = useStagesByEditionQuery(edition?.id);
+  const { edition } = useRouteContext({
+    from: "/festivals/$festivalSlug/editions/$editionSlug",
+  });
+  const { data: stages } = useSuspenseQuery(stagesByEditionQuery(edition.id));
 
   return (
     <div className="space-y-2">

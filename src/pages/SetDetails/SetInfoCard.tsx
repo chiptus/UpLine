@@ -15,6 +15,8 @@ import { GenreBadge } from "@/components/GenreBadge";
 import { StagePin } from "@/components/StagePin";
 import { MarkdownText } from "@/components/ui/markdown-text";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
+import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
+import { FestivalTimeHint } from "@/components/FestivalTimeHint";
 
 interface SetInfoCardProps {
   set: FestivalSet;
@@ -28,12 +30,15 @@ export function SetInfoCard({
   use24Hour = false,
 }: SetInfoCardProps) {
   const artist = set.artists[0];
+  const { festival } = useFestivalEdition();
   const { canShowStage, canShowDay, canShowTime } = useScheduleReveal();
   const timeRangeFormatted = canShowTime
-    ? formatTimeRange(set.time_start, set.time_end, use24Hour)
+    ? formatTimeRange(set.time_start, set.time_end, use24Hour, festival.timezone)
     : null;
   const dayOnlyFormatted =
-    canShowDay && !canShowTime ? formatDayOnly(set.time_start) : null;
+    canShowDay && !canShowTime
+      ? formatDayOnly(set.time_start, festival.timezone)
+      : null;
   return (
     <div className="lg:col-span-2">
       <Card className="bg-white/10 backdrop-blur-md border-purple-400/30 h-full">
@@ -79,6 +84,9 @@ export function SetInfoCard({
                     <Clock className="h-4 w-4" />
                     <span className="text-sm">{dayOnlyFormatted}</span>
                   </div>
+                )}
+                {(timeRangeFormatted || dayOnlyFormatted) && (
+                  <FestivalTimeHint timezone={festival.timezone} />
                 )}
               </div>
             </div>

@@ -72,6 +72,24 @@ describe("formatTimeRange", () => {
   it("returns null for both invalid times", () => {
     expect(formatTimeRange("invalid", "also-invalid")).toBeNull();
   });
+
+  it("formats in the given timezone instead of the browser zone", () => {
+    // 14:00 UTC is 14:00 in Lisbon (WET, UTC+0 in December) and 09:00 in New York (UTC-5).
+    const lisbon = formatTimeRange(
+      "2024-12-15T14:00:00Z",
+      "2024-12-15T16:00:00Z",
+      true,
+      "Europe/Lisbon",
+    );
+    const newYork = formatTimeRange(
+      "2024-12-15T14:00:00Z",
+      "2024-12-15T16:00:00Z",
+      true,
+      "America/New_York",
+    );
+    expect(lisbon).toBe("Dec 15, 14:00 - 16:00");
+    expect(newYork).toBe("Dec 15, 09:00 - 11:00");
+  });
 });
 
 describe("formatDateTime", () => {

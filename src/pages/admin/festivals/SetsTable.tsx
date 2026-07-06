@@ -12,12 +12,14 @@ import { Badge } from "@/components/ui/badge";
 import { Edit2, Trash2 } from "lucide-react";
 import { formatTimeRange } from "@/lib/timeUtils";
 import { FestivalSet } from "@/api/sets/types";
+import { FestivalTimeHint } from "@/components/FestivalTimeHint";
 
 interface SetsTableProps {
   sets: FestivalSet[];
   onEdit: (set: FestivalSet) => void;
   onDelete: (set: FestivalSet) => void;
   editionId: string;
+  timezone?: string;
 }
 
 export function SetsTable({
@@ -25,6 +27,7 @@ export function SetsTable({
   onEdit,
   onDelete,
   editionId,
+  timezone,
 }: SetsTableProps) {
   const { data: stages = [] } = useStagesByEditionQuery(editionId);
 
@@ -45,6 +48,12 @@ export function SetsTable({
 
   return (
     <div className="rounded-md border">
+      {timezone && (
+        <FestivalTimeHint
+          timezone={timezone}
+          className="block border-b px-4 py-2 text-muted-foreground"
+        />
+      )}
       <Table>
         <TableHeader>
           <TableRow>
@@ -62,7 +71,12 @@ export function SetsTable({
               <TableCell>{getStageName(set.stage_id)}</TableCell>
               <TableCell>
                 {set.time_start && set.time_end
-                  ? formatTimeRange(set.time_start, set.time_end, true)
+                  ? formatTimeRange(
+                      set.time_start,
+                      set.time_end,
+                      true,
+                      timezone,
+                    )
                   : "—"}
               </TableCell>
               <TableCell>

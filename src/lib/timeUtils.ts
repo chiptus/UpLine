@@ -5,6 +5,7 @@ export function formatTimeRange(
   startTime: string | null,
   endTime: string | null,
   use24Hour: boolean = false,
+  timezone?: string,
 ): string | null {
   if (!startTime && !endTime) return null;
 
@@ -20,27 +21,33 @@ export function formatTimeRange(
   const timeFormat = use24Hour ? "HH:mm" : "h:mm a";
   const dateTimeFormat = use24Hour ? "MMM d, HH:mm" : "MMM d, h:mm a";
 
+  function formatWith(date: Date, dateFormat: string) {
+    return timezone
+      ? formatInTimeZone(date, timezone, dateFormat)
+      : format(date, dateFormat);
+  }
+
   // Only start time
   if (validStart && !validEnd) {
-    return `Starts: ${format(validStart, dateTimeFormat)}`;
+    return `Starts: ${formatWith(validStart, dateTimeFormat)}`;
   }
 
   // Only end time
   if (!validStart && validEnd) {
-    return `Ends: ${format(validEnd, dateTimeFormat)}`;
+    return `Ends: ${formatWith(validEnd, dateTimeFormat)}`;
   }
 
   // Both times
   if (validStart && validEnd) {
     if (isSameDay(validStart, validEnd)) {
       // Same day: "Dec 15, 2:00 PM - 4:00 PM" or "Dec 15, 14:00 - 16:00"
-      return `${format(validStart, dateTimeFormat)} - ${format(
+      return `${formatWith(validStart, dateTimeFormat)} - ${formatWith(
         validEnd,
         timeFormat,
       )}`;
     } else {
       // Different days: "Dec 15, 2:00 PM - Dec 16, 1:00 AM" or "Dec 15, 14:00 - Dec 16, 01:00"
-      return `${format(validStart, dateTimeFormat)} - ${format(
+      return `${formatWith(validStart, dateTimeFormat)} - ${formatWith(
         validEnd,
         dateTimeFormat,
       )}`;

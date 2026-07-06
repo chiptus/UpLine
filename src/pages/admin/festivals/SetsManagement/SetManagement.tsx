@@ -90,6 +90,7 @@ export function SetManagement() {
           onEdit={handleEdit}
           onDelete={handleDelete}
           editionId={editionQuery.data.id}
+          timezone={festivalQuery.data?.timezone}
         />
       </CardContent>
 

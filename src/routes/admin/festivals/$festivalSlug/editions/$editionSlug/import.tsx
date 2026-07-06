@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { editionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
+import { useFestivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 import { ScheduleImportWizard } from "@/components/Admin/ScheduleImport/ScheduleImportWizard";
 
 export const Route = createFileRoute(
@@ -16,11 +17,14 @@ export const Route = createFileRoute(
 });
 
 function FestivalScheduleImport() {
+  const { festivalSlug } = Route.useParams();
   const edition = Route.useLoaderData();
+  const festivalQuery = useFestivalBySlugQuery(festivalSlug);
   return (
     <ScheduleImportWizard
       festivalEditionId={edition.id}
       currentRevealLevel={edition.schedule_reveal_level ?? "draft"}
+      defaultTimezone={festivalQuery.data?.timezone}
     />
   );
 }

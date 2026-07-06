@@ -33,15 +33,13 @@ cp .env.local.example .env.local
 
 ## Run (agent path)
 
-1. Start the dev server bound to IPv4 (the config hardcodes IPv6, which fails
-   here — see Gotchas). Check nothing is already on 8080 first:
+1. Start the dev server (launch in the background):
 
    ```bash
-   curl -sS -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8080 || \
-     pnpm exec vite --host 127.0.0.1
+   pnpm run dev
    ```
 
-   Launch it in the background and wait for readiness:
+   Then wait for readiness:
 
    ```bash
    for i in $(seq 1 40); do
@@ -69,9 +67,7 @@ fully without a backend. `/` (festival selection) renders the shell but shows
 
 ## Run (human path)
 
-`pnpm run dev` is the documented command but fails headless here (IPv6 bind).
-Use `pnpm exec vite --host 127.0.0.1`; it serves at http://127.0.0.1:8080 and
-opens no window. Ctrl-C to stop.
+Same command: `pnpm run dev` serves at http://localhost:8080. Ctrl-C to stop.
 
 ## Gotchas
 
@@ -80,9 +76,6 @@ opens no window. Ctrl-C to stop.
   `incorrect header check` behind the network proxy, aborting the whole install
   and leaving `node_modules/.bin` (including `vite`) unlinked. Always use
   `--ignore-scripts`; the web app doesn't need the Supabase CLI.
-- **Vite binds IPv6 by default.** `vite.config.ts` sets `host: "::"`, which
-  throws `EAFNOSUPPORT: ... :::8080` in this container. Override with
-  `--host 127.0.0.1` on the CLI.
 - **Chromium version is pinned but mismatched.** `@playwright/test` wants build
   1193; the container ships 1194. `driver.mjs` sidesteps this by launching with
   `executablePath` globbed from `/opt/pw-browsers/chromium-*`. Do **not** run

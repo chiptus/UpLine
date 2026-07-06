@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SetDetails } from "@/pages/SetDetails";
 import { filterSortSearchSchema } from "@/lib/searchSchemas";
 import { setBySlugQuery } from "@/api/sets/useSetBySlug";
+import { artistNotesQuery } from "@/api/artist-notes/useArtistNotes";
 
 export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug",
@@ -9,8 +10,9 @@ export const Route = createFileRoute(
   component: SetDetails,
   validateSearch: filterSortSearchSchema,
   loader: async ({ params, context }) => {
-    await context.queryClient.ensureQueryData(
+    const set = await context.queryClient.ensureQueryData(
       setBySlugQuery(params.setSlug, context.edition.id),
     );
+    await context.queryClient.ensureQueryData(artistNotesQuery(set.id));
   },
 });

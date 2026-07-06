@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   Card,
   CardContent,
@@ -8,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Edit3, StickyNote } from "lucide-react";
-import { useArtistNotesQuery } from "@/api/artist-notes/useArtistNotes";
+import { artistNotesQuery } from "@/api/artist-notes/useArtistNotes";
 import { SetNoteItem } from "./notes/SetNoteItem";
 import { CreateNoteForm } from "./notes/CreateNoteForm";
 
@@ -18,11 +19,9 @@ interface SetNotesProps {
 }
 
 export function SetNotes({ setId, userId }: SetNotesProps) {
-  const notesQuery = useArtistNotesQuery(setId);
+  const { data: notes } = useSuspenseQuery(artistNotesQuery(setId));
 
   const [isEditing, setIsEditing] = useState(false);
-
-  const notes = notesQuery.data;
 
   if (!userId) {
     return (
@@ -36,22 +35,6 @@ export function SetNotes({ setId, userId }: SetNotesProps) {
             Sign in to add notes and see notes from group members
           </CardDescription>
         </CardHeader>
-      </Card>
-    );
-  }
-
-  if (notesQuery.isLoading) {
-    return (
-      <Card className="bg-white/10 backdrop-blur-md border-purple-400/30">
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2 text-white">
-            <StickyNote className="h-5 w-5" />
-            <span>Group Notes</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-purple-200">Loading notes...</div>
-        </CardContent>
       </Card>
     );
   }

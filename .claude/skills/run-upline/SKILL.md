@@ -1,7 +1,7 @@
 ---
 name: run-upline
 description: Build, launch, and screenshot the UpLine web app. Use to run, start, serve, drive, or take a screenshot of UpLine locally, or to verify a UI change renders in the real running app.
-allowed-tools: Bash(pnpm *), Bash(node *), Bash(curl *), Bash(export *), Bash(env *)
+allowed-tools: Bash(pnpm install*), Bash(pnpm run dev*), Bash(node *), Bash(curl *), Bash(env *)
 ---
 
 # Run UpLine
@@ -38,22 +38,11 @@ curl -sS -o /dev/null -w '%{http_code}\n' --max-time 15 "$VITE_SUPABASE_URL/rest
 If those fail, the env changes aren't active for this session — start a fresh
 one before continuing.
 
-**Var name mismatch:** the app expects `VITE_SUPABASE_PUBLISHABLE_KEY`, but
-this environment provides `VITE_SUPABASE_KEY`. Alias it before starting the
-dev server:
-
-```bash
-export VITE_SUPABASE_PUBLISHABLE_KEY="$VITE_SUPABASE_KEY"
-```
-
 ## Run (agent path)
 
-1. Start the dev server (launch in the background, in the **same shell** that
-   has the `VITE_SUPABASE_PUBLISHABLE_KEY` export — env vars don't persist
-   across separate tool calls):
+1. Start the dev server (launch in the background):
 
    ```bash
-   export VITE_SUPABASE_PUBLISHABLE_KEY="$VITE_SUPABASE_KEY"
    pnpm run dev
    ```
 

@@ -9,6 +9,6 @@ export const Route = createFileRoute(
   component: ArtistsTab,
   validateSearch: filterSortSearchSchema,
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(genresQuery());
+    void context.queryClient.ensureQueryData(genresQuery());
   },
 });

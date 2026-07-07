@@ -6,7 +6,7 @@ export const Route = createFileRoute("/groups/")({
   component: Groups,
   loader: async ({ context }) => {
     if (context.user) {
-      await context.queryClient.ensureQueryData(
+      void context.queryClient.ensureQueryData(
         userGroupsQuery(context.user.id, { all: false }),
       );
     }

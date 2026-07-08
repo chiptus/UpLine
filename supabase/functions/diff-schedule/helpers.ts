@@ -1,3 +1,5 @@
+import { fromZonedTime } from "npm:date-fns-tz@3.2.0";
+
 export function toSlug(name: string): string {
   return name
     .toLowerCase()
@@ -21,28 +23,7 @@ export function localToUtc(
   timeStr: string,
   timezone: string,
 ): string {
-  const naiveUtcMs = new Date(`${dateStr}T${timeStr}:00Z`).getTime();
-
-  // The offset can differ depending on which side of a DST transition the
-  // resolved instant falls on, so sample it once at the naive guess and
-  // again at the resulting instant, correcting if they disagree.
-  const firstOffsetMs = offsetMsAt(naiveUtcMs, timezone);
-  let utcMs = naiveUtcMs - firstOffsetMs;
-
-  const secondOffsetMs = offsetMsAt(utcMs, timezone);
-  if (secondOffsetMs !== firstOffsetMs) {
-    utcMs = naiveUtcMs - secondOffsetMs;
-  }
-
-  return new Date(utcMs).toISOString();
-}
-
-function offsetMsAt(utcMs: number, timezone: string): number {
-  // sv-SE locale gives "YYYY-MM-DD HH:MM:SS" — unambiguously parseable as UTC
-  const wallClockMs = new Date(
-    new Date(utcMs).toLocaleString("sv-SE", { timeZone: timezone }) + "Z",
-  ).getTime();
-  return wallClockMs - utcMs;
+  return fromZonedTime(`${dateStr}T${timeStr}:00`, timezone).toISOString();
 }
 
 export function utcToLocalDate(utcIso: string, timezone: string): string {

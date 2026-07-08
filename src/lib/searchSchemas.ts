@@ -25,6 +25,16 @@ export const filterSortSearchSchema = z.object({
 
 export type FilterSortSearch = z.infer<typeof filterSortSearchSchema>;
 
+export const filterSortSearchDefaults = {
+  sort: "popularity-desc",
+  stages: [],
+  genres: [],
+  minRating: 0,
+  timelineView: "list",
+  use24Hour: true,
+  sortLocked: false,
+} satisfies Partial<FilterSortSearch>;
+
 export const timelineSearchSchema = z.object({
   view: timelineViewSchema.catch("list"),
   day: z.string().catch("all"),

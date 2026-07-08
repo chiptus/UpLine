@@ -1,9 +1,19 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { filterSortSearchSchema } from "@/lib/searchSchemas";
+import {
+  createFileRoute,
+  Outlet,
+  stripSearchParams,
+} from "@tanstack/react-router";
+import {
+  filterSortSearchDefaults,
+  filterSortSearchSchema,
+} from "@/lib/searchSchemas";
 
 export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug/sets",
 )({
   component: () => <Outlet />,
   validateSearch: filterSortSearchSchema,
+  search: {
+    middlewares: [stripSearchParams(filterSortSearchDefaults)],
+  },
 });

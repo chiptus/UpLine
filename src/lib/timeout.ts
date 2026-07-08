@@ -1,18 +1,7 @@
-export async function withTimeout<T>(
-  promise: PromiseLike<T>,
+export function timeoutSignal(
+  signal: AbortSignal | undefined,
   timeoutMs: number = 10000,
-): Promise<T> {
-  let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
-
-  const timeoutPromise = new Promise<T>((_, reject) => {
-    timeoutHandle = setTimeout(() => {
-      reject(new Error("Request timeout"));
-    }, timeoutMs);
-  });
-
-  try {
-    return await Promise.race([Promise.resolve(promise), timeoutPromise]);
-  } finally {
-    clearTimeout(timeoutHandle);
-  }
+): AbortSignal {
+  const timeout = AbortSignal.timeout(timeoutMs);
+  return signal ? AbortSignal.any([signal, timeout]) : timeout;
 }

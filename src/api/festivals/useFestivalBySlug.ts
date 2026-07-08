@@ -1,21 +1,20 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Festival, festivalsKeys } from "./types";
-import { withTimeout } from "@/lib/timeout";
+import { timeoutSignal } from "@/lib/timeout";
 
 export async function fetchFestivalBySlug(
   festivalSlug: string,
+  signal?: AbortSignal,
 ): Promise<Festival> {
   try {
-    const { data, error } = await withTimeout(
-      supabase
-        .from("festivals")
-        .select("*")
-        .eq("archived", false)
-        .eq("slug", festivalSlug)
-        .single(),
-      10000,
-    );
+    const { data, error } = await supabase
+      .from("festivals")
+      .select("*")
+      .eq("archived", false)
+      .eq("slug", festivalSlug)
+      .abortSignal(timeoutSignal(signal))
+      .single();
 
     if (error) {
       throw new Error("Failed to load festival");
@@ -23,7 +22,7 @@ export async function fetchFestivalBySlug(
 
     return data;
   } catch (err) {
-    if (err instanceof Error && err.message === "Request timeout") {
+    if (err instanceof DOMException && err.name === "TimeoutError") {
       throw new Error("Failed to load festival - request timed out");
     }
     throw err;
@@ -33,7 +32,7 @@ export async function fetchFestivalBySlug(
 export function festivalBySlugQuery(festivalSlug: string) {
   return queryOptions({
     queryKey: festivalsKeys.bySlug(festivalSlug),
-    queryFn: () => fetchFestivalBySlug(festivalSlug),
+    queryFn: ({ signal }) => fetchFestivalBySlug(festivalSlug, signal),
   });
 }
 

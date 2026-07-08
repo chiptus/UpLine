@@ -1,7 +1,7 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Festival, festivalsKeys } from "./types";
-import { timeoutSignal } from "@/lib/timeout";
+import { isTimeoutError, withTimeout } from "@/lib/timeout";
 
 async function fetchFestivals({
   all,
@@ -17,26 +17,26 @@ async function fetchFestivals({
     query = query.eq("published", true);
   }
 
-  try {
-    const { data, error } = await query.abortSignal(timeoutSignal(signal));
+  const { data, error } = await query.abortSignal(signal!);
 
-    if (error) {
-      throw new Error("Failed to load festivals");
-    }
-
-    return data || [];
-  } catch (err) {
-    if (err instanceof DOMException && err.name === "TimeoutError") {
+  if (error) {
+    if (isTimeoutError(signal)) {
       throw new Error("Failed to load festivals - request timed out");
     }
-    throw err;
+    throw new Error("Failed to load festivals");
   }
+
+  return data || [];
 }
 
-export function festivalsQuery({ all }: { all?: boolean } = {}) {
+export function festivalsQuery({
+  all,
+  timeoutMs = 10000,
+}: { all?: boolean; timeoutMs?: number } = {}) {
   return queryOptions({
     queryKey: festivalsKeys.all(),
-    queryFn: ({ signal }) => fetchFestivals({ all, signal }),
+    queryFn: ({ signal }) =>
+      fetchFestivals({ all, signal: withTimeout(signal, timeoutMs) }),
   });
 }
 

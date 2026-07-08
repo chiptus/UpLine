@@ -1,38 +1,38 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Festival, festivalsKeys } from "./types";
-import { timeoutSignal } from "@/lib/timeout";
+import { isTimeoutError, withTimeout } from "@/lib/timeout";
 
 export async function fetchFestivalBySlug(
   festivalSlug: string,
   signal?: AbortSignal,
 ): Promise<Festival> {
-  try {
-    const { data, error } = await supabase
-      .from("festivals")
-      .select("*")
-      .eq("archived", false)
-      .eq("slug", festivalSlug)
-      .abortSignal(timeoutSignal(signal))
-      .single();
+  const { data, error } = await supabase
+    .from("festivals")
+    .select("*")
+    .eq("archived", false)
+    .eq("slug", festivalSlug)
+    .abortSignal(signal!)
+    .single();
 
-    if (error) {
-      throw new Error("Failed to load festival");
-    }
-
-    return data;
-  } catch (err) {
-    if (err instanceof DOMException && err.name === "TimeoutError") {
+  if (error) {
+    if (isTimeoutError(signal)) {
       throw new Error("Failed to load festival - request timed out");
     }
-    throw err;
+    throw new Error("Failed to load festival");
   }
+
+  return data;
 }
 
-export function festivalBySlugQuery(festivalSlug: string) {
+export function festivalBySlugQuery(
+  festivalSlug: string,
+  { timeoutMs = 10000 }: { timeoutMs?: number } = {},
+) {
   return queryOptions({
     queryKey: festivalsKeys.bySlug(festivalSlug),
-    queryFn: ({ signal }) => fetchFestivalBySlug(festivalSlug, signal),
+    queryFn: ({ signal }) =>
+      fetchFestivalBySlug(festivalSlug, withTimeout(signal, timeoutMs)),
   });
 }
 

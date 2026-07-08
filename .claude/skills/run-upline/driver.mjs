@@ -10,6 +10,11 @@ import { globSync } from "node:fs";
 // the one pre-installed under /opt/pw-browsers. Point straight at whatever
 // chrome binary is on disk instead of triggering a download.
 const [chromePath] = globSync("/opt/pw-browsers/chromium-*/chrome-linux/chrome");
+if (!chromePath) {
+  throw new Error(
+    "No Chromium binary found matching /opt/pw-browsers/chromium-*/chrome-linux/chrome — has the browser layout changed?",
+  );
+}
 
 const path = process.argv[2] || "/";
 const out = process.argv[3] || "upline.png";
@@ -48,13 +53,30 @@ page.on("requestfailed", (r) =>
   errors.push(`FAILED ${r.url()} :: ${r.failure()?.errorText}`),
 );
 
-await page.goto(url, { waitUntil: "networkidle", timeout: 30000 });
-await page.waitForTimeout(1000);
-await page.screenshot({ path: out, fullPage: true });
+try {
+  await page.goto(url, { waitUntil: "load", timeout: 30000 });
+  // "networkidle" correctly spans this app's multi-stage sequential fetches
+  // (festival -> editions -> sets, etc.) but could in principle hang on a
+  // long-lived connection (analytics, Supabase realtime) that never goes
+  // quiet, so bound it well under the old 30s and don't let it gate the rest.
+  await page.waitForLoadState("networkidle", { timeout: 8000 }).catch(() => {});
+  // Belt-and-suspenders: every async page here follows the same
+  // "Loading <noun>..." text convention (see FestivalSelection.tsx,
+  // EditionSelection.tsx, etc.) — if networkidle timed out above, this still
+  // catches an in-progress fetch that networkidle's bound cut off early.
+  await page
+    .waitForFunction(() => !/Loading [^<]*\.\.\./i.test(document.body.innerText), {
+      timeout: 5000,
+    })
+    .catch(() => {}); // fall through — a stuck loading state is itself a useful signal
+  await page.waitForTimeout(500); // let any in-flight CSS transition/paint settle
+  await page.screenshot({ path: out, fullPage: true });
 
-console.log(`title: ${JSON.stringify(await page.title())}`);
-console.log(`#root children: ${await page.locator("#root > *").count()}`);
-console.log(`screenshot: ${out}`);
-if (errors.length) console.log(`console errors:\n  ${errors.slice(0, 15).join("\n  ")}`);
-
-await browser.close();
+  console.log(`title: ${JSON.stringify(await page.title())}`);
+  console.log(`#root children: ${await page.locator("#root > *").count()}`);
+  console.log(`screenshot: ${out}`);
+  if (errors.length)
+    console.log(`console errors:\n  ${errors.slice(0, 15).join("\n  ")}`);
+} finally {
+  await browser.close();
+}

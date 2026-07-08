@@ -19,7 +19,7 @@ if (!chromePath) {
 const path = process.argv[2] || "/";
 const out = process.argv[3] || "upline.png";
 const base = process.env.BASE_URL || "http://127.0.0.1:8080";
-const url = base + path;
+const url = new URL(path, base).toString();
 
 // Outbound HTTPS in this environment goes through a pre-configured agent
 // proxy (see /root/.ccr/README.md) that re-terminates TLS with its own CA.

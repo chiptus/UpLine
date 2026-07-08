@@ -28,7 +28,7 @@ export function useCreateFestivalMutation() {
   return useMutation({
     mutationFn: createFestival,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: festivalsKeys.all() });
+      queryClient.invalidateQueries({ queryKey: ["festivals"] });
       toast({
         title: "Success",
         description: "Festival created successfully",

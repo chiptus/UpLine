@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { festivalsKeys } from "@/api/festivals/types";
 import type { Database } from "@/integrations/supabase/types";
 
 type UpdateEditionData =
@@ -35,7 +34,7 @@ export function useUpdateFestivalEditionMutation() {
       editionData: UpdateEditionData;
     }) => updateFestivalEdition(editionId, editionData),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: festivalsKeys.all() });
+      queryClient.invalidateQueries({ queryKey: ["festivals"] });
       queryClient.invalidateQueries({ queryKey: ["festival-editions"] });
       toast({
         title: "Success",

@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { festivalsKeys } from "@/api/festivals/types";
 import type { Database } from "@/integrations/supabase/types";
 
 type RevealLevel = Database["public"]["Enums"]["schedule_reveal_level"];
@@ -34,7 +33,7 @@ export function useCreateFestivalEditionMutation() {
   return useMutation({
     mutationFn: createFestivalEdition,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: festivalsKeys.all() });
+      queryClient.invalidateQueries({ queryKey: ["festivals"] });
       toast({
         title: "Success",
         description: "Festival edition created successfully",

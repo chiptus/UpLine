@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { festivalsKeys } from "./types";
 
 async function deleteFestival(festivalId: string) {
   const { error } = await supabase
@@ -20,7 +19,7 @@ export function useDeleteFestivalMutation() {
   return useMutation({
     mutationFn: deleteFestival,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: festivalsKeys.all() });
+      queryClient.invalidateQueries({ queryKey: ["festivals"] });
       toast({
         title: "Success",
         description: "Festival deleted successfully",

@@ -86,34 +86,21 @@ Same command: `pnpm run dev` serves at http://localhost:8080. Ctrl-C to stop.
 
 ## Gotchas
 
-- **`pnpm install` (without flags) fails.** The `supabase` npm package's
-  postinstall downloads a CLI binary from GitHub and dies with a gunzip
-  `incorrect header check` behind the network proxy, aborting the whole install
-  and leaving `node_modules/.bin` (including `vite`) unlinked. Always use
-  `--ignore-scripts`; the web app doesn't need the Supabase CLI.
-- **Chromium version is pinned but mismatched.** `@playwright/test` wants build
-  1193; the container ships 1194. `driver.mjs` sidesteps this by launching with
-  `executablePath` globbed from `/opt/pw-browsers/chromium-*`. Do **not** run
-  `npx playwright install`.
+- **`pnpm install` (without flags) fails.** The `supabase` package's postinstall
+  tries to download a CLI binary and dies behind the network proxy, unlinking
+  `vite`. Always use `--ignore-scripts`; the web app doesn't need the CLI.
+- **Chromium version mismatch.** `driver.mjs` globs
+  `/opt/pw-browsers/chromium-*` directly instead of using Playwright's pinned
+  build. Don't run `npx playwright install`.
 - **Use `@playwright/test`, not `playwright`.** Only `@playwright/test` is a
-  dependency here; it re-exports `chromium`. Importing `playwright` fails.
-- **Missing Supabase env vars = the app throws at boot, not a loading spinner.**
-  Setup no longer copies `.env.local.example` (that pointed at a local
-  Supabase stack on `127.0.0.1:54321` that doesn't exist here), so if the
-  staging prerequisites aren't live, `#root` stays empty and the console shows
-  `Error: Missing VITE_SUPABASE_URL or VITE_SUPABASE_PUBLISHABLE_KEY` — not an
-  app bug, the prerequisite check above just wasn't satisfied.
-- **The agent proxy resets Chromium's TLS handshake to `*.supabase.co`.**
-  The proxy re-terminates TLS with its own CA; Chromium's default ClientHello
-  (TLS 1.3, ~1.8KB with GREASE/ECH/post-quantum extensions) gets RST'd
-  mid-handshake (`net::ERR_CONNECTION_RESET`, net_error -101), and the cert
-  isn't trusted either (`ERR_CERT_AUTHORITY_INVALID`). `driver.mjs` already
-  launches Chromium with `--ignore-certificate-errors`,
-  `--ssl-version-max=tls1.2`, an explicit `--proxy-server`, and a
-  `--proxy-bypass-list` for localhost to work around this — don't strip
-  those flags. The PostHog "no token" warning and `ERR_TUNNEL_CONNECTION_FAILED`
-  on non-allowlisted third-party hosts (SoundCloud avatars, CloudFront,
-  vercel-scripts speed-insights) are expected and not app bugs.
+  dependency here; it re-exports `chromium`.
+- **Missing Supabase env vars throw at boot, not a loading spinner.** `#root`
+  stays empty with `Error: Missing VITE_SUPABASE_URL...` in the console — means
+  the prerequisite check above wasn't satisfied, not an app bug.
+- **Agent proxy resets Chromium's TLS handshake to `*.supabase.co`.**
+  `driver.mjs` already launches Chromium with the flags that fix this (see its
+  comment) — don't strip them. `ERR_TUNNEL_CONNECTION_FAILED` on
+  non-allowlisted hosts (SoundCloud, CloudFront, vercel-scripts) is expected.
 
 ## Tests (not run in this session)
 

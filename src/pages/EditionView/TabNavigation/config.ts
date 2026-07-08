@@ -44,8 +44,7 @@ export const config: TabConfig[] = [
     icon: InfoIcon,
     label: "Info",
     shortLabel: "Info",
-    enabled: (festivalInfo, customLinks) =>
-      !!festivalInfo?.info_text || (customLinks?.length ?? 0) > 0,
+    enabled: (festivalInfo) => !!festivalInfo?.info_text,
   },
   {
     key: "social",

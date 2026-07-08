@@ -1,7 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { festivalInfoQuery } from "@/api/festival-info/useFestivalInfo";
-import { useCustomLinksQuery } from "@/api/custom-links/useCustomLinks";
 import { DesktopTabButton } from "./DesktopTabButton";
 import { MobileTabButton } from "./MobileTabButton";
 import { config } from "./config";
@@ -11,13 +10,12 @@ export function MainTabNavigation() {
   const { data: festivalInfo } = useSuspenseQuery(
     festivalInfoQuery(festival.id),
   );
-  const { data: customLinks } = useCustomLinksQuery(festival.id);
 
   const visibleTabs = config.filter((config) => {
     if (typeof config.enabled === "boolean") {
       return config.enabled;
     }
-    return config.enabled(festivalInfo, customLinks);
+    return config.enabled(festivalInfo);
   });
 
   return (

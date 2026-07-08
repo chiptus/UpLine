@@ -97,10 +97,12 @@ Same command: `pnpm run dev` serves at http://localhost:8080. Ctrl-C to stop.
   `npx playwright install`.
 - **Use `@playwright/test`, not `playwright`.** Only `@playwright/test` is a
   dependency here; it re-exports `chromium`. Importing `playwright` fails.
-- **No live Supabase = perpetual loading + connection-refused console errors.**
-  If the staging prerequisites (above) aren't live, expect
-  `ERR_CONNECTION_REFUSED` (Supabase `127.0.0.1:54321`) and a permanent
-  "Loading festivals…" — not an app bug, just no backend.
+- **Missing Supabase env vars = the app throws at boot, not a loading spinner.**
+  Setup no longer copies `.env.local.example` (that pointed at a local
+  Supabase stack on `127.0.0.1:54321` that doesn't exist here), so if the
+  staging prerequisites aren't live, `#root` stays empty and the console shows
+  `Error: Missing VITE_SUPABASE_URL or VITE_SUPABASE_PUBLISHABLE_KEY` — not an
+  app bug, the prerequisite check above just wasn't satisfied.
 - **The agent proxy resets Chromium's TLS handshake to `*.supabase.co`.**
   The proxy re-terminates TLS with its own CA; Chromium's default ClientHello
   (TLS 1.3, ~1.8KB with GREASE/ECH/post-quantum extensions) gets RST'd

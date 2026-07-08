@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Loader2, Edit } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Loader2, Edit, AlertTriangle } from "lucide-react";
 import { useFestivalInfoQuery } from "@/api/festival-info/useFestivalInfo";
 import { useCustomLinksQuery } from "@/api/custom-links/useCustomLinks";
 import { FestivalMapField } from "./FestivalFields/FestivalMapField";
@@ -30,6 +31,7 @@ export function FestivalInfoDetails({ festivalId }: FestivalInfoDetailsProps) {
   if (!festivalInfo) {
     return (
       <div className="space-y-4">
+        <MissingInfoTextWarning />
         <p className="text-muted-foreground">
           No festival information has been added yet.
         </p>
@@ -52,6 +54,8 @@ export function FestivalInfoDetails({ festivalId }: FestivalInfoDetailsProps) {
 
   return (
     <div className="space-y-6">
+      {!festivalInfo.info_text && <MissingInfoTextWarning />}
+
       <FestivalMapField
         festivalId={festivalId}
         mapImageUrl={festivalInfo.map_image_url}
@@ -70,5 +74,18 @@ export function FestivalInfoDetails({ festivalId }: FestivalInfoDetailsProps) {
 
       <FestivalLinksField festivalId={festivalId} customLinks={customLinks} />
     </div>
+  );
+}
+
+function MissingInfoTextWarning() {
+  return (
+    <Alert>
+      <AlertTriangle className="h-4 w-4" />
+      <AlertTitle>Info tab hidden from visitors</AlertTitle>
+      <AlertDescription>
+        This festival doesn't have info text, so the Info tab won't be shown
+        to visitors. Add information below to make it visible.
+      </AlertDescription>
+    </Alert>
   );
 }

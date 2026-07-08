@@ -33,3 +33,10 @@ export const timelineSearchSchema = z.object({
 });
 
 export type TimelineSearch = z.infer<typeof timelineSearchSchema>;
+
+export const timelineSearchDefaults: TimelineSearch = {
+  view: "list",
+  day: "all",
+  time: "all",
+  stages: [],
+};

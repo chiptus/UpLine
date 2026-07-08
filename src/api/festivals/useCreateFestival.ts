@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { festivalsKeys } from "./types";
 
 async function createFestival(festivalData: {
   name: string;
@@ -27,7 +28,7 @@ export function useCreateFestivalMutation() {
   return useMutation({
     mutationFn: createFestival,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["festivals"] });
+      queryClient.invalidateQueries({ queryKey: festivalsKeys.all() });
       toast({
         title: "Success",
         description: "Festival created successfully",

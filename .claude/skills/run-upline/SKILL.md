@@ -1,7 +1,7 @@
 ---
 name: run-upline
 description: Build, launch, and screenshot the UpLine web app. Use to run, start, serve, drive, or take a screenshot of UpLine locally, or to verify a UI change renders in the real running app.
-allowed-tools: Bash(pnpm install*), Bash(pnpm run dev*), Bash(node *), Bash(curl *), Bash(env *)
+allowed-tools: Bash(pnpm install*), Bash(pnpm run dev*), Bash(node .claude/skills/run-upline/driver.mjs *), Bash(curl *)
 ---
 
 # Run UpLine
@@ -23,20 +23,11 @@ pnpm install --ignore-scripts
 
 ## Setup
 
-The app throws at boot if the Supabase env vars are missing. This environment
-is configured (in a **fresh session**) with network access to `*.supabase.co`
-and staging Supabase credentials as env vars — no `.env` file needed, Vite
-reads `VITE_`-prefixed vars straight from the shell env.
-
-**Confirm the prerequisites are live before proceeding:**
-
-```bash
-env | grep VITE_SUPABASE_URL >/dev/null && echo "vars present" || echo "MISSING — not a fresh session"
-curl -sS -o /dev/null -w '%{http_code}\n' --max-time 15 "$VITE_SUPABASE_URL/rest/v1/"   # expect 401/200, not 000
-```
-
-If those fail, the env changes aren't active for this session — start a fresh
-one before continuing.
+Nothing to do. This environment provides staging Supabase credentials as
+`VITE_`-prefixed env vars (in a **fresh session**) plus network access to
+`*.supabase.co` — Vite reads them straight from the shell env, no `.env` file
+needed. If they're missing (stale session), the app throws at boot — see
+Gotchas.
 
 ## Run (agent path)
 
@@ -96,7 +87,7 @@ Same command: `pnpm run dev` serves at http://localhost:8080. Ctrl-C to stop.
   dependency here; it re-exports `chromium`.
 - **Missing Supabase env vars throw at boot, not a loading spinner.** `#root`
   stays empty with `Error: Missing VITE_SUPABASE_URL...` in the console — means
-  the prerequisite check above wasn't satisfied, not an app bug.
+  a stale session without the staging env vars, not an app bug.
 - **Agent proxy resets Chromium's TLS handshake to `*.supabase.co`.**
   `driver.mjs` already launches Chromium with the flags that fix this (see its
   comment) — don't strip them. `ERR_TUNNEL_CONNECTION_FAILED` on

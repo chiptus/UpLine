@@ -2,6 +2,7 @@ import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { FestivalEdition, editionsKeys } from "./types";
 import { fetchFestivalBySlug } from "@/api/festivals/useFestivalBySlug";
+import { withTimeout } from "@/lib/timeout";
 
 export async function fetchFestivalEditionBySlug({
   editionSlug,
@@ -12,21 +13,29 @@ export async function fetchFestivalEditionBySlug({
 }): Promise<FestivalEdition> {
   const festival = await fetchFestivalBySlug(festivalSlug);
 
-  const query = supabase
-    .from("festival_editions")
-    .select("*")
-    .eq("archived", false)
-    .eq("festival_id", festival.id)
-    .eq("slug", editionSlug)
-    .single();
+  try {
+    const { data, error } = await withTimeout(
+      supabase
+        .from("festival_editions")
+        .select("*")
+        .eq("archived", false)
+        .eq("festival_id", festival.id)
+        .eq("slug", editionSlug)
+        .single(),
+      10000,
+    );
 
-  const { data, error } = await query;
+    if (error) {
+      throw new Error("Failed to load festival edition");
+    }
 
-  if (error) {
-    throw new Error("Failed to load festival edition");
+    return data;
+  } catch (err) {
+    if (err instanceof Error && err.message === "Request timeout") {
+      throw new Error("Failed to load festival edition - request timed out");
+    }
+    throw err;
   }
-
-  return data;
 }
 
 export function editionBySlugQuery({

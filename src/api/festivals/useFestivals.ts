@@ -1,6 +1,7 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Festival, festivalsKeys } from "./types";
+import { withTimeout } from "@/lib/timeout";
 
 async function fetchFestivals({ all }: { all?: boolean } = {}): Promise<
   Festival[]
@@ -15,13 +16,20 @@ async function fetchFestivals({ all }: { all?: boolean } = {}): Promise<
     query = query.eq("published", true);
   }
 
-  const { data, error } = await query;
+  try {
+    const { data, error } = await withTimeout(query, 10000);
 
-  if (error) {
-    throw new Error("Failed to load festivals");
+    if (error) {
+      throw new Error("Failed to load festivals");
+    }
+
+    return data || [];
+  } catch (err) {
+    if (err instanceof Error && err.message === "Request timeout") {
+      throw new Error("Failed to load festivals - request timed out");
+    }
+    throw err;
   }
-
-  return data || [];
 }
 
 export function festivalsQuery({ all }: { all?: boolean } = {}) {

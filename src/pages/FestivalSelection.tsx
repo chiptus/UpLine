@@ -20,8 +20,12 @@ import { TopBar } from "@/components/layout/TopBar";
 import { AppHeader } from "@/components/layout/AppHeader";
 
 export default function FestivalSelection() {
-  const { data: availableFestivals = [], isLoading: festivalsLoading } =
-    useFestivalsQuery();
+  const {
+    data: availableFestivals = [],
+    isLoading: festivalsLoading,
+    isError: festivalsError,
+    refetch,
+  } = useFestivalsQuery();
 
   function handleFestivalClick(festival: Festival) {
     const subdomainUrl = createFestivalSubdomainUrl(festival.slug);
@@ -34,6 +38,10 @@ export default function FestivalSelection() {
     }
   }
 
+  function handleRetry() {
+    refetch();
+  }
+
   useEffect(() => {
     if (!festivalsLoading && availableFestivals.length === 1) {
       handleFestivalClick(availableFestivals[0]);
@@ -44,6 +52,40 @@ export default function FestivalSelection() {
     return (
       <div className="min-h-screen bg-app-gradient flex items-center justify-center">
         <div className="text-white text-xl">Loading festivals...</div>
+      </div>
+    );
+  }
+
+  if (festivalsError) {
+    return (
+      <div className="min-h-screen bg-app-gradient">
+        <div className="container mx-auto px-4 py-8">
+          <PageTitle title="Select Festival" />
+          <TopBar />
+
+          <div className="flex items-center justify-center mt-16">
+            <Card className="w-full max-w-md bg-white/10 border-purple-400/30">
+              <CardHeader className="text-center">
+                <Music className="h-16 w-16 mx-auto text-red-400 mb-4" />
+                <CardTitle className="text-white">
+                  Couldn't Load Festivals
+                </CardTitle>
+                <CardDescription className="text-purple-200">
+                  There was an error loading the festivals. Please check your
+                  connection and try again.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex justify-center">
+                <button
+                  onClick={handleRetry}
+                  className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                >
+                  Retry
+                </button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     );
   }

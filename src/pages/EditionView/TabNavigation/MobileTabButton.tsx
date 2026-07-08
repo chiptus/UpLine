@@ -15,7 +15,7 @@ export function MobileTabButton({ config }: TabButtonProps) {
     from: "/festivals/$festivalSlug/editions/$editionSlug",
   });
   const matchRoute = useMatchRoute();
-  const isActive = !!matchRoute({ to: tabRoutes[config.key] });
+  const isActive = !!matchRoute({ to: tabRoutes[config.key], fuzzy: true });
 
   return (
     <Link

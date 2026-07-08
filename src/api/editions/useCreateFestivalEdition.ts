@@ -35,7 +35,7 @@ export function useCreateFestivalEditionMutation() {
     mutationFn: createFestivalEdition,
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: editionsKeys.all(variables.festival_id),
+        queryKey: editionsKeys.root(variables.festival_id),
       });
       toast({
         title: "Success",

@@ -1,4 +1,5 @@
 import type { Database } from "@/integrations/supabase/types";
+import { festivalsKeys } from "@/api/festivals/types";
 
 export type FestivalEdition =
   Database["public"]["Tables"]["festival_editions"]["Row"];
@@ -15,7 +16,13 @@ export const editionsKeys = {
     festivalId: string;
     editionId: string;
   }) => [...editionsKeys.root(festivalId), editionId] as const,
-  bySlugRoot: () => ["festival-editions"] as const,
   bySlug: (festivalSlug: string, editionSlug: string) =>
-    [...editionsKeys.bySlugRoot(), "slug", festivalSlug, editionSlug] as const,
+    [
+      ...festivalsKeys.root(),
+      "slug",
+      festivalSlug,
+      "editions",
+      "slug",
+      editionSlug,
+    ] as const,
 };

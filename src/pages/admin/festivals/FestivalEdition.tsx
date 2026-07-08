@@ -57,7 +57,6 @@ export default function FestivalEdition() {
             </span>
             <ScheduleRevealControl
               editionId={currentEdition.id}
-              festivalId={currentEdition.festival_id}
               level={currentEdition.schedule_reveal_level ?? "draft"}
               editionPublished={currentEdition.published ?? false}
             />

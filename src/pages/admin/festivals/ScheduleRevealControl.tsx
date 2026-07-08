@@ -5,7 +5,6 @@ import type { RevealLevel } from "@/lib/scheduleReveal";
 
 type Props = {
   editionId: string;
-  festivalId: string;
   level: RevealLevel;
   editionPublished: boolean;
 };
@@ -37,7 +36,6 @@ const ADVANCE_LABEL: Record<Exclude<RevealLevel, "full">, string> = {
 
 export function ScheduleRevealControl({
   editionId,
-  festivalId,
   level,
   editionPublished,
 }: Props) {
@@ -47,7 +45,6 @@ export function ScheduleRevealControl({
   function setLevel(next: RevealLevel) {
     mutation.mutate({
       editionId,
-      festivalId,
       editionData: { schedule_reveal_level: next },
     });
   }

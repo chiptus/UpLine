@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { editionsKeys } from "./types";
+import { festivalsKeys } from "@/api/festivals/types";
 
 async function deleteFestivalEdition(editionId: string) {
   const { error } = await supabase
@@ -18,13 +18,9 @@ export function useDeleteFestivalEditionMutation() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: ({ editionId }: { editionId: string; festivalId: string }) =>
-      deleteFestivalEdition(editionId),
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: editionsKeys.root(variables.festivalId),
-      });
-      queryClient.invalidateQueries({ queryKey: editionsKeys.bySlugRoot() });
+    mutationFn: deleteFestivalEdition,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: festivalsKeys.root() });
       toast({
         title: "Success",
         description: "Festival edition deleted successfully",

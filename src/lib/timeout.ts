@@ -1,8 +1,8 @@
 export async function withTimeout<T>(
-  promise: Promise<T>,
+  promise: PromiseLike<T>,
   timeoutMs: number = 10000,
 ): Promise<T> {
-  let timeoutHandle: NodeJS.Timeout;
+  let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
 
   const timeoutPromise = new Promise<T>((_, reject) => {
     timeoutHandle = setTimeout(() => {
@@ -11,7 +11,7 @@ export async function withTimeout<T>(
   });
 
   try {
-    return await Promise.race([promise, timeoutPromise]);
+    return await Promise.race([Promise.resolve(promise), timeoutPromise]);
   } finally {
     clearTimeout(timeoutHandle);
   }

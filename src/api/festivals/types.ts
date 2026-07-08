@@ -4,8 +4,10 @@ export type Festival = Database["public"]["Tables"]["festivals"]["Row"];
 
 // Query key factory for festivals
 export const festivalsKeys = {
-  all: ({ all }: { all?: boolean } = {}) => ["festivals", { all }] as const,
-  item: (festivalId: string) => ["festivals", festivalId] as const,
+  root: () => ["festivals"] as const,
+  all: ({ all }: { all?: boolean } = {}) =>
+    [...festivalsKeys.root(), { all }] as const,
+  item: (festivalId: string) => [...festivalsKeys.root(), festivalId] as const,
   bySlug: (festivalSlug: string) =>
-    ["festivals", "slug", festivalSlug] as const,
+    [...festivalsKeys.root(), "slug", festivalSlug] as const,
 };

@@ -5,15 +5,17 @@ export type FestivalEdition =
 
 // Query key factory for festival editions
 export const editionsKeys = {
+  root: (festivalId: string) => ["festivals", festivalId, "editions"] as const,
   all: (festivalId: string, { all }: { all?: boolean } = {}) =>
-    ["festivals", festivalId, "editions", { all }] as const,
+    [...editionsKeys.root(festivalId), { all }] as const,
   item: ({
     editionId,
     festivalId,
   }: {
     festivalId: string;
     editionId: string;
-  }) => ["festivals", festivalId, "editions", editionId] as const,
+  }) => [...editionsKeys.root(festivalId), editionId] as const,
+  bySlugRoot: () => ["festival-editions"] as const,
   bySlug: (festivalSlug: string, editionSlug: string) =>
-    ["festival-editions", "slug", festivalSlug, editionSlug] as const,
+    [...editionsKeys.bySlugRoot(), "slug", festivalSlug, editionSlug] as const,
 };

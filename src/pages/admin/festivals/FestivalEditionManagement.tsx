@@ -202,6 +202,7 @@ export function FestivalEditionManagement({
       if (editingEdition) {
         await updateEditionMutation.mutateAsync({
           editionId: editingEdition.id,
+          festivalId: festivalQuery.data!.id,
           editionData: submitData,
         });
       } else {
@@ -232,7 +233,10 @@ export function FestivalEditionManagement({
       return;
     }
 
-    deleteEditionMutation.mutate(edition.id);
+    deleteEditionMutation.mutate({
+      editionId: edition.id,
+      festivalId: festivalQuery.data!.id,
+    });
   }
 
   if (isLoading) {

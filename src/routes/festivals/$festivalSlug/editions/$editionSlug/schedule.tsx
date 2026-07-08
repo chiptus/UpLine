@@ -1,12 +1,22 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  redirect,
+  stripSearchParams,
+} from "@tanstack/react-router";
 import { ScheduleTab } from "@/pages/EditionView/tabs/ScheduleTab";
-import { filterSortSearchSchema } from "@/lib/searchSchemas";
+import {
+  timelineSearchDefaults,
+  timelineSearchSchema,
+} from "@/lib/searchSchemas";
 
 export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug/schedule",
 )({
   component: ScheduleTab,
-  validateSearch: filterSortSearchSchema,
+  validateSearch: timelineSearchSchema,
+  search: {
+    middlewares: [stripSearchParams(timelineSearchDefaults)],
+  },
   beforeLoad: ({ params, location }) => {
     if (location.pathname.endsWith("/schedule")) {
       throw redirect({

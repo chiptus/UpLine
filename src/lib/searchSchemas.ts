@@ -14,7 +14,7 @@ export const filterSortSearchSchema = z.object({
   sort: sortOptionSchema.catch("popularity-desc"),
   stages: z.array(z.string()).catch([]),
   genres: z.array(z.string()).catch([]),
-  minRating: z.number().catch(0),
+  minRating: z.coerce.number().catch(0),
   timelineView: timelineViewSchema.catch("list"),
   use24Hour: z.boolean().catch(true),
   groupId: z.string().optional(),

@@ -1,17 +1,25 @@
 import { Clock } from "lucide-react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { useRouteContext } from "@tanstack/react-router";
 import { formatDayOnly, formatTimeRange } from "@/lib/timeUtils";
 import { GenreBadge } from "@/components/GenreBadge";
 import { StageBadge } from "@/components/StageBadge";
 import { useFestivalSet } from "../FestivalSetContext";
-import { useStageQuery } from "@/api/stages/useStageQuery";
+import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 
 export function SetMetadata() {
   const { set, use24Hour } = useFestivalSet();
   const { festival } = useFestivalEdition();
+  const { edition } = useRouteContext({
+    from: "/festivals/$festivalSlug/editions/$editionSlug",
+  });
   const { canShowStage, canShowDay, canShowTime } = useScheduleReveal();
-  const stageQuery = useStageQuery(canShowStage ? set?.stage_id : null);
+  const { data: stages } = useSuspenseQuery(stagesByEditionQuery(edition.id));
+  const stage = canShowStage
+    ? stages.find((s) => s.id === set?.stage_id)
+    : undefined;
   const uniqueGenres = set.artists
     ?.flatMap((a) => a.artist_music_genres || [])
     .filter(
@@ -46,10 +54,10 @@ export function SetMetadata() {
 
       {/* Stage and Time Information */}
       <div className="flex flex-wrap gap-2 items-center">
-        {canShowStage && stageQuery.data && (
+        {stage && (
           <StageBadge
-            stageName={stageQuery.data.name}
-            stageColor={stageQuery.data.color || undefined}
+            stageName={stage.name}
+            stageColor={stage.color || undefined}
             size="sm"
           />
         )}

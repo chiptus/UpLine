@@ -1,4 +1,4 @@
-import { assertEquals } from "jsr:@std/assert@1";
+import { assertEquals, assertNotEquals } from "jsr:@std/assert@1";
 import { advanceDateByOne, artistKey, localToUtc, toSlug } from "./helpers.ts";
 
 Deno.test("toSlug converts name to lowercase hyphenated slug", () => {
@@ -36,4 +36,20 @@ Deno.test("localToUtc converts Lisbon winter time (UTC+0) to UTC", () => {
 Deno.test("localToUtc converts midnight correctly", () => {
   const result = localToUtc("2026-07-11", "00:00", "Europe/Lisbon");
   assertEquals(result, "2026-07-10T23:00:00.000Z");
+});
+
+Deno.test("localToUtc resolves a spring-forward wall time inside the skipped hour", () => {
+  // Lisbon clocks jump from 01:00 to 02:00 local at 2026-03-29T01:00:00Z, so
+  // "01:30" never occurs. A single fixed-offset lookup samples the offset at
+  // the wrong instant and lands an hour early (2026-03-29T00:30:00.000Z).
+  const result = localToUtc("2026-03-29", "01:30", "Europe/Lisbon");
+  assertEquals(result, "2026-03-29T01:30:00.000Z");
+  assertNotEquals(result, "2026-03-29T00:30:00.000Z");
+});
+
+Deno.test("localToUtc resolves a fall-back wall time inside the repeated hour", () => {
+  // Lisbon clocks fall back from 02:00 to 01:00 local at 2026-10-25T01:00:00Z,
+  // so "01:30" occurs twice. Resolve to the later (post-transition) instant.
+  const result = localToUtc("2026-10-25", "01:30", "Europe/Lisbon");
+  assertEquals(result, "2026-10-25T01:30:00.000Z");
 });

@@ -21,14 +21,28 @@ export function localToUtc(
   timeStr: string,
   timezone: string,
 ): string {
-  const localIso = `${dateStr}T${timeStr}:00`;
-  const naiveUtc = new Date(localIso + "Z");
+  const naiveUtcMs = new Date(`${dateStr}T${timeStr}:00Z`).getTime();
+
+  // The offset can differ depending on which side of a DST transition the
+  // resolved instant falls on, so sample it once at the naive guess and
+  // again at the resulting instant, correcting if they disagree.
+  const firstOffsetMs = offsetMsAt(naiveUtcMs, timezone);
+  let utcMs = naiveUtcMs - firstOffsetMs;
+
+  const secondOffsetMs = offsetMsAt(utcMs, timezone);
+  if (secondOffsetMs !== firstOffsetMs) {
+    utcMs = naiveUtcMs - secondOffsetMs;
+  }
+
+  return new Date(utcMs).toISOString();
+}
+
+function offsetMsAt(utcMs: number, timezone: string): number {
   // sv-SE locale gives "YYYY-MM-DD HH:MM:SS" — unambiguously parseable as UTC
-  const localInTz = new Date(
-    naiveUtc.toLocaleString("sv-SE", { timeZone: timezone }) + "Z",
-  );
-  const offsetMs = naiveUtc.getTime() - localInTz.getTime();
-  return new Date(naiveUtc.getTime() + offsetMs).toISOString();
+  const wallClockMs = new Date(
+    new Date(utcMs).toLocaleString("sv-SE", { timeZone: timezone }) + "Z",
+  ).getTime();
+  return wallClockMs - utcMs;
 }
 
 export function utcToLocalDate(utcIso: string, timezone: string): string {

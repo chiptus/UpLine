@@ -14,12 +14,18 @@ export const filterSortSearchSchema = z.object({
   sort: sortOptionSchema.catch("popularity-desc"),
   stages: z.array(z.string()).catch([]),
   genres: z.array(z.string()).catch([]),
-  minRating: z.number().catch(0),
+  minRating: z.coerce.number().catch(0),
   timelineView: timelineViewSchema.catch("list"),
-  use24Hour: z.boolean().catch(true),
+  use24Hour: z
+    .enum(["true", "false"])
+    .catch("true")
+    .transform((v) => v === "true"),
   groupId: z.string().optional(),
   invite: z.string().optional(),
-  sortLocked: z.boolean().catch(false),
+  sortLocked: z
+    .enum(["true", "false"])
+    .catch("false")
+    .transform((v) => v === "true"),
   votePerspective: z.string().optional(),
 });
 

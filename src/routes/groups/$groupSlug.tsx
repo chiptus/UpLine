@@ -12,10 +12,10 @@ export const Route = createFileRoute("/groups/$groupSlug")({
     const group = await context.queryClient.ensureQueryData(
       groupBySlugQuery(params.groupSlug, context.user.id),
     );
-    await context.queryClient.ensureQueryData(groupMembersQuery(group.id));
+    void context.queryClient.ensureQueryData(groupMembersQuery(group.id));
 
     if (group.created_by === context.user.id) {
-      await context.queryClient.ensureQueryData(groupInvitesQuery(group.id));
+      void context.queryClient.ensureQueryData(groupInvitesQuery(group.id));
     }
   },
 });

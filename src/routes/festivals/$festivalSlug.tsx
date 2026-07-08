@@ -10,8 +10,8 @@ export const Route = createFileRoute("/festivals/$festivalSlug")({
     const festival = await context.queryClient.ensureQueryData(
       festivalBySlugQuery(params.festivalSlug),
     );
-    await context.queryClient.ensureQueryData(festivalInfoQuery(festival.id));
-    await context.queryClient.ensureQueryData(customLinksQuery(festival.id));
+    void context.queryClient.ensureQueryData(festivalInfoQuery(festival.id));
+    void context.queryClient.ensureQueryData(customLinksQuery(festival.id));
   },
   component: FestivalLayout,
 });

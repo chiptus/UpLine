@@ -26,7 +26,7 @@ export const Route = createFileRoute(
     return { edition };
   },
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(
+    void context.queryClient.ensureQueryData(
       stagesByEditionQuery(context.edition.id),
     );
   },

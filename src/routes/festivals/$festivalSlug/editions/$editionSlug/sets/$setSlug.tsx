@@ -13,6 +13,6 @@ export const Route = createFileRoute(
     const set = await context.queryClient.ensureQueryData(
       setBySlugQuery(params.setSlug, context.edition.id),
     );
-    await context.queryClient.ensureQueryData(artistNotesQuery(set.id));
+    void context.queryClient.ensureQueryData(artistNotesQuery(set.id));
   },
 });

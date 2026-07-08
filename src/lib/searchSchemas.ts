@@ -10,22 +10,23 @@ export const sortOptionSchema = z.enum([
 
 export const timelineViewSchema = z.enum(["horizontal", "list"]);
 
+function booleanStringSchema(defaultValue: boolean) {
+  return z
+    .enum(["true", "false"])
+    .catch(defaultValue ? "true" : "false")
+    .transform((v) => v === "true");
+}
+
 export const filterSortSearchSchema = z.object({
   sort: sortOptionSchema.catch("popularity-desc"),
   stages: z.array(z.string()).catch([]),
   genres: z.array(z.string()).catch([]),
   minRating: z.coerce.number().catch(0),
   timelineView: timelineViewSchema.catch("list"),
-  use24Hour: z
-    .enum(["true", "false"])
-    .catch("true")
-    .transform((v) => v === "true"),
+  use24Hour: booleanStringSchema(true),
   groupId: z.string().optional(),
   invite: z.string().optional(),
-  sortLocked: z
-    .enum(["true", "false"])
-    .catch("false")
-    .transform((v) => v === "true"),
+  sortLocked: booleanStringSchema(false),
   votePerspective: z.string().optional(),
 });
 

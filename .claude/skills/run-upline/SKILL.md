@@ -1,7 +1,7 @@
 ---
 name: run-upline
 description: Build, launch, and screenshot the UpLine web app. Use to run, start, serve, drive, or take a screenshot of UpLine locally, or to verify a UI change renders in the real running app.
-allowed-tools: Bash(pnpm install*), Bash(pnpm run dev*), Bash(node .claude/skills/run-upline/driver.mjs *), Bash(curl *)
+allowed-tools: Bash(pnpm install*), Bash(pnpm run dev*), Bash(node .claude/skills/run-upline/driver.mjs *), Bash(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8080)
 ---
 
 # Run UpLine

@@ -40,6 +40,9 @@ export const timelineSearchSchema = z.object({
   day: z.string().catch("all"),
   time: z.enum(["all", "morning", "afternoon", "evening"]).catch("all"),
   stages: z.array(z.string()).catch([]),
+  // PROTOTYPE (timeline nav & filtering) — remove with src/pages/EditionView/tabs/ScheduleTab/horizontal/prototype/
+  variant: z.enum(["a", "b", "c"]).optional(),
+  scrollTo: z.string().optional(),
 });
 
 export type TimelineSearch = z.infer<typeof timelineSearchSchema>;

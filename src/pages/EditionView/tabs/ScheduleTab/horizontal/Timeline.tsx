@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useRouteContext } from "@tanstack/react-router";
+import { useRouteContext, useSearch } from "@tanstack/react-router";
+import { TimelinePrototype } from "./prototype/TimelinePrototype";
 import { useScheduleData } from "@/hooks/useScheduleData";
 import { calculateTimelineData } from "@/lib/timelineCalculator";
 import { StageLabels } from "./StageLabels";
@@ -33,6 +34,10 @@ export function Timeline() {
     time: selectedTime,
     stages: selectedStages,
   } = useTimelineUrlState("timeline");
+  // PROTOTYPE (timeline nav & filtering) — remove with ./prototype/
+  const { variant: prototypeVariant } = useSearch({
+    from: "/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline",
+  });
 
   const timelineData = useMemo(() => {
     if (!edition.start_date || !edition.end_date) {
@@ -125,6 +130,18 @@ export function Timeline() {
 
   if (!canShowTime) {
     return <ScheduleNotRevealedPlaceholder />;
+  }
+
+  if (prototypeVariant) {
+    return (
+      <TimelinePrototype
+        variant={prototypeVariant}
+        scheduleDays={scheduleDays}
+        stages={stages}
+        edition={edition}
+        timezone={festival.timezone}
+      />
+    );
   }
 
   return (

@@ -2,8 +2,9 @@
 // src/pages/EditionView/tabs/ScheduleTab/horizontal/prototype/.
 //
 // Floating variant switcher: arrows (and ←/→ keys) cycle the `?variant=`
-// search param. Only rendered in dev builds, and only when a variant is
-// already active (the prototype path never renders for normal users).
+// search param. Renders only when a variant is already active in the URL —
+// normal users never see it, and preview deploys (production builds) can
+// still flip variants when sharing the prototype.
 import { useEffect } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -46,7 +47,7 @@ export function PrototypeSwitcher() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   });
 
-  if (!import.meta.env.DEV) return null;
+  if (!variant) return null;
 
   return (
     <div className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2">

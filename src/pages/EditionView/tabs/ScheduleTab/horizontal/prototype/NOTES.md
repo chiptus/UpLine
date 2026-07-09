@@ -20,8 +20,9 @@ Open any edition's timeline with a variant param, e.g.:
 ```
 
 Flip variants with the floating bottom bar or the ←/→ keys. Without
-`?variant=`, the production timeline renders untouched. The switcher is
-dev-build only.
+`?variant=`, the production timeline renders untouched (switcher included —
+it only mounts when a variant is active in the URL), so preview deploys can
+be shared safely.
 
 Demo affordances (prototype-only, the real implementation drops both):
 

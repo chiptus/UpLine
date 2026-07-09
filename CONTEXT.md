@@ -33,8 +33,8 @@ A named venue/space within an edition where sets take place.
 _Avoid_: Venue, room
 
 **Vote**:
-A user's reaction to an artist within a group context. Three values: "Must Go" (+2), "Interested" (+1), "Won't Go" (-1).
-_Avoid_: Rating, like
+A user's reaction to a **set**. One vote per user per set. Three values: "Must Go" (+2), "Interested" (+1), "Won't Go" (-1). Votes are personal; **groups** determine who can _see_ them, not what they attach to.
+_Avoid_: Rating, like, vote on an artist (votes attach to sets, not artists)
 
 **Group**:
 A collection of users who share votes and notes for collaborative decision-making within an edition.

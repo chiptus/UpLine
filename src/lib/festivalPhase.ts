@@ -16,6 +16,22 @@ export type FestivalPhaseInput = {
   now: Date;
 };
 
+export type GetEffectiveFestivalPhaseInput = {
+  override: FestivalPhase | null;
+  derivedInput: FestivalPhaseInput;
+};
+
+// The single override rule for the whole app: a non-null override wins over
+// every derived case, null falls through to the derived phase. Consumers
+// should read this effective phase rather than checking the override
+// themselves.
+export function getEffectiveFestivalPhase({
+  override,
+  derivedInput,
+}: GetEffectiveFestivalPhaseInput): FestivalPhase {
+  return override ?? getFestivalPhase(derivedInput);
+}
+
 export function getFestivalPhase({
   revealLevel,
   startDate,

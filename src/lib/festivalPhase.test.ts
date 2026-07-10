@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  getEffectiveFestivalPhase,
   getFestivalPhase,
   type FestivalPhase,
   type FestivalPhaseInput,
@@ -87,4 +88,60 @@ describe("getFestivalPhase", () => {
       phase({ endDate: "not-a-date", now: new Date("2030-01-01T00:00:00Z") }),
     ).toBe("live");
   });
+});
+
+describe("getEffectiveFestivalPhase", () => {
+  const derivedCases: Array<{ label: string; input: Partial<FestivalPhaseInput>; derived: FestivalPhase }> = [
+    { label: "Pre-Schedule", input: { revealLevel: "draft" }, derived: "pre-schedule" },
+    { label: "Planning", input: { now: new Date("2025-07-30T22:59:59Z") }, derived: "planning" },
+    { label: "Live", input: { now: new Date("2025-08-02T12:00:00Z") }, derived: "live" },
+    {
+      label: "Post-Festival",
+      input: { now: new Date("2025-08-04T05:00:00.001Z") },
+      derived: "post-festival",
+    },
+  ];
+
+  const allPhases: FestivalPhase[] = [
+    "pre-schedule",
+    "planning",
+    "live",
+    "post-festival",
+  ];
+
+  for (const { label, input, derived } of derivedCases) {
+    for (const override of allPhases) {
+      it(`a non-null override (${override}) wins over derived ${label}`, () => {
+        expect(
+          getEffectiveFestivalPhase({
+            override,
+            derivedInput: {
+              revealLevel: "full",
+              startDate: "2025-08-01",
+              endDate: "2025-08-03",
+              timezone: TZ,
+              now: new Date(LIVE_START),
+              ...input,
+            },
+          }),
+        ).toBe(override);
+      });
+    }
+
+    it(`a null override falls through to derived ${label}`, () => {
+      expect(
+        getEffectiveFestivalPhase({
+          override: null,
+          derivedInput: {
+            revealLevel: "full",
+            startDate: "2025-08-01",
+            endDate: "2025-08-03",
+            timezone: TZ,
+            now: new Date(LIVE_START),
+            ...input,
+          },
+        }),
+      ).toBe(derived);
+    });
+  }
 });

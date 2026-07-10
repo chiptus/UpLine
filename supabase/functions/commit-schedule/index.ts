@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
-import { requireAdmin, buildCorsHeaders } from "../_shared/auth.ts";
+import { requireAdmin } from "../_shared/auth.ts";
+import { buildCorsHeaders } from "../_shared/cors.ts";
 
 // timeStart/timeEnd arrive as ISO strings or null. Coerce "" (and undefined)
 // to null so the RPC's ::timestamptz cast doesn't choke on an empty string.

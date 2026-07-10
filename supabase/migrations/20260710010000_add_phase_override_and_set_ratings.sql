@@ -17,7 +17,7 @@ COMMENT ON COLUMN public.festival_editions.phase_override IS
   'Core Team escape hatch: forces the edition phase regardless of the derived value. NULL falls back to getFestivalPhase(). Not a scheduling system.';
 
 -- Retrospective rating storage, distinct from votes (anticipatory "will I go"
--- vs. retrospective "how was it"). See ADR-0004.
+-- vs. retrospective "how was it"). See docs/prd/festival-phases/3-post-festival.md.
 CREATE TABLE public.set_ratings (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
@@ -30,7 +30,6 @@ CREATE TABLE public.set_ratings (
   CONSTRAINT set_ratings_user_set_unique UNIQUE (user_id, set_id)
 );
 
-CREATE INDEX idx_set_ratings_user_set ON public.set_ratings(user_id, set_id);
 CREATE INDEX idx_set_ratings_set_id ON public.set_ratings(set_id);
 
 ALTER TABLE public.set_ratings ENABLE ROW LEVEL SECURITY;

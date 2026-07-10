@@ -22,6 +22,10 @@ const PHASE_LABEL: Record<FestivalPhase, string> = {
   "post-festival": "Post-Festival",
 };
 
+function isFestivalPhase(value: string): value is FestivalPhase {
+  return value in PHASE_LABEL;
+}
+
 export function PhaseOverrideControl({ editionId, override }: Props) {
   const mutation = useUpdateFestivalEditionMutation();
   const isPending = mutation.isPending;
@@ -38,7 +42,9 @@ export function PhaseOverrideControl({ editionId, override }: Props) {
       <Select
         value={override ?? undefined}
         disabled={isPending}
-        onValueChange={(value) => setOverride(value as FestivalPhase)}
+        onValueChange={(value) => {
+          if (isFestivalPhase(value)) setOverride(value);
+        }}
       >
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="Phase: automatic" />

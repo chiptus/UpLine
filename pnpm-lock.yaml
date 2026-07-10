@@ -283,7 +283,7 @@ importers:
         specifier: ^3.6.2
         version: 3.6.2
       supabase:
-        specifier: 2.109.1
+        specifier: ^2.109.1
         version: 2.109.1
       tailwindcss:
         specifier: ^3.4.11

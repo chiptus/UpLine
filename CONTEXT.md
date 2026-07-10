@@ -33,12 +33,24 @@ A named venue/space within an edition where sets take place.
 _Avoid_: Venue, room
 
 **Vote**:
-A user's reaction to an artist within a group context. Three values: "Must Go" (+2), "Interested" (+1), "Won't Go" (-1).
+A user's reaction to an artist. Three values: "Must Go" (+2), "Interested" (+1), "Won't Go" (-1). A vote belongs to the voting user alone — it is never scoped to a Group. Groups only change whose votes are being looked at, never which votes exist.
 _Avoid_: Rating, like
 
 **Group**:
-A festival-agnostic crew of users who share votes and notes for collaborative decision-making. Not tied to any festival or edition — the same group carries over to whatever editions its members attend. Groups never scope a vote's existence, only whose votes are being looked at.
+A festival-agnostic crew of users who share votes and notes for collaborative decision-making. Not tied to any festival or edition — the same group carries over to whatever editions its members attend. A user can belong to several Groups at once (e.g. a standing group of friends across festivals, plus a group formed just for one edition's crew).
 _Avoid_: Team, party, edition group
+
+**Active Group**:
+The one Group a user is currently viewing the app "as" — the group whose votes feed the Vote Perspective and Vote Scope on any given screen. Global to the user (not per-edition), persisted, and defaults to the user's only Group when they have exactly one. Choosing a different Group anywhere always replaces it — there is no separate, non-persisting "peek" mode. A user with no Groups has no Active Group.
+_Avoid_: Selected group, current group, group filter
+
+**Vote Perspective**:
+On the Artists tab, which votes are aggregated into a set's rating and popularity score: Everyone, or the Active Group. Perspective re-scores and re-sorts; it never hides sets.
+_Avoid_: Group filter, rating scope
+
+**Vote Scope**:
+On the Schedule tab, whose votes the vote-type filter chips (Must Go / Interested / Won't Go) match against: Me, or the Active Group. Under Me, a chip matches the current user's own vote. Under the Active Group, a chip matches if *any* member of the Active Group (the current user included) cast that vote type. Scope filters — it hides sets that don't match a selected chip. Distinct from Vote Perspective: each tab keeps its own Me/Group(Everyone) choice independently, both drawing on the same Active Group.
+_Avoid_: Group filter, vote filter
 
 **Core Team**:
 Admin users who curate editions, manage the lineup, and import the schedule.

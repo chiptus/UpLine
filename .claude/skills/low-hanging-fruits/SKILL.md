@@ -16,8 +16,8 @@ self-reviewed PR.
 
 ## 2. Filter
 
-Apply both filters before treating an issue as pickable. Do this for every
-candidate, not just the ones that look busy.
+Apply all three checks below before treating an issue as pickable. Do this
+for every candidate, not just the ones that look busy.
 
 **Skip WIP.** For each candidate issue `#n`, check `list_pull_requests` /
 `search_pull_requests` (open, this repo) for a PR whose title or body
@@ -84,9 +84,9 @@ the shared directory that don't match what _you_ were doing there:
 2. Check the isolated worktree's own `git status` — if it has real
    in-progress work, leave it alone.
 3. If the shared directory's changes look like an accidental revert of
-   already-merged content (not something you or the user authored), `git
-stash push -u -m "..."` them (reversible, not a hard discard) and
-   `git checkout` back to the session's actual designated branch.
+   already-merged content (not something you or the user authored), stash
+   them with `git stash push -u -m "..."` (reversible, not a hard discard)
+   and `git checkout` back to the session's actual designated branch.
 4. Report what happened before doing anything else — this is exactly the
    kind of unexpected repo state the top-level safety rules say to
    investigate before touching.

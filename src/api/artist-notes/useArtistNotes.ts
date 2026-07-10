@@ -1,4 +1,4 @@
-import { queryOptions, useQuery } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SetNote, artistNotesKeys } from "./types";
 
@@ -44,12 +44,5 @@ export function artistNotesQuery(artistId: string) {
   return queryOptions({
     queryKey: artistNotesKeys.notes(artistId),
     queryFn: () => fetchArtistNotes(artistId),
-  });
-}
-
-export function useArtistNotesQuery(artistId: string) {
-  return useQuery({
-    ...artistNotesQuery(artistId),
-    enabled: !!artistId,
   });
 }

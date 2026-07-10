@@ -1,4 +1,4 @@
-import { addDays, format, parseISO } from "date-fns";
+import { addDays, format, isValid, parseISO } from "date-fns";
 import { convertLocalTimeToUTC } from "@/lib/timeUtils";
 import type { RevealLevel } from "@/lib/scheduleReveal";
 
@@ -39,17 +39,21 @@ export function getFestivalPhase({
 }
 
 // Shift a yyyy-MM-dd calendar day by whole days, staying a yyyy-MM-dd string.
-function shiftDayKey(dateKey: string, delta: number): string {
-  return format(addDays(parseISO(dateKey), delta), "yyyy-MM-dd");
+// Returns null for an unparseable date so callers degrade instead of throwing.
+function shiftDayKey(dateKey: string, delta: number): string | null {
+  const date = parseISO(dateKey);
+  if (!isValid(date)) return null;
+  return format(addDays(date, delta), "yyyy-MM-dd");
 }
 
 // The UTC instant for a wall-clock day + time read in the festival timezone,
 // via the same fromZonedTime-based helper the display path uses.
 function zonedInstant(
-  dateKey: string,
+  dateKey: string | null,
   time: string,
   timezone: string,
 ): Date | null {
+  if (!dateKey) return null;
   const iso = convertLocalTimeToUTC(`${dateKey} ${time}`, timezone);
   return iso ? new Date(iso) : null;
 }

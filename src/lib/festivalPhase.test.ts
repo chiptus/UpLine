@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { getFestivalPhase, type FestivalPhaseInput } from "./festivalPhase";
+import {
+  getFestivalPhase,
+  type FestivalPhase,
+  type FestivalPhaseInput,
+} from "./festivalPhase";
 
 // Europe/Lisbon is UTC+1 (WEST) in August, so these calendar boundaries land
 // on the previous UTC day — the festival-tz evaluation is what makes the phase
@@ -11,7 +15,7 @@ const TZ = "Europe/Lisbon";
 const LIVE_START = "2025-07-30T23:00:00.000Z";
 const LIVE_END = "2025-08-04T05:00:00.000Z";
 
-function phase(overrides: Partial<FestivalPhaseInput>): string {
+function phase(overrides: Partial<FestivalPhaseInput>): FestivalPhase {
   return getFestivalPhase({
     revealLevel: "full",
     startDate: "2025-08-01",
@@ -69,6 +73,18 @@ describe("getFestivalPhase", () => {
   it("NULL end_date keeps Live and never flips to Post", () => {
     expect(
       phase({ endDate: null, now: new Date("2030-01-01T00:00:00Z") }),
+    ).toBe("live");
+  });
+
+  it("degrades an unparseable start_date to Planning instead of throwing", () => {
+    expect(
+      phase({ startDate: "not-a-date", now: new Date("2030-01-01T00:00:00Z") }),
+    ).toBe("planning");
+  });
+
+  it("degrades an unparseable end_date to Live (never Post)", () => {
+    expect(
+      phase({ endDate: "not-a-date", now: new Date("2030-01-01T00:00:00Z") }),
     ).toBe("live");
   });
 });

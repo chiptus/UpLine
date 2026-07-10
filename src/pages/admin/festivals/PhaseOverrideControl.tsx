@@ -11,6 +11,7 @@ import type { FestivalPhase } from "@/lib/festivalPhase";
 type Props = {
   editionId: string;
   override: FestivalPhase | null;
+  derivedPhase: FestivalPhase;
 };
 
 const AUTOMATIC = "automatic";
@@ -26,7 +27,11 @@ function isFestivalPhase(value: string): value is FestivalPhase {
   return value in PHASE_LABEL;
 }
 
-export function PhaseOverrideControl({ editionId, override }: Props) {
+export function PhaseOverrideControl({
+  editionId,
+  override,
+  derivedPhase,
+}: Props) {
   const mutation = useUpdateFestivalEditionMutation();
   const isPending = mutation.isPending;
 
@@ -50,7 +55,9 @@ export function PhaseOverrideControl({ editionId, override }: Props) {
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value={AUTOMATIC}>Automatic (derived)</SelectItem>
+        <SelectItem value={AUTOMATIC}>
+          Automatic ({PHASE_LABEL[derivedPhase]})
+        </SelectItem>
         {Object.entries(PHASE_LABEL).map(([phase, label]) => (
           <SelectItem key={phase} value={phase}>
             {label}

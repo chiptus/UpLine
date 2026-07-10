@@ -7,19 +7,22 @@ import { isTimeoutError, withTimeout } from "@/lib/timeout";
 export async function fetchFestivalEditionBySlug({
   editionSlug,
   festivalSlug,
+  festivalId,
   signal,
 }: {
   festivalSlug: string;
   editionSlug: string;
+  festivalId?: string;
   signal?: AbortSignal;
 }): Promise<FestivalEdition> {
-  const festival = await fetchFestivalBySlug(festivalSlug, signal);
+  const resolvedFestivalId =
+    festivalId ?? (await fetchFestivalBySlug(festivalSlug, signal)).id;
 
   const { data, error } = await supabase
     .from("festival_editions")
     .select("*")
     .eq("archived", false)
-    .eq("festival_id", festival.id)
+    .eq("festival_id", resolvedFestivalId)
     .eq("slug", editionSlug)
     .abortSignal(signal!)
     .single();
@@ -37,10 +40,12 @@ export async function fetchFestivalEditionBySlug({
 export function editionBySlugQuery({
   editionSlug,
   festivalSlug,
+  festivalId,
   timeoutMs = 10000,
 }: {
   festivalSlug: string;
   editionSlug: string;
+  festivalId?: string;
   timeoutMs?: number;
 }) {
   return queryOptions({
@@ -49,6 +54,7 @@ export function editionBySlugQuery({
       fetchFestivalEditionBySlug({
         festivalSlug,
         editionSlug,
+        festivalId,
         signal: withTimeout(signal, timeoutMs),
       }),
   });
@@ -57,14 +63,17 @@ export function editionBySlugQuery({
 export function useFestivalEditionBySlugQuery({
   editionSlug,
   festivalSlug,
+  festivalId,
 }: {
   festivalSlug?: string;
   editionSlug?: string;
+  festivalId?: string;
 }) {
   return useQuery({
     ...editionBySlugQuery({
       festivalSlug: festivalSlug!,
       editionSlug: editionSlug!,
+      festivalId,
     }),
     enabled: !!festivalSlug && !!editionSlug,
   });

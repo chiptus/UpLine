@@ -35,6 +35,7 @@ export function FestivalEditionProvider({
   const editionQuery = useFestivalEditionBySlugQuery({
     festivalSlug: festival.slug,
     editionSlug,
+    festivalId: festival.id,
   });
 
   const edition = editionQuery.data ?? null;

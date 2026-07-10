@@ -15,11 +15,12 @@ export function SetManagement() {
   const { festivalSlug, editionSlug } = useParams({
     from: "/admin/festivals/$festivalSlug/editions/$editionSlug/sets",
   });
+  const festivalQuery = useFestivalBySlugQuery(festivalSlug);
   const editionQuery = useFestivalEditionBySlugQuery({
     festivalSlug,
     editionSlug,
+    festivalId: festivalQuery.data?.id,
   });
-  const festivalQuery = useFestivalBySlugQuery(festivalSlug);
   const setsQuery = useSetsByEditionQuery(editionQuery.data?.id);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSet, setEditingSet] = useState<FestivalSet | null>(null);

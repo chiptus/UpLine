@@ -33,7 +33,6 @@ async function createSet(
     archived: false,
   };
 
-  // First, create the set without slug
   const { data, error } = await supabase
     .from("sets")
     .insert(insertData)
@@ -45,21 +44,8 @@ async function createSet(
     throw new Error("Failed to create set");
   }
 
-  // Generate and update the slug using the created ID
-  const slug = generateSlug(data.name);
-  const { error: slugError } = await supabase
-    .from("sets")
-    .update({ slug })
-    .eq("id", data.id);
-
-  if (slugError) {
-    console.error("Error updating set slug:", slugError);
-    throw new Error("Failed to generate set slug");
-  }
-
   return {
     ...data,
-    slug,
     artists: [],
     votes: [],
   };

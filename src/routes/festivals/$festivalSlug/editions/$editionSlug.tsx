@@ -3,7 +3,7 @@ import EditionLayout from "@/pages/EditionView/EditionLayout";
 import { editionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
-import { getFestivalPhase } from "@/lib/festivalPhase";
+import { getEffectiveFestivalPhase } from "@/lib/festivalPhase";
 import { getDefaultTab } from "@/pages/EditionView/TabNavigation/defaultTab";
 import { tabRoutes } from "@/pages/EditionView/TabNavigation/tabRoutes";
 
@@ -25,12 +25,15 @@ export const Route = createFileRoute(
         ),
       ]);
 
-      const phase = getFestivalPhase({
-        revealLevel: edition.schedule_reveal_level,
-        startDate: edition.start_date,
-        endDate: edition.end_date,
-        timezone: festival.timezone,
-        now: new Date(),
+      const phase = getEffectiveFestivalPhase({
+        override: edition.phase_override,
+        derivedInput: {
+          revealLevel: edition.schedule_reveal_level,
+          startDate: edition.start_date,
+          endDate: edition.end_date,
+          timezone: festival.timezone,
+          now: new Date(),
+        },
       });
 
       throw redirect({

@@ -1,18 +1,29 @@
 import type { Database } from "@/integrations/supabase/types";
+import { festivalsKeys } from "@/api/festivals/types";
 
 export type FestivalEdition =
   Database["public"]["Tables"]["festival_editions"]["Row"];
 
 // Query key factory for festival editions
 export const editionsKeys = {
-  all: (festivalId: string) => ["festivals", festivalId, "editions"] as const,
+  root: (festivalId: string) =>
+    [...festivalsKeys.root(), festivalId, "editions"] as const,
+  all: (festivalId: string, { all }: { all?: boolean } = {}) =>
+    [...editionsKeys.root(festivalId), { all }] as const,
   item: ({
     editionId,
     festivalId,
   }: {
     festivalId: string;
     editionId: string;
-  }) => ["festivals", festivalId, "editions", editionId] as const,
+  }) => [...editionsKeys.root(festivalId), editionId] as const,
   bySlug: (festivalSlug: string, editionSlug: string) =>
-    ["festival-editions", "slug", festivalSlug, editionSlug] as const,
+    [
+      ...festivalsKeys.root(),
+      "slug",
+      festivalSlug,
+      "editions",
+      "slug",
+      editionSlug,
+    ] as const,
 };

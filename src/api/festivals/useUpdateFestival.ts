@@ -45,7 +45,7 @@ export function useUpdateFestivalMutation() {
       }>;
     }) => updateFestival(festivalId, festivalData),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: festivalsKeys.all() });
+      queryClient.invalidateQueries({ queryKey: festivalsKeys.root() });
       toast({
         title: "Success",
         description: "Festival updated successfully",

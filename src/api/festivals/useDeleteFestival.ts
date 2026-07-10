@@ -20,7 +20,7 @@ export function useDeleteFestivalMutation() {
   return useMutation({
     mutationFn: deleteFestival,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: festivalsKeys.all() });
+      queryClient.invalidateQueries({ queryKey: festivalsKeys.root() });
       toast({
         title: "Success",
         description: "Festival deleted successfully",

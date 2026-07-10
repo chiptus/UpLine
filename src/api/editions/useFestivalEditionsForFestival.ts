@@ -34,7 +34,7 @@ export function editionsForFestivalQuery(
   { all }: { all?: boolean } = {},
 ) {
   return queryOptions({
-    queryKey: editionsKeys.all(festivalId),
+    queryKey: editionsKeys.all(festivalId, { all }),
     queryFn: () => fetchFestivalEditions(festivalId, { all }),
   });
 }

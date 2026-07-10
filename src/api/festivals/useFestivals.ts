@@ -34,7 +34,7 @@ export function festivalsQuery({
   timeoutMs = 10000,
 }: { all?: boolean; timeoutMs?: number } = {}) {
   return queryOptions({
-    queryKey: festivalsKeys.all(),
+    queryKey: festivalsKeys.all({ all }),
     queryFn: ({ signal }) =>
       fetchFestivals({ all, signal: withTimeout(signal, timeoutMs) }),
   });

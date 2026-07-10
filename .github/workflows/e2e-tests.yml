@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       VITE_SUPABASE_URL: http://127.0.0.1:54321
+      VITE_SUPABASE_PUBLISHABLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
     strategy:
       fail-fast: false
       matrix:
@@ -41,22 +42,6 @@ jobs:
           sleep 10
           npx supabase db reset
 
-      - name: Export Supabase local publishable key
-        run: |
-          npx supabase status -o env > /tmp/supabase-status.env
-          cat /tmp/supabase-status.env
-          KEY_LINE=$(grep -iE "PUBLISHABLE_KEY" /tmp/supabase-status.env | head -1)
-          if [ -z "$KEY_LINE" ]; then
-            KEY_LINE=$(grep -iE "ANON_KEY" /tmp/supabase-status.env | head -1)
-          fi
-          if [ -z "$KEY_LINE" ]; then
-            echo "Could not find a publishable/anon key in 'supabase status -o env' output" >&2
-            exit 1
-          fi
-          KEY_VALUE=$(echo "$KEY_LINE" | cut -d'=' -f2- | tr -d '"')
-          echo "VITE_SUPABASE_PUBLISHABLE_KEY=$KEY_VALUE" >> "$GITHUB_ENV"
-          echo "TEST_SUPABASE_ANON_KEY=$KEY_VALUE" >> "$GITHUB_ENV"
-
       - name: Build project
         run: pnpm run build
 
@@ -64,6 +49,7 @@ jobs:
         run: npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} --reporter=blob
         env:
           TEST_SUPABASE_URL: http://localhost:54321
+          TEST_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCN9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}

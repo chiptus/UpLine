@@ -1,7 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import FestivalEdition from "@/pages/admin/festivals/FestivalEdition";
 import { editionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
-import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 
 export const Route = createFileRoute(
   "/admin/festivals/$festivalSlug/editions/$editionSlug",
@@ -16,15 +15,10 @@ export const Route = createFileRoute(
       });
     }
 
-    const festivalId = context.queryClient.getQueryData(
-      festivalBySlugQuery(params.festivalSlug).queryKey,
-    )?.id;
-
     await context.queryClient.ensureQueryData(
       editionBySlugQuery({
         festivalSlug: params.festivalSlug,
         editionSlug: params.editionSlug,
-        festivalId,
       }),
     );
 

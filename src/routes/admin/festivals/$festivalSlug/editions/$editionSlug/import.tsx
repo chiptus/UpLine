@@ -1,9 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { editionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
-import {
-  festivalBySlugQuery,
-  useFestivalBySlugQuery,
-} from "@/api/festivals/useFestivalBySlug";
+import { useFestivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 import { ScheduleImportWizard } from "@/components/Admin/ScheduleImport/ScheduleImportWizard";
 
 export const Route = createFileRoute(
@@ -14,9 +11,6 @@ export const Route = createFileRoute(
       editionBySlugQuery({
         festivalSlug: params.festivalSlug,
         editionSlug: params.editionSlug,
-        festivalId: context.queryClient.getQueryData(
-          festivalBySlugQuery(params.festivalSlug).queryKey,
-        )?.id,
       }),
     ),
   component: FestivalScheduleImport,

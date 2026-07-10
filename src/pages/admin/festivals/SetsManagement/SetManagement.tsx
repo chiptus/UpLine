@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Plus, Music } from "lucide-react";
@@ -7,7 +8,7 @@ import { FestivalSet } from "@/api/sets/types";
 import { useSetsByEditionQuery } from "@/api/sets/useSetsByEdition";
 import { useDeleteSetMutation } from "@/api/sets/useDeleteSet";
 import { useFestivalEditionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
-import { useFestivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
+import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 import { SetFormDialog } from "../SetFormDialog";
 import { SetsTable } from "../SetsTable";
 
@@ -15,11 +16,13 @@ export function SetManagement() {
   const { festivalSlug, editionSlug } = useParams({
     from: "/admin/festivals/$festivalSlug/editions/$editionSlug/sets",
   });
-  const festivalQuery = useFestivalBySlugQuery(festivalSlug);
+  const { data: festival } = useSuspenseQuery(
+    festivalBySlugQuery(festivalSlug),
+  );
   const editionQuery = useFestivalEditionBySlugQuery({
     festivalSlug,
     editionSlug,
-    festivalId: festivalQuery.data?.id,
+    festivalId: festival.id,
   });
   const setsQuery = useSetsByEditionQuery(editionQuery.data?.id);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -91,7 +94,7 @@ export function SetManagement() {
           onEdit={handleEdit}
           onDelete={handleDelete}
           editionId={editionQuery.data.id}
-          timezone={festivalQuery.data?.timezone}
+          timezone={festival.timezone}
         />
       </CardContent>
 
@@ -100,7 +103,7 @@ export function SetManagement() {
         onClose={handleCloseDialog}
         editingSet={editingSet}
         editionId={editionQuery.data.id}
-        timezone={festivalQuery.data?.timezone}
+        timezone={festival.timezone}
       />
     </Card>
   );

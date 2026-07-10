@@ -37,8 +37,8 @@ A user's reaction to an artist within a group context. Three values: "Must Go" (
 _Avoid_: Rating, like
 
 **Group**:
-A collection of users who share votes and notes for collaborative decision-making within an edition.
-_Avoid_: Team, party
+A festival-agnostic crew of users who share votes and notes for collaborative decision-making. Not tied to any festival or edition — the same group carries over to whatever editions its members attend. Groups never scope a vote's existence, only whose votes are being looked at.
+_Avoid_: Team, party, edition group
 
 **Core Team**:
 Admin users who curate editions, manage the lineup, and import the schedule.

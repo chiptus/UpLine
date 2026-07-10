@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams, useNavigate, Outlet } from "@tanstack/react-router";
 import { FestivalEditionManagement } from "./FestivalEditionManagement";
+import { FestivalMissingInfoBadge } from "./FestivalMissingInfoBadge";
 import { FestivalInfoDetails } from "@/pages/admin/festivals/info/FestivalInfoDetails";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -55,7 +56,10 @@ export default function FestivalDetail() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              <span className="flex items-center gap-2">{festival.name}</span>
+              <span className="flex items-center gap-2">
+                {festival.name}
+                <FestivalMissingInfoBadge festivalId={festival.id} />
+              </span>
               <Button
                 variant="outline"
                 onClick={() => setShowFestivalInfo(!showFestivalInfo)}

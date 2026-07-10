@@ -1,7 +1,9 @@
 import { useParams, useLocation, Outlet, Link } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Loader2, MapPin, Music, Upload } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useFestivalEditionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
+import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 import { cn } from "@/lib/utils";
 import { ScheduleRevealControl } from "./ScheduleRevealControl";
 
@@ -11,9 +13,12 @@ export default function FestivalEdition() {
   });
   const location = useLocation();
 
+  const { data: festival } = useSuspenseQuery(
+    festivalBySlugQuery(festivalSlug),
+  );
   const editionQuery = useFestivalEditionBySlugQuery({
-    festivalSlug,
     editionSlug,
+    festivalId: festival.id,
   });
 
   if (!festivalSlug || !editionSlug) {

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useStagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useDeleteStageMutation } from "@/api/stages/useDeleteStage";
 import type { Stage } from "@/api/stages/types";
@@ -9,6 +10,7 @@ import { StagesTable } from "./StageManagement/StagesTable";
 import { CreateStageDialog } from "./StageManagement/CreateStageDialog";
 import { EditStageDialog } from "./StageManagement/EditStageDialog";
 import { useFestivalEditionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
+import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 
 interface StageManagementProps {}
 
@@ -16,9 +18,12 @@ export function StageManagement(_props: StageManagementProps) {
   const { festivalSlug, editionSlug } = useParams({
     from: "/admin/festivals/$festivalSlug/editions/$editionSlug/stages",
   });
+  const { data: festival } = useSuspenseQuery(
+    festivalBySlugQuery(festivalSlug),
+  );
   const editionQuery = useFestivalEditionBySlugQuery({
-    festivalSlug,
     editionSlug,
+    festivalId: festival.id,
   });
   const stagesQuery = useStagesByEditionQuery(editionQuery.data?.id ?? "");
   const deleteStageMutation = useDeleteStageMutation();

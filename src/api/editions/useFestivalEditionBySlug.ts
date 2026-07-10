@@ -1,25 +1,22 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { FestivalEdition, editionsKeys } from "./types";
-import { fetchFestivalBySlug } from "@/api/festivals/useFestivalBySlug";
 import { isTimeoutError, withTimeout } from "@/lib/timeout";
 
 export async function fetchFestivalEditionBySlug({
   editionSlug,
-  festivalSlug,
+  festivalId,
   signal,
 }: {
-  festivalSlug: string;
   editionSlug: string;
+  festivalId: string;
   signal?: AbortSignal;
 }): Promise<FestivalEdition> {
-  const festival = await fetchFestivalBySlug(festivalSlug, signal);
-
   const { data, error } = await supabase
     .from("festival_editions")
     .select("*")
     .eq("archived", false)
-    .eq("festival_id", festival.id)
+    .eq("festival_id", festivalId)
     .eq("slug", editionSlug)
     .abortSignal(signal!)
     .single();
@@ -36,18 +33,18 @@ export async function fetchFestivalEditionBySlug({
 
 export function editionBySlugQuery({
   editionSlug,
-  festivalSlug,
+  festivalId,
   timeoutMs = 10000,
 }: {
-  festivalSlug: string;
   editionSlug: string;
+  festivalId: string;
   timeoutMs?: number;
 }) {
   return queryOptions({
-    queryKey: editionsKeys.bySlug(festivalSlug, editionSlug),
+    queryKey: editionsKeys.bySlug(festivalId, editionSlug),
     queryFn: ({ signal }) =>
       fetchFestivalEditionBySlug({
-        festivalSlug,
+        festivalId,
         editionSlug,
         signal: withTimeout(signal, timeoutMs),
       }),
@@ -56,16 +53,16 @@ export function editionBySlugQuery({
 
 export function useFestivalEditionBySlugQuery({
   editionSlug,
-  festivalSlug,
+  festivalId,
 }: {
-  festivalSlug?: string;
   editionSlug?: string;
+  festivalId?: string;
 }) {
   return useQuery({
     ...editionBySlugQuery({
-      festivalSlug: festivalSlug!,
+      festivalId: festivalId!,
       editionSlug: editionSlug!,
     }),
-    enabled: !!festivalSlug && !!editionSlug,
+    enabled: !!festivalId && !!editionSlug,
   });
 }

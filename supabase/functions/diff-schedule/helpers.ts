@@ -1,3 +1,5 @@
+import { TZDate } from "npm:@date-fns/tz@1.5.0";
+
 export function toSlug(name: string): string {
   return name
     .toLowerCase()
@@ -21,14 +23,10 @@ export function localToUtc(
   timeStr: string,
   timezone: string,
 ): string {
-  const localIso = `${dateStr}T${timeStr}:00`;
-  const naiveUtc = new Date(localIso + "Z");
-  // sv-SE locale gives "YYYY-MM-DD HH:MM:SS" — unambiguously parseable as UTC
-  const localInTz = new Date(
-    naiveUtc.toLocaleString("sv-SE", { timeZone: timezone }) + "Z",
-  );
-  const offsetMs = naiveUtc.getTime() - localInTz.getTime();
-  return new Date(naiveUtc.getTime() + offsetMs).toISOString();
+  const [year, month, day] = dateStr.split("-").map(Number);
+  const [hour, minute] = timeStr.split(":").map(Number);
+  const zoned = new TZDate(year, month - 1, day, hour, minute, 0, timezone);
+  return new Date(+zoned).toISOString();
 }
 
 export function utcToLocalDate(utcIso: string, timezone: string): string {

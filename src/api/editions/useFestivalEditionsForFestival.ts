@@ -44,7 +44,7 @@ export function useFestivalEditionsForFestivalQuery(
   { all }: { all?: boolean } = {},
 ) {
   return useQuery({
-    ...editionsForFestivalQuery(festivalId || "", { all }),
+    ...editionsForFestivalQuery(festivalId!, { all }),
     enabled: !!festivalId,
   });
 }

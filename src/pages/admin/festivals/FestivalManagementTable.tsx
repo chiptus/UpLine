@@ -1,6 +1,5 @@
 import { useFestivalsQuery } from "@/api/festivals/useFestivals";
 import { useDeleteFestivalMutation } from "@/api/festivals/useDeleteFestival";
-import { useFestivalInfosQuery } from "@/api/festival-info/useFestivalInfos";
 import { Festival } from "@/api/festivals/types";
 import {
   Table,
@@ -12,18 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  Loader2,
-  Edit2,
-  Trash2,
-  Image as ImageIcon,
-  AlertTriangle,
-} from "lucide-react";
+import { Loader2, Edit2, Trash2, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FestivalLogoDialog } from "./FestivalLogoDialog";
 import { useState } from "react";
@@ -43,12 +31,7 @@ export function FestivalManagementTable({
     isError,
     refetch,
   } = useFestivalsQuery({ all: true });
-  const { data: festivalInfos = [] } = useFestivalInfosQuery();
   const deleteFestivalMutation = useDeleteFestivalMutation();
-
-  const infoTextByFestivalId = new Map(
-    festivalInfos.map((info) => [info.festival_id, info.info_text]),
-  );
 
   const [logoDialogOpen, setLogoDialogOpen] = useState(false);
   const [selectedFestivalForLogo, setSelectedFestivalForLogo] =
@@ -136,34 +119,7 @@ export function FestivalManagementTable({
                   </div>
                 )}
               </TableCell>
-              <TableCell className="font-medium">
-                <div className="flex items-center gap-2">
-                  {festival.name}
-                  {!infoTextByFestivalId.get(festival.id) && (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                          }}
-                          className="inline-flex items-center gap-1 rounded text-xs text-amber-600 hover:text-amber-700"
-                          aria-label="Missing info — Info tab hidden from visitors"
-                        >
-                          <AlertTriangle className="h-3.5 w-3.5" />
-                          Missing info
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent side="right" className="max-w-xs">
-                        This festival has no info text, so the Info tab won't
-                        show to visitors. Open the festival's info editor to
-                        add details.
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
-                </div>
-              </TableCell>
+              <TableCell className="font-medium">{festival.name}</TableCell>
 
               <TableCell>
                 <div className="flex gap-1">

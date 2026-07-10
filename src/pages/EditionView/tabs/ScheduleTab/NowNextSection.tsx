@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
 import { classifyNowNext } from "@/lib/nowNext";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
@@ -26,7 +26,7 @@ function LiveNowNext() {
     from: "/festivals/$festivalSlug/editions/$editionSlug/schedule",
   });
   const { data: sets = [] } = useSetsByEditionQuery(edition.id);
-  const { data: stages } = useSuspenseQuery(stagesByEditionQuery(edition.id));
+  const { data: stages = [] } = useQuery(stagesByEditionQuery(edition.id));
 
   const { nowPlaying, next } = classifyNowNext(sets, new Date());
   if (!nowPlaying.length && !next.length) return null;
@@ -99,7 +99,7 @@ function toCardSet(set: FestivalSet, stages: Stage[]): CardSet {
       id: artist.id,
       name: artist.name,
     })),
-    stageName: stage?.name ?? "",
+    stageName: stage?.name ?? set.stage_name ?? "",
     stageColor: stage?.color ?? undefined,
   };
 }

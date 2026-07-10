@@ -37,11 +37,13 @@ export function MobileSetCard({ set, timezone }: MobileSetCardProps) {
 
         {/* Stage and duration info */}
         <div className="flex items-center gap-4 mb-3 text-sm text-purple-200">
-          <StageBadge
-            stageName={set.stageName}
-            stageColor={set.stageColor}
-            size="sm"
-          />
+          {set.stageName && (
+            <StageBadge
+              stageName={set.stageName}
+              stageColor={set.stageColor}
+              size="sm"
+            />
+          )}
 
           {duration && (
             <div className="flex items-center gap-1">

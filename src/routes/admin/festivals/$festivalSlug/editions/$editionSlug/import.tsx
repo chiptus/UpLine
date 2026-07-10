@@ -1,18 +1,25 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { editionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
-import { useFestivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
+import {
+  festivalBySlugQuery,
+  useFestivalBySlugQuery,
+} from "@/api/festivals/useFestivalBySlug";
 import { ScheduleImportWizard } from "@/components/Admin/ScheduleImport/ScheduleImportWizard";
 
 export const Route = createFileRoute(
   "/admin/festivals/$festivalSlug/editions/$editionSlug/import",
 )({
-  loader: ({ params, context }) =>
-    context.queryClient.ensureQueryData(
+  loader: async ({ params, context }) => {
+    const festival = await context.queryClient.ensureQueryData(
+      festivalBySlugQuery(params.festivalSlug),
+    );
+    return context.queryClient.ensureQueryData(
       editionBySlugQuery({
-        festivalSlug: params.festivalSlug,
+        festivalId: festival.id,
         editionSlug: params.editionSlug,
       }),
-    ),
+    );
+  },
   component: FestivalScheduleImport,
 });
 

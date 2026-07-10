@@ -17,7 +17,6 @@ export default function FestivalEdition() {
     festivalBySlugQuery(festivalSlug),
   );
   const editionQuery = useFestivalEditionBySlugQuery({
-    festivalSlug,
     editionSlug,
     festivalId: festival.id,
   });

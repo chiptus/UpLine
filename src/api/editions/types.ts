@@ -17,13 +17,6 @@ export const editionsKeys = {
     festivalId: string;
     editionId: string;
   }) => [...editionsKeys.root(festivalId), editionId] as const,
-  bySlug: (festivalSlug: string, editionSlug: string) =>
-    [
-      ...festivalsKeys.root(),
-      "slug",
-      festivalSlug,
-      "editions",
-      "slug",
-      editionSlug,
-    ] as const,
+  bySlug: (festivalId: string, editionSlug: string) =>
+    [...editionsKeys.root(festivalId), "slug", editionSlug] as const,
 };

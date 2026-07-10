@@ -22,7 +22,6 @@ export function StageManagement(_props: StageManagementProps) {
     festivalBySlugQuery(festivalSlug),
   );
   const editionQuery = useFestivalEditionBySlugQuery({
-    festivalSlug,
     editionSlug,
     festivalId: festival.id,
   });

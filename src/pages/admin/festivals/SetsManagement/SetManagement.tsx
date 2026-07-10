@@ -20,7 +20,6 @@ export function SetManagement() {
     festivalBySlugQuery(festivalSlug),
   );
   const editionQuery = useFestivalEditionBySlugQuery({
-    festivalSlug,
     editionSlug,
     festivalId: festival.id,
   });

@@ -33,7 +33,6 @@ export function FestivalEditionProvider({
   editionSlug = "",
 }: PropsWithChildren<FestivalEditionProviderProps>) {
   const editionQuery = useFestivalEditionBySlugQuery({
-    festivalSlug: festival.slug,
     editionSlug,
     festivalId: festival.id,
   });

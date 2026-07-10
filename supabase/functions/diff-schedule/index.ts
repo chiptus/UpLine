@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
-import { getAdminClient, requireAdmin, corsHeaders } from "../_shared/auth.ts";
+import { requireAdmin } from "../_shared/auth.ts";
+import { buildCorsHeaders } from "../_shared/cors.ts";
 import { computeDiff } from "./computeDiff.ts";
 
 function isValidTimezone(tz: string): boolean {
@@ -53,6 +54,8 @@ const diffRequestSchema = z.object({
 });
 
 serve(async (req) => {
+  const corsHeaders = buildCorsHeaders(req);
+
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
@@ -82,7 +85,7 @@ serve(async (req) => {
 
     const { festivalEditionId, timezone, rows } = parsed.data;
 
-    const db = getAdminClient();
+    const db = auth.adminClient;
 
     const [stagesRes, setsRes, artistsRes] = await Promise.all([
       db

@@ -1,5 +1,3 @@
-import { X } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -14,6 +12,8 @@ type Props = {
   editionId: string;
   override: FestivalPhase | null;
 };
+
+const AUTOMATIC = "automatic";
 
 const PHASE_LABEL: Record<FestivalPhase, string> = {
   "pre-schedule": "Pre-Schedule",
@@ -38,37 +38,25 @@ export function PhaseOverrideControl({ editionId, override }: Props) {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <Select
-        value={override ?? undefined}
-        disabled={isPending}
-        onValueChange={(value) => {
-          if (isFestivalPhase(value)) setOverride(value);
-        }}
-      >
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Phase: automatic" />
-        </SelectTrigger>
-        <SelectContent>
-          {Object.entries(PHASE_LABEL).map(([phase, label]) => (
-            <SelectItem key={phase} value={phase}>
-              {label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      {override && (
-        <Button
-          size="sm"
-          variant="ghost"
-          disabled={isPending}
-          onClick={() => setOverride(null)}
-          title="Clear override (return to automatic phase)"
-        >
-          <X className="h-3 w-3" />
-          Clear override
-        </Button>
-      )}
-    </div>
+    <Select
+      value={override ?? AUTOMATIC}
+      disabled={isPending}
+      onValueChange={(value) => {
+        if (value === AUTOMATIC) setOverride(null);
+        else if (isFestivalPhase(value)) setOverride(value);
+      }}
+    >
+      <SelectTrigger className="w-[180px]">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value={AUTOMATIC}>Automatic (derived)</SelectItem>
+        {Object.entries(PHASE_LABEL).map(([phase, label]) => (
+          <SelectItem key={phase} value={phase}>
+            {label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }

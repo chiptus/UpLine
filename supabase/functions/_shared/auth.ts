@@ -1,7 +1,11 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  createClient,
+  type SupabaseClient,
+} from "https://esm.sh/@supabase/supabase-js@2";
 
 export const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin":
+    Deno.env.get("APP_URL") ?? "https://getupline.com",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -15,14 +19,19 @@ export function getAdminClient() {
 }
 
 type AuthResult =
-  | { userId: string; errorResponse: null }
-  | { userId: null; errorResponse: { status: number; body: string } };
+  | { userId: string; adminClient: SupabaseClient; errorResponse: null }
+  | {
+      userId: null;
+      adminClient: null;
+      errorResponse: { status: number; body: string };
+    };
 
 export async function requireAdmin(req: Request): Promise<AuthResult> {
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) {
     return {
       userId: null,
+      adminClient: null,
       errorResponse: {
         status: 401,
         body: JSON.stringify({ error: "Unauthorized" }),
@@ -43,6 +52,7 @@ export async function requireAdmin(req: Request): Promise<AuthResult> {
   if (userError || !user) {
     return {
       userId: null,
+      adminClient: null,
       errorResponse: {
         status: 401,
         body: JSON.stringify({ error: "Unauthorized" }),
@@ -62,6 +72,7 @@ export async function requireAdmin(req: Request): Promise<AuthResult> {
     console.error("requireAdmin: admin_roles lookup failed:", adminRoleError);
     return {
       userId: null,
+      adminClient: null,
       errorResponse: {
         status: 500,
         body: JSON.stringify({ error: "Failed to verify admin role" }),
@@ -72,6 +83,7 @@ export async function requireAdmin(req: Request): Promise<AuthResult> {
   if (!adminRole) {
     return {
       userId: null,
+      adminClient: null,
       errorResponse: {
         status: 403,
         body: JSON.stringify({ error: "Forbidden" }),
@@ -79,5 +91,5 @@ export async function requireAdmin(req: Request): Promise<AuthResult> {
     };
   }
 
-  return { userId: user.id, errorResponse: null };
+  return { userId: user.id, adminClient, errorResponse: null };
 }

@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
-import { getAdminClient, requireAdmin, corsHeaders } from "../_shared/auth.ts";
+import { requireAdmin, corsHeaders } from "../_shared/auth.ts";
 import { computeDiff } from "./computeDiff.ts";
 
 function isValidTimezone(tz: string): boolean {
@@ -82,7 +82,7 @@ serve(async (req) => {
 
     const { festivalEditionId, timezone, rows } = parsed.data;
 
-    const db = getAdminClient();
+    const db = auth.adminClient;
 
     const [stagesRes, setsRes, artistsRes] = await Promise.all([
       db

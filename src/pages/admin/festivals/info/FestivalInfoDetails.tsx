@@ -84,7 +84,8 @@ function MissingInfoTextWarning() {
       <AlertTitle>Info tab hidden from visitors</AlertTitle>
       <AlertDescription>
         This festival doesn't have info text, so the Info tab won't be shown
-        to visitors. Add information below to make it visible.
+        to visitors. Fill in the Information field below to make it visible —
+        map, links, and social fields alone won't show the tab.
       </AlertDescription>
     </Alert>
   );

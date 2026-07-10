@@ -11,9 +11,13 @@ export function FestivalMissingInfoBadge({
 }: {
   festivalId: string;
 }) {
-  const { data: festivalInfo } = useFestivalInfoQuery(festivalId);
+  const {
+    data: festivalInfo,
+    isLoading,
+    isError,
+  } = useFestivalInfoQuery(festivalId);
 
-  if (festivalInfo?.info_text) {
+  if (isLoading || isError || festivalInfo?.info_text) {
     return null;
   }
 

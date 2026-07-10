@@ -12,8 +12,20 @@ function isProdEnvironment(): boolean {
   return Deno.env.get("SUPABASE_URL") === PROD_SUPABASE_URL;
 }
 
+// Strips any trailing slash/path so a misconfigured APP_URL (e.g. with a
+// trailing "/") doesn't silently produce an invalid Allow-Origin value.
+function normalizeOrigin(value: string): string {
+  try {
+    return new URL(value).origin;
+  } catch {
+    return value;
+  }
+}
+
 export function buildCorsHeaders(req: Request): Record<string, string> {
-  const prodOrigin = Deno.env.get("APP_URL") ?? "https://getupline.com";
+  const prodOrigin = normalizeOrigin(
+    Deno.env.get("APP_URL") ?? "https://getupline.com",
+  );
   const requestOrigin = req.headers.get("Origin");
 
   return {

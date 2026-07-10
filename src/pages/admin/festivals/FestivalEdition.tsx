@@ -6,6 +6,7 @@ import { useFestivalEditionBySlugQuery } from "@/api/editions/useFestivalEdition
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 import { cn } from "@/lib/utils";
 import { ScheduleRevealControl } from "./ScheduleRevealControl";
+import { PhaseOverrideControl } from "./PhaseOverrideControl";
 
 export default function FestivalEdition() {
   const { festivalSlug, editionSlug } = useParams({
@@ -60,11 +61,17 @@ export default function FestivalEdition() {
             <span className="flex items-center gap-2">
               Edition: {currentEdition.name}
             </span>
-            <ScheduleRevealControl
-              editionId={currentEdition.id}
-              level={currentEdition.schedule_reveal_level ?? "draft"}
-              editionPublished={currentEdition.published ?? false}
-            />
+            <div className="flex flex-wrap items-center gap-2">
+              <ScheduleRevealControl
+                editionId={currentEdition.id}
+                level={currentEdition.schedule_reveal_level ?? "draft"}
+                editionPublished={currentEdition.published ?? false}
+              />
+              <PhaseOverrideControl
+                editionId={currentEdition.id}
+                override={currentEdition.phase_override ?? null}
+              />
+            </div>
           </CardTitle>
         </CardHeader>
       </Card>

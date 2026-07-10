@@ -6,12 +6,19 @@ import { festivalInfoQuery } from "@/api/festival-info/useFestivalInfo";
 import { customLinksQuery } from "@/api/custom-links/useCustomLinks";
 
 export const Route = createFileRoute("/festivals/$festivalSlug")({
-  loader: async ({ params, context }) => {
+  beforeLoad: async ({ params, context }) => {
     const festival = await context.queryClient.ensureQueryData(
       festivalBySlugQuery(params.festivalSlug),
     );
-    void context.queryClient.ensureQueryData(festivalInfoQuery(festival.id));
-    void context.queryClient.ensureQueryData(customLinksQuery(festival.id));
+    return { festival };
+  },
+  loader: async ({ context }) => {
+    void context.queryClient.ensureQueryData(
+      festivalInfoQuery(context.festival.id),
+    );
+    void context.queryClient.ensureQueryData(
+      customLinksQuery(context.festival.id),
+    );
   },
   component: FestivalLayout,
 });

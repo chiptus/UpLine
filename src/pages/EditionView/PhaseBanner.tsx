@@ -27,7 +27,7 @@ function bannerMessage(
   timezone: string,
 ): string | null {
   if (phase === "pre-schedule") {
-    return "The lineup is live — schedule coming soon. Vote for who you want to see!";
+    return "Artists are being announced — schedule coming soon. Vote for who you want to see!";
   }
 
   if (phase === "planning") {

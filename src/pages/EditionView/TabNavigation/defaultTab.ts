@@ -4,7 +4,7 @@ import type { MainTab } from "./types";
 const DEFAULT_TAB_BY_PHASE: Record<FestivalPhase, MainTab> = {
   "pre-schedule": "sets",
   planning: "sets",
-  live: "sets",
+  live: "schedule",
   "post-festival": "sets",
 };
 

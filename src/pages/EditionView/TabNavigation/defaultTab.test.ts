@@ -10,8 +10,11 @@ describe("getDefaultTab", () => {
     expect(getDefaultTab("planning")).toBe("sets");
   });
 
-  it("has a default tab defined for every phase", () => {
-    expect(getDefaultTab("live")).toBe("sets");
+  it("defaults to the schedule tab in Live", () => {
+    expect(getDefaultTab("live")).toBe("schedule");
+  });
+
+  it("defaults to the primary (sets) tab in Post-Festival", () => {
     expect(getDefaultTab("post-festival")).toBe("sets");
   });
 });

@@ -128,9 +128,10 @@ export function Timeline() {
     );
   }
 
-  // PROTOTYPE (timeline nav & filtering) — remove with ./prototype/. Bypasses
-  // the reveal-level gate below: testing nav/filtering shouldn't depend on
-  // whether the real schedule has been publicly announced yet.
+  if (!canShowTime) {
+    return <ScheduleNotRevealedPlaceholder />;
+  }
+
   if (prototypeVariant) {
     return (
       <TimelinePrototype
@@ -141,10 +142,6 @@ export function Timeline() {
         timezone={festival.timezone}
       />
     );
-  }
-
-  if (!canShowTime) {
-    return <ScheduleNotRevealedPlaceholder />;
   }
 
   return (

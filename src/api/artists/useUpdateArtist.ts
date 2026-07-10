@@ -33,7 +33,6 @@ async function updateArtist(variables: {
   const { genre_ids } = updates;
 
   const updateData: ArtistUpdate = {
-    updated_at: new Date().toISOString(),
     name: updates.name,
     description: updates.description,
     estimated_date: updates.estimated_date,

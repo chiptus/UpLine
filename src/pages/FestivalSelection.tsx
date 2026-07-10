@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/card";
 import { useFestivalsQuery } from "@/api/festivals/useFestivals";
 import { Festival } from "@/api/festivals/types";
-import { useEffect } from "react";
 import {
   createFestivalSubdomainUrl,
   isMainGetuplineDomain,
@@ -27,26 +26,9 @@ export default function FestivalSelection() {
     refetch,
   } = useFestivalsQuery();
 
-  function handleFestivalClick(festival: Festival) {
-    const subdomainUrl = createFestivalSubdomainUrl(festival.slug);
-    const isMain = isMainGetuplineDomain();
-
-    if (isMain) {
-      window.location.href = subdomainUrl;
-    } else {
-      window.location.href = `/festivals/${festival.slug}`;
-    }
-  }
-
   function handleRetry() {
     refetch();
   }
-
-  useEffect(() => {
-    if (!festivalsLoading && availableFestivals.length === 1) {
-      handleFestivalClick(availableFestivals[0]);
-    }
-  }, [availableFestivals, festivalsLoading]);
 
   if (festivalsLoading) {
     return (

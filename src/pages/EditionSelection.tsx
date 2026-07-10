@@ -10,37 +10,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { AppHeader } from "@/components/layout/AppHeader";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useFestivalEditionsForFestivalQuery } from "@/api/editions/useFestivalEditionsForFestival";
 import { FestivalEdition } from "@/api/editions/types";
-import { useEffect } from "react";
 import { TopBar } from "@/components/layout/TopBar";
 
 export default function EditionSelection() {
   const { festival } = useFestivalEdition();
   const editionListQuery = useFestivalEditionsForFestivalQuery(festival?.id);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (
-      festival?.slug &&
-      !editionListQuery.isLoading &&
-      editionListQuery.data?.length === 1
-    ) {
-      navigate({
-        to: "/festivals/$festivalSlug/editions/$editionSlug",
-        params: {
-          festivalSlug: festival.slug,
-          editionSlug: editionListQuery.data[0].slug,
-        },
-      });
-    }
-  }, [
-    editionListQuery.data,
-    editionListQuery.isLoading,
-    festival?.slug,
-    navigate,
-  ]);
 
   if (!festival) {
     return (
@@ -54,20 +31,6 @@ export default function EditionSelection() {
     return (
       <div className="min-h-screen bg-app-gradient flex items-center justify-center">
         <div className="text-white text-xl">Loading editions...</div>
-      </div>
-    );
-  }
-
-  if (
-    festival?.slug &&
-    !editionListQuery.isLoading &&
-    editionListQuery.data?.length === 1
-  ) {
-    return (
-      <div className="min-h-screen bg-app-gradient flex items-center justify-center">
-        <div className="text-white text-xl">
-          Redirecting to current edition...
-        </div>
       </div>
     );
   }

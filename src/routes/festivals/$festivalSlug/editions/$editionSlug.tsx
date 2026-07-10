@@ -18,7 +18,8 @@ export const Route = createFileRoute(
       }),
     );
 
-    if (params?.editionSlug && location.pathname.endsWith(params.editionSlug)) {
+    const basePath = `/festivals/${params.festivalSlug}/editions/${params.editionSlug}`;
+    if (location.pathname === basePath || location.pathname === `${basePath}/`) {
       const phase = getFestivalPhase({
         revealLevel: edition.schedule_reveal_level,
         startDate: edition.start_date,

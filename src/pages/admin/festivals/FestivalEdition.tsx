@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useFestivalEditionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 import { cn } from "@/lib/utils";
+import { getFestivalPhase } from "@/lib/festivalPhase";
 import { ScheduleRevealControl } from "./ScheduleRevealControl";
+import { PhaseOverrideControl } from "./PhaseOverrideControl";
 
 export default function FestivalEdition() {
   const { festivalSlug, editionSlug } = useParams({
@@ -52,6 +54,14 @@ export default function FestivalEdition() {
   const isOnStages = location.pathname.includes("/stages");
   const isOnImport = location.pathname.includes("/import");
 
+  const derivedPhase = getFestivalPhase({
+    revealLevel: currentEdition.schedule_reveal_level ?? "draft",
+    startDate: currentEdition.start_date,
+    endDate: currentEdition.end_date,
+    timezone: festival.timezone,
+    now: new Date(),
+  });
+
   return (
     <div className="space-y-6">
       <Card>
@@ -60,11 +70,18 @@ export default function FestivalEdition() {
             <span className="flex items-center gap-2">
               Edition: {currentEdition.name}
             </span>
-            <ScheduleRevealControl
-              editionId={currentEdition.id}
-              level={currentEdition.schedule_reveal_level ?? "draft"}
-              editionPublished={currentEdition.published ?? false}
-            />
+            <div className="flex flex-wrap items-center gap-2">
+              <ScheduleRevealControl
+                editionId={currentEdition.id}
+                level={currentEdition.schedule_reveal_level ?? "draft"}
+                editionPublished={currentEdition.published ?? false}
+              />
+              <PhaseOverrideControl
+                editionId={currentEdition.id}
+                override={currentEdition.phase_override ?? null}
+                derivedPhase={derivedPhase}
+              />
+            </div>
           </CardTitle>
         </CardHeader>
       </Card>

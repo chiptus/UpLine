@@ -2,7 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import EditionLayout from "@/pages/EditionView/EditionLayout";
 import { editionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
-import { getFestivalPhase } from "@/lib/festivalPhase";
+import { getEffectiveFestivalPhase } from "@/lib/festivalPhase";
 import { getDefaultTab } from "@/pages/EditionView/TabNavigation/defaultTab";
 import { tabRoutes } from "@/pages/EditionView/TabNavigation/tabRoutes";
 
@@ -20,12 +20,15 @@ export const Route = createFileRoute(
 
     const basePath = `/festivals/${params.festivalSlug}/editions/${params.editionSlug}`;
     if (location.pathname === basePath || location.pathname === `${basePath}/`) {
-      const phase = getFestivalPhase({
-        revealLevel: edition.schedule_reveal_level,
-        startDate: edition.start_date,
-        endDate: edition.end_date,
-        timezone: context.festival.timezone,
-        now: new Date(),
+      const phase = getEffectiveFestivalPhase({
+        override: edition.phase_override,
+        derivedInput: {
+          revealLevel: edition.schedule_reveal_level,
+          startDate: edition.start_date,
+          endDate: edition.end_date,
+          timezone: context.festival.timezone,
+          now: new Date(),
+        },
       });
 
       throw redirect({

@@ -256,6 +256,7 @@ export type Database = {
           is_active: boolean;
           location: string | null;
           name: string;
+          phase_override: Database["public"]["Enums"]["festival_phase"] | null;
           published: boolean | null;
           schedule_reveal_level: Database["public"]["Enums"]["schedule_reveal_level"];
           slug: string;
@@ -273,6 +274,7 @@ export type Database = {
           is_active?: boolean;
           location?: string | null;
           name: string;
+          phase_override?: Database["public"]["Enums"]["festival_phase"] | null;
           published?: boolean | null;
           schedule_reveal_level?: Database["public"]["Enums"]["schedule_reveal_level"];
           slug: string;
@@ -290,6 +292,7 @@ export type Database = {
           is_active?: boolean;
           location?: string | null;
           name?: string;
+          phase_override?: Database["public"]["Enums"]["festival_phase"] | null;
           published?: boolean | null;
           schedule_reveal_level?: Database["public"]["Enums"]["schedule_reveal_level"];
           slug?: string;
@@ -761,6 +764,41 @@ export type Database = {
           },
         ];
       };
+      set_ratings: {
+        Row: {
+          created_at: string;
+          id: string;
+          rating: number;
+          set_id: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          rating: number;
+          set_id: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          rating?: number;
+          set_id?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "set_ratings_set_id_fkey";
+            columns: ["set_id"];
+            isOneToOne: false;
+            referencedRelation: "sets";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -838,6 +876,7 @@ export type Database = {
     };
     Enums: {
       admin_role: "super_admin" | "admin" | "moderator";
+      festival_phase: "pre-schedule" | "planning" | "live" | "post-festival";
       link_type: "website" | "tickets" | "custom";
       schedule_reveal_level: "draft" | "days" | "stages" | "full";
     };

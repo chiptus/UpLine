@@ -22,15 +22,23 @@ function normalizeOrigin(value: string): string {
   }
 }
 
+function isAllowedStagingOrigin(origin: string): boolean {
+  return origin.endsWith(".vercel.app");
+}
+
 export function buildCorsHeaders(req: Request): Record<string, string> {
   const prodOrigin = normalizeOrigin(
     Deno.env.get("APP_URL") ?? "https://getupline.com",
   );
   const requestOrigin = req.headers.get("Origin");
 
+  const allowOrigin =
+    !isProdEnvironment() && requestOrigin && isAllowedStagingOrigin(requestOrigin)
+      ? requestOrigin
+      : prodOrigin;
+
   return {
-    "Access-Control-Allow-Origin":
-      !isProdEnvironment() && requestOrigin ? requestOrigin : prodOrigin,
+    "Access-Control-Allow-Origin": allowOrigin,
     "Access-Control-Allow-Headers":
       "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",

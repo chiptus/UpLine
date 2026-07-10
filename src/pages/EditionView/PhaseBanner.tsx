@@ -5,9 +5,13 @@ import type { FestivalPhase } from "@/lib/festivalPhase";
 
 export function PhaseBanner() {
   const { phase } = useFestivalPhase();
-  const { edition } = useFestivalEdition();
+  const { edition, festival } = useFestivalEdition();
 
-  const message = bannerMessage(phase, edition?.start_date ?? null);
+  const message = bannerMessage(
+    phase,
+    edition?.start_date ?? null,
+    festival.timezone,
+  );
   if (!message) return null;
 
   return (
@@ -20,13 +24,14 @@ export function PhaseBanner() {
 function bannerMessage(
   phase: FestivalPhase,
   startDate: string | null,
+  timezone: string,
 ): string | null {
   if (phase === "pre-schedule") {
     return "The lineup is live — schedule coming soon. Vote for who you want to see!";
   }
 
   if (phase === "planning") {
-    return planningCopy(daysUntilStart(startDate, new Date()));
+    return planningCopy(daysUntilStart(startDate, new Date(), timezone));
   }
 
   return null;

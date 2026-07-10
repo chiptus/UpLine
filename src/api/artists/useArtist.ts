@@ -1,4 +1,4 @@
-import { queryOptions, useQuery } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Artist } from "./types";
 import { artistsKeys } from "./types";
@@ -28,12 +28,5 @@ export function artistQuery(id: string) {
   return queryOptions({
     queryKey: artistsKeys.detail(id),
     queryFn: () => fetchArtist(id),
-  });
-}
-
-export function useArtistQuery(id: string) {
-  return useQuery({
-    ...artistQuery(id),
-    enabled: !!id,
   });
 }

@@ -1,12 +1,7 @@
-import { queryOptions, useQuery } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Group } from "./types";
 import { groupsKeys } from "./types";
-
-interface UseGroupBySlugParams {
-  slug?: string;
-  userId?: string;
-}
 
 async function fetchGroupBySlug(slug: string, userId: string): Promise<Group> {
   // First, try to find the group where user is a member
@@ -56,12 +51,5 @@ export function groupBySlugQuery(slug: string, userId: string) {
   return queryOptions({
     queryKey: groupsKeys.bySlugDetail(slug, userId),
     queryFn: () => fetchGroupBySlug(slug, userId),
-  });
-}
-
-export function useGroupBySlugQuery({ slug, userId }: UseGroupBySlugParams) {
-  return useQuery({
-    ...groupBySlugQuery(slug!, userId!),
-    enabled: !!slug && !!userId,
   });
 }

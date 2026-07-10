@@ -1,4 +1,4 @@
-import { queryOptions, useQuery } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Festival, festivalsKeys } from "./types";
 
@@ -23,8 +23,4 @@ export function festivalQuery(festivalId: string) {
     queryKey: festivalsKeys.item(festivalId),
     queryFn: () => fetchFestival(festivalId),
   });
-}
-
-export function useFestivalQuery(festivalId: string | undefined) {
-  return useQuery({ ...festivalQuery(festivalId!), enabled: !!festivalId });
 }

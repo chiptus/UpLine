@@ -1,4 +1,4 @@
-import { queryOptions, useQuery } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { FestivalSet, setsKeys } from "./types";
 
@@ -55,15 +55,5 @@ export function setBySlugQuery(slug: string, editionId: string) {
   return queryOptions({
     queryKey: setsKeys.bySlug({ slug, editionId }),
     queryFn: () => fetchSetBySlug({ slug, editionId }),
-  });
-}
-
-export function useSetBySlugQuery({
-  slug,
-  editionId,
-}: { slug?: string; editionId?: string } = {}) {
-  return useQuery({
-    ...setBySlugQuery(slug!, editionId!),
-    enabled: !!slug && !!editionId,
   });
 }

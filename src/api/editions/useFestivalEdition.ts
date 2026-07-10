@@ -1,4 +1,4 @@
-import { queryOptions, useQuery } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { FestivalEdition, editionsKeys } from "./types";
 
@@ -43,21 +43,5 @@ export function editionQuery({
         festivalId,
         editionId,
       }),
-  });
-}
-
-export function useFestivalEditionQuery({
-  editionId,
-  festivalId,
-}: {
-  festivalId?: string;
-  editionId?: string;
-}) {
-  return useQuery({
-    ...editionQuery({
-      festivalId: festivalId!,
-      editionId: editionId!,
-    }),
-    enabled: !!festivalId && !!editionId,
   });
 }

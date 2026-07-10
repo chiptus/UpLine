@@ -1,4 +1,4 @@
-import { queryOptions, useQuery } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { GroupInvite, inviteKeys } from "./types";
 
@@ -29,12 +29,5 @@ export function groupInvitesQuery(groupId: string) {
     queryFn: () => getGroupInvites(groupId),
     staleTime: 30 * 1000, // 30 seconds
     gcTime: 2 * 60 * 1000, // 2 minutes
-  });
-}
-
-export function useGroupInvitesQuery(groupId: string) {
-  return useQuery({
-    ...groupInvitesQuery(groupId),
-    enabled: !!groupId,
   });
 }

@@ -40,12 +40,11 @@ Deno.test("localToUtc converts midnight correctly", () => {
 
 Deno.test("localToUtc resolves a spring-forward wall time inside the skipped hour", () => {
   // Lisbon clocks jump from 01:00 to 02:00 local at 2026-03-29T01:00:00Z, so
-  // "01:30" never occurs. Resolution policy: a wall time inside the skipped
-  // hour is treated as if DST had already started, i.e. it resolves using
-  // the post-transition (+01:00) offset — one hour earlier in UTC than the
-  // same digits would map to on either side of the transition.
+  // "01:30" never occurs. @date-fns/tz's TZDate resolves a wall time inside
+  // the skipped hour using the pre-transition (+00:00) offset, i.e. as if
+  // DST had not yet started.
   const result = localToUtc("2026-03-29", "01:30", "Europe/Lisbon");
-  assertEquals(result, "2026-03-29T00:30:00.000Z");
+  assertEquals(result, "2026-03-29T01:30:00.000Z");
 });
 
 Deno.test("localToUtc resolves a fall-back wall time inside the repeated hour", () => {

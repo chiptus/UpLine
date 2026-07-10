@@ -1,4 +1,4 @@
-import { fromZonedTime } from "npm:date-fns-tz@3.2.0";
+import { TZDate } from "npm:@date-fns/tz@1.5.0";
 
 export function toSlug(name: string): string {
   return name
@@ -23,7 +23,10 @@ export function localToUtc(
   timeStr: string,
   timezone: string,
 ): string {
-  return fromZonedTime(`${dateStr}T${timeStr}:00`, timezone).toISOString();
+  const [year, month, day] = dateStr.split("-").map(Number);
+  const [hour, minute] = timeStr.split(":").map(Number);
+  const zoned = new TZDate(year, month - 1, day, hour, minute, 0, timezone);
+  return new Date(+zoned).toISOString();
 }
 
 export function utcToLocalDate(utcIso: string, timezone: string): string {

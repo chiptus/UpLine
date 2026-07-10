@@ -1,5 +1,6 @@
 import { AppHeader } from "@/components/layout/AppHeader";
 import { MainTabNavigation } from "./TabNavigation/TabNavigation";
+import { PhaseBanner } from "./PhaseBanner";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { Outlet } from "@tanstack/react-router";
@@ -35,6 +36,8 @@ export default function EditionView() {
           websiteUrl={websiteUrl}
           ticketsUrl={ticketsUrl}
         />
+
+        <PhaseBanner />
 
         <MainTabNavigation />
 

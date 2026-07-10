@@ -24,6 +24,10 @@ _Avoid_: Roster, bill
 The arrangement of an edition's **sets** across **stages** and time. Presented to users via the Timeline and List views on the Schedule tab. Not a stored entity — derived from sets + stages of an edition.
 _Avoid_: Lineup (lineup = who; schedule = when/where), program, timetable
 
+**Festival phase**:
+Which stage of its lifecycle an **edition** is in. An ordered, derived concept (parallel to how **Schedule** is derived) — not a stored entity and not a column. Computed from the edition's **schedule reveal level**, `start_date`/`end_date`, and the **festival timezone** at the current time. Four ordered values: **Pre-Schedule → Planning → Live → Post-Festival**. `draft` reveal level ⇒ Pre-Schedule; before the festival ⇒ Planning; during (with grace before/after) ⇒ Live; after ⇒ Post-Festival. See ADR-0003.
+_Avoid_: Status, state, stage (stage = a venue), stored phase
+
 **Set**:
 A single scheduled performance within an edition, with one or more artists, a stage, and a start/end time.
 _Avoid_: Show, gig, slot, performance

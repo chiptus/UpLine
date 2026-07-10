@@ -1,5 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { VOTE_CONFIG, VOTES_TYPES, type VoteConfig } from "@/lib/voteConfig";
+import {
+  VOTE_CONFIG,
+  VOTES_TYPES,
+  type VoteConfig,
+  type VoteType,
+} from "@/lib/voteConfig";
 import { useFestivalSet } from "../FestivalSetContext";
 import { useUserVotes } from "@/api/voting/useUserVotes";
 import { useVote } from "@/api/voting/useVote";
@@ -27,8 +32,6 @@ export function SetVotingButtons({
   const containerClass =
     layout === "horizontal" ? "flex items-center gap-2" : "space-y-3";
 
-  const voteButtons = VOTES_TYPES.map((voteType) => VOTE_CONFIG[voteType]);
-
   return (
     <div className={containerClass}>
       {userVotesQuery.isLoading && (
@@ -36,10 +39,12 @@ export function SetVotingButtons({
           className={`h-4 w-4 animate-spin rounded-full border-2 border-t-transparent`}
         />
       )}
-      {voteButtons.map((config) => {
+      {VOTES_TYPES.map((voteType) => {
+        const config = VOTE_CONFIG[voteType];
         return (
           <VoteButton
-            key={config.value}
+            key={voteType}
+            voteType={voteType}
             config={config}
             isSelected={userVoteForSet === config.value}
             onClick={() => handleVote(config.value)}
@@ -79,6 +84,7 @@ export function SetVotingButtons({
 }
 
 function VoteButton({
+  voteType,
   config,
   layout,
   isSelected,
@@ -87,6 +93,7 @@ function VoteButton({
   voteCount,
   isVoting,
 }: {
+  voteType: VoteType;
   isSelected: boolean;
   config: VoteConfig;
   size?: "sm" | "default";
@@ -105,13 +112,19 @@ function VoteButton({
         size={size}
         onClick={() => onClick()}
         disabled={isVoting}
+        aria-pressed={isSelected}
+        data-testid={`vote-button-${voteType}`}
         className={`${buttonClass} ${
           isSelected ? config.buttonSelected : config.buttonUnselected
         }`}
         title={config.label}
       >
         <IconComponent className="h-4 w-4 mr-2" />
-        {layout === "horizontal" ? voteCount : `${config.label} (${voteCount})`}
+        <span data-testid={`vote-count-${voteType}`}>
+          {layout === "horizontal"
+            ? voteCount
+            : `${config.label} (${voteCount})`}
+        </span>
       </Button>
     </div>
   );

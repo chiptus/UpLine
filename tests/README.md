@@ -75,9 +75,20 @@ The tests use the following environment variables:
 
 - `TEST_SUPABASE_URL`: Local Supabase URL (default: `http://localhost:54321`)
 - `TEST_SUPABASE_ANON_KEY`: Local Supabase anon key
-- `PLAYWRIGHT_BASE_URL`: App base URL (default: `http://localhost:5173`)
-- `TEST_USER_EMAIL`: Test user email (default: `test@example.com`)
-- `TEST_USER_PASSWORD`: Test user password (default: `testpassword123`)
+- `PLAYWRIGHT_BASE_URL`: App base URL (default: `http://localhost:8080`)
+- `TEST_USER_EMAIL`: Base email used for the passwordless test voter (default: `e2e-voter`)
+- `TEST_USER_EMAIL_DOMAIN`: Domain appended to the base email (default: `example.com`)
+- `TEST_MAILPIT_URL`: Local Supabase's Mailpit inbox API, used to read OTP codes (default: `http://127.0.0.1:54324`)
+
+### Authentication in tests
+
+The app only supports passwordless sign-in (magic link + 6-digit OTP), so
+`TestHelpers.signIn()` drives the real flow end-to-end: it submits an email,
+polls the local Supabase stack's Mailpit inbox (`TEST_MAILPIT_URL`) for the
+OTP email, extracts the code, and completes it. Each call defaults to a
+per-process email (`generateTestEmail()`) so parallel workers never race over
+the same Mailpit inbox or OTP code. New accounts get the onboarding dialog's
+username step auto-completed so it doesn't block later interactions.
 
 ### Test Data
 
@@ -154,11 +165,16 @@ await testHelpers.takeScreenshot("test-name");
    - Filtering functionality
    - Artist detail navigation
    - Empty state handling
+4. **Voting** (`voting.spec.ts`)
+   - Casting each vote type (Must Go / Interested / Won't Go) and reflecting the selection
+   - Votes persisting across a reload
+   - Changing a vote updates the selection and vote counts instead of adding a second vote
+   - Removing a vote returns the set to the unvoted state
+   - Unauthenticated vote attempts surface the sign-in prompt instead of recording a vote
 
 ### Planned Tests
 
 - User registration
-- Voting functionality
 - Group management
 - Schedule viewing
 - Admin features

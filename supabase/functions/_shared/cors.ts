@@ -10,11 +10,7 @@ function isProdEnvironment(): boolean {
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   if (!supabaseUrl) return true;
 
-  try {
-    return new URL(supabaseUrl).origin === PROD_SUPABASE_URL;
-  } catch {
-    return true;
-  }
+  return normalizeOrigin(supabaseUrl, PROD_SUPABASE_URL) === PROD_SUPABASE_URL;
 }
 
 // Strips any trailing slash/path so a misconfigured APP_URL (e.g. with a

@@ -3,7 +3,6 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { generateSlug } from "@/lib/slug";
-import type { Artist } from "./types";
 import { artistsKeys } from "./types";
 
 type ArtistUpdate = Database["public"]["Tables"]["artists"]["Update"];
@@ -28,7 +27,7 @@ export type UpdateArtistUpdates = Partial<
 async function updateArtist(variables: {
   id: string;
   updates: UpdateArtistUpdates;
-}): Promise<Omit<Artist, "votes">> {
+}): Promise<void> {
   const { id, updates } = variables;
   const { genre_ids } = updates;
 
@@ -65,32 +64,31 @@ async function updateArtist(variables: {
     updateData.archived = updates.archived;
   }
 
-  const artistSelect = `
-    *,
-    artist_music_genres (music_genre_id)
-  `;
+  if (Object.keys(updateData).length > 0) {
+    const { error } = await supabase
+      .from("artists")
+      .update(updateData)
+      .eq("id", id);
 
-  const { data, error } = await (Object.keys(updateData).length > 0
-    ? supabase
-        .from("artists")
-        .update(updateData)
-        .eq("id", id)
-        .select(artistSelect)
-        .single()
-    : supabase.from("artists").select(artistSelect).eq("id", id).single());
-
-  if (error) {
-    console.error("Error updating artist:", error);
-    throw new Error("Failed to update artist");
+    if (error) {
+      console.error("Error updating artist:", error);
+      throw new Error("Failed to update artist");
+    }
   }
 
-  // Handle genre updates if provided
   if (genre_ids !== undefined) {
-    // Get current genre IDs from the fetched data
-    const currentGenreIds =
-      data.artist_music_genres?.map((g) => g.music_genre_id) || [];
+    const { data: currentGenres, error: currentGenresError } = await supabase
+      .from("artist_music_genres")
+      .select("music_genre_id")
+      .eq("artist_id", id);
 
-    // Calculate differences
+    if (currentGenresError) {
+      console.error("Error fetching current genres:", currentGenresError);
+      throw new Error("Failed to fetch current genres");
+    }
+
+    const currentGenreIds = currentGenres.map((g) => g.music_genre_id);
+
     const genresToAdd = genre_ids.filter(
       (genreId) => !currentGenreIds.includes(genreId),
     );
@@ -98,7 +96,6 @@ async function updateArtist(variables: {
       (genreId) => !genre_ids.includes(genreId),
     );
 
-    // Remove genres that are no longer selected
     if (genresToRemove.length > 0) {
       const { error: removeError } = await supabase
         .from("artist_music_genres")
@@ -112,7 +109,6 @@ async function updateArtist(variables: {
       }
     }
 
-    // Add new genres
     if (genresToAdd.length > 0) {
       const genreInserts = genresToAdd.map((genreId) => ({
         artist_id: id,
@@ -128,36 +124,7 @@ async function updateArtist(variables: {
         throw new Error("Failed to add genres");
       }
     }
-
-    // Only re-fetch if we made changes
-    if (genresToAdd.length > 0 || genresToRemove.length > 0) {
-      const { data: updatedData, error: fetchError } = await supabase
-        .from("artists")
-        .select(
-          `
-          *,
-          artist_music_genres (music_genre_id)
-        `,
-        )
-        .eq("id", id)
-        .single();
-
-      if (fetchError) {
-        console.error("Error fetching updated artist:", fetchError);
-        throw new Error("Failed to fetch updated artist");
-      }
-
-      return {
-        ...updatedData,
-        artist_music_genres: updatedData.artist_music_genres,
-      };
-    }
   }
-
-  return {
-    ...data,
-    artist_music_genres: data.artist_music_genres,
-  };
 }
 
 // Hook
@@ -167,13 +134,13 @@ export function useUpdateArtistMutation() {
 
   return useMutation({
     mutationFn: updateArtist,
-    onSuccess: async (data) => {
+    onSuccess: async (_data, variables) => {
       await Promise.all([
         queryClient.invalidateQueries({
           queryKey: artistsKeys.all,
         }),
         queryClient.invalidateQueries({
-          queryKey: artistsKeys.detail(data.id),
+          queryKey: artistsKeys.detail(variables.id),
         }),
       ]);
 

@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
-import { requireAdmin, corsHeaders } from "../_shared/auth.ts";
+import { requireAdmin, buildCorsHeaders } from "../_shared/auth.ts";
 
 // timeStart/timeEnd arrive as ISO strings or null. Coerce "" (and undefined)
 // to null so the RPC's ::timestamptz cast doesn't choke on an empty string.
@@ -32,6 +32,8 @@ const commitRequestSchema = z.object({
 });
 
 serve(async (req) => {
+  const corsHeaders = buildCorsHeaders(req);
+
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }

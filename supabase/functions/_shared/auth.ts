@@ -3,13 +3,28 @@ import {
   type SupabaseClient,
 } from "https://esm.sh/@supabase/supabase-js@2";
 
-export const corsHeaders = {
-  "Access-Control-Allow-Origin":
-    Deno.env.get("APP_URL") ?? "https://getupline.com",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
+// The prod Supabase project's own URL, auto-injected as SUPABASE_URL at
+// runtime. Used to tell prod apart from staging/local without extra deploy
+// config, since only prod should be locked to a single allowed origin.
+const PROD_SUPABASE_URL = "https://qssmazlqrmxiudxckxvi.supabase.co";
+
+function isProdEnvironment(): boolean {
+  return Deno.env.get("SUPABASE_URL") === PROD_SUPABASE_URL;
+}
+
+export function buildCorsHeaders(req: Request): Record<string, string> {
+  const prodOrigin = Deno.env.get("APP_URL") ?? "https://getupline.com";
+  const requestOrigin = req.headers.get("Origin");
+
+  return {
+    "Access-Control-Allow-Origin":
+      !isProdEnvironment() && requestOrigin ? requestOrigin : prodOrigin,
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    Vary: "Origin",
+  };
+}
 
 export function getAdminClient() {
   return createClient(

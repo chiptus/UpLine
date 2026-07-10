@@ -42,6 +42,7 @@ export function UserMenu({
         <Button
           variant="ghost"
           size={isMobile ? "sm" : "default"}
+          data-testid="user-menu-trigger"
           className="flex items-center gap-2 rounded-full hover:bg-purple-600/10 transition-colors"
         >
           <UserAvatar

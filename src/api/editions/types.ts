@@ -9,7 +9,7 @@ export const editionsKeys = {
   root: (festivalId: string) =>
     [...festivalsKeys.root(), festivalId, "editions"] as const,
   all: (festivalId: string, { all }: { all?: boolean } = {}) =>
-    [...editionsKeys.root(festivalId), { all }] as const,
+    [...editionsKeys.root(festivalId), { all: !!all }] as const,
   item: ({
     editionId,
     festivalId,

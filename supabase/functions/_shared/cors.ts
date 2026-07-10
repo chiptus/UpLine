@@ -2,18 +2,29 @@
 // runtime. Used to tell prod apart from staging/local without extra deploy
 // config, since only prod should be locked to a single allowed origin.
 const PROD_SUPABASE_URL = "https://qssmazlqrmxiudxckxvi.supabase.co";
+const DEFAULT_PROD_ORIGIN = "https://getupline.com";
 
+// Fails closed: an unset or malformed SUPABASE_URL is treated as prod, so a
+// broken config locks CORS down rather than accidentally loosening it.
 function isProdEnvironment(): boolean {
-  return Deno.env.get("SUPABASE_URL") === PROD_SUPABASE_URL;
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  if (!supabaseUrl) return true;
+
+  try {
+    return new URL(supabaseUrl).origin === PROD_SUPABASE_URL;
+  } catch {
+    return true;
+  }
 }
 
 // Strips any trailing slash/path so a misconfigured APP_URL (e.g. with a
-// trailing "/") doesn't silently produce an invalid Allow-Origin value.
-function normalizeOrigin(value: string): string {
+// trailing "/") doesn't silently produce an invalid Allow-Origin value. Falls
+// back to a known-good origin rather than passing through an unparseable one.
+function normalizeOrigin(value: string, fallback: string): string {
   try {
     return new URL(value).origin;
   } catch {
-    return value;
+    return fallback;
   }
 }
 
@@ -23,7 +34,8 @@ function isAllowedStagingOrigin(origin: string): boolean {
 
 export function buildCorsHeaders(req: Request): Record<string, string> {
   const prodOrigin = normalizeOrigin(
-    Deno.env.get("APP_URL") ?? "https://getupline.com",
+    Deno.env.get("APP_URL") ?? DEFAULT_PROD_ORIGIN,
+    DEFAULT_PROD_ORIGIN,
   );
   const requestOrigin = req.headers.get("Origin");
 

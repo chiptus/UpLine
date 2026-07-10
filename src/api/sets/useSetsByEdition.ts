@@ -55,7 +55,7 @@ export function setsByEditionQuery(editionId: string) {
 
 export function useSetsByEditionQuery(editionId: string | undefined) {
   return useQuery({
-    ...setsByEditionQuery(editionId || ""),
+    ...setsByEditionQuery(editionId!),
     enabled: !!editionId,
   });
 }

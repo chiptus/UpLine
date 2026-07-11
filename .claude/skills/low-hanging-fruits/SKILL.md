@@ -1,6 +1,7 @@
 ---
 name: low-hanging-fruits
 description: Find ready-for-agent GitHub issues that are simple and unblocked, and hand off a ready-to-use prompt for implementing the confirmed batch in parallel. Use when the user asks to "do a batch of low hanging fruit", "pick up ready-for-agent tickets", or similar.
+disable-model-invocation: true
 ---
 
 # Low hanging fruits

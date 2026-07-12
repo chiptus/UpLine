@@ -134,8 +134,10 @@ export function TimelinePrototype({
       if (!earliest) return [];
       return [
         {
+          // "EEE d" (not just "EEE"): multi-weekend festivals repeat weekday
+          // names (Tomorrowland's two Thursdays), so the date disambiguates.
           key: day.date,
-          label: format(parseISO(day.date), "EEE"),
+          label: format(parseISO(day.date), "EEE d"),
           start: earliest,
         },
       ];

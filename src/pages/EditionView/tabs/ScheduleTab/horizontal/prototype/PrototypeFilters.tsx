@@ -1,18 +1,28 @@
 // PROTOTYPE (timeline nav & filtering) — throwaway, delete with this folder.
 //
-// The shared collapsed filter panel ("filtering narrows, it never scrolls"):
-// day / time-of-day / stage, plus an optional my-vote chips slot (variant A
-// places the chips here; B and C surface them elsewhere). Vote selections
-// count toward the filter badge either way.
+// The shared filter drawer ("filtering narrows, it never scrolls"): day /
+// time-of-day / stage in a bottom sheet, not an always-inline panel — so the
+// schedule stays the visual focus instead of competing with an expanded
+// filter block. Optional my-vote chips slot (variant a places chips here; b
+// keeps its own always-visible inline row). Vote selections still count
+// toward the badge either way.
 import { useState, type ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Vote } from "lucide-react";
+import { Filter, Vote, X } from "lucide-react";
 import { DayFilterSelect } from "../../DayFilterSelect";
 import { TimeFilterSelect } from "../../TimeFilterSelect";
 import { StageFilterButtons } from "../../StageFilterButtons";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
-import { FilterToggle } from "@/components/filters/FilterToggle";
-import { FilterContainer } from "@/components/filters/FilterContainer";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
 interface PrototypeFiltersProps {
@@ -26,7 +36,7 @@ export function PrototypeFilters({
   voteFilterCount,
   onClearVotes,
 }: PrototypeFiltersProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const { day, time, stages, updateDay, updateTime, updateStages } =
     useTimelineUrlState("timeline");
   const navigate = useNavigate({
@@ -41,26 +51,56 @@ export function PrototypeFilters({
   const hasActiveFilters = activeFilterCount > 0;
 
   return (
-    <FilterContainer>
-      <div className="flex items-center gap-2 flex-wrap">
-        <h3 className="text-purple-100 font-medium">Filters</h3>
-        <div className="ml-auto" />
+    <div className="flex items-center gap-2">
+      {hasActiveFilters && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={clearAll}
+          className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
+        >
+          <X className="h-3 w-3 mr-1" />
+          <span className="hidden sm:inline">Clear</span>
+        </Button>
+      )}
 
-        <FilterToggle
-          isExpanded={isExpanded}
-          onToggle={() => setIsExpanded(!isExpanded)}
-          hasActiveFilters={hasActiveFilters}
-          activeFilterCount={activeFilterCount}
-          label="Filters"
-          onClearFilters={hasActiveFilters ? clearAll : undefined}
-        />
-      </div>
-
-      {isExpanded && (
-        <div className="mt-4">
+      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+        <SheetTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(
+              "flex items-center gap-2",
+              hasActiveFilters
+                ? "bg-purple-600/50 text-purple-100 hover:bg-purple-600/60"
+                : "text-purple-300 hover:text-purple-100",
+            )}
+          >
+            {hasActiveFilters && (
+              <Badge
+                variant="secondary"
+                className="bg-purple-800/50 text-purple-100"
+              >
+                {activeFilterCount}
+              </Badge>
+            )}
+            <Filter className="h-4 w-4" />
+            <span className="hidden md:inline">Filters</span>
+          </Button>
+        </SheetTrigger>
+        <SheetContent
+          side="bottom"
+          className="bg-gray-900 border-purple-400/30 text-purple-100"
+        >
+          <SheetHeader>
+            <SheetTitle className="text-purple-100">Filters</SheetTitle>
+            <SheetDescription className="text-purple-300">
+              Narrow the schedule by day, time, stage, or your own votes.
+            </SheetDescription>
+          </SheetHeader>
           <div
             className={cn(
-              "grid grid-cols-1 gap-3 md:gap-4",
+              "grid grid-cols-1 gap-4 mt-4",
               voteChips ? "md:grid-cols-4" : "md:grid-cols-3",
             )}
           >
@@ -82,9 +122,9 @@ export function PrototypeFilters({
               </div>
             )}
           </div>
-        </div>
-      )}
-    </FilterContainer>
+        </SheetContent>
+      </Sheet>
+    </div>
   );
 
   function handleStageToggle(stageId: string) {

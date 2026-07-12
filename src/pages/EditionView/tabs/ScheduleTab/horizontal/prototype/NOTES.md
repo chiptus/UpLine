@@ -35,14 +35,33 @@ Demo affordances (prototype-only, the real implementation drops both):
 
 | | Navigation | Scroll on jump | My-vote chips | Now indicator |
 |---|---|---|---|---|
-| **a — Slim jump bar** | sticky ghost day buttons + Now pill (agreed design, literal) | smooth | inside collapsed filter panel | thin fuchsia line + dot |
+| **a — Slim jump bar** | sticky ghost day buttons + Now pill (agreed design, literal) | smooth | inside filters drawer | thin fuchsia line + dot |
 | **b — Segmented rail** | segmented control highlighting the day at viewport center | instant | inline row above strip, with counts | gradient line + "now HH:mm" bubble |
-| **c — Mini-map** | proportional overview strip, draggable viewport window, click to jump | smooth | compact icon chips in map header | dashed white line |
+| **c — Mini-map** | collapsed by default to a slim day-button strip (same as a); an optional "Show overview" toggle reveals the draggable density map | smooth | compact icon chips in map header | dashed white line |
 
 All variants share the agreed `scrollTo` URL mechanics (`useScrollToUrl.ts`):
 debounced ~300ms scroll-idle write, 5-minute rounding, history replace,
 one-way ownership, mount precedence `scrollTo` → day filter → now−1h →
 festival start. Back-from-a-set-page restores position in every variant.
+
+### Round 2 changes, from first-round feedback
+
+Two users tried round 1: one preferred **a**, the other loved **c**'s mini-map
+for being visual — but flagged the always-visible 3-variant switcher as
+intimidating without a label. Fed back in:
+
+- **Filters moved into a bottom sheet** (`PrototypeFilters.tsx`, via shadcn
+  `Sheet`) instead of an inline expanding panel, in all three variants — the
+  schedule stays the visual focus instead of competing with an expanded
+  filter block for space.
+- **Mini-map (c) now collapses to a's slim day-strip by default**, with a
+  "Show overview" toggle to reveal the full colored density map. What the
+  tester actually valued was one control doing "jump to a day" + "filter by
+  my votes" together — not the density map being visually loud all the time.
+- **Day labels now include the date** (`"Thu 13"`, not bare `"Thu"`) — a real
+  bug, not a preference: multi-weekend festivals (Tomorrowland's two
+  long weekends) repeat weekday names, and the bare-weekday jump bar/segmented
+  rail/mini-map ticks had no way to tell the two Thursdays apart.
 
 ## Questions to answer (fill in verdicts, then delete the folder)
 

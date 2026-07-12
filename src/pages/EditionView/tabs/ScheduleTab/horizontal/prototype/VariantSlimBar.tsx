@@ -35,14 +35,15 @@ export function VariantSlimBar({
 
   return (
     <div className="space-y-4">
-      <PrototypeFilters
-        voteChips={<VoteChips selected={voteFilter} onToggle={onToggleVote} />}
-        voteFilterCount={voteFilter.length}
-        onClearVotes={onClearVotes}
-      />
-
       <div className="sticky top-2 z-30">
         <div className="flex flex-wrap items-center gap-1 rounded-lg border border-purple-400/20 bg-purple-950/80 px-2 py-1.5 backdrop-blur">
+          <PrototypeFilters
+            voteChips={
+              <VoteChips selected={voteFilter} onToggle={onToggleVote} />
+            }
+            voteFilterCount={voteFilter.length}
+            onClearVotes={onClearVotes}
+          />
           <span className="mr-1 text-xs uppercase tracking-wide text-purple-400">
             Jump to
           </span>

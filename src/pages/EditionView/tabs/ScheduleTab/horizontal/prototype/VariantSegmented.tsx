@@ -48,11 +48,6 @@ export function VariantSegmented({
 
   return (
     <div className="space-y-4">
-      <PrototypeFilters
-        voteFilterCount={voteFilter.length}
-        onClearVotes={onClearVotes}
-      />
-
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="inline-flex items-center rounded-lg bg-white/10 p-1">
           {days.map((day) => (
@@ -84,15 +79,21 @@ export function VariantSegmented({
           )}
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="text-xs uppercase tracking-wide text-purple-400">
-            My votes
-          </span>
-          <VoteChips
-            selected={voteFilter}
-            onToggle={onToggleVote}
-            counts={voteCounts}
+        <div className="flex items-center gap-3">
+          <PrototypeFilters
+            voteFilterCount={voteFilter.length}
+            onClearVotes={onClearVotes}
           />
+          <div className="flex items-center gap-2">
+            <span className="text-xs uppercase tracking-wide text-purple-400">
+              My votes
+            </span>
+            <VoteChips
+              selected={voteFilter}
+              onToggle={onToggleVote}
+              counts={voteCounts}
+            />
+          </div>
         </div>
       </div>
 

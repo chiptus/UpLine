@@ -98,21 +98,22 @@ export function VariantMinimap({
 
   return (
     <div className="space-y-4">
-      <PrototypeFilters
-        voteFilterCount={voteFilter.length}
-        onClearVotes={onClearVotes}
-      />
-
       <div className="space-y-1.5">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <button
-            type="button"
-            onClick={() => setShowMap((v) => !v)}
-            className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wide text-purple-400 hover:text-purple-200"
-          >
-            <Map className="h-3.5 w-3.5" />
-            {showMap ? "Hide overview" : "Show overview"}
-          </button>
+          <div className="flex items-center gap-3">
+            <PrototypeFilters
+              voteFilterCount={voteFilter.length}
+              onClearVotes={onClearVotes}
+            />
+            <button
+              type="button"
+              onClick={() => setShowMap((v) => !v)}
+              className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wide text-purple-400 hover:text-purple-200"
+            >
+              <Map className="h-3.5 w-3.5" />
+              {showMap ? "Hide overview" : "Show overview"}
+            </button>
+          </div>
           <div className="flex items-center gap-2">
             <VoteChips compact selected={voteFilter} onToggle={onToggleVote} />
             {showNow && (

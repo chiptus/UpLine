@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { groupBySlugQuery } from "@/api/groups/useGroupBySlug";
 import { groupMembersQuery } from "@/api/groups/useGroupMembers";
 import { useRemoveMemberMutation } from "@/api/groups/useRemoveMember";
+import { isGroupCreator } from "@/lib/groupPermissions";
 
 function GroupDetail() {
   const { user } = useRouteContext({ from: "/groups/$groupSlug" });
@@ -55,7 +56,7 @@ function GroupDetailContent({ user }: { user: User }) {
   const { data: members } = useSuspenseQuery(groupMembersQuery(group.id));
   const removeMemberMutation = useRemoveMemberMutation(group.id);
 
-  const isCreator = group.created_by === user.id;
+  const isCreator = isGroupCreator(group.created_by, user.id);
 
   return (
     <div className="min-h-screen bg-app-gradient">
@@ -118,7 +119,10 @@ function GroupDetailContent({ user }: { user: User }) {
                 <div className="space-y-3">
                   {members.map((member) => {
                     const isCurrentUser = member.user_id === user.id;
-                    const isMemberCreator = member.role === "creator";
+                    const isMemberCreator = isGroupCreator(
+                      group.created_by,
+                      member.user_id,
+                    );
                     const profile = member.profiles;
 
                     return (

@@ -1,6 +1,6 @@
-import { differenceInMinutes } from "date-fns";
 import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 import { useEffect, useState, useRef } from "react";
+import { timeToOffset } from "@/lib/timelineCalculator";
 
 interface TimeScaleProps {
   timeSlots: Date[];
@@ -41,11 +41,7 @@ export function TimeScale({
 
           // Calculate position relative to festival start
           const festivalStart = timeSlots[0];
-          const minutesFromStart = differenceInMinutes(
-            midnightOfNewDate,
-            festivalStart,
-          );
-          const position = minutesFromStart * 2 + 20; // 2px per minute
+          const position = timeToOffset(midnightOfNewDate, festivalStart) + 20;
 
           changes.push({ date: midnightOfNewDate, position });
         }
@@ -175,7 +171,7 @@ export function TimeScale({
               <div
                 key={index}
                 className="absolute flex flex-col items-center"
-                style={{ left: `${index * 120}px` }}
+                style={{ left: `${timeToOffset(timeSlot, timeSlots[0])}px` }}
               >
                 <div className="text-sm font-medium text-purple-300 mb-2 mt-10">
                   {formatInTimeZone(timeSlot, timezone, "HH:mm")}

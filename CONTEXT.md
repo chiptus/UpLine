@@ -40,6 +40,10 @@ _Avoid_: Venue, room
 A user's reaction to an artist within a group context. Three values: "Must Go" (+2), "Interested" (+1), "Won't Go" (-1).
 _Avoid_: Rating, like
 
+**Score**:
+The single aggregate measure of a **set**'s **votes** within a scope (the whole **edition**, or one **group**): the sum of the vote values. Always displayed alongside the vote counts it sums, so it can be verified at a glance.
+_Avoid_: Rating (formerly a separate mean-of-values metric — removed), popularity (formerly a separate positives-only metric — removed), net score, points
+
 **Group**:
 A collection of users who share votes and notes for collaborative decision-making within an edition.
 _Avoid_: Team, party

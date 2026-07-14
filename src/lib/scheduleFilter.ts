@@ -22,7 +22,11 @@ export interface ScheduleFilterCriteria {
   voteTypes?: VoteType[];
   // The viewer's own votes, keyed by set id -> vote value (same shape as
   // useUserVotes' return). Passed in, never fetched inside - keeps this
-  // function pure.
+  // function pure. The absent/empty distinction matters: `undefined` means
+  // there is no viewer identity (logged out), so vote filtering is INERT and
+  // every set passes even with `voteTypes` selected (a shared `?votes=` link
+  // must never dead-end a logged-out visitor); an empty object means a
+  // logged-in viewer with no votes, so an active filter excludes everything.
   userVotes?: Record<string, number>;
 }
 
@@ -54,8 +58,11 @@ function matchesVoteTypes(
   userVotes: Record<string, number> | undefined,
 ): boolean {
   if (!voteTypes || voteTypes.length === 0) return true;
+  // No viewer identity (logged out): the vote filter is inert - see the
+  // absent-vs-empty note on ScheduleFilterCriteria.userVotes.
+  if (userVotes === undefined) return true;
 
-  const voteValue = userVotes?.[set.id];
+  const voteValue = userVotes[set.id];
   if (voteValue === undefined) return false;
 
   const voteType = getVoteConfig(voteValue);

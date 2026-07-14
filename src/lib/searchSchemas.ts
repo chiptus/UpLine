@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { VOTES_TYPES } from "@/lib/voteConfig";
+import { VOTES_TYPES, type VoteType } from "@/lib/voteConfig";
 
 export const sortOptionSchema = z.enum([
   "name-asc",
@@ -41,8 +41,17 @@ export const timelineSearchSchema = z.object({
   stages: z.array(z.string()).catch([]),
   // My-vote chips (PRD #188): selected vote types (mustGo/interested/wontGo),
   // OR-ed together. Empty means the filter is off. Always the viewer's own
-  // votes, never a group-vote scope.
-  votes: z.array(z.enum(VOTES_TYPES)).catch([]),
+  // votes, never a group-vote scope. Unknown entries are dropped one by one
+  // (not the whole array), so a partially malformed shared link keeps its
+  // valid selections.
+  votes: z
+    .array(z.string())
+    .catch([])
+    .transform((votes) =>
+      votes.filter((vote): vote is VoteType =>
+        (VOTES_TYPES as readonly string[]).includes(vote),
+      ),
+    ),
   // The moment (ISO datetime) centered in the timeline viewport. Absent by
   // default; only written once the user scrolls. See useTimelineScrollSync.
   scrollTo: z.string().optional().catch(undefined),

@@ -308,6 +308,58 @@ describe("filterScheduleDays", () => {
       expect(result[0].stages[0].sets).toHaveLength(0);
     });
 
+    it("is inert when userVotes is undefined (no viewer identity)", () => {
+      const days = [
+        makeDay({
+          stages: [
+            {
+              id: "stage-1",
+              name: "Main Stage",
+              stage_order: 1,
+              sets: [makeSet({ id: "set-1" }), makeSet({ id: "set-2" })],
+            },
+          ],
+        }),
+      ];
+
+      const result = filterScheduleDays(
+        days,
+        baseCriteria({ voteTypes: ["mustGo"], userVotes: undefined }),
+        TIMEZONE,
+      );
+
+      expect(result[0].stages[0].sets.map((s) => s.id)).toEqual([
+        "set-1",
+        "set-2",
+      ]);
+    });
+
+    it("excludes a set whose vote value is unrecognized", () => {
+      const days = [
+        makeDay({
+          stages: [
+            {
+              id: "stage-1",
+              name: "Main Stage",
+              stage_order: 1,
+              sets: [makeSet({ id: "weird-vote-set" })],
+            },
+          ],
+        }),
+      ];
+
+      const result = filterScheduleDays(
+        days,
+        baseCriteria({
+          voteTypes: ["mustGo"],
+          userVotes: { "weird-vote-set": 0 },
+        }),
+        TIMEZONE,
+      );
+
+      expect(result[0].stages[0].sets).toHaveLength(0);
+    });
+
     it("excludes a set missing from the votes map entirely", () => {
       const days = [
         makeDay({

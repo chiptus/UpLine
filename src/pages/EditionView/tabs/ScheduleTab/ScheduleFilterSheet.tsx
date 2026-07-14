@@ -16,6 +16,7 @@ import { DayFilterSelect } from "./DayFilterSelect";
 import { TimeFilterSelect } from "./TimeFilterSelect";
 import { StageFilterButtons } from "./StageFilterButtons";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ScheduleFilterSheetProps {
   tab: "timeline" | "list";
@@ -37,10 +38,14 @@ interface ScheduleFilterSheetProps {
  * and every selected stage counts 1 of its own (so picking two stages adds
  * 2). My-vote chips (rendered next to this trigger, not inside the sheet -
  * see VoteFilterChips) follow the same per-item rule: every selected vote
- * type counts 1 of its own, so picking Must Go + Interested adds 2.
+ * type counts 1 of its own, so picking Must Go + Interested adds 2 - but
+ * only while a viewer is logged in. Logged out, the vote filter is inert
+ * (see ScheduleFilterCriteria.userVotes), so the badge must not advertise
+ * it; "Clear all" still clears the `votes` param regardless.
  */
 export function ScheduleFilterSheet({ tab }: ScheduleFilterSheetProps) {
   const [open, setOpen] = useState(false);
+  const { user } = useAuth();
   const {
     day,
     time,
@@ -56,7 +61,7 @@ export function ScheduleFilterSheet({ tab }: ScheduleFilterSheetProps) {
     (day !== "all" ? 1 : 0) +
     (time !== "all" ? 1 : 0) +
     stages.length +
-    votes.length;
+    (user ? votes.length : 0);
   const hasActiveFilters = activeFilterCount > 0;
 
   return (

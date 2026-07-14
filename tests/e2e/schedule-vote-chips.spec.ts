@@ -47,6 +47,25 @@ test.describe("My-vote chips", () => {
     await expect(page.getByTestId("vote-filter-chips")).toHaveCount(0);
   });
 
+  test("a shared ?votes= link is inert for logged-out visitors - sets still show", async ({
+    page,
+  }) => {
+    await page.goto(`${LIST_PATH}?votes=mustGo`);
+
+    const listSchedule = page.getByTestId("list-schedule");
+    if (!(await listSchedule.isVisible().catch(() => false))) {
+      test.skip(true, "Schedule not revealed in this environment");
+    }
+
+    // No viewer identity, so the vote filter must not empty the schedule.
+    await expect(
+      page.getByTestId(`vote-buttons-${MAYA_SET_ID}`),
+    ).toBeVisible();
+    await expect(page.getByTestId("vote-filter-chips")).toHaveCount(0);
+    // The badge must not advertise the inert vote filter.
+    await expect(page.getByTestId("schedule-filters-badge")).toHaveCount(0);
+  });
+
   test("two-tap 'my schedule': Must Go + Interested filters both views to the viewer's own votes", async ({
     page,
   }) => {

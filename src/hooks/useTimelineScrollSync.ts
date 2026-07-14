@@ -25,9 +25,18 @@ interface UseTimelineScrollSyncOptions {
  *   - On user scroll: after the scroll settles (~300ms), writes the moment
  *     now centered in the viewport back to the URL (history replace),
  *     rounded to 5-minute granularity.
+ *   - On demand, via the returned `jumpTo(moment)`: writes `scrollTo`
+ *     immediately (history replace) and smooth-scrolls the container to
+ *     center that moment. The scroll events fired mid-animation keep
+ *     resetting the debounce above, so no intermediate value is written;
+ *     once the animation settles, the debounce fires once more and writes
+ *     back the actual centered moment, which lands on the same value (no
+ *     feedback loop, no history spam - both writes use `replace`).
  *
- * These two directions never trigger each other: the mount effect runs once
- * and the scroll listener only ever navigates, never touches `scrollLeft`.
+ * These directions never trigger each other into a loop: the mount effect
+ * runs once, the scroll listener only ever navigates (never touches
+ * `scrollLeft`), and `jumpTo` is the only path that both navigates and
+ * scrolls, driven solely by explicit calls (day-jump toolbar clicks).
  */
 export function useTimelineScrollSync({
   scrollContainerRef,
@@ -114,4 +123,25 @@ export function useTimelineScrollSync({
       if (debounceTimer) clearTimeout(debounceTimer);
     };
   }, [scrollContainerRef, festivalStart, navigate]);
+
+  function jumpTo(moment: Date) {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const rounded = roundToNearestMinutes(moment, SCROLL_ROUND_MINUTES);
+    const targetScrollLeft = Math.max(
+      0,
+      timeToOffset(rounded, festivalStart) - container.clientWidth / 2,
+    );
+
+    container.scrollTo({ left: targetScrollLeft, behavior: "smooth" });
+
+    navigate({
+      to: ".",
+      search: (prev) => ({ ...prev, scrollTo: rounded.toISOString() }),
+      replace: true,
+    });
+  }
+
+  return { jumpTo };
 }

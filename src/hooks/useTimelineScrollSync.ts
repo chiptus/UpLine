@@ -149,12 +149,20 @@ export function useTimelineScrollSync({
       0,
       timeToOffset(rounded, festivalStart) - container.clientWidth / 2,
     );
+    // Write the moment the viewport actually settles on: when the target
+    // clamps at the strip start (e.g. jumping to the first day), the real
+    // center differs from the requested moment, and the post-scroll
+    // debounced write must land on the same value.
+    const settledMoment = roundToNearestMinutes(
+      offsetToTime(targetScrollLeft + container.clientWidth / 2, festivalStart),
+      SCROLL_ROUND_MINUTES,
+    );
 
     container.scrollTo({ left: targetScrollLeft, behavior: "smooth" });
 
     navigate({
       to: ".",
-      search: (prev) => ({ ...prev, scrollTo: rounded.toISOString() }),
+      search: (prev) => ({ ...prev, scrollTo: settledMoment.toISOString() }),
       replace: true,
     });
   }

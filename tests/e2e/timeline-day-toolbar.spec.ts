@@ -61,6 +61,38 @@ test.describe("Timeline day-jump toolbar", () => {
       (el) => el.scrollLeft,
     );
     expect(scrollLeftAfterJump).not.toBe(scrollLeftBeforeJump);
+
+    // The write must be stable: the post-scroll debounced write settles on
+    // the same moment jumpTo wrote, so the URL doesn't drift afterwards.
+    await page.waitForTimeout(SCROLL_ANIMATION_WAIT_MS);
+    expect(new URL(page.url()).searchParams.get("scrollTo")).toBe(scrollTo);
+  });
+
+  test("jumping to the first day clamps to the strip start without URL drift", async ({
+    page,
+  }) => {
+    await page.goto(TIMELINE_PATH);
+
+    const scrollContainer = page.getByTestId("timeline-scroll-container");
+    if (!(await scrollContainer.isVisible().catch(() => false))) {
+      test.skip(true, "Schedule not revealed in this environment");
+    }
+
+    const dayButtons = page
+      .getByTestId("timeline-day-toolbar")
+      .getByRole("button");
+    // Move away first so the jump back is observable.
+    await dayButtons.last().click();
+    await page.waitForTimeout(SCROLL_ANIMATION_WAIT_MS);
+
+    await dayButtons.first().click();
+    await page.waitForTimeout(SCROLL_ANIMATION_WAIT_MS);
+
+    const scrollTo = new URL(page.url()).searchParams.get("scrollTo");
+    expect(scrollTo).toBeTruthy();
+
+    await page.waitForTimeout(SCROLL_ANIMATION_WAIT_MS);
+    expect(new URL(page.url()).searchParams.get("scrollTo")).toBe(scrollTo);
   });
 
   test("with a day filter active, only that day's button renders", async ({

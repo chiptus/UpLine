@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { TimeScale } from "./TimeScale";
 import { StageRow } from "./StageRow";
 import type { TimelineData } from "@/lib/timelineCalculator";
+import { useTimelineScrollSync } from "@/hooks/useTimelineScrollSync";
 
 interface TimelineContainerProps {
   timelineData: TimelineData;
@@ -14,9 +15,16 @@ export function TimelineContainer({
 }: TimelineContainerProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+  useTimelineScrollSync({
+    scrollContainerRef,
+    festivalStart: timelineData.festivalStart,
+    timezone,
+  });
+
   return (
     <div
       ref={scrollContainerRef}
+      data-testid="timeline-scroll-container"
       className="overflow-x-auto overflow-y-hidden pb-20"
     >
       {/* Time Scale */}

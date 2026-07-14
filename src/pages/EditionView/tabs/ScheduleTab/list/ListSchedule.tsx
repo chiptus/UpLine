@@ -12,6 +12,8 @@ import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 import { ScheduleNotRevealedPlaceholder } from "../ScheduleNotRevealedPlaceholder";
+import { useAuth } from "@/contexts/AuthContext";
+import { useUserVotes } from "@/api/voting/useUserVotes";
 
 interface TimeSlot {
   time: Date;
@@ -27,6 +29,8 @@ export function ListSchedule() {
   const { data: editionSets = [], isLoading: setsLoading } =
     useEditionSetsQuery(edition.id);
   const { data: stages } = useSuspenseQuery(stagesByEditionQuery(edition.id));
+  const { user } = useAuth();
+  const { data: userVotes } = useUserVotes(user?.id);
   const { scheduleDays, loading, error } = useScheduleData({
     sets: editionSets,
     stages,
@@ -36,6 +40,7 @@ export function ListSchedule() {
     day: selectedDay,
     time: selectedTime,
     stages: selectedStages,
+    votes: selectedVotes,
   } = useTimelineUrlState("list");
 
   const timeSlots = useMemo(() => {
@@ -43,7 +48,13 @@ export function ListSchedule() {
 
     const filteredScheduleDays = filterScheduleDays(
       scheduleDays,
-      { day: selectedDay, time: selectedTime, stages: selectedStages },
+      {
+        day: selectedDay,
+        time: selectedTime,
+        stages: selectedStages,
+        voteTypes: selectedVotes,
+        userVotes,
+      },
       festival.timezone,
     );
 
@@ -101,6 +112,8 @@ export function ListSchedule() {
     selectedDay,
     selectedTime,
     selectedStages,
+    selectedVotes,
+    userVotes,
     stages,
     festival.timezone,
   ]);

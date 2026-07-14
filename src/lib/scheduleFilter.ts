@@ -1,5 +1,6 @@
 import { getFestivalHour } from "@/lib/timeUtils";
 import type { TimelineSearch } from "@/lib/searchSchemas";
+import { getVoteConfig, type VoteType } from "@/lib/voteConfig";
 import type {
   ScheduleDay,
   ScheduleSet,
@@ -15,9 +16,14 @@ export interface ScheduleFilterCriteria {
   time: ScheduleTimeFilter;
   // Stage ids to include; an empty array means all stages.
   stages: string[];
-  // Future (PRD #188 - vote-type filtering): an optional field such as
-  // `voteTypes?: VoteType[]`, OR-ed against the viewer's own votes on each
-  // set, will slot in here without reshaping this interface.
+  // My-vote chips (PRD #188): selected vote types, OR-ed together. Empty or
+  // omitted turns the filter off (all sets kept, `userVotes` unconsulted).
+  // Always the viewer's own votes - group-vote scopes are out of scope here.
+  voteTypes?: VoteType[];
+  // The viewer's own votes, keyed by set id -> vote value (same shape as
+  // useUserVotes' return). Passed in, never fetched inside - keeps this
+  // function pure.
+  userVotes?: Record<string, number>;
 }
 
 function matchesTimeOfDay(
@@ -40,6 +46,20 @@ function matchesTimeOfDay(
     default:
       return true;
   }
+}
+
+function matchesVoteTypes(
+  set: ScheduleSet,
+  voteTypes: VoteType[] | undefined,
+  userVotes: Record<string, number> | undefined,
+): boolean {
+  if (!voteTypes || voteTypes.length === 0) return true;
+
+  const voteValue = userVotes?.[set.id];
+  if (voteValue === undefined) return false;
+
+  const voteType = getVoteConfig(voteValue);
+  return voteType !== undefined && voteTypes.includes(voteType);
 }
 
 // Applies the day / time-of-day / stage predicates shared by both Schedule
@@ -65,8 +85,10 @@ export function filterScheduleDays(
       )
       .map((stage) => ({
         ...stage,
-        sets: stage.sets.filter((set) =>
-          matchesTimeOfDay(set, criteria.time, timezone),
+        sets: stage.sets.filter(
+          (set) =>
+            matchesTimeOfDay(set, criteria.time, timezone) &&
+            matchesVoteTypes(set, criteria.voteTypes, criteria.userVotes),
         ),
       }));
 

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { VOTES_TYPES } from "@/lib/voteConfig";
 
 export const sortOptionSchema = z.enum([
   "name-asc",
@@ -38,6 +39,12 @@ export const timelineSearchSchema = z.object({
   day: z.string().catch("all"),
   time: z.enum(["all", "morning", "afternoon", "evening"]).catch("all"),
   stages: z.array(z.string()).catch([]),
+  // My-vote chips (PRD #188): selected vote types (mustGo/interested/wontGo),
+  // OR-ed together. Empty means the filter is off. Always the viewer's own
+  // votes, never a group-vote scope.
+  votes: z.array(z.enum(VOTES_TYPES)).catch([]),
+  // The moment (ISO datetime) centered in the timeline viewport. Absent by
+  // default; only written once the user scrolls. See useTimelineScrollSync.
   scrollTo: z.string().optional().catch(undefined),
 });
 
@@ -47,4 +54,5 @@ export const timelineSearchDefaults: TimelineSearch = {
   day: "all",
   time: "all",
   stages: [],
+  votes: [],
 };

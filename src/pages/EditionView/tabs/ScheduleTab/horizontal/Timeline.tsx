@@ -15,6 +15,8 @@ import { filterScheduleDays } from "@/lib/scheduleFilter";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 import { ScheduleNotRevealedPlaceholder } from "../ScheduleNotRevealedPlaceholder";
+import { useAuth } from "@/contexts/AuthContext";
+import { useUserVotes } from "@/api/voting/useUserVotes";
 
 export function Timeline() {
   const { festival } = useFestivalEdition();
@@ -26,6 +28,8 @@ export function Timeline() {
   const { data: editionSets = [], isLoading: setsLoading } =
     useEditionSetsQuery(edition.id);
   const { data: stages } = useSuspenseQuery(stagesByEditionQuery(edition.id));
+  const { user } = useAuth();
+  const { data: userVotes } = useUserVotes(user?.id);
 
   const { scheduleDays, loading, error } = useScheduleData({
     sets: editionSets,
@@ -36,6 +40,7 @@ export function Timeline() {
     day: selectedDay,
     time: selectedTime,
     stages: selectedStages,
+    votes: selectedVotes,
   } = useTimelineUrlState("timeline");
 
   const scheduleWindow = useMemo(
@@ -50,7 +55,13 @@ export function Timeline() {
 
     const filteredScheduleDays = filterScheduleDays(
       scheduleDays,
-      { day: selectedDay, time: selectedTime, stages: selectedStages },
+      {
+        day: selectedDay,
+        time: selectedTime,
+        stages: selectedStages,
+        voteTypes: selectedVotes,
+        userVotes,
+      },
       festival.timezone,
     );
 
@@ -66,6 +77,8 @@ export function Timeline() {
     selectedDay,
     selectedTime,
     selectedStages,
+    selectedVotes,
+    userVotes,
     stages,
     festival.timezone,
   ]);

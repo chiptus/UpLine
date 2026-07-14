@@ -193,6 +193,148 @@ describe("filterScheduleDays", () => {
     });
   });
 
+  describe("vote-type predicate (my-vote chips)", () => {
+    it("keeps all sets when no vote types are selected", () => {
+      const days = [
+        makeDay({
+          stages: [
+            {
+              id: "stage-1",
+              name: "Main Stage",
+              stage_order: 1,
+              sets: [makeSet({ id: "set-1" }), makeSet({ id: "set-2" })],
+            },
+          ],
+        }),
+      ];
+
+      const result = filterScheduleDays(
+        days,
+        baseCriteria({ voteTypes: [], userVotes: { "set-1": 2 } }),
+        TIMEZONE,
+      );
+
+      expect(result[0].stages[0].sets.map((s) => s.id)).toEqual([
+        "set-1",
+        "set-2",
+      ]);
+    });
+
+    it("keeps only sets matching a single selected vote type", () => {
+      const days = [
+        makeDay({
+          stages: [
+            {
+              id: "stage-1",
+              name: "Main Stage",
+              stage_order: 1,
+              sets: [makeSet({ id: "must-go-set" }), makeSet({ id: "interested-set" })],
+            },
+          ],
+        }),
+      ];
+
+      const result = filterScheduleDays(
+        days,
+        baseCriteria({
+          voteTypes: ["mustGo"],
+          userVotes: { "must-go-set": 2, "interested-set": 1 },
+        }),
+        TIMEZONE,
+      );
+
+      expect(result[0].stages[0].sets.map((s) => s.id)).toEqual([
+        "must-go-set",
+      ]);
+    });
+
+    it("OR-s together a union of selected vote types", () => {
+      const days = [
+        makeDay({
+          stages: [
+            {
+              id: "stage-1",
+              name: "Main Stage",
+              stage_order: 1,
+              sets: [
+                makeSet({ id: "must-go-set" }),
+                makeSet({ id: "interested-set" }),
+                makeSet({ id: "wont-go-set" }),
+              ],
+            },
+          ],
+        }),
+      ];
+
+      const result = filterScheduleDays(
+        days,
+        baseCriteria({
+          voteTypes: ["mustGo", "interested"],
+          userVotes: {
+            "must-go-set": 2,
+            "interested-set": 1,
+            "wont-go-set": -1,
+          },
+        }),
+        TIMEZONE,
+      );
+
+      expect(result[0].stages[0].sets.map((s) => s.id)).toEqual([
+        "must-go-set",
+        "interested-set",
+      ]);
+    });
+
+    it("excludes a set with no vote when the filter is active", () => {
+      const days = [
+        makeDay({
+          stages: [
+            {
+              id: "stage-1",
+              name: "Main Stage",
+              stage_order: 1,
+              sets: [makeSet({ id: "unvoted-set" })],
+            },
+          ],
+        }),
+      ];
+
+      const result = filterScheduleDays(
+        days,
+        baseCriteria({ voteTypes: ["mustGo"], userVotes: {} }),
+        TIMEZONE,
+      );
+
+      expect(result[0].stages[0].sets).toHaveLength(0);
+    });
+
+    it("excludes a set missing from the votes map entirely", () => {
+      const days = [
+        makeDay({
+          stages: [
+            {
+              id: "stage-1",
+              name: "Main Stage",
+              stage_order: 1,
+              sets: [makeSet({ id: "not-in-map" })],
+            },
+          ],
+        }),
+      ];
+
+      const result = filterScheduleDays(
+        days,
+        baseCriteria({
+          voteTypes: ["mustGo"],
+          userVotes: { "some-other-set": 2 },
+        }),
+        TIMEZONE,
+      );
+
+      expect(result[0].stages[0].sets).toHaveLength(0);
+    });
+  });
+
   describe("combinations", () => {
     it("applies day, time and stage predicates together", () => {
       const days = [

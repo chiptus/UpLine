@@ -47,7 +47,7 @@ export function VoteButtons({ set }: VoteButtonsProps) {
   }, [set.votes]);
 
   return (
-    <div className="flex gap-3 mt-2">
+    <div className="flex gap-3 mt-2" data-testid={`vote-buttons-${set.id}`}>
       {VOTES_TYPES.map((voteType) => {
         return (
           <VoteButton
@@ -101,6 +101,7 @@ function VoteButton({
           : `${config.descColor} `,
       )}
       type="button"
+      data-testid={`vote-button-${voteType}`}
       onClick={() => onVote()}
     >
       <IconComponent className="h-3 w-3" />

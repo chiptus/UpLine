@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { useSearch, useNavigate } from "@tanstack/react-router";
 import type { TimelineSearch } from "@/lib/searchSchemas";
+import type { VoteType } from "@/lib/voteConfig";
 
 export type TimeFilter = TimelineSearch["time"];
 
@@ -13,6 +14,7 @@ export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
       day: search.day,
       time: search.time,
       stages: search.stages,
+      votes: search.votes,
     }),
   });
   const navigate = useNavigate({ from: route });
@@ -50,6 +52,17 @@ export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
     [navigate],
   );
 
+  const updateVotes = useCallback(
+    (votes: VoteType[]) => {
+      navigate({
+        to: ".",
+        search: (prev) => ({ ...prev, votes }),
+        replace: true,
+      });
+    },
+    [navigate],
+  );
+
   const clearFilters = useCallback(() => {
     navigate({
       to: ".",
@@ -62,9 +75,11 @@ export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
     day: state.day,
     time: state.time,
     stages: state.stages,
+    votes: state.votes,
     updateDay,
     updateTime,
     updateStages,
+    updateVotes,
     clearFilters,
   };
 }

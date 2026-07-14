@@ -6,7 +6,8 @@ import { sortStagesByOrder } from "@/lib/stageUtils";
 const PX_PER_MINUTE = 2;
 
 export function timeToOffset(moment: Date, origin: Date): number {
-  return differenceInMinutes(moment, origin) * PX_PER_MINUTE;
+  const minutes = (moment.getTime() - origin.getTime()) / (60 * 1000);
+  return minutes * PX_PER_MINUTE;
 }
 
 export function offsetToTime(offset: number, origin: Date): Date {

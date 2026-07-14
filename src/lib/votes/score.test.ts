@@ -56,6 +56,13 @@ describe("tallyVotes", () => {
     expect(score).toBe(-2);
   });
 
+  it("scores an all-negative vote set as minus the vote count", () => {
+    expect(tallyVotes([vote(-1), vote(-1), vote(-1)])).toEqual({
+      counts: { mustGo: 0, interested: 0, wontGo: 3 },
+      score: -3,
+    });
+  });
+
   it("ignores unknown vote_type values in both counts and score", () => {
     const result = tallyVotes([vote(2), vote(0), vote(99), vote(-5)]);
     expect(result).toEqual({

@@ -28,7 +28,7 @@ export function VotePerspectiveSelector({
     {
       id: "all",
       label: "All Groups",
-      description: "View ratings from all users",
+      description: "View votes from all users",
     },
     {
       id: "mine",
@@ -38,7 +38,7 @@ export function VotePerspectiveSelector({
     ...groups.map((group) => ({
       id: group.id,
       label: group.name,
-      description: `View ratings from ${group.name} members`,
+      description: `View votes from ${group.name} members`,
       memberCount: group.member_count,
     })),
   ];
@@ -69,7 +69,7 @@ export function VotePerspectiveSelector({
           </h4>
         </div>
         <p className="text-xs text-purple-400 mb-3">
-          Choose whose votes to show in ratings
+          Choose whose votes to count in scores
         </p>
         <Select value={getCurrentValue()} onValueChange={handleChange}>
           <SelectTrigger className="w-full bg-white/10 border-purple-400/30 text-purple-100">
@@ -105,7 +105,7 @@ export function VotePerspectiveSelector({
         </h4>
       </div>
       <p className="text-xs text-purple-400">
-        Choose whose votes to show in ratings
+        Choose whose votes to count in scores
       </p>
       <div className="flex flex-wrap gap-2">
         <Button

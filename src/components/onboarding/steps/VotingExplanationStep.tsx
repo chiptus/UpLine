@@ -74,7 +74,7 @@ export function VotingExplanationStep({
 
         {/* <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
           <p className="text-sm sm:text-base text-purple-700 dark:text-purple-300">
-            <strong>Pro tip:</strong> Your votes help create group ratings so
+            <strong>Pro tip:</strong> Your votes help create group scores so
             you can quickly see which artists your friends are excited about!
           </p>
         </div> */}

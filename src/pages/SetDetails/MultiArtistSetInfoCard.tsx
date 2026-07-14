@@ -17,6 +17,7 @@ import { MarkdownText } from "@/components/ui/markdown-text";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { FestivalTimeHint } from "@/components/FestivalTimeHint";
+import { cn } from "@/lib/utils";
 
 interface MultiArtistSetInfoCardProps {
   set: FestivalSet;
@@ -79,11 +80,11 @@ export function MultiArtistSetInfoCard({
                 {score !== 0 && (
                   <Badge
                     variant="outline"
-                    className={`${
+                    className={cn(
                       score > 0
                         ? "border-green-400 text-green-400"
-                        : "border-red-400 text-red-400"
-                    }`}
+                        : "border-red-400 text-red-400",
+                    )}
                   >
                     Score: {score > 0 ? "+" : ""}
                     {score}

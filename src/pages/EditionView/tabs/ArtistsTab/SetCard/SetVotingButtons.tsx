@@ -3,7 +3,6 @@ import {
   VOTE_CONFIG,
   VOTES_TYPES,
   type VoteConfig,
-  type VoteType,
 } from "@/lib/voteConfig";
 import { useFestivalSet } from "../FestivalSetContext";
 import { useUserVotes } from "@/api/voting/useUserVotes";
@@ -44,7 +43,6 @@ export function SetVotingButtons({
         return (
           <VoteButton
             key={voteType}
-            voteType={voteType}
             config={config}
             isSelected={userVoteForSet === config.value}
             onClick={() => handleVote(config.value)}
@@ -84,7 +82,6 @@ export function SetVotingButtons({
 }
 
 function VoteButton({
-  voteType,
   config,
   layout,
   isSelected,
@@ -93,7 +90,6 @@ function VoteButton({
   voteCount,
   isVoting,
 }: {
-  voteType: VoteType;
   isSelected: boolean;
   config: VoteConfig;
   size?: "sm" | "default";
@@ -113,14 +109,14 @@ function VoteButton({
         onClick={() => onClick()}
         disabled={isVoting}
         aria-pressed={isSelected}
-        data-testid={`vote-button-${voteType}`}
+        aria-label={config.label}
         className={`${buttonClass} ${
           isSelected ? config.buttonSelected : config.buttonUnselected
         }`}
         title={config.label}
       >
         <IconComponent className="h-4 w-4 mr-2" />
-        <span data-testid={`vote-count-${voteType}`}>
+        <span aria-label={`${config.label} vote count`}>
           {layout === "horizontal"
             ? voteCount
             : `${config.label} (${voteCount})`}

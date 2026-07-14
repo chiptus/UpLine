@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import type { FilterSortState } from "@/hooks/useUrlState";
 import { FestivalSet } from "@/api/sets/types";
 import { useGroupMembersQuery } from "@/api/groups/useGroupMembers";
+import { tallyVotes } from "@/lib/votes/score";
 
 export function useSetFiltering(
   sets: FestivalSet[],
@@ -16,29 +17,6 @@ export function useSetFiltering(
   }, [groupMembersQuery.data]);
 
   const [lockedOrder, setLockedOrder] = useState<FestivalSet[]>([]);
-
-  // Calculate rating for a set based on vote weights
-  function calculateRating(set: FestivalSet): number {
-    if (!set.votes || set.votes.length === 0) return 0;
-
-    const totalScore = set.votes.reduce((sum, vote) => {
-      // Use the actual vote type values: 2 (Must go), 1 (Interested), -1 (Won't go)
-      return sum + vote.vote_type;
-    }, 0);
-
-    return totalScore / set.votes.length;
-  }
-
-  // Get weighted popularity score: 2 * (must go votes) + interested votes
-  function getWeightedPopularityScore(set: FestivalSet): number {
-    if (!set.votes) return 0;
-    const mustGoVotes = set.votes.filter((vote) => vote.vote_type === 2).length;
-    const interestedVotes = set.votes.filter(
-      (vote) => vote.vote_type === 1,
-    ).length;
-
-    return 2 * mustGoVotes + interestedVotes;
-  }
 
   // Filter and sort sets based on current state
   const filteredAndSortedSets = useMemo(() => {
@@ -84,12 +62,6 @@ export function useSetFiltering(
           if (!hasMatchingGenre) return false;
         }
 
-        // Rating filter
-        if (filterSortState.minRating > 0) {
-          const rating = calculateRating(set);
-          if (rating < filterSortState.minRating) return false;
-        }
-
         return true;
       });
 
@@ -101,12 +73,8 @@ export function useSetFiltering(
           return a.name.localeCompare(b.name);
         case "name-desc":
           return b.name.localeCompare(a.name);
-        case "rating-desc":
-          primarySort = calculateRating(b) - calculateRating(a);
-          break;
-        case "popularity-desc":
-          primarySort =
-            getWeightedPopularityScore(b) - getWeightedPopularityScore(a);
+        case "score-desc":
+          primarySort = tallyVotes(b.votes).score - tallyVotes(a.votes).score;
           break;
         case "date-asc":
           if (!a.time_start && !b.time_start) {

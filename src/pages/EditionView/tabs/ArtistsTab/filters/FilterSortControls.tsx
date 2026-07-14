@@ -46,10 +46,8 @@ export function FilterSortControls({
     onStateChange({ sortLocked: false });
   }
 
-  const hasActiveFilters =
-    state.stages.length > 0 || state.genres.length > 0 || state.minRating > 0;
-  const activeFilterCount =
-    state.stages.length + state.genres.length + (state.minRating > 0 ? 1 : 0);
+  const hasActiveFilters = state.stages.length > 0 || state.genres.length > 0;
+  const activeFilterCount = state.stages.length + state.genres.length;
 
   const Filters = isMobile ? MobileFilters : DesktopFilters;
 

@@ -110,36 +110,6 @@ export function MobileFilters({
         </Select>
       </div>
 
-      {/* Rating Filter */}
-      <div>
-        <h4 className="text-sm font-medium text-purple-200 mb-2">
-          Minimum Rating
-        </h4>
-        <Select
-          value={state.minRating.toString()}
-          onValueChange={(value) =>
-            onStateChange({ minRating: parseInt(value) })
-          }
-        >
-          <SelectTrigger className="w-full bg-white/10 border-purple-400/30 text-purple-100">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="bg-gray-800 border-purple-400/30">
-            <SelectItem value="0" className="text-purple-100">
-              Any Rating
-            </SelectItem>
-            <SelectItem value="1" className="text-purple-100">
-              1+ Rating
-            </SelectItem>
-            <SelectItem value="2" className="text-purple-100">
-              2+ Rating
-            </SelectItem>
-            <SelectItem value="3" className="text-purple-100">
-              3+ Rating
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
     </div>
   );
 }

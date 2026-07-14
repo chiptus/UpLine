@@ -12,7 +12,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useUserGroupsQuery } from "@/api/groups/useUserGroups";
 import { useGroupVotesQuery } from "@/api/voting/useGroupVotes";
 import { Users } from "lucide-react";
-import { VOTE_CONFIG, VOTES_TYPES, getVoteConfig } from "@/lib/voteConfig";
+import { VOTE_CONFIG, VOTES_TYPES, getVoteConfig } from "@/lib/votes/config";
+import { tallyVotes } from "@/lib/votes/score";
 import { cn } from "@/lib/utils";
 
 interface SetGroupVotingProps {
@@ -42,11 +43,7 @@ export function SetGroupVoting({ setId: artistId }: SetGroupVotingProps) {
     return null;
   }
 
-  const voteCounts = {
-    2: groupVotes.filter((vote) => vote.vote_type === 2).length,
-    1: groupVotes.filter((vote) => vote.vote_type === 1).length,
-    [-1]: groupVotes.filter((vote) => vote.vote_type === -1).length,
-  };
+  const { counts } = tallyVotes(groupVotes);
 
   const selectedGroup = groups.find((g) => g.id === selectedGroupId);
 
@@ -111,7 +108,7 @@ export function SetGroupVoting({ setId: artistId }: SetGroupVotingProps) {
                           className={`h-4 w-4 ${config.iconColor}`}
                         />
                         <span className="font-semibold">
-                          {voteCounts[voteType as keyof typeof voteCounts]}
+                          {counts[voteTypeKey]}
                         </span>
                       </div>
                       <p className={`text-sm`}>{config.label}</p>

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { VOTE_CONFIG } from "@/lib/voteConfig";
+import { VOTE_CONFIG } from "@/lib/votes/config";
 import { motion } from "framer-motion";
 
 interface VotingActionsProps {

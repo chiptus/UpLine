@@ -3,8 +3,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { FestivalSet } from "@/api/sets/types";
 import { useUserVotes } from "@/api/voting/useUserVotes";
 import { useVote } from "@/api/voting/useVote";
-import { useVoteCount } from "@/hooks/useVoteCount";
-import { VOTE_CONFIG, getVoteConfig } from "@/lib/voteConfig";
+import { tallyVotes } from "@/lib/votes/score";
+import { VOTE_CONFIG, getVoteConfig } from "@/lib/votes/config";
 
 interface SetVotingButtonsProps {
   set: FestivalSet;
@@ -12,7 +12,7 @@ interface SetVotingButtonsProps {
 
 export function SetVotingButtons({ set }: SetVotingButtonsProps) {
   const { user, showAuthDialog } = useAuth();
-  const { getVoteCount } = useVoteCount(set);
+  const { counts } = tallyVotes(set.votes);
   const userVotesQuery = useUserVotes(user?.id);
   const voteMutation = useVote();
 
@@ -25,19 +25,19 @@ export function SetVotingButtons({ set }: SetVotingButtonsProps) {
         voteType={2}
         isActive={userVoteForSet === 2}
         onClick={() => handleVote(2)}
-        count={getVoteCount(2)}
+        count={counts.mustGo}
       />
       <VoteButton
         voteType={1}
         isActive={userVoteForSet === 1}
         onClick={() => handleVote(1)}
-        count={getVoteCount(1)}
+        count={counts.interested}
       />
       <VoteButton
         voteType={-1}
         isActive={userVoteForSet === -1}
         onClick={() => handleVote(-1)}
-        count={getVoteCount(-1)}
+        count={counts.wontGo}
       />
     </div>
   );

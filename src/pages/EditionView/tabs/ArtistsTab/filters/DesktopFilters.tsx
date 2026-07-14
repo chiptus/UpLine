@@ -88,29 +88,6 @@ export function DesktopFilters({
         </div>
       </div>
 
-      {/* Rating Filter */}
-      <div>
-        <h4 className="text-sm font-medium text-purple-200 mb-2">
-          Minimum Rating
-        </h4>
-        <div className="flex gap-2">
-          {[0, 1, 2, 3].map((rating) => (
-            <Button
-              key={rating}
-              variant={state.minRating === rating ? "default" : "outline"}
-              size="sm"
-              onClick={() => onStateChange({ minRating: rating })}
-              className={
-                state.minRating === rating
-                  ? "bg-purple-600 hover:bg-purple-700"
-                  : "border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white"
-              }
-            >
-              {rating === 0 ? "Any" : `${rating}+`}
-            </Button>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

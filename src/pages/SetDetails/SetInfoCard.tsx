@@ -20,13 +20,13 @@ import { FestivalTimeHint } from "@/components/FestivalTimeHint";
 
 interface SetInfoCardProps {
   set: FestivalSet;
-  netVoteScore: number;
+  score: number;
   use24Hour?: boolean;
 }
 
 export function SetInfoCard({
   set,
-  netVoteScore,
+  score,
   use24Hour = false,
 }: SetInfoCardProps) {
   const artist = set.artists[0];
@@ -55,17 +55,17 @@ export function SetInfoCard({
                     genreId={genre.music_genre_id}
                   />
                 ))}
-                {netVoteScore !== 0 && (
+                {score !== 0 && (
                   <Badge
                     variant="outline"
                     className={`${
-                      netVoteScore > 0
+                      score > 0
                         ? "border-green-400 text-green-400"
                         : "border-red-400 text-red-400"
                     }`}
                   >
-                    Score: {netVoteScore > 0 ? "+" : ""}
-                    {netVoteScore}
+                    Score: {score > 0 ? "+" : ""}
+                    {score}
                   </Badge>
                 )}
               </div>

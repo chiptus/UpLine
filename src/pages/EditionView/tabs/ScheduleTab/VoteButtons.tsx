@@ -4,7 +4,8 @@ import {
   VoteType,
   getVoteConfig,
   getVoteValue,
-} from "@/lib/voteConfig";
+} from "@/lib/votes/config";
+import { tallyVotes } from "@/lib/votes/score";
 import { cn } from "@/lib/utils";
 import type { ScheduleSet } from "@/hooks/useScheduleData";
 import { useMemo } from "react";
@@ -26,25 +27,7 @@ export function VoteButtons({ set }: VoteButtonsProps) {
     return userVote ? getVoteConfig(userVote) : undefined;
   }, [userVote]);
 
-  const votesMap = useMemo(() => {
-    if (!set.votes) {
-      return {} as Record<VoteType, number>;
-    }
-
-    return set.votes?.reduce(
-      (agg, item) => {
-        const voteType = getVoteConfig(item.vote_type);
-        if (!voteType) {
-          return agg;
-        }
-        agg[voteType] = (agg[voteType] || 0) + 1;
-        return agg;
-      },
-      Object.fromEntries(
-        VOTES_TYPES.map((voteType) => [voteType, 0] as const),
-      ) as Record<VoteType, number>,
-    );
-  }, [set.votes]);
+  const { counts } = tallyVotes(set.votes);
 
   return (
     <div className="flex gap-3 mt-2">
@@ -54,7 +37,7 @@ export function VoteButtons({ set }: VoteButtonsProps) {
             voteType={voteType}
             key={voteType}
             onVote={() => handleVote(getVoteValue(voteType))}
-            count={votesMap[voteType]}
+            count={counts[voteType]}
             value={userVoteType}
           />
         );

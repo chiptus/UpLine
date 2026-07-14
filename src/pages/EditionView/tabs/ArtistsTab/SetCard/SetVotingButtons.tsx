@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { VOTE_CONFIG, VOTES_TYPES, type VoteConfig } from "@/lib/voteConfig";
+import { VOTE_CONFIG, VOTES_TYPES, type VoteConfig } from "@/lib/votes/config";
 import { useFestivalSet } from "../FestivalSetContext";
 import { useUserVotes } from "@/api/voting/useUserVotes";
 import { useVote } from "@/api/voting/useVote";
 import { useAuth } from "@/contexts/AuthContext";
-import { useVoteCount } from "@/hooks/useVoteCount";
+import { tallyVotes } from "@/lib/votes/score";
 
 interface SetVotingButtonsProps {
   size?: "sm" | "default";
@@ -18,7 +18,7 @@ export function SetVotingButtons({
   const { user, showAuthDialog } = useAuth();
 
   const { set, onLockSort } = useFestivalSet();
-  const { getVoteCount } = useVoteCount(set);
+  const { counts } = tallyVotes(set.votes);
   const userVotesQuery = useUserVotes(user?.id);
   const voteMutation = useVote();
 
@@ -27,8 +27,6 @@ export function SetVotingButtons({
   const containerClass =
     layout === "horizontal" ? "flex items-center gap-2" : "space-y-3";
 
-  const voteButtons = VOTES_TYPES.map((voteType) => VOTE_CONFIG[voteType]);
-
   return (
     <div className={containerClass}>
       {userVotesQuery.isLoading && (
@@ -36,14 +34,15 @@ export function SetVotingButtons({
           className={`h-4 w-4 animate-spin rounded-full border-2 border-t-transparent`}
         />
       )}
-      {voteButtons.map((config) => {
+      {VOTES_TYPES.map((voteType) => {
+        const config = VOTE_CONFIG[voteType];
         return (
           <VoteButton
-            key={config.value}
+            key={voteType}
             config={config}
             isSelected={userVoteForSet === config.value}
             onClick={() => handleVote(config.value)}
-            voteCount={getVoteCount(config.value)}
+            voteCount={counts[voteType]}
             isVoting={voteMutation.isPending}
             size={size}
             layout={layout}

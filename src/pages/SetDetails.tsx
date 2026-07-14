@@ -10,7 +10,7 @@ import { useUrlState } from "@/hooks/useUrlState";
 import { setBySlugQuery } from "@/api/sets/useSetBySlug";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { useVoteCount } from "@/hooks/useVoteCount";
+import { tallyVotes } from "@/lib/votes/score";
 import { PageTitle } from "@/components/PageTitle/PageTitle";
 import { TopBar } from "@/components/layout/TopBar";
 import { FestivalIndicator } from "@/components/layout/AppHeader/FestivalIndicator";
@@ -29,11 +29,9 @@ export function SetDetails() {
     setBySlugQuery(setSlug, edition.id),
   );
 
-  const { getVoteCount } = useVoteCount(currentSet);
-
   const setTitle = currentSet.name;
 
-  const netVoteScore = 2 * getVoteCount(2) + getVoteCount(1) - getVoteCount(-1);
+  const { score } = tallyVotes(currentSet.votes);
 
   const isMultiArtistSet = currentSet.artists.length > 1;
   const primaryArtist = currentSet.artists[0];
@@ -62,7 +60,7 @@ export function SetDetails() {
 
               <MultiArtistSetInfoCard
                 set={currentSet}
-                netVoteScore={netVoteScore}
+                score={score}
                 use24Hour={urlState.use24Hour}
               />
             </div>
@@ -75,7 +73,7 @@ export function SetDetails() {
 
               <SetInfoCard
                 set={currentSet}
-                netVoteScore={netVoteScore}
+                score={score}
                 use24Hour={urlState.use24Hour}
               />
             </div>

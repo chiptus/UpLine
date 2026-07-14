@@ -1,7 +1,11 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import type { RefObject } from "react";
-import { offsetToTime, timeToOffset } from "@/lib/timelineCalculator";
+import {
+  offsetToTime,
+  timeToOffset,
+  type ScheduleWindow,
+} from "@/lib/timelineCalculator";
 import {
   resolveTimelineMountMoment,
   roundToNearestMinutes,
@@ -13,7 +17,9 @@ const SCROLL_ROUND_MINUTES = 5;
 interface UseTimelineScrollSyncOptions {
   scrollContainerRef: RefObject<HTMLDivElement>;
   festivalStart: Date;
-  festivalEnd: Date;
+  /** The UNFILTERED schedule window (`calculateScheduleWindow`), for the
+   * mount-precedence now-rule; null when no set has a time yet. */
+  scheduleWindow: ScheduleWindow | null;
   timezone: string;
   /** Current moment, injected by the caller (see `useNow`). Only read once,
    * at mount, to resolve the "now" mount-precedence rule. */
@@ -25,8 +31,8 @@ interface UseTimelineScrollSyncOptions {
  * `scrollTo` URL param:
  *
  *   - On mount only: centers the viewport per `resolveTimelineMountMoment`'s
- *     precedence (scrollTo -> day filter -> now-1h inside the festival
- *     window -> festival start).
+ *     precedence (scrollTo -> day filter -> now-1h inside the unfiltered
+ *     schedule window -> festival start).
  *   - On user scroll: after the scroll settles (~300ms), writes the moment
  *     now centered in the viewport back to the URL (history replace),
  *     rounded to 5-minute granularity.
@@ -46,7 +52,7 @@ interface UseTimelineScrollSyncOptions {
 export function useTimelineScrollSync({
   scrollContainerRef,
   festivalStart,
-  festivalEnd,
+  scheduleWindow,
   timezone,
   now,
 }: UseTimelineScrollSyncOptions) {
@@ -79,7 +85,7 @@ export function useTimelineScrollSync({
       day,
       timezone,
       festivalStart,
-      festivalEnd,
+      scheduleWindow,
       now,
     });
 

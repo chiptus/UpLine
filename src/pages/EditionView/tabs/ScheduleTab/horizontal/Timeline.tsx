@@ -2,7 +2,10 @@ import { useMemo } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
 import { useScheduleData } from "@/hooks/useScheduleData";
-import { calculateTimelineData } from "@/lib/timelineCalculator";
+import {
+  calculateScheduleWindow,
+  calculateTimelineData,
+} from "@/lib/timelineCalculator";
 import { StageLabels } from "./StageLabels";
 import { TimelineContainer } from "./TimelineContainer";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
@@ -35,6 +38,13 @@ export function Timeline() {
     time: selectedTime,
     stages: selectedStages,
   } = useTimelineUrlState("timeline");
+
+  // From the UNFILTERED schedule: the window that gates time-awareness (Now
+  // pill, mount-time now-rule), immune to the filters applied below.
+  const scheduleWindow = useMemo(
+    () => calculateScheduleWindow(scheduleDays),
+    [scheduleDays],
+  );
 
   const timelineData = useMemo(() => {
     if (!edition.start_date || !edition.end_date) {
@@ -138,6 +148,7 @@ export function Timeline() {
           timezone={festival.timezone}
           scheduleDays={scheduleDays}
           selectedDay={selectedDay}
+          scheduleWindow={scheduleWindow}
           now={now}
         />
       </div>

@@ -1,5 +1,6 @@
 import { isValid, parseISO } from "date-fns";
 import { fromZonedTime } from "date-fns-tz";
+import type { ScheduleWindow } from "@/lib/timelineCalculator";
 
 export interface TimelineMountMomentInput {
   /** Raw `scrollTo` search param, if present in the URL. */
@@ -8,14 +9,14 @@ export interface TimelineMountMomentInput {
   day: string;
   /** Festival's IANA timezone, used to resolve the day filter's start. */
   timezone: string;
-  /**
-   * Timeline geometry origin (earliest moment on the timeline) - also the
-   * start of the "festival window" the now-rule checks against, see
-   * `isNowWithinFestivalWindow`.
-   */
+  /** Timeline geometry origin (earliest moment on the rendered strip). */
   festivalStart: Date;
-  /** End of the rendered timeline strip - the window's other bound. */
-  festivalEnd: Date;
+  /**
+   * The UNFILTERED schedule's window (see `calculateScheduleWindow`), used
+   * by the now-rule so an active stage/time filter can't shrink the window
+   * and suppress the rule mid-festival. Null when no set has a time yet.
+   */
+  scheduleWindow: ScheduleWindow | null;
   /** Current moment, injected by the caller (never computed in here). */
   now: Date;
 }
@@ -28,7 +29,8 @@ const NOW_CONTEXT_MS = 60 * 60 * 1000; // ~1h of context before "now"
  *
  *   1. `scrollTo` from the URL, if present and parseable.
  *   2. The start of the active `day` filter, if one is set.
- *   3. Now minus ~1h of context, if `now` falls inside the festival window.
+ *   3. Now minus ~1h of context (clamped to the window start), if `now`
+ *      falls inside the unfiltered schedule window.
  *   4. The festival start (timeline origin), as the final fallback.
  */
 export function resolveTimelineMountMoment(
@@ -37,20 +39,25 @@ export function resolveTimelineMountMoment(
   return (
     momentFromScrollTo(input.scrollTo) ??
     momentFromDayFilter(input.day, input.timezone) ??
-    momentFromNow(input.now, input.festivalStart, input.festivalEnd) ??
+    momentFromNow(input.now, input.scheduleWindow) ??
     input.festivalStart
   );
 }
 
 /**
- * Whether `now` falls inside the festival window - the rendered timeline's
- * own `festivalStart`/`festivalEnd` bounds (from `TimelineData`), not the
- * edition's raw `start_date`/`end_date`. Those bounds already fold in the
- * actual earliest/latest set times, so a moment inside this window is
- * guaranteed to land on the rendered strip when converted via
- * `timeToOffset` - the edition's calendar dates alone (parsed at UTC
- * midnight) would risk the last festival day's evening sets reading as
- * "outside the window". Inclusive of both ends.
+ * Whether `now` falls inside a festival window (inclusive of both ends).
+ * The window comes from actual set times rather than the edition's raw
+ * `start_date`/`end_date` calendar dates, which - parsed at UTC midnight -
+ * would risk the last festival day's evening sets reading as "outside".
+ * Two windows are relevant, and they differ when filters are active:
+ *
+ *   - The UNFILTERED schedule window (`calculateScheduleWindow`) gates the
+ *     Now pill and the mount-precedence now-rule, so a stage/time filter
+ *     can't hide time-awareness mid-festival as a side effect.
+ *   - The rendered strip's bounds (`TimelineData.festivalStart`/
+ *     `festivalEnd`, computed from the FILTERED subset) gate the
+ *     current-time indicator, which can only be drawn meaningfully on the
+ *     strip that's actually rendered.
  */
 export function isNowWithinFestivalWindow(
   now: Date,
@@ -81,11 +88,16 @@ function momentFromDayFilter(day: string, timezone: string): Date | null {
 
 function momentFromNow(
   now: Date,
-  festivalStart: Date,
-  festivalEnd: Date,
+  scheduleWindow: ScheduleWindow | null,
 ): Date | null {
-  if (!isNowWithinFestivalWindow(now, festivalStart, festivalEnd)) return null;
-  return new Date(now.getTime() - NOW_CONTEXT_MS);
+  if (!scheduleWindow) return null;
+  if (!isNowWithinFestivalWindow(now, scheduleWindow.start, scheduleWindow.end))
+    return null;
+  // Clamped so a "now" within the window's first hour doesn't resolve to a
+  // moment before the window even opens.
+  return new Date(
+    Math.max(now.getTime() - NOW_CONTEXT_MS, scheduleWindow.start.getTime()),
+  );
 }
 
 /**

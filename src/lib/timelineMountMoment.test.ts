@@ -8,7 +8,8 @@ import {
 const TIMEZONE = "Europe/Lisbon"; // UTC+1 in July (WEST)
 const FESTIVAL_START = new Date("2025-07-12T10:00:00Z");
 const FESTIVAL_END = new Date("2025-07-14T23:00:00Z");
-// Comfortably inside [FESTIVAL_START, FESTIVAL_END].
+const SCHEDULE_WINDOW = { start: FESTIVAL_START, end: FESTIVAL_END };
+// Comfortably inside the schedule window.
 const NOW_INSIDE_WINDOW = new Date("2025-07-13T20:00:00Z");
 // Before the festival window opens.
 const NOW_BEFORE_WINDOW = new Date("2025-07-10T10:00:00Z");
@@ -22,7 +23,7 @@ describe("resolveTimelineMountMoment", () => {
       day: "2025-07-12",
       timezone: TIMEZONE,
       festivalStart: FESTIVAL_START,
-      festivalEnd: FESTIVAL_END,
+      scheduleWindow: SCHEDULE_WINDOW,
       now: NOW_INSIDE_WINDOW,
     });
 
@@ -37,7 +38,7 @@ describe("resolveTimelineMountMoment", () => {
       day: "2025-07-13",
       timezone: TIMEZONE,
       festivalStart: FESTIVAL_START,
-      festivalEnd: FESTIVAL_END,
+      scheduleWindow: SCHEDULE_WINDOW,
       now: NOW_INSIDE_WINDOW,
     });
 
@@ -53,7 +54,7 @@ describe("resolveTimelineMountMoment", () => {
       day: "2025-07-13",
       timezone: TIMEZONE,
       festivalStart: FESTIVAL_START,
-      festivalEnd: FESTIVAL_END,
+      scheduleWindow: SCHEDULE_WINDOW,
       now: NOW_INSIDE_WINDOW,
     });
 
@@ -68,7 +69,7 @@ describe("resolveTimelineMountMoment", () => {
       day: "all",
       timezone: TIMEZONE,
       festivalStart: FESTIVAL_START,
-      festivalEnd: FESTIVAL_END,
+      scheduleWindow: SCHEDULE_WINDOW,
       now: NOW_INSIDE_WINDOW,
     });
 
@@ -77,13 +78,43 @@ describe("resolveTimelineMountMoment", () => {
     );
   });
 
+  it("clamps the now rule to the window start when now is within the window's first hour", () => {
+    // Window starting later than festivalStart, so a clamped result is
+    // distinguishable from the festivalStart fallback.
+    const windowStart = new Date("2025-07-12T16:00:00Z");
+    const nowNearWindowStart = new Date("2025-07-12T16:10:00Z"); // 10 minutes in
+    const moment = resolveTimelineMountMoment({
+      scrollTo: undefined,
+      day: "all",
+      timezone: TIMEZONE,
+      festivalStart: FESTIVAL_START,
+      scheduleWindow: { start: windowStart, end: FESTIVAL_END },
+      now: nowNearWindowStart,
+    });
+
+    expect(moment.getTime()).toBe(windowStart.getTime());
+  });
+
+  it("falls back to festivalStart when the schedule window is null (no timed sets)", () => {
+    const moment = resolveTimelineMountMoment({
+      scrollTo: undefined,
+      day: "all",
+      timezone: TIMEZONE,
+      festivalStart: FESTIVAL_START,
+      scheduleWindow: null,
+      now: NOW_INSIDE_WINDOW,
+    });
+
+    expect(moment.getTime()).toBe(FESTIVAL_START.getTime());
+  });
+
   it("falls back to festivalStart when now is before the festival window", () => {
     const moment = resolveTimelineMountMoment({
       scrollTo: undefined,
       day: "all",
       timezone: TIMEZONE,
       festivalStart: FESTIVAL_START,
-      festivalEnd: FESTIVAL_END,
+      scheduleWindow: SCHEDULE_WINDOW,
       now: NOW_BEFORE_WINDOW,
     });
 
@@ -96,7 +127,7 @@ describe("resolveTimelineMountMoment", () => {
       day: "all",
       timezone: TIMEZONE,
       festivalStart: FESTIVAL_START,
-      festivalEnd: FESTIVAL_END,
+      scheduleWindow: SCHEDULE_WINDOW,
       now: NOW_AFTER_WINDOW,
     });
 
@@ -109,7 +140,7 @@ describe("resolveTimelineMountMoment", () => {
       day: "all",
       timezone: TIMEZONE,
       festivalStart: FESTIVAL_START,
-      festivalEnd: FESTIVAL_END,
+      scheduleWindow: SCHEDULE_WINDOW,
       now: NOW_AFTER_WINDOW,
     });
 
@@ -122,7 +153,7 @@ describe("resolveTimelineMountMoment", () => {
       day: "2025-07-13",
       timezone: TIMEZONE,
       festivalStart: FESTIVAL_START,
-      festivalEnd: FESTIVAL_END,
+      scheduleWindow: SCHEDULE_WINDOW,
       now: NOW_INSIDE_WINDOW,
     });
 
@@ -137,7 +168,7 @@ describe("resolveTimelineMountMoment", () => {
       day: "2025-07-13",
       timezone: TIMEZONE,
       festivalStart: FESTIVAL_START,
-      festivalEnd: FESTIVAL_END,
+      scheduleWindow: SCHEDULE_WINDOW,
       now: NOW_INSIDE_WINDOW,
     });
 

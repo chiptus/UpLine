@@ -3,7 +3,11 @@ import { TimeScale } from "./TimeScale";
 import { StageRow } from "./StageRow";
 import { TimelineToolbar } from "./TimelineToolbar";
 import { CurrentTimeIndicator } from "./CurrentTimeIndicator";
-import { timeToOffset, type TimelineData } from "@/lib/timelineCalculator";
+import {
+  timeToOffset,
+  type ScheduleWindow,
+  type TimelineData,
+} from "@/lib/timelineCalculator";
 import { isNowWithinFestivalWindow } from "@/lib/timelineMountMoment";
 import type { ScheduleDay } from "@/hooks/useScheduleData";
 import { useTimelineScrollSync } from "@/hooks/useTimelineScrollSync";
@@ -13,6 +17,7 @@ interface TimelineContainerProps {
   timezone: string;
   scheduleDays: ScheduleDay[];
   selectedDay: string;
+  scheduleWindow: ScheduleWindow | null;
   now: Date;
 }
 
@@ -21,6 +26,7 @@ export function TimelineContainer({
   timezone,
   scheduleDays,
   selectedDay,
+  scheduleWindow,
   now,
 }: TimelineContainerProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -28,11 +34,18 @@ export function TimelineContainer({
   const { jumpTo } = useTimelineScrollSync({
     scrollContainerRef,
     festivalStart: timelineData.festivalStart,
-    festivalEnd: timelineData.festivalEnd,
+    scheduleWindow,
     timezone,
     now,
   });
 
+  // The pill is gated on the UNFILTERED schedule window so an active
+  // stage/time filter can't hide it mid-festival as a side effect; the
+  // indicator is gated on the rendered strip's own (filtered) bounds, since
+  // it can only be drawn meaningfully inside the strip.
+  const showNowButton =
+    scheduleWindow !== null &&
+    isNowWithinFestivalWindow(now, scheduleWindow.start, scheduleWindow.end);
   const showNowIndicator = isNowWithinFestivalWindow(
     now,
     timelineData.festivalStart,
@@ -46,7 +59,7 @@ export function TimelineContainer({
         selectedDay={selectedDay}
         timezone={timezone}
         onJumpToDay={jumpTo}
-        showNowButton={showNowIndicator}
+        showNowButton={showNowButton}
         onJumpToNow={() => jumpTo(now)}
       />
       <div

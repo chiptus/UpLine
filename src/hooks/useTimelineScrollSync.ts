@@ -56,7 +56,10 @@ export function useTimelineScrollSync({
   const navigate = useNavigate({ from: route });
 
   const hasCenteredOnMountRef = useRef(false);
-  const suppressNextScrollEventRef = useRef(false);
+  // Position of the last programmatic scroll; scroll events reporting this
+  // position are ignored (a browser may fire more than one for a single
+  // scrollLeft write), so only genuine user scrolling reaches the URL.
+  const programmaticScrollLeftRef = useRef<number | null>(null);
 
   useLayoutEffect(() => {
     if (hasCenteredOnMountRef.current) return;
@@ -77,7 +80,7 @@ export function useTimelineScrollSync({
     );
 
     if (targetScrollLeft !== container.scrollLeft) {
-      suppressNextScrollEventRef.current = true;
+      programmaticScrollLeftRef.current = targetScrollLeft;
       container.scrollLeft = targetScrollLeft;
     }
     // Mount-only positioning: intentionally does not re-run when scrollTo/day
@@ -92,9 +95,13 @@ export function useTimelineScrollSync({
     let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 
     function handleScroll() {
-      if (suppressNextScrollEventRef.current) {
-        suppressNextScrollEventRef.current = false;
-        return;
+      const programmaticLeft = programmaticScrollLeftRef.current;
+      if (programmaticLeft !== null) {
+        const el = scrollContainerRef.current;
+        if (el && Math.abs(el.scrollLeft - programmaticLeft) <= 1) {
+          return;
+        }
+        programmaticScrollLeftRef.current = null;
       }
 
       if (debounceTimer) clearTimeout(debounceTimer);

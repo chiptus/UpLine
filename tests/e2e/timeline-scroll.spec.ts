@@ -119,20 +119,22 @@ test.describe("Timeline scroll position (scrollTo URL state)", () => {
     );
 
     const setLink = page.locator('a[href*="/sets/"]').first();
-    if (await setLink.isVisible().catch(() => false)) {
-      await setLink.click();
-      await page.goBack();
-      await expect(page).toHaveURL(urlWithScroll);
+    test.skip(
+      !(await setLink.isVisible().catch(() => false)),
+      "No set detail link rendered in this environment",
+    );
+    await setLink.click();
+    await page.goBack();
+    await expect(page).toHaveURL(urlWithScroll);
 
-      const restoredContainer = page.getByTestId("timeline-scroll-container");
-      await expect(restoredContainer).toBeVisible();
-      const scrollLeftAfterBack = await restoredContainer.evaluate(
-        (el) => el.scrollLeft,
-      );
-      expect(Math.abs(scrollLeftAfterBack - scrollLeftBeforeNav)).toBeLessThan(
-        10,
-      );
-    }
+    const restoredContainer = page.getByTestId("timeline-scroll-container");
+    await expect(restoredContainer).toBeVisible();
+    const scrollLeftAfterBack = await restoredContainer.evaluate(
+      (el) => el.scrollLeft,
+    );
+    expect(Math.abs(scrollLeftAfterBack - scrollLeftBeforeNav)).toBeLessThan(
+      10,
+    );
 
     // A full reload of the same URL should independently restore the
     // viewport position via mount-time centering on scrollTo.

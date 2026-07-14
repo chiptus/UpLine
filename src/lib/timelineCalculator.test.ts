@@ -75,6 +75,13 @@ describe("offsetToTime", () => {
     expect(offsetToTime(offset, origin).getTime()).toBe(moment.getTime());
   });
 
+  it("is the inverse of timeToOffset for sub-minute moments", () => {
+    const origin = new Date("2024-07-01T08:00:00Z");
+    const moment = new Date("2024-07-01T10:37:42.500Z");
+    const offset = timeToOffset(moment, origin);
+    expect(offsetToTime(offset, origin).getTime()).toBe(moment.getTime());
+  });
+
   it("round-trips through timeToOffset for negative offsets", () => {
     const origin = new Date("2024-07-01T12:00:00Z");
     const moment = new Date("2024-07-01T10:15:00Z");

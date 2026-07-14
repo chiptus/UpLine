@@ -8,6 +8,7 @@ import { TimelineContainer } from "./TimelineContainer";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { useSetsByEditionQuery as useEditionSetsQuery } from "@/api/sets/useSetsByEdition";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
+import { useNow } from "@/hooks/useNow";
 import { getFestivalHour } from "@/lib/timeUtils";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
@@ -19,6 +20,7 @@ export function Timeline() {
     from: "/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline",
   });
   const { canShowTime } = useScheduleReveal();
+  const now = useNow();
   const { data: editionSets = [], isLoading: setsLoading } =
     useEditionSetsQuery(edition.id);
   const { data: stages } = useSuspenseQuery(stagesByEditionQuery(edition.id));
@@ -136,6 +138,7 @@ export function Timeline() {
           timezone={festival.timezone}
           scheduleDays={scheduleDays}
           selectedDay={selectedDay}
+          now={now}
         />
       </div>
     </div>

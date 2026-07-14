@@ -8,9 +8,19 @@ export interface TimelineMountMomentInput {
   day: string;
   /** Festival's IANA timezone, used to resolve the day filter's start. */
   timezone: string;
-  /** Timeline geometry origin (earliest moment on the timeline). */
+  /**
+   * Timeline geometry origin (earliest moment on the timeline) - also the
+   * start of the "festival window" the now-rule checks against, see
+   * `isNowWithinFestivalWindow`.
+   */
   festivalStart: Date;
+  /** End of the rendered timeline strip - the window's other bound. */
+  festivalEnd: Date;
+  /** Current moment, injected by the caller (never computed in here). */
+  now: Date;
 }
+
+const NOW_CONTEXT_MS = 60 * 60 * 1000; // ~1h of context before "now"
 
 /**
  * Decides which moment the timeline viewport should be centered on when the
@@ -18,11 +28,8 @@ export interface TimelineMountMomentInput {
  *
  *   1. `scrollTo` from the URL, if present and parseable.
  *   2. The start of the active `day` filter, if one is set.
- *   3. The festival start (timeline origin).
- *
- * A future rule ("now, minus 1h, when now falls inside the festival window")
- * slots in as an additional candidate between the day filter and the
- * festival-start fallback (see issue #194).
+ *   3. Now minus ~1h of context, if `now` falls inside the festival window.
+ *   4. The festival start (timeline origin), as the final fallback.
  */
 export function resolveTimelineMountMoment(
   input: TimelineMountMomentInput,
@@ -30,7 +37,29 @@ export function resolveTimelineMountMoment(
   return (
     momentFromScrollTo(input.scrollTo) ??
     momentFromDayFilter(input.day, input.timezone) ??
+    momentFromNow(input.now, input.festivalStart, input.festivalEnd) ??
     input.festivalStart
+  );
+}
+
+/**
+ * Whether `now` falls inside the festival window - the rendered timeline's
+ * own `festivalStart`/`festivalEnd` bounds (from `TimelineData`), not the
+ * edition's raw `start_date`/`end_date`. Those bounds already fold in the
+ * actual earliest/latest set times, so a moment inside this window is
+ * guaranteed to land on the rendered strip when converted via
+ * `timeToOffset` - the edition's calendar dates alone (parsed at UTC
+ * midnight) would risk the last festival day's evening sets reading as
+ * "outside the window". Inclusive of both ends.
+ */
+export function isNowWithinFestivalWindow(
+  now: Date,
+  festivalStart: Date,
+  festivalEnd: Date,
+): boolean {
+  return (
+    now.getTime() >= festivalStart.getTime() &&
+    now.getTime() <= festivalEnd.getTime()
   );
 }
 
@@ -48,6 +77,15 @@ function momentFromDayFilter(day: string, timezone: string): Date | null {
   } catch {
     return null;
   }
+}
+
+function momentFromNow(
+  now: Date,
+  festivalStart: Date,
+  festivalEnd: Date,
+): Date | null {
+  if (!isNowWithinFestivalWindow(now, festivalStart, festivalEnd)) return null;
+  return new Date(now.getTime() - NOW_CONTEXT_MS);
 }
 
 /**

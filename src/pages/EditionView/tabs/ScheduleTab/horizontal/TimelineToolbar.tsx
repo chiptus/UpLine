@@ -1,4 +1,5 @@
 import { DayJumpButtons } from "./DayJumpButtons";
+import { NowButton } from "./NowButton";
 import type { ScheduleDay } from "@/hooks/useScheduleData";
 
 interface TimelineToolbarProps {
@@ -6,12 +7,14 @@ interface TimelineToolbarProps {
   selectedDay: string;
   timezone: string;
   onJumpToDay: (moment: Date) => void;
+  showNowButton: boolean;
+  onJumpToNow: () => void;
 }
 
 /**
- * Slim sticky toolbar above the Timeline strip. Only hosts day-jump buttons
- * for now; the Now pill, "Show overview" toggle, and Filters trigger
- * (upcoming stacked tickets) will render alongside them here.
+ * Slim sticky toolbar above the Timeline strip. Hosts day-jump buttons and
+ * the Now pill; the "Show overview" toggle and Filters trigger (upcoming
+ * stacked tickets) will render alongside them here.
  *
  * Navigation only ever scrolls - it never filters the strip. When a `day`
  * filter is active, nav operates on what's rendered, so only that day's
@@ -22,13 +25,15 @@ export function TimelineToolbar({
   selectedDay,
   timezone,
   onJumpToDay,
+  showNowButton,
+  onJumpToNow,
 }: TimelineToolbarProps) {
   const visibleDays =
     selectedDay === "all"
       ? days
       : days.filter((day) => day.date === selectedDay);
 
-  if (visibleDays.length === 0) return null;
+  if (visibleDays.length === 0 && !showNowButton) return null;
 
   return (
     <div
@@ -40,6 +45,7 @@ export function TimelineToolbar({
         timezone={timezone}
         onJumpToDay={onJumpToDay}
       />
+      {showNowButton && <NowButton onJumpToNow={onJumpToNow} />}
     </div>
   );
 }

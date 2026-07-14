@@ -13,7 +13,11 @@ const SCROLL_ROUND_MINUTES = 5;
 interface UseTimelineScrollSyncOptions {
   scrollContainerRef: RefObject<HTMLDivElement>;
   festivalStart: Date;
+  festivalEnd: Date;
   timezone: string;
+  /** Current moment, injected by the caller (see `useNow`). Only read once,
+   * at mount, to resolve the "now" mount-precedence rule. */
+  now: Date;
 }
 
 /**
@@ -21,7 +25,8 @@ interface UseTimelineScrollSyncOptions {
  * `scrollTo` URL param:
  *
  *   - On mount only: centers the viewport per `resolveTimelineMountMoment`'s
- *     precedence (scrollTo -> day filter -> festival start).
+ *     precedence (scrollTo -> day filter -> now-1h inside the festival
+ *     window -> festival start).
  *   - On user scroll: after the scroll settles (~300ms), writes the moment
  *     now centered in the viewport back to the URL (history replace),
  *     rounded to 5-minute granularity.
@@ -41,7 +46,9 @@ interface UseTimelineScrollSyncOptions {
 export function useTimelineScrollSync({
   scrollContainerRef,
   festivalStart,
+  festivalEnd,
   timezone,
+  now,
 }: UseTimelineScrollSyncOptions) {
   const route =
     "/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline" as const;
@@ -72,6 +79,8 @@ export function useTimelineScrollSync({
       day,
       timezone,
       festivalStart,
+      festivalEnd,
+      now,
     });
 
     const targetScrollLeft = Math.max(

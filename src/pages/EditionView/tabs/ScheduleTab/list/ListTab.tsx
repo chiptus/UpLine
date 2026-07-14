@@ -1,13 +1,20 @@
 import { FestivalTimeBadge } from "../FestivalTimeBadge";
 import { ListSchedule } from "./ListSchedule";
-import { ListFilters } from "./ListFilters";
+import { ScheduleFilterSheet } from "../ScheduleFilterSheet";
+import { FilterContainer } from "@/components/filters/FilterContainer";
 
 export function ScheduleTabList() {
   return (
     <>
       <FestivalTimeBadge />
 
-      <ListFilters />
+      <FilterContainer>
+        <div className="flex items-center gap-2 flex-wrap">
+          <h3 className="text-purple-100 font-medium">Filters</h3>
+          <div className="ml-auto" />
+          <ScheduleFilterSheet tab="list" />
+        </div>
+      </FilterContainer>
       <ListSchedule />
     </>
   );

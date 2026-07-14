@@ -49,7 +49,10 @@ export function DayFilterSelect({
         <label className="text-sm font-medium text-purple-200">Day</label>
       </div>
       <Select value={selectedDay} onValueChange={onDayChange}>
-        <SelectTrigger className="bg-white/10 border-purple-400/30 text-purple-100">
+        <SelectTrigger
+          data-testid="day-filter-trigger"
+          className="bg-white/10 border-purple-400/30 text-purple-100"
+        >
           <SelectValue />
         </SelectTrigger>
         <SelectContent className="bg-gray-800 border-purple-400/30">

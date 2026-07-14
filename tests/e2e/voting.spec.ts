@@ -6,6 +6,7 @@ import {
   type Page,
 } from "@playwright/test";
 import { TestHelpers } from "../utils/test-helpers";
+import { VOTE_CONFIG, type VoteType } from "../../src/lib/voteConfig";
 
 // Seeded via supabase/seed.sql: "Test festival" edition "Boom Festival 2025".
 const EDITION_SETS_PATH = "/festivals/test/editions/2025/sets";
@@ -13,11 +14,16 @@ const EDITION_SETS_PATH = "/festivals/test/editions/2025/sets";
 // Each scenario below targets a distinct seeded set so that parallel runs
 // (and parallel Playwright projects) never race over the same votes row.
 test.describe("Voting on a set", () => {
+  // These tests share a single signed-in page/context across the whole
+  // describe block (see beforeAll below), so they must never run
+  // concurrently regardless of the configured worker count.
+  test.describe.configure({ mode: "serial" });
+
   let context: BrowserContext;
   let page: Page;
 
-  test.beforeAll(async ({ browser }) => {
-    context = await browser.newContext();
+  test.beforeAll(async ({ browser, baseURL }) => {
+    context = await browser.newContext({ baseURL });
     page = await context.newPage();
     await new TestHelpers(page).signIn();
   });
@@ -87,19 +93,25 @@ test.describe("Voting on a set", () => {
     const mustGoCount = voteCount(setCard, "mustGo");
     const interestedCount = voteCount(setCard, "interested");
 
-    await mustGo.click();
-    await expect(mustGo).toHaveAttribute("aria-pressed", "true");
+    // Read baselines before voting starts, while nothing is in flight —
+    // reading a count right after a click races the count's refetch (it
+    // updates only once the vote mutation settles, unlike aria-pressed
+    // which flips optimistically).
+    const mustGoCountBeforeVote = await readCount(mustGoCount);
+    const interestedCountBeforeVote = await readCount(interestedCount);
 
-    const mustGoCountAfterFirstVote = await readCount(mustGoCount);
-    const interestedCountBeforeSwitch = await readCount(interestedCount);
+    await mustGo.click();
+
+    await expect(mustGo).toHaveAttribute("aria-pressed", "true");
+    await expect(mustGoCount).toHaveText(String(mustGoCountBeforeVote + 1));
 
     await interested.click();
 
     await expect(interested).toHaveAttribute("aria-pressed", "true");
     await expect(mustGo).toHaveAttribute("aria-pressed", "false");
-    await expect(mustGoCount).toHaveText(String(mustGoCountAfterFirstVote - 1));
+    await expect(mustGoCount).toHaveText(String(mustGoCountBeforeVote));
     await expect(interestedCount).toHaveText(
-      String(interestedCountBeforeSwitch + 1),
+      String(interestedCountBeforeVote + 1),
     );
   });
 
@@ -108,14 +120,17 @@ test.describe("Voting on a set", () => {
     const mustGo = voteButton(setCard, "mustGo");
     const mustGoCount = voteCount(setCard, "mustGo");
 
+    const countBeforeVote = await readCount(mustGoCount);
+
     await mustGo.click();
+
     await expect(mustGo).toHaveAttribute("aria-pressed", "true");
-    const countAfterVote = await readCount(mustGoCount);
+    await expect(mustGoCount).toHaveText(String(countBeforeVote + 1));
 
     await mustGo.click();
 
     await expect(mustGo).toHaveAttribute("aria-pressed", "false");
-    await expect(mustGoCount).toHaveText(String(countAfterVote - 1));
+    await expect(mustGoCount).toHaveText(String(countBeforeVote));
   });
 });
 
@@ -147,18 +162,16 @@ async function goToSet(page: Page, setName: string): Promise<Locator> {
   return setCard;
 }
 
-function voteButton(
-  setCard: Locator,
-  voteType: "mustGo" | "interested" | "wontGo",
-): Locator {
-  return setCard.locator(`[data-testid="vote-button-${voteType}"]:visible`);
+function voteButton(setCard: Locator, voteType: VoteType): Locator {
+  return setCard.locator(
+    `button[aria-label="${VOTE_CONFIG[voteType].label}"]:visible`,
+  );
 }
 
-function voteCount(
-  setCard: Locator,
-  voteType: "mustGo" | "interested" | "wontGo",
-): Locator {
-  return setCard.locator(`[data-testid="vote-count-${voteType}"]:visible`);
+function voteCount(setCard: Locator, voteType: VoteType): Locator {
+  return setCard.locator(
+    `[aria-label="${VOTE_CONFIG[voteType].label} vote count"]:visible`,
+  );
 }
 
 async function readCount(locator: Locator): Promise<number> {

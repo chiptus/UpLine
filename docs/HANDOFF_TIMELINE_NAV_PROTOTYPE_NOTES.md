@@ -1,0 +1,142 @@
+# Prototype notes — timeline navigation, filtering & my-vote chips
+
+Copied verbatim (as of this branch's creation) from
+`src/pages/EditionView/tabs/ScheduleTab/horizontal/prototype/NOTES.md` on
+branch `claude/timeline-nav-prototype` /
+[PR #121](https://github.com/chiptus/UpLine/pull/121) — the actual prototype
+code lives there, throwaway, not merged. This copy exists so the verdicts
+survive independently of that branch/PR being deleted. See
+`HANDOFF_TIMELINE_NAV_PRD.md` in this directory for the framing and next
+steps.
+
+---
+
+**Throwaway code.** Three variants of timeline navigation + my-vote filtering,
+switchable via `?variant=`, on the existing
+`/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline` route.
+Delete this folder (plus `src/components/prototype/` and the two
+PROTOTYPE-marked blocks in `src/lib/searchSchemas.ts` and
+`../Timeline.tsx`) once the verdicts below are captured.
+
+## How to run
+
+```
+pnpm run dev
+```
+
+Open any edition's timeline with a variant param, e.g.:
+
+```
+/festivals/<festival>/editions/<edition>/schedule/timeline?variant=a
+```
+
+Flip variants with the floating bottom bar or the ←/→ keys. Without
+`?variant=`, the production timeline renders untouched (switcher included —
+it only mounts when a variant is active in the URL), so preview deploys can
+be shared safely.
+
+Demo affordances (prototype-only, the real implementation drops both):
+
+- "Now" is **faked** to ~60% into the edition window (still ticks every 60s)
+  so the Now button + current-time indicator are always demoable.
+- Logged out, "my votes" are **fake** (deterministic per set); logged in, your
+  real votes are used. The real implementation hides the chips when logged out.
+
+## The variants
+
+| | Navigation | Scroll on jump | My-vote chips | Now indicator |
+|---|---|---|---|---|
+| **a — Slim jump bar** | sticky ghost day buttons + Now pill (agreed design, literal) | smooth | inside filters drawer | thin fuchsia line + dot |
+| **b — Segmented rail** | segmented control highlighting the day at viewport center | instant | inline row above strip, with counts | gradient line + "now HH:mm" bubble |
+| **c — Mini-map** | collapsed by default to a slim day-button strip (same as a); an optional "Show overview" toggle reveals the draggable density map | smooth | compact icon chips in map header | dashed white line |
+
+All variants share the agreed `scrollTo` URL mechanics (`useScrollToUrl.ts`):
+debounced ~300ms scroll-idle write, 5-minute rounding, history replace,
+one-way ownership, mount precedence `scrollTo` → day filter → now−1h →
+festival start. Back-from-a-set-page restores position in every variant.
+
+### Round 2 changes, from first-round feedback
+
+Two users tried round 1: one preferred **a**, the other loved **c**'s mini-map
+for being visual — but flagged the always-visible 3-variant switcher as
+intimidating without a label. Fed back in:
+
+- **Filters moved into a bottom sheet** (`PrototypeFilters.tsx`, via shadcn
+  `Sheet`) instead of an inline expanding panel, in all three variants — the
+  schedule stays the visual focus instead of competing with an expanded
+  filter block for space.
+- **Mini-map (c) now collapses to a's slim day-strip by default**, with a
+  "Show overview" toggle to reveal the full colored density map. What the
+  tester actually valued was one control doing "jump to a day" + "filter by
+  my votes" together — not the density map being visually loud all the time.
+- **Day labels now include the date** (`"Thu 13"`, not bare `"Thu"`) — a real
+  bug, not a preference: multi-weekend festivals (Tomorrowland's two
+  long weekends) repeat weekday names, and the bare-weekday jump bar/segmented
+  rail/mini-map ticks had no way to tell the two Thursdays apart.
+
+## Questions to answer — VERDICTS (tested with 2 real users, round 1 + round 2)
+
+1. **Does URL-driven jumping feel right?** Smooth (a, c) vs instant (b) on
+   day/Now clicks; jank while swiping from the debounced `scrollTo` writes;
+   does back-restoration land where you expect?
+   - **VERDICT: yes.** No jank reported from the debounced writes; a tester
+     called the smooth transition a "wow." Reload and back-navigation both
+     restored position correctly. **Smooth wins over instant** (b's approach
+     dropped).
+2. **Does the nav-vs-filter split read?** Do test users reach for the jump bar
+   to move and the Filters panel to narrow, or do they tap "Fri" expecting a
+   filter? (b's active-day highlight may make it read *more* like a filter —
+   that's deliberate, to probe the confusion.)
+   - **VERDICT: reads fine.** At least one tester found it "fairly clear" —
+     no one reached for a day button expecting it to filter.
+3. **Vote-chip placement and form.** In-panel (a) vs inline with counts (b) vs
+   compact-in-minimap (c)? Does "my schedule" (Must Go + Interested) feel like
+   a two-tap primary use case?
+   - **VERDICT: the standout feature.** A tester specifically called out that
+     it "does something amazing, filters just by my markers, exactly what's
+     needed." Confirms the two-tap "my schedule" hypothesis. **Winning form:
+     compact chips paired with the map/nav control** (c), not a separate
+     inline row (b) or panel-only (a) — one control doing "jump to a day" +
+     "filter by my votes" together is what landed, not the chips alone.
+4. **Current-time indicator + jump bar visual treatment.** Which of the three
+   treatments has enough contrast without shouting?
+   - **VERDICT: no complaints either way**, weak signal. Shipping with c's
+     dashed-line treatment since c is the overall winner — nothing in
+     testing argues for switching it.
+
+Open sub-question surfaced while building: when the day *filter* is active,
+the jump bar only shows the filtered day's button (nav operates on what's
+rendered). Right call, or should all days stay and clear the filter on jump?
+   - **VERDICT: keep current behavior** (only show the filtered day's
+     button) — decided directly with the product owner, **not** tested with
+     real users. Flag as lower-confidence than the others if revisited.
+
+## Winning direction: synthesized "c", not literally round 1's mini-map
+
+Round 1: one tester preferred **a**; the other loved **c**'s mini-map for
+being visual, but flagged the noise (always-visible density map, plain
+switcher) and general clutter. Round 2 folded that into a synthesis, and
+**that synthesis is the final winner**:
+
+- Collapsed by default to **a**'s slim day-strip + Now pill; an optional
+  "Show overview" toggle reveals the full draggable density map. What
+  testers valued was the control doing "jump to a day" + "filter by my
+  votes" together, not the map being loud all the time.
+- Filters live in a bottom sheet (`Sheet`, `side="bottom"`) instead of an
+  inline expanding panel, uniform on mobile and desktop (not tested against
+  a responsive desktop-side-sheet alternative — decided to keep one
+  interaction pattern rather than validate two).
+- The Filters trigger sits inline in the same toolbar row as the nav
+  controls (round 1 feedback: it sat alone on its own line, wasting space).
+- Day labels always carry the date (`"Thu 13"`) — see Round 2 note above,
+  a correctness fix for multi-weekend festivals, not a preference.
+
+## After verdicts
+
+Handed off via `/handoff` to a fresh session to run `/to-prd` and publish to
+GitHub Issues with `ready-for-agent`. Two pre-existing related issues found
+mid-prototype that the PRD session should reconcile: **#105** ("Jump to
+current time in the Schedule timeline") and **#154** (orphaned
+`TimelineControls.tsx`/`TimelineNavigation.tsx` stubs). Delete the prototype
+folder on PR #121 (see the deletion list at the top of the original) once
+the PRD is published.

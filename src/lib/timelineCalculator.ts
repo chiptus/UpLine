@@ -3,6 +3,18 @@ import type { ScheduleSet, ScheduleDay } from "@/hooks/useScheduleData";
 import type { Stage } from "@/api/stages/types";
 import { sortStagesByOrder } from "@/lib/stageUtils";
 
+const PX_PER_MINUTE = 2;
+
+export function timeToOffset(moment: Date, origin: Date): number {
+  const minutes = (moment.getTime() - origin.getTime()) / (60 * 1000);
+  return minutes * PX_PER_MINUTE;
+}
+
+export function offsetToTime(offset: number, origin: Date): Date {
+  const minutes = offset / PX_PER_MINUTE;
+  return new Date(origin.getTime() + minutes * 60 * 1000);
+}
+
 export interface HorizontalTimelineSet extends ScheduleSet {
   horizontalPosition?: {
     left: number;
@@ -48,15 +60,11 @@ export function calculateTimelineData(
     scheduleDays,
     stages,
     earliestTime,
-    (
-      set: ScheduleSet,
-      startMinutes: number,
-      duration: number,
-    ): HorizontalTimelineSet => {
+    (set: ScheduleSet, origin: Date): HorizontalTimelineSet => {
       if (!set.startTime || !set.endTime) return set;
 
-      const left = startMinutes * 2;
-      const width = Math.max(duration * 2, 100);
+      const left = timeToOffset(set.startTime, origin);
+      const width = Math.max(timeToOffset(set.endTime, set.startTime), 100);
 
       return {
         ...set,
@@ -68,10 +76,12 @@ export function calculateTimelineData(
     },
   );
 
+  const lastTimeSlot = timeSlots[timeSlots.length - 1];
+
   return {
     timeSlots,
     stages: unifiedStages,
-    totalWidth: totalHours * 120,
+    totalWidth: timeToOffset(lastTimeSlot, earliestTime),
     festivalStart: earliestTime,
     festivalEnd: latestTime,
   };
@@ -161,11 +171,7 @@ function processStageGroups<T extends ScheduleSet>(
   scheduleDays: ScheduleDay[],
   stages: Stage[],
   earliestTime: Date,
-  positionCalculator: (
-    set: ScheduleSet,
-    startMinutes: number,
-    duration: number,
-  ) => T,
+  positionCalculator: (set: ScheduleSet, origin: Date) => T,
 ): Array<{
   name: string;
   color: string | undefined;
@@ -180,15 +186,9 @@ function processStageGroups<T extends ScheduleSet>(
         allStageGroups[stage.id] = [];
       }
 
-      const enhancedSets = stage.sets.map((set): T => {
-        if (!set.startTime || !set.endTime)
-          return positionCalculator(set, 0, 0);
-
-        const startMinutes = differenceInMinutes(set.startTime, earliestTime);
-        const duration = differenceInMinutes(set.endTime, set.startTime);
-
-        return positionCalculator(set, startMinutes, duration);
-      });
+      const enhancedSets = stage.sets.map((set): T =>
+        positionCalculator(set, earliestTime),
+      );
 
       allStageGroups[stage.id].push(...enhancedSets);
     });

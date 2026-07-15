@@ -4,7 +4,8 @@ import { useRouteContext } from "@tanstack/react-router";
 import { useScheduleData } from "@/hooks/useScheduleData";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { useSetsByEditionQuery as useEditionSetsQuery } from "@/api/sets/useSetsByEdition";
-import { getFestivalDayKey, getFestivalHour } from "@/lib/timeUtils";
+import { getFestivalDayKey } from "@/lib/timeUtils";
+import { filterScheduleDays } from "@/lib/scheduleFilter";
 import { TimeSlotGroup } from "./TimeSlotGroup";
 import type { ScheduleSet } from "@/hooks/useScheduleData";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
@@ -40,64 +41,26 @@ export function ListSchedule() {
   const timeSlots = useMemo(() => {
     if (!scheduleDays.length) return [];
 
-    // Helper function to check if a set matches the day filter
-    function matchesDay(set: ScheduleSet) {
-      if (selectedDay === "all") return true;
-      if (!set.startTime) return false;
+    const filteredScheduleDays = filterScheduleDays(
+      scheduleDays,
+      { day: selectedDay, time: selectedTime, stages: selectedStages },
+      festival.timezone,
+    );
 
-      const setDate = getFestivalDayKey(
-        set.startTime.toISOString(),
-        festival.timezone,
-      );
-      return setDate === selectedDay;
-    }
-
-    // Helper function to check if a set matches the time filter
-    function matchesTime(set: ScheduleSet) {
-      if (selectedTime === "all") return true;
-      if (!set.startTime) return false;
-
-      const hour = getFestivalHour(
-        set.startTime.toISOString(),
-        festival.timezone,
-      );
-      if (hour === null) return false;
-      switch (selectedTime) {
-        case "morning":
-          return hour >= 6 && hour < 12;
-        case "afternoon":
-          return hour >= 12 && hour < 18;
-        case "evening":
-          return hour >= 18 && hour < 24;
-        default:
-          return true;
-      }
-    }
-
-    // Helper function to check if a set matches the stage filter
-    function matchesStage(stageName: string) {
-      if (selectedStages.length === 0) return true;
-      return selectedStages.includes(stageName);
-    }
-
-    // Collect all unique start times with filtering
+    // Flatten filtered days/stages into a single list, enriching each set
+    // with the stage name/color the group view needs. Sets without a
+    // startTime can't be placed into a time slot, so they're dropped here.
     const allSets: (ScheduleSet & {
       stageName: string;
       stageColor?: string;
     })[] = [];
 
-    scheduleDays.forEach((day) => {
+    filteredScheduleDays.forEach((day) => {
       day.stages.forEach((stage) => {
-        if (!matchesStage(stage.id)) {
-          console.log("Skipping stage:", stage.name, selectedStages);
-          return;
-        }
-
-        // Find the stage data to get color information
         const stageData = stages.find((s) => s.id === stage.id);
 
         stage.sets.forEach((set) => {
-          if (set.startTime && matchesDay(set) && matchesTime(set)) {
+          if (set.startTime) {
             allSets.push({
               ...set,
               stageName: stage.name,

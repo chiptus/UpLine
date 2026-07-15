@@ -4,29 +4,6 @@ import type { ScheduleDay } from "@/hooks/useScheduleData";
 
 const TIMEZONE = "Europe/Lisbon"; // UTC+1 in July (WEST)
 
-function buildDay(
-  date: string,
-  startTimes: (Date | undefined)[],
-): ScheduleDay {
-  return {
-    date,
-    displayDate: date,
-    stages: [
-      {
-        id: "stage-1",
-        name: "Main Stage",
-        stage_order: 0,
-        sets: startTimes.map((startTime, index) => ({
-          id: `set-${index}`,
-          name: `Set ${index}`,
-          artists: [],
-          startTime,
-        })),
-      },
-    ],
-  };
-}
-
 describe("getDayJumpMoment", () => {
   it("returns the earliest set start across all stages", () => {
     const day: ScheduleDay = {
@@ -84,3 +61,26 @@ describe("getDayJumpMoment", () => {
     expect(moment.getTime()).toBe(new Date("2025-07-12T23:00:00Z").getTime());
   });
 });
+
+function buildDay(
+  date: string,
+  startTimes: (Date | undefined)[],
+): ScheduleDay {
+  return {
+    date,
+    displayDate: date,
+    stages: [
+      {
+        id: "stage-1",
+        name: "Main Stage",
+        stage_order: 0,
+        sets: startTimes.map((startTime, index) => ({
+          id: `set-${index}`,
+          name: `Set ${index}`,
+          artists: [],
+          startTime,
+        })),
+      },
+    ],
+  };
+}

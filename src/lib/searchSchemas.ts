@@ -38,8 +38,6 @@ export const timelineSearchSchema = z.object({
   day: z.string().catch("all"),
   time: z.enum(["all", "morning", "afternoon", "evening"]).catch("all"),
   stages: z.array(z.string()).catch([]),
-  // The moment (ISO datetime) centered in the timeline viewport. Absent by
-  // default; only written once the user scrolls. See useTimelineScrollSync.
   scrollTo: z.string().optional().catch(undefined),
 });
 

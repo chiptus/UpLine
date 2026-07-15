@@ -71,8 +71,10 @@ export function useTimelineScrollSync({
     );
 
     if (targetScrollLeft !== container.scrollLeft) {
-      programmaticScrollLeftRef.current = targetScrollLeft;
       container.scrollLeft = targetScrollLeft;
+      // Read back: the browser clamps to the scrollable range, and the
+      // suppression check must match the position events will report.
+      programmaticScrollLeftRef.current = container.scrollLeft;
     }
     // Mount-only positioning: intentionally does not re-run when scrollTo/day
     // change afterwards (one-way ownership, URL -> scroll only on mount).

@@ -44,8 +44,10 @@ function matchesTimeOfDay(
 
 // Applies the day / time-of-day / stage predicates shared by both Schedule
 // views (Timeline and List). A day that doesn't match `criteria.day` is kept
-// as an entry with empty stages (rather than dropped), matching the
-// Timeline's day-strip layout, which needs every day present even when empty.
+// as an entry with empty stages (rather than dropped) purely to mirror the
+// original inline Timeline logic; the strip's axis bounds derive from the
+// remaining sets' times, so an empty day entry contributes nothing and
+// dropping it would render identically.
 export function filterScheduleDays(
   scheduleDays: ScheduleDay[],
   criteria: ScheduleFilterCriteria,

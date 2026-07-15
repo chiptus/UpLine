@@ -4,43 +4,6 @@ import type { ScheduleDay, ScheduleSet } from "@/hooks/useScheduleData";
 
 const TIMEZONE = "Europe/Lisbon";
 
-function makeSet(overrides: Partial<ScheduleSet> = {}): ScheduleSet {
-  return {
-    id: "set-1",
-    name: "A set",
-    artists: [],
-    startTime: new Date("2024-07-15T10:00:00Z"),
-    ...overrides,
-  };
-}
-
-function makeDay(overrides: Partial<ScheduleDay> = {}): ScheduleDay {
-  return {
-    date: "2024-07-15",
-    displayDate: "Monday, Jul 15",
-    stages: [
-      {
-        id: "stage-1",
-        name: "Main Stage",
-        stage_order: 1,
-        sets: [makeSet()],
-      },
-    ],
-    ...overrides,
-  };
-}
-
-function baseCriteria(
-  overrides: Partial<ScheduleFilterCriteria> = {},
-): ScheduleFilterCriteria {
-  return {
-    day: "all",
-    time: "all",
-    stages: [],
-    ...overrides,
-  };
-}
-
 describe("filterScheduleDays", () => {
   describe("day predicate", () => {
     it("keeps all days when day is 'all'", () => {
@@ -51,6 +14,10 @@ describe("filterScheduleDays", () => {
 
       const result = filterScheduleDays(days, baseCriteria(), TIMEZONE);
 
+      expect(result.map((day) => day.date)).toEqual([
+        "2024-07-15",
+        "2024-07-16",
+      ]);
       expect(result[0].stages).toHaveLength(1);
       expect(result[1].stages).toHaveLength(1);
     });
@@ -296,3 +263,40 @@ describe("filterScheduleDays", () => {
     });
   });
 });
+
+function makeSet(overrides: Partial<ScheduleSet> = {}): ScheduleSet {
+  return {
+    id: "set-1",
+    name: "A set",
+    artists: [],
+    startTime: new Date("2024-07-15T10:00:00Z"),
+    ...overrides,
+  };
+}
+
+function makeDay(overrides: Partial<ScheduleDay> = {}): ScheduleDay {
+  return {
+    date: "2024-07-15",
+    displayDate: "Monday, Jul 15",
+    stages: [
+      {
+        id: "stage-1",
+        name: "Main Stage",
+        stage_order: 1,
+        sets: [makeSet()],
+      },
+    ],
+    ...overrides,
+  };
+}
+
+function baseCriteria(
+  overrides: Partial<ScheduleFilterCriteria> = {},
+): ScheduleFilterCriteria {
+  return {
+    day: "all",
+    time: "all",
+    stages: [],
+    ...overrides,
+  };
+}

@@ -2,7 +2,6 @@ import { useCallback } from "react";
 import { useSearch, useNavigate } from "@tanstack/react-router";
 import type { TimelineSearch } from "@/lib/searchSchemas";
 
-export type TimelineView = TimelineSearch["view"];
 export type TimeFilter = TimelineSearch["time"];
 
 export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
@@ -12,17 +11,6 @@ export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
     from: route,
   });
   const navigate = useNavigate({ from: route });
-
-  const updateView = useCallback(
-    (view: TimelineView) => {
-      navigate({
-        to: ".",
-        search: (prev) => ({ ...prev, view }),
-        replace: true,
-      });
-    },
-    [navigate],
-  );
 
   const updateDay = useCallback(
     (day: string) => {
@@ -60,17 +48,15 @@ export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
   const clearFilters = useCallback(() => {
     navigate({
       to: ".",
-      search: (prev) => ({ view: prev.view }),
+      search: () => ({}),
       replace: true,
     });
   }, [navigate]);
 
   return {
-    view: state.view,
     day: state.day,
     time: state.time,
     stages: state.stages,
-    updateView,
     updateDay,
     updateTime,
     updateStages,

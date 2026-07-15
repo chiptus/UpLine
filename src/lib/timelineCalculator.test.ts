@@ -10,25 +10,6 @@ import type { Stage } from "@/api/stages/types";
 
 const PX_PER_MINUTE = 2;
 
-function makeSet(overrides: Partial<ScheduleSet> = {}): ScheduleSet {
-  return {
-    id: "set-1",
-    name: "Artist",
-    artists: [],
-    ...overrides,
-  };
-}
-
-function makeStage(overrides: Partial<Stage> = {}): Stage {
-  return {
-    id: "stage-1",
-    name: "Main Stage",
-    color: "#ff0000",
-    stage_order: 0,
-    ...overrides,
-  } as unknown as Stage;
-}
-
 describe("timeToOffset", () => {
   it("returns 0 when moment equals origin", () => {
     const origin = new Date("2024-07-01T10:00:00Z");
@@ -398,3 +379,22 @@ describe("calculateTimelineData", () => {
     );
   });
 });
+
+function makeSet(overrides: Partial<ScheduleSet> = {}): ScheduleSet {
+  return {
+    id: "set-1",
+    name: "Artist",
+    artists: [],
+    ...overrides,
+  };
+}
+
+function makeStage(overrides: Partial<Stage> = {}): Stage {
+  return {
+    id: "stage-1",
+    name: "Main Stage",
+    color: "#ff0000",
+    stage_order: 0,
+    ...overrides,
+  } as unknown as Stage;
+}

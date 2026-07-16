@@ -13,7 +13,6 @@ export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
   const state = useSearch({
     from: route,
     select: (search) => ({
-      view: search.view,
       day: search.day,
       time: search.time,
       stages: search.stages,

@@ -31,7 +31,6 @@ export function useUrlState() {
       search: (prev) => ({
         invite: prev.invite,
         groupId: prev.groupId,
-        votePerspective: prev.votePerspective,
       }),
       replace: true,
     });

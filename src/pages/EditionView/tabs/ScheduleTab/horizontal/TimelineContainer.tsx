@@ -68,7 +68,6 @@ export function TimelineContainer({
         className="overflow-x-auto overflow-y-hidden pb-20"
       >
         <div className="relative">
-          {/* Time Scale */}
           <TimeScale
             timeSlots={timelineData.timeSlots}
             totalWidth={timelineData.totalWidth}
@@ -76,7 +75,6 @@ export function TimelineContainer({
             timezone={timezone}
           />
 
-          {/* Stage Rows */}
           <div className="space-y-12 mt-28">
             {timelineData.stages.map((stage) => (
               <StageRow

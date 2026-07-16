@@ -12,7 +12,7 @@ import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { useSetsByEditionQuery as useEditionSetsQuery } from "@/api/sets/useSetsByEdition";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
 import { useNow } from "@/hooks/useNow";
-import { getFestivalHour } from "@/lib/timeUtils";
+import { filterScheduleDays } from "@/lib/scheduleFilter";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 import { ScheduleNotRevealedPlaceholder } from "../ScheduleNotRevealedPlaceholder";
@@ -51,49 +51,11 @@ export function Timeline() {
       return null;
     }
 
-    // Apply filters to scheduleDays
-    const filteredScheduleDays = scheduleDays.map((day) => {
-      // Filter by day
-      if (selectedDay !== "all" && day.date !== selectedDay) {
-        return { ...day, stages: [] }; // Empty day if not selected
-      }
-
-      // Filter stages and sets
-      const filteredStages = day.stages
-        .filter((stage) => {
-          // Filter by stage
-          if (selectedStages.length > 0 && !selectedStages.includes(stage.id)) {
-            return false;
-          }
-          return true;
-        })
-        .map((stage) => ({
-          ...stage,
-          sets: stage.sets.filter((set) => {
-            // Filter by time
-            if (selectedTime !== "all" && set.startTime) {
-              const hour = getFestivalHour(
-                set.startTime.toISOString(),
-                festival.timezone,
-              );
-              if (hour === null) return false;
-              switch (selectedTime) {
-                case "morning":
-                  return hour >= 6 && hour < 12;
-                case "afternoon":
-                  return hour >= 12 && hour < 18;
-                case "evening":
-                  return hour >= 18 && hour < 24;
-                default:
-                  return true;
-              }
-            }
-            return true;
-          }),
-        }));
-
-      return { ...day, stages: filteredStages };
-    });
+    const filteredScheduleDays = filterScheduleDays(
+      scheduleDays,
+      { day: selectedDay, time: selectedTime, stages: selectedStages },
+      festival.timezone,
+    );
 
     return calculateTimelineData(
       new Date(edition.start_date),

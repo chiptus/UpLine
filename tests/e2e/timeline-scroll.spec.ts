@@ -2,10 +2,12 @@ import { test, expect } from "@playwright/test";
 
 // Seeded in supabase/seed.sql: festival slug "test", edition slug "2025".
 const TIMELINE_PATH = "/festivals/test/editions/2025/schedule/timeline";
-const SCROLL_DEBOUNCE_WAIT_MS = 600; // > the ~300ms debounce in useTimelineScrollSync
+// Fast-forwarded past the ~300ms debounce via Playwright's fake clock.
+const SCROLL_DEBOUNCE_WAIT_MS = 600;
 
 test.describe("Timeline scroll position (scrollTo URL state)", () => {
   test("untouched timeline has no scrollTo in the URL", async ({ page }) => {
+    await page.clock.install();
     await page.goto(TIMELINE_PATH);
 
     const scrollContainer = page.getByTestId("timeline-scroll-container");
@@ -19,6 +21,7 @@ test.describe("Timeline scroll position (scrollTo URL state)", () => {
   test("scrolling writes a debounced, rounded scrollTo via history replace", async ({
     page,
   }) => {
+    await page.clock.install();
     await page.goto(TIMELINE_PATH);
 
     const scrollContainer = page.getByTestId("timeline-scroll-container");
@@ -35,10 +38,10 @@ test.describe("Timeline scroll position (scrollTo URL state)", () => {
     });
 
     // No write yet: still inside the debounce window.
-    await page.waitForTimeout(100);
+    await page.clock.fastForward(100);
     expect(new URL(page.url()).searchParams.has("scrollTo")).toBe(false);
 
-    await page.waitForTimeout(SCROLL_DEBOUNCE_WAIT_MS);
+    await page.clock.fastForward(SCROLL_DEBOUNCE_WAIT_MS);
     await expect(page).toHaveURL(/scrollTo=/);
 
     const scrollTo = new URL(page.url()).searchParams.get("scrollTo");
@@ -52,7 +55,7 @@ test.describe("Timeline scroll position (scrollTo URL state)", () => {
     await scrollContainer.evaluate((el) => {
       el.scrollLeft = el.scrollLeft + 200;
     });
-    await page.waitForTimeout(SCROLL_DEBOUNCE_WAIT_MS);
+    await page.clock.fastForward(SCROLL_DEBOUNCE_WAIT_MS);
 
     const historyLengthAfterScroll = await page.evaluate(
       () => window.history.length,
@@ -63,6 +66,7 @@ test.describe("Timeline scroll position (scrollTo URL state)", () => {
   test("opening a URL with scrollTo centers the viewport on that moment", async ({
     page,
   }) => {
+    await page.clock.install();
     await page.goto(TIMELINE_PATH);
 
     const scrollContainer = page.getByTestId("timeline-scroll-container");
@@ -74,7 +78,7 @@ test.describe("Timeline scroll position (scrollTo URL state)", () => {
     await scrollContainer.evaluate((el) => {
       el.scrollLeft = el.scrollLeft + 600;
     });
-    await page.waitForTimeout(SCROLL_DEBOUNCE_WAIT_MS);
+    await page.clock.fastForward(SCROLL_DEBOUNCE_WAIT_MS);
 
     const scrollTo = new URL(page.url()).searchParams.get("scrollTo");
     expect(scrollTo).toBeTruthy();
@@ -101,6 +105,7 @@ test.describe("Timeline scroll position (scrollTo URL state)", () => {
   test("back from a set detail page and a full reload both restore the viewport position", async ({
     page,
   }) => {
+    await page.clock.install();
     await page.goto(TIMELINE_PATH);
 
     const scrollContainer = page.getByTestId("timeline-scroll-container");
@@ -111,7 +116,7 @@ test.describe("Timeline scroll position (scrollTo URL state)", () => {
     await scrollContainer.evaluate((el) => {
       el.scrollLeft = el.scrollLeft + 500;
     });
-    await page.waitForTimeout(SCROLL_DEBOUNCE_WAIT_MS);
+    await page.clock.fastForward(SCROLL_DEBOUNCE_WAIT_MS);
 
     const urlWithScroll = page.url();
     const scrollLeftBeforeNav = await scrollContainer.evaluate(

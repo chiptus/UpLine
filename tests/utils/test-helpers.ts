@@ -24,7 +24,7 @@ export class TestHelpers {
     await this.page.goto("/");
     await this.acceptCookieConsentIfPresent();
 
-    await this.page.getByTestId("sign-in-button").click();
+    await this.page.getByRole("button", { name: /sign in/i }).click();
 
     const authDialog = this.page.getByRole("dialog");
     await expect(authDialog).toBeVisible();
@@ -37,7 +37,9 @@ export class TestHelpers {
     await this.page.locator("input[data-input-otp]").fill(otp);
     await this.page.getByRole("button", { name: /verify code/i }).click();
 
-    await expect(this.page.getByTestId("user-menu-trigger")).toBeVisible({
+    await expect(
+      this.page.getByRole("button", { name: /user menu/i }),
+    ).toBeVisible({
       timeout: 15000,
     });
 
@@ -97,14 +99,16 @@ export class TestHelpers {
    * Sign out
    */
   async signOut() {
-    const userMenu = this.page.getByTestId("user-menu-trigger");
+    const userMenu = this.page.getByRole("button", { name: /user menu/i });
 
     if (await userMenu.isVisible()) {
       await userMenu.click();
 
       await this.page.getByRole("menuitem", { name: /sign out/i }).click();
 
-      await expect(this.page.getByTestId("sign-in-button")).toBeVisible();
+      await expect(
+        this.page.getByRole("button", { name: /sign in/i }),
+      ).toBeVisible();
     }
   }
 
@@ -119,7 +123,9 @@ export class TestHelpers {
    * Check if user is authenticated
    */
   async isAuthenticated(): Promise<boolean> {
-    return await this.page.getByTestId("user-menu-trigger").isVisible();
+    return await this.page
+      .getByRole("button", { name: /user menu/i })
+      .isVisible();
   }
 
   /**

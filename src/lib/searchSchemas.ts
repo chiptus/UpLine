@@ -38,6 +38,7 @@ export const timelineSearchSchema = z.object({
   day: z.string().catch("all"),
   time: z.enum(["all", "morning", "afternoon", "evening"]).catch("all"),
   stages: z.array(z.string()).catch([]),
+  scrollTo: z.string().optional().catch(undefined),
 });
 
 export type TimelineSearch = z.infer<typeof timelineSearchSchema>;

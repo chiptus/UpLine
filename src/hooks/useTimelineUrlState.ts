@@ -7,9 +7,6 @@ export type TimeFilter = TimelineSearch["time"];
 export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
   const route =
     `/festivals/$festivalSlug/editions/$editionSlug/schedule/${tab}` as const;
-  // Select only the filter params this hook exposes, with structural sharing,
-  // so a `scrollTo` write (from scroll syncing) doesn't change this object's
-  // identity and trigger consumers to recompute the filtered schedule.
   const state = useSearch({
     from: route,
     select: (search) => ({

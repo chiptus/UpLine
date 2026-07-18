@@ -40,7 +40,6 @@ export function UserActions({
           <Button
             onClick={() => showAuthDialog()}
             size={isMobile ? "sm" : "default"}
-            data-testid="sign-in-button"
             className="bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-full px-6"
           >
             <LogIn className="h-4 w-4" />

@@ -14,7 +14,6 @@ export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
       time: search.time,
       stages: search.stages,
     }),
-    structuralSharing: true,
   });
   const navigate = useNavigate({ from: route });
 

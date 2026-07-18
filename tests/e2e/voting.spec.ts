@@ -140,6 +140,7 @@ test.describe("Voting without authentication", () => {
   }) => {
     const testHelpers = new TestHelpers(page);
     await testHelpers.navigateTo(EDITION_SETS_PATH);
+    await testHelpers.acceptCookieConsentIfPresent();
 
     const setCard = page
       .getByTestId("artist-item")

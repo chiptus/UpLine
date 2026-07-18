@@ -1,19 +1,25 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
 // Seeded in supabase/seed.sql: festival slug "test", edition slug "2025".
 const TIMELINE_PATH = "/festivals/test/editions/2025/schedule/timeline";
 // Fast-forwarded past the ~300ms debounce via Playwright's fake clock.
 const SCROLL_DEBOUNCE_WAIT_MS = 600;
 
+async function openTimeline(page: Page) {
+  await page.clock.install();
+  await page.goto(TIMELINE_PATH);
+
+  const scrollContainer = page.getByTestId("timeline-scroll-container");
+  if (!(await scrollContainer.isVisible().catch(() => false))) {
+    test.skip(true, "Schedule not revealed in this environment");
+  }
+
+  return scrollContainer;
+}
+
 test.describe("Timeline scroll position (scrollTo URL state)", () => {
   test("untouched timeline has no scrollTo in the URL", async ({ page }) => {
-    await page.clock.install();
-    await page.goto(TIMELINE_PATH);
-
-    const scrollContainer = page.getByTestId("timeline-scroll-container");
-    if (!(await scrollContainer.isVisible().catch(() => false))) {
-      test.skip(true, "Schedule not revealed in this environment");
-    }
+    await openTimeline(page);
 
     expect(new URL(page.url()).searchParams.has("scrollTo")).toBe(false);
   });
@@ -21,13 +27,7 @@ test.describe("Timeline scroll position (scrollTo URL state)", () => {
   test("scrolling writes a debounced, rounded scrollTo via history replace", async ({
     page,
   }) => {
-    await page.clock.install();
-    await page.goto(TIMELINE_PATH);
-
-    const scrollContainer = page.getByTestId("timeline-scroll-container");
-    if (!(await scrollContainer.isVisible().catch(() => false))) {
-      test.skip(true, "Schedule not revealed in this environment");
-    }
+    const scrollContainer = await openTimeline(page);
 
     const historyLengthBeforeScroll = await page.evaluate(
       () => window.history.length,
@@ -66,13 +66,7 @@ test.describe("Timeline scroll position (scrollTo URL state)", () => {
   test("opening a URL with scrollTo centers the viewport on that moment", async ({
     page,
   }) => {
-    await page.clock.install();
-    await page.goto(TIMELINE_PATH);
-
-    const scrollContainer = page.getByTestId("timeline-scroll-container");
-    if (!(await scrollContainer.isVisible().catch(() => false))) {
-      test.skip(true, "Schedule not revealed in this environment");
-    }
+    const scrollContainer = await openTimeline(page);
 
     // Scroll to discover a real, in-range moment to jump back to.
     await scrollContainer.evaluate((el) => {
@@ -105,13 +99,7 @@ test.describe("Timeline scroll position (scrollTo URL state)", () => {
   test("back from a set detail page and a full reload both restore the viewport position", async ({
     page,
   }) => {
-    await page.clock.install();
-    await page.goto(TIMELINE_PATH);
-
-    const scrollContainer = page.getByTestId("timeline-scroll-container");
-    if (!(await scrollContainer.isVisible().catch(() => false))) {
-      test.skip(true, "Schedule not revealed in this environment");
-    }
+    const scrollContainer = await openTimeline(page);
 
     await scrollContainer.evaluate((el) => {
       el.scrollLeft = el.scrollLeft + 500;
@@ -124,10 +112,7 @@ test.describe("Timeline scroll position (scrollTo URL state)", () => {
     );
 
     const setLink = page.locator('a[href*="/sets/"]').first();
-    test.skip(
-      !(await setLink.isVisible().catch(() => false)),
-      "No set detail link rendered in this environment",
-    );
+    await expect(setLink).toBeVisible();
     await setLink.click();
     await page.goBack();
     await expect(page).toHaveURL(urlWithScroll);

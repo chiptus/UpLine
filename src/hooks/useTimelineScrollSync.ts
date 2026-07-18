@@ -87,6 +87,12 @@ export function useTimelineScrollSync({
 
     let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 
+    container.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      container.removeEventListener("scroll", handleScroll);
+      if (debounceTimer) clearTimeout(debounceTimer);
+    };
+
     function handleScroll() {
       const programmaticLeft = programmaticScrollLeftRef.current;
       if (programmaticLeft !== null) {
@@ -116,12 +122,6 @@ export function useTimelineScrollSync({
         });
       }, SCROLL_DEBOUNCE_MS);
     }
-
-    container.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      container.removeEventListener("scroll", handleScroll);
-      if (debounceTimer) clearTimeout(debounceTimer);
-    };
   }, [scrollContainerRef, festivalStart, navigate]);
 
   function jumpTo(moment: Date) {

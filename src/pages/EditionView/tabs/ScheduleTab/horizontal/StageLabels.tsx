@@ -6,7 +6,7 @@ interface StageLabelsProps {
 
 export function StageLabels({ stages }: StageLabelsProps) {
   return (
-    <div className="absolute top-12 z-20 space-y-16">
+    <div className="absolute left-4 top-16 z-20 space-y-16">
       {stages.map((stage) => (
         <div key={stage.name} className="h-20 flex items-center">
           <div

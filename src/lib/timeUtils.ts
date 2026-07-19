@@ -1,10 +1,4 @@
-import {
-  format,
-  isValid,
-  parseISO,
-  isSameDay,
-  differenceInCalendarDays,
-} from "date-fns";
+import { format, isValid, parseISO, isSameDay } from "date-fns";
 import { formatInTimeZone, fromZonedTime, toZonedTime } from "date-fns-tz";
 
 export function formatTimeRange(
@@ -200,26 +194,13 @@ export function getFestivalDayLabel(dayKey: string | null): string | null {
   return format(date, "EEEE, MMM d");
 }
 
-// The two halves of a day-jump label, rendered as a stacked pair.
-export function getFestivalDayParts(
-  dayKey: string | null,
-): { weekday: string; dayOfMonth: string } | null {
+// Short weekday + date label, e.g. "Thu 13"; the date disambiguates repeated
+// weekday names at multi-weekend festivals.
+export function getFestivalDayShortLabel(dayKey: string | null): string | null {
   if (!dayKey) return null;
   const date = parseISO(dayKey);
   if (!isValid(date)) return null;
-  return { weekday: format(date, "EEE"), dayOfMonth: format(date, "d") };
-}
-
-// True when two day keys are calendar-adjacent. A false result marks a break in
-// the festival's run, which the day rail renders as a divider.
-export function areFestivalDaysAdjacent(
-  earlierDayKey: string,
-  laterDayKey: string,
-): boolean {
-  const earlier = parseISO(earlierDayKey);
-  const later = parseISO(laterDayKey);
-  if (!isValid(earlier) || !isValid(later)) return false;
-  return differenceInCalendarDays(later, earlier) === 1;
+  return format(date, "EEE d");
 }
 
 // The wall-clock hour (0-23) a UTC timestamp falls on in the festival's

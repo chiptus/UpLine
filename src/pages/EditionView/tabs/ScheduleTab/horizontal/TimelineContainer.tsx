@@ -1,13 +1,11 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { TimeScale } from "./TimeScale";
 import { StageRow } from "./StageRow";
-import { StageLabels } from "./StageLabels";
 import { TimelineToolbar } from "./TimelineToolbar";
+import { TimelineOverview } from "./TimelineOverview";
 import type { TimelineData } from "@/lib/timelineCalculator";
 import type { ScheduleDay } from "@/hooks/useScheduleData";
 import { useTimelineScrollSync } from "@/hooks/useTimelineScrollSync";
-import { jumpToTimelineMoment } from "@/lib/timelineDayJump";
-import { useActiveTimelineDay } from "@/hooks/useActiveTimelineDay";
 
 interface TimelineContainerProps {
   timelineData: TimelineData;
@@ -23,17 +21,12 @@ export function TimelineContainer({
   selectedDay,
 }: TimelineContainerProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isOverviewExpanded, setIsOverviewExpanded] = useState(false);
 
-  useTimelineScrollSync({
+  const { jumpTo } = useTimelineScrollSync({
     scrollContainerRef,
     festivalStart: timelineData.festivalStart,
     timezone,
-  });
-  const activeDay = useActiveTimelineDay({
-    scrollContainerRef,
-    days: scheduleDays,
-    timezone,
-    festivalStart: timelineData.festivalStart,
   });
 
   return (
@@ -41,46 +34,41 @@ export function TimelineContainer({
       <TimelineToolbar
         days={scheduleDays}
         selectedDay={selectedDay}
-        activeDay={activeDay}
         timezone={timezone}
-        onJumpToDay={(moment) => {
-          const container = scrollContainerRef.current;
-          if (container) {
-            jumpToTimelineMoment(
-              container,
-              timelineData.festivalStart,
-              moment,
-              {
-                align: "start",
-              },
-            );
-          }
-        }}
+        onJumpToDay={jumpTo}
+        isOverviewExpanded={isOverviewExpanded}
+        onToggleOverview={() => setIsOverviewExpanded((prev) => !prev)}
       />
-      <div className="relative">
-        <StageLabels stages={timelineData.stages} />
-        <div
-          ref={scrollContainerRef}
-          data-testid="timeline-scroll-container"
-          className="overflow-x-auto overflow-y-hidden pb-20"
-        >
-          <TimeScale
-            timeSlots={timelineData.timeSlots}
-            totalWidth={timelineData.totalWidth}
-            scrollContainerRef={scrollContainerRef}
-            timezone={timezone}
-          />
+      {isOverviewExpanded && (
+        <TimelineOverview
+          timelineData={timelineData}
+          scheduleDays={scheduleDays}
+          timezone={timezone}
+          scrollContainerRef={scrollContainerRef}
+          onJump={jumpTo}
+        />
+      )}
+      <div
+        ref={scrollContainerRef}
+        data-testid="timeline-scroll-container"
+        className="overflow-x-auto overflow-y-hidden pb-20"
+      >
+        <TimeScale
+          timeSlots={timelineData.timeSlots}
+          totalWidth={timelineData.totalWidth}
+          scrollContainerRef={scrollContainerRef}
+          timezone={timezone}
+        />
 
-          <div className="space-y-12 mt-28">
-            {timelineData.stages.map((stage) => (
-              <StageRow
-                key={stage.name}
-                stage={stage}
-                totalWidth={timelineData.totalWidth}
-                timezone={timezone}
-              />
-            ))}
-          </div>
+        <div className="space-y-12 mt-28">
+          {timelineData.stages.map((stage) => (
+            <StageRow
+              key={stage.name}
+              stage={stage}
+              totalWidth={timelineData.totalWidth}
+              timezone={timezone}
+            />
+          ))}
         </div>
       </div>
     </>

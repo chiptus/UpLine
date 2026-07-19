@@ -1,9 +1,21 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Locator } from "@playwright/test";
 
 // Seeded in supabase/seed.sql: festival slug "test", edition slug "2025",
 // three festival days (Jul 12-14, 2025) each with timed sets.
 const TIMELINE_PATH = "/festivals/test/editions/2025/schedule/timeline";
 const SCROLL_ANIMATION_WAIT_MS = 800; // > smooth-scroll animation + the ~300ms debounce
+
+// Waits for the schedule to render before deciding it's genuinely absent;
+// an immediate check races the async load and skips real failures as green.
+async function skipUnlessScheduleRevealed(scrollContainer: Locator) {
+  const revealed = await scrollContainer
+    .waitFor({ state: "visible", timeout: 15000 })
+    .then(() => true)
+    .catch(() => false);
+  if (!revealed) {
+    test.skip(true, "Schedule not revealed in this environment");
+  }
+}
 
 test.describe("Timeline day-jump toolbar", () => {
   test("renders one sticky button per festival day, labeled weekday + date", async ({
@@ -12,9 +24,7 @@ test.describe("Timeline day-jump toolbar", () => {
     await page.goto(TIMELINE_PATH);
 
     const scrollContainer = page.getByTestId("timeline-scroll-container");
-    if (!(await scrollContainer.isVisible().catch(() => false))) {
-      test.skip(true, "Schedule not revealed in this environment");
-    }
+    await skipUnlessScheduleRevealed(scrollContainer);
 
     const toolbar = page.getByTestId("timeline-day-toolbar");
     await expect(toolbar).toBeVisible();
@@ -36,9 +46,7 @@ test.describe("Timeline day-jump toolbar", () => {
     await page.goto(TIMELINE_PATH);
 
     const scrollContainer = page.getByTestId("timeline-scroll-container");
-    if (!(await scrollContainer.isVisible().catch(() => false))) {
-      test.skip(true, "Schedule not revealed in this environment");
-    }
+    await skipUnlessScheduleRevealed(scrollContainer);
 
     expect(new URL(page.url()).searchParams.has("scrollTo")).toBe(false);
 
@@ -74,9 +82,7 @@ test.describe("Timeline day-jump toolbar", () => {
     await page.goto(TIMELINE_PATH);
 
     const scrollContainer = page.getByTestId("timeline-scroll-container");
-    if (!(await scrollContainer.isVisible().catch(() => false))) {
-      test.skip(true, "Schedule not revealed in this environment");
-    }
+    await skipUnlessScheduleRevealed(scrollContainer);
 
     const dayButtons = page
       .getByTestId("timeline-day-toolbar")
@@ -101,9 +107,7 @@ test.describe("Timeline day-jump toolbar", () => {
     await page.goto(TIMELINE_PATH);
 
     const scrollContainer = page.getByTestId("timeline-scroll-container");
-    if (!(await scrollContainer.isVisible().catch(() => false))) {
-      test.skip(true, "Schedule not revealed in this environment");
-    }
+    await skipUnlessScheduleRevealed(scrollContainer);
 
     const toolbar = page.getByTestId("timeline-day-toolbar");
     const allDaysButtons = toolbar.getByRole("button");

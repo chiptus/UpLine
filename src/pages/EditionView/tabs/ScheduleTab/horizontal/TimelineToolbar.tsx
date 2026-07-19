@@ -44,6 +44,7 @@ export function TimelineToolbar({
         size="sm"
         data-testid="timeline-overview-toggle"
         className="ml-auto shrink-0 border-purple-400/40 text-purple-100 hover:bg-purple-400 hover:text-white"
+        aria-expanded={isOverviewExpanded}
         onClick={onToggleOverview}
       >
         {isOverviewExpanded ? "Hide overview" : "Show overview"}

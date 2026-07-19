@@ -8,6 +8,12 @@ import { vi } from "vitest";
 vi.stubEnv("VITE_SUPABASE_URL", "http://localhost:54321");
 vi.stubEnv("VITE_SUPABASE_PUBLISHABLE_KEY", "test-anon-key");
 
+// Pin the timezone so date formatting is deterministic regardless of the
+// machine's local zone. Tests that assert "UTC calendar day" fallbacks only
+// hold when the process runs in UTC (as CI does); Node re-reads TZ on the next
+// Date operation, so setting it here covers every worker.
+process.env.TZ = "UTC";
+
 // Polyfill for ArrayBuffer.prototype.resizable and SharedArrayBuffer.prototype.growable
 // These are needed by webidl-conversions package
 if (

@@ -41,12 +41,16 @@ export function OverviewViewportWindow({
     <div
       data-testid="timeline-overview-viewport"
       role="slider"
+      tabIndex={0}
       aria-label="Visible timeline range"
+      aria-valuemin={0}
+      aria-valuemax={100}
       aria-valuenow={Math.round(leftPercent)}
-      className="absolute top-0 h-full cursor-grab rounded border-2 border-white/80 bg-white/20 active:cursor-grabbing"
+      className="absolute top-0 h-full cursor-grab rounded border-2 border-white/80 bg-white/20 outline-none focus-visible:ring-2 focus-visible:ring-white active:cursor-grabbing"
       style={{ left: `${leftPercent}%`, width: `${widthPercent}%` }}
       onClick={(event) => event.stopPropagation()}
       onPointerDown={handlePointerDown}
+      onKeyDown={handleKeyDown}
     />
   );
 
@@ -64,6 +68,7 @@ export function OverviewViewportWindow({
 
     window.addEventListener("pointermove", handlePointerMove);
     window.addEventListener("pointerup", handlePointerUp);
+    window.addEventListener("pointercancel", handlePointerUp);
   }
 
   function handlePointerMove(event: PointerEvent) {
@@ -85,5 +90,33 @@ export function OverviewViewportWindow({
     dragStateRef.current = null;
     window.removeEventListener("pointermove", handlePointerMove);
     window.removeEventListener("pointerup", handlePointerUp);
+    window.removeEventListener("pointercancel", handlePointerUp);
+  }
+
+  function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const maxScrollLeft = Math.max(0, totalWidth - container.clientWidth);
+    const step = totalWidth * 0.05;
+
+    let nextScrollLeft: number | null = null;
+    if (event.key === "ArrowLeft") {
+      nextScrollLeft = container.scrollLeft - step;
+    } else if (event.key === "ArrowRight") {
+      nextScrollLeft = container.scrollLeft + step;
+    } else if (event.key === "Home") {
+      nextScrollLeft = 0;
+    } else if (event.key === "End") {
+      nextScrollLeft = maxScrollLeft;
+    }
+
+    if (nextScrollLeft === null) return;
+
+    event.preventDefault();
+    container.scrollLeft = Math.max(
+      0,
+      Math.min(maxScrollLeft, nextScrollLeft),
+    );
   }
 }

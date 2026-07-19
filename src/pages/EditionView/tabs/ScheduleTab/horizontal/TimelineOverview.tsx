@@ -47,16 +47,27 @@ export function TimelineOverview({
     const container = scrollContainerRef.current;
     if (!container) return;
 
+    let rafId: number | null = null;
+
     function sync() {
       setViewportSize(readViewportSize(container));
     }
 
+    function scheduleSync() {
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        sync();
+      });
+    }
+
     sync();
-    container.addEventListener("scroll", sync, { passive: true });
-    window.addEventListener("resize", sync);
+    container.addEventListener("scroll", scheduleSync, { passive: true });
+    window.addEventListener("resize", scheduleSync);
     return () => {
-      container.removeEventListener("scroll", sync);
-      window.removeEventListener("resize", sync);
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      container.removeEventListener("scroll", scheduleSync);
+      window.removeEventListener("resize", scheduleSync);
     };
   }, [scrollContainerRef]);
 

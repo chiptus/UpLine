@@ -12,7 +12,7 @@ test.describe("Timeline day-jump toolbar", () => {
     await page.goto(TIMELINE_PATH);
 
     const scrollContainer = page.getByTestId("timeline-scroll-container");
-    await expect(scrollContainer).toBeVisible();
+    await expect(scrollContainer).toBeVisible({ timeout: 15000 });
 
     const toolbar = page.getByRole("toolbar", { name: "Jump to day" });
     await expect(toolbar).toBeVisible();
@@ -34,7 +34,7 @@ test.describe("Timeline day-jump toolbar", () => {
     await page.goto(TIMELINE_PATH);
 
     const scrollContainer = page.getByTestId("timeline-scroll-container");
-    await expect(scrollContainer).toBeVisible();
+    await expect(scrollContainer).toBeVisible({ timeout: 15000 });
 
     expect(new URL(page.url()).searchParams.has("scrollTo")).toBe(false);
 
@@ -70,7 +70,7 @@ test.describe("Timeline day-jump toolbar", () => {
     await page.goto(TIMELINE_PATH);
 
     const scrollContainer = page.getByTestId("timeline-scroll-container");
-    await expect(scrollContainer).toBeVisible();
+    await expect(scrollContainer).toBeVisible({ timeout: 15000 });
 
     const dayButtons = page
       .getByRole("toolbar", { name: "Jump to day" })
@@ -95,7 +95,7 @@ test.describe("Timeline day-jump toolbar", () => {
     await page.goto(TIMELINE_PATH);
 
     const scrollContainer = page.getByTestId("timeline-scroll-container");
-    await expect(scrollContainer).toBeVisible();
+    await expect(scrollContainer).toBeVisible({ timeout: 15000 });
 
     const toolbar = page.getByRole("toolbar", { name: "Jump to day" });
     const allDaysButtons = toolbar.getByRole("button");

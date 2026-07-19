@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { TimeScale } from "./TimeScale";
 import { StageRow } from "./StageRow";
+import { StageLabels } from "./StageLabels";
 import { TimelineToolbar } from "./TimelineToolbar";
 import type { TimelineData } from "@/lib/timelineCalculator";
 import type { ScheduleDay } from "@/hooks/useScheduleData";
@@ -40,27 +41,30 @@ export function TimelineContainer({
         timezone={timezone}
         onJumpToDay={jumpTo}
       />
-      <div
-        ref={scrollContainerRef}
-        data-testid="timeline-scroll-container"
-        className="overflow-x-auto overflow-y-hidden pb-20"
-      >
-        <TimeScale
-          timeSlots={timelineData.timeSlots}
-          totalWidth={timelineData.totalWidth}
-          scrollContainerRef={scrollContainerRef}
-          timezone={timezone}
-        />
+      <div className="relative">
+        <StageLabels stages={timelineData.stages} />
+        <div
+          ref={scrollContainerRef}
+          data-testid="timeline-scroll-container"
+          className="overflow-x-auto overflow-y-hidden pb-20"
+        >
+          <TimeScale
+            timeSlots={timelineData.timeSlots}
+            totalWidth={timelineData.totalWidth}
+            scrollContainerRef={scrollContainerRef}
+            timezone={timezone}
+          />
 
-        <div className="space-y-12 mt-28">
-          {timelineData.stages.map((stage) => (
-            <StageRow
-              key={stage.name}
-              stage={stage}
-              totalWidth={timelineData.totalWidth}
-              timezone={timezone}
-            />
-          ))}
+          <div className="space-y-12 mt-28">
+            {timelineData.stages.map((stage) => (
+              <StageRow
+                key={stage.name}
+                stage={stage}
+                totalWidth={timelineData.totalWidth}
+                timezone={timezone}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </>

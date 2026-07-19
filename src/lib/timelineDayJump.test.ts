@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getDayJumpMoment } from "./timelineDayJump";
-import { makeScheduleDay } from "./scheduleDayFixtures";
+import { makeScheduleDay } from "@/__tests__/fixtures";
 
 const TIMEZONE = "Europe/Lisbon"; // UTC+1 in July (WEST)
 

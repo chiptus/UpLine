@@ -23,7 +23,7 @@ export function DayJumpButtons({
           variant="outline"
           size="sm"
           data-testid={`day-jump-button-${day.date}`}
-          className="shrink-0 border-purple-400/40 text-purple-100 hover:bg-purple-400 hover:text-white"
+          className="shrink-0 border-purple-400/40 bg-transparent text-purple-100 hover:bg-purple-400 hover:text-white"
           onClick={() => onJumpToDay(getDayJumpMoment(day, timezone))}
         >
           {getFestivalDayShortLabel(day.date) || day.displayDate}

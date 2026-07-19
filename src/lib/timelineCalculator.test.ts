@@ -6,7 +6,7 @@ import {
 } from "./timelineCalculator";
 import type { ScheduleSet } from "@/hooks/useScheduleData";
 import type { Stage } from "@/api/stages/types";
-import { makeScheduleDay } from "./scheduleDayFixtures";
+import { makeScheduleDay } from "@/__tests__/fixtures";
 
 const PX_PER_MINUTE = 2;
 

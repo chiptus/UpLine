@@ -25,6 +25,8 @@ export function TimelineToolbar({
 
   return (
     <div
+      role="toolbar"
+      aria-label="Jump to day"
       data-testid="timeline-day-toolbar"
       className="sticky top-0 z-40 mb-4 flex gap-2 overflow-x-auto rounded-lg border border-purple-400/20 bg-gray-900/95 p-2 backdrop-blur-md"
     >

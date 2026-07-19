@@ -16,7 +16,7 @@ test.describe("Timeline day-jump toolbar", () => {
       test.skip(true, "Schedule not revealed in this environment");
     }
 
-    const toolbar = page.getByTestId("timeline-day-toolbar");
+    const toolbar = page.getByRole("toolbar", { name: "Jump to day" });
     await expect(toolbar).toBeVisible();
 
     const dayButtons = toolbar.getByRole("button");
@@ -46,7 +46,7 @@ test.describe("Timeline day-jump toolbar", () => {
       (el) => el.scrollLeft,
     );
 
-    const dayButtons = page.getByTestId("timeline-day-toolbar").getByRole("button");
+    const dayButtons = page.getByRole("toolbar", { name: "Jump to day" }).getByRole("button");
     // Jump to the last day, which should be far from the initial viewport.
     await dayButtons.last().click();
 
@@ -79,7 +79,7 @@ test.describe("Timeline day-jump toolbar", () => {
     }
 
     const dayButtons = page
-      .getByTestId("timeline-day-toolbar")
+      .getByRole("toolbar", { name: "Jump to day" })
       .getByRole("button");
     // Move away first so the jump back is observable.
     await dayButtons.last().click();
@@ -105,7 +105,7 @@ test.describe("Timeline day-jump toolbar", () => {
       test.skip(true, "Schedule not revealed in this environment");
     }
 
-    const toolbar = page.getByTestId("timeline-day-toolbar");
+    const toolbar = page.getByRole("toolbar", { name: "Jump to day" });
     const allDaysButtons = toolbar.getByRole("button");
     const totalDays = await allDaysButtons.count();
     expect(totalDays).toBeGreaterThanOrEqual(2);
@@ -113,7 +113,7 @@ test.describe("Timeline day-jump toolbar", () => {
     const firstDayLabel = (await allDaysButtons.first().textContent())?.trim();
 
     await page.goto(`${TIMELINE_PATH}?day=2025-07-12`);
-    const filteredToolbar = page.getByTestId("timeline-day-toolbar");
+    const filteredToolbar = page.getByRole("toolbar", { name: "Jump to day" });
     await expect(filteredToolbar).toBeVisible();
 
     const filteredButtons = filteredToolbar.getByRole("button");

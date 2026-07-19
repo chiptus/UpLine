@@ -7,7 +7,7 @@ import type { ScheduleDay } from "@/hooks/useScheduleData";
 // stage names) so a left-aligned day jump doesn't land a set's card under it.
 // Shared by jumpToTimelineMoment (to compute the scroll target) and
 // useActiveTimelineDay (to compute matching day boundaries), so the two never drift.
-export const DAY_JUMP_START_GUTTER_PX = 190;
+export const DAY_JUMP_START_GUTTER_PX = 0;
 
 const SCROLL_ROUND_MINUTES = 5;
 
@@ -41,22 +41,53 @@ export function jumpToTimelineMoment(
 }
 
 /**
- * The moment a day jump centers on: the day's earliest set start (midnight
- * is usually dead timeline), falling back to festival-timezone midnight.
+ * The moment a day jump centers on: the modal opening — the time the most
+ * stages start their first set. Using the modal (rather than the global
+ * earliest) skips sparse overnight/pre-dawn sets that would otherwise land the
+ * jump on dead timeline at the far-left edge. Falls back to festival-timezone
+ * midnight when the day has no sets.
  */
 export function getDayJumpMoment(day: ScheduleDay, timezone: string): Date {
-  let earliestSetStart: Date | null = null;
+  const stageOpenings = day.stages
+    .map((stage) =>
+      stage.sets.reduce<Date | null>(
+        (earliest, set) =>
+          set.startTime && (!earliest || set.startTime < earliest)
+            ? set.startTime
+            : earliest,
+        null,
+      ),
+    )
+    .filter((start): start is Date => start !== null);
 
-  day.stages.forEach((stage) => {
-    stage.sets.forEach((set) => {
-      if (
-        set.startTime &&
-        (!earliestSetStart || set.startTime < earliestSetStart)
-      ) {
-        earliestSetStart = set.startTime;
-      }
-    });
+  return (
+    mostCommonStart(stageOpenings) ??
+    fromZonedTime(`${day.date}T00:00:00`, timezone)
+  );
+}
+
+// The start time shared by the most stages, tie-broken by the earliest time.
+function mostCommonStart(starts: Date[]): Date | null {
+  const counts = new Map<number, { count: number; date: Date }>();
+  starts.forEach((date) => {
+    const entry = counts.get(date.getTime());
+    if (entry) {
+      entry.count += 1;
+    } else {
+      counts.set(date.getTime(), { count: 1, date });
+    }
   });
 
-  return earliestSetStart ?? fromZonedTime(`${day.date}T00:00:00`, timezone);
+  let best: { count: number; date: Date } | null = null;
+  for (const entry of counts.values()) {
+    if (
+      !best ||
+      entry.count > best.count ||
+      (entry.count === best.count && entry.date < best.date)
+    ) {
+      best = entry;
+    }
+  }
+
+  return best?.date ?? null;
 }

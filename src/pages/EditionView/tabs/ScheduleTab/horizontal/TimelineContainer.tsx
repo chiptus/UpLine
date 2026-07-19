@@ -46,9 +46,14 @@ export function TimelineContainer({
         onJumpToDay={(moment) => {
           const container = scrollContainerRef.current;
           if (container) {
-            jumpToTimelineMoment(container, timelineData.festivalStart, moment, {
-              align: "start",
-            });
+            jumpToTimelineMoment(
+              container,
+              timelineData.festivalStart,
+              moment,
+              {
+                align: "start",
+              },
+            );
           }
         }}
       />

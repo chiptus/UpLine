@@ -194,6 +194,15 @@ export function getFestivalDayLabel(dayKey: string | null): string | null {
   return format(date, "EEEE, MMM d");
 }
 
+// Short weekday + date label, e.g. "Thu 13"; the date disambiguates repeated
+// weekday names at multi-weekend festivals.
+export function getFestivalDayShortLabel(dayKey: string | null): string | null {
+  if (!dayKey) return null;
+  const date = parseISO(dayKey);
+  if (!isValid(date)) return null;
+  return format(date, "EEE d");
+}
+
 // The wall-clock hour (0-23) a UTC timestamp falls on in the festival's
 // timezone, for time-of-day filters (morning/afternoon/evening).
 export function getFestivalHour(

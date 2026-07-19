@@ -10,6 +10,7 @@ import {
   convertLocalTimeToUTC,
   getFestivalDayKey,
   getFestivalDayLabel,
+  getFestivalDayShortLabel,
   getFestivalHour,
 } from "./timeUtils";
 
@@ -433,6 +434,25 @@ describe("getFestivalDayLabel", () => {
 
   it("formats a day-key into a human-readable label", () => {
     expect(getFestivalDayLabel("2024-12-16")).toBe("Monday, Dec 16");
+  });
+});
+
+describe("getFestivalDayShortLabel", () => {
+  it("returns null for null input", () => {
+    expect(getFestivalDayShortLabel(null)).toBeNull();
+  });
+
+  it("returns null for invalid input", () => {
+    expect(getFestivalDayShortLabel("invalid")).toBeNull();
+  });
+
+  it("formats a day-key into a short weekday + date label", () => {
+    expect(getFestivalDayShortLabel("2024-12-16")).toBe("Mon 16");
+  });
+
+  it("disambiguates repeated weekdays across a multi-weekend festival", () => {
+    expect(getFestivalDayShortLabel("2024-12-13")).toBe("Fri 13");
+    expect(getFestivalDayShortLabel("2024-12-20")).toBe("Fri 20");
   });
 });
 

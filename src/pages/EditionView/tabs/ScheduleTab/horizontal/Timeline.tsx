@@ -96,6 +96,8 @@ export function Timeline() {
         <TimelineContainer
           timelineData={timelineData}
           timezone={festival.timezone}
+          scheduleDays={scheduleDays}
+          selectedDay={selectedDay}
         />
       </div>
     </div>

@@ -10,6 +10,8 @@ import {
   convertLocalTimeToUTC,
   getFestivalDayKey,
   getFestivalDayLabel,
+  getFestivalDayParts,
+  areFestivalDaysAdjacent,
   getFestivalHour,
 } from "./timeUtils";
 
@@ -436,6 +438,46 @@ describe("getFestivalDayLabel", () => {
   });
 });
 
+describe("getFestivalDayParts", () => {
+  it("returns null for null input", () => {
+    expect(getFestivalDayParts(null)).toBeNull();
+  });
+
+  it("returns null for invalid input", () => {
+    expect(getFestivalDayParts("invalid")).toBeNull();
+  });
+
+  it("splits a day-key into weekday and day-of-month", () => {
+    expect(getFestivalDayParts("2024-12-16")).toEqual({
+      weekday: "Mon",
+      dayOfMonth: "16",
+    });
+  });
+
+  it("disambiguates repeated weekdays across a multi-weekend festival", () => {
+    expect(getFestivalDayParts("2024-12-13")?.dayOfMonth).toBe("13");
+    expect(getFestivalDayParts("2024-12-20")?.dayOfMonth).toBe("20");
+  });
+});
+
+describe("areFestivalDaysAdjacent", () => {
+  it("is true for consecutive calendar days", () => {
+    expect(areFestivalDaysAdjacent("2024-12-16", "2024-12-17")).toBe(true);
+  });
+
+  it("is true across a month boundary", () => {
+    expect(areFestivalDaysAdjacent("2024-11-30", "2024-12-01")).toBe(true);
+  });
+
+  it("is false across a gap between festival weekends", () => {
+    expect(areFestivalDaysAdjacent("2024-12-19", "2024-12-23")).toBe(false);
+  });
+
+  it("is false for invalid input", () => {
+    expect(areFestivalDaysAdjacent("invalid", "2024-12-17")).toBe(false);
+  });
+});
+
 describe("getFestivalHour", () => {
   it("returns null for null input", () => {
     expect(getFestivalHour(null, "Europe/Lisbon")).toBeNull();
@@ -452,10 +494,7 @@ describe("getFestivalHour", () => {
 
   it("is independent of the machine's local zone", () => {
     const lisbon = getFestivalHour("2024-07-15T23:30:00Z", "Europe/Lisbon");
-    const newYork = getFestivalHour(
-      "2024-07-15T23:30:00Z",
-      "America/New_York",
-    );
+    const newYork = getFestivalHour("2024-07-15T23:30:00Z", "America/New_York");
     expect(lisbon).toBe(0);
     expect(newYork).toBe(19);
   });

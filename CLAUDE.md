@@ -139,7 +139,7 @@ In this codebase, it is acceptable and preferred to define helper functions (suc
 
 ## Git Workflow
 
-- **Auto-commit Rule**: For every user message that requests code changes, automatically commit the changes after implementation with an appropriate commit message
+- **Auto-commit Rule**: For every user message that requests code changes, automatically commit the changes after implementation with an appropriate commit message, if there are no other staged files
 
 - never run "supabase db push"
 - don't run supabase db reset

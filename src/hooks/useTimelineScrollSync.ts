@@ -17,17 +17,10 @@ interface UseTimelineScrollSyncOptions {
 }
 
 /**
- * Owns the one-way sync between the timeline's scroll position and the
- * `scrollTo` URL param:
- *
- *   - On mount only: centers the viewport per `resolveTimelineMountMoment`'s
- *     precedence (scrollTo -> day filter -> festival start).
- *   - On user scroll: after the scroll settles (~300ms), writes the moment
- *     now centered in the viewport back to the URL (history replace),
- *     rounded to 5-minute granularity.
- *
- * These two directions never trigger each other: the mount effect runs once
- * and the scroll listener only ever navigates, never touches `scrollLeft`.
+ * One-way sync between the timeline viewport and the `scrollTo` URL param:
+ * URL -> scroll only on mount; user scroll -> URL only (debounced, 5-min
+ * rounded, history replace). Never loops. See `jumpToTimelineMoment` for
+ * imperative jumps.
  */
 export function useTimelineScrollSync({
   scrollContainerRef,
@@ -37,8 +30,6 @@ export function useTimelineScrollSync({
   const route =
     "/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline" as const;
 
-  // Narrow, structurally-shared selection: this hook only cares about
-  // scrollTo/day, so its own writes to scrollTo don't cascade elsewhere.
   const { scrollTo, day } = useSearch({
     from: route,
     select: (search) => ({ scrollTo: search.scrollTo, day: search.day }),
@@ -46,9 +37,7 @@ export function useTimelineScrollSync({
   const navigate = useNavigate({ from: route });
 
   const hasCenteredOnMountRef = useRef(false);
-  // Position of the last programmatic scroll; scroll events reporting this
-  // position are ignored (a browser may fire more than one for a single
-  // scrollLeft write), so only genuine user scrolling reaches the URL.
+  // Scroll events at this position are programmatic, not user scrolling.
   const programmaticScrollLeftRef = useRef<number | null>(null);
 
   useLayoutEffect(() => {
@@ -71,12 +60,10 @@ export function useTimelineScrollSync({
 
     if (targetScrollLeft !== container.scrollLeft) {
       container.scrollLeft = targetScrollLeft;
-      // Read back: the browser clamps to the scrollable range, and the
-      // suppression check must match the position events will report.
+      // Read back: the browser clamps scrollLeft to the scrollable range.
       programmaticScrollLeftRef.current = container.scrollLeft;
     }
-    // Mount-only positioning: intentionally does not re-run when scrollTo/day
-    // change afterwards (one-way ownership, URL -> scroll only on mount).
+    // Mount-only by design: URL -> scroll never re-runs after mount.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scrollContainerRef]);
 

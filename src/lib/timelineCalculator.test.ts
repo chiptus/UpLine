@@ -4,8 +4,8 @@ import {
   offsetToTime,
   timeToOffset,
 } from "./timelineCalculator";
-import type { ScheduleDay, ScheduleSet } from "@/hooks/useScheduleData";
-import type { Stage } from "@/api/stages/types";
+import type { ScheduleSet } from "@/hooks/useScheduleData";
+import { makeScheduleDay, makeStage } from "@/__tests__/fixtures";
 
 const PX_PER_MINUTE = 2;
 
@@ -80,9 +80,7 @@ describe("calculateTimelineData", () => {
   });
 
   it("returns null when festival dates are missing", () => {
-    const days: ScheduleDay[] = [
-      { date: "2024-07-01", displayDate: "Jul 1", stages: [] },
-    ];
+    const days = [makeScheduleDay("2024-07-01")];
     expect(
       calculateTimelineData(
         null as unknown as Date,
@@ -95,24 +93,20 @@ describe("calculateTimelineData", () => {
 
   it("rounds the earliest set time down to the top of the hour", () => {
     const stage = makeStage();
-    const days: ScheduleDay[] = [
-      {
-        date: "2024-07-01",
-        displayDate: "Jul 1",
-        stages: [
-          {
-            id: stage.id,
-            name: stage.name,
-            stage_order: 0,
-            sets: [
-              makeSet({
-                startTime: new Date("2024-07-01T10:37:00Z"),
-                endTime: new Date("2024-07-01T11:37:00Z"),
-              }),
-            ],
-          },
-        ],
-      },
+    const days = [
+      makeScheduleDay("2024-07-01", [
+        {
+          id: stage.id,
+          name: stage.name,
+          stage_order: 0,
+          sets: [
+            makeSet({
+              startTime: new Date("2024-07-01T10:37:00Z"),
+              endTime: new Date("2024-07-01T11:37:00Z"),
+            }),
+          ],
+        },
+      ]),
     ];
 
     const data = calculateTimelineData(
@@ -134,24 +128,20 @@ describe("calculateTimelineData", () => {
 
   it("rounds the latest set time up to the end of the hour", () => {
     const stage = makeStage();
-    const days: ScheduleDay[] = [
-      {
-        date: "2024-07-01",
-        displayDate: "Jul 1",
-        stages: [
-          {
-            id: stage.id,
-            name: stage.name,
-            stage_order: 0,
-            sets: [
-              makeSet({
-                startTime: new Date("2024-07-01T10:00:00Z"),
-                endTime: new Date("2024-07-01T11:15:00Z"),
-              }),
-            ],
-          },
-        ],
-      },
+    const days = [
+      makeScheduleDay("2024-07-01", [
+        {
+          id: stage.id,
+          name: stage.name,
+          stage_order: 0,
+          sets: [
+            makeSet({
+              startTime: new Date("2024-07-01T10:00:00Z"),
+              endTime: new Date("2024-07-01T11:15:00Z"),
+            }),
+          ],
+        },
+      ]),
     ];
 
     const data = calculateTimelineData(
@@ -175,30 +165,26 @@ describe("calculateTimelineData", () => {
 
   it("applies the 100px minimum width to short sets without affecting the scale", () => {
     const stage = makeStage();
-    const days: ScheduleDay[] = [
-      {
-        date: "2024-07-01",
-        displayDate: "Jul 1",
-        stages: [
-          {
-            id: stage.id,
-            name: stage.name,
-            stage_order: 0,
-            sets: [
-              makeSet({
-                id: "short-set",
-                startTime: new Date("2024-07-01T10:00:00Z"),
-                endTime: new Date("2024-07-01T10:10:00Z"), // 10 minutes -> 20px raw
-              }),
-              makeSet({
-                id: "long-set",
-                startTime: new Date("2024-07-01T11:00:00Z"),
-                endTime: new Date("2024-07-01T12:00:00Z"), // 60 minutes -> 120px raw
-              }),
-            ],
-          },
-        ],
-      },
+    const days = [
+      makeScheduleDay("2024-07-01", [
+        {
+          id: stage.id,
+          name: stage.name,
+          stage_order: 0,
+          sets: [
+            makeSet({
+              id: "short-set",
+              startTime: new Date("2024-07-01T10:00:00Z"),
+              endTime: new Date("2024-07-01T10:10:00Z"), // 10 minutes -> 20px raw
+            }),
+            makeSet({
+              id: "long-set",
+              startTime: new Date("2024-07-01T11:00:00Z"),
+              endTime: new Date("2024-07-01T12:00:00Z"), // 60 minutes -> 120px raw
+            }),
+          ],
+        },
+      ]),
     ];
 
     const data = calculateTimelineData(
@@ -218,24 +204,20 @@ describe("calculateTimelineData", () => {
 
   it("positions the last time slot at the total width (axis upper boundary)", () => {
     const stage = makeStage();
-    const days: ScheduleDay[] = [
-      {
-        date: "2024-07-01",
-        displayDate: "Jul 1",
-        stages: [
-          {
-            id: stage.id,
-            name: stage.name,
-            stage_order: 0,
-            sets: [
-              makeSet({
-                startTime: new Date("2024-07-01T10:00:00Z"),
-                endTime: new Date("2024-07-01T11:00:00Z"),
-              }),
-            ],
-          },
-        ],
-      },
+    const days = [
+      makeScheduleDay("2024-07-01", [
+        {
+          id: stage.id,
+          name: stage.name,
+          stage_order: 0,
+          sets: [
+            makeSet({
+              startTime: new Date("2024-07-01T10:00:00Z"),
+              endTime: new Date("2024-07-01T11:00:00Z"),
+            }),
+          ],
+        },
+      ]),
     ];
 
     const data = calculateTimelineData(
@@ -261,12 +243,3 @@ function makeSet(overrides: Partial<ScheduleSet> = {}): ScheduleSet {
   };
 }
 
-function makeStage(overrides: Partial<Stage> = {}): Stage {
-  return {
-    id: "stage-1",
-    name: "Main Stage",
-    color: "#ff0000",
-    stage_order: 0,
-    ...overrides,
-  } as unknown as Stage;
-}

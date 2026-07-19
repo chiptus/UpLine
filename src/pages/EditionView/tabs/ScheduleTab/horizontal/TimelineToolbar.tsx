@@ -4,6 +4,7 @@ import type { ScheduleDay } from "@/hooks/useScheduleData";
 interface TimelineToolbarProps {
   days: ScheduleDay[];
   selectedDay: string;
+  activeDay: string | null;
   timezone: string;
   onJumpToDay: (moment: Date) => void;
 }
@@ -13,6 +14,7 @@ interface TimelineToolbarProps {
 export function TimelineToolbar({
   days,
   selectedDay,
+  activeDay,
   timezone,
   onJumpToDay,
 }: TimelineToolbarProps) {
@@ -32,6 +34,7 @@ export function TimelineToolbar({
     >
       <DayJumpButtons
         days={visibleDays}
+        activeDay={activeDay}
         timezone={timezone}
         onJumpToDay={onJumpToDay}
       />

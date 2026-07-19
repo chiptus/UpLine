@@ -7,6 +7,7 @@ import type { TimelineData } from "@/lib/timelineCalculator";
 import type { ScheduleDay } from "@/hooks/useScheduleData";
 import { useTimelineScrollSync } from "@/hooks/useTimelineScrollSync";
 import { useTimelineJump } from "@/hooks/useTimelineJump";
+import { useActiveTimelineDay } from "@/hooks/useActiveTimelineDay";
 
 interface TimelineContainerProps {
   timelineData: TimelineData;
@@ -32,14 +33,21 @@ export function TimelineContainer({
     scrollContainerRef,
     festivalStart: timelineData.festivalStart,
   });
+  const activeDay = useActiveTimelineDay({
+    scrollContainerRef,
+    days: scheduleDays,
+    timezone,
+    festivalStart: timelineData.festivalStart,
+  });
 
   return (
     <>
       <TimelineToolbar
         days={scheduleDays}
         selectedDay={selectedDay}
+        activeDay={activeDay}
         timezone={timezone}
-        onJumpToDay={jumpTo}
+        onJumpToDay={(moment) => jumpTo(moment, { align: "start" })}
       />
       <div className="relative">
         <StageLabels stages={timelineData.stages} />

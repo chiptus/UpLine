@@ -12,9 +12,7 @@ test.describe("Timeline day-jump toolbar", () => {
     await page.goto(TIMELINE_PATH);
 
     const scrollContainer = page.getByTestId("timeline-scroll-container");
-    if (!(await scrollContainer.isVisible().catch(() => false))) {
-      test.skip(true, "Schedule not revealed in this environment");
-    }
+    await expect(scrollContainer).toBeVisible();
 
     const toolbar = page.getByRole("toolbar", { name: "Jump to day" });
     await expect(toolbar).toBeVisible();
@@ -36,9 +34,7 @@ test.describe("Timeline day-jump toolbar", () => {
     await page.goto(TIMELINE_PATH);
 
     const scrollContainer = page.getByTestId("timeline-scroll-container");
-    if (!(await scrollContainer.isVisible().catch(() => false))) {
-      test.skip(true, "Schedule not revealed in this environment");
-    }
+    await expect(scrollContainer).toBeVisible();
 
     expect(new URL(page.url()).searchParams.has("scrollTo")).toBe(false);
 
@@ -74,9 +70,7 @@ test.describe("Timeline day-jump toolbar", () => {
     await page.goto(TIMELINE_PATH);
 
     const scrollContainer = page.getByTestId("timeline-scroll-container");
-    if (!(await scrollContainer.isVisible().catch(() => false))) {
-      test.skip(true, "Schedule not revealed in this environment");
-    }
+    await expect(scrollContainer).toBeVisible();
 
     const dayButtons = page
       .getByRole("toolbar", { name: "Jump to day" })
@@ -101,9 +95,7 @@ test.describe("Timeline day-jump toolbar", () => {
     await page.goto(TIMELINE_PATH);
 
     const scrollContainer = page.getByTestId("timeline-scroll-container");
-    if (!(await scrollContainer.isVisible().catch(() => false))) {
-      test.skip(true, "Schedule not revealed in this environment");
-    }
+    await expect(scrollContainer).toBeVisible();
 
     const toolbar = page.getByRole("toolbar", { name: "Jump to day" });
     const allDaysButtons = toolbar.getByRole("button");

@@ -5,8 +5,7 @@ import {
   timeToOffset,
 } from "./timelineCalculator";
 import type { ScheduleSet } from "@/hooks/useScheduleData";
-import type { Stage } from "@/api/stages/types";
-import { makeScheduleDay } from "@/__tests__/fixtures";
+import { makeScheduleDay, makeStage } from "@/__tests__/fixtures";
 
 const PX_PER_MINUTE = 2;
 
@@ -244,12 +243,3 @@ function makeSet(overrides: Partial<ScheduleSet> = {}): ScheduleSet {
   };
 }
 
-function makeStage(overrides: Partial<Stage> = {}): Stage {
-  return {
-    id: "stage-1",
-    name: "Main Stage",
-    color: "#ff0000",
-    stage_order: 0,
-    ...overrides,
-  } as unknown as Stage;
-}

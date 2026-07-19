@@ -28,8 +28,8 @@ export function DayJumpButtons({
             type="button"
             variant="outline"
             size="sm"
-            aria-pressed={isActive}
-            data-testid={`day-jump-button-${day.date}`}
+            role="radio"
+            aria-checked={isActive}
             className={cn(
               "shrink-0 border-purple-400/40 bg-transparent text-purple-100 hover:bg-purple-400 hover:text-white",
               isActive && "border-purple-400 bg-purple-500 text-white",

@@ -19,7 +19,7 @@ interface UseTimelineScrollSyncOptions {
 /**
  * One-way sync between the timeline viewport and the `scrollTo` URL param:
  * URL -> scroll only on mount; user scroll -> URL only (debounced, 5-min
- * rounded, history replace). Never loops. See `useTimelineJump` for
+ * rounded, history replace). Never loops. See `jumpToTimelineMoment` for
  * imperative jumps.
  */
 export function useTimelineScrollSync({

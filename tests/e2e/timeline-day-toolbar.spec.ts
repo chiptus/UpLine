@@ -14,10 +14,10 @@ test.describe("Timeline day-jump toolbar", () => {
     const scrollContainer = page.getByTestId("timeline-scroll-container");
     await expect(scrollContainer).toBeVisible({ timeout: 15000 });
 
-    const toolbar = page.getByRole("toolbar", { name: "Jump to day" });
+    const toolbar = page.getByRole("radiogroup", { name: "Jump to day" });
     await expect(toolbar).toBeVisible();
 
-    const dayButtons = toolbar.getByRole("button");
+    const dayButtons = toolbar.getByRole("radio");
     const count = await dayButtons.count();
     expect(count).toBeGreaterThanOrEqual(3);
 
@@ -42,7 +42,7 @@ test.describe("Timeline day-jump toolbar", () => {
       (el) => el.scrollLeft,
     );
 
-    const dayButtons = page.getByRole("toolbar", { name: "Jump to day" }).getByRole("button");
+    const dayButtons = page.getByRole("radiogroup", { name: "Jump to day" }).getByRole("radio");
     // Jump to the last day, which should be far from the initial viewport.
     await dayButtons.last().click();
 
@@ -73,8 +73,8 @@ test.describe("Timeline day-jump toolbar", () => {
     await expect(scrollContainer).toBeVisible({ timeout: 15000 });
 
     const dayButtons = page
-      .getByRole("toolbar", { name: "Jump to day" })
-      .getByRole("button");
+      .getByRole("radiogroup", { name: "Jump to day" })
+      .getByRole("radio");
     // Move away first so the jump back is observable.
     await dayButtons.last().click();
     await page.waitForTimeout(SCROLL_ANIMATION_WAIT_MS);
@@ -97,18 +97,18 @@ test.describe("Timeline day-jump toolbar", () => {
     const scrollContainer = page.getByTestId("timeline-scroll-container");
     await expect(scrollContainer).toBeVisible({ timeout: 15000 });
 
-    const toolbar = page.getByRole("toolbar", { name: "Jump to day" });
-    const allDaysButtons = toolbar.getByRole("button");
+    const toolbar = page.getByRole("radiogroup", { name: "Jump to day" });
+    const allDaysButtons = toolbar.getByRole("radio");
     const totalDays = await allDaysButtons.count();
     expect(totalDays).toBeGreaterThanOrEqual(2);
 
     const firstDayLabel = (await allDaysButtons.first().textContent())?.trim();
 
     await page.goto(`${TIMELINE_PATH}?day=2025-07-12`);
-    const filteredToolbar = page.getByRole("toolbar", { name: "Jump to day" });
+    const filteredToolbar = page.getByRole("radiogroup", { name: "Jump to day" });
     await expect(filteredToolbar).toBeVisible();
 
-    const filteredButtons = filteredToolbar.getByRole("button");
+    const filteredButtons = filteredToolbar.getByRole("radio");
     await expect(filteredButtons).toHaveCount(1);
     expect((await filteredButtons.first().textContent())?.trim()).toBe(
       firstDayLabel,

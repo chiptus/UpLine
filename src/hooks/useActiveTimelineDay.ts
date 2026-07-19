@@ -34,7 +34,7 @@ export function useActiveTimelineDay({
     if (!container || days.length === 0) return;
 
     // Match the scroll position a "start"-aligned jump actually lands on
-    // (see useTimelineJump), so a day reads as active immediately after
+    // (see jumpToTimelineMoment), so a day reads as active immediately after
     // jumping to it rather than lagging one day behind.
     const boundaries = days
       .map((day) => ({

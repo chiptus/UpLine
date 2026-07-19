@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { classifyNowNext } from "./nowNext";
+import { classifyNowNext, classifyNowNextByStage } from "./nowNext";
 
 // Europe/Lisbon is UTC+1 (WEST) in August, so a set playing after midnight
 // festival time still sits on the previous UTC calendar day. Classification
@@ -145,5 +145,57 @@ describe("classifyNowNext", () => {
       next: [],
       laterPast: [],
     });
+  });
+});
+
+describe("classifyNowNextByStage", () => {
+  const MAIN_NOW = { ...LATE_SET, id: "main-now", stage_id: "main" };
+  const MAIN_NEXT = { ...MIDNIGHT_SET, id: "main-next", stage_id: "main" };
+  const BEACH_SOON = {
+    id: "beach-soon",
+    stage_id: "beach",
+    time_start: "2025-08-01T22:35:00.000Z",
+    time_end: "2025-08-01T23:30:00.000Z",
+  };
+
+  it("classifies each stage independently — next is per-stage, not global", () => {
+    // At 22:30Z the globally nearest upcoming start is beach-soon (22:35Z),
+    // but main's own next must still be main-next (23:00Z).
+    const byStage = classifyNowNextByStage(
+      [MAIN_NOW, MAIN_NEXT, BEACH_SOON],
+      at("2025-08-01T22:30:00Z"),
+    );
+    expect(byStage.get("main")?.nowPlaying.map((s) => s.id)).toEqual([
+      "main-now",
+    ]);
+    expect(byStage.get("main")?.next.map((s) => s.id)).toEqual(["main-next"]);
+    expect(byStage.get("beach")?.nowPlaying).toEqual([]);
+    expect(byStage.get("beach")?.next.map((s) => s.id)).toEqual(["beach-soon"]);
+  });
+
+  it("excludes stage-less sets entirely", () => {
+    const stageless = { ...LATE_SET, id: "stageless", stage_id: null };
+    const byStage = classifyNowNextByStage(
+      [stageless],
+      at("2025-08-01T22:30:00Z"),
+    );
+    expect(byStage.size).toBe(0);
+  });
+
+  it("keeps masked-time exclusion within each stage", () => {
+    const masked = {
+      id: "masked",
+      stage_id: "main",
+      time_start: null,
+      time_end: null,
+    };
+    const byStage = classifyNowNextByStage(
+      [masked, MAIN_NOW],
+      at("2025-08-01T22:30:00Z"),
+    );
+    expect(byStage.get("main")?.nowPlaying.map((s) => s.id)).toEqual([
+      "main-now",
+    ]);
+    expect(byStage.get("main")?.laterPast).toEqual([]);
   });
 });

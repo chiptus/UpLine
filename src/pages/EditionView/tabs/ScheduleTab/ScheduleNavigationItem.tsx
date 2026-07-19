@@ -2,8 +2,14 @@ import { Link } from "@tanstack/react-router";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+const VIEW_TO = {
+  now: "./now",
+  timeline: "./timeline",
+  list: "./list",
+} as const;
+
 interface ScheduleNavigationItemProps {
-  view: "timeline" | "list";
+  view: keyof typeof VIEW_TO;
   label: string;
   icon: LucideIcon;
 }
@@ -16,18 +22,18 @@ export function ScheduleNavigationItem({
   return (
     <Link
       from="/festivals/$festivalSlug/editions/$editionSlug/schedule"
-      to={view === "timeline" ? "./timeline" : "./list"}
+      to={VIEW_TO[view]}
       activeProps={{
         className: cn(
           `flex gap-2 items-center justify-center  py-2 md:py-3 rounded-lg
-           w-1/2 md:min-w-[100px] transition-all duration-200 active:scale-95
+           flex-1 md:min-w-[100px] transition-all duration-200 active:scale-95
            bg-purple-600 text-white shadow-lg`,
         ),
       }}
       inactiveProps={{
         className: cn(
           `flex gap-2 items-center justify-center  py-2 md:py-3 rounded-lg
-           w-1/2 md:min-w-[100px] transition-all duration-200 active:scale-95
+           flex-1 md:min-w-[100px] transition-all duration-200 active:scale-95
            text-purple-200 hover:text-white hover:bg-white/10`,
         ),
       }}

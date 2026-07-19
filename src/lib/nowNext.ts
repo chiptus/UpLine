@@ -54,6 +54,27 @@ export function classifyNowNext<T extends NowNextSet>(
   return { nowPlaying, next, laterPast };
 }
 
+// Per-stage variant for the Now board: each stage's "next" is its own nearest
+// upcoming set, not the globally nearest one (which turns into noise once many
+// stages run concurrently). Stage-less sets are excluded.
+export function classifyNowNextByStage<
+  T extends NowNextSet & { stage_id: string | null },
+>(sets: T[], now: Date): Map<string, NowNextClassification<T>> {
+  const byStage = new Map<string, T[]>();
+  for (const set of sets) {
+    if (!set.stage_id) continue;
+    const group = byStage.get(set.stage_id) ?? [];
+    group.push(set);
+    byStage.set(set.stage_id, group);
+  }
+
+  const classified = new Map<string, NowNextClassification<T>>();
+  for (const [stageId, stageSets] of byStage) {
+    classified.set(stageId, classifyNowNext(stageSets, now));
+  }
+  return classified;
+}
+
 function parseInstant(iso: string | null): Date | null {
   if (!iso) return null;
   const date = parseISO(iso);

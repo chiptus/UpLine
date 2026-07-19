@@ -32,7 +32,6 @@ export function useTimelineScrollSync({
   const { scrollTo, day } = useSearch({
     from: route,
     select: (search) => ({ scrollTo: search.scrollTo, day: search.day }),
-    structuralSharing: true,
   });
   const navigate = useNavigate({ from: route });
 

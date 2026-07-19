@@ -1,8 +1,10 @@
 import { fromZonedTime } from "date-fns-tz";
 import type { ScheduleDay } from "@/hooks/useScheduleData";
 
-// The moment a day jump centers on: the day's earliest set start (midnight is
-// usually dead timeline), falling back to festival-timezone midnight.
+/**
+ * The moment a day jump centers on: the day's earliest set start (midnight
+ * is usually dead timeline), falling back to festival-timezone midnight.
+ */
 export function getDayJumpMoment(day: ScheduleDay, timezone: string): Date {
   let earliestSetStart: Date | null = null;
 

@@ -30,7 +30,7 @@ export function TimelineToolbar({
       role="radiogroup"
       aria-label="Jump to day"
       data-testid="timeline-day-toolbar"
-      className="sticky top-0 z-40 mb-4 flex gap-2 overflow-x-auto rounded-lg border border-purple-400/20 bg-gray-900/95 p-2 backdrop-blur-md"
+      className="sticky top-0 z-40 mb-4 flex items-end gap-1 overflow-x-auto rounded-lg border border-purple-400/20 bg-gray-900/95 px-2 pb-2.5 pt-2 backdrop-blur-md"
     >
       <DayJumpButtons
         days={visibleDays}

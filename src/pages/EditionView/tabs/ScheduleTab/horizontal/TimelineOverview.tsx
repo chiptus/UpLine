@@ -2,7 +2,6 @@ import { useRef } from "react";
 import type { RefObject } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserVotes } from "@/api/voting/useUserVotes";
-import { useTimelineViewportSize } from "@/hooks/useTimelineViewportSize";
 import { offsetToTime } from "@/lib/timelineCalculator";
 import type { TimelineData } from "@/lib/timelineCalculator";
 import type { ScheduleDay } from "@/hooks/useScheduleData";
@@ -14,6 +13,7 @@ import {
 } from "@/lib/timelineOverviewGeometry";
 import { OverviewStageRow } from "./OverviewStageRow";
 import { OverviewViewportWindow } from "./OverviewViewportWindow";
+import { useTimelineViewportSize } from "./useTimelineViewportSize";
 
 // Fixed regardless of stage count: rows shrink to fit rather than the map
 // growing taller on festivals with many stages (which made it unusably tall

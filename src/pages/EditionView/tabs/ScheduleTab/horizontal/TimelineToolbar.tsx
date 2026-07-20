@@ -2,8 +2,8 @@ import { useRef } from "react";
 import { Map } from "lucide-react";
 import { DayJumpButtons } from "./DayJumpButtons";
 import { Button } from "@/components/ui/button";
-import { useScrollEdgeFade } from "@/hooks/useScrollEdgeFade";
 import type { ScheduleDay } from "@/hooks/useScheduleData";
+import { useScrollEdgeFade } from "./useScrollEdgeFade";
 
 interface TimelineToolbarProps {
   days: ScheduleDay[];

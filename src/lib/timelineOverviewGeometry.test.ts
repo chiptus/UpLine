@@ -6,6 +6,7 @@ import {
   fractionToOffset,
   offsetToPercent,
 } from "./timelineOverviewGeometry";
+import { offsetToTime, timeToOffset } from "./timelineCalculator";
 import type { HorizontalTimelineSet } from "./timelineCalculator";
 
 const TIMEZONE = "Europe/Lisbon"; // UTC+1 in July (WEST)
@@ -115,6 +116,48 @@ describe("fractionToOffset", () => {
   it("clamps fractions outside 0..1", () => {
     expect(fractionToOffset(-0.5, 400)).toBe(0);
     expect(fractionToOffset(1.5, 400)).toBe(400);
+  });
+});
+
+describe("the shared ruler", () => {
+  // These functions are only useful together if they all agree on one
+  // offset<->percent scale. Each function above is tested in isolation with
+  // hand-picked numbers that already assume that's true; these tests instead
+  // compose the functions and check they actually agree with each other.
+
+  it("places a set starting exactly at a day boundary at the same leftPercent as that boundary", () => {
+    const festivalStart = new Date("2025-07-12T14:00:00Z");
+    const totalWidth = 2000;
+    const days = [{ date: "2025-07-12" }, { date: "2025-07-13" }];
+
+    // Day 2 midnight (Europe/Lisbon) is 2025-07-12T23:00:00Z, 9h after start.
+    const day2Midnight = new Date("2025-07-12T23:00:00Z");
+    const setStartOffset = timeToOffset(day2Midnight, festivalStart);
+    const set = buildSet("headliner", setStartOffset, 100);
+
+    const boundaries = calculateDayBoundaries(
+      days,
+      "Europe/Lisbon",
+      festivalStart,
+      totalWidth,
+    );
+    const [block] = calculateOverviewSetBlocks([set], totalWidth);
+
+    const day2Boundary = boundaries.find((b) => b.date === "2025-07-13");
+    expect(day2Boundary).toBeDefined();
+    expect(block.leftPercent).toBe(day2Boundary!.leftPercent);
+  });
+
+  it("round-trips a click fraction through offset/time and back to the same percent", () => {
+    const festivalStart = new Date("2025-07-12T14:00:00Z");
+    const totalWidth = 2000;
+    const clickedPercent = 40;
+
+    const clickedOffset = fractionToOffset(clickedPercent / 100, totalWidth);
+    const jumpTarget = offsetToTime(clickedOffset, festivalStart);
+    const roundTrippedOffset = timeToOffset(jumpTarget, festivalStart);
+
+    expect(offsetToPercent(roundTrippedOffset, totalWidth)).toBe(clickedPercent);
   });
 });
 

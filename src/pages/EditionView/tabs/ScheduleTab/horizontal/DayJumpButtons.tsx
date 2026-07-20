@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { areFestivalDaysAdjacent, getFestivalDayParts } from "@/lib/timeUtils";
 import { getDayJumpMoment } from "@/lib/timelineDayJump";
@@ -17,6 +17,16 @@ export function DayJumpButtons({
   timezone,
   onJumpToDay,
 }: DayJumpButtonsProps) {
+  const activeButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    activeButtonRef.current?.scrollIntoView({
+      behavior: "smooth",
+      inline: "center",
+      block: "nearest",
+    });
+  }, [activeDay]);
+
   return (
     <>
       {days.map((day, index) => {
@@ -37,6 +47,7 @@ export function DayJumpButtons({
               type="button"
               role="radio"
               aria-checked={isActive}
+              ref={isActive ? activeButtonRef : undefined}
               onClick={() => onJumpToDay(getDayJumpMoment(day, timezone))}
               className={cn(
                 "group relative shrink-0 rounded-md px-3 pb-1 pt-1.5 text-center transition-colors",

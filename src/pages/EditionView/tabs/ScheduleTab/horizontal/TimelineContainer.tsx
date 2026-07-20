@@ -1,8 +1,9 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { TimeScale } from "./TimeScale";
 import { StageRow } from "./StageRow";
 import { StageLabels } from "./StageLabels";
 import { TimelineToolbar } from "./TimelineToolbar";
+import { TimelineOverview } from "./TimelineOverview";
 import type { TimelineData } from "@/lib/timelineCalculator";
 import type { ScheduleDay } from "@/hooks/useScheduleData";
 import { useTimelineScrollSync } from "@/hooks/useTimelineScrollSync";
@@ -23,6 +24,7 @@ export function TimelineContainer({
   selectedDay,
 }: TimelineContainerProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isOverviewExpanded, setIsOverviewExpanded] = useState(false);
 
   useTimelineScrollSync({
     scrollContainerRef,
@@ -36,6 +38,15 @@ export function TimelineContainer({
     festivalStart: timelineData.festivalStart,
   });
 
+  function jumpTo(moment: Date, align: "center" | "start" = "center") {
+    const container = scrollContainerRef.current;
+    if (container) {
+      jumpToTimelineMoment(container, timelineData.festivalStart, moment, {
+        align,
+      });
+    }
+  }
+
   return (
     <>
       <TimelineToolbar
@@ -43,20 +54,19 @@ export function TimelineContainer({
         selectedDay={selectedDay}
         activeDay={activeDay}
         timezone={timezone}
-        onJumpToDay={(moment) => {
-          const container = scrollContainerRef.current;
-          if (container) {
-            jumpToTimelineMoment(
-              container,
-              timelineData.festivalStart,
-              moment,
-              {
-                align: "start",
-              },
-            );
-          }
-        }}
+        onJumpToDay={(moment) => jumpTo(moment, "start")}
+        isOverviewExpanded={isOverviewExpanded}
+        onToggleOverview={() => setIsOverviewExpanded((prev) => !prev)}
       />
+      {isOverviewExpanded && (
+        <TimelineOverview
+          timelineData={timelineData}
+          scheduleDays={scheduleDays}
+          timezone={timezone}
+          scrollContainerRef={scrollContainerRef}
+          onJump={(moment) => jumpTo(moment, "center")}
+        />
+      )}
       <div className="relative">
         <StageLabels stages={timelineData.stages} />
         <div

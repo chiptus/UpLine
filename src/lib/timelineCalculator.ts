@@ -20,15 +20,8 @@ export interface ScheduleWindow {
   end: Date;
 }
 
-/**
- * The schedule's overall time window: earliest set start (floored to the
- * hour) through latest set end (ceiled to the hour), scanned across ALL
- * days/stages passed in. Callers deciding time-awareness (the Now pill, the
- * mount-precedence now-rule) must feed this the UNFILTERED schedule days -
- * unlike `TimelineData.festivalStart`/`festivalEnd`, which are computed from
- * the filtered subset and shrink when a stage or time-of-day filter is
- * active. Returns null when no set has a time yet.
- */
+// Earliest set start through latest set end, across the UNFILTERED schedule
+// days (unlike TimelineData.festivalStart/End, which shrink with filters).
 export function calculateScheduleWindow(
   scheduleDays: ScheduleDay[],
 ): ScheduleWindow | null {

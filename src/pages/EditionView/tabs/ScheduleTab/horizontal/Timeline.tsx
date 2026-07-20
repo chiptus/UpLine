@@ -38,8 +38,6 @@ export function Timeline() {
     stages: selectedStages,
   } = useTimelineUrlState("timeline");
 
-  // From the UNFILTERED schedule: the window that gates time-awareness (Now
-  // pill, mount-time now-rule), immune to the filters applied below.
   const scheduleWindow = useMemo(
     () => calculateScheduleWindow(scheduleDays),
     [scheduleDays],

@@ -4,13 +4,6 @@ interface NowButtonProps {
   onJumpToNow: () => void;
 }
 
-/**
- * The "Now" control anchored beside "Show overview", outside the scrolling
- * day row so it can't be scrolled out of view on narrow screens. Rendered
- * only while the current time (festival timezone) falls inside the festival
- * window - see `isNowWithinFestivalWindow` - never disabled, just absent
- * otherwise.
- */
 export function NowButton({ onJumpToNow }: NowButtonProps) {
   return (
     <Button

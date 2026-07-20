@@ -17,21 +17,13 @@ const SCROLL_ROUND_MINUTES = 5;
 interface UseTimelineScrollSyncOptions {
   scrollContainerRef: RefObject<HTMLDivElement>;
   festivalStart: Date;
-  /** The UNFILTERED schedule window (`calculateScheduleWindow`), for the
-   * mount-precedence now-rule; null when no set has a time yet. */
   scheduleWindow: ScheduleWindow | null;
   timezone: string;
-  /** Current moment, injected by the caller (see `useNow`). Only read once,
-   * at mount, to resolve the "now" mount-precedence rule. */
   now: Date;
 }
 
-/**
- * One-way sync between the timeline viewport and the `scrollTo` URL param:
- * URL -> scroll only on mount; user scroll -> URL only (debounced, 5-min
- * rounded, history replace). Never loops. See `jumpToTimelineMoment` for
- * imperative jumps.
- */
+// One-way sync: URL -> scroll only on mount; user scroll -> URL only
+// (debounced, 5-min rounded, history replace). Never loops.
 export function useTimelineScrollSync({
   scrollContainerRef,
   festivalStart,

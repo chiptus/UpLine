@@ -75,7 +75,9 @@ test.describe("Timeline overview mini-map", () => {
     await expect(scrollContainer).toBeVisible({ timeout: 15000 });
 
     await page.getByTestId("timeline-overview-toggle").click();
-    const viewportWindow = page.getByTestId("timeline-overview-viewport");
+    const viewportWindow = page.getByRole("slider", {
+      name: "Visible timeline range",
+    });
     await expect(viewportWindow).toBeVisible();
 
     const scrollLeftBeforeDrag = await scrollContainer.evaluate(

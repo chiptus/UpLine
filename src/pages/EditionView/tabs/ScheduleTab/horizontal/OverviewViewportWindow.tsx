@@ -39,7 +39,6 @@ export function OverviewViewportWindow({
 
   return (
     <div
-      data-testid="timeline-overview-viewport"
       role="slider"
       tabIndex={0}
       aria-label="Visible timeline range"

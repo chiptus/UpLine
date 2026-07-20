@@ -22,8 +22,8 @@ test.describe("Voting on a set", () => {
   let context: BrowserContext;
   let page: Page;
 
-  test.beforeAll(async ({ browser, baseURL }) => {
-    context = await browser.newContext({ baseURL });
+  test.beforeAll(async ({ browser, baseURL, storageState }) => {
+    context = await browser.newContext({ baseURL, storageState });
     page = await context.newPage();
     await new TestHelpers(page).signIn();
   });
@@ -140,7 +140,6 @@ test.describe("Voting without authentication", () => {
   }) => {
     const testHelpers = new TestHelpers(page);
     await testHelpers.navigateTo(EDITION_SETS_PATH);
-    await testHelpers.acceptCookieConsentIfPresent();
 
     const setCard = page
       .getByTestId("artist-item")

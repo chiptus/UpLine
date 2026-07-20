@@ -29,7 +29,7 @@ export function OverviewStageRow({
   top,
   height,
 }: OverviewStageRowProps) {
-  const blocks = calculateOverviewSetBlocks(sets, totalWidth);
+  const blocks = calculateOverviewSetBlocks({ sets, totalWidth });
 
   return (
     <div

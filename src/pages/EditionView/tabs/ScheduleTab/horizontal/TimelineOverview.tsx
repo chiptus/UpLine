@@ -78,18 +78,18 @@ export function TimelineOverview({
     };
   }, [scrollContainerRef]);
 
-  const dayBoundaries = calculateDayBoundaries(
-    scheduleDays,
+  const dayBoundaries = calculateDayBoundaries({
+    days: scheduleDays,
     timezone,
-    timelineData.festivalStart,
-    timelineData.totalWidth,
-  );
+    festivalStart: timelineData.festivalStart,
+    totalWidth: timelineData.totalWidth,
+  });
 
-  const viewportWindow = calculateOverviewViewport(
-    viewportSize.scrollLeft,
-    viewportSize.clientWidth,
-    timelineData.totalWidth,
-  );
+  const viewportWindow = calculateOverviewViewport({
+    scrollLeft: viewportSize.scrollLeft,
+    clientWidth: viewportSize.clientWidth,
+    totalWidth: timelineData.totalWidth,
+  });
 
   const stageCount = timelineData.stages.length;
   const rowHeight =
@@ -157,7 +157,7 @@ export function TimelineOverview({
     if (rect.width <= 0) return;
 
     const fraction = (event.clientX - rect.left) / rect.width;
-    const offset = fractionToOffset(fraction, timelineData.totalWidth);
+    const offset = fractionToOffset({ fraction, totalWidth: timelineData.totalWidth });
     onJump(offsetToTime(offset, timelineData.festivalStart));
   }
 }

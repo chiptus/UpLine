@@ -26,7 +26,7 @@ describe("calculateOverviewSetBlocks", () => {
   it("converts each set's horizontalPosition to a left/width percentage", () => {
     const sets = [buildSet("set-1", 0, 100), buildSet("set-2", 100, 200)];
 
-    expect(calculateOverviewSetBlocks(sets, 400)).toEqual([
+    expect(calculateOverviewSetBlocks({ sets, totalWidth: 400 })).toEqual([
       { id: "set-1", leftPercent: 0, widthPercent: 25 },
       { id: "set-2", leftPercent: 25, widthPercent: 50 },
     ]);
@@ -38,7 +38,7 @@ describe("calculateOverviewSetBlocks", () => {
       buildSet("set-2", 0, 100),
     ];
 
-    expect(calculateOverviewSetBlocks(sets, 400)).toEqual([
+    expect(calculateOverviewSetBlocks({ sets, totalWidth: 400 })).toEqual([
       { id: "set-2", leftPercent: 0, widthPercent: 25 },
     ]);
   });
@@ -52,12 +52,12 @@ describe("calculateDayBoundaries", () => {
     // Day 2 midnight (Europe/Lisbon) is 2025-07-12T23:00:00Z, 9h after start.
     // PX_PER_MINUTE is 2, so offset = 9 * 60 * 2 = 1080.
     const totalWidth = 2000;
-    const boundaries = calculateDayBoundaries(
+    const boundaries = calculateDayBoundaries({
       days,
-      TIMEZONE,
+      timezone: TIMEZONE,
       festivalStart,
       totalWidth,
-    );
+    });
 
     expect(boundaries).toEqual([
       { date: "2025-07-13", leftPercent: offsetToPercent(1080, totalWidth) },
@@ -68,40 +68,51 @@ describe("calculateDayBoundaries", () => {
     const festivalStart = new Date("2025-07-12T14:00:00Z");
     const days = [{ date: "2025-07-01" }, { date: "2025-12-25" }];
 
-    expect(calculateDayBoundaries(days, TIMEZONE, festivalStart, 2000)).toEqual(
-      [],
-    );
+    expect(
+      calculateDayBoundaries({
+        days,
+        timezone: TIMEZONE,
+        festivalStart,
+        totalWidth: 2000,
+      }),
+    ).toEqual([]);
   });
 
   it("returns no boundaries when totalWidth is zero", () => {
     expect(
-      calculateDayBoundaries(
-        [{ date: "2025-07-12" }],
-        TIMEZONE,
-        new Date("2025-07-12T00:00:00Z"),
-        0,
-      ),
+      calculateDayBoundaries({
+        days: [{ date: "2025-07-12" }],
+        timezone: TIMEZONE,
+        festivalStart: new Date("2025-07-12T00:00:00Z"),
+        totalWidth: 0,
+      }),
     ).toEqual([]);
   });
 });
 
 describe("calculateOverviewViewport", () => {
   it("expresses the visible span as left/width percentages", () => {
-    expect(calculateOverviewViewport(100, 200, 1000)).toEqual({
+    expect(
+      calculateOverviewViewport({ scrollLeft: 100, clientWidth: 200, totalWidth: 1000 }),
+    ).toEqual({
       leftPercent: 10,
       widthPercent: 20,
     });
   });
 
   it("caps widthPercent at 100 when the viewport is wider than the map", () => {
-    expect(calculateOverviewViewport(0, 1500, 1000)).toEqual({
+    expect(
+      calculateOverviewViewport({ scrollLeft: 0, clientWidth: 1500, totalWidth: 1000 }),
+    ).toEqual({
       leftPercent: 0,
       widthPercent: 100,
     });
   });
 
   it("falls back to a full-width viewport when totalWidth is zero", () => {
-    expect(calculateOverviewViewport(0, 500, 0)).toEqual({
+    expect(
+      calculateOverviewViewport({ scrollLeft: 0, clientWidth: 500, totalWidth: 0 }),
+    ).toEqual({
       leftPercent: 0,
       widthPercent: 100,
     });
@@ -110,12 +121,12 @@ describe("calculateOverviewViewport", () => {
 
 describe("fractionToOffset", () => {
   it("scales a 0..1 fraction to the totalWidth", () => {
-    expect(fractionToOffset(0.25, 400)).toBe(100);
+    expect(fractionToOffset({ fraction: 0.25, totalWidth: 400 })).toBe(100);
   });
 
   it("clamps fractions outside 0..1", () => {
-    expect(fractionToOffset(-0.5, 400)).toBe(0);
-    expect(fractionToOffset(1.5, 400)).toBe(400);
+    expect(fractionToOffset({ fraction: -0.5, totalWidth: 400 })).toBe(0);
+    expect(fractionToOffset({ fraction: 1.5, totalWidth: 400 })).toBe(400);
   });
 });
 
@@ -135,13 +146,13 @@ describe("the shared ruler", () => {
     const setStartOffset = timeToOffset(day2Midnight, festivalStart);
     const set = buildSet("headliner", setStartOffset, 100);
 
-    const boundaries = calculateDayBoundaries(
+    const boundaries = calculateDayBoundaries({
       days,
-      "Europe/Lisbon",
+      timezone: "Europe/Lisbon",
       festivalStart,
       totalWidth,
-    );
-    const [block] = calculateOverviewSetBlocks([set], totalWidth);
+    });
+    const [block] = calculateOverviewSetBlocks({ sets: [set], totalWidth });
 
     const day2Boundary = boundaries.find((b) => b.date === "2025-07-13");
     expect(day2Boundary).toBeDefined();
@@ -153,7 +164,10 @@ describe("the shared ruler", () => {
     const totalWidth = 2000;
     const clickedPercent = 40;
 
-    const clickedOffset = fractionToOffset(clickedPercent / 100, totalWidth);
+    const clickedOffset = fractionToOffset({
+      fraction: clickedPercent / 100,
+      totalWidth,
+    });
     const jumpTarget = offsetToTime(clickedOffset, festivalStart);
     const roundTrippedOffset = timeToOffset(jumpTarget, festivalStart);
 

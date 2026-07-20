@@ -22,14 +22,19 @@ export interface OverviewSetBlock {
   widthPercent: number;
 }
 
+interface CalculateOverviewSetBlocksParams {
+  sets: HorizontalTimelineSet[];
+  totalWidth: number;
+}
+
 /**
  * Proportional position/width of every set that has a computed
  * `horizontalPosition`, for a single stage's overview row.
  */
-export function calculateOverviewSetBlocks(
-  sets: HorizontalTimelineSet[],
-  totalWidth: number,
-): OverviewSetBlock[] {
+export function calculateOverviewSetBlocks({
+  sets,
+  totalWidth,
+}: CalculateOverviewSetBlocksParams): OverviewSetBlock[] {
   return sets
     .filter((set) => !!set.horizontalPosition)
     .map((set) => ({
@@ -47,6 +52,13 @@ export interface OverviewDayBoundary {
   leftPercent: number;
 }
 
+interface CalculateDayBoundariesParams {
+  days: Array<{ date: string }>;
+  timezone: string;
+  festivalStart: Date;
+  totalWidth: number;
+}
+
 /**
  * Proportional position of each day's local midnight, for the vertical
  * boundary lines drawn on the map. A day whose midnight falls outside the
@@ -54,12 +66,12 @@ export interface OverviewDayBoundary {
  * `day` filter has narrowed the strip to a single day) is dropped - the map
  * only ever shows what the strip already shows.
  */
-export function calculateDayBoundaries(
-  days: Array<{ date: string }>,
-  timezone: string,
-  festivalStart: Date,
-  totalWidth: number,
-): OverviewDayBoundary[] {
+export function calculateDayBoundaries({
+  days,
+  timezone,
+  festivalStart,
+  totalWidth,
+}: CalculateDayBoundariesParams): OverviewDayBoundary[] {
   if (totalWidth <= 0) return [];
 
   return days
@@ -76,16 +88,22 @@ export interface OverviewViewport {
   widthPercent: number;
 }
 
+interface CalculateOverviewViewportParams {
+  scrollLeft: number;
+  clientWidth: number;
+  totalWidth: number;
+}
+
 /**
  * Proportional position/width of the strip's currently visible span, driven
  * by the scroll container's own `scrollLeft`/`clientWidth` (read-only input
  * here - this module never writes to the DOM).
  */
-export function calculateOverviewViewport(
-  scrollLeft: number,
-  clientWidth: number,
-  totalWidth: number,
-): OverviewViewport {
+export function calculateOverviewViewport({
+  scrollLeft,
+  clientWidth,
+  totalWidth,
+}: CalculateOverviewViewportParams): OverviewViewport {
   if (totalWidth <= 0) return { leftPercent: 0, widthPercent: 100 };
 
   return {
@@ -94,13 +112,21 @@ export function calculateOverviewViewport(
   };
 }
 
+interface FractionToOffsetParams {
+  fraction: number;
+  totalWidth: number;
+}
+
 /**
  * Converts a click/drag position on the map - expressed as a fraction of the
  * map's own rendered pixel width (0..1, already clamped by the caller from a
  * `getBoundingClientRect()` measurement) - into a timeline offset, using the
  * same `totalWidth` scale as everything else.
  */
-export function fractionToOffset(fraction: number, totalWidth: number): number {
+export function fractionToOffset({
+  fraction,
+  totalWidth,
+}: FractionToOffsetParams): number {
   const clamped = Math.max(0, Math.min(1, fraction));
   return clamped * totalWidth;
 }

@@ -9,6 +9,11 @@ export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
     `/festivals/$festivalSlug/editions/$editionSlug/schedule/${tab}` as const;
   const state = useSearch({
     from: route,
+    select: (search) => ({
+      day: search.day,
+      time: search.time,
+      stages: search.stages,
+    }),
   });
   const navigate = useNavigate({ from: route });
 

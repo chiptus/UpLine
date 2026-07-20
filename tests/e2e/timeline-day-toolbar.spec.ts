@@ -6,6 +6,24 @@ const TIMELINE_PATH = "/festivals/test/editions/2025/schedule/timeline";
 const SCROLL_ANIMATION_WAIT_MS = 800; // > smooth-scroll animation + the ~300ms debounce
 
 test.describe("Timeline day-jump toolbar", () => {
+  test.beforeEach(async ({ page }) => {
+    // Pre-accept cookie consent so the fixed bottom banner doesn't intercept
+    // clicks on the day-jump toolbar, which sits low in the viewport on mobile.
+    await page.addInitScript(() => {
+      localStorage.setItem(
+        "gdpr-consent",
+        JSON.stringify({
+          essential: true,
+          analytics: false,
+          preferences: false,
+          marketing: false,
+          version: "1.0",
+          timestamp: Date.now(),
+        }),
+      );
+    });
+  });
+
   test("renders one sticky button per festival day, labeled weekday + date", async ({
     page,
   }) => {

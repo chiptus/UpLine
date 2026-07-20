@@ -12,10 +12,17 @@ export type NowNextClassification<T> = {
   laterPast: T[];
 };
 
-// Pure now/next classifier for Live mode. Compares UTC instants, so it is
-// festival-timezone-correct by construction; `now` is injected like in
-// getFestivalPhase. Sets missing either time (masked below reveal level
-// `full`, or unparseable) never classify — they are silently excluded.
+/**
+ * Answers "what's on right now, and what starts next?" for a list of sets —
+ * the data behind the Live phase's "Now" schedule view.
+ *
+ * Splits the sets into three groups relative to `now`: `nowPlaying` (on
+ * stage at this moment), `next` (the set or sets sharing the nearest
+ * upcoming start), and `laterPast` (everything else — already over or
+ * further out). Sets without both times — e.g. masked below reveal level
+ * `full` — are left out entirely. `now` is injected, keeping this a pure
+ * function like getFestivalPhase.
+ */
 export function classifyNowNext<T extends NowNextSet>(
   sets: T[],
   now: Date,
@@ -54,9 +61,12 @@ export function classifyNowNext<T extends NowNextSet>(
   return { nowPlaying, next, laterPast };
 }
 
-// Per-stage variant for the Now board: each stage's "next" is its own nearest
-// upcoming set, not the globally nearest one (which turns into noise once many
-// stages run concurrently). Stage-less sets are excluded.
+/**
+ * classifyNowNext applied per stage, keyed by stage_id — the "Now" board
+ * renders one row per stage, and each stage's `next` must be its own nearest
+ * upcoming set (with many stages, the globally nearest start is noise).
+ * Stage-less sets are excluded.
+ */
 export function classifyNowNextByStage<
   T extends NowNextSet & { stage_id: string | null },
 >(sets: T[], now: Date): Map<string, NowNextClassification<T>> {

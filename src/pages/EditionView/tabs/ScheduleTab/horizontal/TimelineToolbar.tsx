@@ -79,6 +79,8 @@ export function TimelineToolbar({
   return (
     <div
       data-testid="timeline-day-toolbar"
+      role="toolbar"
+      aria-label="Timeline navigation"
       className="sticky top-0 z-40 mb-4 flex items-end gap-1 rounded-lg border border-purple-400/20 bg-gray-900/95 px-2 pb-2.5 pt-2 backdrop-blur-md"
     >
       <div

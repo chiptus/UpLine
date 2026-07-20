@@ -5,6 +5,7 @@ import { useUserVotes } from "@/api/voting/useUserVotes";
 import { offsetToTime } from "@/lib/timelineCalculator";
 import type { TimelineData } from "@/lib/timelineCalculator";
 import type { ScheduleDay } from "@/hooks/useScheduleData";
+import { getFestivalDayParts } from "@/lib/timeUtils";
 import {
   calculateDayBoundaries,
   calculateOverviewViewport,
@@ -12,6 +13,12 @@ import {
 } from "@/lib/timelineOverviewGeometry";
 import { OverviewStageRow } from "./OverviewStageRow";
 import { OverviewViewportWindow } from "./OverviewViewportWindow";
+
+// Fixed regardless of stage count: rows shrink to fit rather than the map
+// growing taller on festivals with many stages (which made it unusably tall
+// on mobile).
+const MAP_HEIGHT_PX = 64;
+const LABEL_HEIGHT_PX = 16;
 
 interface TimelineOverviewProps {
   timelineData: TimelineData;
@@ -84,6 +91,12 @@ export function TimelineOverview({
     timelineData.totalWidth,
   );
 
+  const stageCount = timelineData.stages.length;
+  const rowHeight =
+    stageCount > 0
+      ? Math.max(3, Math.floor((MAP_HEIGHT_PX - LABEL_HEIGHT_PX - 4) / stageCount))
+      : 4;
+
   return (
     <div
       data-testid="timeline-overview"
@@ -92,23 +105,35 @@ export function TimelineOverview({
       <div
         ref={mapRef}
         data-testid="timeline-overview-map"
-        className="relative cursor-pointer space-y-1 py-1"
+        className="relative cursor-pointer overflow-hidden rounded-md"
+        style={{ height: MAP_HEIGHT_PX }}
         onClick={handleMapClick}
       >
-        {dayBoundaries.map((boundary) => (
-          <div
-            key={boundary.date}
-            className="pointer-events-none absolute top-0 h-full w-px bg-purple-400/40"
-            style={{ left: `${boundary.leftPercent}%` }}
-          />
-        ))}
+        {dayBoundaries.map((boundary) => {
+          const parts = getFestivalDayParts(boundary.date);
+          return (
+            <div
+              key={boundary.date}
+              className="pointer-events-none absolute inset-y-0 border-l border-purple-400/40"
+              style={{ left: `${boundary.leftPercent}%` }}
+            >
+              {parts && (
+                <span className="absolute left-1 top-0 text-[9px] font-medium uppercase leading-none tracking-wide text-purple-300">
+                  {parts.weekday} {parts.dayOfMonth}
+                </span>
+              )}
+            </div>
+          );
+        })}
 
-        {timelineData.stages.map((stage) => (
+        {timelineData.stages.map((stage, index) => (
           <OverviewStageRow
             key={stage.name}
             sets={stage.sets}
             totalWidth={timelineData.totalWidth}
             votes={userVotes}
+            top={LABEL_HEIGHT_PX + index * rowHeight}
+            height={rowHeight - 1}
           />
         ))}
 

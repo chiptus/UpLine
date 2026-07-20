@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  calculateScheduleWindow,
   calculateTimelineData,
   offsetToTime,
   timeToOffset,
 } from "./timelineCalculator";
-import type { ScheduleSet } from "@/hooks/useScheduleData";
+import type { ScheduleDay, ScheduleSet } from "@/hooks/useScheduleData";
 import { makeScheduleDay, makeStage } from "@/__tests__/fixtures";
 
 const PX_PER_MINUTE = 2;
@@ -69,6 +70,80 @@ describe("offsetToTime", () => {
     const offset = timeToOffset(moment, origin);
     expect(offset).toBeLessThan(0);
     expect(offsetToTime(offset, origin).getTime()).toBe(moment.getTime());
+  });
+});
+
+describe("calculateScheduleWindow", () => {
+  it("spans the earliest set start (hour-floored) to the latest set end (hour-ceiled) across all days and stages", () => {
+    const window = calculateScheduleWindow(makeDays());
+
+    expect(window).not.toBeNull();
+    expect(window!.start.getTime()).toBe(
+      new Date("2024-07-01T10:00:00Z").getTime(),
+    );
+    expect(window!.end.getTime()).toBe(
+      new Date("2024-07-02T21:59:59.999Z").getTime(),
+    );
+  });
+
+  it("returns null when no set has a time", () => {
+    const days: ScheduleDay[] = [
+      {
+        date: "2024-07-01",
+        displayDate: "Jul 1",
+        stages: [
+          {
+            id: "stage-1",
+            name: "Main Stage",
+            stage_order: 0,
+            sets: [makeSet()],
+          },
+        ],
+      },
+    ];
+
+    expect(calculateScheduleWindow(days)).toBeNull();
+  });
+
+  it("returns null for an empty schedule", () => {
+    expect(calculateScheduleWindow([])).toBeNull();
+  });
+
+  it("is unaffected by filtering only when fed the full schedule (a filtered subset yields a narrower window)", () => {
+    const allDays = makeDays();
+    const fullWindow = calculateScheduleWindow(allDays);
+
+    // Simulate a stage filter that keeps only stage-2's sets (day 1,
+    // 12:00-13:00 only).
+    const stageFilteredDays = allDays.map((day) => ({
+      ...day,
+      stages: day.stages.filter((stage) => stage.id === "stage-2"),
+    }));
+    const stageFilteredWindow = calculateScheduleWindow(stageFilteredDays);
+
+    // The full window is what time-awareness must be gated on: the filtered
+    // subset's window has shrunk on both ends.
+    expect(fullWindow!.end.getTime()).toBe(
+      new Date("2024-07-02T21:59:59.999Z").getTime(),
+    );
+    expect(stageFilteredWindow!.start.getTime()).toBeGreaterThan(
+      fullWindow!.start.getTime(),
+    );
+    expect(stageFilteredWindow!.end.getTime()).toBeLessThan(
+      fullWindow!.end.getTime(),
+    );
+
+    // Simulate a day filter that drops day 2 entirely.
+    const dayFilteredDays = allDays.map((day) =>
+      day.date === "2024-07-01" ? day : { ...day, stages: [] },
+    );
+    const dayFilteredWindow = calculateScheduleWindow(dayFilteredDays);
+    expect(dayFilteredWindow!.end.getTime()).toBe(
+      new Date("2024-07-01T13:59:59.999Z").getTime(),
+    );
+    expect(dayFilteredWindow!.end.getTime()).toBeLessThan(
+      fullWindow!.end.getTime(),
+    );
   });
 });
 
@@ -241,5 +316,50 @@ function makeSet(overrides: Partial<ScheduleSet> = {}): ScheduleSet {
     artists: [],
     ...overrides,
   };
+}
+
+function makeDays(): ScheduleDay[] {
+  return [
+    makeScheduleDay("2024-07-01", [
+      {
+        id: "stage-1",
+        name: "Main Stage",
+        stage_order: 0,
+        sets: [
+          makeSet({
+            id: "day1-main",
+            startTime: new Date("2024-07-01T10:37:00Z"),
+            endTime: new Date("2024-07-01T11:30:00Z"),
+          }),
+        ],
+      },
+      {
+        id: "stage-2",
+        name: "Club Stage",
+        stage_order: 1,
+        sets: [
+          makeSet({
+            id: "day1-club",
+            startTime: new Date("2024-07-01T12:00:00Z"),
+            endTime: new Date("2024-07-01T13:00:00Z"),
+          }),
+        ],
+      },
+    ]),
+    makeScheduleDay("2024-07-02", [
+      {
+        id: "stage-1",
+        name: "Main Stage",
+        stage_order: 0,
+        sets: [
+          makeSet({
+            id: "day2-main",
+            startTime: new Date("2024-07-02T20:00:00Z"),
+            endTime: new Date("2024-07-02T21:15:00Z"),
+          }),
+        ],
+      },
+    ]),
+  ];
 }
 

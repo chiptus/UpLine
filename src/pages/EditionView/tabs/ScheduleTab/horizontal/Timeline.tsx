@@ -2,11 +2,15 @@ import { useMemo } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
 import { useScheduleData } from "@/hooks/useScheduleData";
-import { calculateTimelineData } from "@/lib/timelineCalculator";
+import {
+  calculateScheduleWindow,
+  calculateTimelineData,
+} from "@/lib/timelineCalculator";
 import { TimelineContainer } from "./TimelineContainer";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { useSetsByEditionQuery as useEditionSetsQuery } from "@/api/sets/useSetsByEdition";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
+import { useNow } from "@/hooks/useNow";
 import { filterScheduleDays } from "@/lib/scheduleFilter";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
@@ -18,6 +22,7 @@ export function Timeline() {
     from: "/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline",
   });
   const { canShowTime } = useScheduleReveal();
+  const now = useNow();
   const { data: editionSets = [], isLoading: setsLoading } =
     useEditionSetsQuery(edition.id);
   const { data: stages } = useSuspenseQuery(stagesByEditionQuery(edition.id));
@@ -32,6 +37,11 @@ export function Timeline() {
     time: selectedTime,
     stages: selectedStages,
   } = useTimelineUrlState("timeline");
+
+  const scheduleWindow = useMemo(
+    () => calculateScheduleWindow(scheduleDays),
+    [scheduleDays],
+  );
 
   const timelineData = useMemo(() => {
     if (!edition.start_date || !edition.end_date) {
@@ -96,6 +106,8 @@ export function Timeline() {
           timezone={festival.timezone}
           scheduleDays={scheduleDays}
           selectedDay={selectedDay}
+          scheduleWindow={scheduleWindow}
+          now={now}
         />
       </div>
     </div>

@@ -1,36 +1,42 @@
 import { isValid, parseISO } from "date-fns";
 import { fromZonedTime } from "date-fns-tz";
+import type { ScheduleWindow } from "@/lib/timelineCalculator";
 
 export interface TimelineMountMomentInput {
-  /** Raw `scrollTo` search param, if present in the URL. */
   scrollTo?: string;
-  /** Active day filter: "all" or a "yyyy-MM-dd" festival calendar day. */
   day: string;
-  /** Festival's IANA timezone, used to resolve the day filter's start. */
   timezone: string;
-  /** Timeline geometry origin (earliest moment on the timeline). */
   festivalStart: Date;
+  scheduleWindow: ScheduleWindow | null;
+  now: Date;
 }
 
-/**
- * Decides which moment the timeline viewport should be centered on when the
- * Timeline mounts. Pure and order-sensitive:
- *
- *   1. `scrollTo` from the URL, if present and parseable.
- *   2. The start of the active `day` filter, if one is set.
- *   3. The festival start (timeline origin).
- *
- * A future rule ("now, minus 1h, when now falls inside the festival window")
- * slots in as an additional candidate between the day filter and the
- * festival-start fallback (see issue #194).
- */
+const NOW_CONTEXT_MS = 60 * 60 * 1000; // ~1h of context before "now"
+
+/** Mount-precedence order: scrollTo -> day filter -> now-1h -> festival start. */
 export function resolveTimelineMountMoment(
   input: TimelineMountMomentInput,
 ): Date {
   return (
     momentFromScrollTo(input.scrollTo) ??
     momentFromDayFilter(input.day, input.timezone) ??
+    momentFromNow(input.now, input.scheduleWindow) ??
     input.festivalStart
+  );
+}
+
+/**
+ * Inclusive check of `now` against a festival window (set times, not the
+ * edition's raw UTC-midnight start/end dates).
+ */
+export function isNowWithinFestivalWindow(
+  now: Date,
+  festivalStart: Date,
+  festivalEnd: Date,
+): boolean {
+  return (
+    now.getTime() >= festivalStart.getTime() &&
+    now.getTime() <= festivalEnd.getTime()
   );
 }
 
@@ -50,10 +56,18 @@ function momentFromDayFilter(day: string, timezone: string): Date | null {
   }
 }
 
-/**
- * Rounds a moment to the nearest multiple of `minutes` (default 5), used to
- * keep `scrollTo` URL writes coarse-grained instead of pixel-precise.
- */
+function momentFromNow(
+  now: Date,
+  scheduleWindow: ScheduleWindow | null,
+): Date | null {
+  if (!scheduleWindow) return null;
+  if (!isNowWithinFestivalWindow(now, scheduleWindow.start, scheduleWindow.end))
+    return null;
+  return new Date(
+    Math.max(now.getTime() - NOW_CONTEXT_MS, scheduleWindow.start.getTime()),
+  );
+}
+
 export function roundToNearestMinutes(date: Date, minutes = 5): Date {
   const ms = minutes * 60 * 1000;
   return new Date(Math.round(date.getTime() / ms) * ms);

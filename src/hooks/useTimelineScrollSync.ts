@@ -1,7 +1,11 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import type { RefObject } from "react";
-import { offsetToTime, timeToOffset } from "@/lib/timelineCalculator";
+import {
+  offsetToTime,
+  timeToOffset,
+  type ScheduleWindow,
+} from "@/lib/timelineCalculator";
 import {
   resolveTimelineMountMoment,
   roundToNearestMinutes,
@@ -13,19 +17,21 @@ const SCROLL_ROUND_MINUTES = 5;
 interface UseTimelineScrollSyncOptions {
   scrollContainerRef: RefObject<HTMLDivElement>;
   festivalStart: Date;
+  scheduleWindow: ScheduleWindow | null;
   timezone: string;
+  now: Date;
 }
 
 /**
- * One-way sync between the timeline viewport and the `scrollTo` URL param:
- * URL -> scroll only on mount; user scroll -> URL only (debounced, 5-min
- * rounded, history replace). Never loops. See `jumpToTimelineMoment` for
- * imperative jumps.
+ * One-way sync: URL -> scroll only on mount; user scroll -> URL only
+ * (debounced, 5-min rounded, history replace). Never loops.
  */
 export function useTimelineScrollSync({
   scrollContainerRef,
   festivalStart,
+  scheduleWindow,
   timezone,
+  now,
 }: UseTimelineScrollSyncOptions) {
   const route =
     "/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline" as const;
@@ -51,6 +57,8 @@ export function useTimelineScrollSync({
       day,
       timezone,
       festivalStart,
+      scheduleWindow,
+      now,
     });
 
     const targetScrollLeft = Math.max(

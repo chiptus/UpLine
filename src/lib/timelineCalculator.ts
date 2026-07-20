@@ -15,6 +15,24 @@ export function offsetToTime(offset: number, origin: Date): Date {
   return new Date(origin.getTime() + minutes * 60 * 1000);
 }
 
+export interface ScheduleWindow {
+  start: Date;
+  end: Date;
+}
+
+/**
+ * Earliest set start through latest set end, across the UNFILTERED schedule
+ * days (unlike TimelineData.festivalStart/End, which shrink with filters).
+ */
+export function calculateScheduleWindow(
+  scheduleDays: ScheduleDay[],
+): ScheduleWindow | null {
+  const start = calculateEarliestSetTime(scheduleDays);
+  const end = calculateLatestSetTime(scheduleDays);
+  if (!start || !end) return null;
+  return { start, end };
+}
+
 export interface HorizontalTimelineSet extends ScheduleSet {
   horizontalPosition?: {
     left: number;

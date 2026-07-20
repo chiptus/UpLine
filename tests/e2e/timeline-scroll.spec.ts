@@ -95,6 +95,39 @@ test.describe("Timeline scroll position (scrollTo URL state)", () => {
     expect(Math.abs(scrollLeftOnLoad - scrollLeftAfterScroll)).toBeLessThan(10);
   });
 
+  test("back from a set detail page restores the viewport position", async ({
+    page,
+  }) => {
+    const scrollContainer = await openTimeline(page);
+
+    await scrollContainer.evaluate((el) => {
+      el.scrollLeft = el.scrollLeft + 500;
+    });
+    await page.waitForTimeout(SCROLL_DEBOUNCE_WAIT_MS);
+
+    const urlWithScroll = page.url();
+    const scrollLeftBeforeNav = await scrollContainer.evaluate(
+      (el) => el.scrollLeft,
+    );
+
+    const setLink = page.locator('a[href*="/sets/"]').first();
+    await expect(setLink).toBeVisible();
+    await setLink.click();
+    await page.goBack();
+    await expect(page).toHaveURL(urlWithScroll);
+
+    const restoredContainer = page.getByTestId("timeline-scroll-container");
+    await expect(restoredContainer).toBeVisible();
+    await expect
+      .poll(async () =>
+        Math.abs(
+          (await restoredContainer.evaluate((el) => el.scrollLeft)) -
+            scrollLeftBeforeNav,
+        ),
+      )
+      .toBeLessThan(10);
+  });
+
   test("a full reload restores the viewport position from scrollTo", async ({
     page,
   }) => {

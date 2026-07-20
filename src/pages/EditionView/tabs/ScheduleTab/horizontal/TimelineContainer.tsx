@@ -4,7 +4,13 @@ import { StageRow } from "./StageRow";
 import { StageLabels } from "./StageLabels";
 import { TimelineToolbar } from "./TimelineToolbar";
 import { TimelineOverview } from "./TimelineOverview";
-import type { TimelineData } from "@/lib/timelineCalculator";
+import { CurrentTimeIndicator } from "./CurrentTimeIndicator";
+import {
+  timeToOffset,
+  type ScheduleWindow,
+  type TimelineData,
+} from "@/lib/timelineCalculator";
+import { isNowWithinFestivalWindow } from "@/lib/timelineMountMoment";
 import type { ScheduleDay } from "@/hooks/useScheduleData";
 import { useTimelineScrollSync } from "@/hooks/useTimelineScrollSync";
 import { jumpToTimelineMoment } from "@/lib/timelineDayJump";
@@ -15,6 +21,8 @@ interface TimelineContainerProps {
   timezone: string;
   scheduleDays: ScheduleDay[];
   selectedDay: string;
+  scheduleWindow: ScheduleWindow | null;
+  now: Date;
 }
 
 export function TimelineContainer({
@@ -22,6 +30,8 @@ export function TimelineContainer({
   timezone,
   scheduleDays,
   selectedDay,
+  scheduleWindow,
+  now,
 }: TimelineContainerProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isOverviewExpanded, setIsOverviewExpanded] = useState(false);
@@ -29,7 +39,9 @@ export function TimelineContainer({
   useTimelineScrollSync({
     scrollContainerRef,
     festivalStart: timelineData.festivalStart,
+    scheduleWindow,
     timezone,
+    now,
   });
   const activeDay = useActiveTimelineDay({
     scrollContainerRef,
@@ -47,6 +59,13 @@ export function TimelineContainer({
     }
   }
 
+  // Gated on the unfiltered scheduleWindow so a stage/time filter can't hide these.
+  const isNowInFestivalWindow =
+    scheduleWindow !== null &&
+    isNowWithinFestivalWindow(now, scheduleWindow.start, scheduleWindow.end);
+  const showNowButton = isNowInFestivalWindow;
+  const showNowIndicator = isNowInFestivalWindow;
+
   return (
     <>
       <TimelineToolbar
@@ -57,6 +76,8 @@ export function TimelineContainer({
         onJumpToDay={(moment) => jumpTo(moment, "start")}
         isOverviewExpanded={isOverviewExpanded}
         onToggleOverview={() => setIsOverviewExpanded((prev) => !prev)}
+        showNowButton={showNowButton}
+        onJumpToNow={() => jumpTo(now)}
       />
       {isOverviewExpanded && (
         <TimelineOverview
@@ -74,22 +95,30 @@ export function TimelineContainer({
           data-testid="timeline-scroll-container"
           className="overflow-x-auto overflow-y-hidden pb-20"
         >
-          <TimeScale
-            timeSlots={timelineData.timeSlots}
-            totalWidth={timelineData.totalWidth}
-            scrollContainerRef={scrollContainerRef}
-            timezone={timezone}
-          />
+          <div className="relative">
+            <TimeScale
+              timeSlots={timelineData.timeSlots}
+              totalWidth={timelineData.totalWidth}
+              scrollContainerRef={scrollContainerRef}
+              timezone={timezone}
+            />
 
-          <div className="space-y-12 mt-28">
-            {timelineData.stages.map((stage) => (
-              <StageRow
-                key={stage.name}
-                stage={stage}
-                totalWidth={timelineData.totalWidth}
-                timezone={timezone}
+            <div className="space-y-12 mt-28">
+              {timelineData.stages.map((stage) => (
+                <StageRow
+                  key={stage.name}
+                  stage={stage}
+                  totalWidth={timelineData.totalWidth}
+                  timezone={timezone}
+                />
+              ))}
+            </div>
+
+            {showNowIndicator && (
+              <CurrentTimeIndicator
+                left={timeToOffset(now, timelineData.festivalStart)}
               />
-            ))}
+            )}
           </div>
         </div>
       </div>

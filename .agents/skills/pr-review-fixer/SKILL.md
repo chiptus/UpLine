@@ -7,6 +7,7 @@ description: >
   PR comments", "address review feedback", "fix review comments", "what comments are
   on this PR", "respond to code review", or similar. Trigger even if they just say
   "let's fix the PR comments" or "what did reviewers say".
+allowed-tools: Bash(gh pr view *) Bash(gh api graphql *) Bash(gh api repos/*/issues/*/comments) Bash(gh pr comment *)
 ---
 
 # PR Review Comment Fixer

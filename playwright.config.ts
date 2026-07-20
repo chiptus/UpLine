@@ -12,7 +12,7 @@ const consentedStorageState = {
   cookies: [],
   origins: [
     {
-      origin: baseURL,
+      origin: new URL(baseURL).origin,
       localStorage: [
         {
           name: "gdpr-consent",

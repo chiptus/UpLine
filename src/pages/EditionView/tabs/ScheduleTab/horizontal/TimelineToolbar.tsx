@@ -57,7 +57,7 @@ export function TimelineToolbar({
         ref={dayRowRef}
         role="radiogroup"
         aria-label="Jump to day"
-        className="flex min-w-0 flex-1 items-end gap-1 overflow-x-auto"
+        className="flex min-w-0 flex-1 items-end gap-1 overflow-x-auto overflow-y-hidden"
         style={{ maskImage, WebkitMaskImage: maskImage }}
       >
         <DayJumpButtons

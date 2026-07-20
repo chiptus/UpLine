@@ -23,8 +23,9 @@ test.describe("Timeline day-jump toolbar", () => {
 
     for (let i = 0; i < count; i++) {
       const label = (await dayButtons.nth(i).textContent())?.trim() ?? "";
-      // e.g. "Sat 12" - abbreviated weekday, then day-of-month.
-      expect(label).toMatch(/^[A-Za-z]{3} \d{1,2}$/);
+      // Weekday over day-of-month, rendered as two stacked block spans, so
+      // textContent concatenates with no separator, e.g. "Sat12".
+      expect(label).toMatch(/^[A-Za-z]{3}\s*\d{1,2}$/);
     }
   });
 
@@ -42,7 +43,9 @@ test.describe("Timeline day-jump toolbar", () => {
       (el) => el.scrollLeft,
     );
 
-    const dayButtons = page.getByRole("radiogroup", { name: "Jump to day" }).getByRole("radio");
+    const dayButtons = page
+      .getByRole("radiogroup", { name: "Jump to day" })
+      .getByRole("radio");
     // Jump to the last day, which should be far from the initial viewport.
     await dayButtons.last().click();
 
@@ -77,14 +80,21 @@ test.describe("Timeline day-jump toolbar", () => {
       .getByRole("radio");
     // Move away first so the jump back is observable.
     await dayButtons.last().click();
-    await page.waitForTimeout(SCROLL_ANIMATION_WAIT_MS);
+    await expect(page).toHaveURL(/scrollTo=/);
+    const afterLastJump = new URL(page.url()).searchParams.get("scrollTo");
 
+    // The jump back to the first day is the longest smooth-scroll on the
+    // strip; wait for the debounced write to settle on a new moment rather
+    // than guessing a fixed animation duration.
     await dayButtons.first().click();
-    await page.waitForTimeout(SCROLL_ANIMATION_WAIT_MS);
+    await expect
+      .poll(() => new URL(page.url()).searchParams.get("scrollTo"))
+      .not.toBe(afterLastJump);
 
     const scrollTo = new URL(page.url()).searchParams.get("scrollTo");
     expect(scrollTo).toBeTruthy();
 
+    // The write must be stable: no drift once the scroll has settled.
     await page.waitForTimeout(SCROLL_ANIMATION_WAIT_MS);
     expect(new URL(page.url()).searchParams.get("scrollTo")).toBe(scrollTo);
   });
@@ -105,7 +115,9 @@ test.describe("Timeline day-jump toolbar", () => {
     const firstDayLabel = (await allDaysButtons.first().textContent())?.trim();
 
     await page.goto(`${TIMELINE_PATH}?day=2025-07-12`);
-    const filteredToolbar = page.getByRole("radiogroup", { name: "Jump to day" });
+    const filteredToolbar = page.getByRole("radiogroup", {
+      name: "Jump to day",
+    });
     await expect(filteredToolbar).toBeVisible();
 
     const filteredButtons = filteredToolbar.getByRole("radio");

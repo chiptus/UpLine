@@ -132,6 +132,7 @@ export function TimelineOverview({
             sets={stage.sets}
             totalWidth={timelineData.totalWidth}
             votes={userVotes}
+            stageColor={stage.color}
             top={LABEL_HEIGHT_PX + index * rowHeight}
             height={rowHeight - 1}
           />

@@ -59,18 +59,16 @@ export function TimelineContainer({
     }
   }
 
-  // The pill is gated on the UNFILTERED schedule window so an active
-  // stage/time filter can't hide it mid-festival as a side effect; the
-  // indicator is gated on the rendered strip's own (filtered) bounds, since
-  // it can only be drawn meaningfully inside the strip.
-  const showNowButton =
+  // Both the pill and the indicator are gated on the UNFILTERED schedule
+  // window so an active stage/time filter can't hide them mid-festival as a
+  // side effect (see #194); the indicator's pixel position still uses the
+  // rendered (possibly filtered) strip's own origin, so it may land outside
+  // the visible strip while a filter is narrowing it.
+  const isNowInFestivalWindow =
     scheduleWindow !== null &&
     isNowWithinFestivalWindow(now, scheduleWindow.start, scheduleWindow.end);
-  const showNowIndicator = isNowWithinFestivalWindow(
-    now,
-    timelineData.festivalStart,
-    timelineData.festivalEnd,
-  );
+  const showNowButton = isNowInFestivalWindow;
+  const showNowIndicator = isNowInFestivalWindow;
 
   return (
     <>

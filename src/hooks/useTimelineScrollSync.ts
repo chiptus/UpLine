@@ -28,8 +28,9 @@ interface UseTimelineScrollSyncOptions {
 
 /**
  * One-way sync between the timeline viewport and the `scrollTo` URL param:
- * URL -> scroll only on mount and via `jumpTo`; user scroll -> URL only
- * (debounced, 5-min rounded, history replace). Never loops.
+ * URL -> scroll only on mount; user scroll -> URL only (debounced, 5-min
+ * rounded, history replace). Never loops. See `jumpToTimelineMoment` for
+ * imperative jumps.
  */
 export function useTimelineScrollSync({
   scrollContainerRef,
@@ -123,31 +124,4 @@ export function useTimelineScrollSync({
       }, SCROLL_DEBOUNCE_MS);
     }
   }, [scrollContainerRef, festivalStart, navigate]);
-
-  function jumpTo(moment: Date) {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    const rounded = roundToNearestMinutes(moment, SCROLL_ROUND_MINUTES);
-    const targetScrollLeft = Math.max(
-      0,
-      timeToOffset(rounded, festivalStart) - container.clientWidth / 2,
-    );
-    // A clamped target (e.g. first-day jump) centers on a different moment
-    // than requested; write the one the viewport actually settles on.
-    const settledMoment = roundToNearestMinutes(
-      offsetToTime(targetScrollLeft + container.clientWidth / 2, festivalStart),
-      SCROLL_ROUND_MINUTES,
-    );
-
-    container.scrollTo({ left: targetScrollLeft, behavior: "smooth" });
-
-    navigate({
-      to: ".",
-      search: (prev) => ({ ...prev, scrollTo: settledMoment.toISOString() }),
-      replace: true,
-    });
-  }
-
-  return { jumpTo };
 }

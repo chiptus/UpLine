@@ -22,7 +22,6 @@ export class TestHelpers {
    */
   async signIn(email = generateTestEmail()) {
     await this.page.goto("/");
-    await this.acceptCookieConsentIfPresent();
 
     await this.page.getByRole("button", { name: /sign in/i }).click();
 
@@ -70,29 +69,6 @@ export class TestHelpers {
 
     await this.page.getByRole("button", { name: /^skip$/i }).click();
     await expect(onboardingDialog).not.toBeVisible();
-  }
-
-  /**
-   * Dismisses the cookie consent banner if it's showing. On mobile
-   * viewports the banner sits fixed to the bottom of the screen and
-   * intercepts clicks on anything positioned near it (e.g. vote buttons),
-   * so this must run before any such interaction. No-ops if it isn't
-   * showing (e.g. already dismissed earlier in this browser context).
-   */
-  async acceptCookieConsentIfPresent() {
-    const acceptAllButton = this.page.getByRole("button", {
-      name: /^accept all$/i,
-    });
-
-    const appeared = await acceptAllButton
-      .waitFor({ state: "visible", timeout: 5000 })
-      .then(() => true)
-      .catch(() => false);
-
-    if (!appeared) return;
-
-    await acceptAllButton.click();
-    await expect(acceptAllButton).not.toBeVisible();
   }
 
   /**

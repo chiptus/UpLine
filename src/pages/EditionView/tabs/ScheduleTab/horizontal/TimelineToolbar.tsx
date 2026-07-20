@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { Map } from "lucide-react";
 import { DayJumpButtons } from "./DayJumpButtons";
 import { Button } from "@/components/ui/button";
+import { useScrollEdgeFade } from "@/hooks/useScrollEdgeFade";
 import type { ScheduleDay } from "@/hooks/useScheduleData";
 
 interface TimelineToolbarProps {
@@ -29,44 +30,13 @@ export function TimelineToolbar({
   onToggleOverview,
 }: TimelineToolbarProps) {
   const dayRowRef = useRef<HTMLDivElement>(null);
-  const [scrollFade, setScrollFade] = useState({ left: false, right: false });
 
   const visibleDays =
     selectedDay === "all"
       ? days
       : days.filter((day) => day.date === selectedDay);
 
-  useEffect(() => {
-    const el = dayRowRef.current;
-    if (!el) return;
-
-    let rafId: number | null = null;
-
-    function sync() {
-      const node = el!;
-      setScrollFade({
-        left: node.scrollLeft > 1,
-        right: node.scrollLeft + node.clientWidth < node.scrollWidth - 1,
-      });
-    }
-
-    function scheduleSync() {
-      if (rafId !== null) return;
-      rafId = requestAnimationFrame(() => {
-        rafId = null;
-        sync();
-      });
-    }
-
-    sync();
-    el.addEventListener("scroll", scheduleSync, { passive: true });
-    window.addEventListener("resize", scheduleSync);
-    return () => {
-      if (rafId !== null) cancelAnimationFrame(rafId);
-      el.removeEventListener("scroll", scheduleSync);
-      window.removeEventListener("resize", scheduleSync);
-    };
-  }, [visibleDays.length]);
+  const scrollFade = useScrollEdgeFade(dayRowRef, [visibleDays.length]);
 
   if (visibleDays.length === 0) return null;
 

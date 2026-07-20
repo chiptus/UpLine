@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import type { RefObject } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserVotes } from "@/api/voting/useUserVotes";
+import { useTimelineViewportSize } from "@/hooks/useTimelineViewportSize";
 import { offsetToTime } from "@/lib/timelineCalculator";
 import type { TimelineData } from "@/lib/timelineCalculator";
 import type { ScheduleDay } from "@/hooks/useScheduleData";
@@ -46,37 +47,7 @@ export function TimelineOverview({
   const { user } = useAuth();
   const { data: userVotes } = useUserVotes(user?.id);
 
-  const [viewportSize, setViewportSize] = useState(() =>
-    readViewportSize(scrollContainerRef.current),
-  );
-
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    let rafId: number | null = null;
-
-    function sync() {
-      setViewportSize(readViewportSize(container));
-    }
-
-    function scheduleSync() {
-      if (rafId !== null) return;
-      rafId = requestAnimationFrame(() => {
-        rafId = null;
-        sync();
-      });
-    }
-
-    sync();
-    container.addEventListener("scroll", scheduleSync, { passive: true });
-    window.addEventListener("resize", scheduleSync);
-    return () => {
-      if (rafId !== null) cancelAnimationFrame(rafId);
-      container.removeEventListener("scroll", scheduleSync);
-      window.removeEventListener("resize", scheduleSync);
-    };
-  }, [scrollContainerRef]);
+  const viewportSize = useTimelineViewportSize(scrollContainerRef);
 
   const dayBoundaries = calculateDayBoundaries({
     days: scheduleDays,
@@ -160,11 +131,4 @@ export function TimelineOverview({
     const offset = fractionToOffset({ fraction, totalWidth: timelineData.totalWidth });
     onJump(offsetToTime(offset, timelineData.festivalStart));
   }
-}
-
-function readViewportSize(container: HTMLDivElement | null) {
-  return {
-    scrollLeft: container?.scrollLeft ?? 0,
-    clientWidth: container?.clientWidth ?? 0,
-  };
 }

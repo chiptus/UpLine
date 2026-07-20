@@ -64,7 +64,7 @@ export function ScheduleFilterSheet({ tab }: ScheduleFilterSheetProps) {
           className={
             hasActiveFilters
               ? "flex items-center gap-2 bg-purple-600/50 text-purple-100 hover:bg-purple-600/60"
-              : "flex items-center gap-2 text-purple-300 hover:text-purple-100"
+              : "flex items-center gap-2 text-purple-300 hover:bg-purple-400/10 hover:text-purple-100"
           }
         >
           <Filter className="h-4 w-4" />

@@ -13,7 +13,7 @@ export interface TimelineMountMomentInput {
 
 const NOW_CONTEXT_MS = 60 * 60 * 1000; // ~1h of context before "now"
 
-// Mount-precedence order: scrollTo -> day filter -> now-1h -> festival start.
+/** Mount-precedence order: scrollTo -> day filter -> now-1h -> festival start. */
 export function resolveTimelineMountMoment(
   input: TimelineMountMomentInput,
 ): Date {
@@ -25,8 +25,10 @@ export function resolveTimelineMountMoment(
   );
 }
 
-// Inclusive check of `now` against a festival window (set times, not the
-// edition's raw UTC-midnight start/end dates).
+/**
+ * Inclusive check of `now` against a festival window (set times, not the
+ * edition's raw UTC-midnight start/end dates).
+ */
 export function isNowWithinFestivalWindow(
   now: Date,
   festivalStart: Date,

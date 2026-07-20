@@ -22,8 +22,10 @@ interface UseTimelineScrollSyncOptions {
   now: Date;
 }
 
-// One-way sync: URL -> scroll only on mount; user scroll -> URL only
-// (debounced, 5-min rounded, history replace). Never loops.
+/**
+ * One-way sync: URL -> scroll only on mount; user scroll -> URL only
+ * (debounced, 5-min rounded, history replace). Never loops.
+ */
 export function useTimelineScrollSync({
   scrollContainerRef,
   festivalStart,

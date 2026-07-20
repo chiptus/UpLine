@@ -20,8 +20,10 @@ export interface ScheduleWindow {
   end: Date;
 }
 
-// Earliest set start through latest set end, across the UNFILTERED schedule
-// days (unlike TimelineData.festivalStart/End, which shrink with filters).
+/**
+ * Earliest set start through latest set end, across the UNFILTERED schedule
+ * days (unlike TimelineData.festivalStart/End, which shrink with filters).
+ */
 export function calculateScheduleWindow(
   scheduleDays: ScheduleDay[],
 ): ScheduleWindow | null {

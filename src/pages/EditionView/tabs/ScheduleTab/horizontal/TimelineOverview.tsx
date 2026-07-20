@@ -63,10 +63,8 @@ export function TimelineOverview({
   });
 
   const stageCount = timelineData.stages.length;
-  const rowHeight =
-    stageCount > 0
-      ? Math.max(3, Math.floor((MAP_HEIGHT_PX - LABEL_HEIGHT_PX - 4) / stageCount))
-      : 4;
+  const availableRowsHeight = MAP_HEIGHT_PX - LABEL_HEIGHT_PX - 4;
+  const rowHeight = stageCount > 0 ? availableRowsHeight / stageCount : 4;
 
   return (
     <div
@@ -105,7 +103,7 @@ export function TimelineOverview({
             votes={userVotes}
             stageColor={stage.color}
             top={LABEL_HEIGHT_PX + index * rowHeight}
-            height={rowHeight - 1}
+            height={Math.max(0, rowHeight - 1)}
           />
         ))}
 

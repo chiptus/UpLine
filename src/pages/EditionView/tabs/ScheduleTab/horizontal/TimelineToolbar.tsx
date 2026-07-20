@@ -71,23 +71,25 @@ export function TimelineToolbar({
           timezone={timezone}
           onJumpToDay={onJumpToDay}
         />
-        {showNowButton && <NowButton onJumpToNow={onJumpToNow} />}
       </div>
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        data-testid="timeline-overview-toggle"
-        className="shrink-0 gap-1.5 self-center border-l border-purple-400/20 pl-3 text-purple-200/60 hover:bg-purple-400/10 hover:text-purple-100"
-        aria-expanded={isOverviewExpanded}
-        aria-label={isOverviewExpanded ? "Hide overview" : "Show overview"}
-        onClick={onToggleOverview}
-      >
-        <Map className="size-4" />
-        <span className="hidden sm:inline">
-          {isOverviewExpanded ? "Hide overview" : "Show overview"}
-        </span>
-      </Button>
+      <div className="flex shrink-0 items-center gap-1 self-center border-l border-purple-400/20 pl-1">
+        {showNowButton && <NowButton onJumpToNow={onJumpToNow} />}
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          data-testid="timeline-overview-toggle"
+          className="shrink-0 gap-1.5 text-purple-200/60 hover:bg-purple-400/10 hover:text-purple-100"
+          aria-expanded={isOverviewExpanded}
+          aria-label={isOverviewExpanded ? "Hide overview" : "Show overview"}
+          onClick={onToggleOverview}
+        >
+          <Map className="size-4" />
+          <span className="hidden sm:inline">
+            {isOverviewExpanded ? "Hide overview" : "Show overview"}
+          </span>
+        </Button>
+      </div>
     </div>
   );
 }

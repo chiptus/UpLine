@@ -92,7 +92,7 @@ export function TimelineOverview({
       <div
         ref={mapRef}
         data-testid="timeline-overview-map"
-        className="relative max-h-36 cursor-pointer space-y-1 overflow-y-auto py-1 sm:max-h-48"
+        className="relative cursor-pointer space-y-1 py-1"
         onClick={handleMapClick}
       >
         {dayBoundaries.map((boundary) => (

@@ -67,6 +67,12 @@
       "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
       "computedHash": "8bf292143ca93b00276a0de0fc5f84f2381f4690c5b0d32e99fa283a072f392f"
     },
+    "pr-review-fixer": {
+      "source": "chiptus/skills",
+      "sourceType": "github",
+      "skillPath": "skills/chiptus/pr-review-fixer/SKILL.md",
+      "computedHash": "547522a9313243826cbb4343c2d46e8a3ab5bf11cc94aaa83cedc75dc868898c"
+    },
     "prototype": {
       "source": "mattpocock/skills",
       "sourceType": "github",

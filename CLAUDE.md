@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Development
 
-- `pnpm run dev` - Start development server on port 8080 (DO NOT RUN - user always has dev server running)
+- `pnpm run dev` - Start development server on port 8080
 - `pnpm run build` - Production build
 - `pnpm run build:dev` - Development build
 - `pnpm run lint` - Run oxlint
@@ -131,7 +131,7 @@ In this codebase, it is acceptable and preferred to define helper functions (suc
 - Group-based permissions affect data visibility
 - PWA manifest configured for "UpLine" branding
 
-- dont use export from unless specifically required
+- don't use export from unless specifically required
 
 - try to use mutation.mutate(variables, {onSuccess, onError}) instead of try{await mutation.mutateAsync(variables)}catch(err){}
 
@@ -139,7 +139,7 @@ In this codebase, it is acceptable and preferred to define helper functions (suc
 
 ## Git Workflow
 
-- **Auto-commit Rule**: For every user message that requests code changes, automatically commit the changes after implementation with an appropriate commit message, if there are no other staged files
+- **Auto-commit Rule**: For every user message that requests code changes, suggest committing the changes after implementation with an appropriate commit message, if there are no other staged files
 
 - never run "supabase db push"
 - don't run supabase db reset

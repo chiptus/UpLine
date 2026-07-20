@@ -101,29 +101,31 @@ export function TimelineContainer({
           data-testid="timeline-scroll-container"
           className="overflow-x-auto overflow-y-hidden pb-20"
         >
-          <TimeScale
-            timeSlots={timelineData.timeSlots}
-            totalWidth={timelineData.totalWidth}
-            scrollContainerRef={scrollContainerRef}
-            timezone={timezone}
-          />
-
-          <div className="space-y-12 mt-28">
-            {timelineData.stages.map((stage) => (
-              <StageRow
-                key={stage.name}
-                stage={stage}
-                totalWidth={timelineData.totalWidth}
-                timezone={timezone}
-              />
-            ))}
-          </div>
-
-          {showNowIndicator && (
-            <CurrentTimeIndicator
-              left={timeToOffset(now, timelineData.festivalStart)}
+          <div className="relative">
+            <TimeScale
+              timeSlots={timelineData.timeSlots}
+              totalWidth={timelineData.totalWidth}
+              scrollContainerRef={scrollContainerRef}
+              timezone={timezone}
             />
-          )}
+
+            <div className="space-y-12 mt-28">
+              {timelineData.stages.map((stage) => (
+                <StageRow
+                  key={stage.name}
+                  stage={stage}
+                  totalWidth={timelineData.totalWidth}
+                  timezone={timezone}
+                />
+              ))}
+            </div>
+
+            {showNowIndicator && (
+              <CurrentTimeIndicator
+                left={timeToOffset(now, timelineData.festivalStart)}
+              />
+            )}
+          </div>
         </div>
       </div>
     </>

@@ -5,6 +5,7 @@ import type { ScheduleDay } from "@/hooks/useScheduleData";
 interface TimelineToolbarProps {
   days: ScheduleDay[];
   selectedDay: string;
+  activeDay: string | null;
   timezone: string;
   onJumpToDay: (moment: Date) => void;
   isOverviewExpanded: boolean;
@@ -16,6 +17,7 @@ interface TimelineToolbarProps {
 export function TimelineToolbar({
   days,
   selectedDay,
+  activeDay,
   timezone,
   onJumpToDay,
   isOverviewExpanded,
@@ -31,13 +33,16 @@ export function TimelineToolbar({
   return (
     <div
       data-testid="timeline-day-toolbar"
-      className="sticky top-0 z-40 mb-4 flex gap-2 overflow-x-auto rounded-lg border border-purple-400/20 bg-gray-900/95 p-2 backdrop-blur-md"
+      className="sticky top-0 z-40 mb-4 flex items-end gap-1 overflow-x-auto rounded-lg border border-purple-400/20 bg-gray-900/95 px-2 pb-2.5 pt-2 backdrop-blur-md"
     >
-      <DayJumpButtons
-        days={visibleDays}
-        timezone={timezone}
-        onJumpToDay={onJumpToDay}
-      />
+      <div role="radiogroup" aria-label="Jump to day" className="flex items-end gap-1">
+        <DayJumpButtons
+          days={visibleDays}
+          activeDay={activeDay}
+          timezone={timezone}
+          onJumpToDay={onJumpToDay}
+        />
+      </div>
       <Button
         type="button"
         variant="outline"

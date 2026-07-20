@@ -1,22 +1,10 @@
-import { test, expect, type Locator } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 
 // Seeded in supabase/seed.sql: festival slug "test", edition slug "2025",
 // three festival days (Jul 12-14, 2025) each with timed sets.
 const TIMELINE_PATH = "/festivals/test/editions/2025/schedule/timeline";
 const SCROLL_ANIMATION_WAIT_MS = 800; // > smooth-scroll animation + the ~300ms debounce
 const DEBOUNCE_WAIT_MS = 600; // > the ~300ms debounce in useTimelineScrollSync
-
-// Waits for the schedule to render before deciding it's genuinely absent;
-// an immediate check races the async load and skips real failures as green.
-async function skipUnlessScheduleRevealed(scrollContainer: Locator) {
-  const revealed = await scrollContainer
-    .waitFor({ state: "visible", timeout: 15000 })
-    .then(() => true)
-    .catch(() => false);
-  if (!revealed) {
-    test.skip(true, "Schedule not revealed in this environment");
-  }
-}
 
 test.describe("Timeline overview mini-map", () => {
   test("collapsed by default; toggle expands and collapses it", async ({
@@ -25,7 +13,7 @@ test.describe("Timeline overview mini-map", () => {
     await page.goto(TIMELINE_PATH);
 
     const scrollContainer = page.getByTestId("timeline-scroll-container");
-    await skipUnlessScheduleRevealed(scrollContainer);
+    await expect(scrollContainer).toBeVisible({ timeout: 15000 });
 
     const overview = page.getByTestId("timeline-overview");
     await expect(overview).not.toBeVisible();
@@ -48,7 +36,7 @@ test.describe("Timeline overview mini-map", () => {
     await page.goto(TIMELINE_PATH);
 
     const scrollContainer = page.getByTestId("timeline-scroll-container");
-    await skipUnlessScheduleRevealed(scrollContainer);
+    await expect(scrollContainer).toBeVisible({ timeout: 15000 });
 
     await page.getByTestId("timeline-overview-toggle").click();
     const map = page.getByTestId("timeline-overview-map");
@@ -84,7 +72,7 @@ test.describe("Timeline overview mini-map", () => {
     await page.goto(TIMELINE_PATH);
 
     const scrollContainer = page.getByTestId("timeline-scroll-container");
-    await skipUnlessScheduleRevealed(scrollContainer);
+    await expect(scrollContainer).toBeVisible({ timeout: 15000 });
 
     await page.getByTestId("timeline-overview-toggle").click();
     const viewportWindow = page.getByTestId("timeline-overview-viewport");
@@ -126,7 +114,7 @@ test.describe("Timeline overview mini-map", () => {
     await page.goto(`${TIMELINE_PATH}?day=2025-07-12`);
 
     const scrollContainer = page.getByTestId("timeline-scroll-container");
-    await skipUnlessScheduleRevealed(scrollContainer);
+    await expect(scrollContainer).toBeVisible({ timeout: 15000 });
 
     await page.getByTestId("timeline-overview-toggle").click();
     await expect(page.getByTestId("timeline-overview")).toBeVisible();

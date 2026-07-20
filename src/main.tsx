@@ -30,6 +30,7 @@ const router = createRouter({
   },
   defaultPreload: "intent",
   defaultPreloadStaleTime: 0,
+  defaultStructuralSharing: true,
   defaultNotFoundComponent: NotFound,
   defaultPendingComponent: RouteLoadingFallback,
   defaultErrorComponent: RouteErrorFallback,

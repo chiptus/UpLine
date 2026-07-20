@@ -3,7 +3,6 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
 import { useScheduleData } from "@/hooks/useScheduleData";
 import { calculateTimelineData } from "@/lib/timelineCalculator";
-import { StageLabels } from "./StageLabels";
 import { TimelineContainer } from "./TimelineContainer";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { useSetsByEditionQuery as useEditionSetsQuery } from "@/api/sets/useSetsByEdition";
@@ -91,8 +90,7 @@ export function Timeline() {
 
   return (
     <div className="space-y-8">
-      <div className="relative bg-white/5 rounded-lg p-4">
-        <StageLabels stages={timelineData.stages} />
+      <div className="bg-white/5 rounded-lg p-4">
         <TimelineContainer
           timelineData={timelineData}
           timezone={festival.timezone}

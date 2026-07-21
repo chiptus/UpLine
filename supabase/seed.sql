@@ -7,6 +7,7 @@
 INSERT INTO auth.users (
   id,
   instance_id,
+  aud,
   email,
   encrypted_password,
   email_confirmed_at,
@@ -14,10 +15,15 @@ INSERT INTO auth.users (
   updated_at,
   raw_user_meta_data,
   is_super_admin,
-  role
+  role,
+  confirmation_token,
+  recovery_token,
+  email_change,
+  email_change_token_new
 ) VALUES (
   '11111111-1111-1111-1111-111111111111',
   '00000000-0000-0000-0000-000000000000',
+  'authenticated',
   'test@example.com',
   '$2a$10$example_hash',
   now(),
@@ -25,7 +31,30 @@ INSERT INTO auth.users (
   now(),
   '{"username": "testuser"}',
   false,
-  'authenticated'
+  'authenticated',
+  '',
+  '',
+  '',
+  ''
+) ON CONFLICT (id) DO NOTHING;
+
+-- Mark this seeded user as already onboarded so tests can use it as an "existing user".
+UPDATE public.profiles
+SET completed_onboarding = true
+WHERE id = '11111111-1111-1111-1111-111111111111';
+
+-- GoTrue's OTP sign-in requires a matching auth.identities row for existing users.
+INSERT INTO auth.identities (
+  id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at
+) VALUES (
+  '11111111-1111-1111-1111-111111111111',
+  '11111111-1111-1111-1111-111111111111',
+  '11111111-1111-1111-1111-111111111111',
+  jsonb_build_object('sub', '11111111-1111-1111-1111-111111111111', 'email', 'test@example.com'),
+  'email',
+  now(),
+  now(),
+  now()
 ) ON CONFLICT (id) DO NOTHING;
 
 

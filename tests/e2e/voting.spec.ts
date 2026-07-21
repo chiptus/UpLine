@@ -5,7 +5,7 @@ import {
   type Locator,
   type Page,
 } from "@playwright/test";
-import { TestHelpers } from "../utils/test-helpers";
+import { signIn } from "../utils/login";
 import { VOTE_CONFIG, type VoteType } from "../../src/lib/voteConfig";
 
 // Seeded via supabase/seed.sql: "Test festival" edition "Boom Festival 2025".
@@ -25,7 +25,7 @@ test.describe("Voting on a set", () => {
   test.beforeAll(async ({ browser, baseURL, storageState }) => {
     context = await browser.newContext({ baseURL, storageState });
     page = await context.newPage();
-    await new TestHelpers(page).signIn();
+    await signIn(page);
   });
 
   test.afterAll(async () => {
@@ -138,8 +138,8 @@ test.describe("Voting without authentication", () => {
   test("an unauthenticated vote attempt surfaces the sign-in prompt", async ({
     page,
   }) => {
-    const testHelpers = new TestHelpers(page);
-    await testHelpers.navigateTo(EDITION_SETS_PATH);
+    await page.goto(EDITION_SETS_PATH);
+    await page.waitForLoadState("networkidle");
 
     const setCard = page
       .getByTestId("artist-item")

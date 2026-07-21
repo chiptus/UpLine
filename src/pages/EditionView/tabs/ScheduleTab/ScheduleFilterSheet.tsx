@@ -21,22 +21,6 @@ interface ScheduleFilterSheetProps {
   tab: "timeline" | "list";
 }
 
-/**
- * Shared day / time-of-day / stage filter UI for both Schedule views
- * (Timeline and List). Renders as a trigger button (with an active-filter
- * count badge) plus a bottom sheet - the same component instance handles
- * both the trigger and the sheet content so each view only has to render
- * one thing in its filter row.
- *
- * Filter state is the shared URL state from `useTimelineUrlState`, so
- * setting a filter on one view keeps it visible (and clearable) on the
- * other. Opening, applying, or clearing filters here never scrolls either
- * view - only day-jump navigation does that.
- *
- * Active-filter count: `day` and `time` each count 1 when away from "all",
- * and every selected stage counts 1 of its own (so picking two stages adds
- * 2). Vote-type chips will fold into this same count in a later ticket.
- */
 export function ScheduleFilterSheet({ tab }: ScheduleFilterSheetProps) {
   const [open, setOpen] = useState(false);
   const {

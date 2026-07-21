@@ -24,7 +24,10 @@ export function TimeFilterSelect({
         <label className="text-sm font-medium text-purple-200">Time</label>
       </div>
       <Select value={selectedTime} onValueChange={onTimeChange}>
-        <SelectTrigger className="bg-white/10 border-purple-400/30 text-purple-100">
+        <SelectTrigger
+          data-testid="time-filter-trigger"
+          className="bg-white/10 border-purple-400/30 text-purple-100"
+        >
           <SelectValue />
         </SelectTrigger>
         <SelectContent className="bg-gray-800 border-purple-400/30">

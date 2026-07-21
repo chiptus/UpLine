@@ -34,7 +34,7 @@ export function StageFilterButtons({
             className={
               selectedStages.includes(stage.id)
                 ? "bg-purple-600 hover:bg-purple-700 text-xs"
-                : "border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white text-xs"
+                : "bg-white/5 border-purple-400/40 text-purple-300 hover:border-purple-300 hover:bg-purple-400/20 hover:text-purple-100 text-xs"
             }
           >
             {stage.name}

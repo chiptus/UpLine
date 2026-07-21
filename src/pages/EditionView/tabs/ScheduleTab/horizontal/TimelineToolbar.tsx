@@ -3,6 +3,7 @@ import { Map } from "lucide-react";
 import { DayJumpButtons } from "./DayJumpButtons";
 import { NowButton } from "./NowButton";
 import { Button } from "@/components/ui/button";
+import { ScheduleFilterSheet } from "../ScheduleFilterSheet";
 import type { ScheduleDay } from "@/hooks/useScheduleData";
 import { useScrollEdgeFade } from "./useScrollEdgeFade";
 
@@ -22,7 +23,9 @@ interface TimelineToolbarProps {
 const SCROLL_FADE_PX = 24;
 
 // Sticky nav toolbar above the Timeline strip. Navigation scrolls, it never
-// filters; with a day filter active only that day's button shows.
+// filters; with a day filter active only that day's button shows. Hosts the
+// Filters trigger (bottom sheet) inline in the same row - it never renders
+// on its own line.
 export function TimelineToolbar({
   days,
   selectedDay,
@@ -89,6 +92,7 @@ export function TimelineToolbar({
             {isOverviewExpanded ? "Hide overview" : "Show overview"}
           </span>
         </Button>
+        <ScheduleFilterSheet tab="timeline" />
       </div>
     </div>
   );

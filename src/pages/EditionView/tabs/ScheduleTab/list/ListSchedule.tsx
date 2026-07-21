@@ -134,16 +134,13 @@ export function ListSchedule() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="list-schedule">
       {timeSlots.map((slot, index) => {
         const prevSlot = index > 0 ? timeSlots[index - 1] : null;
         const showDateHeader =
           !prevSlot ||
           getFestivalDayKey(slot.time.toISOString(), festival.timezone) !==
-            getFestivalDayKey(
-              prevSlot.time.toISOString(),
-              festival.timezone,
-            );
+            getFestivalDayKey(prevSlot.time.toISOString(), festival.timezone);
 
         return (
           <TimeSlotGroup

@@ -522,6 +522,7 @@ export type Database = {
       };
       profiles: {
         Row: {
+          active_group_id: string | null;
           completed_onboarding: boolean | null;
           created_at: string;
           email: string | null;
@@ -529,6 +530,7 @@ export type Database = {
           username: string | null;
         };
         Insert: {
+          active_group_id?: string | null;
           completed_onboarding?: boolean | null;
           created_at?: string;
           email?: string | null;
@@ -536,13 +538,22 @@ export type Database = {
           username?: string | null;
         };
         Update: {
+          active_group_id?: string | null;
           completed_onboarding?: boolean | null;
           created_at?: string;
           email?: string | null;
           id?: string;
           username?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "profiles_active_group_id_fkey";
+            columns: ["active_group_id"];
+            isOneToOne: false;
+            referencedRelation: "groups";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       set_artists: {
         Row: {

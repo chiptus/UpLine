@@ -21,7 +21,11 @@ export function VoteFilterChips({ tab }: VoteFilterChipsProps) {
   }
 
   return (
-    <div data-testid="vote-filter-chips" className="flex items-center gap-1">
+    <div
+      role="group"
+      aria-label="Filter by my vote"
+      className="flex items-center gap-1"
+    >
       {VOTES_TYPES.map((voteType) => {
         const config = VOTE_CONFIG[voteType];
         const Icon = config.icon;
@@ -35,7 +39,6 @@ export function VoteFilterChips({ tab }: VoteFilterChipsProps) {
             size="icon"
             aria-pressed={isSelected}
             aria-label={config.label}
-            data-testid={`vote-filter-chip-${voteType}`}
             onClick={() => handleToggle(voteType)}
             className={cn(
               "h-8 w-8",

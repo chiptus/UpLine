@@ -6,9 +6,13 @@ const TIMELINE_PATH = "/festivals/test/editions/2025/schedule/timeline";
 const LIST_PATH = "/festivals/test/editions/2025/schedule/list";
 
 // Sets seeded on Friday July 12, 2025 (see `public.sets` inserts in seed.sql).
-const MAYA_SET_ID = "11111111-1111-1111-1111-111111111111";
-const BEN_SET_ID = "22222222-2222-2222-2222-222222222222";
-const KIARA_SET_ID = "33333333-3333-3333-3333-333333333333";
+const MAYA_SET_NAME = "Maya Jane Coles";
+const BEN_SET_NAME = "Ben Böhmer";
+const KIARA_SET_NAME = "Kiara Scuro";
+
+function voteGroup(page: import("@playwright/test").Page, setName: string) {
+  return page.getByRole("group", { name: `Vote for ${setName}` });
+}
 
 async function signInOrSkip(page: import("@playwright/test").Page) {
   const testHelpers = new TestHelpers(page);
@@ -36,7 +40,9 @@ test.describe("My-vote chips", () => {
       test.skip(true, "Schedule not revealed in this environment");
     }
 
-    await expect(page.getByTestId("vote-filter-chips")).toHaveCount(0);
+    await expect(
+      page.getByRole("group", { name: "Filter by my vote" }),
+    ).toHaveCount(0);
 
     await page.goto(LIST_PATH);
     const listSchedule = page.getByTestId("list-schedule");
@@ -44,7 +50,9 @@ test.describe("My-vote chips", () => {
       test.skip(true, "Schedule not revealed in this environment");
     }
 
-    await expect(page.getByTestId("vote-filter-chips")).toHaveCount(0);
+    await expect(
+      page.getByRole("group", { name: "Filter by my vote" }),
+    ).toHaveCount(0);
   });
 
   test("a shared ?votes= link is inert for logged-out visitors - sets still show", async ({
@@ -58,10 +66,10 @@ test.describe("My-vote chips", () => {
     }
 
     // No viewer identity, so the vote filter must not empty the schedule.
+    await expect(voteGroup(page, MAYA_SET_NAME)).toBeVisible();
     await expect(
-      page.getByTestId(`vote-buttons-${MAYA_SET_ID}`),
-    ).toBeVisible();
-    await expect(page.getByTestId("vote-filter-chips")).toHaveCount(0);
+      page.getByRole("group", { name: "Filter by my vote" }),
+    ).toHaveCount(0);
     // The badge must not advertise the inert vote filter.
     await expect(page.getByTestId("schedule-filters-badge")).toHaveCount(0);
   });
@@ -79,30 +87,25 @@ test.describe("My-vote chips", () => {
 
     // Vote Must Go on one set and Interested on another, leaving a third
     // (Kiara Scuro) unvoted.
-    await page
-      .getByTestId(`vote-buttons-${MAYA_SET_ID}`)
-      .getByTestId("vote-button-mustGo")
+    await voteGroup(page, MAYA_SET_NAME)
+      .getByRole("button", { name: "Must Go" })
       .click();
-    await page
-      .getByTestId(`vote-buttons-${BEN_SET_ID}`)
-      .getByTestId("vote-button-interested")
+    await voteGroup(page, BEN_SET_NAME)
+      .getByRole("button", { name: "Interested" })
       .click();
 
-    await expect(page.getByTestId("vote-filter-chips")).toBeVisible();
+    const chips = page.getByRole("group", { name: "Filter by my vote" });
+    await expect(chips).toBeVisible();
 
-    await page.getByTestId("vote-filter-chip-mustGo").click();
-    await page.getByTestId("vote-filter-chip-interested").click();
+    await chips.getByRole("button", { name: "Must Go" }).click();
+    await chips.getByRole("button", { name: "Interested" }).click();
 
     await expect(page).toHaveURL(/votes=/);
     await expect(page.getByTestId("schedule-filters-badge")).toHaveText("2");
 
-    await expect(
-      page.getByTestId(`vote-buttons-${MAYA_SET_ID}`),
-    ).toBeVisible();
-    await expect(page.getByTestId(`vote-buttons-${BEN_SET_ID}`)).toBeVisible();
-    await expect(
-      page.getByTestId(`vote-buttons-${KIARA_SET_ID}`),
-    ).toHaveCount(0);
+    await expect(voteGroup(page, MAYA_SET_NAME)).toBeVisible();
+    await expect(voteGroup(page, BEN_SET_NAME)).toBeVisible();
+    await expect(voteGroup(page, KIARA_SET_NAME)).toHaveCount(0);
 
     // Shared URL state: the Timeline view sees the same selection and badge.
     const url = new URL(page.url());
@@ -114,11 +117,7 @@ test.describe("My-vote chips", () => {
     }
 
     await expect(page.getByTestId("schedule-filters-badge")).toHaveText("2");
-    await expect(
-      page.getByTestId(`vote-buttons-${MAYA_SET_ID}`),
-    ).toBeVisible();
-    await expect(
-      page.getByTestId(`vote-buttons-${KIARA_SET_ID}`),
-    ).toHaveCount(0);
+    await expect(voteGroup(page, MAYA_SET_NAME)).toBeVisible();
+    await expect(voteGroup(page, KIARA_SET_NAME)).toHaveCount(0);
   });
 });

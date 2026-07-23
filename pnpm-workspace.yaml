@@ -1,4 +1,6 @@
-onlyBuiltDependencies:
-  - '@swc/core'
-  - esbuild
-  - supabase
+allowBuilds:
+  '@swc/core': true
+  '@vercel/speed-insights': true
+  core-js: true
+  esbuild: true
+  supabase: true

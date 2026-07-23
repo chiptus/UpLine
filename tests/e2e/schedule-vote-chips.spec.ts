@@ -14,19 +14,8 @@ function voteGroup(page: import("@playwright/test").Page, setName: string) {
   return page.getByRole("group", { name: `Vote for ${setName}` });
 }
 
-async function signInOrSkip(page: import("@playwright/test").Page) {
-  const testHelpers = new TestHelpers(page);
-  try {
-    await testHelpers.signIn();
-  } catch {
-    // Ignore - handled by the isAuthenticated check below.
-  }
-
-  const authenticated = await testHelpers.isAuthenticated();
-  test.skip(
-    !authenticated,
-    "Seeded environment can't authenticate a voting user",
-  );
+async function signIn(page: import("@playwright/test").Page) {
+  await new TestHelpers(page).signIn();
 }
 
 test.describe("My-vote chips", () => {
@@ -77,7 +66,7 @@ test.describe("My-vote chips", () => {
   test("two-tap 'my schedule': Must Go + Interested filters both views to the viewer's own votes", async ({
     page,
   }) => {
-    await signInOrSkip(page);
+    await signIn(page);
 
     await page.goto(LIST_PATH);
     const listSchedule = page.getByTestId("list-schedule");

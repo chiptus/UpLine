@@ -93,7 +93,9 @@ export function TimelineToolbar({
             {isOverviewExpanded ? "Hide overview" : "Show overview"}
           </span>
         </Button>
-        <VoteFilterChips tab="timeline" />
+        <div className="hidden md:block">
+          <VoteFilterChips tab="timeline" />
+        </div>
         <ScheduleFilterSheet tab="timeline" />
       </div>
     </div>

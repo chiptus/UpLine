@@ -13,7 +13,9 @@ export function ScheduleTabList() {
         <div className="flex items-center gap-2 flex-wrap">
           <h3 className="text-purple-100 font-medium">Filters</h3>
           <div className="ml-auto" />
-          <VoteFilterChips tab="list" />
+          <div className="hidden md:block">
+            <VoteFilterChips tab="list" />
+          </div>
           <ScheduleFilterSheet tab="list" />
         </div>
       </FilterContainer>

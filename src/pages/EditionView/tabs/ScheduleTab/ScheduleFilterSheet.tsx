@@ -15,6 +15,7 @@ import {
 import { DayFilterSelect } from "./DayFilterSelect";
 import { TimeFilterSelect } from "./TimeFilterSelect";
 import { StageFilterButtons } from "./StageFilterButtons";
+import { VoteFilterChips } from "./VoteFilterChips";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -95,6 +96,15 @@ export function ScheduleFilterSheet({ tab }: ScheduleFilterSheetProps) {
             onStageToggle={handleStageToggle}
           />
         </div>
+
+        {user && (
+          <div className="mt-4 space-y-2 md:hidden">
+            <label className="text-sm font-medium text-purple-200">
+              My vote
+            </label>
+            <VoteFilterChips tab={tab} />
+          </div>
+        )}
 
         <SheetFooter className="mt-6">
           {hasActiveFilters && (

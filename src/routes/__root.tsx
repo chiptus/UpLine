@@ -9,6 +9,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CookieConsentBanner } from "@/components/layout/legal/CookieConsentBanner";
 import { OfflineIndicator } from "@/components/ui/OfflineIndicator";
+import { AppUpdatePrompt } from "@/components/layout/AppUpdatePrompt";
 import { AppFooter } from "@/components/layout/AppFooter";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { HelmetProvider } from "react-helmet-async";
@@ -51,6 +52,7 @@ function RootComponent() {
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <AppUpdatePrompt />
         <CookieConsentBanner />
         <AuthProvider>
           <RootContent />

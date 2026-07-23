@@ -1,5 +1,5 @@
 import { Link, useRouter } from "@tanstack/react-router";
-import { ArrowLeft, Users } from "lucide-react";
+import { ArrowLeft, UserPlus, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -7,6 +7,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useAuth } from "@/contexts/AuthContext";
+import { useActiveGroup } from "@/hooks/useActiveGroup";
 
 interface NavigationProps {
   showBackButton?: boolean;
@@ -50,6 +51,7 @@ export function Navigation({
 }: NavigationProps) {
   const { user } = useAuth();
   const router = useRouter();
+  const { activeGroup, hasGroups } = useActiveGroup();
 
   return (
     <div className="flex items-center gap-3">
@@ -69,20 +71,36 @@ export function Navigation({
         </TooltipButton>
       )}
 
-      {/* Groups Button */}
+      {/* Groups / Active Group Indicator */}
       {showGroupsButton && user && (
         <Link to="/groups">
-          <TooltipButton
-            variant="outline"
-            size={isMobile ? "sm" : "default"}
-            className="border-purple-400/50 text-purple-300 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-colors"
-            tooltip="View Your Groups"
-            isMobile={isMobile}
-            aria-label={isMobile ? "Groups" : undefined}
-          >
-            <Users className="h-4 w-4" />
-            {!isMobile && <span className="ml-2">Groups</span>}
-          </TooltipButton>
+          {hasGroups ? (
+            <TooltipButton
+              variant="outline"
+              size={isMobile ? "sm" : "default"}
+              className="border-purple-400/50 text-purple-300 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-colors"
+              tooltip={activeGroup ? `Active group: ${activeGroup.name}` : "View Your Groups"}
+              isMobile={isMobile}
+              aria-label={isMobile ? activeGroup?.name || "Groups" : undefined}
+            >
+              <Users className="h-4 w-4" />
+              {!isMobile && (
+                <span className="ml-2">{activeGroup?.name || "Groups"}</span>
+              )}
+            </TooltipButton>
+          ) : (
+            <TooltipButton
+              variant="outline"
+              size={isMobile ? "sm" : "default"}
+              className="border-purple-400/50 text-purple-300 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-colors"
+              tooltip="Create or join a group to start sharing votes"
+              isMobile={isMobile}
+              aria-label={isMobile ? "Create/Join a Group" : undefined}
+            >
+              <UserPlus className="h-4 w-4" />
+              {!isMobile && <span className="ml-2">Create/Join a Group</span>}
+            </TooltipButton>
+          )}
         </Link>
       )}
     </div>

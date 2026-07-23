@@ -43,11 +43,13 @@ export const timelineSearchSchema = z.object({
   votes: z
     .array(z.string())
     .catch([])
-    .transform((votes) =>
-      votes.filter((vote): vote is VoteType =>
-        (VOTES_TYPES as readonly string[]).includes(vote),
+    .transform((votes) => [
+      ...new Set(
+        votes.filter((vote): vote is VoteType =>
+          (VOTES_TYPES as readonly string[]).includes(vote),
+        ),
       ),
-    ),
+    ]),
   /** Viewport-centered moment; only written once the user scrolls. */
   scrollTo: z.string().optional().catch(undefined),
 });

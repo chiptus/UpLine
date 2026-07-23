@@ -19,6 +19,14 @@ describe("timelineSearchSchema", () => {
       expect(parsed.votes).toEqual(["mustGo"]);
     });
 
+    it("de-duplicates repeated entries", () => {
+      const parsed = timelineSearchSchema.parse({
+        votes: ["mustGo", "mustGo", "interested"],
+      });
+
+      expect(parsed.votes).toEqual(["mustGo", "interested"]);
+    });
+
     it("falls back to an empty selection when votes is not an array", () => {
       const parsed = timelineSearchSchema.parse({ votes: "junk" });
 

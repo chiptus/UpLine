@@ -6,11 +6,7 @@ import { profileKeys } from "./types";
 // Mutation function
 async function updateProfile(variables: {
   userId: string;
-  updates: {
-    username?: string | null;
-    completed_onboarding?: boolean | null;
-    active_group_id?: string | null;
-  };
+  updates: { username?: string | null; completed_onboarding?: boolean | null };
 }) {
   const { userId, updates } = variables;
 

@@ -53,6 +53,9 @@ export function Navigation({
   const router = useRouter();
   const { activeGroup, hasGroups } = useActiveGroup();
 
+  const groupsButtonClassName =
+    "border-purple-400/50 text-purple-300 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-colors";
+
   return (
     <div className="flex items-center gap-3">
       {/* Back Navigation */}
@@ -78,7 +81,7 @@ export function Navigation({
             <TooltipButton
               variant="outline"
               size={isMobile ? "sm" : "default"}
-              className="border-purple-400/50 text-purple-300 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-colors"
+              className={groupsButtonClassName}
               tooltip={activeGroup ? `Active group: ${activeGroup.name}` : "View Your Groups"}
               isMobile={isMobile}
               aria-label={isMobile ? activeGroup?.name || "Groups" : undefined}
@@ -92,7 +95,7 @@ export function Navigation({
             <TooltipButton
               variant="outline"
               size={isMobile ? "sm" : "default"}
-              className="border-purple-400/50 text-purple-300 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-colors"
+              className={groupsButtonClassName}
               tooltip="Create or join a group to start sharing votes"
               isMobile={isMobile}
               aria-label={isMobile ? "Create/Join a Group" : undefined}

@@ -85,7 +85,7 @@ jobs:
         run: npx playwright merge-reports --reporter json ./all-blob-reports > ./all-json-reports.json
 
       - name: Generate summary comment
-        uses: daun/playwright-report-summary@v3
+        uses: daun/playwright-report-summary@v4
         if: always()
         with:
           report-file: all-json-reports.json

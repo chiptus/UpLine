@@ -1,21 +1,21 @@
-import { Button } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+interface TooltipButtonProps extends ButtonProps {
+  tooltip: string;
+  isMobile: boolean;
+}
+
 export function TooltipButton({
   children,
   tooltip,
   isMobile,
   ...props
-}: {
-  children: React.ReactNode;
-  tooltip: string;
-  isMobile: boolean;
-  [key: string]: unknown;
-}) {
+}: TooltipButtonProps) {
   if (!isMobile) {
     return <Button {...props}>{children}</Button>;
   }

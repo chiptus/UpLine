@@ -18,7 +18,7 @@ export type GroupMember =
 
 export const groupsKeys = {
   all: ["groups"] as const,
-  user: (userId: string, params?: unknown) =>
+  user: (userId: string, params: unknown = {}) =>
     [...groupsKeys.all, "user", userId, params] as const,
   details: () => [...groupsKeys.all, "detail"] as const,
   detail: (groupId: string) => [...groupsKeys.details(), groupId] as const,

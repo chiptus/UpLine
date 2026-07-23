@@ -1,11 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { UserPlus, Users } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { useActiveGroup } from "@/hooks/useActiveGroup";
 import { TooltipButton } from "./TooltipButton";
 
 const groupsButtonClassName =
-  "border-purple-400/50 text-purple-300 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-colors";
+  "bg-transparent border-purple-400/50 text-purple-300 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-colors";
 
 export function GroupsIndicator({ isMobile }: { isMobile: boolean }) {
   const { user } = useAuth();
@@ -15,9 +16,19 @@ export function GroupsIndicator({ isMobile }: { isMobile: boolean }) {
     return null;
   }
 
+  if (isLoading) {
+    return (
+      <Skeleton
+        className={
+          isMobile ? "h-9 w-9 rounded-md" : "h-10 w-32 rounded-md"
+        }
+      />
+    );
+  }
+
   return (
     <Link to="/groups">
-      {hasGroups || isLoading ? (
+      {hasGroups ? (
         <TooltipButton
           variant="outline"
           size={isMobile ? "sm" : "default"}

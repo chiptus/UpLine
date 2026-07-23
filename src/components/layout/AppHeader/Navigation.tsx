@@ -51,7 +51,7 @@ export function Navigation({
 }: NavigationProps) {
   const { user } = useAuth();
   const router = useRouter();
-  const { activeGroup, hasGroups } = useActiveGroup();
+  const { activeGroup, hasGroups, isLoading: isGroupsLoading } = useActiveGroup();
 
   const groupsButtonClassName =
     "border-purple-400/50 text-purple-300 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-colors";
@@ -77,7 +77,7 @@ export function Navigation({
       {/* Groups / Active Group Indicator */}
       {showGroupsButton && user && (
         <Link to="/groups">
-          {hasGroups ? (
+          {hasGroups || isGroupsLoading ? (
             <TooltipButton
               variant="outline"
               size={isMobile ? "sm" : "default"}

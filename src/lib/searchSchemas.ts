@@ -39,8 +39,7 @@ export const timelineSearchSchema = z.object({
   day: z.string().catch("all"),
   time: z.enum(["all", "morning", "afternoon", "evening"]).catch("all"),
   stages: z.array(z.string()).catch([]),
-  // Unknown entries are dropped individually so a partially malformed
-  // shared link keeps its valid selections.
+  /** Unknown entries are dropped individually, not the whole array. */
   votes: z
     .array(z.string())
     .catch([])
@@ -49,8 +48,7 @@ export const timelineSearchSchema = z.object({
         (VOTES_TYPES as readonly string[]).includes(vote),
       ),
     ),
-  // The moment (ISO datetime) centered in the timeline viewport. Absent by
-  // default; only written once the user scrolls. See useTimelineScrollSync.
+  /** Viewport-centered moment; only written once the user scrolls. */
   scrollTo: z.string().optional().catch(undefined),
 });
 

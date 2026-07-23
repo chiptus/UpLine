@@ -9,10 +9,8 @@ interface VoteFilterChipsProps {
 }
 
 /**
- * Icon-only chips (Must Go / Interested / Won't Go) that filter both
- * Schedule views down to sets the viewer voted on themselves. Selection is
- * OR-ed and lives in the shared URL state, so it stays in sync with the
- * ScheduleFilterSheet badge across views. Hidden entirely when logged out.
+ * Icon-only chips that filter both Schedule views to sets the viewer voted
+ * on. OR-ed selection lives in shared URL state; hidden when logged out.
  */
 export function VoteFilterChips({ tab }: VoteFilterChipsProps) {
   const { user } = useAuth();

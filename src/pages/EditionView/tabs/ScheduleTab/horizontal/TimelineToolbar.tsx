@@ -24,18 +24,8 @@ interface TimelineToolbarProps {
 const SCROLL_FADE_PX = 24;
 
 /**
- * Sticky toolbar above the Timeline strip. Hosts day-jump buttons, the
- * my-vote chips, and the Filters trigger (bottom sheet) inline in the same
- * row - the Filters trigger never renders on its own line. Also hosts the
- * Now pill and "Show overview" toggle.
- *
- * Day-jump buttons live inside their own `timeline-day-buttons` group so
- * tests (and future additions to this row) can target them without also
- * picking up the Filters trigger or other buttons that share the toolbar.
- *
- * Navigation only ever scrolls - it never filters the strip. When a `day`
- * filter is active, nav operates on what's rendered, so only that day's
- * button shows.
+ * Sticky toolbar above the Timeline strip: day-jump, Now pill, overview
+ * toggle, my-vote chips, and the Filters trigger, all in one row.
  */
 export function TimelineToolbar({
   days,

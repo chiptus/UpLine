@@ -14,8 +14,7 @@ export interface ScheduleFilterCriteria {
   time: ScheduleTimeFilter;
   stages: string[];
   voteTypes?: VoteType[];
-  // `undefined` means no viewer identity (logged out): vote filtering is
-  // inert so a shared `?votes=` link never dead-ends a logged-out visitor.
+  /** `undefined` (logged out) makes vote filtering inert, not exclusionary. */
   userVotes?: Record<string, number>;
 }
 
@@ -56,12 +55,10 @@ function matchesVoteTypes(
   return voteType !== undefined && voteTypes.includes(voteType);
 }
 
-// Applies the day / time-of-day / stage predicates shared by both Schedule
-// views (Timeline and List). A day that doesn't match `criteria.day` is kept
-// as an entry with empty stages (rather than dropped) purely to mirror the
-// original inline Timeline logic; the strip's axis bounds derive from the
-// remaining sets' times, so an empty day entry contributes nothing and
-// dropping it would render identically.
+/**
+ * Applies the day / time-of-day / stage / vote predicates shared by both
+ * Schedule views. Non-matching days are kept with empty stages, not dropped.
+ */
 export function filterScheduleDays(
   scheduleDays: ScheduleDay[],
   criteria: ScheduleFilterCriteria,

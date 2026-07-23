@@ -43,7 +43,7 @@ export default function FestivalSelection() {
       <div className="min-h-screen bg-app-gradient">
         <div className="container mx-auto px-4 py-8">
           <PageTitle title="Select Festival" />
-          <TopBar />
+          <TopBar showGroupsButton />
 
           <div className="flex items-center justify-center mt-16">
             <Card className="w-full max-w-md bg-white/10 border-purple-400/30">
@@ -77,7 +77,7 @@ export default function FestivalSelection() {
       <div className="min-h-screen bg-app-gradient">
         <div className="container mx-auto px-4 py-8">
           <PageTitle title="Select Festival" />
-          <TopBar />
+          <TopBar showGroupsButton />
 
           <div className="flex items-center justify-center mt-16">
             <Card className="w-full max-w-md bg-white/10 border-purple-400/30">
@@ -101,7 +101,7 @@ export default function FestivalSelection() {
   return (
     <div className="min-h-screen bg-app-gradient">
       <div className="container mx-auto px-4 py-8">
-        <AppHeader title="UpLine" />
+        <AppHeader title="UpLine" showGroupsButton />
 
         <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {availableFestivals.map((festival: Festival) => (

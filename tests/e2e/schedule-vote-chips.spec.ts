@@ -90,7 +90,6 @@ test.describe("My-vote chips", () => {
 
     await expect(page.getByTestId("vote-filter-chips")).toBeVisible();
 
-    // Two taps: Must Go, then Interested.
     await page.getByTestId("vote-filter-chip-mustGo").click();
     await page.getByTestId("vote-filter-chip-interested").click();
 

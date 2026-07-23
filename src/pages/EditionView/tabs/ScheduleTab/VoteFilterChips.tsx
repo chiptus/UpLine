@@ -9,19 +9,10 @@ interface VoteFilterChipsProps {
 }
 
 /**
- * Compact icon-only chips for the three Vote types (Must Go / Interested /
- * Won't Go), letting the viewer filter both Schedule views down to sets
- * they voted on themselves. Pairs with the ScheduleFilterSheet trigger
- * (rendered as a sibling, not inside the sheet) in both the Timeline
- * toolbar and the List view's filter row.
- *
- * Selection is OR-ed and lives in the shared URL state
- * (`useTimelineUrlState`), so it counts toward ScheduleFilterSheet's badge
- * and stays in sync across views. Always the viewer's own votes - group-vote
- * scopes are out of scope.
- *
- * Hidden entirely for logged-out visitors: no disabled state, no login
- * teaser, just absent.
+ * Icon-only chips (Must Go / Interested / Won't Go) that filter both
+ * Schedule views down to sets the viewer voted on themselves. Selection is
+ * OR-ed and lives in the shared URL state, so it stays in sync with the
+ * ScheduleFilterSheet badge across views. Hidden entirely when logged out.
  */
 export function VoteFilterChips({ tab }: VoteFilterChipsProps) {
   const { user } = useAuth();

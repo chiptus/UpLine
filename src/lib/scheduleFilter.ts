@@ -10,23 +10,12 @@ import type {
 export type ScheduleTimeFilter = TimelineSearch["time"];
 
 export interface ScheduleFilterCriteria {
-  // "all" or a festival day key (yyyy-MM-dd, see getFestivalDayKey).
   day: string;
-  // Time-of-day bucket, computed in the festival timezone via getFestivalHour.
   time: ScheduleTimeFilter;
-  // Stage ids to include; an empty array means all stages.
   stages: string[];
-  // My-vote chips (PRD #188): selected vote types, OR-ed together. Empty or
-  // omitted turns the filter off (all sets kept, `userVotes` unconsulted).
-  // Always the viewer's own votes - group-vote scopes are out of scope here.
   voteTypes?: VoteType[];
-  // The viewer's own votes, keyed by set id -> vote value (same shape as
-  // useUserVotes' return). Passed in, never fetched inside - keeps this
-  // function pure. The absent/empty distinction matters: `undefined` means
-  // there is no viewer identity (logged out), so vote filtering is INERT and
-  // every set passes even with `voteTypes` selected (a shared `?votes=` link
-  // must never dead-end a logged-out visitor); an empty object means a
-  // logged-in viewer with no votes, so an active filter excludes everything.
+  // `undefined` means no viewer identity (logged out): vote filtering is
+  // inert so a shared `?votes=` link never dead-ends a logged-out visitor.
   userVotes?: Record<string, number>;
 }
 
@@ -58,8 +47,6 @@ function matchesVoteTypes(
   userVotes: Record<string, number> | undefined,
 ): boolean {
   if (!voteTypes || voteTypes.length === 0) return true;
-  // No viewer identity (logged out): the vote filter is inert - see the
-  // absent-vs-empty note on ScheduleFilterCriteria.userVotes.
   if (userVotes === undefined) return true;
 
   const voteValue = userVotes[set.id];

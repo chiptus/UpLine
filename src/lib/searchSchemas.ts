@@ -39,11 +39,8 @@ export const timelineSearchSchema = z.object({
   day: z.string().catch("all"),
   time: z.enum(["all", "morning", "afternoon", "evening"]).catch("all"),
   stages: z.array(z.string()).catch([]),
-  // My-vote chips (PRD #188): selected vote types (mustGo/interested/wontGo),
-  // OR-ed together. Empty means the filter is off. Always the viewer's own
-  // votes, never a group-vote scope. Unknown entries are dropped one by one
-  // (not the whole array), so a partially malformed shared link keeps its
-  // valid selections.
+  // Unknown entries are dropped individually so a partially malformed
+  // shared link keeps its valid selections.
   votes: z
     .array(z.string())
     .catch([])

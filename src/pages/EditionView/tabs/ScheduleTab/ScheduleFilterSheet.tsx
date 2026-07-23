@@ -37,11 +37,8 @@ interface ScheduleFilterSheetProps {
  * Active-filter count: `day` and `time` each count 1 when away from "all",
  * and every selected stage counts 1 of its own (so picking two stages adds
  * 2). My-vote chips (rendered next to this trigger, not inside the sheet -
- * see VoteFilterChips) follow the same per-item rule: every selected vote
- * type counts 1 of its own, so picking Must Go + Interested adds 2 - but
- * only while a viewer is logged in. Logged out, the vote filter is inert
- * (see ScheduleFilterCriteria.userVotes), so the badge must not advertise
- * it; "Clear all" still clears the `votes` param regardless.
+ * see VoteFilterChips) follow the same rule, but only while logged in -
+ * logged out the vote filter is inert so the badge must not count it.
  */
 export function ScheduleFilterSheet({ tab }: ScheduleFilterSheetProps) {
   const [open, setOpen] = useState(false);

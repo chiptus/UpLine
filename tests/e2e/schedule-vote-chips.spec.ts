@@ -23,21 +23,16 @@ test.describe("My-vote chips", () => {
     page,
   }) => {
     await page.goto(TIMELINE_PATH);
-
-    const scrollContainer = page.getByTestId("timeline-scroll-container");
-    if (!(await scrollContainer.isVisible().catch(() => false))) {
-      test.skip(true, "Schedule not revealed in this environment");
-    }
+    await expect(
+      page.getByTestId("timeline-scroll-container"),
+    ).toBeVisible();
 
     await expect(
       page.getByRole("group", { name: "Filter by my vote" }),
     ).toHaveCount(0);
 
     await page.goto(LIST_PATH);
-    const listSchedule = page.getByTestId("list-schedule");
-    if (!(await listSchedule.isVisible().catch(() => false))) {
-      test.skip(true, "Schedule not revealed in this environment");
-    }
+    await expect(page.getByTestId("list-schedule")).toBeVisible();
 
     await expect(
       page.getByRole("group", { name: "Filter by my vote" }),
@@ -48,11 +43,7 @@ test.describe("My-vote chips", () => {
     page,
   }) => {
     await page.goto(`${LIST_PATH}?votes=mustGo`);
-
-    const listSchedule = page.getByTestId("list-schedule");
-    if (!(await listSchedule.isVisible().catch(() => false))) {
-      test.skip(true, "Schedule not revealed in this environment");
-    }
+    await expect(page.getByTestId("list-schedule")).toBeVisible();
 
     // No viewer identity, so the vote filter must not empty the schedule.
     await expect(voteGroup(page, MAYA_SET_NAME)).toBeVisible();
@@ -69,10 +60,7 @@ test.describe("My-vote chips", () => {
     await signIn(page);
 
     await page.goto(LIST_PATH);
-    const listSchedule = page.getByTestId("list-schedule");
-    if (!(await listSchedule.isVisible().catch(() => false))) {
-      test.skip(true, "Schedule not revealed in this environment");
-    }
+    await expect(page.getByTestId("list-schedule")).toBeVisible();
 
     // Vote Must Go on one set and Interested on another, leaving a third
     // (Kiara Scuro) unvoted.
@@ -99,11 +87,9 @@ test.describe("My-vote chips", () => {
     // Shared URL state: the Timeline view sees the same selection and badge.
     const url = new URL(page.url());
     await page.goto(`${TIMELINE_PATH}${url.search}`);
-
-    const scrollContainer = page.getByTestId("timeline-scroll-container");
-    if (!(await scrollContainer.isVisible().catch(() => false))) {
-      test.skip(true, "Schedule not revealed in this environment");
-    }
+    await expect(
+      page.getByTestId("timeline-scroll-container"),
+    ).toBeVisible();
 
     await expect(page.getByTestId("schedule-filters-badge")).toHaveText("2");
     await expect(voteGroup(page, MAYA_SET_NAME)).toBeVisible();

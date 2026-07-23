@@ -9,6 +9,7 @@ import { StageBadge } from "@/components/StageBadge";
 import { setsByEditionQuery } from "@/api/sets/useSetsByEdition";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
+import { useNow } from "@/hooks/useNow";
 import { getFestivalPhase } from "@/lib/festivalPhase";
 import {
   classifyNowNextByStage,
@@ -56,8 +57,9 @@ function ScheduleTabNow() {
   const { edition } = Route.useRouteContext();
   const { data: sets } = useSuspenseQuery(setsByEditionQuery(edition.id));
   const { data: stages } = useSuspenseQuery(stagesByEditionQuery(edition.id));
+  const now = useNow();
 
-  const byStage = classifyNowNextByStage(sets, new Date());
+  const byStage = classifyNowNextByStage(sets, now);
   const rows = sortStagesByOrder([...stages]).flatMap((stage) => {
     const classification = byStage.get(stage.id);
     if (!classification) return [];

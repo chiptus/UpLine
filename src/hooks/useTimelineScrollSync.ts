@@ -45,6 +45,16 @@ export function useTimelineScrollSync({
   const hasCenteredOnMountRef = useRef(false);
   // Scroll events at this position are programmatic, not user scrolling.
   const programmaticScrollLeftRef = useRef<number | null>(null);
+  // The browser can clamp scrollLeft (firing a native 'scroll' event) while
+  // this route's DOM is being torn down after navigating away, even though
+  // React hasn't unmounted this component yet. A debounced write scheduled
+  // from that stray event would fire after the URL has already moved on,
+  // calling `navigate` with a stale `from` and corrupting the in-flight
+  // navigation. Guard against that by capturing this route's own pathname
+  // once and bailing out of the debounced write if it no longer matches.
+  const ownPathnameRef = useRef(
+    typeof window === "undefined" ? "" : window.location.pathname,
+  );
 
   useLayoutEffect(() => {
     if (hasCenteredOnMountRef.current) return;
@@ -101,6 +111,9 @@ export function useTimelineScrollSync({
       debounceTimer = setTimeout(() => {
         const el = scrollContainerRef.current;
         if (!el) return;
+        // We've navigated away from this route (even if this component
+        // hasn't unmounted yet): don't write scrollTo for a stale route.
+        if (window.location.pathname !== ownPathnameRef.current) return;
 
         const centerOffset = el.scrollLeft + el.clientWidth / 2;
         const centerMoment = offsetToTime(centerOffset, festivalStart);

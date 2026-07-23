@@ -38,7 +38,7 @@ jobs:
       migrations: ${{ steps.filter.outputs.migrations || 'true' }}
       functions: ${{ steps.filter.outputs.functions || 'true' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Resolve target
         id: target
@@ -84,7 +84,7 @@ jobs:
     if: always() && github.event_name == 'pull_request' && needs.resolve.result == 'success'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Post combined status
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

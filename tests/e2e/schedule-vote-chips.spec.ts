@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { TestHelpers } from "../utils/test-helpers";
+import { signIn } from "../utils/login";
 
 // Seeded in supabase/seed.sql: festival slug "test", edition slug "2025".
 const TIMELINE_PATH = "/festivals/test/editions/2025/schedule/timeline";
@@ -12,10 +12,6 @@ const KIARA_SET_NAME = "Kiara Scuro";
 
 function voteGroup(page: import("@playwright/test").Page, setName: string) {
   return page.getByRole("group", { name: `Vote for ${setName}` });
-}
-
-async function signIn(page: import("@playwright/test").Page) {
-  await new TestHelpers(page).signIn();
 }
 
 test.describe("My-vote chips", () => {

@@ -3,6 +3,7 @@ import { UserPlus, Users } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { useActiveGroup } from "@/hooks/useActiveGroup";
+import { cn } from "@/lib/utils";
 import { TooltipButton } from "./TooltipButton";
 
 const groupsButtonClassName =
@@ -19,9 +20,10 @@ export function GroupsIndicator({ isMobile }: { isMobile: boolean }) {
   if (isLoading) {
     return (
       <Skeleton
-        className={
-          isMobile ? "h-9 w-9 rounded-md" : "h-10 w-32 rounded-md"
-        }
+        className={cn(
+          "bg-purple-400/20",
+          isMobile ? "h-9 w-9 rounded-md" : "h-10 w-32 rounded-md",
+        )}
       />
     );
   }

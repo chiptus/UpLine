@@ -38,7 +38,7 @@ jobs:
       migrations: ${{ steps.filter.outputs.migrations || 'true' }}
       functions: ${{ steps.filter.outputs.functions || 'true' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Resolve target
         id: target
@@ -52,7 +52,7 @@ jobs:
           echo "target=$TARGET" >> "$GITHUB_OUTPUT"
           echo "Deploying: $TARGET"
 
-      - uses: dorny/paths-filter@v3
+      - uses: dorny/paths-filter@v4
         id: filter
         if: github.event_name != 'workflow_dispatch'
         with:
@@ -84,7 +84,7 @@ jobs:
     if: always() && github.event_name == 'pull_request' && needs.resolve.result == 'success'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Post combined status
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

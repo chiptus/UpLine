@@ -26,7 +26,7 @@ jobs:
             *) echo "Invalid target: ${{ inputs.target }}"; exit 1 ;;
           esac
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: supabase/setup-cli@v3
 

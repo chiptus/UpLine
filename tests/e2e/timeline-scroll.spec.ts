@@ -110,9 +110,16 @@ test.describe("Timeline scroll position (scrollTo URL state)", () => {
       (el) => el.scrollLeft,
     );
 
-    const setLink = page.locator('a[href*="/sets/"]').first();
+    const setLink = scrollContainer.getByRole("link").first();
     await expect(setLink).toBeVisible();
     await setLink.click();
+
+    // Wait for the set-detail page to actually render before going back,
+    // otherwise goBack() races the still-in-flight forward navigation and
+    // can pop back to a stale/default search state.
+    await expect(
+      page.getByRole("button", { name: "Back to Artists" }),
+    ).toBeVisible({ timeout: 10000 });
     await page.goBack();
     await expect(page).toHaveURL(urlWithScroll);
 

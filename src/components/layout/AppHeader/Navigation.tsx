@@ -62,6 +62,7 @@ export function Navigation({
           className="border-purple-400/50 text-purple-300 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-colors"
           tooltip={backLabel}
           isMobile={isMobile}
+          aria-label={isMobile ? backLabel : undefined}
         >
           <ArrowLeft className="h-4 w-4" />
           {!isMobile && <span className="ml-2">{backLabel}</span>}
@@ -77,6 +78,7 @@ export function Navigation({
             className="border-purple-400/50 text-purple-300 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-colors"
             tooltip="View Your Groups"
             isMobile={isMobile}
+            aria-label={isMobile ? "Groups" : undefined}
           >
             <Users className="h-4 w-4" />
             {!isMobile && <span className="ml-2">Groups</span>}

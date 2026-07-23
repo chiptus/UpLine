@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { classifyNowNext, classifyNowNextByStage } from "./nowNext";
+import {
+  classifyNowNext,
+  classifyNowNextByStage,
+  compareNowNext,
+} from "./nowNext";
 
 // Europe/Lisbon is UTC+1 (WEST) in August, so a set playing after midnight
 // festival time still sits on the previous UTC calendar day. Classification
@@ -197,5 +201,42 @@ describe("classifyNowNextByStage", () => {
       "main-now",
     ]);
     expect(byStage.get("main")?.laterPast).toEqual([]);
+  });
+});
+
+describe("compareNowNext", () => {
+  function classification(
+    nowPlaying: (typeof LATE_SET)[],
+    next: (typeof LATE_SET)[],
+  ) {
+    return { nowPlaying, next, laterPast: [] };
+  }
+
+  const LIVE = classification([LATE_SET], [MIDNIGHT_SET]);
+  const NEXT_SOON = classification([], [LATE_SET]);
+  const NEXT_LATER = classification([], [MIDNIGHT_SET]);
+  const NOTHING = classification([], []);
+
+  it("orders a live stage before a next-only stage", () => {
+    expect(compareNowNext(LIVE, NEXT_SOON)).toBeLessThan(0);
+    expect(compareNowNext(NEXT_SOON, LIVE)).toBeGreaterThan(0);
+  });
+
+  it("orders next-only stages by soonest upcoming start", () => {
+    expect(compareNowNext(NEXT_SOON, NEXT_LATER)).toBeLessThan(0);
+    expect(compareNowNext(NEXT_LATER, NEXT_SOON)).toBeGreaterThan(0);
+  });
+
+  it("keeps live stages tied so a stable sort preserves stage order", () => {
+    expect(compareNowNext(LIVE, LIVE)).toBe(0);
+  });
+
+  it("orders a stage with no upcoming set last", () => {
+    expect(compareNowNext(NOTHING, NEXT_LATER)).toBeGreaterThan(0);
+  });
+
+  it("sorts a mixed board live-first then by next start", () => {
+    const sorted = [NEXT_LATER, NOTHING, LIVE, NEXT_SOON].sort(compareNowNext);
+    expect(sorted).toEqual([LIVE, NEXT_SOON, NEXT_LATER, NOTHING]);
   });
 });

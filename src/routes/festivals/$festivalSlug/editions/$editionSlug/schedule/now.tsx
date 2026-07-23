@@ -13,6 +13,7 @@ import { useNow } from "@/hooks/useNow";
 import { getFestivalPhase } from "@/lib/festivalPhase";
 import {
   classifyNowNextByStage,
+  compareNowNext,
   type NowNextClassification,
 } from "@/lib/nowNext";
 import { canShowTime } from "@/lib/scheduleReveal";
@@ -60,14 +61,16 @@ function ScheduleTabNow() {
   const now = useNow();
 
   const byStage = classifyNowNextByStage(sets, now);
-  const rows = sortStagesByOrder([...stages]).flatMap((stage) => {
-    const classification = byStage.get(stage.id);
-    if (!classification) return [];
-    if (!classification.nowPlaying.length && !classification.next.length) {
-      return [];
-    }
-    return [{ stage, classification }];
-  });
+  const rows = sortStagesByOrder([...stages])
+    .flatMap((stage) => {
+      const classification = byStage.get(stage.id);
+      if (!classification) return [];
+      if (!classification.nowPlaying.length && !classification.next.length) {
+        return [];
+      }
+      return [{ stage, classification }];
+    })
+    .sort((a, b) => compareNowNext(a.classification, b.classification));
 
   if (!rows.length) {
     return (

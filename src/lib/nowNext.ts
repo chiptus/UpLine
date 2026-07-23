@@ -40,9 +40,9 @@ export function classifyNowNext<T extends NowNextSet>(
     );
 
   const nowMs = now.getTime();
-  const nextStartMs = timed.find(
-    (s) => s.start.getTime() > nowMs,
-  )?.start.getTime();
+  const nextStartMs = timed
+    .find((s) => s.start.getTime() > nowMs)
+    ?.start.getTime();
 
   const nowPlaying: T[] = [];
   const next: T[] = [];
@@ -83,6 +83,35 @@ export function classifyNowNextByStage<
     classified.set(stageId, classifyNowNext(stageSets, now));
   }
   return classified;
+}
+
+/**
+ * Orders stage classifications for the "Now" board: stages with a set
+ * playing right now come first, then stages by soonest upcoming start,
+ * so the board reads "what's on, then what's next" instead of stage
+ * order. Ties (e.g. two live stages) compare equal — sort is stable, so
+ * the caller's stage ordering is kept within each group.
+ */
+export function compareNowNext<T extends NowNextSet>(
+  a: NowNextClassification<T>,
+  b: NowNextClassification<T>,
+): number {
+  const aLive = a.nowPlaying.length > 0;
+  const bLive = b.nowPlaying.length > 0;
+  if (aLive !== bLive) {
+    return aLive ? -1 : 1;
+  }
+  if (aLive) {
+    return 0;
+  }
+  return nextStartMs(a) - nextStartMs(b);
+}
+
+function nextStartMs<T extends NowNextSet>(
+  classification: NowNextClassification<T>,
+): number {
+  const start = parseInstant(classification.next[0]?.time_start ?? null);
+  return start ? start.getTime() : Number.MAX_SAFE_INTEGER;
 }
 
 function parseInstant(iso: string | null): Date | null {

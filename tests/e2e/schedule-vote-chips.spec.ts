@@ -67,7 +67,14 @@ test.describe("My-vote chips", () => {
       .getByRole("button", { name: "Interested" })
       .click();
 
-    const chips = page.getByRole("group", { name: "Filter by my vote" });
+    // Below md the chips live inside the filter sheet, not the toolbar.
+    let chips = page.getByRole("group", { name: "Filter by my vote" });
+    if (!(await chips.isVisible())) {
+      await page.getByTestId("schedule-filters-trigger").click();
+      chips = page.getByRole("dialog").getByRole("group", {
+        name: "Filter by my vote",
+      });
+    }
     await expect(chips).toBeVisible();
 
     await chips.getByRole("button", { name: "Must Go" }).click();

@@ -69,7 +69,8 @@ test.describe("My-vote chips", () => {
 
     // Below md the chips live inside the filter sheet, not the toolbar.
     let chips = page.getByRole("group", { name: "Filter by my vote" });
-    if (!(await chips.isVisible())) {
+    const inSheet = !(await chips.isVisible());
+    if (inSheet) {
       await page.getByTestId("schedule-filters-trigger").click();
       chips = page.getByRole("dialog").getByRole("group", {
         name: "Filter by my vote",
@@ -79,6 +80,11 @@ test.describe("My-vote chips", () => {
 
     await chips.getByRole("button", { name: "Must Go" }).click();
     await chips.getByRole("button", { name: "Interested" }).click();
+
+    if (inSheet) {
+      await page.getByRole("dialog").getByRole("button", { name: "Done" }).click();
+      await expect(page.getByRole("dialog")).toHaveCount(0);
+    }
 
     await expect(page).toHaveURL(/votes=/);
     await expect(page.getByTestId("schedule-filters-badge")).toHaveText("2");

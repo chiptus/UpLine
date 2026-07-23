@@ -1,5 +1,6 @@
 import { getFestivalHour } from "@/lib/timeUtils";
 import type { TimelineSearch } from "@/lib/searchSchemas";
+import { getVoteConfig, type VoteType } from "@/lib/voteConfig";
 import type {
   ScheduleDay,
   ScheduleSet,
@@ -9,15 +10,12 @@ import type {
 export type ScheduleTimeFilter = TimelineSearch["time"];
 
 export interface ScheduleFilterCriteria {
-  // "all" or a festival day key (yyyy-MM-dd, see getFestivalDayKey).
   day: string;
-  // Time-of-day bucket, computed in the festival timezone via getFestivalHour.
   time: ScheduleTimeFilter;
-  // Stage ids to include; an empty array means all stages.
   stages: string[];
-  // Future (PRD #188 - vote-type filtering): an optional field such as
-  // `voteTypes?: VoteType[]`, OR-ed against the viewer's own votes on each
-  // set, will slot in here without reshaping this interface.
+  voteTypes?: VoteType[];
+  /** `undefined` (logged out) makes vote filtering inert, not exclusionary. */
+  userVotes?: Record<string, number>;
 }
 
 function matchesTimeOfDay(
@@ -42,12 +40,25 @@ function matchesTimeOfDay(
   }
 }
 
-// Applies the day / time-of-day / stage predicates shared by both Schedule
-// views (Timeline and List). A day that doesn't match `criteria.day` is kept
-// as an entry with empty stages (rather than dropped) purely to mirror the
-// original inline Timeline logic; the strip's axis bounds derive from the
-// remaining sets' times, so an empty day entry contributes nothing and
-// dropping it would render identically.
+function matchesVoteTypes(
+  set: ScheduleSet,
+  voteTypes: VoteType[] | undefined,
+  userVotes: Record<string, number> | undefined,
+): boolean {
+  if (!voteTypes || voteTypes.length === 0) return true;
+  if (userVotes === undefined) return true;
+
+  const voteValue = userVotes[set.id];
+  if (voteValue === undefined) return false;
+
+  const voteType = getVoteConfig(voteValue);
+  return voteType !== undefined && voteTypes.includes(voteType);
+}
+
+/**
+ * Applies the day / time-of-day / stage / vote predicates shared by both
+ * Schedule views. Non-matching days are kept with empty stages, not dropped.
+ */
 export function filterScheduleDays(
   scheduleDays: ScheduleDay[],
   criteria: ScheduleFilterCriteria,
@@ -65,8 +76,10 @@ export function filterScheduleDays(
       )
       .map((stage) => ({
         ...stage,
-        sets: stage.sets.filter((set) =>
-          matchesTimeOfDay(set, criteria.time, timezone),
+        sets: stage.sets.filter(
+          (set) =>
+            matchesTimeOfDay(set, criteria.time, timezone) &&
+            matchesVoteTypes(set, criteria.voteTypes, criteria.userVotes),
         ),
       }));
 

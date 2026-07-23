@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { VOTES_TYPES, type VoteType } from "@/lib/voteConfig";
 
 export const sortOptionSchema = z.enum([
   "name-asc",
@@ -38,6 +39,18 @@ export const timelineSearchSchema = z.object({
   day: z.string().catch("all"),
   time: z.enum(["all", "morning", "afternoon", "evening"]).catch("all"),
   stages: z.array(z.string()).catch([]),
+  /** Unknown entries are dropped individually, not the whole array. */
+  votes: z
+    .array(z.string())
+    .catch([])
+    .transform((votes) => [
+      ...new Set(
+        votes.filter((vote): vote is VoteType =>
+          (VOTES_TYPES as readonly string[]).includes(vote),
+        ),
+      ),
+    ]),
+  /** Viewport-centered moment; only written once the user scrolls. */
   scrollTo: z.string().optional().catch(undefined),
 });
 
@@ -47,4 +60,5 @@ export const timelineSearchDefaults: TimelineSearch = {
   day: "all",
   time: "all",
   stages: [],
+  votes: [],
 };

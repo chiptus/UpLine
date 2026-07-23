@@ -15,18 +15,27 @@ import {
 import { DayFilterSelect } from "./DayFilterSelect";
 import { TimeFilterSelect } from "./TimeFilterSelect";
 import { StageFilterButtons } from "./StageFilterButtons";
+import { VoteFilterChips } from "./VoteFilterChips";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ScheduleFilterSheetProps {
   tab: "timeline" | "list";
 }
 
+/**
+ * Shared day / time-of-day / stage filter trigger + bottom sheet for both
+ * Schedule views, backed by the shared URL state so filters stay in sync.
+ * The badge excludes vote-chip selections while logged out (inert filter).
+ */
 export function ScheduleFilterSheet({ tab }: ScheduleFilterSheetProps) {
   const [open, setOpen] = useState(false);
+  const { user } = useAuth();
   const {
     day,
     time,
     stages,
+    votes,
     updateDay,
     updateTime,
     updateStages,
@@ -34,7 +43,10 @@ export function ScheduleFilterSheet({ tab }: ScheduleFilterSheetProps) {
   } = useTimelineUrlState(tab);
 
   const activeFilterCount =
-    (day !== "all" ? 1 : 0) + (time !== "all" ? 1 : 0) + stages.length;
+    (day !== "all" ? 1 : 0) +
+    (time !== "all" ? 1 : 0) +
+    stages.length +
+    (user ? votes.length : 0);
   const hasActiveFilters = activeFilterCount > 0;
 
   return (
@@ -84,6 +96,15 @@ export function ScheduleFilterSheet({ tab }: ScheduleFilterSheetProps) {
             onStageToggle={handleStageToggle}
           />
         </div>
+
+        {user && (
+          <div className="mt-4 space-y-2 md:hidden">
+            <label className="text-sm font-medium text-purple-200">
+              My vote
+            </label>
+            <VoteFilterChips tab={tab} />
+          </div>
+        )}
 
         <SheetFooter className="mt-6">
           {hasActiveFilters && (

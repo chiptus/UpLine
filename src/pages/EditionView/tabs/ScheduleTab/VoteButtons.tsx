@@ -47,7 +47,11 @@ export function VoteButtons({ set }: VoteButtonsProps) {
   }, [set.votes]);
 
   return (
-    <div className="flex gap-3 mt-2">
+    <div
+      role="group"
+      aria-label={`Vote for ${set.name}`}
+      className="flex gap-3 mt-2"
+    >
       {VOTES_TYPES.map((voteType) => {
         return (
           <VoteButton
@@ -101,6 +105,8 @@ function VoteButton({
           : `${config.descColor} `,
       )}
       type="button"
+      aria-pressed={isSelected}
+      aria-label={config.label}
       onClick={() => onVote()}
     >
       <IconComponent className="h-3 w-3" />

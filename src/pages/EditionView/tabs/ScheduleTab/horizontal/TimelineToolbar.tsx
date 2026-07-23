@@ -4,6 +4,7 @@ import { DayJumpButtons } from "./DayJumpButtons";
 import { NowButton } from "./NowButton";
 import { Button } from "@/components/ui/button";
 import { ScheduleFilterSheet } from "../ScheduleFilterSheet";
+import { VoteFilterChips } from "../VoteFilterChips";
 import type { ScheduleDay } from "@/hooks/useScheduleData";
 import { useScrollEdgeFade } from "./useScrollEdgeFade";
 
@@ -22,10 +23,10 @@ interface TimelineToolbarProps {
 // Width of the edge-fade hinting that the day row scrolls further that way.
 const SCROLL_FADE_PX = 24;
 
-// Sticky nav toolbar above the Timeline strip. Navigation scrolls, it never
-// filters; with a day filter active only that day's button shows. Hosts the
-// Filters trigger (bottom sheet) inline in the same row - it never renders
-// on its own line.
+/**
+ * Sticky toolbar above the Timeline strip: day-jump, Now pill, overview
+ * toggle, my-vote chips, and the Filters trigger, all in one row.
+ */
 export function TimelineToolbar({
   days,
   selectedDay,
@@ -92,6 +93,9 @@ export function TimelineToolbar({
             {isOverviewExpanded ? "Hide overview" : "Show overview"}
           </span>
         </Button>
+        <div className="hidden md:block">
+          <VoteFilterChips tab="timeline" />
+        </div>
         <ScheduleFilterSheet tab="timeline" />
       </div>
     </div>

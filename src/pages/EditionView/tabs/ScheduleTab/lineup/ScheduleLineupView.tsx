@@ -17,8 +17,20 @@ interface ScheduleLineupViewProps {
 }
 
 export function ScheduleLineupView({ tab }: ScheduleLineupViewProps) {
+  const { canShowDay } = useScheduleReveal();
+
+  // On "draft", bail before mounting the child - it's the one that fetches
+  // sets/stages, and there's nothing to show yet so there's no reason to.
+  if (!canShowDay) {
+    return <ScheduleNotRevealedPlaceholder />;
+  }
+
+  return <ScheduleLineupContent tab={tab} />;
+}
+
+function ScheduleLineupContent({ tab }: ScheduleLineupViewProps) {
   const { festival } = useFestivalEdition();
-  const { canShowDay, canShowStage } = useScheduleReveal();
+  const { canShowStage } = useScheduleReveal();
   const route =
     `/festivals/$festivalSlug/editions/$editionSlug/schedule/${tab}` as const;
   const { edition } = useRouteContext({ from: route });
@@ -53,10 +65,6 @@ export function ScheduleLineupView({ tab }: ScheduleLineupViewProps) {
         <p>Loading schedule...</p>
       </div>
     );
-  }
-
-  if (!canShowDay) {
-    return <ScheduleNotRevealedPlaceholder />;
   }
 
   return (

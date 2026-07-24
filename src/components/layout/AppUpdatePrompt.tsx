@@ -3,10 +3,13 @@ import { useRegisterSW } from "virtual:pwa-register/react";
 import { toast } from "@/components/ui/sonner";
 
 export function AppUpdatePrompt() {
-  const { needRefresh, updateServiceWorker } = useRegisterSW();
+  const {
+    needRefresh: [needRefresh],
+    updateServiceWorker,
+  } = useRegisterSW();
 
   useEffect(() => {
-    if (!needRefresh[0]) return;
+    if (!needRefresh) return;
 
     const liveDot = (
       <span className="relative flex h-2 w-2">
@@ -25,7 +28,9 @@ export function AppUpdatePrompt() {
       },
     });
 
-    return () => toast.dismiss(toastId);
+    return () => {
+      toast.dismiss(toastId);
+    };
   }, [needRefresh, updateServiceWorker]);
 
   return null;

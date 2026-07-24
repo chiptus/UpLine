@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => ({
     tanstackRouter({ autoCodeSplitting: true }),
     react(),
     VitePWA({
-      registerType: "autoUpdate",
+      registerType: "prompt",
       devOptions: {
         enabled: mode === "development",
         type: "module",
@@ -23,8 +23,6 @@ export default defineConfig(({ mode }) => ({
         globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,woff,woff2}"],
         navigateFallback: "/index.html",
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
-        skipWaiting: true,
-        clientsClaim: true,
       },
       includeAssets: [
         "favicon.svg",

@@ -18,7 +18,7 @@ interface ScheduleLineupViewProps {
 
 export function ScheduleLineupView({ tab }: ScheduleLineupViewProps) {
   const { festival } = useFestivalEdition();
-  const { level, canShowStage } = useScheduleReveal();
+  const { canShowDay, canShowStage } = useScheduleReveal();
   const route =
     `/festivals/$festivalSlug/editions/$editionSlug/schedule/${tab}` as const;
   const { edition } = useRouteContext({ from: route });
@@ -55,7 +55,7 @@ export function ScheduleLineupView({ tab }: ScheduleLineupViewProps) {
     );
   }
 
-  if (level === "draft") {
+  if (!canShowDay) {
     return <ScheduleNotRevealedPlaceholder />;
   }
 

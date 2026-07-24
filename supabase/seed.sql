@@ -284,3 +284,27 @@ INSERT INTO public.artist_notes (user_id, artist_id, note_content, created_at) V
   ('11111111-1111-1111-1111-111111111111', 'a9999999-9999-9999-9999-999999999999', 'Simon is a genius. His live band setup brings electronic music to life.', now()),
   ('11111111-1111-1111-1111-111111111111', 'aaaaaaa5-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Best liquid DnB in the scene right now. Their Hospital Records releases are gold.', now()),
   ('11111111-1111-1111-1111-111111111111', 'aaaaaaa9-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'UK garage meets house perfection. Brothers know how to move a crowd!', now());
+
+-- Dedicated fixtures for schedule reveal level e2e tests (tests/e2e/schedule-reveal-levels.spec.ts).
+-- One festival with four editions, one per schedule_reveal_level, so parallel
+-- test workers never need to mutate a shared row - each edition is read-only.
+INSERT INTO public.festivals (id, name, slug, description, published, created_at, updated_at) VALUES
+  ('c1000000-0000-0000-0000-000000000001', 'Reveal Test Festival', 'reveal-test', 'Fixture festival for schedule reveal level e2e tests', true, now(), now());
+
+INSERT INTO public.festival_editions (id, festival_id, year, slug, name, description, location, start_date, end_date, published, schedule_reveal_level, created_at, updated_at) VALUES
+  ('c2000000-0000-0000-0000-000000000001', 'c1000000-0000-0000-0000-000000000001', 2099, 'draft', 'Reveal Test - Draft', 'Draft reveal level fixture', 'Nowhere', '2099-07-01', '2099-07-03', true, 'draft', now(), now()),
+  ('c2000000-0000-0000-0000-000000000002', 'c1000000-0000-0000-0000-000000000001', 2099, 'days', 'Reveal Test - Days', 'Days reveal level fixture', 'Nowhere', '2099-07-01', '2099-07-03', true, 'days', now(), now()),
+  ('c2000000-0000-0000-0000-000000000003', 'c1000000-0000-0000-0000-000000000001', 2099, 'stages', 'Reveal Test - Stages', 'Stages reveal level fixture', 'Nowhere', '2099-07-01', '2099-07-03', true, 'stages', now(), now()),
+  ('c2000000-0000-0000-0000-000000000004', 'c1000000-0000-0000-0000-000000000001', 2099, 'full', 'Reveal Test - Full', 'Full reveal level fixture', 'Nowhere', '2099-07-01', '2099-07-03', true, 'full', now(), now());
+
+INSERT INTO public.stages (id, name, slug, festival_edition_id, created_at, updated_at) VALUES
+  ('c3000000-0000-0000-0000-000000000002', 'Fixture Stage', 'fixture-stage', 'c2000000-0000-0000-0000-000000000002', now(), now()),
+  ('c3000000-0000-0000-0000-000000000003', 'Fixture Stage', 'fixture-stage', 'c2000000-0000-0000-0000-000000000003', now(), now()),
+  ('c3000000-0000-0000-0000-000000000004', 'Fixture Stage', 'fixture-stage', 'c2000000-0000-0000-0000-000000000004', now(), now());
+
+-- No sets for the "draft" edition: at that level the schedule tab is expected
+-- to short-circuit to the not-revealed placeholder before ever reading sets.
+INSERT INTO public.sets (id, name, slug, festival_edition_id, stage_id, time_start, time_end, description, created_by, created_at, updated_at) VALUES
+  ('c4000000-0000-0000-0000-000000000002', 'Fixture Set Days', 'fixture-set-days', 'c2000000-0000-0000-0000-000000000002', 'c3000000-0000-0000-0000-000000000002', '2099-07-01 20:00:00+00', '2099-07-01 21:00:00+00', 'Fixture set for days reveal level', '11111111-1111-1111-1111-111111111111', now(), now()),
+  ('c4000000-0000-0000-0000-000000000003', 'Fixture Set Stages', 'fixture-set-stages', 'c2000000-0000-0000-0000-000000000003', 'c3000000-0000-0000-0000-000000000003', '2099-07-01 20:00:00+00', '2099-07-01 21:00:00+00', 'Fixture set for stages reveal level', '11111111-1111-1111-1111-111111111111', now(), now()),
+  ('c4000000-0000-0000-0000-000000000004', 'Fixture Set Full', 'fixture-set-full', 'c2000000-0000-0000-0000-000000000004', 'c3000000-0000-0000-0000-000000000004', '2099-07-01 20:00:00+00', '2099-07-01 21:00:00+00', 'Fixture set for full reveal level', '11111111-1111-1111-1111-111111111111', now(), now());

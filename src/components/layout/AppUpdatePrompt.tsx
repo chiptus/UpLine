@@ -1,10 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRegisterSW } from "virtual:pwa-register/react";
 import { toast } from "@/components/ui/sonner";
 
 const UPDATE_CHECK_INTERVAL_MS = 60_000;
 
 export function AppUpdatePrompt() {
+  const updateIntervalId = useRef<ReturnType<typeof setInterval>>();
+
   const {
     needRefresh: [needRefresh],
     updateServiceWorker,
@@ -12,11 +14,16 @@ export function AppUpdatePrompt() {
     onRegisteredSW(_swUrl, registration) {
       if (!registration) return;
 
-      setInterval(() => {
+      clearInterval(updateIntervalId.current);
+      updateIntervalId.current = setInterval(() => {
         registration.update();
       }, UPDATE_CHECK_INTERVAL_MS);
     },
   });
+
+  useEffect(() => {
+    return () => clearInterval(updateIntervalId.current);
+  }, []);
 
   useEffect(() => {
     if (!needRefresh) return;

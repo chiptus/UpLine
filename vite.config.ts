@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => ({
     tanstackRouter({ autoCodeSplitting: true }),
     react(),
     VitePWA({
-      registerType: "autoUpdate",
+      registerType: "prompt",
       devOptions: {
         enabled: mode === "development",
         type: "module",

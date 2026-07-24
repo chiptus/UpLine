@@ -18,7 +18,7 @@ export function AppUpdatePrompt() {
       </span>
     );
 
-    const toastId = toast("New set just dropped", {
+    const toastId = toast("New version available", {
       description: "Refresh to load it.",
       duration: Infinity,
       icon: liveDot,

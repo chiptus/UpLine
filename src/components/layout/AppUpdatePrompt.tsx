@@ -2,11 +2,21 @@ import { useEffect } from "react";
 import { useRegisterSW } from "virtual:pwa-register/react";
 import { toast } from "@/components/ui/sonner";
 
+const UPDATE_CHECK_INTERVAL_MS = 60_000;
+
 export function AppUpdatePrompt() {
   const {
     needRefresh: [needRefresh],
     updateServiceWorker,
-  } = useRegisterSW();
+  } = useRegisterSW({
+    onRegisteredSW(_swUrl, registration) {
+      if (!registration) return;
+
+      setInterval(() => {
+        registration.update();
+      }, UPDATE_CHECK_INTERVAL_MS);
+    },
+  });
 
   useEffect(() => {
     if (!needRefresh) return;

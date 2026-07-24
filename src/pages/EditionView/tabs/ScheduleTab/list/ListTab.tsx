@@ -11,7 +11,7 @@ export function ScheduleTabList() {
 
   return (
     <>
-      <FestivalTimeBadge />
+      {canShowTime && <FestivalTimeBadge />}
       {canShowTime ? (
         <>
           <FilterContainer>

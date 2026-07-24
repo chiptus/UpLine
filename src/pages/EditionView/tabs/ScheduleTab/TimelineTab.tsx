@@ -8,7 +8,7 @@ export function ScheduleTabTimeline() {
 
   return (
     <>
-      <FestivalTimeBadge />
+      {canShowTime && <FestivalTimeBadge />}
       {canShowTime ? <Timeline /> : <ScheduleLineupView tab="timeline" />}
     </>
   );

@@ -30,9 +30,12 @@ export function StagesLineupGrid({ scheduleDays }: StagesLineupGridProps) {
                   {stage.name}
                 </h3>
                 <div className="space-y-2">
-                  {stage.sets.map((set) => (
-                    <LineupSetItem key={set.id} set={set} />
-                  ))}
+                  {stage.sets
+                    .slice()
+                    .sort((a, b) => a.name.localeCompare(b.name))
+                    .map((set) => (
+                      <LineupSetItem key={set.id} set={set} />
+                    ))}
                 </div>
               </div>
             ))}

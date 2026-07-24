@@ -2,7 +2,7 @@ import { SetHeader } from "./SetCard/SetHeader";
 import { SetImage } from "./SetCard/SetImage";
 import { SetMetadata } from "./SetCard/SetMetadata";
 import { SetDescription } from "./SetCard/SetDescription";
-import { SetVotingButtons } from "./SetCard/SetVotingButtons";
+import { SetActionButtons } from "./SetCard/SetActionButtons";
 
 export function SetListItem() {
   return (
@@ -23,7 +23,7 @@ export function SetListItem() {
         <SetDescription className="text-purple-200 text-sm" />
 
         <div className="self-end">
-          <SetVotingButtons size="sm" layout="horizontal" />
+          <SetActionButtons size="sm" layout="horizontal" />
         </div>
       </div>
 
@@ -44,7 +44,7 @@ export function SetListItem() {
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
-          <SetVotingButtons size="sm" layout="horizontal" />
+          <SetActionButtons size="sm" layout="horizontal" />
         </div>
       </div>
     </div>

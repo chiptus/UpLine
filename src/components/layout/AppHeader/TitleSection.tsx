@@ -40,7 +40,10 @@ export const TitleSection = forwardRef<HTMLDivElement, TitleSectionProps>(
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white tracking-tight">
                 {title}
               </h2>
-              <Heart className="h-6 md:h-8 w-6 md:w-8 text-pink-400 animate-pulse" />
+              <Heart
+                className="h-6 md:h-8 w-6 md:w-8 text-pink-400 animate-pulse"
+                fill="currentColor"
+              />
             </>
           )}
         </div>

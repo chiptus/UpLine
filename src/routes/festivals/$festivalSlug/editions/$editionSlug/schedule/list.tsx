@@ -13,7 +13,7 @@ import type { ScheduleSet } from "@/hooks/useScheduleData";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
-import { ScheduleNotRevealedPlaceholder } from "@/pages/EditionView/tabs/ScheduleTab/ScheduleNotRevealedPlaceholder";
+import { ScheduleLineupView } from "@/pages/EditionView/tabs/ScheduleTab/lineup/ScheduleLineupView";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserVotesQuery } from "@/api/voting/useUserVotesQuery";
 import {
@@ -163,7 +163,7 @@ function ListSchedule() {
   }
 
   if (!canShowTime) {
-    return <ScheduleNotRevealedPlaceholder />;
+    return <ScheduleLineupView tab="list" />;
   }
 
   if (!dayGroups.length) {

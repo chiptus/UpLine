@@ -5,7 +5,6 @@ import { test, expect } from "@playwright/test";
 // (earliest set start) through Sun Jul 14 23:00 UTC (latest set end) - the
 // rendered timeline's festival window.
 const TIMELINE_PATH = "/festivals/test/editions/2025/schedule/timeline";
-const SCROLL_ANIMATION_WAIT_MS = 800; // > smooth-scroll animation + the ~300ms debounce
 
 // Comfortably inside the seeded festival window.
 const NOW_INSIDE_WINDOW = new Date("2025-07-13T12:00:00Z");
@@ -89,7 +88,6 @@ test.describe("Timeline Now pill and current-time indicator", () => {
     });
 
     await nowButton.click();
-    await page.waitForTimeout(SCROLL_ANIMATION_WAIT_MS);
 
     await expect(page).toHaveURL(/scrollTo=/);
     const scrollTo = new URL(page.url()).searchParams.get("scrollTo");

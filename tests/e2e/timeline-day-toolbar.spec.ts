@@ -49,8 +49,6 @@ test.describe("Timeline day-jump toolbar", () => {
     // Jump to the last day, which should be far from the initial viewport.
     await dayButtons.last().click();
 
-    await page.waitForTimeout(SCROLL_ANIMATION_WAIT_MS);
-
     await expect(page).toHaveURL(/scrollTo=/);
     const scrollTo = new URL(page.url()).searchParams.get("scrollTo");
     expect(scrollTo).toBeTruthy();

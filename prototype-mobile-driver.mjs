@@ -37,6 +37,22 @@ const errors = [];
 page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
 page.on("pageerror", (e) => errors.push(String(e)));
 
+// Pre-seed GDPR consent so the banner never renders (its buttons can be
+// covered by the prototype's floating variant pill, breaking clicks).
+await page.addInitScript(() => {
+  window.localStorage.setItem(
+    "gdpr-consent",
+    JSON.stringify({
+      essential: true,
+      analytics: false,
+      preferences: false,
+      marketing: false,
+      version: "1.0",
+      timestamp: 1,
+    }),
+  );
+});
+
 try {
   await page.goto(url, { waitUntil: "load", timeout: 30000 });
   await page.waitForLoadState("networkidle", { timeout: 8000 }).catch(() => {});
@@ -46,11 +62,6 @@ try {
       { timeout: 8000 },
     )
     .catch(() => {});
-  const consent = page.getByRole("button", { name: "Essential Only" });
-  if (await consent.isVisible().catch(() => false)) {
-    await consent.click();
-    await page.waitForTimeout(300);
-  }
   await page.waitForTimeout(700);
   const scrollY = Number(process.env.SCROLL || 0);
   if (scrollY > 0) {

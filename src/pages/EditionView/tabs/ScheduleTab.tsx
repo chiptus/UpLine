@@ -15,7 +15,9 @@ export function ScheduleTab() {
     <>
       <PageTitle title="Schedule" prefix={festival?.name} />
       <div className="space-y-3 md:space-y-6">
-        {variant === "current" && <ScheduleNavigation />}
+        {(variant === "current" || variant === "autohide") && (
+          <ScheduleNavigation />
+        )}
         {variant === "tabs" && <ScheduleViewTabs />}
         {variant === "thumbbar" && <ThumbDockNavigation />}
 

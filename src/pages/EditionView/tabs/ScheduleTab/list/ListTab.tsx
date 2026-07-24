@@ -10,7 +10,7 @@ import { CompactViewSwitcher } from "../../../prototype/CompactViewSwitcher";
 export function ScheduleTabList() {
   const variant = useChromeVariant();
 
-  if (variant === "tabs" || variant === "thumbbar") {
+  if (variant === "tabs" || variant === "thumbbar" || variant === "autohide") {
     return (
       <>
         <div className="flex items-center justify-end gap-1">

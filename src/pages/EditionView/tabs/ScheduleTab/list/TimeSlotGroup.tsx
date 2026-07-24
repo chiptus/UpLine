@@ -32,7 +32,9 @@ export function TimeSlotGroup({
           className={cn(
             "flex items-center gap-2 mb-4 px-4 py-2 rounded-lg sticky z-10",
             variant === "current" && "bg-purple-900/40 backdrop-blur-sm top-0",
-            (variant === "tabs" || variant === "thumbbar") &&
+            (variant === "tabs" ||
+              variant === "thumbbar" ||
+              variant === "autohide") &&
               "bg-purple-900/80 backdrop-blur-md top-16 md:top-20",
             variant === "unibar" &&
               "bg-purple-900/80 backdrop-blur-md top-28 md:top-32",

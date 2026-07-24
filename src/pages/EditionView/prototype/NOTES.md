@@ -28,6 +28,10 @@ each consistent across Now/Timeline/List:
   bar).
 - **thumbbar** — segmented switcher docks above the bottom tab bar on
   mobile (thumb-reachable); normal top segmented row on desktop.
+- **autohide** (iteration 4) — the current-style segmented switcher stays
+  at the top, and the mobile Vote/Schedule/Explore bottom bar slides away
+  while scrolling down (back on scroll up or near the top) so content gets
+  the whole screen.
 
 **Open axis — color:** the palette (blue-grey gradient + purple glass +
 amber accents) is a separate exploration. Most colors are hardcoded

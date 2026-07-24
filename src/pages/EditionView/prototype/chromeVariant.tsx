@@ -17,6 +17,7 @@ export const CHROME_VARIANTS = [
   "tabs",
   "unibar",
   "thumbbar",
+  "autohide",
 ] as const;
 
 export type ChromeVariant = (typeof CHROME_VARIANTS)[number];
@@ -26,6 +27,7 @@ const VARIANT_LABELS: Record<ChromeVariant, string> = {
   tabs: "Top tabs",
   unibar: "Unified bar",
   thumbbar: "Bottom dock",
+  autohide: "Top nav + auto-hide",
 };
 
 const ChromeVariantContext = createContext<ChromeVariant>("current");

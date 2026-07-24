@@ -5,6 +5,10 @@ import { useFestivalPhase } from "@/hooks/useFestivalPhase";
 import { DesktopTabButton } from "./DesktopTabButton";
 import { MobileTabButton } from "./MobileTabButton";
 import { config } from "./config";
+import { cn } from "@/lib/utils";
+// PROTOTYPE: chrome-variant exploration (see ../prototype/)
+import { useChromeVariant } from "../prototype/chromeVariant";
+import { useHideOnScrollDown } from "../prototype/useHideOnScrollDown";
 
 const PRIMARY_TAB_LABEL = {
   "pre-schedule": "Lineup",
@@ -19,6 +23,11 @@ export function MainTabNavigation() {
     festivalInfoQuery(festival.id),
   );
   const { phase } = useFestivalPhase();
+  // PROTOTYPE: the "autohide" variant slides the mobile bottom bar away
+  // while scrolling down to free screen space
+  const variant = useChromeVariant();
+  const scrolledDown = useHideOnScrollDown();
+  const hideBottomBar = variant === "autohide" && scrolledDown;
 
   const visibleTabs = config
     .filter((config) => {
@@ -47,7 +56,12 @@ export function MainTabNavigation() {
       </div>
 
       {/* Mobile: Fixed bottom navigation */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-md border-t border-purple-400/20 safe-area-pb">
+      <div
+        className={cn(
+          "md:hidden fixed bottom-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-md border-t border-purple-400/20 safe-area-pb transition-transform duration-200",
+          hideBottomBar && "translate-y-full",
+        )}
+      >
         <div className="flex">
           {visibleTabs.map((config) => (
             <MobileTabButton key={config.key} config={config} />

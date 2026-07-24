@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { TimeScale } from "./TimeScale";
 import { StageRow } from "./StageRow";
 import { StageLabels } from "./StageLabels";
@@ -15,6 +15,8 @@ import type { ScheduleDay } from "@/hooks/useScheduleData";
 import { useTimelineScrollSync } from "@/hooks/useTimelineScrollSync";
 import { jumpToTimelineMoment } from "@/lib/timelineDayJump";
 import { useActiveTimelineDay } from "@/hooks/useActiveTimelineDay";
+// PROTOTYPE: chrome-variant exploration (see ../../../prototype/)
+import { useChromeVariant } from "../../../prototype/chromeVariant";
 
 interface TimelineContainerProps {
   timelineData: TimelineData;
@@ -35,6 +37,23 @@ export function TimelineContainer({
 }: TimelineContainerProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isOverviewExpanded, setIsOverviewExpanded] = useState(false);
+  // PROTOTYPE: non-current variants lift the time scale out of the scroller
+  // into a sticky header, synced horizontally via transform
+  const variant = useChromeVariant();
+  const stickyHeader = variant !== "current";
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  useEffect(() => {
+    if (!stickyHeader) return;
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    function handleScroll() {
+      setScrollLeft(container?.scrollLeft ?? 0);
+    }
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [stickyHeader]);
 
   useTimelineScrollSync({
     scrollContainerRef,
@@ -88,22 +107,46 @@ export function TimelineContainer({
           onJump={(moment) => jumpTo(moment, "center")}
         />
       )}
-      <div className="relative">
-        <StageLabels stages={timelineData.stages} />
-        <div
-          ref={scrollContainerRef}
-          data-testid="timeline-scroll-container"
-          className="overflow-x-auto overflow-y-hidden pb-20"
-        >
-          <div className="relative">
+      {stickyHeader && (
+        <div className="sticky top-[116px] md:top-[136px] z-30 h-20 overflow-hidden rounded-b-lg bg-gray-900/85 backdrop-blur-md">
+          <div
+            style={{
+              transform: `translateX(-${scrollLeft}px)`,
+              minWidth: timelineData.totalWidth,
+            }}
+          >
             <TimeScale
               timeSlots={timelineData.timeSlots}
               totalWidth={timelineData.totalWidth}
               scrollContainerRef={scrollContainerRef}
               timezone={timezone}
             />
+          </div>
+        </div>
+      )}
+      <div className="relative">
+        <StageLabels
+          stages={timelineData.stages}
+          className={stickyHeader ? "-top-6" : undefined}
+        />
+        <div
+          ref={scrollContainerRef}
+          data-testid="timeline-scroll-container"
+          className="overflow-x-auto overflow-y-hidden pb-20"
+        >
+          <div className="relative">
+            {!stickyHeader && (
+              <TimeScale
+                timeSlots={timelineData.timeSlots}
+                totalWidth={timelineData.totalWidth}
+                scrollContainerRef={scrollContainerRef}
+                timezone={timezone}
+              />
+            )}
 
-            <div className="space-y-12 mt-28">
+            <div
+              className={stickyHeader ? "space-y-12 mt-10" : "space-y-12 mt-28"}
+            >
               {timelineData.stages.map((stage) => (
                 <StageRow
                   key={stage.name}

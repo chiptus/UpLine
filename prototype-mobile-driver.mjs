@@ -51,6 +51,11 @@ try {
     await page.waitForTimeout(300);
   }
   await page.waitForTimeout(700);
+  const scrollY = Number(process.env.SCROLL || 0);
+  if (scrollY > 0) {
+    await page.evaluate((y) => window.scrollTo(0, y), scrollY);
+    await page.waitForTimeout(400);
+  }
   await page.screenshot({ path: out, fullPage: false });
 
   console.log(`url: ${page.url()}`);

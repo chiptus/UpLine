@@ -23,6 +23,7 @@ import type { Stage } from "@/api/stages/types";
 // PROTOTYPE: chrome-variant exploration (see @/pages/EditionView/prototype/)
 import { useChromeVariant } from "@/pages/EditionView/prototype/chromeVariant";
 import { CompactViewSwitcher } from "@/pages/EditionView/prototype/CompactViewSwitcher";
+import { ViewMenu } from "@/pages/EditionView/prototype/ViewMenu";
 
 export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug/schedule/now",
@@ -73,7 +74,7 @@ function ScheduleTabNow() {
   const switcherRow =
     variant === "commandbar" || variant === "compact" ? (
       <div className="flex items-center">
-        <CompactViewSwitcher />
+        {variant === "compact" ? <ViewMenu /> : <CompactViewSwitcher />}
       </div>
     ) : null;
 

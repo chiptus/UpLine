@@ -1,12 +1,15 @@
 import { DEFAULT_STAGE_COLOR } from "@/lib/constants/stages";
+import { cn } from "@/lib/utils";
 
 interface StageLabelsProps {
   stages: Array<{ name: string; color?: string }>;
+  /** PROTOTYPE: sticky-header variants shift labels up (see prototype/). */
+  className?: string;
 }
 
-export function StageLabels({ stages }: StageLabelsProps) {
+export function StageLabels({ stages, className }: StageLabelsProps) {
   return (
-    <div className="absolute top-12 z-20 space-y-16">
+    <div className={cn("absolute top-12 z-20 space-y-16", className)}>
       {stages.map((stage) => (
         <div key={stage.name} className="h-20 flex items-center">
           <div

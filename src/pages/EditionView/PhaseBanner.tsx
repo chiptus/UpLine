@@ -21,7 +21,8 @@ export function PhaseBanner() {
   );
 }
 
-function bannerMessage(
+// PROTOTYPE: exported for the chrome-variant prototype (see ./prototype/)
+export function bannerMessage(
   phase: FestivalPhase,
   startDate: string | null,
   timezone: string,

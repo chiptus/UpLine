@@ -17,8 +17,11 @@ import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 import { ScheduleNotRevealedPlaceholder } from "../ScheduleNotRevealedPlaceholder";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserVotes } from "@/api/voting/useUserVotes";
+// PROTOTYPE: chrome-variant exploration (see ../../../prototype/)
+import { useChromeVariant } from "../../../prototype/chromeVariant";
 
 export function Timeline() {
+  const variant = useChromeVariant();
   const { festival } = useFestivalEdition();
   const { edition } = useRouteContext({
     from: "/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline",
@@ -111,18 +114,25 @@ export function Timeline() {
     return <ScheduleNotRevealedPlaceholder />;
   }
 
+  const container = (
+    <TimelineContainer
+      timelineData={timelineData}
+      timezone={festival.timezone}
+      scheduleDays={scheduleDays}
+      selectedDay={selectedDay}
+      scheduleWindow={scheduleWindow}
+      now={now}
+    />
+  );
+
+  // PROTOTYPE: non-current variants drop the framing box around the timeline
+  if (variant !== "current") {
+    return container;
+  }
+
   return (
     <div className="space-y-8">
-      <div className="bg-white/5 rounded-lg p-4">
-        <TimelineContainer
-          timelineData={timelineData}
-          timezone={festival.timezone}
-          scheduleDays={scheduleDays}
-          selectedDay={selectedDay}
-          scheduleWindow={scheduleWindow}
-          now={now}
-        />
-      </div>
+      <div className="bg-white/5 rounded-lg p-4">{container}</div>
     </div>
   );
 }

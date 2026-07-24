@@ -7,6 +7,10 @@ import { ScheduleFilterSheet } from "../ScheduleFilterSheet";
 import { VoteFilterChips } from "../VoteFilterChips";
 import type { ScheduleDay } from "@/hooks/useScheduleData";
 import { useScrollEdgeFade } from "./useScrollEdgeFade";
+import { cn } from "@/lib/utils";
+// PROTOTYPE: chrome-variant exploration (see ../../../prototype/)
+import { useChromeVariant } from "../../../prototype/chromeVariant";
+import { CompactViewSwitcher } from "../../../prototype/CompactViewSwitcher";
 
 interface TimelineToolbarProps {
   days: ScheduleDay[];
@@ -39,6 +43,9 @@ export function TimelineToolbar({
   onJumpToNow,
 }: TimelineToolbarProps) {
   const dayRowRef = useRef<HTMLDivElement>(null);
+  // PROTOTYPE: chrome-variant tweaks — sticky offset + embedded view switcher
+  const variant = useChromeVariant();
+  const showViewSwitcher = variant === "commandbar" || variant === "compact";
 
   const visibleDays =
     selectedDay === "all"
@@ -60,8 +67,16 @@ export function TimelineToolbar({
       data-testid="timeline-day-toolbar"
       role="toolbar"
       aria-label="Timeline navigation"
-      className="sticky top-0 z-40 mb-4 flex items-end gap-1 rounded-lg border border-purple-400/20 bg-gray-900/95 px-2 pb-2.5 pt-2 backdrop-blur-md"
+      className={cn(
+        "sticky z-40 mb-4 flex items-end gap-1 rounded-lg border border-purple-400/20 bg-gray-900/95 px-2 pb-2.5 pt-2 backdrop-blur-md",
+        variant === "current" ? "top-0" : "top-16 md:top-20",
+      )}
     >
+      {showViewSwitcher && (
+        <div className="mr-1 self-center border-r border-purple-400/20 pr-1.5">
+          <CompactViewSwitcher />
+        </div>
+      )}
       <div
         ref={dayRowRef}
         role="radiogroup"

@@ -1,6 +1,7 @@
-import { AppHeader } from "@/components/layout/AppHeader";
 import { MainTabNavigation } from "./TabNavigation/TabNavigation";
-import { PhaseBanner } from "./PhaseBanner";
+// PROTOTYPE: chrome-variant exploration (see ./prototype/)
+import { ChromeVariantProvider } from "./prototype/chromeVariant";
+import { EditionHeaderVariants } from "./prototype/EditionHeaderVariants";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { Outlet } from "@tanstack/react-router";
@@ -27,26 +28,25 @@ export default function EditionView() {
   )?.url;
 
   return (
-    <div className="min-h-screen bg-app-gradient">
-      <div className="container mx-auto px-4 py-4 md:py-8 pb-20 md:pb-8">
-        <AppHeader
-          title={`${festival.name} - ${edition.name}`}
-          logoUrl={festival.logo_url}
-          showGroupsButton
-          websiteUrl={websiteUrl}
-          ticketsUrl={ticketsUrl}
-        />
+    <ChromeVariantProvider>
+      <div className="min-h-screen bg-app-gradient">
+        <div className="container mx-auto px-4 py-4 md:py-8 pb-20 md:pb-8">
+          <EditionHeaderVariants
+            title={`${festival.name} - ${edition.name}`}
+            logoUrl={festival.logo_url}
+            websiteUrl={websiteUrl}
+            ticketsUrl={ticketsUrl}
+          />
 
-        <PhaseBanner />
+          <MainTabNavigation />
 
-        <MainTabNavigation />
-
-        <div className="mt-4 md:mt-8">
-          <ErrorBoundary>
-            <Outlet />
-          </ErrorBoundary>
+          <div className="mt-4 md:mt-8">
+            <ErrorBoundary>
+              <Outlet />
+            </ErrorBoundary>
+          </div>
         </div>
       </div>
-    </div>
+    </ChromeVariantProvider>
   );
 }

@@ -21,6 +21,8 @@ import { useAuth } from "@/contexts/AuthContext";
 
 interface ScheduleFilterSheetProps {
   tab: "timeline" | "list";
+  /** PROTOTYPE: always show the "Filters" text, not only on md+. */
+  showLabel?: boolean;
 }
 
 /**
@@ -28,7 +30,10 @@ interface ScheduleFilterSheetProps {
  * Schedule views, backed by the shared URL state so filters stay in sync.
  * The badge excludes vote-chip selections while logged out (inert filter).
  */
-export function ScheduleFilterSheet({ tab }: ScheduleFilterSheetProps) {
+export function ScheduleFilterSheet({
+  tab,
+  showLabel,
+}: ScheduleFilterSheetProps) {
   const [open, setOpen] = useState(false);
   const { user } = useAuth();
   const {
@@ -64,7 +69,9 @@ export function ScheduleFilterSheet({ tab }: ScheduleFilterSheetProps) {
           }
         >
           <Filter className="h-4 w-4" />
-          <span className="hidden md:inline">Filters</span>
+          <span className={showLabel ? undefined : "hidden md:inline"}>
+            Filters
+          </span>
           {hasActiveFilters && (
             <Badge
               variant="secondary"

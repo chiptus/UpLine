@@ -173,8 +173,11 @@ INSERT INTO public.custom_links (festival_id, title, url, display_order, created
   ('f1111111-1111-1111-1111-111111111111', 'Transport', 'https://testfestival.com/travel', 2, now(), now());
 
 -- Insert festival edition
-INSERT INTO public.festival_editions (id, festival_id, year, slug, name, description, location, start_date, end_date, published, schedule_reveal_level, created_at, updated_at) VALUES
-  ('e1111111-1111-1111-1111-111111111111', 'f1111111-1111-1111-1111-111111111111', 2025, '2025', 'Boom Festival 2025', 'The 2025 edition of Boom Festival', 'Idanha-a-Nova, Portugal', '2025-07-12', '2025-07-14', true, 'full', now(), now());
+-- phase_override pins the derived festival phase to "live" so e2e voting
+-- tests stay stable regardless of how far the seeded 2025 dates drift into
+-- the past relative to real wall-clock time (see ADR-0003, ADR-0004).
+INSERT INTO public.festival_editions (id, festival_id, year, slug, name, description, location, start_date, end_date, published, schedule_reveal_level, phase_override, created_at, updated_at) VALUES
+  ('e1111111-1111-1111-1111-111111111111', 'f1111111-1111-1111-1111-111111111111', 2025, '2025', 'Boom Festival 2025', 'The 2025 edition of Boom Festival', 'Idanha-a-Nova, Portugal', '2025-07-12', '2025-07-14', true, 'full', 'live', now(), now());
 
 -- Insert stages
 INSERT INTO public.stages (id, name, slug, festival_edition_id, created_at, updated_at) VALUES 

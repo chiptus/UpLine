@@ -55,7 +55,6 @@ export function useRateSet() {
       queryClient.setQueryData<Record<string, number>>(
         userRatingsKeys.user(userId),
         (old) => {
-          if (!old) return {};
           const newRatings = { ...old };
 
           if (existingRating === rating) {

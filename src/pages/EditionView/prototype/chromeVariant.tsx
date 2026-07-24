@@ -14,18 +14,18 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export const CHROME_VARIANTS = [
   "current",
-  "quiet",
-  "commandbar",
-  "compact",
+  "tabs",
+  "unibar",
+  "thumbbar",
 ] as const;
 
 export type ChromeVariant = (typeof CHROME_VARIANTS)[number];
 
 const VARIANT_LABELS: Record<ChromeVariant, string> = {
   current: "Current",
-  quiet: "Quiet chrome",
-  commandbar: "Command bar",
-  compact: "Content first",
+  tabs: "Top tabs",
+  unibar: "Unified bar",
+  thumbbar: "Bottom dock",
 };
 
 const ChromeVariantContext = createContext<ChromeVariant>("current");
@@ -98,7 +98,7 @@ function VariantSwitcher({ variant, onChange }: VariantSwitcherProps) {
   });
 
   return (
-    <div className="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-1 rounded-full bg-white px-2 py-1.5 text-sm font-medium text-gray-900 shadow-xl ring-1 ring-black/20">
+    <div className="fixed bottom-36 md:bottom-6 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-1 rounded-full bg-white px-2 py-1.5 text-sm font-medium text-gray-900 shadow-xl ring-1 ring-black/20">
       <button
         type="button"
         aria-label="Previous variant"

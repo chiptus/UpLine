@@ -5,28 +5,29 @@ view feels packed on mobile — five stacked boxes (phase banner, view
 switcher, timezone bar, filters card / toolbar) before any content. How
 should the chrome consolidate?
 
-Flip variants with the floating pill (or `?variant=`), on any schedule view:
+**Iteration 1** explored density (quiet chrome / command bar / content
+first). Feedback: content-first direction preferred; timezone bar dropped
+for good (it flagged a fixed bug — times are festival-time everywhere).
+
+**Iteration 2** tried a dropdown view switcher (bar space) and made the
+timeline's date band + hour scale a sticky strip (synced via `translateX`)
+docking below the toolbar. Feedback: dropdown hides the views (worst on
+desktop); the bar changing shape per view (menu-only on Now, big toolbar
+on Timeline, filters on List) breaks the anchor.
+
+**Iteration 3** (this one): all variants share the content-first base
+(identity row instead of hero, no boxed banner, no timezone bar, unboxed
+timeline, sticky headers); the axis is now the **navigation mechanism**,
+each consistent across Now/Timeline/List:
 
 - **current** — baseline, unchanged.
-- **quiet** — information stops being boxes: phase message becomes a subtitle
-  line under the title (pulsing dot when live), timezone bar removed
-  (times are festival-time everywhere — the bar flagged a fixed bug),
-  list filter card becomes a slim right-aligned row, timeline loses its
-  framing box, sticky bars clear the fixed top bar.
-- **commandbar** — everything in _quiet_, plus the Now/Timeline/List
-  switcher collapses to icons inside the sticky toolbar (and a matching
-  sticky bar on the list view): exactly one control strip above content.
-- **compact** — everything in _commandbar_, plus the hero title block is
-  replaced by a slim logo + name + live-dot row: content-first.
-
-**Iteration 2** (feedback: leaning compact, but the icon strip eats bar
-space; want the timeline date/time header sticky):
-
-- `compact` now uses a slim dropdown view switcher (icon + chevron) in the
-  bar; `commandbar` keeps the 3-icon strip so both widths can be compared.
-- All non-current variants: the timeline's date band + hour scale is
-  lifted out of the horizontal scroller into a sticky strip (synced via
-  `translateX`) that docks below the toolbar while scrolling.
+- **tabs** — slim underline text tabs (Now · Timeline · List) at the same
+  spot on every view; per-view controls sit below.
+- **unibar** — one sticky bar with fixed slots on all three views: 3-icon
+  strip always left, view-specific tools fill the rest (Now gets the same
+  bar).
+- **thumbbar** — segmented switcher docks above the bottom tab bar on
+  mobile (thumb-reachable); normal top segmented row on desktop.
 
 **Open axis — color:** the palette (blue-grey gradient + purple glass +
 amber accents) is a separate exploration. Most colors are hardcoded

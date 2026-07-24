@@ -1,11 +1,11 @@
-// PROTOTYPE — per-variant edition header (hero title + phase treatment).
-// See chromeVariant.tsx.
+// PROTOTYPE — per-variant edition header. All non-current variants use the
+// content-first identity row (the density verdict); they differ in
+// navigation mechanism instead. See chromeVariant.tsx.
 import { Music } from "lucide-react";
 import { AppHeader } from "@/components/layout/AppHeader";
-import { PhaseBanner, bannerMessage } from "../PhaseBanner";
+import { PhaseBanner } from "../PhaseBanner";
 import { useChromeVariant } from "./chromeVariant";
 import { useFestivalPhase } from "@/hooks/useFestivalPhase";
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 
 interface EditionHeaderVariantsProps {
   title: string;
@@ -37,46 +37,11 @@ export function EditionHeaderVariants({
     );
   }
 
-  if (variant === "compact") {
-    return (
-      <>
-        <AppHeader showGroupsButton />
-        <CompactIdentityRow title={title} logoUrl={logoUrl} />
-      </>
-    );
-  }
-
-  // quiet + commandbar: full hero, phase demoted to a subtitle line
   return (
     <>
-      <AppHeader
-        title={title}
-        logoUrl={logoUrl}
-        showGroupsButton
-        websiteUrl={websiteUrl}
-        ticketsUrl={ticketsUrl}
-      />
-      <PhaseLine />
+      <AppHeader showGroupsButton />
+      <CompactIdentityRow title={title} logoUrl={logoUrl} />
     </>
-  );
-}
-
-function PhaseLine() {
-  const { phase } = useFestivalPhase();
-  const { edition, festival } = useFestivalEdition();
-
-  const message = bannerMessage(
-    phase,
-    edition?.start_date ?? null,
-    festival.timezone,
-  );
-  if (!message) return null;
-
-  return (
-    <div className="mb-4 flex items-center justify-center gap-2 text-center text-sm text-purple-200/80">
-      {phase === "live" && <LiveDot />}
-      {message}
-    </div>
   );
 }
 
@@ -103,19 +68,13 @@ function CompactIdentityRow({
       <h2 className="min-w-0 truncate text-lg font-bold text-white">{title}</h2>
       {phase === "live" && (
         <span className="ml-auto flex shrink-0 items-center gap-1.5 text-sm text-purple-200/80">
-          <LiveDot />
+          <span
+            aria-hidden="true"
+            className="h-2 w-2 shrink-0 rounded-full bg-red-500 animate-pulse"
+          />
           Live
         </span>
       )}
     </div>
-  );
-}
-
-function LiveDot() {
-  return (
-    <span
-      aria-hidden="true"
-      className="h-2 w-2 shrink-0 rounded-full bg-red-500 animate-pulse"
-    />
   );
 }

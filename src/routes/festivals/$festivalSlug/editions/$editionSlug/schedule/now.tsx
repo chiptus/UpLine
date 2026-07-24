@@ -23,7 +23,6 @@ import type { Stage } from "@/api/stages/types";
 // PROTOTYPE: chrome-variant exploration (see @/pages/EditionView/prototype/)
 import { useChromeVariant } from "@/pages/EditionView/prototype/chromeVariant";
 import { CompactViewSwitcher } from "@/pages/EditionView/prototype/CompactViewSwitcher";
-import { ViewMenu } from "@/pages/EditionView/prototype/ViewMenu";
 
 export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug/schedule/now",
@@ -72,9 +71,9 @@ function ScheduleTabNow() {
     .sort((a, b) => compareNowNext(a.classification, b.classification));
 
   const switcherRow =
-    variant === "commandbar" || variant === "compact" ? (
-      <div className="flex items-center">
-        {variant === "compact" ? <ViewMenu /> : <CompactViewSwitcher />}
+    variant === "unibar" ? (
+      <div className="sticky top-16 md:top-20 z-40 flex items-center gap-1 rounded-lg border border-purple-400/20 bg-gray-900/95 px-2 py-1.5 backdrop-blur-md">
+        <CompactViewSwitcher />
       </div>
     ) : null;
 

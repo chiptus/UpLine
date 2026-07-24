@@ -11,7 +11,6 @@ import { cn } from "@/lib/utils";
 // PROTOTYPE: chrome-variant exploration (see ../../../prototype/)
 import { useChromeVariant } from "../../../prototype/chromeVariant";
 import { CompactViewSwitcher } from "../../../prototype/CompactViewSwitcher";
-import { ViewMenu } from "../../../prototype/ViewMenu";
 
 interface TimelineToolbarProps {
   days: ScheduleDay[];
@@ -46,7 +45,7 @@ export function TimelineToolbar({
   const dayRowRef = useRef<HTMLDivElement>(null);
   // PROTOTYPE: chrome-variant tweaks — sticky offset + embedded view switcher
   const variant = useChromeVariant();
-  const showViewSwitcher = variant === "commandbar" || variant === "compact";
+  const showViewSwitcher = variant === "unibar";
 
   const visibleDays =
     selectedDay === "all"
@@ -75,7 +74,7 @@ export function TimelineToolbar({
     >
       {showViewSwitcher && (
         <div className="mr-1 self-center border-r border-purple-400/20 pr-1.5">
-          {variant === "compact" ? <ViewMenu /> : <CompactViewSwitcher />}
+          <CompactViewSwitcher />
         </div>
       )}
       <div

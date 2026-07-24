@@ -4,17 +4,20 @@ import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { PageTitle } from "@/components/PageTitle/PageTitle";
 // PROTOTYPE: chrome-variant exploration (see ../prototype/)
 import { useChromeVariant } from "../prototype/chromeVariant";
+import { ScheduleViewTabs } from "../prototype/ScheduleViewTabs";
+import { ThumbDockNavigation } from "../prototype/ThumbDockNavigation";
 
 export function ScheduleTab() {
   const { festival } = useFestivalEdition();
   const variant = useChromeVariant();
-  const showNavigation = variant === "current" || variant === "quiet";
 
   return (
     <>
       <PageTitle title="Schedule" prefix={festival?.name} />
       <div className="space-y-3 md:space-y-6">
-        {showNavigation && <ScheduleNavigation />}
+        {variant === "current" && <ScheduleNavigation />}
+        {variant === "tabs" && <ScheduleViewTabs />}
+        {variant === "thumbbar" && <ThumbDockNavigation />}
 
         <Outlet />
       </div>

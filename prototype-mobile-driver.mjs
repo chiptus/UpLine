@@ -30,7 +30,8 @@ const browser = await chromium.launch({
       : []),
   ],
 });
-const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+const [vw, vh] = (process.env.VIEWPORT || "390x844").split("x").map(Number);
+const page = await browser.newPage({ viewport: { width: vw, height: vh } });
 
 const errors = [];
 page.on("console", (m) => m.type() === "error" && errors.push(m.text()));

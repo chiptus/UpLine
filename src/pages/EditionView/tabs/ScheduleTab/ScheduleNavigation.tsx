@@ -16,10 +16,10 @@ export function ScheduleNavigation() {
         )}
         <ScheduleNavigationItem
           view="timeline"
-          label="Timeline View"
+          label="Timeline"
           icon={Calendar}
         />
-        <ScheduleNavigationItem view="list" label="List View" icon={List} />
+        <ScheduleNavigationItem view="list" label="List" icon={List} />
       </div>
     </div>
   );

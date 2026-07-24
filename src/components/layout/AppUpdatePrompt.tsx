@@ -21,6 +21,9 @@ export function AppUpdatePrompt() {
     },
   });
 
+  const updateServiceWorkerRef = useRef(updateServiceWorker);
+  updateServiceWorkerRef.current = updateServiceWorker;
+
   useEffect(() => {
     return () => clearInterval(updateIntervalId.current);
   }, []);
@@ -41,14 +44,14 @@ export function AppUpdatePrompt() {
       icon: liveDot,
       action: {
         label: "Refresh",
-        onClick: () => updateServiceWorker(true),
+        onClick: () => updateServiceWorkerRef.current(true),
       },
     });
 
     return () => {
       toast.dismiss(toastId);
     };
-  }, [needRefresh, updateServiceWorker]);
+  }, [needRefresh]);
 
   return null;
 }

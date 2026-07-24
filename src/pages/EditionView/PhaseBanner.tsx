@@ -34,6 +34,10 @@ function bannerMessage(
     return planningCopy(daysUntilStart(startDate, new Date(), timezone));
   }
 
+  if (phase === "live") {
+    return "The festival is on — see what's playing now and next!";
+  }
+
   return null;
 }
 

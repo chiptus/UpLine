@@ -19,24 +19,34 @@ test.describe("Schedule reveal levels", () => {
     await expect(page.getByText("Fixture Set")).toHaveCount(0);
   });
 
-  test("days shows the set without a stage grouping", async ({ page }) => {
+  test("days shows the set without a stage grouping and no Timeline/List nav", async ({
+    page,
+  }) => {
     await page.goto(PATHS.days);
     await expect(page.getByText("Fixture Set Days")).toBeVisible();
     await expect(page.getByText("Fixture Stage")).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Timeline" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "List" })).toHaveCount(0);
   });
 
-  test("stages shows the set grouped under its stage", async ({ page }) => {
+  test("stages shows the set grouped under its stage and no Timeline/List nav", async ({
+    page,
+  }) => {
     await page.goto(PATHS.stages);
     await expect(page.getByText("Fixture Stage")).toBeVisible();
     await expect(page.getByText("Fixture Set Stages")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Timeline" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "List" })).toHaveCount(0);
   });
 
-  test("full shows the normal timeline instead of the lineup view", async ({
+  test("full shows the normal timeline with the Timeline/List nav", async ({
     page,
   }) => {
     await page.goto(PATHS.full);
     await expect(
       page.getByTestId("timeline-scroll-container"),
     ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Timeline" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "List" })).toBeVisible();
   });
 });

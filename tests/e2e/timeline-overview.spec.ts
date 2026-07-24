@@ -3,8 +3,6 @@ import { test, expect } from "@playwright/test";
 // Seeded in supabase/seed.sql: festival slug "test", edition slug "2025",
 // three festival days (Jul 12-14, 2025) each with timed sets.
 const TIMELINE_PATH = "/festivals/test/editions/2025/schedule/timeline";
-const SCROLL_ANIMATION_WAIT_MS = 800; // > smooth-scroll animation + the ~300ms debounce
-const DEBOUNCE_WAIT_MS = 600; // > the ~300ms debounce in useTimelineScrollSync
 
 test.describe("Timeline overview mini-map", () => {
   test("collapsed by default; toggle expands and collapses it", async ({
@@ -52,8 +50,6 @@ test.describe("Timeline overview mini-map", () => {
     // Click near the right edge of the map, far from wherever the strip
     // is currently centered.
     await page.mouse.click(mapBox.x + mapBox.width * 0.9, mapBox.y + mapBox.height / 2);
-
-    await page.waitForTimeout(SCROLL_ANIMATION_WAIT_MS);
 
     await expect(page).toHaveURL(/scrollTo=/);
     const scrollTo = new URL(page.url()).searchParams.get("scrollTo");
@@ -103,7 +99,6 @@ test.describe("Timeline overview mini-map", () => {
 
     await page.mouse.up();
 
-    await page.waitForTimeout(DEBOUNCE_WAIT_MS);
     await expect(page).toHaveURL(/scrollTo=/);
     const scrollTo = new URL(page.url()).searchParams.get("scrollTo");
     expect(scrollTo).toBeTruthy();

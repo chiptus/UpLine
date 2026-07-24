@@ -2,10 +2,6 @@ import { test, expect, type Page } from "@playwright/test";
 
 // Seeded in supabase/seed.sql: festival slug "test", edition slug "2025".
 const TIMELINE_PATH = "/festivals/test/editions/2025/schedule/timeline";
-// Comfortably past the ~300ms scroll->URL debounce. Uses real time rather than
-// a fake clock: installing a fake clock stalls the timers the data fetch and
-// re-navigations depend on, which prevents the timeline from rendering.
-const SCROLL_DEBOUNCE_WAIT_MS = 600;
 
 async function openTimeline(page: Page) {
   await page.goto(TIMELINE_PATH);
@@ -40,7 +36,6 @@ test.describe("Timeline scroll position (scrollTo URL state)", () => {
     await page.waitForTimeout(100);
     expect(new URL(page.url()).searchParams.has("scrollTo")).toBe(false);
 
-    await page.waitForTimeout(SCROLL_DEBOUNCE_WAIT_MS);
     await expect(page).toHaveURL(/scrollTo=/);
 
     const scrollTo = new URL(page.url()).searchParams.get("scrollTo");
@@ -54,7 +49,9 @@ test.describe("Timeline scroll position (scrollTo URL state)", () => {
     await scrollContainer.evaluate((el) => {
       el.scrollLeft = el.scrollLeft + 200;
     });
-    await page.waitForTimeout(SCROLL_DEBOUNCE_WAIT_MS);
+    await expect
+      .poll(() => new URL(page.url()).searchParams.get("scrollTo"))
+      .not.toBe(scrollTo);
 
     const historyLengthAfterScroll = await page.evaluate(
       () => window.history.length,
@@ -71,7 +68,9 @@ test.describe("Timeline scroll position (scrollTo URL state)", () => {
     await scrollContainer.evaluate((el) => {
       el.scrollLeft = el.scrollLeft + 600;
     });
-    await page.waitForTimeout(SCROLL_DEBOUNCE_WAIT_MS);
+    await expect
+      .poll(() => new URL(page.url()).searchParams.has("scrollTo"))
+      .toBe(true);
 
     const scrollTo = new URL(page.url()).searchParams.get("scrollTo");
     expect(scrollTo).toBeTruthy();
@@ -103,7 +102,9 @@ test.describe("Timeline scroll position (scrollTo URL state)", () => {
     await scrollContainer.evaluate((el) => {
       el.scrollLeft = el.scrollLeft + 500;
     });
-    await page.waitForTimeout(SCROLL_DEBOUNCE_WAIT_MS);
+    await expect
+      .poll(() => new URL(page.url()).searchParams.has("scrollTo"))
+      .toBe(true);
 
     const urlWithScroll = page.url();
     const scrollLeftBeforeNav = await scrollContainer.evaluate(
@@ -143,7 +144,9 @@ test.describe("Timeline scroll position (scrollTo URL state)", () => {
     await scrollContainer.evaluate((el) => {
       el.scrollLeft = el.scrollLeft + 500;
     });
-    await page.waitForTimeout(SCROLL_DEBOUNCE_WAIT_MS);
+    await expect
+      .poll(() => new URL(page.url()).searchParams.has("scrollTo"))
+      .toBe(true);
 
     const urlWithScroll = page.url();
     expect(new URL(urlWithScroll).searchParams.has("scrollTo")).toBe(true);

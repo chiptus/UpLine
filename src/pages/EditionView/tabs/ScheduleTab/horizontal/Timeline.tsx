@@ -13,8 +13,6 @@ import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
 import { useNow } from "@/hooks/useNow";
 import { filterScheduleDays } from "@/lib/scheduleFilter";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
-import { useScheduleReveal } from "@/hooks/useScheduleReveal";
-import { ScheduleNotRevealedPlaceholder } from "../ScheduleNotRevealedPlaceholder";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserVotes } from "@/api/voting/useUserVotes";
 
@@ -23,7 +21,6 @@ export function Timeline() {
   const { edition } = useRouteContext({
     from: "/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline",
   });
-  const { canShowTime } = useScheduleReveal();
   const now = useNow();
   const { data: editionSets = [], isLoading: setsLoading } =
     useEditionSetsQuery(edition.id);
@@ -105,10 +102,6 @@ export function Timeline() {
         <p>Festival dates not available yet.</p>
       </div>
     );
-  }
-
-  if (!canShowTime) {
-    return <ScheduleNotRevealedPlaceholder />;
   }
 
   return (

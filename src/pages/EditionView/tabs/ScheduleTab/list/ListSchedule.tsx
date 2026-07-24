@@ -10,8 +10,6 @@ import { TimeSlotGroup } from "./TimeSlotGroup";
 import type { ScheduleSet } from "@/hooks/useScheduleData";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
-import { useScheduleReveal } from "@/hooks/useScheduleReveal";
-import { ScheduleNotRevealedPlaceholder } from "../ScheduleNotRevealedPlaceholder";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserVotes } from "@/api/voting/useUserVotes";
 
@@ -25,7 +23,6 @@ export function ListSchedule() {
   const { edition } = useRouteContext({
     from: "/festivals/$festivalSlug/editions/$editionSlug/schedule/list",
   });
-  const { canShowTime } = useScheduleReveal();
   const { data: editionSets = [], isLoading: setsLoading } =
     useEditionSetsQuery(edition.id);
   const { data: stages } = useSuspenseQuery(stagesByEditionQuery(edition.id));
@@ -132,10 +129,6 @@ export function ListSchedule() {
         <p>Error loading schedule.</p>
       </div>
     );
-  }
-
-  if (!canShowTime) {
-    return <ScheduleNotRevealedPlaceholder />;
   }
 
   if (!timeSlots.length) {

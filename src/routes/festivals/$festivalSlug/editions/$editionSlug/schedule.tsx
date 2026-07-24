@@ -4,8 +4,7 @@ import {
   stripSearchParams,
 } from "@tanstack/react-router";
 import { ScheduleTab } from "@/pages/EditionView/tabs/ScheduleTab";
-import { getFestivalPhase } from "@/lib/festivalPhase";
-import { canShowTime } from "@/lib/scheduleReveal";
+import { canShowNowView } from "@/lib/nowView";
 import {
   timelineSearchDefaults,
   timelineSearchSchema,
@@ -21,15 +20,11 @@ export const Route = createFileRoute(
   },
   beforeLoad: ({ params, location, context }) => {
     if (location.pathname.endsWith("/schedule")) {
-      const phase = getFestivalPhase({
-        revealLevel: context.edition.schedule_reveal_level,
-        startDate: context.edition.start_date,
-        endDate: context.edition.end_date,
-        timezone: context.festival.timezone,
-        now: new Date(),
-      });
-      const liveNow =
-        phase === "live" && canShowTime(context.edition.schedule_reveal_level);
+      const liveNow = canShowNowView(
+        context.edition,
+        context.festival.timezone,
+        new Date(),
+      );
 
       throw redirect({
         to: liveNow

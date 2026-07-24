@@ -10,13 +10,12 @@ import { setsByEditionQuery } from "@/api/sets/useSetsByEdition";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { useNow } from "@/hooks/useNow";
-import { getFestivalPhase } from "@/lib/festivalPhase";
+import { canShowNowView } from "@/lib/nowView";
 import {
   classifyNowNextByStage,
   compareNowNext,
   type NowNextClassification,
 } from "@/lib/nowNext";
-import { canShowTime } from "@/lib/scheduleReveal";
 import { sortStagesByOrder } from "@/lib/stageUtils";
 import { formatTimeOnly } from "@/lib/timeUtils";
 import type { FestivalSet } from "@/api/sets/types";
@@ -27,17 +26,8 @@ export const Route = createFileRoute(
 )({
   component: ScheduleTabNow,
   beforeLoad: ({ params, location, context }) => {
-    const phase = getFestivalPhase({
-      revealLevel: context.edition.schedule_reveal_level,
-      startDate: context.edition.start_date,
-      endDate: context.edition.end_date,
-      timezone: context.festival.timezone,
-      now: new Date(),
-    });
-
     if (
-      phase !== "live" ||
-      !canShowTime(context.edition.schedule_reveal_level)
+      !canShowNowView(context.edition, context.festival.timezone, new Date())
     ) {
       throw redirect({
         to: "/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline",
@@ -49,6 +39,9 @@ export const Route = createFileRoute(
   loader: ({ context }) => {
     void context.queryClient.ensureQueryData(
       setsByEditionQuery(context.edition.id),
+    );
+    void context.queryClient.ensureQueryData(
+      stagesByEditionQuery(context.edition.id),
     );
   },
 });

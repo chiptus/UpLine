@@ -31,7 +31,14 @@ each consistent across Now/Timeline/List:
 - **autohide** (iteration 4) — the current-style segmented switcher stays
   at the top, and the mobile Vote/Schedule/Explore bottom bar slides away
   while scrolling down (back on scroll up or near the top) so content gets
-  the whole screen.
+  the whole screen. Iteration 5: its list view has no filters row at all —
+  the filter trigger lives inside the sticky day header.
+
+**Iteration 5** (feedback: 5 looks good; list filters need a home; day
+header sticky was buggy): the list is now grouped per day on all
+non-current variants, so the sticky day header's range spans the whole day
+(it previously sat inside the day's first time slot and un-stuck after
+~one screen). On `autohide` the day header also hosts the Filters trigger.
 
 **Open axis — color:** the palette (blue-grey gradient + purple glass +
 amber accents) is a separate exploration. Most colors are hardcoded

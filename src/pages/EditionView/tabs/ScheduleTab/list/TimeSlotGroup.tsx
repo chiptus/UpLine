@@ -2,9 +2,6 @@ import { Clock, Calendar } from "lucide-react";
 import { formatDayOnly, formatTimeOnly } from "@/lib/timeUtils";
 import { MobileSetCard } from "./MobileSetCard";
 import type { ScheduleSet } from "@/hooks/useScheduleData";
-import { cn } from "@/lib/utils";
-// PROTOTYPE: chrome-variant exploration (see ../../../prototype/)
-import { useChromeVariant } from "../../../prototype/chromeVariant";
 
 interface TimeSlot {
   time: Date;
@@ -22,24 +19,10 @@ export function TimeSlotGroup({
   showDateHeader,
   timezone,
 }: TimeSlotGroupProps) {
-  // PROTOTYPE: non-current variants stick day headers below the fixed top bar
-  const variant = useChromeVariant();
-
   return (
     <div>
       {showDateHeader && (
-        <div
-          className={cn(
-            "flex items-center gap-2 mb-4 px-4 py-2 rounded-lg sticky z-10",
-            variant === "current" && "bg-purple-900/40 backdrop-blur-sm top-0",
-            (variant === "tabs" ||
-              variant === "thumbbar" ||
-              variant === "autohide") &&
-              "bg-purple-900/80 backdrop-blur-md top-16 md:top-20",
-            variant === "unibar" &&
-              "bg-purple-900/80 backdrop-blur-md top-28 md:top-32",
-          )}
-        >
+        <div className="flex items-center gap-2 mb-4 px-4 py-2 bg-purple-900/40 rounded-lg backdrop-blur-sm sticky top-0 z-10">
           <Calendar className="h-4 w-4 text-purple-300" />
           <h2 className="text-lg font-semibold text-purple-100">
             {formatDayOnly(timeSlot.time.toISOString(), timezone)}

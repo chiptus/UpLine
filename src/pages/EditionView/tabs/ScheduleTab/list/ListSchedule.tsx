@@ -14,6 +14,9 @@ import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 import { ScheduleNotRevealedPlaceholder } from "../ScheduleNotRevealedPlaceholder";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserVotes } from "@/api/voting/useUserVotes";
+// PROTOTYPE: chrome-variant exploration (see ../../../prototype/)
+import { useChromeVariant } from "../../../prototype/chromeVariant";
+import { ListDayHeader } from "../../../prototype/ListDayHeader";
 
 interface TimeSlot {
   time: Date;
@@ -21,6 +24,7 @@ interface TimeSlot {
 }
 
 export function ListSchedule() {
+  const variant = useChromeVariant();
   const { festival } = useFestivalEdition();
   const { edition } = useRouteContext({
     from: "/festivals/$festivalSlug/editions/$editionSlug/schedule/list",
@@ -142,6 +146,49 @@ export function ListSchedule() {
     return (
       <div className="text-center text-purple-300 py-12">
         <p>No scheduled sets found.</p>
+      </div>
+    );
+  }
+
+  // PROTOTYPE: non-current variants group slots per day so the sticky day
+  // header's range spans the whole day (it previously lived inside the
+  // day's first slot and un-stuck after it)
+  if (variant !== "current") {
+    const dayGroups: { dayKey: string | null; slots: TimeSlot[] }[] = [];
+    for (const slot of timeSlots) {
+      const dayKey = getFestivalDayKey(
+        slot.time.toISOString(),
+        festival.timezone,
+      );
+      const lastGroup = dayGroups[dayGroups.length - 1];
+      if (lastGroup && lastGroup.dayKey === dayKey) {
+        lastGroup.slots.push(slot);
+      } else {
+        dayGroups.push({ dayKey, slots: [slot] });
+      }
+    }
+
+    return (
+      <div className="space-y-6" data-testid="list-schedule">
+        {dayGroups.map(({ slots }) => (
+          <div key={slots[0].time.toISOString()}>
+            <ListDayHeader
+              isoTime={slots[0].time.toISOString()}
+              timezone={festival.timezone}
+              withFilters={variant === "autohide"}
+            />
+            <div className="space-y-6">
+              {slots.map((slot) => (
+                <TimeSlotGroup
+                  key={slot.time.toISOString()}
+                  timeSlot={slot}
+                  timezone={festival.timezone}
+                  showDateHeader={false}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     );
   }

@@ -85,7 +85,7 @@ test.describe("Rating a set in the Post-Festival phase", () => {
   });
 
   test("changes a rating from one type to another instead of adding a second rating", async () => {
-    const setCard = await goToSet(page, "Maya Jane Coles");
+    const setCard = await goToSet(page, "Kiara Scuro");
     const loved = ratingButton(setCard, "loved");
     const meh = ratingButton(setCard, "meh");
 
@@ -99,7 +99,7 @@ test.describe("Rating a set in the Post-Festival phase", () => {
   });
 
   test("removes a rating and returns the set to the unrated state", async () => {
-    const setCard = await goToSet(page, "Ben Böhmer");
+    const setCard = await goToSet(page, "Nils Frahm");
     const liked = ratingButton(setCard, "liked");
 
     await liked.click();

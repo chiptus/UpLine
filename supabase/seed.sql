@@ -198,13 +198,19 @@ INSERT INTO public.festival_editions (id, festival_id, year, slug, name, descrip
 INSERT INTO public.stages (id, name, slug, festival_edition_id, created_at, updated_at) VALUES
   ('21111111-1111-1111-1111-11111111111a', 'Main Stage', 'main-stage', 'e2222222-2222-2222-2222-222222222222', now(), now());
 
+-- Four distinct sets, one per rating.spec.ts scenario, so parallel/serial
+-- tests never race over the same set_ratings row (mirrors voting.spec.ts).
 INSERT INTO public.sets (id, name, slug, festival_edition_id, stage_id, time_start, time_end, description, created_by, created_at, updated_at) VALUES
   ('21111111-1111-1111-1111-111111111111', 'Maya Jane Coles', 'maya-jane-coles-set', 'e2222222-2222-2222-2222-222222222222', '21111111-1111-1111-1111-11111111111a', '2025-07-12 22:00:00+00', '2025-07-12 23:30:00+00', 'British DJ and producer known for her deep house and techno sets', '11111111-1111-1111-1111-111111111111', now(), now()),
-  ('22222222-2222-2222-2222-222222222223', 'Ben Böhmer', 'ben-bohmer-set', 'e2222222-2222-2222-2222-222222222222', '21111111-1111-1111-1111-11111111111a', '2025-07-12 20:00:00+00', '2025-07-12 21:30:00+00', 'German melodic house and techno producer', '11111111-1111-1111-1111-111111111111', now(), now());
+  ('22222222-2222-2222-2222-222222222223', 'Ben Böhmer', 'ben-bohmer-set', 'e2222222-2222-2222-2222-222222222222', '21111111-1111-1111-1111-11111111111a', '2025-07-12 20:00:00+00', '2025-07-12 21:30:00+00', 'German melodic house and techno producer', '11111111-1111-1111-1111-111111111111', now(), now()),
+  ('23333333-3333-3333-3333-333333333333', 'Kiara Scuro', 'kiara-scuro-set', 'e2222222-2222-2222-2222-222222222222', '21111111-1111-1111-1111-11111111111a', '2025-07-12 23:30:00+00', '2025-07-13 01:00:00+00', 'Rising star in dark techno', '11111111-1111-1111-1111-111111111111', now(), now()),
+  ('24444444-4444-4444-4444-444444444444', 'Nils Frahm', 'nils-frahm-set', 'e2222222-2222-2222-2222-222222222222', '21111111-1111-1111-1111-11111111111a', '2025-07-12 18:00:00+00', '2025-07-12 19:30:00+00', 'Ambient electronic composer and pianist', '11111111-1111-1111-1111-111111111111', now(), now());
 
 INSERT INTO public.set_artists (set_id, artist_id, role, created_at) VALUES
   ('21111111-1111-1111-1111-111111111111', 'a1111111-1111-1111-1111-111111111111', 'performer', now()),
-  ('22222222-2222-2222-2222-222222222223', 'a2222222-2222-2222-2222-222222222222', 'performer', now());
+  ('22222222-2222-2222-2222-222222222223', 'a2222222-2222-2222-2222-222222222222', 'performer', now()),
+  ('23333333-3333-3333-3333-333333333333', 'a3333333-3333-3333-3333-333333333333', 'performer', now()),
+  ('24444444-4444-4444-4444-444444444444', 'a4444444-4444-4444-4444-444444444444', 'performer', now());
 
 -- Insert sets (one for each artist, using their name and schedule)
 INSERT INTO public.sets (id, name, slug, festival_edition_id, stage_id, time_start, time_end, description, created_by, created_at, updated_at) VALUES 

@@ -9,14 +9,15 @@ export const TOP_BAR_HEIGHT_PX = { mobile: 64, desktop: 80 } as const;
 // directly below it (timeline toolbar/header strip, list day headers).
 export const STICKY_TOP_BELOW_TOP_BAR_CLASS = "top-16 md:top-20";
 
-// The timeline toolbar sits at the very top of its scroll region (above
-// everything else), so the header strip below it stacks on top of the
-// toolbar's own height.
-// Measured from the rendered toolbar (padding + border + content), not a
-// Tailwind spacing-scale value — re-measure and update by hand if the
-// toolbar's own layout changes.
+// The timeline toolbar (TimelineToolbar.tsx) sits at the very top of its
+// scroll region (above everything else), so the header strip below it
+// stacks on top of the toolbar's own height.
+// Measured from the rendered toolbar (padding + border + content).
 export const TIMELINE_TOOLBAR_HEIGHT_PX = { mobile: 63, desktop: 63 } as const;
 
+// Used by the timeline header strip (TimeScaleContainer.tsx) to dock below
+// the toolbar. Measured from the rendered toolbar (padding + border +
+// content).
 export const HEADER_STRIP_TOP_PX = {
   mobile: TOP_BAR_HEIGHT_PX.mobile + TIMELINE_TOOLBAR_HEIGHT_PX.mobile,
   desktop: TOP_BAR_HEIGHT_PX.desktop + TIMELINE_TOOLBAR_HEIGHT_PX.desktop,

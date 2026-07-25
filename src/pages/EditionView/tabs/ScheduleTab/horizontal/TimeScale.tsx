@@ -9,9 +9,8 @@ interface TimeScaleProps {
 
 const dateFormat = "MMMM d";
 
-// Renders the date band + hour markers for the timeline. This is a pure
-// layout of the canvas at `totalWidth`; the parent (TimelineContainer) hosts
-// it inside a sticky, horizontally-synced strip.
+// Pure layout of the canvas at `totalWidth` — the parent (TimelineContainer)
+// hosts it inside a sticky, horizontally-synced strip.
 export function TimeScale({ timeSlots, totalWidth, timezone }: TimeScaleProps) {
   const dateChanges = timeSlots.reduce(
     (changes, timeSlot, index) => {

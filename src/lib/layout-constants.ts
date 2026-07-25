@@ -12,8 +12,15 @@ export const STICKY_TOP_BELOW_TOP_BAR_CLASS = "top-16 md:top-20";
 // The Now/Timeline/List switcher (ScheduleNavigation) is sticky just below
 // the top bar, above the Outlet content, on every schedule view — so
 // anything sticky inside the Outlet (timeline toolbar/header strip, list
-// day headers) must dock below it too.
-export const SWITCHER_HEIGHT_PX = { mobile: 56, desktop: 56 } as const;
+// day headers) must dock below it too. Given a fixed height (rather than
+// letting padding/content determine it) so this constant is exact, not a
+// guess — ScheduleNavigation applies SWITCHER_HEIGHT_CLASS below and must
+// stay in sync with these numbers.
+export const SWITCHER_HEIGHT_PX = { mobile: 56, desktop: 64 } as const;
+
+// Tailwind height classes matching SWITCHER_HEIGHT_PX exactly — applied to
+// ScheduleNavigation's sticky container.
+export const SWITCHER_HEIGHT_CLASS = "h-14 md:h-16";
 
 export const STICKY_TOP_BELOW_SWITCHER_PX = {
   mobile: TOP_BAR_HEIGHT_PX.mobile + SWITCHER_HEIGHT_PX.mobile,
@@ -24,7 +31,7 @@ export const STICKY_TOP_BELOW_SWITCHER_PX = {
 // literal so Tailwind's content scanner can statically find it — must stay
 // in sync with STICKY_TOP_BELOW_SWITCHER_PX above), for sticky elements that
 // don't otherwise need a JS media-query (toolbar, day header).
-export const STICKY_TOP_BELOW_SWITCHER_CLASS = "top-[120px] md:top-[136px]";
+export const STICKY_TOP_BELOW_SWITCHER_CLASS = "top-[120px] md:top-[144px]";
 
 // The timeline toolbar sits at the very top of its scroll region (above
 // everything else), so the header strip below it stacks on top of the

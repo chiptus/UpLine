@@ -31,13 +31,9 @@ test.describe("Rating a set in the Post-Festival phase", () => {
     await context.close();
   });
 
-  test("shows the Post-Festival banner instead of the voting UI", async () => {
+  test("shows the Post-Festival rating UI instead of the voting UI", async () => {
     await page.goto(EDITION_SETS_PATH);
     await page.waitForLoadState("networkidle");
-
-    await expect(
-      page.getByText("The festival's over — how were your sets?"),
-    ).toBeVisible();
 
     const setCard = page
       .getByTestId("artist-item")

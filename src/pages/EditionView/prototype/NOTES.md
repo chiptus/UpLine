@@ -40,6 +40,14 @@ non-current variants, so the sticky day header's range spans the whole day
 (it previously sat inside the day's first time slot and un-stuck after
 ~one screen). On `autohide` the day header also hosts the Filters trigger.
 
+**Iteration 6** (feedback: keep only variant 5): pruned to `current` +
+`autohide`; deleted the tabs/unibar/thumbbar components. Decisions pulled
+in from the mobile session: auto-hide applies everywhere; Tickets/Website
+buttons are dropped for now (follow-up ticket: move them to the info tab);
+non-live phases get a compact status in the identity row's Live-dot slot —
+pre-schedule → "Schedule soon", planning → "N days to go" ("Schedule out"
+at/past start), live → pulsing dot + "Live", post-festival → nothing.
+
 **Open axis — color:** the palette (blue-grey gradient + purple glass +
 amber accents) is a separate exploration. Most colors are hardcoded
 Tailwind utility classes (`purple-200`, `bg-white/10`, …), not theme

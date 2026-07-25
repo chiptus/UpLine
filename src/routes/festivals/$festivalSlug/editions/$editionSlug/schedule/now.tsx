@@ -20,9 +20,6 @@ import { sortStagesByOrder } from "@/lib/stageUtils";
 import { formatTimeOnly } from "@/lib/timeUtils";
 import type { FestivalSet } from "@/api/sets/types";
 import type { Stage } from "@/api/stages/types";
-// PROTOTYPE: chrome-variant exploration (see @/pages/EditionView/prototype/)
-import { useChromeVariant } from "@/pages/EditionView/prototype/chromeVariant";
-import { CompactViewSwitcher } from "@/pages/EditionView/prototype/CompactViewSwitcher";
 
 export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug/schedule/now",
@@ -51,8 +48,6 @@ export const Route = createFileRoute(
 
 function ScheduleTabNow() {
   const { festival } = useFestivalEdition();
-  // PROTOTYPE: variants without the big view switcher get a compact one here
-  const variant = useChromeVariant();
   const { edition } = Route.useRouteContext();
   const { data: sets } = useSuspenseQuery(setsByEditionQuery(edition.id));
   const { data: stages } = useSuspenseQuery(stagesByEditionQuery(edition.id));
@@ -70,38 +65,25 @@ function ScheduleTabNow() {
     })
     .sort((a, b) => compareNowNext(a.classification, b.classification));
 
-  const switcherRow =
-    variant === "unibar" ? (
-      <div className="sticky top-16 md:top-20 z-40 flex items-center gap-1 rounded-lg border border-purple-400/20 bg-gray-900/95 px-2 py-1.5 backdrop-blur-md">
-        <CompactViewSwitcher />
-      </div>
-    ) : null;
-
   if (!rows.length) {
     return (
-      <>
-        {switcherRow}
-        <div className="text-center text-purple-300 py-12">
-          <p>Nothing on right now — see the timeline for the full schedule.</p>
-        </div>
-      </>
+      <div className="text-center text-purple-300 py-12">
+        <p>Nothing on right now — see the timeline for the full schedule.</p>
+      </div>
     );
   }
 
   return (
-    <>
-      {switcherRow}
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {rows.map(({ stage, classification }) => (
-          <NowStageRow
-            key={stage.id}
-            stage={stage}
-            classification={classification}
-            timezone={festival.timezone}
-          />
-        ))}
-      </div>
-    </>
+    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+      {rows.map(({ stage, classification }) => (
+        <NowStageRow
+          key={stage.id}
+          stage={stage}
+          classification={classification}
+          timezone={festival.timezone}
+        />
+      ))}
+    </div>
   );
 }
 

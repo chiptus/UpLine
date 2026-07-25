@@ -10,7 +10,6 @@ import { useScrollEdgeFade } from "./useScrollEdgeFade";
 import { cn } from "@/lib/utils";
 // PROTOTYPE: chrome-variant exploration (see ../../../prototype/)
 import { useChromeVariant } from "../../../prototype/chromeVariant";
-import { CompactViewSwitcher } from "../../../prototype/CompactViewSwitcher";
 
 interface TimelineToolbarProps {
   days: ScheduleDay[];
@@ -43,9 +42,8 @@ export function TimelineToolbar({
   onJumpToNow,
 }: TimelineToolbarProps) {
   const dayRowRef = useRef<HTMLDivElement>(null);
-  // PROTOTYPE: chrome-variant tweaks — sticky offset + embedded view switcher
+  // PROTOTYPE: chrome-variant tweaks — sticky offset below the fixed top bar
   const variant = useChromeVariant();
-  const showViewSwitcher = variant === "unibar";
 
   const visibleDays =
     selectedDay === "all"
@@ -72,11 +70,6 @@ export function TimelineToolbar({
         variant === "current" ? "top-0" : "top-16 md:top-20",
       )}
     >
-      {showViewSwitcher && (
-        <div className="mr-1 self-center border-r border-purple-400/20 pr-1.5">
-          <CompactViewSwitcher />
-        </div>
-      )}
       <div
         ref={dayRowRef}
         role="radiogroup"

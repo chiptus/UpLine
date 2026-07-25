@@ -37,6 +37,15 @@ const errors = [];
 page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
 page.on("pageerror", (e) => errors.push(String(e)));
 
+// Pre-seed the chrome-variant choice: router redirects strip ?variant=
+// before the lazily-loaded prototype module can read it.
+const variantParam = new URL(url).searchParams.get("variant");
+if (variantParam) {
+  await page.addInitScript((v) => {
+    window.sessionStorage.setItem("prototype-chrome-variant", v);
+  }, variantParam);
+}
+
 // Pre-seed GDPR consent so the banner never renders (its buttons can be
 // covered by the prototype's floating variant pill, breaking clicks).
 await page.addInitScript(() => {

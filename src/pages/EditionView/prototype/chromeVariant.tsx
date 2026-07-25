@@ -12,21 +12,12 @@ import {
 } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-export const CHROME_VARIANTS = [
-  "current",
-  "tabs",
-  "unibar",
-  "thumbbar",
-  "autohide",
-] as const;
+export const CHROME_VARIANTS = ["current", "autohide"] as const;
 
 export type ChromeVariant = (typeof CHROME_VARIANTS)[number];
 
 const VARIANT_LABELS: Record<ChromeVariant, string> = {
   current: "Current",
-  tabs: "Top tabs",
-  unibar: "Unified bar",
-  thumbbar: "Bottom dock",
   autohide: "Top nav + auto-hide",
 };
 
@@ -36,11 +27,23 @@ export function useChromeVariant(): ChromeVariant {
   return useContext(ChromeVariantContext);
 }
 
+const STORAGE_KEY = "prototype-chrome-variant";
+
+function isVariant(value: string | null): value is ChromeVariant {
+  return (CHROME_VARIANTS as readonly string[]).includes(value ?? "");
+}
+
 function initialVariant(): ChromeVariant {
   const raw = new URLSearchParams(window.location.search).get("variant");
-  return (CHROME_VARIANTS as readonly string[]).includes(raw ?? "")
-    ? (raw as ChromeVariant)
-    : "current";
+  if (isVariant(raw)) {
+    window.sessionStorage.setItem(STORAGE_KEY, raw);
+    return raw;
+  }
+  // Fall back to the stored choice — the router strips ?variant= on
+  // redirects (e.g. /festivals/<slug> → default edition) before this
+  // lazily-loaded module gets to read it.
+  const stored = window.sessionStorage.getItem(STORAGE_KEY);
+  return isVariant(stored) ? stored : "current";
 }
 
 // Captured at module load, before the router normalizes the URL and strips
@@ -53,6 +56,7 @@ export function ChromeVariantProvider({ children }: PropsWithChildren) {
   // Router navigations strip unknown search params (zod schemas), so state is
   // the source of truth; the URL is only kept in sync for shareability.
   useEffect(() => {
+    window.sessionStorage.setItem(STORAGE_KEY, variant);
     const url = new URL(window.location.href);
     if (variant === "current") {
       url.searchParams.delete("variant");

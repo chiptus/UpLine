@@ -27,7 +27,7 @@ export function MainTabNavigation() {
   // while scrolling down to free screen space
   const variant = useChromeVariant();
   const scrolledDown = useHideOnScrollDown();
-  const hideBottomBar = variant === "autohide" && scrolledDown;
+  const hideBottomBar = variant !== "current" && scrolledDown;
 
   const visibleTabs = config
     .filter((config) => {

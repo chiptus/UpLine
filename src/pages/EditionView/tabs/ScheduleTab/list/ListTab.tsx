@@ -9,7 +9,7 @@ import { useChromeVariant } from "../../../prototype/chromeVariant";
 export function ScheduleTabList() {
   const variant = useChromeVariant();
 
-  if (variant === "autohide") {
+  if (variant !== "current") {
     return <ListSchedule />;
   }
 

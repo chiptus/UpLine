@@ -175,7 +175,7 @@ export function ListSchedule() {
             <ListDayHeader
               isoTime={slots[0].time.toISOString()}
               timezone={festival.timezone}
-              withFilters={variant === "autohide"}
+              withFilters
             />
             <div className="space-y-6">
               {slots.map((slot) => (

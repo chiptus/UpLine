@@ -12,13 +12,22 @@ import {
 } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-export const CHROME_VARIANTS = ["current", "autohide"] as const;
+// One chrome (top nav + auto-hide) with three treatments of the identity
+// row's phase-status line; "current" stays as the flip-back baseline.
+export const CHROME_VARIANTS = [
+  "current",
+  "autohide-countdown",
+  "autohide-dates",
+  "autohide-cta",
+] as const;
 
 export type ChromeVariant = (typeof CHROME_VARIANTS)[number];
 
 const VARIANT_LABELS: Record<ChromeVariant, string> = {
   current: "Current",
-  autohide: "Top nav + auto-hide",
+  "autohide-countdown": "Auto-hide · countdown",
+  "autohide-dates": "Auto-hide · dates + dot",
+  "autohide-cta": "Auto-hide · vote CTA",
 };
 
 const ChromeVariantContext = createContext<ChromeVariant>("current");
@@ -33,8 +42,14 @@ function isVariant(value: string | null): value is ChromeVariant {
   return (CHROME_VARIANTS as readonly string[]).includes(value ?? "");
 }
 
+function migrateLegacy(value: string | null): string | null {
+  return value === "autohide" ? "autohide-countdown" : value;
+}
+
 function initialVariant(): ChromeVariant {
-  const raw = new URLSearchParams(window.location.search).get("variant");
+  const raw = migrateLegacy(
+    new URLSearchParams(window.location.search).get("variant"),
+  );
   if (isVariant(raw)) {
     window.sessionStorage.setItem(STORAGE_KEY, raw);
     return raw;
@@ -42,7 +57,7 @@ function initialVariant(): ChromeVariant {
   // Fall back to the stored choice — the router strips ?variant= on
   // redirects (e.g. /festivals/<slug> → default edition) before this
   // lazily-loaded module gets to read it.
-  const stored = window.sessionStorage.getItem(STORAGE_KEY);
+  const stored = migrateLegacy(window.sessionStorage.getItem(STORAGE_KEY));
   return isVariant(stored) ? stored : "current";
 }
 

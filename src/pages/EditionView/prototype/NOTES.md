@@ -48,6 +48,13 @@ non-live phases get a compact status in the identity row's Live-dot slot —
 pre-schedule → "Schedule soon", planning → "N days to go" ("Schedule out"
 at/past start), live → pulsing dot + "Live", post-festival → nothing.
 
+**Iteration 7**: the pill now compares three treatments of the identity
+row's phase-status line (chrome identical otherwise): `autohide-countdown`
+(baseline — "Schedule soon" / "N days to go", dot only when live),
+`autohide-dates` (color-coded dot in every phase: slate "Schedule soon" /
+amber "Jul 1–3" / red "Live"), `autohide-cta` (dates+dot, but pre-schedule
+says "Vote now" to keep the old banner's voting CTA).
+
 **Open axis — color:** the palette (blue-grey gradient + purple glass +
 amber accents) is a separate exploration. Most colors are hardcoded
 Tailwind utility classes (`purple-200`, `bg-white/10`, …), not theme

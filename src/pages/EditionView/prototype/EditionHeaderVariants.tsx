@@ -2,12 +2,14 @@
 // content-first identity row (the density verdict); they differ in
 // navigation mechanism instead. See chromeVariant.tsx.
 import { Music } from "lucide-react";
+import { formatInTimeZone } from "date-fns-tz";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { PhaseBanner } from "../PhaseBanner";
 import { useChromeVariant } from "./chromeVariant";
 import { useFestivalPhase } from "@/hooks/useFestivalPhase";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { daysUntilStart } from "@/lib/festivalCountdown";
+import { cn } from "@/lib/utils";
 
 interface EditionHeaderVariantsProps {
   title: string;
@@ -71,46 +73,94 @@ function CompactIdentityRow({
   );
 }
 
-// The Live dot's slot generalized to all phases: pre-schedule → "Schedule
-// soon", planning → countdown, live → pulsing dot + "Live", post → nothing.
+// The Live dot's slot generalized to all phases; the three autohide
+// variants differ only in this line's treatment:
+//   countdown — "Schedule soon" / "N days to go", dot only when live
+//   dates+dot — color-coded dot in every phase, date range for planning
+//   vote CTA  — dates+dot, but pre-schedule says "Vote now"
 function PhaseStatus() {
+  const variant = useChromeVariant();
   const { phase } = useFestivalPhase();
   const { edition, festival } = useFestivalEdition();
 
+  if (phase === "post-festival") return null;
+
   if (phase === "live") {
+    return <StatusLine dot="bg-red-500 animate-pulse">Live</StatusLine>;
+  }
+
+  if (phase === "planning") {
+    if (variant === "autohide-countdown") {
+      return (
+        <StatusLine>
+          {countdownText(edition?.start_date ?? null, festival.timezone)}
+        </StatusLine>
+      );
+    }
+    const dates = formatDateRange(
+      edition?.start_date,
+      edition?.end_date,
+      festival.timezone,
+    );
     return (
-      <span className="ml-auto flex shrink-0 items-center gap-1.5 text-sm text-purple-200/80">
-        <span
-          aria-hidden="true"
-          className="h-2 w-2 shrink-0 rounded-full bg-red-500 animate-pulse"
-        />
-        Live
-      </span>
+      <StatusLine dot="bg-amber-400">
+        {dates ?? countdownText(edition?.start_date ?? null, festival.timezone)}
+      </StatusLine>
     );
   }
 
-  const text = phaseStatusText(
-    phase,
-    edition?.start_date ?? null,
-    festival.timezone,
-  );
-  if (!text) return null;
+  // pre-schedule
+  if (variant === "autohide-cta") {
+    return <StatusLine dot="bg-purple-400">Vote now</StatusLine>;
+  }
+  if (variant === "autohide-dates") {
+    return <StatusLine dot="bg-slate-400">Schedule soon</StatusLine>;
+  }
+  return <StatusLine>Schedule soon</StatusLine>;
+}
 
+function StatusLine({
+  dot,
+  children,
+}: {
+  dot?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <span className="ml-auto shrink-0 text-sm text-purple-200/80">{text}</span>
+    <span className="ml-auto flex shrink-0 items-center gap-1.5 text-sm text-purple-200/80">
+      {dot && (
+        <span
+          aria-hidden="true"
+          className={cn("h-2 w-2 shrink-0 rounded-full", dot)}
+        />
+      )}
+      {children}
+    </span>
   );
 }
 
-function phaseStatusText(
-  phase: ReturnType<typeof useFestivalPhase>["phase"],
-  startDate: string | null,
-  timezone: string,
-): string | null {
-  if (phase === "pre-schedule") return "Schedule soon";
-  if (phase !== "planning") return null;
-
+function countdownText(startDate: string | null, timezone: string): string {
   const days = daysUntilStart(startDate, new Date(), timezone);
   if (days === null || days <= 0) return "Schedule out";
   if (days === 1) return "1 day to go";
   return `${days} days to go`;
+}
+
+function formatDateRange(
+  start: string | null | undefined,
+  end: string | null | undefined,
+  timezone: string,
+): string | null {
+  if (!start) return null;
+  const startText = formatInTimeZone(new Date(start), timezone, "MMM d");
+  if (!end) return startText;
+  const sameMonth =
+    formatInTimeZone(new Date(start), timezone, "MMM") ===
+    formatInTimeZone(new Date(end), timezone, "MMM");
+  const endText = formatInTimeZone(
+    new Date(end),
+    timezone,
+    sameMonth ? "d" : "MMM d",
+  );
+  return `${startText}–${endText}`;
 }

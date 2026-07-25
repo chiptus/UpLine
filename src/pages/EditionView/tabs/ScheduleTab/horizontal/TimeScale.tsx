@@ -1,11 +1,13 @@
 import { formatInTimeZone } from "date-fns-tz";
+import { useEffect, useState } from "react";
 import { timeToOffset } from "@/lib/timelineCalculator";
 
 interface TimeScaleProps {
   timeSlots: Date[];
   totalWidth: number;
   timezone: string;
-  scrollLeft: number;
+  scrollContainerRef: React.RefObject<HTMLDivElement>;
+  stickyTop: number;
 }
 
 const dateFormat = "MMMM d";
@@ -16,18 +18,27 @@ const DAY_GAP_PX = 5;
 // Distance (px) from the next day boundary at which its label starts fading in.
 const UPCOMING_FADE_THRESHOLD_PX = 100;
 
-// Renders the date band + hour markers for the timeline. The parent
-// (TimelineContainer) hosts this inside a sticky strip that mirrors
-// horizontal scroll via `transform: translateX(-scrollLeft)`; this
-// component receives that same `scrollLeft` so the current day's label
-// can stay pinned to the left edge of the strip while scrolling through
-// that day, fading over to the next day's label as its boundary nears.
 export function TimeScale({
   timeSlots,
   totalWidth,
   timezone,
-  scrollLeft,
+  scrollContainerRef,
+  stickyTop,
 }: TimeScaleProps) {
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    function handleScroll() {
+      setScrollLeft(container!.scrollLeft);
+    }
+
+    container.addEventListener("scroll", handleScroll, { passive: true });
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [scrollContainerRef]);
+
   const dateChanges = timeSlots.reduce(
     (changes, timeSlot, index) => {
       if (index === 0) {
@@ -79,7 +90,10 @@ export function TimeScale({
   );
 
   return (
-    <div className="relative" style={{ minWidth: totalWidth }}>
+    <div
+      className="sticky z-30 bg-gray-900/95 backdrop-blur-md"
+      style={{ top: stickyTop, minWidth: totalWidth }}
+    >
       <div className="relative h-8">
         {dateChanges.map((dateChange, index) => {
           const nextDateChange = dateChanges[index + 1];

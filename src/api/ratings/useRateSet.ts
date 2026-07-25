@@ -3,14 +3,17 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { userRatingsKeys } from "./types";
 
-async function rateSet(variables: {
+async function rateSet({
+  setId,
+  rating,
+  userId,
+  existingRating,
+}: {
   setId: string;
   rating: number;
   userId: string;
   existingRating?: number;
 }) {
-  const { setId, rating, userId, existingRating } = variables;
-
   if (existingRating === rating) {
     const { error } = await supabase
       .from("set_ratings")
@@ -41,9 +44,7 @@ export function useRateSet() {
 
   return useMutation({
     mutationFn: rateSet,
-    onMutate: async (variables) => {
-      const { setId, rating, userId, existingRating } = variables;
-
+    onMutate: async ({ setId, rating, userId, existingRating }) => {
       await queryClient.cancelQueries({
         queryKey: userRatingsKeys.user(userId),
       });

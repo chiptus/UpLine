@@ -30,13 +30,7 @@ export const RATING_CONFIG = {
   },
 } as const;
 
-export type RatingConfig = {
-  value: 1 | 2 | 3;
-  label: string;
-  icon: typeof PartyPopper;
-  buttonSelected: string;
-  buttonUnselected: string;
-};
+export type RatingConfig = (typeof RATING_CONFIG)[RatingType];
 
 export function getRatingValue(ratingType: RatingType): 1 | 2 | 3 {
   return RATING_CONFIG[ratingType].value;

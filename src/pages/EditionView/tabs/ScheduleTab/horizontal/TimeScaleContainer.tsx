@@ -16,7 +16,7 @@ export function TimeScaleContainer({
 }: TimeScaleContainerProps) {
   return (
     <div
-      className="sticky z-30 overflow-hidden bg-gray-900/95 backdrop-blur-md"
+      className="sticky z-30 overflow-hidden rounded-b-lg bg-gray-900/95 backdrop-blur-md"
       style={{ top }}
     >
       <div

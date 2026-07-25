@@ -16,10 +16,6 @@ interface AppHeaderProps {
 
   // Navigation options
   showGroupsButton?: boolean;
-
-  // External links
-  websiteUrl?: string;
-  ticketsUrl?: string;
 }
 
 export function AppHeader({
@@ -28,8 +24,6 @@ export function AppHeader({
   title,
   logoUrl,
   showGroupsButton = false,
-  websiteUrl,
-  ticketsUrl,
 }: AppHeaderProps) {
   const titleRef = useRef<HTMLDivElement | null>(null);
   const logoRef = useRef<HTMLElement | null>(null);
@@ -65,8 +59,6 @@ export function AppHeader({
               title={title}
               logoUrl={logoUrl}
               onLogoRefChange={handleLogoRefChange}
-              websiteUrl={websiteUrl}
-              ticketsUrl={ticketsUrl}
             />
           )}
         </div>

@@ -45,7 +45,7 @@ export function SetDetails() {
         <div className="container mx-auto px-4 py-8">
           <TopBar showBackButton backLabel="Back to Artists" showGroupsButton>
             <FestivalIndicator
-              title={festival?.name}
+              festivalName={festival?.name}
               logoUrl={festival?.logo_url}
             />
           </TopBar>

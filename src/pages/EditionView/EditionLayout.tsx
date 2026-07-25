@@ -20,6 +20,7 @@ export default function EditionView() {
       <div className="container mx-auto px-4 py-4 md:py-8 pb-20 md:pb-8">
         <EditionHeader
           title={`${festival.name} - ${edition.name}`}
+          festivalName={festival.name}
           logoUrl={festival.logo_url}
         />
 

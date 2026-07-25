@@ -6,10 +6,15 @@ import { EditionHero } from "./EditionHero";
 
 interface EditionHeaderProps {
   title: string;
+  festivalName: string;
   logoUrl?: string | null;
 }
 
-export function EditionHeader({ title, logoUrl }: EditionHeaderProps) {
+export function EditionHeader({
+  title,
+  festivalName,
+  logoUrl,
+}: EditionHeaderProps) {
   const rowRef = useRef<HTMLElement | null>(null);
   const isRowVisible = useScrollVisibility(rowRef, {
     rootMargin: "-80px 0px 0px 0px", // Negative top margin = trigger when the row is 80px from top (behind top bar)
@@ -24,7 +29,7 @@ export function EditionHeader({ title, logoUrl }: EditionHeaderProps) {
         <FestivalIndicator
           isTitleVisible={isRowVisible}
           logoUrl={logoUrl}
-          title={title}
+          festivalName={festivalName}
         />
       </TopBar>
 

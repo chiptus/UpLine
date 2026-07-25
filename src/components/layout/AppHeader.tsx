@@ -55,7 +55,7 @@ export function AppHeader({
           <FestivalIndicator
             isTitleVisible={!shouldShowFestivalIcon}
             logoUrl={logoUrl}
-            title={title}
+            festivalName={title}
           />
         </TopBar>
 

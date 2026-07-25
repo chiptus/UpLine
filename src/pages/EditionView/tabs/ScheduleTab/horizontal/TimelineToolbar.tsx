@@ -8,6 +8,7 @@ import { VoteFilterChips } from "../VoteFilterChips";
 import type { ScheduleDay } from "@/hooks/useScheduleData";
 import { useScrollEdgeFade } from "./useScrollEdgeFade";
 import { STICKY_TOP_BELOW_TOP_BAR_CLASS } from "@/lib/layout-constants";
+import { cn } from "@/lib/utils";
 
 interface TimelineToolbarProps {
   days: ScheduleDay[];
@@ -61,7 +62,10 @@ export function TimelineToolbar({
       data-testid="timeline-day-toolbar"
       role="toolbar"
       aria-label="Timeline navigation"
-      className={`sticky ${STICKY_TOP_BELOW_TOP_BAR_CLASS} z-40 mb-4 flex items-end gap-1 rounded-lg border border-purple-400/20 bg-gray-900/95 px-2 pb-2.5 pt-2 backdrop-blur-md`}
+      className={cn(
+        "sticky z-40 mb-4 flex items-end gap-1 rounded-lg border border-purple-400/20 bg-gray-900/95 px-2 pb-2.5 pt-2 backdrop-blur-md",
+        STICKY_TOP_BELOW_TOP_BAR_CLASS,
+      )}
     >
       <div
         ref={dayRowRef}

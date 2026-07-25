@@ -16,8 +16,6 @@ import { useTimelineScrollSync } from "@/hooks/useTimelineScrollSync";
 import { jumpToTimelineMoment } from "@/lib/timelineDayJump";
 import { useActiveTimelineDay } from "@/hooks/useActiveTimelineDay";
 import { useScrollLeft } from "./useScrollLeft";
-import { HEADER_STRIP_TOP_PX } from "@/lib/layout-constants";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TimelineContainerProps {
   timelineData: TimelineData;
@@ -39,10 +37,6 @@ export function TimelineContainer({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isOverviewExpanded, setIsOverviewExpanded] = useState(false);
   const scrollLeft = useScrollLeft(scrollContainerRef);
-  const isMobile = useIsMobile();
-  const headerStripTop = isMobile
-    ? HEADER_STRIP_TOP_PX.mobile
-    : HEADER_STRIP_TOP_PX.desktop;
 
   useTimelineScrollSync({
     scrollContainerRef,
@@ -101,7 +95,6 @@ export function TimelineContainer({
         timelineData={timelineData}
         timezone={timezone}
         scrollLeft={scrollLeft}
-        top={headerStripTop}
       />
 
       <div className="relative">

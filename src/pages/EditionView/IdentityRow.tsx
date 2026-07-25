@@ -36,6 +36,7 @@ function LiveIndicator() {
 
   return (
     <span
+      role="status"
       className="ml-auto flex shrink-0 items-center gap-1.5 text-sm text-red-200"
       aria-label="Festival is live now"
     >

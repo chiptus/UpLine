@@ -29,13 +29,14 @@ test.describe("List view sticky day header", () => {
 
     // Scroll partway through the first day's section: the header must
     // remain stuck at the same docked offset the whole way, not just for
-    // the first screen.
+    // the first screen. Sub-pixel rounding can shift getBoundingClientRect
+    // by <1px across scroll events, so allow a small tolerance.
     await page.mouse.wheel(0, 600);
     await expect
       .poll(async () =>
         firstHeader.evaluate((el) => el.getBoundingClientRect().top),
       )
-      .toBe(topBefore);
+      .toBeCloseTo(topBefore, 0);
     await expect(firstHeader).toHaveText(firstHeaderText);
 
     // Scroll to the very end of the first day's section: the next day's
@@ -52,7 +53,7 @@ test.describe("List view sticky day header", () => {
     const topAfter = await secondHeader.evaluate(
       (el) => el.getBoundingClientRect().top,
     );
-    expect(topAfter).toBe(topBefore);
+    expect(topAfter).toBeCloseTo(topBefore, 0);
   });
 
   test("opens the filter sheet from the sticky day header", async ({

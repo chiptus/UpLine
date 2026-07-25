@@ -7,6 +7,7 @@ import { useSetsByEditionQuery as useEditionSetsQuery } from "@/api/sets/useSets
 import { getFestivalDayKey } from "@/lib/timeUtils";
 import { filterScheduleDays } from "@/lib/scheduleFilter";
 import { ListDayGroup } from "./ListDayGroup";
+import { ScheduleFilterSheet } from "../ScheduleFilterSheet";
 import type { ScheduleSet } from "@/hooks/useScheduleData";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
@@ -164,6 +165,9 @@ export function ListSchedule() {
     return (
       <div className="text-center text-purple-300 py-12">
         <p>No scheduled sets found.</p>
+        <div className="mt-4 flex justify-center">
+          <ScheduleFilterSheet tab="list" />
+        </div>
       </div>
     );
   }

@@ -15,10 +15,7 @@ import type { ScheduleDay } from "@/hooks/useScheduleData";
 import { useTimelineScrollSync } from "@/hooks/useTimelineScrollSync";
 import { jumpToTimelineMoment } from "@/lib/timelineDayJump";
 import { useActiveTimelineDay } from "@/hooks/useActiveTimelineDay";
-import {
-  STICKY_TOP_BELOW_SWITCHER_PX,
-  TIMELINE_TOOLBAR_HEIGHT_PX,
-} from "@/lib/layout-constants";
+import { HEADER_STRIP_TOP_PX } from "@/lib/layout-constants";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TimelineContainerProps {
@@ -42,11 +39,9 @@ export function TimelineContainer({
   const [isOverviewExpanded, setIsOverviewExpanded] = useState(false);
   const [scrollLeft, setScrollLeft] = useState(0);
   const isMobile = useIsMobile();
-  function pick(sizes: { mobile: number; desktop: number }) {
-    return isMobile ? sizes.mobile : sizes.desktop;
-  }
-  const headerStripTop =
-    pick(STICKY_TOP_BELOW_SWITCHER_PX) + pick(TIMELINE_TOOLBAR_HEIGHT_PX);
+  const headerStripTop = isMobile
+    ? HEADER_STRIP_TOP_PX.mobile
+    : HEADER_STRIP_TOP_PX.desktop;
 
   useEffect(() => {
     const container = scrollContainerRef.current;

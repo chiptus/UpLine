@@ -6,10 +6,8 @@ interface IdentityRowProps {
   logoUrl?: string | null;
 }
 
-// Content-first replacement for the old hero block + boxed phase banner:
-// small logo (fallback music icon) + truncating name, with a right-hand
-// slot for a Live indicator. Non-live phases show nothing in that slot for
-// now (see #229 — designing per-phase status there).
+// Non-live phases intentionally render nothing in the status slot —
+// per-phase copy is a deferred design decision (#229).
 export function IdentityRow({ title, logoUrl }: IdentityRowProps) {
   return (
     <div className="mb-3 md:mb-4 flex items-center gap-2">

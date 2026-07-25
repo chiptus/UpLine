@@ -55,6 +55,13 @@ row's phase-status line (chrome identical otherwise): `autohide-countdown`
 amber "Jul 1–3" / red "Live"), `autohide-cta` (dates+dot, but pre-schedule
 says "Vote now" to keep the old banner's voting CTA).
 
+**Iteration 8**: added `collapse` — the current-style hero (title, logo,
+Tickets/Website, full-sentence phase copy as a quiet subtitle) shows at
+rest; once it scrolls out of view, a compact identity (logo + name +
+status dot, dates treatment) takes over the top bar's center slot. Gives
+back the brand moment and the lost Tickets/Website buttons at zero
+scrolled-state cost; the rest of the chrome matches the autohide variants.
+
 **Open axis — color:** the palette (blue-grey gradient + purple glass +
 amber accents) is a separate exploration. Most colors are hardcoded
 Tailwind utility classes (`purple-200`, `bg-white/10`, …), not theme

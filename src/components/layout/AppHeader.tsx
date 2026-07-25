@@ -20,6 +20,9 @@ interface AppHeaderProps {
   // External links
   websiteUrl?: string;
   ticketsUrl?: string;
+
+  /** PROTOTYPE: replaces the top-bar center once the title scrolls away. */
+  collapsedIdentity?: React.ReactNode;
 }
 
 export function AppHeader({
@@ -30,6 +33,7 @@ export function AppHeader({
   showGroupsButton = false,
   websiteUrl,
   ticketsUrl,
+  collapsedIdentity,
 }: AppHeaderProps) {
   const titleRef = useRef<HTMLDivElement | null>(null);
   const logoRef = useRef<HTMLElement | null>(null);
@@ -52,11 +56,17 @@ export function AppHeader({
           backLabel={backLabel}
           showGroupsButton={showGroupsButton}
         >
-          <FestivalIndicator
-            isTitleVisible={!shouldShowFestivalIcon}
-            logoUrl={logoUrl}
-            title={title}
-          />
+          {collapsedIdentity && shouldShowFestivalIcon ? (
+            <div className="flex-1 flex items-center justify-center min-w-0 px-3">
+              {collapsedIdentity}
+            </div>
+          ) : (
+            <FestivalIndicator
+              isTitleVisible={!shouldShowFestivalIcon}
+              logoUrl={logoUrl}
+              title={title}
+            />
+          )}
         </TopBar>
 
         <div ref={titleRef}>

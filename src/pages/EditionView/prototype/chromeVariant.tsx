@@ -19,6 +19,7 @@ export const CHROME_VARIANTS = [
   "autohide-countdown",
   "autohide-dates",
   "autohide-cta",
+  "collapse",
 ] as const;
 
 export type ChromeVariant = (typeof CHROME_VARIANTS)[number];
@@ -28,6 +29,7 @@ const VARIANT_LABELS: Record<ChromeVariant, string> = {
   "autohide-countdown": "Auto-hide · countdown",
   "autohide-dates": "Auto-hide · dates + dot",
   "autohide-cta": "Auto-hide · vote CTA",
+  collapse: "Hero, collapses on scroll",
 };
 
 const ChromeVariantContext = createContext<ChromeVariant>("current");

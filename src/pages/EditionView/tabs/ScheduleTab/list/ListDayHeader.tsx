@@ -8,11 +8,9 @@ interface ListDayHeaderProps {
   dayKey: string;
 }
 
-// Sticky per-day header for the List view. Rendered once per day-group
-// section (not per time slot), so its sticky range spans the whole day —
-// the day header stays stuck across the entire day's sets, and the next
-// day's header replaces it. Also hosts the Filters trigger inline, since
-// the list view has no standalone filters row.
+// Rendered once per day-group section (not per time slot), so its sticky
+// range spans the whole day rather than un-sticking after one screen. Hosts
+// the Filters trigger inline — the list view has no standalone filters row.
 export function ListDayHeader({ dayKey }: ListDayHeaderProps) {
   return (
     <div

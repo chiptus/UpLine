@@ -9,9 +9,8 @@ export interface DayGroup<T extends DayGroupable> {
   slots: T[];
 }
 
-// Groups already-sorted time slots into per-festival-day buckets, computing
-// day boundaries in the festival timezone so a post-midnight set lands
-// under the correct calendar day rather than the viewer's local day.
+// Day boundaries are computed in the festival timezone (not the viewer's
+// local one), so a post-midnight set groups under the correct calendar day.
 export function groupTimeSlotsByFestivalDay<T extends DayGroupable>(
   timeSlots: T[],
   timezone: string,

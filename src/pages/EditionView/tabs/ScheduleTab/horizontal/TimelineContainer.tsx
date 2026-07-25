@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { TimeScale } from "./TimeScale";
 import { StageRow } from "./StageRow";
 import { StageLabels } from "./StageLabels";
@@ -43,18 +43,6 @@ export function TimelineContainer({
     ? HEADER_STRIP_TOP_PX.mobile
     : HEADER_STRIP_TOP_PX.desktop;
 
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    function handleScroll() {
-      setScrollLeft(container!.scrollLeft);
-    }
-
-    container.addEventListener("scroll", handleScroll, { passive: true });
-    return () => container.removeEventListener("scroll", handleScroll);
-  }, []);
-
   useTimelineScrollSync({
     scrollContainerRef,
     festivalStart: timelineData.festivalStart,
@@ -62,6 +50,23 @@ export function TimelineContainer({
     timezone,
     now,
   });
+
+  useLayoutEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    function handleScroll() {
+      setScrollLeft(container!.scrollLeft);
+    }
+
+    // Read the initial position after useTimelineScrollSync's own mount
+    // scroll (also a layout effect, run before this one) so the header
+    // strip doesn't flash at translateX(0) before the first scroll event.
+    setScrollLeft(container.scrollLeft);
+
+    container.addEventListener("scroll", handleScroll, { passive: true });
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
   const activeDay = useActiveTimelineDay({
     scrollContainerRef,
     days: scheduleDays,

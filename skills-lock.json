@@ -19,6 +19,12 @@
       "skillPath": "skills/engineering/codebase-design/SKILL.md",
       "computedHash": "2426dc4accf1a85dedfb560edb3a877ec8828b7375ea08c970df2b6c900a2a22"
     },
+    "continue-pr": {
+      "source": "chiptus/skills",
+      "sourceType": "github",
+      "skillPath": "skills/chiptus/continue-pr/SKILL.md",
+      "computedHash": "15d529636e5cf402d11ca872e75bb76a6bf1ead16e5b9a9cd02ce4026d986cbd"
+    },
     "diagnosing-bugs": {
       "source": "mattpocock/skills",
       "sourceType": "github",

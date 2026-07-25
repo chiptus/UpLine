@@ -29,7 +29,7 @@ test.describe("Voting on a set", () => {
   });
 
   test.afterAll(async () => {
-    await context.close();
+    await context?.close();
   });
 
   test("casts a Must Go vote and reflects the selected state", async () => {

@@ -12,6 +12,9 @@ export const STICKY_TOP_BELOW_TOP_BAR_CLASS = "top-16 md:top-20";
 // The timeline toolbar sits at the very top of its scroll region (above
 // everything else), so the header strip below it stacks on top of the
 // toolbar's own height.
+// Measured from the rendered toolbar (padding + border + content), not a
+// Tailwind spacing-scale value — re-measure and update by hand if the
+// toolbar's own layout changes.
 export const TIMELINE_TOOLBAR_HEIGHT_PX = { mobile: 63, desktop: 63 } as const;
 
 export const HEADER_STRIP_TOP_PX = {

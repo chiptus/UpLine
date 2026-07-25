@@ -1,7 +1,7 @@
 import { TimeScale } from "./TimeScale";
 import type { TimelineData } from "@/lib/timelineCalculator";
-import { HEADER_STRIP_TOP_PX } from "@/lib/layout-constants";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { HEADER_STRIP_TOP_CLASS } from "@/lib/layout-constants";
+import { cn } from "@/lib/utils";
 
 interface TimeScaleContainerProps {
   timelineData: TimelineData;
@@ -14,13 +14,12 @@ export function TimeScaleContainer({
   timezone,
   scrollLeft,
 }: TimeScaleContainerProps) {
-  const isMobile = useIsMobile();
-  const top = isMobile ? HEADER_STRIP_TOP_PX.mobile : HEADER_STRIP_TOP_PX.desktop;
-
   return (
     <div
-      className="sticky z-30 overflow-hidden rounded-b-lg bg-gray-900/95 backdrop-blur-md"
-      style={{ top }}
+      className={cn(
+        "sticky z-30 overflow-hidden rounded-b-lg bg-gray-900",
+        HEADER_STRIP_TOP_CLASS,
+      )}
     >
       <div
         style={{

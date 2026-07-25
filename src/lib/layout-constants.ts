@@ -22,3 +22,10 @@ export const HEADER_STRIP_TOP_PX = {
   mobile: TOP_BAR_HEIGHT_PX.mobile + TIMELINE_TOOLBAR_HEIGHT_PX.mobile,
   desktop: TOP_BAR_HEIGHT_PX.desktop + TIMELINE_TOOLBAR_HEIGHT_PX.desktop,
 } as const;
+
+// Tailwind classes matching HEADER_STRIP_TOP_PX, expressed responsively so
+// the offset doesn't depend on a JS media-query hook (which starts at
+// `false` and would flash the desktop offset on mobile before settling).
+// Written as a literal string (not interpolated from the px constants
+// above) so Tailwind's static class scanner can pick it up.
+export const HEADER_STRIP_TOP_CLASS = "top-[127px] md:top-[143px]";

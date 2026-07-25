@@ -1,9 +1,10 @@
 import { useLayoutEffect, useState } from "react";
 import type { RefObject } from "react";
 
-// Reads the initial position after useTimelineScrollSync's own mount scroll
-// (also a layout effect, run before this one) so the header strip doesn't
-// flash at translateX(0) before the first scroll event.
+/**
+ * The scroll container's live `scrollLeft`, kept in sync with its native
+ * scroll events.
+ */
 export function useScrollLeft(
   scrollContainerRef: RefObject<HTMLDivElement>,
 ): number {
@@ -17,6 +18,9 @@ export function useScrollLeft(
       setScrollLeft(container!.scrollLeft);
     }
 
+    // Read the initial position after useTimelineScrollSync's own mount
+    // scroll (also a layout effect, run before this one) so the header
+    // strip doesn't flash at translateX(0) before the first scroll event.
     setScrollLeft(container.scrollLeft);
 
     container.addEventListener("scroll", handleScroll, { passive: true });

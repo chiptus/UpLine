@@ -47,7 +47,7 @@ export function TimeScale({ timeSlots, totalWidth, timezone }: TimeScaleProps) {
           return (
             <div
               key={`date-${index}`}
-              className="absolute top-0 flex items-center text-sm font-medium text-purple-200 whitespace-nowrap"
+              className="absolute top-0 h-full flex items-center bg-purple-800 px-3 text-sm font-semibold text-white whitespace-nowrap"
               style={{ left: `${dateChange.position}px`, width: `${width}px` }}
             >
               {formatInTimeZone(dateChange.date, timezone, dateFormat)}

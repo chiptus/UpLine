@@ -112,17 +112,13 @@ export function Timeline() {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="bg-white/5 rounded-lg p-4">
-        <TimelineContainer
-          timelineData={timelineData}
-          timezone={festival.timezone}
-          scheduleDays={scheduleDays}
-          selectedDay={selectedDay}
-          scheduleWindow={scheduleWindow}
-          now={now}
-        />
-      </div>
-    </div>
+    <TimelineContainer
+      timelineData={timelineData}
+      timezone={festival.timezone}
+      scheduleDays={scheduleDays}
+      selectedDay={selectedDay}
+      scheduleWindow={scheduleWindow}
+      now={now}
+    />
   );
 }

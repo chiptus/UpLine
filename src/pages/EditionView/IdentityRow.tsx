@@ -4,13 +4,16 @@ import { useFestivalPhase } from "@/hooks/useFestivalPhase";
 interface IdentityRowProps {
   title: string;
   logoUrl?: string | null;
+  onRowRefChange?: (node: HTMLElement | null) => void;
 }
 
-// Non-live phases intentionally render nothing in the status slot —
-// per-phase copy is a deferred design decision (#229).
-export function IdentityRow({ title, logoUrl }: IdentityRowProps) {
+export function IdentityRow({
+  title,
+  logoUrl,
+  onRowRefChange,
+}: IdentityRowProps) {
   return (
-    <div className="mb-3 md:mb-4 flex items-center gap-2">
+    <div ref={onRowRefChange} className="mb-3 md:mb-4 flex items-center gap-2">
       {logoUrl ? (
         <img
           src={logoUrl}

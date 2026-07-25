@@ -1,29 +1,32 @@
 import { Music } from "lucide-react";
 import { useFestivalPhase } from "@/hooks/useFestivalPhase";
 
-interface IdentityRowProps {
+interface EditionHeroProps {
   title: string;
   logoUrl?: string | null;
   onRowRefChange?: (node: HTMLElement | null) => void;
 }
 
-export function IdentityRow({
+export function EditionHero({
   title,
   logoUrl,
   onRowRefChange,
-}: IdentityRowProps) {
+}: EditionHeroProps) {
   return (
-    <div ref={onRowRefChange} className="mb-3 md:mb-4 flex items-center gap-2">
+    <div
+      ref={onRowRefChange}
+      className="mb-4 md:mb-8 flex flex-col items-center gap-3 md:gap-4 text-center"
+    >
       {logoUrl ? (
         <img
           src={logoUrl}
           alt={`${title} logo`}
-          className="h-8 w-8 shrink-0 rounded object-contain"
+          className="h-16 md:h-24 lg:h-28 w-auto max-w-xs md:max-w-sm object-contain rounded"
         />
       ) : (
-        <Music className="h-5 w-5 shrink-0 text-purple-400" />
+        <Music className="h-10 w-10 md:h-14 md:w-14 text-purple-400" />
       )}
-      <h1 className="min-w-0 truncate text-lg md:text-xl font-bold text-white">
+      <h1 className="text-2xl md:text-4xl font-bold text-white tracking-tight">
         {title}
       </h1>
       <LiveIndicator />
@@ -38,7 +41,7 @@ function LiveIndicator() {
   return (
     <span
       role="status"
-      className="ml-auto flex shrink-0 items-center gap-1.5 text-sm text-red-200"
+      className="flex items-center gap-1.5 text-sm text-red-200"
       aria-label="Festival is live now"
     >
       <span

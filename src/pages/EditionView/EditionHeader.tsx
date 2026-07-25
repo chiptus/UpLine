@@ -2,7 +2,7 @@ import { useCallback, useRef } from "react";
 import { TopBar } from "@/components/layout/TopBar";
 import { FestivalIndicator } from "@/components/layout/AppHeader/FestivalIndicator";
 import { useScrollVisibility } from "@/hooks/useScrollVisibility";
-import { IdentityRow } from "./IdentityRow";
+import { EditionHero } from "./EditionHero";
 
 interface EditionHeaderProps {
   title: string;
@@ -28,7 +28,7 @@ export function EditionHeader({ title, logoUrl }: EditionHeaderProps) {
         />
       </TopBar>
 
-      <IdentityRow
+      <EditionHero
         title={title}
         logoUrl={logoUrl}
         onRowRefChange={handleRowRefChange}

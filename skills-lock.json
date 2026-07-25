@@ -25,6 +25,12 @@
       "skillPath": "skills/chiptus/continue-pr/SKILL.md",
       "computedHash": "15d529636e5cf402d11ca872e75bb76a6bf1ead16e5b9a9cd02ce4026d986cbd"
     },
+    "create-pr": {
+      "source": "chiptus/skills",
+      "sourceType": "github",
+      "skillPath": "skills/chiptus/create-pr/SKILL.md",
+      "computedHash": "682f0aaf487157410f64047501989a66867e62ca35179b106960d959c9daa623"
+    },
     "diagnosing-bugs": {
       "source": "mattpocock/skills",
       "sourceType": "github",

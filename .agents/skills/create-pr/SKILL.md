@@ -1,6 +1,7 @@
 ---
+name: create-pr
 description: Create a pull request with a commitlint-compliant title, a 1-2 line description, and manual verification steps. Use when the user asks to open, create, or raise a PR.
-allowed-tools: Bash(git *)
+allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git rev-parse:*), Bash(git push:*), Bash(gh pr create:*), github__create_pull_request, github__get_pull_request
 ---
 
 # Create PR

@@ -1,78 +1,55 @@
-import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
-import { useEffect, useState, useRef } from "react";
+import { formatInTimeZone } from "date-fns-tz";
 import { timeToOffset } from "@/lib/timelineCalculator";
 
 interface TimeScaleProps {
   timeSlots: Date[];
   totalWidth: number;
-  scrollContainerRef: React.RefObject<HTMLDivElement>;
   timezone: string;
+  scrollLeft: number;
 }
 
 const dateFormat = "MMMM d";
 
+// Width of the day-boundary gap between adjacent date backgrounds.
+const DAY_GAP_PX = 5;
+
+// Distance (px) from the next day boundary at which its label starts fading in.
+const UPCOMING_FADE_THRESHOLD_PX = 100;
+
+// `scrollLeft` keeps the current day's label pinned to the strip's left
+// edge while scrolling through that day, fading in the next day's label
+// as its boundary nears.
 export function TimeScale({
   timeSlots,
   totalWidth,
-  scrollContainerRef,
   timezone,
+  scrollLeft,
 }: TimeScaleProps) {
-  const [scrollLeft, setScrollLeft] = useState(0);
-  const timeScaleRef = useRef<HTMLDivElement>(null);
-
-  // Find where dates change to position floating date labels
   const dateChanges = timeSlots.reduce(
     (changes, timeSlot, index) => {
       if (index === 0) {
         changes.push({ date: timeSlot, position: 0 });
-      } else {
-        const prevDate = formatInTimeZone(
-          timeSlots[index - 1],
-          timezone,
-          "yyyy-MM-dd",
-        );
-        const currentDate = formatInTimeZone(timeSlot, timezone, "yyyy-MM-dd");
-        if (prevDate !== currentDate) {
-          // Position based on festival-timezone midnight of the new date
-          const midnightOfNewDate = fromZonedTime(
-            `${currentDate}T00:00:00`,
-            timezone,
-          );
-
-          // Calculate position relative to festival start
-          const festivalStart = timeSlots[0];
-          const position = timeToOffset(midnightOfNewDate, festivalStart) + 20;
-
-          changes.push({ date: midnightOfNewDate, position });
-        }
+        return changes;
+      }
+      const prevDate = formatInTimeZone(
+        timeSlots[index - 1],
+        timezone,
+        "yyyy-MM-dd",
+      );
+      const currentDate = formatInTimeZone(timeSlot, timezone, "yyyy-MM-dd");
+      if (prevDate !== currentDate) {
+        changes.push({
+          date: timeSlot,
+          position: timeToOffset(timeSlot, timeSlots[0]),
+        });
       }
       return changes;
     },
     [] as Array<{ date: Date; position: number }>,
   );
 
-  // Track scroll position for sticky date labels
-  useEffect(() => {
-    if (!scrollContainerRef.current) return;
-
-    function handleScroll() {
-      setScrollLeft(scrollContainerRef.current?.scrollLeft || 0);
-    }
-
-    const scrollContainer = scrollContainerRef.current;
-    scrollContainer.addEventListener("scroll", handleScroll);
-
-    return () => {
-      scrollContainer.removeEventListener("scroll", handleScroll);
-    };
-  }, [scrollContainerRef]);
-
-  // Find which dates should be visible based on scroll position
-  const visiblePosition = scrollLeft;
-
-  // Find current day (the day we're currently viewing)
   const currentDateIndex = dateChanges.findLastIndex(
-    (change) => change.position <= visiblePosition,
+    (change) => change.position <= scrollLeft,
   );
   const currentDate =
     currentDateIndex >= 0 ? dateChanges[currentDateIndex] : dateChanges[0];
@@ -81,109 +58,84 @@ export function TimeScale({
       ? dateChanges[currentDateIndex + 1]
       : null;
 
-  // Calculate positions for sticky dates
-  const currentDayEndPosition = nextDate ? nextDate.position - 5 : totalWidth; // -5 for the gap
+  const currentDayEndPosition = nextDate
+    ? nextDate.position - DAY_GAP_PX
+    : totalWidth;
   const currentDayWidth = currentDayEndPosition - currentDate.position;
-  const scrolledIntoCurrentDay = visiblePosition - currentDate.position;
-
-  // When to show upcoming date (e.g., when within 100px of next day)
-  const showUpcomingThreshold = 100;
   const distanceToNextDay = nextDate
-    ? nextDate.position - visiblePosition
+    ? nextDate.position - scrollLeft
     : Infinity;
   const shouldShowUpcoming =
-    nextDate && distanceToNextDay <= showUpcomingThreshold;
+    nextDate !== null && distanceToNextDay <= UPCOMING_FADE_THRESHOLD_PX;
 
-  // Position for current day label (constrained to its day block)
+  // Pinned label stays within its own day block: not before the day starts,
+  // not past the day's end (leaving room for the label's own width).
   const currentDateStickyLeft = Math.min(
-    Math.max(0, scrollLeft - currentDate.position), // Don't go before day start
-    currentDayWidth - 120, // Don't go past day end (120px for label width)
+    Math.max(0, scrollLeft - currentDate.position),
+    Math.max(0, currentDayWidth - 120),
   );
 
   return (
-    <div className="relative">
-      {/* Current day sticky label - stays within its day block */}
-      <div
-        className="absolute top-0 z-30 text-sm font-medium px-3 py-1 rounded shadow-lg  text-purple-200 whitespace-nowrap"
-        style={{
-          left: `${currentDate.position + currentDateStickyLeft}px`,
-          opacity: scrolledIntoCurrentDay >= 0 ? 1 : 0,
-        }}
-      >
-        {currentDate
-          ? formatInTimeZone(currentDate.date, timezone, dateFormat)
-          : "Loading..."}
-      </div>
+    <div className="relative" style={{ minWidth: totalWidth }}>
+      <div className="relative h-8">
+        {dateChanges.map((dateChange, index) => {
+          const nextDateChange = dateChanges[index + 1];
+          const fullWidth = nextDateChange
+            ? nextDateChange.position - dateChange.position
+            : totalWidth - dateChange.position;
+          const width = fullWidth - DAY_GAP_PX;
 
-      {/* Upcoming day sticky label - appears when approaching next day */}
-      {shouldShowUpcoming && nextDate && (
+          return (
+            <div
+              key={`date-bg-${index}`}
+              className="absolute top-0 h-full bg-purple-900/60 border border-purple-400/30"
+              style={{
+                left: `${dateChange.position}px`,
+                width: `${width}px`,
+              }}
+            />
+          );
+        })}
+
         <div
-          className="absolute top-0 z-30 text-sm font-medium px-3 py-1 rounded shadow-lg  text-purple-100 whitespace-nowrap "
+          className="absolute top-0 z-10 flex h-full items-center px-3 text-sm font-medium text-purple-100 whitespace-nowrap"
           style={{
-            left: `${nextDate.position}px`, // Show to the right of current view
-            opacity: Math.min(
-              1,
-              (showUpcomingThreshold - distanceToNextDay) / 50,
-            ), // Fade in effect
+            left: `${currentDate.position + currentDateStickyLeft}px`,
+            opacity: scrollLeft - currentDate.position >= 0 ? 1 : 0,
           }}
         >
-          {formatInTimeZone(nextDate.date, timezone, dateFormat)}
+          {formatInTimeZone(currentDate.date, timezone, dateFormat)}
         </div>
-      )}
 
-      <div
-        ref={timeScaleRef}
-        className="flex items-center mb-[72px] relative"
-        style={{ minWidth: totalWidth }}
-      >
-        <div className="flex-1 relative">
-          {/* Floating date labels spanning the width of each day */}
-          {dateChanges.map((dateChange, index) => {
-            // Calculate width from this date to the next date (or end of timeline)
-            const nextDateChange = dateChanges[index + 1];
-            const fullWidth = nextDateChange
-              ? nextDateChange.position - dateChange.position
-              : totalWidth - dateChange.position;
-
-            const space = 5;
-            const width = fullWidth - space;
-            const left = dateChange.position;
-
-            return (
-              <div
-                key={`date-${index}`}
-                className="absolute top-0 text-sm font-medium text-purple-200 bg-purple-900/60 px-2 py-1 border border-purple-400/30 flex items-center justify-center"
-                style={{
-                  left: `${left}px`,
-                  width: `${width}px`,
-                  minWidth: "100px", // Ensure minimum readability
-                }}
-              >
-                {/* {format(dateChange.date, dateFormat)} */}
-                &nbsp;
-              </div>
-            );
-          })}
-
-          {/* Hour markers */}
-          <div className="hour-markers">
-            {timeSlots.map((timeSlot, index) => (
-              <div
-                key={index}
-                className="absolute flex flex-col items-center"
-                style={{ left: `${timeToOffset(timeSlot, timeSlots[0])}px` }}
-              >
-                <div className="text-sm font-medium text-purple-300 mb-2 mt-10">
-                  {formatInTimeZone(timeSlot, timezone, "HH:mm")}
-                </div>
-                <div className="w-px h-4 bg-purple-400/30"></div>
-              </div>
-            ))}
+        {shouldShowUpcoming && nextDate && (
+          <div
+            className="absolute top-0 z-10 flex h-full items-center px-3 text-sm font-medium text-purple-50 whitespace-nowrap"
+            style={{
+              left: `${nextDate.position}px`,
+              opacity: Math.min(
+                1,
+                (UPCOMING_FADE_THRESHOLD_PX - distanceToNextDay) / 50,
+              ),
+            }}
+          >
+            {formatInTimeZone(nextDate.date, timezone, dateFormat)}
           </div>
+        )}
+      </div>
 
-          {/* Horizontal grid line */}
-          <div className="absolute top-16 left-0 right-0 h-px bg-purple-400/20"></div>
-        </div>
+      <div className="hour-markers relative h-10">
+        {timeSlots.map((timeSlot, index) => (
+          <div
+            key={index}
+            className="absolute flex flex-col items-center"
+            style={{ left: `${timeToOffset(timeSlot, timeSlots[0])}px` }}
+          >
+            <div className="text-sm font-medium text-purple-300">
+              {formatInTimeZone(timeSlot, timezone, "HH:mm")}
+            </div>
+            <div className="w-px h-4 bg-purple-400/30" />
+          </div>
+        ))}
       </div>
     </div>
   );

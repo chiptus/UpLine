@@ -21,7 +21,7 @@ The set of artists associated with an edition. Visible to voters once the editio
 _Avoid_: Roster, bill
 
 **Schedule**:
-The arrangement of an edition's **sets** across **stages** and time. Presented to users via the Timeline and List views on the Schedule tab. Not a stored entity — derived from sets + stages of an edition.
+The arrangement of an edition's **sets** across **stages** and time. Presented to users via the Now, Timeline, and List views on the Schedule tab. Not a stored entity — derived from sets + stages of an edition.
 _Avoid_: Lineup (lineup = who; schedule = when/where), program, timetable
 
 **Festival phase**:

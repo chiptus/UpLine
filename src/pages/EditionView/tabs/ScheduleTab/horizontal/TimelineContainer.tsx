@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { TimeScale } from "./TimeScale";
+import { TimeScaleContainer } from "./TimeScaleContainer";
 import { StageRow } from "./StageRow";
 import { StageLabels } from "./StageLabels";
 import { TimelineToolbar } from "./TimelineToolbar";
@@ -15,6 +15,7 @@ import type { ScheduleDay } from "@/hooks/useScheduleData";
 import { useTimelineScrollSync } from "@/hooks/useTimelineScrollSync";
 import { jumpToTimelineMoment } from "@/lib/timelineDayJump";
 import { useActiveTimelineDay } from "@/hooks/useActiveTimelineDay";
+import { useScrollLeft } from "./useScrollLeft";
 
 interface TimelineContainerProps {
   timelineData: TimelineData;
@@ -35,6 +36,7 @@ export function TimelineContainer({
 }: TimelineContainerProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isOverviewExpanded, setIsOverviewExpanded] = useState(false);
+  const scrollLeft = useScrollLeft(scrollContainerRef);
 
   useTimelineScrollSync({
     scrollContainerRef,
@@ -43,6 +45,7 @@ export function TimelineContainer({
     timezone,
     now,
   });
+
   const activeDay = useActiveTimelineDay({
     scrollContainerRef,
     days: scheduleDays,
@@ -88,6 +91,12 @@ export function TimelineContainer({
           onJump={(moment) => jumpTo(moment, "center")}
         />
       )}
+      <TimeScaleContainer
+        timelineData={timelineData}
+        timezone={timezone}
+        scrollLeft={scrollLeft}
+      />
+
       <div className="relative">
         <StageLabels stages={timelineData.stages} />
         <div
@@ -96,14 +105,7 @@ export function TimelineContainer({
           className="overflow-x-auto overflow-y-hidden pb-20"
         >
           <div className="relative">
-            <TimeScale
-              timeSlots={timelineData.timeSlots}
-              totalWidth={timelineData.totalWidth}
-              scrollContainerRef={scrollContainerRef}
-              timezone={timezone}
-            />
-
-            <div className="space-y-12 mt-28">
+            <div className="space-y-12 mt-12">
               {timelineData.stages.map((stage) => (
                 <StageRow
                   key={stage.name}

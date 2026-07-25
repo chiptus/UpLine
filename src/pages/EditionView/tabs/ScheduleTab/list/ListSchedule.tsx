@@ -4,9 +4,10 @@ import { useRouteContext } from "@tanstack/react-router";
 import { useScheduleData } from "@/hooks/useScheduleData";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { useSetsByEditionQuery as useEditionSetsQuery } from "@/api/sets/useSetsByEdition";
-import { getFestivalDayKey } from "@/lib/timeUtils";
 import { filterScheduleDays } from "@/lib/scheduleFilter";
+import { groupTimeSlotsByFestivalDay } from "@/lib/scheduleDayGrouping";
 import { TimeSlotGroup } from "./TimeSlotGroup";
+import { ListDayHeader } from "./ListDayHeader";
 import type { ScheduleSet } from "@/hooks/useScheduleData";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
@@ -146,24 +147,24 @@ export function ListSchedule() {
     );
   }
 
-  return (
-    <div className="space-y-6" data-testid="list-schedule">
-      {timeSlots.map((slot, index) => {
-        const prevSlot = index > 0 ? timeSlots[index - 1] : null;
-        const showDateHeader =
-          !prevSlot ||
-          getFestivalDayKey(slot.time.toISOString(), festival.timezone) !==
-            getFestivalDayKey(prevSlot.time.toISOString(), festival.timezone);
+  const dayGroups = groupTimeSlotsByFestivalDay(timeSlots, festival.timezone);
 
-        return (
-          <TimeSlotGroup
-            key={slot.time.toISOString()}
-            timeSlot={slot}
-            timezone={festival.timezone}
-            showDateHeader={showDateHeader}
-          />
-        );
-      })}
+  return (
+    <div className="space-y-8" data-testid="list-schedule">
+      {dayGroups.map(({ dayKey, slots }) => (
+        <section key={dayKey} data-testid="list-day-group">
+          <ListDayHeader dayKey={dayKey} />
+          <div className="space-y-6">
+            {slots.map((slot) => (
+              <TimeSlotGroup
+                key={slot.time.toISOString()}
+                timeSlot={slot}
+                timezone={festival.timezone}
+              />
+            ))}
+          </div>
+        </section>
+      ))}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { TimeScale } from "./TimeScale";
 import { StageRow } from "./StageRow";
 import { StageLabels } from "./StageLabels";
@@ -15,6 +15,11 @@ import type { ScheduleDay } from "@/hooks/useScheduleData";
 import { useTimelineScrollSync } from "@/hooks/useTimelineScrollSync";
 import { jumpToTimelineMoment } from "@/lib/timelineDayJump";
 import { useActiveTimelineDay } from "@/hooks/useActiveTimelineDay";
+import {
+  STICKY_TOP_BELOW_SWITCHER_PX,
+  TIMELINE_TOOLBAR_HEIGHT_PX,
+} from "@/lib/layout-constants";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TimelineContainerProps {
   timelineData: TimelineData;
@@ -35,6 +40,25 @@ export function TimelineContainer({
 }: TimelineContainerProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isOverviewExpanded, setIsOverviewExpanded] = useState(false);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const isMobile = useIsMobile();
+  function pick(sizes: { mobile: number; desktop: number }) {
+    return isMobile ? sizes.mobile : sizes.desktop;
+  }
+  const headerStripTop =
+    pick(STICKY_TOP_BELOW_SWITCHER_PX) + pick(TIMELINE_TOOLBAR_HEIGHT_PX);
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    function handleScroll() {
+      setScrollLeft(container!.scrollLeft);
+    }
+
+    container.addEventListener("scroll", handleScroll, { passive: true });
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useTimelineScrollSync({
     scrollContainerRef,
@@ -88,6 +112,24 @@ export function TimelineContainer({
           onJump={(moment) => jumpTo(moment, "center")}
         />
       )}
+      <div
+        className="sticky z-30 overflow-hidden bg-gray-900/95 backdrop-blur-md"
+        style={{ top: headerStripTop }}
+      >
+        <div
+          style={{
+            transform: `translateX(-${scrollLeft}px)`,
+            width: timelineData.totalWidth,
+          }}
+        >
+          <TimeScale
+            timeSlots={timelineData.timeSlots}
+            totalWidth={timelineData.totalWidth}
+            timezone={timezone}
+          />
+        </div>
+      </div>
+
       <div className="relative">
         <StageLabels stages={timelineData.stages} />
         <div
@@ -96,14 +138,7 @@ export function TimelineContainer({
           className="overflow-x-auto overflow-y-hidden pb-20"
         >
           <div className="relative">
-            <TimeScale
-              timeSlots={timelineData.timeSlots}
-              totalWidth={timelineData.totalWidth}
-              scrollContainerRef={scrollContainerRef}
-              timezone={timezone}
-            />
-
-            <div className="space-y-12 mt-28">
+            <div className="space-y-12 mt-4">
               {timelineData.stages.map((stage) => (
                 <StageRow
                   key={stage.name}

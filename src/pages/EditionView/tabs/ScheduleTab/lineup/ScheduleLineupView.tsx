@@ -19,8 +19,6 @@ interface ScheduleLineupViewProps {
 export function ScheduleLineupView({ tab }: ScheduleLineupViewProps) {
   const { canShowDay } = useScheduleReveal();
 
-  // On "draft", bail before mounting the child - it's the one that fetches
-  // sets/stages, and there's nothing to show yet so there's no reason to.
   if (!canShowDay) {
     return <ScheduleNotRevealedPlaceholder />;
   }

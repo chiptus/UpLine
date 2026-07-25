@@ -1,19 +1,14 @@
 import { forwardRef, useCallback } from "react";
-import { Music, Heart, TicketIcon, ExternalLinkIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Music, Heart } from "lucide-react";
 
 interface TitleSectionProps {
   title: string;
   logoUrl?: string | null;
   onLogoRefChange?: (ref: HTMLElement | null) => void;
-  websiteUrl?: string;
-  ticketsUrl?: string;
 }
 
 export const TitleSection = forwardRef<HTMLDivElement, TitleSectionProps>(
-  ({ title, logoUrl, onLogoRefChange, ticketsUrl, websiteUrl }, ref) => {
-    const hasLinks = !!(ticketsUrl || websiteUrl);
-
+  ({ title, logoUrl, onLogoRefChange }, ref) => {
     const logoRefCallback = useCallback(
       (node: HTMLImageElement | null) => {
         onLogoRefChange?.(node);
@@ -44,35 +39,6 @@ export const TitleSection = forwardRef<HTMLDivElement, TitleSectionProps>(
             </>
           )}
         </div>
-
-        {hasLinks && (
-          <div className="flex gap-3 justify-center">
-            {ticketsUrl && (
-              <Button
-                size="sm"
-                asChild
-                className="gap-2 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/30 text-white font-semibold transition-all"
-              >
-                <a href={ticketsUrl} target="_blank" rel="noopener noreferrer">
-                  <TicketIcon className="h-5 w-5" />
-                  Tickets
-                </a>
-              </Button>
-            )}
-            {websiteUrl && (
-              <Button
-                size="sm"
-                asChild
-                className="gap-2 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 hover:border-white/30 text-white font-semibold transition-all"
-              >
-                <a href={websiteUrl} target="_blank" rel="noopener noreferrer">
-                  <ExternalLinkIcon className="h-4 w-4" />
-                  Website
-                </a>
-              </Button>
-            )}
-          </div>
-        )}
       </div>
     );
   },

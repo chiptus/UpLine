@@ -37,8 +37,12 @@ A named venue/space within an edition where sets take place.
 _Avoid_: Venue, room
 
 **Vote**:
-A user's reaction to an artist within a group context. Three values: "Must Go" (+2), "Interested" (+1), "Won't Go" (-1).
+A user's reaction to an artist within a group context. Three values: "Must Go" (+2), "Interested" (+1), "Won't Go" (-1). Anticipatory — answers "will I go." See Retrospective rating for the after-the-fact counterpart.
 _Avoid_: Rating, like
+
+**Retrospective rating**:
+A user's after-the-fact reaction to a **set** — "how was it" — recorded once the edition is Post-Festival. Distinct from **Vote**: Vote is anticipatory ("will I go", drives planning points) while a rating answers "did I like it" and never affects or is affected by a Vote on the same set. Stored in its own `set_ratings` table with its own scale (loved / liked / meh), never the Vote scale or copy. See ADR-0004.
+_Avoid_: Vote, score
 
 **Group**:
 A collection of users who share votes and notes for collaborative decision-making within an edition.

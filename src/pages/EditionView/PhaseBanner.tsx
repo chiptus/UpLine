@@ -38,6 +38,10 @@ function bannerMessage(
     return "The festival is on — see what's playing now and next!";
   }
 
+  if (phase === "post-festival") {
+    return "The festival's over — how were your sets?";
+  }
+
   return null;
 }
 

@@ -173,14 +173,44 @@ INSERT INTO public.custom_links (festival_id, title, url, display_order, created
   ('f1111111-1111-1111-1111-111111111111', 'Transport', 'https://testfestival.com/travel', 2, now(), now());
 
 -- Insert festival edition
-INSERT INTO public.festival_editions (id, festival_id, year, slug, name, description, location, start_date, end_date, published, schedule_reveal_level, created_at, updated_at) VALUES
-  ('e1111111-1111-1111-1111-111111111111', 'f1111111-1111-1111-1111-111111111111', 2025, '2025', 'Boom Festival 2025', 'The 2025 edition of Boom Festival', 'Idanha-a-Nova, Portugal', '2025-07-12', '2025-07-14', true, 'full', now(), now());
+-- phase_override pins the derived festival phase to "live" so e2e voting
+-- tests stay stable regardless of how far the seeded 2025 dates drift into
+-- the past relative to real wall-clock time (see ADR-0003, ADR-0004).
+INSERT INTO public.festival_editions (id, festival_id, year, slug, name, description, location, start_date, end_date, published, schedule_reveal_level, phase_override, created_at, updated_at) VALUES
+  ('e1111111-1111-1111-1111-111111111111', 'f1111111-1111-1111-1111-111111111111', 2025, '2025', 'Boom Festival 2025', 'The 2025 edition of Boom Festival', 'Idanha-a-Nova, Portugal', '2025-07-12', '2025-07-14', true, 'full', 'live', now(), now());
 
 -- Insert stages
-INSERT INTO public.stages (id, name, slug, festival_edition_id, created_at, updated_at) VALUES 
+INSERT INTO public.stages (id, name, slug, festival_edition_id, created_at, updated_at) VALUES
   ('11111111-1111-1111-1111-11111111111a', 'Main Stage', 'main-stage', 'e1111111-1111-1111-1111-111111111111', now(), now()),
   ('22222222-2222-2222-2222-22222222222b', 'Club Stage', 'club-stage', 'e1111111-1111-1111-1111-111111111111', now(), now()),
   ('33333333-3333-3333-3333-33333333333c', 'Ambient Garden', 'ambient-garden', 'e1111111-1111-1111-1111-111111111111', now(), now());
+
+-- Second festival + edition dedicated to Post-Festival phase e2e coverage
+-- (rating.spec.ts). Kept separate from "Boom Festival 2025" above so the
+-- voting suite's phase_override = 'live' never has to fight with the
+-- rating suite's phase_override = 'post-festival' on the same row.
+INSERT INTO public.festivals (id, name, slug, description, published, created_at, updated_at) VALUES
+  ('f2222222-2222-2222-2222-222222222222', 'Post Festival Test', 'post-test', 'Festival edition used to test the Post-Festival retrospective rating UI', true, now(), now());
+
+INSERT INTO public.festival_editions (id, festival_id, year, slug, name, description, location, start_date, end_date, published, schedule_reveal_level, phase_override, created_at, updated_at) VALUES
+  ('e2222222-2222-2222-2222-222222222222', 'f2222222-2222-2222-2222-222222222222', 2025, '2025', 'Post Festival Test 2025', 'Edition pinned to the post-festival phase for rating e2e tests', 'Idanha-a-Nova, Portugal', '2025-07-12', '2025-07-14', true, 'full', 'post-festival', now(), now());
+
+INSERT INTO public.stages (id, name, slug, festival_edition_id, created_at, updated_at) VALUES
+  ('21111111-1111-1111-1111-11111111111a', 'Main Stage', 'main-stage', 'e2222222-2222-2222-2222-222222222222', now(), now());
+
+-- Four distinct sets, one per rating.spec.ts scenario, so parallel/serial
+-- tests never race over the same set_ratings row (mirrors voting.spec.ts).
+INSERT INTO public.sets (id, name, slug, festival_edition_id, stage_id, time_start, time_end, description, created_by, created_at, updated_at) VALUES
+  ('21111111-1111-1111-1111-111111111111', 'Maya Jane Coles', 'maya-jane-coles-set', 'e2222222-2222-2222-2222-222222222222', '21111111-1111-1111-1111-11111111111a', '2025-07-12 22:00:00+00', '2025-07-12 23:30:00+00', 'British DJ and producer known for her deep house and techno sets', '11111111-1111-1111-1111-111111111111', now(), now()),
+  ('22222222-2222-2222-2222-222222222223', 'Ben Böhmer', 'ben-bohmer-set', 'e2222222-2222-2222-2222-222222222222', '21111111-1111-1111-1111-11111111111a', '2025-07-12 20:00:00+00', '2025-07-12 21:30:00+00', 'German melodic house and techno producer', '11111111-1111-1111-1111-111111111111', now(), now()),
+  ('23333333-3333-3333-3333-333333333333', 'Kiara Scuro', 'kiara-scuro-set', 'e2222222-2222-2222-2222-222222222222', '21111111-1111-1111-1111-11111111111a', '2025-07-12 23:30:00+00', '2025-07-13 01:00:00+00', 'Rising star in dark techno', '11111111-1111-1111-1111-111111111111', now(), now()),
+  ('24444444-4444-4444-4444-444444444444', 'Nils Frahm', 'nils-frahm-set', 'e2222222-2222-2222-2222-222222222222', '21111111-1111-1111-1111-11111111111a', '2025-07-12 18:00:00+00', '2025-07-12 19:30:00+00', 'Ambient electronic composer and pianist', '11111111-1111-1111-1111-111111111111', now(), now());
+
+INSERT INTO public.set_artists (set_id, artist_id, role, created_at) VALUES
+  ('21111111-1111-1111-1111-111111111111', 'a1111111-1111-1111-1111-111111111111', 'performer', now()),
+  ('22222222-2222-2222-2222-222222222223', 'a2222222-2222-2222-2222-222222222222', 'performer', now()),
+  ('23333333-3333-3333-3333-333333333333', 'a3333333-3333-3333-3333-333333333333', 'performer', now()),
+  ('24444444-4444-4444-4444-444444444444', 'a4444444-4444-4444-4444-444444444444', 'performer', now());
 
 -- Insert sets (one for each artist, using their name and schedule)
 INSERT INTO public.sets (id, name, slug, festival_edition_id, stage_id, time_start, time_end, description, created_by, created_at, updated_at) VALUES 

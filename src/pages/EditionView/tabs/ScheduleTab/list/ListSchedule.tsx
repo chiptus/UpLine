@@ -112,8 +112,6 @@ export function ListSchedule() {
       }))
       .sort((a, b) => a.time.getTime() - b.time.getTime());
 
-    // Group time slots by festival calendar day so each day renders as one
-    // continuous section under a single sticky header.
     const groups = new Map<string, TimeSlot[]>();
     slots.forEach((slot) => {
       const dayKey = getFestivalDayKey(

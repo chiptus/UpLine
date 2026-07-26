@@ -51,8 +51,8 @@ test.describe("Schedule filter sheet", () => {
       test.skip(true, "Schedule not revealed in this environment");
     }
 
-    const dayHeader = page.getByTestId("list-day-header").first();
-    await expect(dayHeader.getByTestId("schedule-filters-trigger")).toBeVisible();
+    const dayGroup = page.getByRole("region").first();
+    await expect(dayGroup.getByTestId("schedule-filters-trigger")).toBeVisible();
 
     await openSheet(page);
     await expect(

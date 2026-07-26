@@ -15,15 +15,17 @@ test.describe("List view sticky day header", () => {
       test.skip(true, "Schedule not revealed in this environment");
     }
 
-    const dayGroups = page.getByTestId("list-day-group");
+    // Each festival day renders as an accessible region, labeled by its day
+    // name, with a heading hosting the sticky header content.
+    const dayGroups = page.getByRole("region");
     const groupCount = await dayGroups.count();
     if (groupCount < 2) {
       test.skip(true, "Needs at least two festival days of sets seeded");
     }
 
-    const firstHeader = dayGroups.nth(0).getByTestId("list-day-header");
-    const firstHeaderText = await firstHeader.innerText();
-    const topBefore = await firstHeader.evaluate(
+    const firstHeading = dayGroups.nth(0).getByRole("heading", { level: 2 });
+    const firstHeadingText = await firstHeading.innerText();
+    const topBefore = await firstHeading.evaluate(
       (el) => el.getBoundingClientRect().top,
     );
 
@@ -34,10 +36,10 @@ test.describe("List view sticky day header", () => {
     await page.mouse.wheel(0, 600);
     await expect
       .poll(async () =>
-        firstHeader.evaluate((el) => el.getBoundingClientRect().top),
+        firstHeading.evaluate((el) => el.getBoundingClientRect().top),
       )
       .toBeCloseTo(topBefore, 0);
-    await expect(firstHeader).toHaveText(firstHeaderText);
+    await expect(firstHeading).toHaveText(firstHeadingText);
 
     // Scroll to the very end of the first day's section: the next day's
     // header takes over, docked at the same offset.
@@ -45,12 +47,12 @@ test.describe("List view sticky day header", () => {
     expect(firstGroupBox).not.toBeNull();
     await page.mouse.wheel(0, (firstGroupBox?.height ?? 0) + 800);
 
-    const secondHeader = dayGroups.nth(1).getByTestId("list-day-header");
-    await expect(secondHeader).toBeVisible();
-    const secondHeaderText = await secondHeader.innerText();
-    expect(secondHeaderText).not.toBe(firstHeaderText);
+    const secondHeading = dayGroups.nth(1).getByRole("heading", { level: 2 });
+    await expect(secondHeading).toBeVisible();
+    const secondHeadingText = await secondHeading.innerText();
+    expect(secondHeadingText).not.toBe(firstHeadingText);
 
-    const topAfter = await secondHeader.evaluate(
+    const topAfter = await secondHeading.evaluate(
       (el) => el.getBoundingClientRect().top,
     );
     expect(topAfter).toBeCloseTo(topBefore, 0);
@@ -66,8 +68,8 @@ test.describe("List view sticky day header", () => {
       test.skip(true, "Schedule not revealed in this environment");
     }
 
-    const dayHeader = page.getByTestId("list-day-header").first();
-    const trigger = dayHeader.getByTestId("schedule-filters-trigger");
+    const dayGroup = page.getByRole("region").first();
+    const trigger = dayGroup.getByTestId("schedule-filters-trigger");
     await expect(trigger).toBeVisible();
     await expect(trigger).toHaveAccessibleName(/Filters/);
 

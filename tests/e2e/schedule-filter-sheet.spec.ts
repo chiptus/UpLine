@@ -7,10 +7,7 @@ const LIST_PATH = "/festivals/test/editions/2025/schedule/list";
 const MAIN_STAGE_ID = "11111111-1111-1111-1111-11111111111a";
 
 async function openSheet(page: import("@playwright/test").Page) {
-  // The List view renders one trigger per festival day header; the
-  // Timeline view renders exactly one in its toolbar. Either way the first
-  // match opens the same shared sheet.
-  await page.getByTestId("schedule-filters-trigger").first().click();
+  await page.getByRole("button", { name: /Filters/ }).first().click();
   await expect(page.getByTestId("schedule-filter-sheet")).toBeVisible();
 }
 
@@ -46,13 +43,10 @@ test.describe("Schedule filter sheet", () => {
   }) => {
     await page.goto(LIST_PATH);
 
-    const listSchedule = page.getByTestId("list-schedule");
-    if (!(await listSchedule.isVisible().catch(() => false))) {
-      test.skip(true, "Schedule not revealed in this environment");
-    }
-
     const dayGroup = page.getByRole("region").first();
-    await expect(dayGroup.getByTestId("schedule-filters-trigger")).toBeVisible();
+    await expect(
+      dayGroup.getByRole("button", { name: /Filters/ }),
+    ).toBeVisible();
 
     await openSheet(page);
     await expect(

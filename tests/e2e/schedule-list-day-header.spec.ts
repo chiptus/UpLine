@@ -10,18 +10,11 @@ test.describe("List view sticky day header", () => {
   }) => {
     await page.goto(LIST_PATH);
 
-    const listSchedule = page.getByTestId("list-schedule");
-    if (!(await listSchedule.isVisible().catch(() => false))) {
-      test.skip(true, "Schedule not revealed in this environment");
-    }
-
     // Each festival day renders as an accessible region, labeled by its day
-    // name, with a heading hosting the sticky header content.
+    // name, with a heading hosting the sticky header content. Seeded across
+    // three festival days (Jul 12-14), so at least two are always present.
     const dayGroups = page.getByRole("region");
-    const groupCount = await dayGroups.count();
-    if (groupCount < 2) {
-      test.skip(true, "Needs at least two festival days of sets seeded");
-    }
+    await expect(dayGroups).toHaveCount(3);
 
     const firstHeading = dayGroups.nth(0).getByRole("heading", { level: 2 });
     const firstHeadingText = await firstHeading.innerText();
@@ -63,15 +56,9 @@ test.describe("List view sticky day header", () => {
   }) => {
     await page.goto(LIST_PATH);
 
-    const listSchedule = page.getByTestId("list-schedule");
-    if (!(await listSchedule.isVisible().catch(() => false))) {
-      test.skip(true, "Schedule not revealed in this environment");
-    }
-
     const dayGroup = page.getByRole("region").first();
-    const trigger = dayGroup.getByTestId("schedule-filters-trigger");
+    const trigger = dayGroup.getByRole("button", { name: /Filters/ });
     await expect(trigger).toBeVisible();
-    await expect(trigger).toHaveAccessibleName(/Filters/);
 
     await trigger.click();
     await expect(page.getByTestId("schedule-filter-sheet")).toBeVisible();

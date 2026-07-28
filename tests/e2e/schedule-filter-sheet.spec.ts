@@ -7,11 +7,6 @@ const LIST_PATH = "/festivals/test/editions/2025/schedule/list";
 const MAIN_STAGE_ID = "11111111-1111-1111-1111-11111111111a";
 
 async function openSheet(page: import("@playwright/test").Page) {
-  // The List view renders one region per festival day, named after that
-  // day (e.g. "Friday, Jul 12"), each with its own Filters trigger; the
-  // Timeline view has no regions and a single trigger in its toolbar.
-  // Target the seeded first day by name when present, rather than relying
-  // on page-wide DOM order.
   const firstDayRegion = page.getByRole("region", { name: /Jul 12/ });
   const scope = (await firstDayRegion.count()) > 0 ? firstDayRegion : page;
   await scope.getByRole("button", { name: /Filters/ }).click();

@@ -56,7 +56,7 @@ test.describe("List view sticky day header", () => {
   }) => {
     await page.goto(LIST_PATH);
 
-    const dayGroup = page.getByRole("region").first();
+    const dayGroup = page.getByRole("region", { name: /Jul 12/ });
     const trigger = dayGroup.getByRole("button", { name: /Filters/ });
     await expect(trigger).toBeVisible();
 

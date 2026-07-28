@@ -13,10 +13,12 @@ async function fetchGroupAnalytics(): Promise<GroupAnalytics[]> {
 
   const groupsWithCounts = await Promise.all(
     (groups || []).map(async (group) => {
-      const { count } = await supabase
+      const { count, error: countError } = await supabase
         .from("group_members")
         .select("*", { count: "exact", head: true })
         .eq("group_id", group.id);
+
+      if (countError) throw new Error("Failed to fetch group member count");
 
       return {
         ...group,

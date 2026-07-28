@@ -12,10 +12,12 @@ async function fetchUserAnalytics(): Promise<UserAnalytics[]> {
 
   const usersWithCounts = await Promise.all(
     (profiles || []).map(async (profile) => {
-      const { count } = await supabase
+      const { count, error: countError } = await supabase
         .from("votes")
         .select("*", { count: "exact", head: true })
         .eq("user_id", profile.id);
+
+      if (countError) throw new Error("Failed to fetch user vote count");
 
       return {
         ...profile,

@@ -49,8 +49,8 @@ describe("computeDateChanges", () => {
     const changesUtc = computeDateChanges(timeSlots, "UTC");
     expect(changesUtc).toHaveLength(1);
 
-    const changesUtcPlus1 = computeDateChanges(timeSlots, "Europe/Berlin");
-    expect(changesUtcPlus1).toHaveLength(2);
+    const changesBerlinSummer = computeDateChanges(timeSlots, "Europe/Berlin");
+    expect(changesBerlinSummer).toHaveLength(2);
   });
 });
 

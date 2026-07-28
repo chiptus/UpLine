@@ -7,6 +7,9 @@ export const DAY_GAP_PX = 5;
 // Distance (px) from the next day boundary at which its label starts fading in.
 export const UPCOMING_FADE_THRESHOLD_PX = 100;
 
+// Width reserved for the pinned date label so it never overruns the day's end.
+export const DATE_LABEL_WIDTH_PX = 120;
+
 export interface DateChange {
   date: Date;
   position: number;
@@ -79,7 +82,7 @@ export function computeDateLabelGeometry(
   // not past the day's end (leaving room for the label's own width).
   const currentDateStickyLeft = Math.min(
     Math.max(0, scrollLeft - currentDate.position),
-    Math.max(0, currentDayWidth - 120),
+    Math.max(0, currentDayWidth - DATE_LABEL_WIDTH_PX),
   );
 
   return {

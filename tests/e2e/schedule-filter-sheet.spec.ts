@@ -7,8 +7,9 @@ const LIST_PATH = "/festivals/test/editions/2025/schedule/list";
 const MAIN_STAGE_ID = "11111111-1111-1111-1111-11111111111a";
 
 async function openSheet(page: import("@playwright/test").Page) {
-  const firstDayRegion = page.getByRole("region", { name: /Jul 12/ });
-  const scope = (await firstDayRegion.count()) > 0 ? firstDayRegion : page;
+  const scope = page.url().includes(LIST_PATH)
+    ? page.getByRole("region", { name: /Jul 12/ })
+    : page;
   await scope.getByRole("button", { name: /Filters/ }).click();
   await expect(page.getByTestId("schedule-filter-sheet")).toBeVisible();
 }

@@ -6,11 +6,11 @@ const TIMELINE_PATH = "/festivals/test/editions/2025/schedule/timeline";
 const LIST_PATH = "/festivals/test/editions/2025/schedule/list";
 const MAIN_STAGE_ID = "11111111-1111-1111-1111-11111111111a";
 
-async function openSheet(page: import("@playwright/test").Page) {
-  const scope = page.url().includes(LIST_PATH)
-    ? page.getByRole("region", { name: /Jul 12/ })
-    : page;
-  await scope.getByRole("button", { name: /Filters/ }).click();
+async function openSheet(
+  page: import("@playwright/test").Page,
+  trigger: import("@playwright/test").Locator,
+) {
+  await trigger.click();
   await expect(page.getByTestId("schedule-filter-sheet")).toBeVisible();
 }
 
@@ -47,11 +47,10 @@ test.describe("Schedule filter sheet", () => {
     await page.goto(LIST_PATH);
 
     const dayGroup = page.getByRole("region", { name: /Jul 12/ });
-    await expect(
-      dayGroup.getByRole("button", { name: /Filters/ }),
-    ).toBeVisible();
+    const trigger = dayGroup.getByRole("button", { name: /Filters/ });
+    await expect(trigger).toBeVisible();
 
-    await openSheet(page);
+    await openSheet(page, trigger);
     await expect(
       page.getByTestId("schedule-filter-sheet").getByText("Filter schedule"),
     ).toBeVisible();
@@ -73,7 +72,7 @@ test.describe("Schedule filter sheet", () => {
       (el) => el.scrollLeft,
     );
 
-    await openSheet(page);
+    await openSheet(page, page.getByRole("button", { name: /Filters/ }));
     await page.getByTestId("day-filter-trigger").click();
     await page.getByRole("option", { name: /^Saturday$/ }).click();
     await page.getByTestId("schedule-filter-sheet").getByText("Done").click();
@@ -110,7 +109,7 @@ test.describe("Schedule filter sheet", () => {
 
     await expect(page.getByTestId("schedule-filters-badge")).toHaveText("2");
 
-    await openSheet(page);
+    await openSheet(page, page.getByRole("button", { name: /Filters/ }));
     await page.getByTestId("schedule-filters-clear").click();
 
     await expect(page.getByTestId("schedule-filters-badge")).toHaveCount(0);

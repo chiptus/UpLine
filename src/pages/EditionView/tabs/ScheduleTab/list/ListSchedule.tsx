@@ -37,7 +37,7 @@ export function ListSchedule() {
   const { data: stages } = useSuspenseQuery(stagesByEditionQuery(edition.id));
   const { user } = useAuth();
   const { data: userVotes } = useUserVotes(user?.id);
-  const { scheduleDays, loading, error } = useScheduleData({
+  const { scheduleDays } = useScheduleData({
     sets: editionSets,
     stages,
     timezone: festival.timezone,
@@ -139,18 +139,10 @@ export function ListSchedule() {
     festival.timezone,
   ]);
 
-  if (loading || setsLoading) {
+  if (setsLoading) {
     return (
       <div className="text-center text-purple-300 py-12">
         <p>Loading schedule...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center text-purple-300 py-12">
-        <p>Error loading schedule.</p>
       </div>
     );
   }

@@ -57,9 +57,6 @@ export function useScheduleData({
   use24Hour = false,
   timezone,
 }: UseScheduleDataOptions) {
-  const loading = false;
-  const error = null;
-
   const scheduleDays = useMemo(() => {
     if (!sets || !stages || !Array.isArray(sets) || sets.length === 0) {
       return [];
@@ -76,26 +73,32 @@ export function useScheduleData({
       });
 
     // Parse and enhance set data
-    const enhancedSets: EnhancedSet[] = performingSets.map(({ set, dayKey }) => {
-      const startTime = set.time_start ? new Date(set.time_start) : undefined;
-      const endTime = set.time_end ? new Date(set.time_end) : undefined;
+    const enhancedSets: EnhancedSet[] = performingSets.map(
+      ({ set, dayKey }) => {
+        const startTime = set.time_start ? new Date(set.time_start) : undefined;
+        const endTime = set.time_end ? new Date(set.time_end) : undefined;
 
-      return {
-        id: set.id,
-        name: set.name,
-        slug: set.slug,
-        stageId: set.stage_id || "",
-        startTime,
-        endTime,
-        votes: set.votes || [],
-        formattedTimeRange: formatDateTime(set.time_start, use24Hour, timezone),
-        dayKey,
-        artists: (set.artists || []).map((artist) => ({
-          id: artist.id,
-          name: artist.name,
-        })),
-      };
-    });
+        return {
+          id: set.id,
+          name: set.name,
+          slug: set.slug,
+          stageId: set.stage_id || "",
+          startTime,
+          endTime,
+          votes: set.votes || [],
+          formattedTimeRange: formatDateTime(
+            set.time_start,
+            use24Hour,
+            timezone,
+          ),
+          dayKey,
+          artists: (set.artists || []).map((artist) => ({
+            id: artist.id,
+            name: artist.name,
+          })),
+        };
+      },
+    );
 
     // Group sets by festival calendar day
     const dayGroups = enhancedSets.reduce(
@@ -175,7 +178,5 @@ export function useScheduleData({
   return {
     scheduleDays,
     allStages,
-    loading,
-    error,
   };
 }

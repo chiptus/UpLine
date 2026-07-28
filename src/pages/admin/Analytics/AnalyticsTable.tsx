@@ -1,5 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import {
   Table,
   TableBody,
@@ -16,93 +14,21 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Users, Vote } from "lucide-react";
-
-interface GroupAnalytics {
-  id: string;
-  name: string;
-  member_count: number;
-  created_at: string;
-}
-
-interface UserAnalytics {
-  id: string;
-  username: string | null;
-  email: string | null;
-  vote_count: number;
-  created_at: string;
-}
-
-async function fetchGroupAnalytics(): Promise<GroupAnalytics[]> {
-  const { data: groups, error: groupsError } = await supabase
-    .from("groups")
-    .select("id, name, created_at")
-    .eq("archived", false)
-    .order("created_at", { ascending: false });
-
-  if (groupsError) throw new Error("Failed to fetch groups");
-
-  // Get member counts for each group
-  const groupsWithCounts = await Promise.all(
-    (groups || []).map(async (group) => {
-      const { count } = await supabase
-        .from("group_members")
-        .select("*", { count: "exact", head: true })
-        .eq("group_id", group.id);
-
-      return {
-        ...group,
-        member_count: count || 0,
-      };
-    }),
-  );
-
-  return groupsWithCounts;
-}
-
-async function fetchUserAnalytics(): Promise<UserAnalytics[]> {
-  const { data: profiles, error: profilesError } = await supabase
-    .from("profiles")
-    .select("id, username, email, created_at")
-    .order("created_at", { ascending: false });
-
-  if (profilesError) throw new Error("Failed to fetch users");
-
-  // Get vote counts for each user
-  const usersWithCounts = await Promise.all(
-    (profiles || []).map(async (profile) => {
-      const { count } = await supabase
-        .from("votes")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", profile.id);
-
-      return {
-        ...profile,
-        vote_count: count || 0,
-      };
-    }),
-  );
-
-  return usersWithCounts;
-}
+import { useGroupAnalyticsQuery } from "@/api/analytics/useGroupAnalyticsQuery";
+import { useUserAnalyticsQuery } from "@/api/analytics/useUserAnalyticsQuery";
 
 export function AnalyticsTable() {
   const {
     data: groupAnalytics = [],
     isLoading: isLoadingGroups,
     error: groupsError,
-  } = useQuery({
-    queryKey: ["admin-analytics", "groups"],
-    queryFn: fetchGroupAnalytics,
-  });
+  } = useGroupAnalyticsQuery();
 
   const {
     data: userAnalytics = [],
     isLoading: isLoadingUsers,
     error: usersError,
-  } = useQuery({
-    queryKey: ["admin-analytics", "users"],
-    queryFn: fetchUserAnalytics,
-  });
+  } = useUserAnalyticsQuery();
 
   if (groupsError || usersError) {
     return (

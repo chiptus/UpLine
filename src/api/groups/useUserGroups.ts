@@ -67,8 +67,7 @@ async function fetchMemberCountsByGroupId(
     .in("group_id", groupIds);
 
   if (error) {
-    console.error("Error fetching group member counts:", error);
-    return memberCountsByGroupId;
+    throw new Error("Failed to fetch group member counts");
   }
 
   for (const member of members || []) {

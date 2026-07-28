@@ -10,9 +10,6 @@ test.describe("List view sticky day header", () => {
   }) => {
     await page.goto(LIST_PATH);
 
-    // Each festival day renders as an accessible region, labeled by its day
-    // name, with a heading hosting the sticky header content. Seeded across
-    // three festival days (Jul 12-14), so at least two are always present.
     const dayGroups = page.getByRole("region");
     await expect(dayGroups).toHaveCount(3);
 
@@ -22,10 +19,6 @@ test.describe("List view sticky day header", () => {
       (el) => el.getBoundingClientRect().top,
     );
 
-    // Scroll partway through the first day's section: the header must
-    // remain stuck at the same docked offset the whole way, not just for
-    // the first screen. Sub-pixel rounding can shift getBoundingClientRect
-    // by <1px across scroll events, so allow a small tolerance.
     await page.mouse.wheel(0, 600);
     await expect
       .poll(async () =>
@@ -34,8 +27,6 @@ test.describe("List view sticky day header", () => {
       .toBeCloseTo(topBefore, 0);
     await expect(firstHeading).toHaveText(firstHeadingText);
 
-    // Scroll to the very end of the first day's section: the next day's
-    // header takes over, docked at the same offset.
     const firstGroupBox = await dayGroups.nth(0).boundingBox();
     expect(firstGroupBox).not.toBeNull();
     await page.mouse.wheel(0, (firstGroupBox?.height ?? 0) + 800);

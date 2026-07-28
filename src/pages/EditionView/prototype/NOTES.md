@@ -68,5 +68,19 @@ Tailwind utility classes (`purple-200`, `bg-white/10`, …), not theme
 tokens, so a re-skin needs a tokenization pass first — do it after the
 structural verdict, not inside this prototype.
 
-**Verdict:** _pending — fill in the winning variant (or mix) before
-deleting this folder._
+**Verdict:** `autohide` wins on chrome — content-first base (no boxed phase
+banner, no timezone bar, unboxed timeline, sticky timeline header strip,
+day-spanning sticky list headers with the embedded Filters trigger),
+top-level segmented Now/Timeline/List switcher that scrolls away with the
+content, and the mobile bottom tab bar auto-hiding on scroll everywhere.
+
+The identity-row axis was amended post-verdict during implementation
+(#232, PR #239): a permanent slim identity row read as empty on desktop,
+so the on-load state keeps the `collapse` variant's **hero** (centered
+logo + name + Live indicator) instead, with the scroll-based mechanism now
+swapping it for the compact top-bar identity once the hero scrolls past —
+see the amendment comment on #231.
+
+Folded into main via #231 (implementation tickets #232, #234, #235, #236,
+landed as PRs #239, #241, #243, #250). This prototype folder is deleted as
+part of that work; this draft PR (#216) is closed, not merged.

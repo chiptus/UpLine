@@ -1,4 +1,4 @@
-import { queryOptions, useQuery } from "@tanstack/react-query";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Festival, festivalsKeys } from "./types";
 import { isTimeoutError, withTimeout } from "@/lib/timeout";
@@ -41,5 +41,5 @@ export function festivalsQuery({
 }
 
 export function useFestivalsQuery({ all }: { all?: boolean } = {}) {
-  return useQuery(festivalsQuery({ all }));
+  return useSuspenseQuery(festivalsQuery({ all }));
 }

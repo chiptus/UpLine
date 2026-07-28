@@ -1,10 +1,16 @@
+import { useMemo } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { FilterSortControls } from "./filters/FilterSortControls";
 import { useSetFiltering } from "./useSetFiltering";
-import { useUrlState } from "@/hooks/useUrlState";
+import { useUrlState, type FilterSortState } from "@/hooks/useUrlState";
 import { SetsPanel } from "./SetsPanel";
 import { useSetsByEditionQuery } from "@/api/sets/useSetsByEdition";
+import { groupMembersQuery } from "@/api/groups/useGroupMembers";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { PageTitle } from "@/components/PageTitle/PageTitle";
+import type { FestivalSet } from "@/api/sets/types";
+
+const EMPTY_GROUP_MEMBER_IDS = new Set<string>();
 
 export function ArtistsTab() {
   const { state: urlState, updateUrlState, clearFilters } = useUrlState();
@@ -13,10 +19,6 @@ export function ArtistsTab() {
   // Fetch sets for the current edition
   const { data: sets = [], isLoading: setsLoading } = useSetsByEditionQuery(
     edition?.id,
-  );
-  const { filteredAndSortedSets, lockCurrentOrder } = useSetFiltering(
-    sets || [],
-    urlState,
   );
 
   if (setsLoading) {
@@ -42,13 +44,91 @@ export function ArtistsTab() {
         />
 
         <div className="mt-8">
-          <SetsPanel
-            sets={filteredAndSortedSets}
-            use24Hour={urlState.use24Hour}
-            onLockSort={() => lockCurrentOrder(updateUrlState)}
+          <FilteredSetsPanel
+            sets={sets}
+            urlState={urlState}
+            updateUrlState={updateUrlState}
           />
         </div>
       </div>
     </>
+  );
+}
+
+interface FilteredSetsPanelProps {
+  sets: FestivalSet[];
+  urlState: FilterSortState;
+  updateUrlState: (updates: Partial<FilterSortState>) => void;
+}
+
+// Gates whether the group-members query is mounted at all, so selecting a
+// group filter for the first time suspends this section rather than
+// requiring a separate loading state.
+function FilteredSetsPanel({
+  sets,
+  urlState,
+  updateUrlState,
+}: FilteredSetsPanelProps) {
+  if (urlState.groupId) {
+    return (
+      <GroupFilteredSetsPanel
+        sets={sets}
+        urlState={urlState}
+        updateUrlState={updateUrlState}
+        groupId={urlState.groupId}
+      />
+    );
+  }
+
+  return (
+    <SetsPanelContent
+      sets={sets}
+      urlState={urlState}
+      updateUrlState={updateUrlState}
+      groupMemberIds={EMPTY_GROUP_MEMBER_IDS}
+    />
+  );
+}
+
+function GroupFilteredSetsPanel({
+  sets,
+  urlState,
+  updateUrlState,
+  groupId,
+}: FilteredSetsPanelProps & { groupId: string }) {
+  const { data: members } = useSuspenseQuery(groupMembersQuery(groupId));
+  const groupMemberIds = useMemo(
+    () => new Set(members.map((member) => member.id)),
+    [members],
+  );
+
+  return (
+    <SetsPanelContent
+      sets={sets}
+      urlState={urlState}
+      updateUrlState={updateUrlState}
+      groupMemberIds={groupMemberIds}
+    />
+  );
+}
+
+function SetsPanelContent({
+  sets,
+  urlState,
+  updateUrlState,
+  groupMemberIds,
+}: FilteredSetsPanelProps & { groupMemberIds: Set<string> }) {
+  const { filteredAndSortedSets, lockCurrentOrder } = useSetFiltering(
+    sets,
+    urlState,
+    groupMemberIds,
+  );
+
+  return (
+    <SetsPanel
+      sets={filteredAndSortedSets}
+      use24Hour={urlState.use24Hour}
+      onLockSort={() => lockCurrentOrder(updateUrlState)}
+    />
   );
 }

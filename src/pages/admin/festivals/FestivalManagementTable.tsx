@@ -10,8 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Edit2, Trash2, Image as ImageIcon } from "lucide-react";
+import { Edit2, Trash2, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FestivalLogoDialog } from "./FestivalLogoDialog";
 import { useState } from "react";
@@ -25,12 +24,7 @@ export function FestivalManagementTable({
   onSelect: (festival: Festival) => void;
   selected: string;
 }) {
-  const {
-    data: festivals = [],
-    isLoading,
-    isError,
-    refetch,
-  } = useFestivalsQuery({ all: true });
+  const { data: festivals } = useFestivalsQuery({ all: true });
   const deleteFestivalMutation = useDeleteFestivalMutation();
 
   const [logoDialogOpen, setLogoDialogOpen] = useState(false);
@@ -52,38 +46,6 @@ export function FestivalManagementTable({
   function handleLogoManagement(festival: Festival) {
     setSelectedFestivalForLogo(festival);
     setLogoDialogOpen(true);
-  }
-
-  if (isLoading) {
-    return (
-      <Card>
-        <CardContent className="flex items-center justify-center p-8">
-          <Loader2 className="h-6 w-6 animate-spin mr-2" />
-          <span>Loading festivals...</span>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (isError) {
-    return (
-      <Card>
-        <CardContent className="flex flex-col items-center justify-center p-8 gap-4">
-          <div className="text-center">
-            <p className="text-red-600 font-medium mb-2">
-              Error Loading Festivals
-            </p>
-            <p className="text-sm text-gray-600">
-              There was an error loading the festivals. Please check your
-              connection and try again.
-            </p>
-          </div>
-          <Button onClick={() => refetch()} variant="outline">
-            Retry
-          </Button>
-        </CardContent>
-      </Card>
-    );
   }
 
   return (

@@ -25,6 +25,7 @@ import { z } from "zod";
 import type { QueryClient } from "@tanstack/react-query";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { userGroupsQuery } from "@/api/groups/useUserGroups";
 
 const rootSearchSchema = z.object({
   invite: z.string().optional(),
@@ -43,6 +44,13 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       data: { session },
     } = await supabase.auth.getSession();
     return { user: session?.user ?? null };
+  },
+  loader: async ({ context }) => {
+    if (context.user) {
+      void context.queryClient.ensureQueryData(
+        userGroupsQuery(context.user.id, { all: false }),
+      );
+    }
   },
 });
 

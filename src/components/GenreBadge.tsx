@@ -7,9 +7,7 @@ interface GenreBadgeProps {
 }
 
 export function GenreBadge({ genreId, size = "default" }: GenreBadgeProps) {
-  const { data: genres = [], isLoading, error } = useGenresQuery();
-
-  if (isLoading || error) return null;
+  const { data: genres } = useGenresQuery();
 
   const genre = genres.find((g) => g.id === genreId);
   if (!genre) return null;

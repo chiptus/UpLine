@@ -21,7 +21,22 @@ interface SetGroupVotingProps {
 
 export function SetGroupVoting({ setId: artistId }: SetGroupVotingProps) {
   const { user } = useAuth();
-  const { data: groups = [] } = useUserGroupsQuery(user?.id);
+
+  if (!user) {
+    return null;
+  }
+
+  return <SetGroupVotingContent artistId={artistId} userId={user.id} />;
+}
+
+function SetGroupVotingContent({
+  artistId,
+  userId,
+}: {
+  artistId: string;
+  userId: string;
+}) {
+  const { data: groups } = useUserGroupsQuery(userId);
   const [selectedGroupId, setSelectedGroupId] = useState<string>("");
 
   // Set default group when groups load
@@ -38,7 +53,7 @@ export function SetGroupVoting({ setId: artistId }: SetGroupVotingProps) {
   );
 
   // Don't show if user has no groups
-  if (!user || groups.length === 0) {
+  if (groups.length === 0) {
     return null;
   }
 

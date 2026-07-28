@@ -62,7 +62,7 @@ export function AddArtistDialog({
   const [logoFile, setLogoFile] = useState<File | null>(null);
 
   // React Query hooks
-  const { data: genres = [], isLoading: isLoadingGenres } = useGenresQuery();
+  const { data: genres } = useGenresQuery();
   const createArtistMutation = useCreateArtistMutation();
   const updateArtistMutation = useUpdateArtistMutation();
 
@@ -185,12 +185,7 @@ export function AddArtistDialog({
                       genres={genres}
                       value={field.value || []}
                       onValueChange={field.onChange}
-                      placeholder={
-                        isLoadingGenres
-                          ? "Loading genres..."
-                          : "Select genres..."
-                      }
-                      disabled={isLoadingGenres}
+                      placeholder="Select genres..."
                     />
                   </FormControl>
                   <FormMessage />
@@ -264,9 +259,7 @@ export function AddArtistDialog({
               type="submit"
               className="w-full"
               disabled={
-                createArtistMutation.isPending ||
-                updateArtistMutation.isPending ||
-                isLoadingGenres
+                createArtistMutation.isPending || updateArtistMutation.isPending
               }
             >
               {createArtistMutation.isPending || updateArtistMutation.isPending

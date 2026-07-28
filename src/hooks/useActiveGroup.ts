@@ -8,13 +8,14 @@ interface ActiveGroupState {
   activeGroup: Group | undefined;
   groups: Group[];
   hasGroups: boolean;
-  isLoading: boolean;
 }
 
-export function useActiveGroup(): ActiveGroupState {
-  const { user, profile } = useAuth();
-  const groupsQuery = useUserGroupsQuery(user?.id);
-  const groups = groupsQuery.data ?? [];
+// Only call for a signed-in user - callers should gate rendering on that
+// rather than passing an optional userId, since this suspends until data
+// resolves.
+export function useActiveGroup(userId: string): ActiveGroupState {
+  const { profile } = useAuth();
+  const { data: groups } = useUserGroupsQuery(userId);
 
   const activeGroupId = resolveActiveGroupId({
     profileActiveGroupId: profile?.active_group_id,
@@ -26,6 +27,5 @@ export function useActiveGroup(): ActiveGroupState {
     activeGroup: groups.find((group) => group.id === activeGroupId),
     groups,
     hasGroups: groups.length > 0,
-    isLoading: groupsQuery.isLoading,
   };
 }

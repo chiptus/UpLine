@@ -6,6 +6,7 @@ import {
 } from "@/lib/searchSchemas";
 import { setBySlugQuery } from "@/api/sets/useSetBySlug";
 import { artistNotesQuery } from "@/api/artist-notes/useArtistNotes";
+import { genresQuery } from "@/api/genres/useGenres";
 
 export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug",
@@ -16,6 +17,7 @@ export const Route = createFileRoute(
     middlewares: [stripSearchParams(filterSortSearchDefaults)],
   },
   loader: async ({ params, context }) => {
+    void context.queryClient.ensureQueryData(genresQuery());
     const set = await context.queryClient.ensureQueryData(
       setBySlugQuery(params.setSlug, context.edition.id),
     );

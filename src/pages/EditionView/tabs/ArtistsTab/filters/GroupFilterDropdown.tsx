@@ -19,13 +19,32 @@ export function GroupFilterDropdown({
   onGroupChange,
 }: GroupFilterDropdownProps) {
   const { user } = useAuth();
-  const { data: groups = [] } = useUserGroupsQuery(user?.id);
+
+  if (!user) {
+    return null;
+  }
+
+  return (
+    <GroupFilterDropdownContent
+      userId={user.id}
+      selectedGroupId={selectedGroupId}
+      onGroupChange={onGroupChange}
+    />
+  );
+}
+
+function GroupFilterDropdownContent({
+  userId,
+  selectedGroupId,
+  onGroupChange,
+}: GroupFilterDropdownProps & { userId: string }) {
+  const { data: groups } = useUserGroupsQuery(userId);
 
   const hasActiveGroupFilter = selectedGroupId;
   const currentGroup = groups.find((g) => g.id === selectedGroupId);
   const groupDisplayText = currentGroup ? currentGroup.name : "All Votes";
 
-  if (!user || groups.length === 0) {
+  if (groups.length === 0) {
     return null;
   }
 

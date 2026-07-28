@@ -6,8 +6,11 @@ const TIMELINE_PATH = "/festivals/test/editions/2025/schedule/timeline";
 const LIST_PATH = "/festivals/test/editions/2025/schedule/list";
 const MAIN_STAGE_ID = "11111111-1111-1111-1111-11111111111a";
 
-async function openSheet(page: import("@playwright/test").Page) {
-  await page.getByTestId("schedule-filters-trigger").click();
+async function openSheet(
+  page: import("@playwright/test").Page,
+  trigger: import("@playwright/test").Locator,
+) {
+  await trigger.click();
   await expect(page.getByTestId("schedule-filter-sheet")).toBeVisible();
 }
 
@@ -38,17 +41,16 @@ test.describe("Schedule filter sheet", () => {
     ).toBeVisible();
   });
 
-  test("opens from the List view's filter row into the same sheet", async ({
+  test("opens from the List view's sticky day header into the same sheet", async ({
     page,
   }) => {
     await page.goto(LIST_PATH);
 
-    const listSchedule = page.getByTestId("list-schedule");
-    if (!(await listSchedule.isVisible().catch(() => false))) {
-      test.skip(true, "Schedule not revealed in this environment");
-    }
+    const dayGroup = page.getByRole("region", { name: /Jul 12/ });
+    const trigger = dayGroup.getByRole("button", { name: /Filters/ });
+    await expect(trigger).toBeVisible();
 
-    await openSheet(page);
+    await openSheet(page, trigger);
     await expect(
       page.getByTestId("schedule-filter-sheet").getByText("Filter schedule"),
     ).toBeVisible();
@@ -70,7 +72,7 @@ test.describe("Schedule filter sheet", () => {
       (el) => el.scrollLeft,
     );
 
-    await openSheet(page);
+    await openSheet(page, page.getByRole("button", { name: /Filters/ }));
     await page.getByTestId("day-filter-trigger").click();
     await page.getByRole("option", { name: /^Saturday$/ }).click();
     await page.getByTestId("schedule-filter-sheet").getByText("Done").click();
@@ -107,7 +109,7 @@ test.describe("Schedule filter sheet", () => {
 
     await expect(page.getByTestId("schedule-filters-badge")).toHaveText("2");
 
-    await openSheet(page);
+    await openSheet(page, page.getByRole("button", { name: /Filters/ }));
     await page.getByTestId("schedule-filters-clear").click();
 
     await expect(page.getByTestId("schedule-filters-badge")).toHaveCount(0);

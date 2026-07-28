@@ -6,7 +6,8 @@ import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { useSetsByEditionQuery as useEditionSetsQuery } from "@/api/sets/useSetsByEdition";
 import { getFestivalDayKey } from "@/lib/timeUtils";
 import { filterScheduleDays } from "@/lib/scheduleFilter";
-import { TimeSlotGroup } from "./TimeSlotGroup";
+import { ListDayGroup } from "./ListDayGroup";
+import { ScheduleFilterSheet } from "../ScheduleFilterSheet";
 import type { ScheduleSet } from "@/hooks/useScheduleData";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
@@ -18,6 +19,11 @@ import { useUserVotes } from "@/api/voting/useUserVotes";
 interface TimeSlot {
   time: Date;
   sets: (ScheduleSet & { stageName: string; stageColor?: string })[];
+}
+
+interface DayGroup {
+  dayKey: string;
+  slots: TimeSlot[];
 }
 
 export function ListSchedule() {
@@ -43,7 +49,7 @@ export function ListSchedule() {
     votes: selectedVotes,
   } = useTimelineUrlState("list");
 
-  const timeSlots = useMemo(() => {
+  const dayGroups = useMemo(() => {
     if (!scheduleDays.length) return [];
 
     const filteredScheduleDays = filterScheduleDays(
@@ -106,7 +112,22 @@ export function ListSchedule() {
       }))
       .sort((a, b) => a.time.getTime() - b.time.getTime());
 
-    return slots;
+    const groups = new Map<string, TimeSlot[]>();
+    slots.forEach((slot) => {
+      const dayKey = getFestivalDayKey(
+        slot.time.toISOString(),
+        festival.timezone,
+      );
+      if (!dayKey) return;
+      if (!groups.has(dayKey)) groups.set(dayKey, []);
+      groups.get(dayKey)!.push(slot);
+    });
+
+    const sortedDayGroups: DayGroup[] = Array.from(groups.entries())
+      .map(([dayKey, daySlots]) => ({ dayKey, slots: daySlots }))
+      .sort((a, b) => a.dayKey.localeCompare(b.dayKey));
+
+    return sortedDayGroups;
   }, [
     scheduleDays,
     selectedDay,
@@ -138,32 +159,27 @@ export function ListSchedule() {
     return <ScheduleNotRevealedPlaceholder />;
   }
 
-  if (!timeSlots.length) {
+  if (!dayGroups.length) {
     return (
       <div className="text-center text-purple-300 py-12">
         <p>No scheduled sets found.</p>
+        <div className="mt-4 flex justify-center">
+          <ScheduleFilterSheet tab="list" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6" data-testid="list-schedule">
-      {timeSlots.map((slot, index) => {
-        const prevSlot = index > 0 ? timeSlots[index - 1] : null;
-        const showDateHeader =
-          !prevSlot ||
-          getFestivalDayKey(slot.time.toISOString(), festival.timezone) !==
-            getFestivalDayKey(prevSlot.time.toISOString(), festival.timezone);
-
-        return (
-          <TimeSlotGroup
-            key={slot.time.toISOString()}
-            timeSlot={slot}
-            timezone={festival.timezone}
-            showDateHeader={showDateHeader}
-          />
-        );
-      })}
+    <div className="space-y-8" data-testid="list-schedule">
+      {dayGroups.map((day) => (
+        <ListDayGroup
+          key={day.dayKey}
+          dayKey={day.dayKey}
+          slots={day.slots}
+          timezone={festival.timezone}
+        />
+      ))}
     </div>
   );
 }

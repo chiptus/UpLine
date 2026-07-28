@@ -57,6 +57,11 @@ export function ScheduleFilterSheet({ tab }: ScheduleFilterSheetProps) {
           variant="ghost"
           size="sm"
           data-testid="schedule-filters-trigger"
+          aria-label={
+            hasActiveFilters
+              ? `Filters (${activeFilterCount} active)`
+              : "Filters"
+          }
           className={
             hasActiveFilters
               ? "flex items-center gap-2 bg-purple-600/50 text-purple-100 hover:bg-purple-600/60"

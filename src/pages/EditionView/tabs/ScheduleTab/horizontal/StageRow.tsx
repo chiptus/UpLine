@@ -30,7 +30,7 @@ export function StageRow({ stage, totalWidth, timezone }: StageRowProps) {
               key={set.id}
               className="absolute h-16"
               style={{
-                left: `${set.horizontalPosition.left + 20}px`,
+                left: `${set.horizontalPosition.left}px`,
                 width: `${set.horizontalPosition.width - 4}px`, // Reduce width by 4px for spacing
               }}
             >

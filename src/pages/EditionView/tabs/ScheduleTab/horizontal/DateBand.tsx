@@ -1,6 +1,9 @@
 import { formatInTimeZone } from "date-fns-tz";
-import { DAY_GAP_PX, type DateLabelGeometry } from "./timeScaleGeometry";
-import type { DateChange } from "./timeScaleGeometry";
+import {
+  DAY_GAP_PX,
+  type DateChange,
+  type DateLabelGeometry,
+} from "./timeScaleGeometry";
 
 const dateFormat = "MMMM d";
 

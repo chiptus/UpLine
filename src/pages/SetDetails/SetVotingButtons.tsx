@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { FestivalSet } from "@/api/sets/types";
-import { useUserVotes } from "@/api/voting/useUserVotes";
-import { useVote } from "@/api/voting/useVote";
+import { useUserVotesQuery } from "@/api/voting/useUserVotesQuery";
+import { useVoteMutation } from "@/api/voting/useVoteMutation";
 import { useVoteCount } from "@/hooks/useVoteCount";
 import { VOTE_CONFIG, getVoteConfig } from "@/lib/voteConfig";
 
@@ -13,8 +13,8 @@ interface SetVotingButtonsProps {
 export function SetVotingButtons({ set }: SetVotingButtonsProps) {
   const { user, showAuthDialog } = useAuth();
   const { getVoteCount } = useVoteCount(set);
-  const userVotesQuery = useUserVotes(user?.id);
-  const voteMutation = useVote();
+  const userVotesQuery = useUserVotesQuery(user?.id);
+  const voteMutation = useVoteMutation();
 
   const setId = set.id;
   const userVoteForSet = userVotesQuery.data?.[setId];

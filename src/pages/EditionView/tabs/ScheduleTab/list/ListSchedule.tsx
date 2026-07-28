@@ -14,7 +14,7 @@ import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 import { ScheduleNotRevealedPlaceholder } from "../ScheduleNotRevealedPlaceholder";
 import { useAuth } from "@/contexts/AuthContext";
-import { useUserVotes } from "@/api/voting/useUserVotes";
+import { useUserVotesQuery } from "@/api/voting/useUserVotesQuery";
 
 interface TimeSlot {
   time: Date;
@@ -36,7 +36,7 @@ export function ListSchedule() {
     useEditionSetsQuery(edition.id);
   const { data: stages } = useSuspenseQuery(stagesByEditionQuery(edition.id));
   const { user } = useAuth();
-  const { data: userVotes } = useUserVotes(user?.id);
+  const { data: userVotes } = useUserVotesQuery(user?.id);
   const { scheduleDays } = useScheduleData({
     sets: editionSets,
     stages,

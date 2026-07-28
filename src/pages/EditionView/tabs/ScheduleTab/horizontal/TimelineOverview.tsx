@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import type { RefObject } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useUserVotes } from "@/api/voting/useUserVotes";
+import { useUserVotesQuery } from "@/api/voting/useUserVotesQuery";
 import { offsetToTime } from "@/lib/timelineCalculator";
 import type { TimelineData } from "@/lib/timelineCalculator";
 import type { ScheduleDay } from "@/hooks/useScheduleData";
@@ -45,7 +45,7 @@ export function TimelineOverview({
 }: TimelineOverviewProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
-  const { data: userVotes } = useUserVotes(user?.id);
+  const { data: userVotes } = useUserVotesQuery(user?.id);
 
   const viewportSize = useTimelineViewportSize(scrollContainerRef);
 
@@ -126,7 +126,10 @@ export function TimelineOverview({
     if (rect.width <= 0) return;
 
     const fraction = (event.clientX - rect.left) / rect.width;
-    const offset = fractionToOffset({ fraction, totalWidth: timelineData.totalWidth });
+    const offset = fractionToOffset({
+      fraction,
+      totalWidth: timelineData.totalWidth,
+    });
     onJump(offsetToTime(offset, timelineData.festivalStart));
   }
 }

@@ -9,8 +9,8 @@ import { cn } from "@/lib/utils";
 import type { ScheduleSet } from "@/hooks/useScheduleData";
 import { useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useUserVotes } from "@/api/voting/useUserVotes";
-import { useVote } from "@/api/voting/useVote";
+import { useUserVotesQuery } from "@/api/voting/useUserVotesQuery";
+import { useVoteMutation } from "@/api/voting/useVoteMutation";
 
 interface VoteButtonsProps {
   set: ScheduleSet;
@@ -18,8 +18,8 @@ interface VoteButtonsProps {
 
 export function VoteButtons({ set }: VoteButtonsProps) {
   const { user, showAuthDialog } = useAuth();
-  const userVotesQuery = useUserVotes(user?.id);
-  const voteMutation = useVote();
+  const userVotesQuery = useUserVotesQuery(user?.id);
+  const voteMutation = useVoteMutation();
 
   const userVote = userVotesQuery.data?.[set.id];
   const userVoteType = useMemo(() => {

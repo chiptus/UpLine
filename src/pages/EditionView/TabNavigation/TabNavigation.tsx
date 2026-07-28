@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { festivalInfoQuery } from "@/api/festival-info/useFestivalInfo";
+import { customLinksQuery } from "@/api/custom-links/useCustomLinks";
 import { useFestivalPhase } from "@/hooks/useFestivalPhase";
 import { DesktopTabButton } from "./DesktopTabButton";
 import { MobileTabButton } from "./MobileTabButton";
@@ -20,6 +21,7 @@ export function MainTabNavigation() {
   const { data: festivalInfo } = useSuspenseQuery(
     festivalInfoQuery(festival.id),
   );
+  const { data: customLinks } = useSuspenseQuery(customLinksQuery(festival.id));
   const { phase } = useFestivalPhase();
   const hideBottomBar = useHideOnScrollDown();
 
@@ -28,7 +30,7 @@ export function MainTabNavigation() {
       if (typeof config.enabled === "boolean") {
         return config.enabled;
       }
-      return config.enabled(festivalInfo);
+      return config.enabled({ festivalInfo, customLinks });
     })
     .map((config) => {
       if (config.key !== "sets") return config;

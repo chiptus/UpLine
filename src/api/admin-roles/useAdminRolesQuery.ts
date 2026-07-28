@@ -18,24 +18,25 @@ async function fetchAdminRoles(): Promise<AdminRole[]> {
 
   if (error) throw error;
 
-  if (roles) {
-    // Fetch profile information for each admin
-    const rolesWithProfiles = await Promise.all(
-      roles.map(async (role) => {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("username, email")
-          .eq("id", role.user_id)
-          .single();
+  if (roles && roles.length > 0) {
+    // Fetch profile information for all admins in a single query
+    const userIds = roles.map((role) => role.user_id);
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, username, email")
+      .in("id", userIds);
 
-        return {
-          ...role,
-          profile: profile || { username: null, email: null },
-        };
-      }),
+    const profilesByUserId = new Map(
+      (profiles || []).map((profile) => [profile.id, profile]),
     );
 
-    return rolesWithProfiles;
+    return roles.map((role) => ({
+      ...role,
+      profile: profilesByUserId.get(role.user_id) || {
+        username: null,
+        email: null,
+      },
+    }));
   }
 
   return [];

@@ -41,21 +41,44 @@ async function addMemberCounts(
   userGroupIds: string[],
   isUserGroupsOnly: boolean = false,
 ): Promise<Group[]> {
-  return await Promise.all(
-    groups.map(async (group) => {
-      const { count } = await supabase
-        .from("group_members")
-        .select("*", { count: "exact", head: true })
-        .eq("group_id", group.id);
+  const groupIds = groups.map((group) => group.id);
+  const memberCountsByGroupId = await fetchMemberCountsByGroupId(groupIds);
 
-      return {
-        ...group,
-        member_count: count || 0,
-        is_creator: group.created_by === userId,
-        is_member: isUserGroupsOnly ? true : userGroupIds.includes(group.id),
-      };
-    }),
-  );
+  return groups.map((group) => ({
+    ...group,
+    member_count: memberCountsByGroupId.get(group.id) || 0,
+    is_creator: group.created_by === userId,
+    is_member: isUserGroupsOnly ? true : userGroupIds.includes(group.id),
+  }));
+}
+
+async function fetchMemberCountsByGroupId(
+  groupIds: string[],
+): Promise<Map<string, number>> {
+  const memberCountsByGroupId = new Map<string, number>();
+
+  if (groupIds.length === 0) {
+    return memberCountsByGroupId;
+  }
+
+  const { data: members, error } = await supabase
+    .from("group_members")
+    .select("group_id")
+    .in("group_id", groupIds);
+
+  if (error) {
+    console.error("Error fetching group member counts:", error);
+    return memberCountsByGroupId;
+  }
+
+  for (const member of members || []) {
+    memberCountsByGroupId.set(
+      member.group_id,
+      (memberCountsByGroupId.get(member.group_id) || 0) + 1,
+    );
+  }
+
+  return memberCountsByGroupId;
 }
 
 // Fetch groups from database

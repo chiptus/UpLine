@@ -10,23 +10,29 @@ async function fetchUserAnalytics(): Promise<UserAnalytics[]> {
 
   if (profilesError) throw new Error("Failed to fetch users");
 
-  const usersWithCounts = await Promise.all(
-    (profiles || []).map(async (profile) => {
-      const { count, error: countError } = await supabase
-        .from("votes")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", profile.id);
+  const userIds = (profiles || []).map((profile) => profile.id);
+  const voteCountsByUserId = new Map<string, number>();
 
-      if (countError) throw new Error("Failed to fetch user vote count");
+  if (userIds.length > 0) {
+    const { data: votes, error: votesError } = await supabase
+      .from("votes")
+      .select("user_id")
+      .in("user_id", userIds);
 
-      return {
-        ...profile,
-        vote_count: count || 0,
-      };
-    }),
-  );
+    if (votesError) throw new Error("Failed to fetch vote counts");
 
-  return usersWithCounts;
+    for (const vote of votes || []) {
+      voteCountsByUserId.set(
+        vote.user_id,
+        (voteCountsByUserId.get(vote.user_id) || 0) + 1,
+      );
+    }
+  }
+
+  return (profiles || []).map((profile) => ({
+    ...profile,
+    vote_count: voteCountsByUserId.get(profile.id) || 0,
+  }));
 }
 
 export function userAnalyticsQuery() {

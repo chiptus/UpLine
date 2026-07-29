@@ -3,12 +3,11 @@ import {
   calculateScheduleWindow,
   calculateTimelineData,
   offsetToTime,
+  PX_PER_MINUTE,
   timeToOffset,
 } from "./timelineCalculator";
 import type { ScheduleDay, ScheduleSet } from "@/hooks/useScheduleData";
 import { makeScheduleDay, makeStage } from "@/__tests__/fixtures";
-
-const PX_PER_MINUTE = 2;
 
 describe("timeToOffset", () => {
   it("returns 0 when moment equals origin", () => {
@@ -45,9 +44,7 @@ describe("offsetToTime", () => {
     const origin = new Date("2024-07-01T10:00:00Z");
     const offset = 60 * PX_PER_MINUTE; // 60 minutes
     const result = offsetToTime(offset, origin);
-    expect(result.getTime()).toBe(
-      origin.getTime() + 60 * 60 * 1000,
-    );
+    expect(result.getTime()).toBe(origin.getTime() + 60 * 60 * 1000);
   });
 
   it("is the inverse of timeToOffset for whole-minute moments", () => {
@@ -149,9 +146,7 @@ describe("calculateScheduleWindow", () => {
 
 describe("calculateTimelineData", () => {
   it("returns null when there are no schedule days", () => {
-    expect(
-      calculateTimelineData(new Date(), new Date(), [], []),
-    ).toBeNull();
+    expect(calculateTimelineData(new Date(), new Date(), [], [])).toBeNull();
   });
 
   it("returns null when festival dates are missing", () => {
@@ -232,10 +227,12 @@ describe("calculateTimelineData", () => {
       new Date("2024-07-01T11:59:59.999Z").getTime(),
     );
     // totalWidth spans the full rounded-up hour boundary (2 hours from 10:00 to 12:00)
-    expect(data!.totalWidth).toBe(timeToOffset(
-      new Date("2024-07-01T12:00:00Z"),
-      new Date("2024-07-01T10:00:00Z"),
-    ));
+    expect(data!.totalWidth).toBe(
+      timeToOffset(
+        new Date("2024-07-01T12:00:00Z"),
+        new Date("2024-07-01T10:00:00Z"),
+      ),
+    );
   });
 
   it("applies the 100px minimum width to short sets without affecting the scale", () => {
@@ -303,9 +300,7 @@ describe("calculateTimelineData", () => {
     );
 
     const lastSlot = data!.timeSlots[data!.timeSlots.length - 1];
-    expect(timeToOffset(lastSlot, data!.festivalStart)).toBe(
-      data!.totalWidth,
-    );
+    expect(timeToOffset(lastSlot, data!.festivalStart)).toBe(data!.totalWidth);
   });
 });
 
@@ -362,4 +357,3 @@ function makeDays(): ScheduleDay[] {
     ]),
   ];
 }
-

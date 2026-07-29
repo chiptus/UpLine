@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PX_PER_HOUR } from "@/lib/timelineCalculator";
+import { PX_PER_MINUTE } from "@/lib/timelineCalculator";
 import {
   computeDateChanges,
   computeDateLabelGeometry,
@@ -9,7 +9,7 @@ import {
 } from "./timeScaleGeometry";
 
 const timezone = "UTC";
-const ONE_DAY_PX = 24 * PX_PER_HOUR;
+const ONE_DAY_PX = 24 * 60 * PX_PER_MINUTE;
 
 describe("computeDateChanges", () => {
   it("returns a single entry at position 0 for a single-day slot list", () => {

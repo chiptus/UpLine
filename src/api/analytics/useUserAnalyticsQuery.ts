@@ -1,4 +1,4 @@
-import { queryOptions, useQuery } from "@tanstack/react-query";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { analyticsQueries, type UserAnalytics } from "./types";
 
@@ -37,5 +37,5 @@ export function userAnalyticsQuery() {
 }
 
 export function useUserAnalyticsQuery() {
-  return useQuery(userAnalyticsQuery());
+  return useSuspenseQuery(userAnalyticsQuery());
 }

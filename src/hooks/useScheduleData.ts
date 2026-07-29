@@ -57,9 +57,6 @@ export function useScheduleData({
   use24Hour = false,
   timezone,
 }: UseScheduleDataOptions) {
-  const loading = false;
-  const error = null;
-
   const scheduleDays = useMemo(() => {
     if (!sets || !stages || !Array.isArray(sets) || sets.length === 0) {
       return [];
@@ -180,7 +177,5 @@ export function useScheduleData({
   return {
     scheduleDays,
     allStages,
-    loading,
-    error,
   };
 }

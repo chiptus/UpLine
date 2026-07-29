@@ -1,4 +1,4 @@
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Group } from "./types";
 import { groupsKeys } from "./types";
@@ -124,14 +124,4 @@ export function userGroupsQuery(
     queryKey: groupsKeys.user(userId, params),
     queryFn: () => fetchUserGroups(userId, params),
   });
-}
-
-// Only call with a known userId - callers should gate rendering on the user
-// being signed in rather than passing it as optional, since this suspends
-// until data resolves.
-export function useUserGroupsQuery(
-  userId: string,
-  params: { all?: boolean } = {},
-) {
-  return useSuspenseQuery(userGroupsQuery(userId, params));
 }

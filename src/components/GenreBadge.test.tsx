@@ -1,14 +1,17 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
+import * as reactQuery from "@tanstack/react-query";
 import type { UseSuspenseQueryResult } from "@tanstack/react-query";
 import { GenreBadge } from "./GenreBadge";
-import * as useGenresModule from "@/api/genres/useGenres";
 import type { Genre } from "@/api/genres/types";
 
-vi.mock("@/api/genres/useGenres");
+vi.mock("@tanstack/react-query", async (importOriginal) => ({
+  ...(await importOriginal<typeof reactQuery>()),
+  useSuspenseQuery: vi.fn(),
+}));
 
 function mockGenresQuery(data: Genre[]) {
-  vi.spyOn(useGenresModule, "useGenresQuery").mockReturnValue({
+  vi.mocked(reactQuery.useSuspenseQuery).mockReturnValue({
     data,
   } as unknown as UseSuspenseQueryResult<Genre[], Error>);
 }

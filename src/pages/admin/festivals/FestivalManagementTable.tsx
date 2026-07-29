@@ -1,4 +1,5 @@
-import { useFestivalsQuery } from "@/api/festivals/useFestivals";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { festivalsQuery } from "@/api/festivals/useFestivals";
 import { useDeleteFestivalMutation } from "@/api/festivals/useDeleteFestival";
 import { Festival } from "@/api/festivals/types";
 import {
@@ -24,7 +25,7 @@ export function FestivalManagementTable({
   onSelect: (festival: Festival) => void;
   selected: string;
 }) {
-  const { data: festivals } = useFestivalsQuery({ all: true });
+  const { data: festivals } = useSuspenseQuery(festivalsQuery({ all: true }));
   const deleteFestivalMutation = useDeleteFestivalMutation();
 
   const [logoDialogOpen, setLogoDialogOpen] = useState(false);

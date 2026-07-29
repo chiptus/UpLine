@@ -1,3 +1,4 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -7,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Users, ChevronDown } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useUserGroupsQuery } from "@/api/groups/useUserGroups";
+import { userGroupsQuery } from "@/api/groups/useUserGroups";
 
 interface GroupFilterDropdownProps {
   selectedGroupId?: string;
@@ -38,7 +39,7 @@ function GroupFilterDropdownContent({
   selectedGroupId,
   onGroupChange,
 }: GroupFilterDropdownProps & { userId: string }) {
-  const { data: groups } = useUserGroupsQuery(userId);
+  const { data: groups } = useSuspenseQuery(userGroupsQuery(userId));
 
   const hasActiveGroupFilter = selectedGroupId;
   const currentGroup = groups.find((g) => g.id === selectedGroupId);

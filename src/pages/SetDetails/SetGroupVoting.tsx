@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -9,7 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
-import { useUserGroupsQuery } from "@/api/groups/useUserGroups";
+import { userGroupsQuery } from "@/api/groups/useUserGroups";
 import { useGroupVotesQuery } from "@/api/voting/useGroupVotes";
 import { Users } from "lucide-react";
 import { VOTE_CONFIG, VOTES_TYPES, getVoteConfig } from "@/lib/voteConfig";
@@ -36,7 +37,7 @@ function SetGroupVotingContent({
   artistId: string;
   userId: string;
 }) {
-  const { data: groups } = useUserGroupsQuery(userId);
+  const { data: groups } = useSuspenseQuery(userGroupsQuery(userId));
   const [selectedGroupId, setSelectedGroupId] = useState<string>("");
 
   // Set default group when groups load

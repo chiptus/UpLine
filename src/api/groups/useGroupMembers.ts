@@ -1,4 +1,4 @@
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { GroupMember } from "./types";
 import { groupsKeys } from "./types";
@@ -48,11 +48,4 @@ export function groupMembersQuery(groupId: string) {
     queryKey: groupsKeys.members(groupId),
     queryFn: () => fetchGroupMembers(groupId),
   });
-}
-
-// Hook
-// Only call with a known groupId - callers should gate rendering on its presence
-// rather than passing an empty string, since this suspends until data resolves.
-export function useGroupMembersQuery(groupId: string) {
-  return useSuspenseQuery(groupMembersQuery(groupId));
 }

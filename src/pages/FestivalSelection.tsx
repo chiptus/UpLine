@@ -1,3 +1,4 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Music, GlobeIcon } from "lucide-react";
 import {
   Card,
@@ -6,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useFestivalsQuery } from "@/api/festivals/useFestivals";
+import { festivalsQuery } from "@/api/festivals/useFestivals";
 import { Festival } from "@/api/festivals/types";
 import {
   createFestivalSubdomainUrl,
@@ -19,7 +20,7 @@ import { TopBar } from "@/components/layout/TopBar";
 import { AppHeader } from "@/components/layout/AppHeader";
 
 export default function FestivalSelection() {
-  const { data: availableFestivals } = useFestivalsQuery();
+  const { data: availableFestivals } = useSuspenseQuery(festivalsQuery());
 
   if (availableFestivals.length === 0) {
     return (

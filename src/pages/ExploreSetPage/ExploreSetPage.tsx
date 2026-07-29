@@ -6,8 +6,8 @@ import { ExplorePageHeader } from "./components/ExplorePageHeader";
 import { CardStackContainer } from "./components/CardStackContainer";
 import { VotingSection } from "./components/VotingSection";
 import { useAuth } from "@/contexts/AuthContext";
-import { useVote } from "@/api/voting/useVote";
-import { useUserVotes } from "@/api/voting/useUserVotes";
+import { useVoteMutation } from "@/api/voting/useVoteMutation";
+import { useUserVotesQuery } from "@/api/voting/useUserVotesQuery";
 import { useState } from "react";
 import { useExplorableSets } from "./useExplorableSets";
 import { PageTitle } from "@/components/PageTitle/PageTitle";
@@ -16,8 +16,8 @@ export function ExploreSetPage() {
   const { edition } = useFestivalEdition();
   const navigate = useNavigate();
   const { user, showAuthDialog } = useAuth();
-  const voteMutation = useVote();
-  const { data: userVotes = {} } = useUserVotes(user?.id || "");
+  const voteMutation = useVoteMutation();
+  const { data: userVotes = {} } = useUserVotesQuery(user?.id || "");
 
   const explorableSetsQuery = useExplorableSets({
     editionId: edition?.id,

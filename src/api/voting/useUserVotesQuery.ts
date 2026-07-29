@@ -30,7 +30,7 @@ export function userVotesQuery(userId: string) {
   });
 }
 
-export function useUserVotes(userId: string | undefined) {
+export function useUserVotesQuery(userId: string | undefined) {
   return useQuery({
     ...userVotesQuery(userId!),
     enabled: !!userId,

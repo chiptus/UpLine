@@ -9,6 +9,10 @@ import type { ScheduleDay } from "@/hooks/useScheduleData";
 // useActiveTimelineDay (to compute matching day boundaries), so the two never drift.
 export const DAY_JUMP_START_GUTTER_PX = 0;
 
+// Keeps the scroll target off the timeline's true left edge, so the
+// leftmost hour-tick's label always has room to render without clipping.
+export const TIMELINE_START_SCROLL_GUTTER_PX = 20;
+
 const SCROLL_ROUND_MINUTES = 5;
 
 interface JumpToMomentOptions {
@@ -31,7 +35,7 @@ export function jumpToTimelineMoment(
   const rounded = roundToNearestMinutes(moment, SCROLL_ROUND_MINUTES);
   const offset = timeToOffset(rounded, festivalStart);
   const targetScrollLeft = Math.max(
-    0,
+    options.align === "start" ? 0 : TIMELINE_START_SCROLL_GUTTER_PX,
     options.align === "start"
       ? offset - DAY_JUMP_START_GUTTER_PX
       : offset - container.clientWidth / 2,

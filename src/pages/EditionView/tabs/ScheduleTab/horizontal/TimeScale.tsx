@@ -124,25 +124,37 @@ export function TimeScale({
       </div>
 
       <div className="hour-markers relative h-10">
-        {timeSlots.map((timeSlot, index) => (
-          <div
-            key={index}
-            // width: 0 keeps the marker centered on its true time offset —
-            // a shrink-wrapped width would center on the "HH:mm" text's
-            // width instead, visually shifting the tick line away from
-            // where sets (positioned by their real left edge) actually align.
-            className="absolute flex flex-col items-center"
-            style={{
-              left: `${timeToOffset(timeSlot, timeSlots[0])}px`,
-              width: 0,
-            }}
-          >
-            <div className="text-sm font-medium text-purple-300 whitespace-nowrap">
-              {formatInTimeZone(timeSlot, timezone, "HH:mm")}
+        {timeSlots.map((timeSlot, index) => {
+          // The first/last marker's label would otherwise overhang past the
+          // scrollable range's true edge and get clipped there; growing it
+          // inward instead keeps the tick itself pinned to its real offset.
+          const edgeAlignment =
+            index === 0
+              ? "items-start"
+              : index === timeSlots.length - 1
+                ? "items-end"
+                : "items-center";
+
+          return (
+            <div
+              key={index}
+              // width: 0 keeps the marker centered on its true time offset —
+              // a shrink-wrapped width would center on the "HH:mm" text's
+              // width instead, visually shifting the tick line away from
+              // where sets (positioned by their real left edge) actually align.
+              className={`absolute flex flex-col ${edgeAlignment}`}
+              style={{
+                left: `${timeToOffset(timeSlot, timeSlots[0])}px`,
+                width: 0,
+              }}
+            >
+              <div className="text-sm font-medium text-purple-300 whitespace-nowrap">
+                {formatInTimeZone(timeSlot, timezone, "HH:mm")}
+              </div>
+              <div className="w-px h-4 bg-purple-400/30" />
             </div>
-            <div className="w-px h-4 bg-purple-400/30" />
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

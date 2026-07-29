@@ -9,10 +9,10 @@ RETURNS TABLE(user_id UUID, vote_count BIGINT)
 LANGUAGE sql
 STABLE
 SECURITY INVOKER
-SET search_path = public
+SET search_path = ''
 AS $$
   SELECT v.user_id, COUNT(*)::BIGINT AS vote_count
-  FROM votes v
+  FROM public.votes v
   WHERE v.user_id = ANY(p_user_ids)
   GROUP BY v.user_id;
 $$;

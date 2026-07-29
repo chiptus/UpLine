@@ -13,10 +13,10 @@ RETURNS TABLE(group_id UUID, member_count BIGINT)
 LANGUAGE sql
 STABLE
 SECURITY DEFINER
-SET search_path = public
+SET search_path = ''
 AS $$
   SELECT gm.group_id, COUNT(*)::BIGINT AS member_count
-  FROM group_members gm
+  FROM public.group_members gm
   WHERE gm.group_id = ANY(p_group_ids)
   GROUP BY gm.group_id;
 $$;

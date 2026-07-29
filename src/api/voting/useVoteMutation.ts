@@ -48,7 +48,6 @@ async function vote(variables: {
   }
 }
 
-// Hook
 export function useVoteMutation() {
   const queryClient = useQueryClient();
   const { toast } = useToast();

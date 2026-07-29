@@ -1,16 +1,29 @@
-import { useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ExternalLink, Plus, Trash2 } from "lucide-react";
 import { EditableField } from "./shared/EditableField";
 import { EditContainer } from "./shared/EditContainer";
-import { CustomLink } from "@/api/custom-links/types";
+import { CustomLink, LinkType } from "@/api/custom-links/types";
 import { useBulkUpdateCustomLinksMutation } from "@/api/custom-links/useCustomLinksMutation";
 
 interface FestivalLinksFieldProps {
   festivalId: string;
   customLinks: CustomLink[];
 }
+
+const LINK_TYPE_LABELS: Record<LinkType, string> = {
+  website: "Website",
+  tickets: "Tickets",
+  custom: "Custom",
+};
 
 export function FestivalLinksField({
   festivalId,
@@ -50,7 +63,11 @@ interface EditingLink {
   id?: string;
   title: string;
   url: string;
-  display_order?: number;
+  link_type: LinkType;
+}
+
+interface LinksFormData {
+  links: EditingLink[];
 }
 
 function LinksFieldForm({
@@ -64,90 +81,74 @@ function LinksFieldForm({
   onCancel: () => void;
   onSave: () => void;
 }) {
-  const [editingLinks, setEditingLinks] = useState<EditingLink[]>([]);
   const mutation = useBulkUpdateCustomLinksMutation();
 
-  function handleEdit() {
-    setEditingLinks(
-      customLinks.length > 0
-        ? customLinks.map((link) => ({
-            id: link.id,
-            title: link.title,
-            url: link.url,
-            display_order: link.display_order || undefined,
-          }))
-        : [{ title: "", url: "", display_order: 0 }],
-    );
-  }
+  const form = useForm<LinksFormData>({
+    defaultValues: {
+      links:
+        customLinks.length > 0
+          ? customLinks.map((link) => ({
+              id: link.id,
+              title: link.title,
+              url: link.url,
+              link_type: link.link_type,
+            }))
+          : [{ title: "", url: "", link_type: "custom" }],
+    },
+  });
 
-  function addCustomLink() {
-    setEditingLinks([
-      ...editingLinks,
-      { title: "", url: "", display_order: editingLinks.length },
-    ]);
-  }
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "links",
+  });
 
-  function removeCustomLink(index: number) {
-    setEditingLinks(editingLinks.filter((_, i) => i !== index));
-  }
-
-  function updateCustomLink(
-    index: number,
-    field: "title" | "url",
-    value: string,
-  ) {
-    const updatedLinks = [...editingLinks];
-    updatedLinks[index] = { ...updatedLinks[index], [field]: value };
-    setEditingLinks(updatedLinks);
-  }
-
-  function handleSave() {
-    const validLinks = editingLinks
-      .filter((link) => link.title.trim() && link.url.trim())
-      .map((link, index) => ({
-        ...link,
-        display_order: index,
-      }));
-
-    mutation.mutate({ festivalId, links: validLinks }, { onSuccess: onSave });
-  }
-
-  if (editingLinks.length === 0) {
-    handleEdit();
-  }
+  const handleSubmit = form.handleSubmit(handleSave);
 
   return (
     <EditContainer
-      onSave={handleSave}
+      onSave={handleSubmit}
       onCancel={onCancel}
       isLoading={mutation.isPending}
       helpText="Only links with both title and URL filled will be saved"
     >
       <div className="space-y-4">
-        {editingLinks.map((link, index) => (
+        {fields.map((field, index) => (
           <div
-            key={link.id || `new-${index}`}
+            key={field.id}
             className="flex items-center gap-2 p-3 border rounded-lg bg-background"
           >
-            <div className="grid grid-cols-2 gap-2 flex-1">
+            <div className="grid grid-cols-3 gap-2 flex-1">
               <Input
                 placeholder="Link title (e.g., Tickets)"
-                value={link.title}
-                onChange={(e) =>
-                  updateCustomLink(index, "title", e.target.value)
-                }
+                {...form.register(`links.${index}.title`)}
               />
               <Input
                 placeholder="URL (e.g., https://...)"
-                value={link.url}
-                onChange={(e) => updateCustomLink(index, "url", e.target.value)}
+                {...form.register(`links.${index}.url`)}
               />
+              <Select
+                value={form.watch(`links.${index}.link_type`)}
+                onValueChange={(value: LinkType) =>
+                  form.setValue(`links.${index}.link_type`, value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(LINK_TYPE_LABELS).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <Button
-              onClick={() => removeCustomLink(index)}
+              onClick={() => remove(index)}
               variant="outline"
               size="sm"
-              disabled={editingLinks.length === 1}
+              disabled={fields.length === 1}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -156,11 +157,26 @@ function LinksFieldForm({
       </div>
 
       <div className="flex items-center justify-between">
-        <Button onClick={addCustomLink} variant="outline" size="sm">
+        <Button
+          onClick={() => append({ title: "", url: "", link_type: "custom" })}
+          variant="outline"
+          size="sm"
+        >
           <Plus className="h-4 w-4 mr-2" />
           Add Link
         </Button>
       </div>
     </EditContainer>
   );
+
+  function handleSave(data: LinksFormData) {
+    const validLinks = data.links
+      .filter((link) => link.title.trim() && link.url.trim())
+      .map((link, index) => ({
+        ...link,
+        display_order: index,
+      }));
+
+    mutation.mutate({ festivalId, links: validLinks }, { onSuccess: onSave });
+  }
 }

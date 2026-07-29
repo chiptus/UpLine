@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { TabConfig } from "./types";
 import { ScheduleTabIndicator } from "./ScheduleTabIndicator";
+import { infoTabEnabled } from "./infoTabEnabled";
 
 export const config: TabConfig[] = [
   {
@@ -37,21 +38,21 @@ export const config: TabConfig[] = [
     icon: MapIcon,
     label: "Map",
     shortLabel: "Map",
-    enabled: (festivalInfo) => !!festivalInfo?.map_image_url,
+    enabled: ({ festivalInfo }) => !!festivalInfo?.map_image_url,
   },
   {
     key: "info",
     icon: InfoIcon,
     label: "Info",
     shortLabel: "Info",
-    enabled: (festivalInfo) => !!festivalInfo?.info_text,
+    enabled: infoTabEnabled,
   },
   {
     key: "social",
     icon: MessageSquareIcon,
     label: "Social",
     shortLabel: "Social",
-    enabled: (festivalInfo) =>
+    enabled: ({ festivalInfo }) =>
       !!(festivalInfo?.facebook_url || festivalInfo?.instagram_url),
   },
 ];

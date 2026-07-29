@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { customLinksKeys } from "./types";
+import { customLinksKeys, LinkType } from "./types";
 
 interface BulkUpdateCustomLinksData {
   festivalId: string;
@@ -10,6 +10,7 @@ interface BulkUpdateCustomLinksData {
     title: string;
     url: string;
     display_order: number;
+    link_type: LinkType;
   }>;
 }
 
@@ -48,6 +49,7 @@ async function bulkUpdateCustomLinks({
       title: link.title,
       url: link.url,
       display_order: index,
+      link_type: link.link_type,
     };
 
     if (link.id) {

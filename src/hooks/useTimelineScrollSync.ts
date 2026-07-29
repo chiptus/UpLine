@@ -10,6 +10,7 @@ import {
   resolveTimelineMountMoment,
   roundToNearestMinutes,
 } from "@/lib/timelineMountMoment";
+import { TIMELINE_START_SCROLL_GUTTER_PX } from "@/lib/timelineDayJump";
 
 const SCROLL_DEBOUNCE_MS = 300;
 const SCROLL_ROUND_MINUTES = 5;
@@ -72,7 +73,7 @@ export function useTimelineScrollSync({
     });
 
     const targetScrollLeft = Math.max(
-      0,
+      TIMELINE_START_SCROLL_GUTTER_PX,
       timeToOffset(moment, festivalStart) - container.clientWidth / 2,
     );
 

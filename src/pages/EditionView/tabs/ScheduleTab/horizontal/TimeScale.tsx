@@ -138,10 +138,6 @@ export function TimeScale({
           return (
             <div
               key={index}
-              // width: 0 keeps the marker centered on its true time offset —
-              // a shrink-wrapped width would center on the "HH:mm" text's
-              // width instead, visually shifting the tick line away from
-              // where sets (positioned by their real left edge) actually align.
               className={`absolute flex flex-col ${edgeAlignment}`}
               style={{
                 left: `${timeToOffset(timeSlot, timeSlots[0])}px`,

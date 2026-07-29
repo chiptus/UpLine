@@ -127,10 +127,17 @@ export function TimeScale({
         {timeSlots.map((timeSlot, index) => (
           <div
             key={index}
+            // width: 0 keeps the marker centered on its true time offset —
+            // a shrink-wrapped width would center on the "HH:mm" text's
+            // width instead, visually shifting the tick line away from
+            // where sets (positioned by their real left edge) actually align.
             className="absolute flex flex-col items-center"
-            style={{ left: `${timeToOffset(timeSlot, timeSlots[0])}px` }}
+            style={{
+              left: `${timeToOffset(timeSlot, timeSlots[0])}px`,
+              width: 0,
+            }}
           >
-            <div className="text-sm font-medium text-purple-300">
+            <div className="text-sm font-medium text-purple-300 whitespace-nowrap">
               {formatInTimeZone(timeSlot, timezone, "HH:mm")}
             </div>
             <div className="w-px h-4 bg-purple-400/30" />

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   Table,
   TableBody,
@@ -17,8 +18,6 @@ import {
 import { Users, Vote } from "lucide-react";
 import { groupAnalyticsQuery } from "@/api/analytics/useGroupAnalyticsQuery";
 import { userAnalyticsQuery } from "@/api/analytics/useUserAnalyticsQuery";
-import { useGroupAnalyticsQuery } from "@/api/analytics/useGroupAnalyticsQuery";
-import { useUserAnalyticsQuery } from "@/api/analytics/useUserAnalyticsQuery";
 
 export const Route = createFileRoute("/admin/analytics")({
   component: AdminAnalytics,
@@ -29,8 +28,8 @@ export const Route = createFileRoute("/admin/analytics")({
 });
 
 function AdminAnalytics() {
-  const { data: groupAnalytics } = useGroupAnalyticsQuery();
-  const { data: userAnalytics } = useUserAnalyticsQuery();
+  const { data: groupAnalytics } = useSuspenseQuery(groupAnalyticsQuery());
+  const { data: userAnalytics } = useSuspenseQuery(userAnalyticsQuery());
 
   return (
     <div className="space-y-6">

@@ -841,6 +841,13 @@ export type Database = {
             Returns: string;
           };
       get_user_id_by_email: { Args: { user_email: string }; Returns: string };
+      group_member_counts: {
+        Args: { p_group_ids: string[] };
+        Returns: {
+          group_id: string;
+          member_count: number;
+        }[];
+      };
       has_admin_role: {
         Args: {
           check_role: Database["public"]["Enums"]["admin_role"];

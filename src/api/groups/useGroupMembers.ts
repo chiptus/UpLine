@@ -21,7 +21,6 @@ async function fetchGroupMembers(groupId: string): Promise<GroupMember[]> {
     return [];
   }
 
-  // Then fetch profile information for all members in a single query
   const userIds = members.map((member) => member.user_id);
   const { data: profiles } = await supabase
     .from("profiles")

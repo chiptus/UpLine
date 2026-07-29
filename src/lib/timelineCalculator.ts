@@ -4,6 +4,7 @@ import type { Stage } from "@/api/stages/types";
 import { sortStagesByOrder } from "@/lib/stageUtils";
 
 const PX_PER_MINUTE = 2;
+export const PX_PER_HOUR = PX_PER_MINUTE * 60;
 
 export function timeToOffset(moment: Date, origin: Date): number {
   const minutes = (moment.getTime() - origin.getTime()) / (60 * 1000);
@@ -204,8 +205,8 @@ function processStageGroups<T extends ScheduleSet>(
         allStageGroups[stage.id] = [];
       }
 
-      const enhancedSets = stage.sets.map((set): T =>
-        positionCalculator(set, earliestTime),
+      const enhancedSets = stage.sets.map(
+        (set): T => positionCalculator(set, earliestTime),
       );
 
       allStageGroups[stage.id].push(...enhancedSets);

@@ -50,6 +50,7 @@ export interface DateLabelGeometry {
   nextDateOpacity: number;
 }
 
+// Computes the pinned/fading date-label positions for the current scroll offset.
 // `scrollLeft` keeps the current day's label pinned to the strip's left
 // edge while scrolling through that day, fading in the next day's label
 // as its boundary nears.

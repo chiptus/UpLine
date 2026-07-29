@@ -1,10 +1,15 @@
 import { describe, expect, it } from "vitest";
+import { PX_PER_HOUR } from "@/lib/timelineCalculator";
 import {
   computeDateChanges,
   computeDateLabelGeometry,
+  DATE_LABEL_WIDTH_PX,
+  DAY_GAP_PX,
+  UPCOMING_FADE_THRESHOLD_PX,
 } from "./timeScaleGeometry";
 
 const timezone = "UTC";
+const ONE_DAY_PX = 24 * PX_PER_HOUR;
 
 describe("computeDateChanges", () => {
   it("returns a single entry at position 0 for a single-day slot list", () => {
@@ -57,9 +62,9 @@ describe("computeDateChanges", () => {
 describe("computeDateLabelGeometry", () => {
   const dateChanges = [
     { date: new Date("2024-07-01T10:00:00Z"), position: 0 },
-    { date: new Date("2024-07-02T10:00:00Z"), position: 2880 }, // 24h * 120px/h
+    { date: new Date("2024-07-02T10:00:00Z"), position: ONE_DAY_PX },
   ];
-  const totalWidth = 5760;
+  const totalWidth = 2 * ONE_DAY_PX;
 
   it("pins the first day's label at the start when scroll is 0", () => {
     const geometry = computeDateLabelGeometry(dateChanges, 0, totalWidth);
@@ -71,30 +76,50 @@ describe("computeDateLabelGeometry", () => {
   });
 
   it("keeps the pinned label clamped within its own day block while scrolling", () => {
-    const geometry = computeDateLabelGeometry(dateChanges, 1000, totalWidth);
+    const scrollLeft = ONE_DAY_PX / 2;
+    const geometry = computeDateLabelGeometry(
+      dateChanges,
+      scrollLeft,
+      totalWidth,
+    );
 
     expect(geometry.currentDate).toEqual(dateChanges[0]);
-    expect(geometry.currentDateStickyLeft).toBe(1000);
+    expect(geometry.currentDateStickyLeft).toBe(scrollLeft);
   });
 
   it("clamps the sticky offset so the label never overruns the day's end", () => {
-    // Scrolled almost to the next day boundary (2880 - 5 gap = 2875 end).
-    const geometry = computeDateLabelGeometry(dateChanges, 2870, totalWidth);
+    // Scrolled almost to the next day boundary.
+    const scrollLeft = ONE_DAY_PX - 10;
+    const geometry = computeDateLabelGeometry(
+      dateChanges,
+      scrollLeft,
+      totalWidth,
+    );
 
-    // currentDayWidth = 2875, clamp max = currentDayWidth - 120 = 2755
-    expect(geometry.currentDateStickyLeft).toBe(2755);
+    const currentDayWidth = ONE_DAY_PX - DAY_GAP_PX;
+    const expectedStickyLeft = currentDayWidth - DATE_LABEL_WIDTH_PX;
+    expect(geometry.currentDateStickyLeft).toBe(expectedStickyLeft);
   });
 
   it("switches to the next day once scrolled past its boundary", () => {
-    const geometry = computeDateLabelGeometry(dateChanges, 2880, totalWidth);
+    const geometry = computeDateLabelGeometry(
+      dateChanges,
+      ONE_DAY_PX,
+      totalWidth,
+    );
 
     expect(geometry.currentDate).toEqual(dateChanges[1]);
     expect(geometry.nextDate).toBeNull();
   });
 
   it("fades in the next day's label within the fade threshold", () => {
-    // 2880 - 2830 = 50px from the boundary, within the 100px threshold.
-    const geometry = computeDateLabelGeometry(dateChanges, 2830, totalWidth);
+    const distanceFromBoundary = UPCOMING_FADE_THRESHOLD_PX / 2;
+    const scrollLeft = ONE_DAY_PX - distanceFromBoundary;
+    const geometry = computeDateLabelGeometry(
+      dateChanges,
+      scrollLeft,
+      totalWidth,
+    );
 
     expect(geometry.shouldShowUpcoming).toBe(true);
     expect(geometry.nextDate).toEqual(dateChanges[1]);
@@ -102,7 +127,12 @@ describe("computeDateLabelGeometry", () => {
   });
 
   it("does not show the upcoming label outside the fade threshold", () => {
-    const geometry = computeDateLabelGeometry(dateChanges, 2000, totalWidth);
+    const scrollLeft = ONE_DAY_PX - UPCOMING_FADE_THRESHOLD_PX - 1;
+    const geometry = computeDateLabelGeometry(
+      dateChanges,
+      scrollLeft,
+      totalWidth,
+    );
 
     expect(geometry.shouldShowUpcoming).toBe(false);
   });

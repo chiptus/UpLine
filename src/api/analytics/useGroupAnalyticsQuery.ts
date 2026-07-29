@@ -11,23 +11,26 @@ async function fetchGroupAnalytics(): Promise<GroupAnalytics[]> {
 
   if (groupsError) throw new Error("Failed to fetch groups");
 
-  const groupsWithCounts = await Promise.all(
-    (groups || []).map(async (group) => {
-      const { count, error: countError } = await supabase
-        .from("group_members")
-        .select("*", { count: "exact", head: true })
-        .eq("group_id", group.id);
+  const groupIds = (groups || []).map((group) => group.id);
+  const memberCountsByGroupId = new Map<string, number>();
 
-      if (countError) throw new Error("Failed to fetch group member count");
+  if (groupIds.length > 0) {
+    const { data: counts, error: countsError } = await supabase.rpc(
+      "group_member_counts",
+      { p_group_ids: groupIds },
+    );
 
-      return {
-        ...group,
-        member_count: count || 0,
-      };
-    }),
-  );
+    if (countsError) throw new Error("Failed to fetch group member counts");
 
-  return groupsWithCounts;
+    for (const row of counts || []) {
+      memberCountsByGroupId.set(row.group_id, row.member_count);
+    }
+  }
+
+  return (groups || []).map((group) => ({
+    ...group,
+    member_count: memberCountsByGroupId.get(group.id) || 0,
+  }));
 }
 
 export function groupAnalyticsQuery() {

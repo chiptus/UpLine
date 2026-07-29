@@ -841,6 +841,13 @@ export type Database = {
             Returns: string;
           };
       get_user_id_by_email: { Args: { user_email: string }; Returns: string };
+      group_member_counts: {
+        Args: { p_group_ids: string[] };
+        Returns: {
+          group_id: string;
+          member_count: number;
+        }[];
+      };
       has_admin_role: {
         Args: {
           check_role: Database["public"]["Enums"]["admin_role"];
@@ -864,6 +871,13 @@ export type Database = {
           group_id: string;
           message: string;
           success: boolean;
+        }[];
+      };
+      user_vote_counts: {
+        Args: { p_user_ids: string[] };
+        Returns: {
+          user_id: string;
+          vote_count: number;
         }[];
       };
       users_share_group: {

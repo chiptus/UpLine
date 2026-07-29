@@ -21,26 +21,27 @@ async function fetchGroupMembers(groupId: string): Promise<GroupMember[]> {
     return [];
   }
 
-  // Then fetch profile information for each member
-  const membersWithProfiles = await Promise.all(
-    members.map(async (member) => {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("username, email")
-        .eq("id", member.user_id)
-        .single();
+  const userIds = members.map((member) => member.user_id);
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("id, username, email")
+    .in("id", userIds);
 
-      return {
-        ...member,
-        profiles: {
-          username: profile?.username || undefined,
-          email: profile?.email || undefined,
-        },
-      };
-    }),
+  const profilesByUserId = new Map(
+    (profiles || []).map((profile) => [profile.id, profile]),
   );
 
-  return membersWithProfiles;
+  return members.map((member) => {
+    const profile = profilesByUserId.get(member.user_id);
+
+    return {
+      ...member,
+      profiles: {
+        username: profile?.username || undefined,
+        email: profile?.email || undefined,
+      },
+    };
+  });
 }
 
 export function groupMembersQuery(groupId: string) {

@@ -1,0 +1,37 @@
+import { queryOptions } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { analyticsQueries, type UserAnalytics } from "./types";
+
+async function fetchUserAnalytics(): Promise<UserAnalytics[]> {
+  const { data: profiles, error: profilesError } = await supabase
+    .from("profiles")
+    .select("id, username, email, created_at")
+    .order("created_at", { ascending: false });
+
+  if (profilesError) throw new Error("Failed to fetch users");
+
+  const usersWithCounts = await Promise.all(
+    (profiles || []).map(async (profile) => {
+      const { count, error: countError } = await supabase
+        .from("votes")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", profile.id);
+
+      if (countError) throw new Error("Failed to fetch user vote count");
+
+      return {
+        ...profile,
+        vote_count: count || 0,
+      };
+    }),
+  );
+
+  return usersWithCounts;
+}
+
+export function userAnalyticsQuery() {
+  return queryOptions({
+    queryKey: analyticsQueries.users(),
+    queryFn: fetchUserAnalytics,
+  });
+}

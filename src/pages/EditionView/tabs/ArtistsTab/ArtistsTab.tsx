@@ -10,8 +10,6 @@ import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { PageTitle } from "@/components/PageTitle/PageTitle";
 import type { FestivalSet } from "@/api/sets/types";
 
-const EMPTY_GROUP_MEMBER_IDS = new Set<string>();
-
 export function ArtistsTab() {
   const { state: urlState, updateUrlState, clearFilters } = useUrlState();
   const { edition, festival } = useFestivalEdition();
@@ -85,7 +83,6 @@ function FilteredSetsPanel({
       sets={sets}
       urlState={urlState}
       updateUrlState={updateUrlState}
-      groupMemberIds={EMPTY_GROUP_MEMBER_IDS}
     />
   );
 }
@@ -116,8 +113,8 @@ function SetsPanelContent({
   sets,
   urlState,
   updateUrlState,
-  groupMemberIds,
-}: FilteredSetsPanelProps & { groupMemberIds: Set<string> }) {
+  groupMemberIds = new Set<string>(),
+}: FilteredSetsPanelProps & { groupMemberIds?: Set<string> }) {
   const { filteredAndSortedSets, lockCurrentOrder } = useSetFiltering(
     sets,
     urlState,

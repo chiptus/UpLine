@@ -11,9 +11,6 @@ interface ActiveGroupState {
   hasGroups: boolean;
 }
 
-// Only call for a signed-in user - callers should gate rendering on that
-// rather than passing an optional userId, since this suspends until data
-// resolves.
 export function useActiveGroup(userId: string): ActiveGroupState {
   const { profile } = useAuth();
   const { data: groups } = useSuspenseQuery(userGroupsQuery(userId));

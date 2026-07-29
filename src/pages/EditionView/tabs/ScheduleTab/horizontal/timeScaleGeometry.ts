@@ -1,13 +1,10 @@
 import { formatInTimeZone } from "date-fns-tz";
 import { timeToOffset } from "@/lib/timelineCalculator";
 
-// Width of the day-boundary gap between adjacent date backgrounds.
 export const DAY_GAP_PX = 5;
 
-// Distance (px) from the next day boundary at which its label starts fading in.
 export const UPCOMING_FADE_THRESHOLD_PX = 100;
 
-// Width reserved for the pinned date label so it never overruns the day's end.
 export const DATE_LABEL_WIDTH_PX = 120;
 
 export interface DateChange {
@@ -50,10 +47,12 @@ export interface DateLabelGeometry {
   nextDateOpacity: number;
 }
 
-// Computes the pinned/fading date-label positions for the current scroll offset.
-// `scrollLeft` keeps the current day's label pinned to the strip's left
-// edge while scrolling through that day, fading in the next day's label
-// as its boundary nears.
+/**
+ * Computes the pinned/fading date-label positions for the current scroll offset.
+ * @param scrollLeft Keeps the current day's label pinned to the strip's left
+ * edge while scrolling through that day, fading in the next day's label
+ * as its boundary nears.
+ */
 export function computeDateLabelGeometry(
   dateChanges: DateChange[],
   scrollLeft: number,

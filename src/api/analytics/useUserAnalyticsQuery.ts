@@ -14,18 +14,15 @@ async function fetchUserAnalytics(): Promise<UserAnalytics[]> {
   const voteCountsByUserId = new Map<string, number>();
 
   if (userIds.length > 0) {
-    const { data: votes, error: votesError } = await supabase
-      .from("votes")
-      .select("user_id")
-      .in("user_id", userIds);
+    const { data: counts, error: countsError } = await supabase.rpc(
+      "user_vote_counts",
+      { p_user_ids: userIds },
+    );
 
-    if (votesError) throw new Error("Failed to fetch vote counts");
+    if (countsError) throw new Error("Failed to fetch vote counts");
 
-    for (const vote of votes || []) {
-      voteCountsByUserId.set(
-        vote.user_id,
-        (voteCountsByUserId.get(vote.user_id) || 0) + 1,
-      );
+    for (const row of counts || []) {
+      voteCountsByUserId.set(row.user_id, row.vote_count);
     }
   }
 

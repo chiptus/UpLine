@@ -873,6 +873,13 @@ export type Database = {
           success: boolean;
         }[];
       };
+      user_vote_counts: {
+        Args: { p_user_ids: string[] };
+        Returns: {
+          user_id: string;
+          vote_count: number;
+        }[];
+      };
       users_share_group: {
         Args: { user1_id: string; user2_id: string };
         Returns: boolean;

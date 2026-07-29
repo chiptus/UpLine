@@ -15,18 +15,15 @@ async function fetchGroupAnalytics(): Promise<GroupAnalytics[]> {
   const memberCountsByGroupId = new Map<string, number>();
 
   if (groupIds.length > 0) {
-    const { data: members, error: membersError } = await supabase
-      .from("group_members")
-      .select("group_id")
-      .in("group_id", groupIds);
+    const { data: counts, error: countsError } = await supabase.rpc(
+      "group_member_counts",
+      { p_group_ids: groupIds },
+    );
 
-    if (membersError) throw new Error("Failed to fetch group member counts");
+    if (countsError) throw new Error("Failed to fetch group member counts");
 
-    for (const member of members || []) {
-      memberCountsByGroupId.set(
-        member.group_id,
-        (memberCountsByGroupId.get(member.group_id) || 0) + 1,
-      );
+    for (const row of counts || []) {
+      memberCountsByGroupId.set(row.group_id, row.member_count);
     }
   }
 

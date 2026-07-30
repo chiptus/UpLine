@@ -176,10 +176,12 @@ INSERT INTO public.custom_links (festival_id, title, url, display_order, created
 -- phase_override pins the derived festival phase to "live" so e2e voting
 -- tests stay stable regardless of how far the seeded 2025 dates drift into
 -- the past relative to real wall-clock time (see ADR-0003, ADR-0004).
--- schedule_reveal_level must stay 'full': tests/e2e/timeline-now-indicator.spec.ts
--- (festival slug "test", edition slug "2025") skips its assertions whenever
--- the timeline schedule isn't fully revealed, so downgrading this value
--- silently turns those tests into no-ops instead of failing (see #210).
+-- schedule_reveal_level must stay 'full': tests/e2e/timeline-now-indicator.spec.ts,
+-- schedule-filter-sheet.spec.ts, and mobile-bottom-nav-autohide.spec.ts
+-- (festival slug "test", edition slug "2025") all skip their assertions
+-- whenever the timeline/list schedule isn't fully revealed, so downgrading
+-- this value silently turns those tests into no-ops instead of failing
+-- (see #210).
 INSERT INTO public.festival_editions (id, festival_id, year, slug, name, description, location, start_date, end_date, published, schedule_reveal_level, phase_override, created_at, updated_at) VALUES
   ('e1111111-1111-1111-1111-111111111111', 'f1111111-1111-1111-1111-111111111111', 2025, '2025', 'Boom Festival 2025', 'The 2025 edition of Boom Festival', 'Idanha-a-Nova, Portugal', '2025-07-12', '2025-07-14', true, 'full', 'live', now(), now());
 

@@ -42,14 +42,16 @@ The router resolves the session **independently**; `AuthProvider` stays **fully 
 Read `docs/HANDOFF_TANSTACK_ROUTER_QUERY.md` and PR #90's diff first. Keep the pairs together (`groups`+`invites`) and **one PR per feature** (don't bundle groups with voting).
 
 ### groups (+ invites)
+
 - Routes with no loader today: `/groups/` (`src/routes/groups/index.tsx` → `Groups.tsx`) and `/groups/$groupSlug` (`src/routes/groups/$groupSlug.tsx` → `GroupDetail.tsx`).
 - Now-prefetchable entry queries: `userGroupsQuery(userId)` (`src/api/groups/useUserGroups.ts`), `groupBySlugQuery(slug, userId)` (`src/api/groups/useGroupBySlug.ts`). Downstream: `groupDetailQuery(groupId)`, `groupMembersQuery(groupId)`, `groupInvitesQuery(groupId)` (`src/api/invites/useGroupInvites.ts`).
 - Pattern: `/groups/` loader → `ensureQueryData(userGroupsQuery(context.user.id))`, `Groups.tsx` → `useSuspenseQuery`. `/groups/$groupSlug` loader → `ensureQueryData(groupBySlugQuery(params.groupSlug, context.user.id))`; get `groupId` from that **via the cache/route context, not a raw refetch** (lesson 4), then `ensureQueryData(groupMembersQuery(groupId))` / `groupInvitesQuery(groupId)`. Convert `GroupDetail.tsx` + `InviteManagement.tsx`.
 - **Leave** the auth consumers that render for a possibly-signed-out user (`SetGroupVoting`, `GroupFilterDropdown` on the set/edition pages) as `useQuery` — `enabled`-guarded stays.
 
 ### voting
+
 - Queries: `userVotesQuery(userId)` (`src/api/voting/useUserVotes.ts`), `groupVotesQuery(setId, groupId)` (`src/api/voting/useGroupVotes.ts`) — both `enabled`-guarded today.
-- These render on the set-detail page for a **possibly-signed-out** visitor (anon users have no votes), so they mostly stay `useQuery`. Only convert where a route genuinely **guarantees** a signed-in user. Realistically `voting` may remain `useQuery` even after the hoist — the hoist only makes conversion *possible*. Do **not** force Suspense on a query that's legitimately absent for anon users. Confirm with the reviewer whether any voting route mandates auth.
+- These render on the set-detail page for a **possibly-signed-out** visitor (anon users have no votes), so they mostly stay `useQuery`. Only convert where a route genuinely **guarantees** a signed-in user. Realistically `voting` may remain `useQuery` even after the hoist — the hoist only makes conversion _possible_. Do **not** force Suspense on a query that's legitimately absent for anon users. Confirm with the reviewer whether any voting route mandates auth.
 
 ## Hard-won lessons from PR #90's review (each cost a revert — don't relitigate)
 

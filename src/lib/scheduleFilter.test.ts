@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { filterScheduleDays, type ScheduleFilterCriteria } from "./scheduleFilter";
+import {
+  filterScheduleDays,
+  type ScheduleFilterCriteria,
+} from "./scheduleFilter";
 import type { ScheduleDay, ScheduleSet } from "@/hooks/useScheduleData";
 
 const TIMEZONE = "Europe/Lisbon";
@@ -167,10 +170,7 @@ describe("filterScheduleDays", () => {
 
       const result = filterScheduleDays(days, baseCriteria(), TIMEZONE);
 
-      expect(result[0].stages.map((s) => s.id)).toEqual([
-        "stage-1",
-        "stage-2",
-      ]);
+      expect(result[0].stages.map((s) => s.id)).toEqual(["stage-1", "stage-2"]);
     });
 
     it("matches stages by id, dropping unselected stages", () => {
@@ -228,7 +228,10 @@ describe("filterScheduleDays", () => {
               id: "stage-1",
               name: "Main Stage",
               stage_order: 1,
-              sets: [makeSet({ id: "must-go-set" }), makeSet({ id: "interested-set" })],
+              sets: [
+                makeSet({ id: "must-go-set" }),
+                makeSet({ id: "interested-set" }),
+              ],
             },
           ],
         }),

@@ -48,4 +48,6 @@ const lines = [
 ];
 
 fs.writeFileSync(OUT, lines.join("\n"));
-console.log(`Wrote ${keys.length} entries to ${path.relative(process.cwd(), OUT)}`);
+console.log(
+  `Wrote ${keys.length} entries to ${path.relative(process.cwd(), OUT)}`,
+);

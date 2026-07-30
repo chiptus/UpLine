@@ -160,9 +160,7 @@ export function SetFormDialog({
       time_start: data.time_start
         ? convertLocalTimeToUTC(data.time_start, tz)
         : null,
-      time_end: data.time_end
-        ? convertLocalTimeToUTC(data.time_end, tz)
-        : null,
+      time_end: data.time_end ? convertLocalTimeToUTC(data.time_end, tz) : null,
     };
 
     let setId: string;
@@ -309,9 +307,7 @@ export function SetFormDialog({
               )}
             />
 
-            <p className="text-xs text-muted-foreground">
-              Times in {tz}
-            </p>
+            <p className="text-xs text-muted-foreground">Times in {tz}</p>
             <div className="grid grid-cols-3 gap-4">
               <FormField
                 control={form.control}

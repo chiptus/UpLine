@@ -113,9 +113,6 @@ export function OverviewViewportWindow({
     if (nextScrollLeft === null) return;
 
     event.preventDefault();
-    container.scrollLeft = Math.max(
-      0,
-      Math.min(maxScrollLeft, nextScrollLeft),
-    );
+    container.scrollLeft = Math.max(0, Math.min(maxScrollLeft, nextScrollLeft));
   }
 }

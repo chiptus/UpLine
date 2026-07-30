@@ -5,7 +5,10 @@ interface FestivalTimeHintProps {
   className?: string;
 }
 
-export function FestivalTimeHint({ timezone, className }: FestivalTimeHintProps) {
+export function FestivalTimeHint({
+  timezone,
+  className,
+}: FestivalTimeHintProps) {
   if (!timezone) return null;
 
   return (

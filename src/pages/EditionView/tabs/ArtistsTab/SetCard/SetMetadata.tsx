@@ -21,7 +21,12 @@ export function SetMetadata() {
     );
 
   const timeRangeFormatted = canShowTime
-    ? formatTimeRange(set.time_start, set.time_end, use24Hour, festival.timezone)
+    ? formatTimeRange(
+        set.time_start,
+        set.time_end,
+        use24Hour,
+        festival.timezone,
+      )
     : null;
 
   const dayOnlyFormatted =

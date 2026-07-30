@@ -34,8 +34,8 @@ export function FestivalMissingInfoBadge({
         </button>
       </TooltipTrigger>
       <TooltipContent side="right" className="max-w-xs">
-        This festival has no info text, so the Info tab won't show to
-        visitors. Open the festival's info editor to add details.
+        This festival has no info text, so the Info tab won't show to visitors.
+        Open the festival's info editor to add details.
       </TooltipContent>
     </Tooltip>
   );

@@ -14,9 +14,7 @@ const NOW_BEFORE_WINDOW = new Date("2025-07-10T12:00:00Z");
 const NOW_AFTER_WINDOW = new Date("2025-07-16T12:00:00Z");
 
 test.describe("Timeline Now pill and current-time indicator", () => {
-  test("render when now falls inside the festival window", async ({
-    page,
-  }) => {
+  test("render when now falls inside the festival window", async ({ page }) => {
     await page.clock.setFixedTime(NOW_INSIDE_WINDOW);
     await page.goto(TIMELINE_PATH);
 
@@ -53,9 +51,7 @@ test.describe("Timeline Now pill and current-time indicator", () => {
     await expect(page.getByTestId("timeline-now-indicator")).toHaveCount(0);
   });
 
-  test("are absent when now is after the festival window", async ({
-    page,
-  }) => {
+  test("are absent when now is after the festival window", async ({ page }) => {
     await page.clock.setFixedTime(NOW_AFTER_WINDOW);
     await page.goto(TIMELINE_PATH);
 

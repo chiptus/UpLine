@@ -40,10 +40,7 @@ export function calculateOverviewSetBlocks({
     .map((set) => ({
       id: set.id,
       leftPercent: offsetToPercent(set.horizontalPosition!.left, totalWidth),
-      widthPercent: offsetToPercent(
-        set.horizontalPosition!.width,
-        totalWidth,
-      ),
+      widthPercent: offsetToPercent(set.horizontalPosition!.width, totalWidth),
     }));
 }
 
@@ -78,9 +75,14 @@ export function calculateDayBoundaries({
     .map((day) => {
       const midnight = fromZonedTime(`${day.date}T00:00:00`, timezone);
       const offset = timeToOffset(midnight, festivalStart);
-      return { date: day.date, leftPercent: offsetToPercent(offset, totalWidth) };
+      return {
+        date: day.date,
+        leftPercent: offsetToPercent(offset, totalWidth),
+      };
     })
-    .filter((boundary) => boundary.leftPercent >= 0 && boundary.leftPercent <= 100);
+    .filter(
+      (boundary) => boundary.leftPercent >= 0 && boundary.leftPercent <= 100,
+    );
 }
 
 export interface OverviewViewport {

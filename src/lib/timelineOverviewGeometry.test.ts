@@ -93,7 +93,11 @@ describe("calculateDayBoundaries", () => {
 describe("calculateOverviewViewport", () => {
   it("expresses the visible span as left/width percentages", () => {
     expect(
-      calculateOverviewViewport({ scrollLeft: 100, clientWidth: 200, totalWidth: 1000 }),
+      calculateOverviewViewport({
+        scrollLeft: 100,
+        clientWidth: 200,
+        totalWidth: 1000,
+      }),
     ).toEqual({
       leftPercent: 10,
       widthPercent: 20,
@@ -102,7 +106,11 @@ describe("calculateOverviewViewport", () => {
 
   it("caps widthPercent at 100 when the viewport is wider than the map", () => {
     expect(
-      calculateOverviewViewport({ scrollLeft: 0, clientWidth: 1500, totalWidth: 1000 }),
+      calculateOverviewViewport({
+        scrollLeft: 0,
+        clientWidth: 1500,
+        totalWidth: 1000,
+      }),
     ).toEqual({
       leftPercent: 0,
       widthPercent: 100,
@@ -111,7 +119,11 @@ describe("calculateOverviewViewport", () => {
 
   it("falls back to a full-width viewport when totalWidth is zero", () => {
     expect(
-      calculateOverviewViewport({ scrollLeft: 0, clientWidth: 500, totalWidth: 0 }),
+      calculateOverviewViewport({
+        scrollLeft: 0,
+        clientWidth: 500,
+        totalWidth: 0,
+      }),
     ).toEqual({
       leftPercent: 0,
       widthPercent: 100,
@@ -171,11 +183,17 @@ describe("the shared ruler", () => {
     const jumpTarget = offsetToTime(clickedOffset, festivalStart);
     const roundTrippedOffset = timeToOffset(jumpTarget, festivalStart);
 
-    expect(offsetToPercent(roundTrippedOffset, totalWidth)).toBe(clickedPercent);
+    expect(offsetToPercent(roundTrippedOffset, totalWidth)).toBe(
+      clickedPercent,
+    );
   });
 });
 
-function buildSet(id: string, left: number, width: number): HorizontalTimelineSet {
+function buildSet(
+  id: string,
+  left: number,
+  width: number,
+): HorizontalTimelineSet {
   return {
     id,
     name: id,

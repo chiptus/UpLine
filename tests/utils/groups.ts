@@ -13,7 +13,9 @@ async function getUserIdByEmail(email: string): Promise<string> {
   );
 
   if (!response.ok) {
-    throw new Error(`Failed to look up profile for ${email}: ${response.status}`);
+    throw new Error(
+      `Failed to look up profile for ${email}: ${response.status}`,
+    );
   }
 
   const [profile] = (await response.json()) as { id: string }[];
@@ -33,15 +35,18 @@ export async function createGroupWithMember(
 ): Promise<{ groupId: string; groupName: string }> {
   const userId = await getUserIdByEmail(email);
 
-  const groupResponse = await fetch(`${TEST_CONFIG.SUPABASE_URL}/rest/v1/groups`, {
-    method: "POST",
-    headers: { ...ADMIN_HEADERS, Prefer: "return=representation" },
-    body: JSON.stringify({
-      name: groupName,
-      slug: groupName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-      created_by: userId,
-    }),
-  });
+  const groupResponse = await fetch(
+    `${TEST_CONFIG.SUPABASE_URL}/rest/v1/groups`,
+    {
+      method: "POST",
+      headers: { ...ADMIN_HEADERS, Prefer: "return=representation" },
+      body: JSON.stringify({
+        name: groupName,
+        slug: groupName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+        created_by: userId,
+      }),
+    },
+  );
 
   if (!groupResponse.ok) {
     throw new Error(`Failed to create test group: ${groupResponse.status}`);
@@ -59,7 +64,9 @@ export async function createGroupWithMember(
   );
 
   if (!memberResponse.ok) {
-    throw new Error(`Failed to add test group member: ${memberResponse.status}`);
+    throw new Error(
+      `Failed to add test group member: ${memberResponse.status}`,
+    );
   }
 
   return { groupId: group.id, groupName };

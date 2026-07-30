@@ -9,7 +9,9 @@ import { globSync } from "node:fs";
 // The repo's @playwright/test version may pin a different Chromium build than
 // the one pre-installed under /opt/pw-browsers. Point straight at whatever
 // chrome binary is on disk instead of triggering a download.
-const [chromePath] = globSync("/opt/pw-browsers/chromium-*/chrome-linux/chrome");
+const [chromePath] = globSync(
+  "/opt/pw-browsers/chromium-*/chrome-linux/chrome",
+);
 if (!chromePath) {
   throw new Error(
     "No Chromium binary found matching /opt/pw-browsers/chromium-*/chrome-linux/chrome — has the browser layout changed?",
@@ -65,9 +67,12 @@ try {
   // EditionSelection.tsx, etc.) — if networkidle timed out above, this still
   // catches an in-progress fetch that networkidle's bound cut off early.
   await page
-    .waitForFunction(() => !/Loading [^<]*\.\.\./i.test(document.body.innerText), {
-      timeout: 5000,
-    })
+    .waitForFunction(
+      () => !/Loading [^<]*\.\.\./i.test(document.body.innerText),
+      {
+        timeout: 5000,
+      },
+    )
     .catch(() => {}); // fall through — a stuck loading state is itself a useful signal
   await page.waitForTimeout(500); // let any in-flight CSS transition/paint settle
   await page.screenshot({ path: out, fullPage: true });

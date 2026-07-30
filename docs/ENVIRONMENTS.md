@@ -1,10 +1,10 @@
 # Environments
 
-| Env | Project | Used by |
-| --- | --- | --- |
-| **local** | Supabase CLI (`supabase start`) | `pnpm run dev` (default), e2e tests |
-| **staging** | a second Supabase project | `pnpm run dev:staging`, Vercel preview deploys |
-| **prod** | `qssmazlqrmxiudxckxvi` | Vercel production only |
+| Env         | Project                         | Used by                                        |
+| ----------- | ------------------------------- | ---------------------------------------------- |
+| **local**   | Supabase CLI (`supabase start`) | `pnpm run dev` (default), e2e tests            |
+| **staging** | a second Supabase project       | `pnpm run dev:staging`, Vercel preview deploys |
+| **prod**    | `qssmazlqrmxiudxckxvi`          | Vercel production only                         |
 
 The frontend reads `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY` from a Vite env file picked by `--mode`. Vite load order (later overrides earlier):
 
@@ -31,18 +31,18 @@ Settings → Secrets and variables → Actions.
 
 **Variables:**
 
-| Name | Value |
-| --- | --- |
-| `PROD_PROJECT_REF` | `qssmazlqrmxiudxckxvi` |
+| Name                  | Value                     |
+| --------------------- | ------------------------- |
+| `PROD_PROJECT_REF`    | `qssmazlqrmxiudxckxvi`    |
 | `STAGING_PROJECT_REF` | the staging project's ref |
 
 **Secrets:**
 
-| Name | Source |
-| --- | --- |
+| Name                    | Source                                        |
+| ----------------------- | --------------------------------------------- |
 | `SUPABASE_ACCESS_TOKEN` | https://supabase.com/dashboard/account/tokens |
-| `PROD_DB_PASSWORD` | Project Settings → Database |
-| `STAGING_DB_PASSWORD` | Same, on the staging project |
+| `PROD_DB_PASSWORD`      | Project Settings → Database                   |
+| `STAGING_DB_PASSWORD`   | Same, on the staging project                  |
 
 Add a **required-reviewer** rule to the `production` GitHub environment (Settings → Environments → production) so prod migrations pause for approval.
 
@@ -50,12 +50,12 @@ Add a **required-reviewer** rule to the `production` GitHub environment (Setting
 
 Project Settings → Environment Variables. For each Supabase var, add it twice:
 
-| Variable | Production scope (main) | Preview scope (everything else) |
-| --- | --- | --- |
-| `VITE_SUPABASE_URL` | prod URL | staging URL |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | prod anon key | staging anon key |
-| `VITE_PUBLIC_POSTHOG_KEY` | PostHog key | same |
-| `VITE_PUBLIC_POSTHOG_HOST` | PostHog host | same |
+| Variable                        | Production scope (main) | Preview scope (everything else) |
+| ------------------------------- | ----------------------- | ------------------------------- |
+| `VITE_SUPABASE_URL`             | prod URL                | staging URL                     |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | prod anon key           | staging anon key                |
+| `VITE_PUBLIC_POSTHOG_KEY`       | PostHog key             | same                            |
+| `VITE_PUBLIC_POSTHOG_HOST`      | PostHog host            | same                            |
 
 ## Local prerequisites
 

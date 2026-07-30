@@ -9,4 +9,5 @@ yarn.lock
 .idea
 coverage
 *.log
+pnpm-lock.yaml
 src/routeTree.gen.ts

@@ -49,7 +49,10 @@ test.describe("Timeline overview mini-map", () => {
 
     // Click near the right edge of the map, far from wherever the strip
     // is currently centered.
-    await page.mouse.click(mapBox.x + mapBox.width * 0.9, mapBox.y + mapBox.height / 2);
+    await page.mouse.click(
+      mapBox.x + mapBox.width * 0.9,
+      mapBox.y + mapBox.height / 2,
+    );
 
     await expect(page).toHaveURL(/scrollTo=/);
     const scrollTo = new URL(page.url()).searchParams.get("scrollTo");

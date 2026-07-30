@@ -19,7 +19,10 @@ export const Route = createFileRoute(
     );
 
     const basePath = `/festivals/${params.festivalSlug}/editions/${params.editionSlug}`;
-    if (location.pathname === basePath || location.pathname === `${basePath}/`) {
+    if (
+      location.pathname === basePath ||
+      location.pathname === `${basePath}/`
+    ) {
       const phase = getEffectiveFestivalPhase({
         override: edition.phase_override,
         derivedInput: {

@@ -17,17 +17,17 @@ Infer the repo from `git remote -v` — `gh` does this automatically when run in
 
 In remote execution environments the `gh` CLI is often absent and GitHub is reached through the GitHub MCP tools (`mcp__github__*`) instead. Use these equivalents; the `gh` commands above remain the canonical reference for what each operation should do.
 
-| Operation                | `gh` command                | GitHub MCP tool                                            |
-| ------------------------ | --------------------------- | --------------------------------------------------------- |
-| Create an issue          | `gh issue create`           | `issue_write` (method `create`)                           |
-| Read an issue + comments | `gh issue view --comments`  | `issue_read`                                              |
-| List issues              | `gh issue list`             | `list_issues` / `search_issues`                           |
-| Comment on an issue      | `gh issue comment`          | `add_issue_comment`                                       |
-| Apply / remove labels    | `gh issue edit --add-label` | `issue_write` (method `update`, with `labels`)            |
-| Close an issue           | `gh issue close`            | `issue_write` (method `update`, `state: closed`)          |
-| Read a PR + comments     | `gh pr view --comments`     | `pull_request_read`                                       |
-| Read a PR diff           | `gh pr diff`                | `pull_request_read` (diff)                                |
-| List external PRs        | `gh pr list`                | `list_pull_requests` / `search_pull_requests`             |
+| Operation                | `gh` command                | GitHub MCP tool                                  |
+| ------------------------ | --------------------------- | ------------------------------------------------ |
+| Create an issue          | `gh issue create`           | `issue_write` (method `create`)                  |
+| Read an issue + comments | `gh issue view --comments`  | `issue_read`                                     |
+| List issues              | `gh issue list`             | `list_issues` / `search_issues`                  |
+| Comment on an issue      | `gh issue comment`          | `add_issue_comment`                              |
+| Apply / remove labels    | `gh issue edit --add-label` | `issue_write` (method `update`, with `labels`)   |
+| Close an issue           | `gh issue close`            | `issue_write` (method `update`, `state: closed`) |
+| Read a PR + comments     | `gh pr view --comments`     | `pull_request_read`                              |
+| Read a PR diff           | `gh pr diff`                | `pull_request_read` (diff)                       |
+| List external PRs        | `gh pr list`                | `list_pull_requests` / `search_pull_requests`    |
 
 The repo is `chiptus/UpLine` — pass it as the `owner`/`repo` arguments the MCP tools require (they don't infer it from the clone the way `gh` does). Schemas load on demand via ToolSearch.
 

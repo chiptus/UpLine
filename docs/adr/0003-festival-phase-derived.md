@@ -17,7 +17,7 @@ All calendar boundaries reuse the existing `fromZonedTime`-based helper (`conver
 ## Considered Options
 
 - **Derive from existing signals (chosen).** No migration, no state machine to advance, no risk of a stored phase drifting out of sync with the dates/reveal level it should reflect. The phase is always a pure function of current facts + `now`.
-- **Stored `phase` column on `festival_editions`.** Rejected: requires a migration and a mechanism to advance it (cron, admin action, or a trigger on `now`), and introduces a class of "phase says Live but the festival ended last week" bugs. Nothing needs to *remember* a phase that the dates already imply.
+- **Stored `phase` column on `festival_editions`.** Rejected: requires a migration and a mechanism to advance it (cron, admin action, or a trigger on `now`), and introduces a class of "phase says Live but the festival ended last week" bugs. Nothing needs to _remember_ a phase that the dates already imply.
 - **`schedule_release_date` column.** Rejected: adds a third date field that overlaps with `start_date`/`schedule_reveal_level` and must be kept consistent with them. Reveal level already models schedule readiness; a separate release date is redundant state.
 
 ## Consequences

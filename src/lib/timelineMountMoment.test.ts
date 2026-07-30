@@ -73,9 +73,7 @@ describe("resolveTimelineMountMoment", () => {
       now: NOW_INSIDE_WINDOW,
     });
 
-    expect(moment.getTime()).toBe(
-      NOW_INSIDE_WINDOW.getTime() - 60 * 60 * 1000,
-    );
+    expect(moment.getTime()).toBe(NOW_INSIDE_WINDOW.getTime() - 60 * 60 * 1000);
   });
 
   it("clamps the now rule to the window start when now is within the window's first hour", () => {
@@ -181,7 +179,11 @@ describe("resolveTimelineMountMoment", () => {
 describe("isNowWithinFestivalWindow", () => {
   it("is true strictly inside the window", () => {
     expect(
-      isNowWithinFestivalWindow(NOW_INSIDE_WINDOW, FESTIVAL_START, FESTIVAL_END),
+      isNowWithinFestivalWindow(
+        NOW_INSIDE_WINDOW,
+        FESTIVAL_START,
+        FESTIVAL_END,
+      ),
     ).toBe(true);
   });
 
@@ -199,7 +201,11 @@ describe("isNowWithinFestivalWindow", () => {
 
   it("is false before the window opens", () => {
     expect(
-      isNowWithinFestivalWindow(NOW_BEFORE_WINDOW, FESTIVAL_START, FESTIVAL_END),
+      isNowWithinFestivalWindow(
+        NOW_BEFORE_WINDOW,
+        FESTIVAL_START,
+        FESTIVAL_END,
+      ),
     ).toBe(false);
   });
 

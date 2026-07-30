@@ -102,8 +102,11 @@ src/api/festivals/
 
   export async function fetchFestivalBySlug(slug: string): Promise<Festival> {
     const { data, error } = await supabase
-      .from("festivals").select("*")
-      .eq("archived", false).eq("slug", slug).single();
+      .from("festivals")
+      .select("*")
+      .eq("archived", false)
+      .eq("slug", slug)
+      .single();
     if (error) throw new Error("Failed to load festival");
     return data;
   }
@@ -143,7 +146,7 @@ feature's restructure and its router change in the same slice.
 
 Auth-dependent queries (`useProfile`, `useUserPermissions`, `useUserVotes`,
 `useGroupVotes`) can't prefetch in loaders today because `AuthProvider` (and the
-`user` it owns) is rendered *inside* `__root`'s component, below the router.
+`user` it owns) is rendered _inside_ `__root`'s component, below the router.
 
 Decision: **the router resolves the session independently; `AuthProvider` stays
 fully intact.**
@@ -164,7 +167,7 @@ fully intact.**
 
 ## Guiding principles (from the post)
 
-- **Router and Query are complementary.** Router owns URL state + *when* to load
+- **Router and Query are complementary.** Router owns URL state + _when_ to load
   (loaders); Query owns caching, dedup, background refetch, invalidation.
 - **One definition per query** via `queryOptions()` — the same object feeds
   `ensureQueryData` (loader) and `useSuspenseQuery` / `useQuery` (component).

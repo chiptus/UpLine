@@ -19,9 +19,7 @@ test.describe("My-vote chips", () => {
     page,
   }) => {
     await page.goto(TIMELINE_PATH);
-    await expect(
-      page.getByTestId("timeline-scroll-container"),
-    ).toBeVisible();
+    await expect(page.getByTestId("timeline-scroll-container")).toBeVisible();
 
     await expect(
       page.getByRole("group", { name: "Filter by my vote" }),
@@ -82,7 +80,10 @@ test.describe("My-vote chips", () => {
     await chips.getByRole("button", { name: "Interested" }).click();
 
     if (inSheet) {
-      await page.getByRole("dialog").getByRole("button", { name: "Done" }).click();
+      await page
+        .getByRole("dialog")
+        .getByRole("button", { name: "Done" })
+        .click();
       await expect(page.getByRole("dialog")).toHaveCount(0);
     }
 
@@ -96,9 +97,7 @@ test.describe("My-vote chips", () => {
     // Shared URL state: the Timeline view sees the same selection and badge.
     const url = new URL(page.url());
     await page.goto(`${TIMELINE_PATH}${url.search}`);
-    await expect(
-      page.getByTestId("timeline-scroll-container"),
-    ).toBeVisible();
+    await expect(page.getByTestId("timeline-scroll-container")).toBeVisible();
 
     await expect(page.getByTestId("schedule-filters-badge")).toHaveText("2");
     await expect(voteGroup(page, MAYA_SET_NAME)).toBeVisible();

@@ -28,5 +28,9 @@ jobs:
       - name: Run typecheck
         run: pnpm run typecheck
 
+      # Runs before `lint`, which is `oxlint --fix` and mutates the checkout.
+      - name: Check formatting
+        run: pnpm run format:check
+
       - name: Run lint
         run: pnpm run lint

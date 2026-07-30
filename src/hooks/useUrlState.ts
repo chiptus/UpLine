@@ -30,7 +30,6 @@ export function useUrlState() {
       to: ".",
       search: (prev) => ({
         invite: prev.invite,
-        groupId: prev.groupId,
       }),
       replace: true,
     });

@@ -1,10 +1,12 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import type { FilterSortState } from "@/hooks/useUrlState";
 import { FestivalSet } from "@/api/sets/types";
+import { resolveVotesForScope, type VoteScope } from "@/lib/voteScope";
 
 export function useSetFiltering(
   sets: FestivalSet[],
   filterSortState: FilterSortState,
+  voteScope: VoteScope,
   groupMemberIds: Set<string>,
 ) {
   const [lockedOrder, setLockedOrder] = useState<FestivalSet[]>([]);
@@ -37,20 +39,14 @@ export function useSetFiltering(
     if (!filterSortState) return sets;
 
     const filtered = sets
-      .map((set) => {
-        // Filter votes by group if groupId is selected
-        let filteredVotes = set.votes || [];
-        if (filterSortState.groupId && groupMemberIds.size > 0) {
-          filteredVotes = filteredVotes.filter((vote) =>
-            groupMemberIds.has(vote.user_id),
-          );
-        }
-
-        return {
-          ...set,
-          votes: filteredVotes,
-        };
-      })
+      .map((set) => ({
+        ...set,
+        votes: resolveVotesForScope({
+          votes: set.votes || [],
+          scope: voteScope,
+          groupMemberIds,
+        }),
+      }))
       .filter((set) => {
         // Filter out sets without artists for voting tab
         if (!set.artists || set.artists.length === 0) {
@@ -143,7 +139,7 @@ export function useSetFiltering(
     }
 
     return filtered;
-  }, [sets, filterSortState, groupMemberIds, lockedOrder]);
+  }, [sets, filterSortState, voteScope, groupMemberIds, lockedOrder]);
 
   // Update locked order when sort is unlocked
   useEffect(() => {

@@ -18,7 +18,6 @@ export const filterSortSearchSchema = z.object({
   minRating: z.coerce.number().catch(0),
   timelineView: timelineViewSchema.catch("list"),
   use24Hour: z.boolean().catch(true),
-  groupId: z.string().optional(),
   invite: z.string().optional(),
   sortLocked: z.boolean().catch(false),
 });

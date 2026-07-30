@@ -1,53 +1,112 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { SetsPanel } from "@/pages/EditionView/tabs/VoteTab/SetsPanel";
 import { useSetFiltering } from "@/pages/EditionView/tabs/VoteTab/useSetFiltering";
+import { FilterSortControls } from "@/pages/EditionView/tabs/VoteTab/filters/FilterSortControls";
 import { groupMembersQuery } from "@/api/groups/useGroupMembers";
+import { useAuth } from "@/contexts/AuthContext";
+import { useActiveGroup } from "@/hooks/useActiveGroup";
 import type { FestivalSet } from "@/api/sets/types";
 import type { FilterSortState } from "@/hooks/useUrlState";
+import type { BinaryVoteScope, VoteScope } from "@/lib/voteScope";
 
-const EMPTY_GROUP_MEMBER_IDS = new Set<string>();
+const NO_MEMBERS = new Set<string>();
 
 interface FilteredSetsPanelProps {
   sets: FestivalSet[];
   urlState: FilterSortState;
   updateUrlState: (updates: Partial<FilterSortState>) => void;
+  clearFilters: () => void;
+  editionId: string;
 }
 
-// Gates whether the group-members query is mounted at all, so selecting a
-// group filter for the first time suspends this section rather than
-// requiring a separate loading state.
-export function FilteredSetsPanel({
-  sets,
-  urlState,
-  updateUrlState,
-}: FilteredSetsPanelProps) {
-  if (urlState.groupId) {
+export function FilteredSetsPanel(props: FilteredSetsPanelProps) {
+  const { user } = useAuth();
+
+  if (!user) {
     return (
-      <GroupFilteredSetsPanel
-        sets={sets}
-        urlState={urlState}
-        updateUrlState={updateUrlState}
-        groupId={urlState.groupId}
-      />
+      <>
+        <FilterSortControls
+          state={props.urlState}
+          onStateChange={props.updateUrlState}
+          onClear={props.clearFilters}
+          editionId={props.editionId}
+        />
+        <div className="mt-8">
+          <SetsPanelContent
+            sets={props.sets}
+            urlState={props.urlState}
+            updateUrlState={props.updateUrlState}
+            voteScope="everyone"
+            groupMemberIds={NO_MEMBERS}
+          />
+        </div>
+      </>
     );
   }
 
+  return <AuthedFilteredSetsPanel {...props} userId={user.id} />;
+}
+
+// Preference between "everyone" and "group"; the active scope used for
+// filtering falls back to "everyone" whenever there is no Active Group.
+function AuthedFilteredSetsPanel(
+  props: FilteredSetsPanelProps & { userId: string },
+) {
+  const { activeGroupId, activeGroup } = useActiveGroup(props.userId);
+  const [perspective, setPerspective] = useState<BinaryVoteScope>("group");
+
+  const voteScope: VoteScope =
+    perspective === "group" && activeGroupId ? "group" : "everyone";
+
   return (
-    <SetsPanelContent
-      sets={sets}
-      urlState={urlState}
-      updateUrlState={updateUrlState}
-    />
+    <>
+      <FilterSortControls
+        state={props.urlState}
+        onStateChange={props.updateUrlState}
+        onClear={props.clearFilters}
+        editionId={props.editionId}
+        votePerspective={
+          activeGroupId && activeGroup
+            ? {
+                scope: voteScope,
+                onScopeChange: setPerspective,
+                groupName: activeGroup.name,
+              }
+            : undefined
+        }
+      />
+
+      <div className="mt-8">
+        {voteScope === "group" && activeGroupId ? (
+          <GroupScopedSetsPanel
+            sets={props.sets}
+            urlState={props.urlState}
+            updateUrlState={props.updateUrlState}
+            groupId={activeGroupId}
+          />
+        ) : (
+          <SetsPanelContent
+            sets={props.sets}
+            urlState={props.urlState}
+            updateUrlState={props.updateUrlState}
+            voteScope="everyone"
+            groupMemberIds={NO_MEMBERS}
+          />
+        )}
+      </div>
+    </>
   );
 }
 
-function GroupFilteredSetsPanel({
+function GroupScopedSetsPanel({
   sets,
   urlState,
   updateUrlState,
   groupId,
-}: FilteredSetsPanelProps & { groupId: string }) {
+}: Pick<FilteredSetsPanelProps, "sets" | "urlState" | "updateUrlState"> & {
+  groupId: string;
+}) {
   const { data: members } = useSuspenseQuery(groupMembersQuery(groupId));
   const groupMemberIds = useMemo(
     () => new Set(members.map((member) => member.user_id)),
@@ -59,6 +118,7 @@ function GroupFilteredSetsPanel({
       sets={sets}
       urlState={urlState}
       updateUrlState={updateUrlState}
+      voteScope="group"
       groupMemberIds={groupMemberIds}
     />
   );
@@ -68,11 +128,16 @@ function SetsPanelContent({
   sets,
   urlState,
   updateUrlState,
-  groupMemberIds = EMPTY_GROUP_MEMBER_IDS,
-}: FilteredSetsPanelProps & { groupMemberIds?: Set<string> }) {
+  voteScope,
+  groupMemberIds,
+}: Pick<FilteredSetsPanelProps, "sets" | "urlState" | "updateUrlState"> & {
+  voteScope: VoteScope;
+  groupMemberIds: Set<string>;
+}) {
   const { filteredAndSortedSets, lockCurrentOrder } = useSetFiltering(
     sets,
     urlState,
+    voteScope,
     groupMemberIds,
   );
 

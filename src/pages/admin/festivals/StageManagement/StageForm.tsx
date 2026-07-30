@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,9 +14,10 @@ export interface StageFormData {
 
 interface StageFormProps {
   initialData?: Partial<StageFormData>;
-  onSubmit: (data: StageFormData) => Promise<void>;
+  onSubmit: (data: StageFormData) => void;
   onCancel: () => void;
   submitLabel: string;
+  isSubmitting: boolean;
 }
 
 export function StageForm({
@@ -25,8 +25,8 @@ export function StageForm({
   onSubmit,
   onCancel,
   submitLabel,
+  isSubmitting,
 }: StageFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   const {
@@ -45,7 +45,7 @@ export function StageForm({
 
   const colorValue = watch("color");
 
-  async function handleFormSubmit(data: StageFormData) {
+  function handleFormSubmit(data: StageFormData) {
     if (!data.name.trim()) {
       toast({
         title: "Error",
@@ -55,12 +55,7 @@ export function StageForm({
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      await onSubmit(data);
-    } finally {
-      setIsSubmitting(false);
-    }
+    onSubmit(data);
   }
 
   return (

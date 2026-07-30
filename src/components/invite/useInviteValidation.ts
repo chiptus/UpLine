@@ -49,25 +49,30 @@ export function useInviteValidation(inviteToken: string | undefined) {
     }
   }, [inviteValidation, toast]);
 
-  async function useInvite(userId: string) {
-    if (!inviteToken) return false;
+  function useInvite(userId: string): Promise<boolean> {
+    if (!inviteToken) return Promise.resolve(false);
 
-    try {
-      await inviteMutation.mutateAsync({
-        token: inviteToken,
-        userId,
-      });
-
-      toast({
-        title: "Success",
-        description: `Welcome to ${inviteValidation?.group_name || "the group"}!`,
-      });
-
-      return true;
-    } catch (error) {
-      console.error("failed validating invite", error);
-      return false;
-    }
+    return new Promise((resolve) => {
+      inviteMutation.mutate(
+        {
+          token: inviteToken,
+          userId,
+        },
+        {
+          onSuccess: () => {
+            toast({
+              title: "Success",
+              description: `Welcome to ${inviteValidation?.group_name || "the group"}!`,
+            });
+            resolve(true);
+          },
+          onError: (error) => {
+            console.error("failed validating invite", error);
+            resolve(false);
+          },
+        },
+      );
+    });
   }
 
   return {

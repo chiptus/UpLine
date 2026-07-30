@@ -37,7 +37,7 @@ export function MultiArtistSetInfoCard({
       index ===
       self.findIndex((g) => g.music_genre_id === genre.music_genre_id),
   );
-  const { festival } = useFestivalEdition();
+  const { festival, edition } = useFestivalEdition();
   const { canShowStage, canShowDay, canShowTime } = useScheduleReveal();
   const timeRangeFormatted = canShowTime
     ? formatTimeRange(
@@ -98,7 +98,9 @@ export function MultiArtistSetInfoCard({
 
               {/* Performance Information */}
               <div className="flex flex-wrap gap-4 mb-4 text-purple-200">
-                {canShowStage && <StagePin stageId={set.stage_id} />}
+                {canShowStage && edition && (
+                  <StagePin stageId={set.stage_id} editionId={edition.id} />
+                )}
                 {timeRangeFormatted && (
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4" />

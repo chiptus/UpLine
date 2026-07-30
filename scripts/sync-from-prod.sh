@@ -14,6 +14,8 @@
 #      target's public tables, and restore the dump.
 #   3. Run scripts/anonymize.sql against the target to scrub remaining PII in
 #      the public schema.
+#   4. If PRESERVE_ADMIN_EMAILS is set, re-grant admin_roles on the target for
+#      those emails, using prod's admin_role for each.
 #
 # Required env vars (put them in scripts/.env.sync, which is gitignored):
 #   PROD_DB_URL      Postgres connection string for the prod project
@@ -22,6 +24,11 @@
 #   LOCAL_DB_URL     Defaults to the Supabase CLI local DB if unset
 #
 # Skip auth syncing with: SYNC_AUTH=0 pnpm run db:sync:staging
+#
+# Keep specific accounts as admin on the target after the sync (comma-separated
+# emails), regardless of whether prod's admin_role rows point at a different
+# user id on the target:
+#   PRESERVE_ADMIN_EMAILS=chiptus@gmail.com pnpm run db:sync:staging
 #
 set -euo pipefail
 
@@ -155,6 +162,35 @@ SQL
 
 echo "Running anonymizer on public schema…"
 psql "$TARGET_URL" -v ON_ERROR_STOP=1 -f "$SCRIPT_DIR/anonymize.sql"
+
+if [[ -n "${PRESERVE_ADMIN_EMAILS:-}" ]]; then
+  echo "Preserving admin role for: $PRESERVE_ADMIN_EMAILS"
+  ADMIN_ROLES_CSV="$TMP_DIR/prod-admin-roles.csv"
+
+  psql "$PROD_DB_URL" -v ON_ERROR_STOP=1 -c "
+    \copy (
+      SELECT u.email, ar.role
+        FROM public.admin_roles ar
+        JOIN auth.users u ON u.id = ar.user_id
+       WHERE u.email = ANY(string_to_array('$PRESERVE_ADMIN_EMAILS', ','))
+    ) TO '$ADMIN_ROLES_CSV' WITH (FORMAT csv)
+  "
+
+  psql "$TARGET_URL" -v ON_ERROR_STOP=1 <<SQL
+CREATE TEMP TABLE _preserve_admin_roles (
+  email varchar,
+  role admin_role
+);
+
+\copy _preserve_admin_roles FROM '$ADMIN_ROLES_CSV' WITH (FORMAT csv)
+
+INSERT INTO public.admin_roles (user_id, role)
+SELECT u.id, p.role
+  FROM _preserve_admin_roles p
+  JOIN auth.users u ON u.email = p.email
+ON CONFLICT (user_id, role) DO NOTHING;
+SQL
+fi
 
 echo "Done."
 if [[ "$SYNC_AUTH" == "1" ]]; then

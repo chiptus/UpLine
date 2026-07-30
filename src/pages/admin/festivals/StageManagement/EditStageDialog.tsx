@@ -24,24 +24,21 @@ export function EditStageDialog({
   const updateStageMutation = useUpdateStageMutation();
 
   function handleSubmit(data: StageFormData) {
-    if (!stage) return Promise.resolve();
+    if (!stage) return;
 
-    return new Promise<void>((resolve) => {
-      updateStageMutation.mutate(
-        {
-          stageId: stage.id,
-          stageData: {
-            name: data.name,
-            stage_order: data.stage_order,
-            color: data.color,
-          },
+    updateStageMutation.mutate(
+      {
+        stageId: stage.id,
+        stageData: {
+          name: data.name,
+          stage_order: data.stage_order,
+          color: data.color,
         },
-        {
-          onSuccess: () => onClose(),
-          onSettled: () => resolve(),
-        },
-      );
-    });
+      },
+      {
+        onSuccess: () => onClose(),
+      },
+    );
   }
 
   if (!stage) return null;
@@ -64,6 +61,7 @@ export function EditStageDialog({
           onSubmit={handleSubmit}
           onCancel={onClose}
           submitLabel="Update"
+          isSubmitting={updateStageMutation.isPending}
         />
       </DialogContent>
     </Dialog>

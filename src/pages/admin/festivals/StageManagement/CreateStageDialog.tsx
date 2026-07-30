@@ -21,18 +21,15 @@ export function CreateStageDialog({ editionId }: CreateStageDialogProps) {
   const createStageMutation = useCreateStageMutation();
 
   function handleSubmit(data: StageFormData) {
-    return new Promise<void>((resolve) => {
-      createStageMutation.mutate(
-        {
-          ...data,
-          festival_edition_id: editionId,
-        },
-        {
-          onSuccess: () => setIsOpen(false),
-          onSettled: () => resolve(),
-        },
-      );
-    });
+    createStageMutation.mutate(
+      {
+        ...data,
+        festival_edition_id: editionId,
+      },
+      {
+        onSuccess: () => setIsOpen(false),
+      },
+    );
   }
 
   function handleCancel() {
@@ -58,6 +55,7 @@ export function CreateStageDialog({ editionId }: CreateStageDialogProps) {
           onSubmit={handleSubmit}
           onCancel={handleCancel}
           submitLabel="Create"
+          isSubmitting={createStageMutation.isPending}
         />
       </DialogContent>
     </Dialog>

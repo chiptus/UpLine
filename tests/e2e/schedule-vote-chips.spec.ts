@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, Page } from "@playwright/test";
 import { signIn } from "../utils/login";
 
 // Seeded in supabase/seed.sql: festival slug "test", edition slug "2025".
@@ -10,7 +10,7 @@ const MAYA_SET_NAME = "Maya Jane Coles";
 const BEN_SET_NAME = "Ben Böhmer";
 const KIARA_SET_NAME = "Kiara Scuro";
 
-function voteGroup(page: import("@playwright/test").Page, setName: string) {
+function voteGroup(page: Page, setName: string) {
   return page.getByRole("group", { name: `Vote for ${setName}` });
 }
 
@@ -19,16 +19,14 @@ test.describe("My-vote chips", () => {
     page,
   }) => {
     await page.goto(TIMELINE_PATH);
-    await expect(
-      page.getByTestId("timeline-scroll-container"),
-    ).toBeVisible();
+    await expect(page.getByTestId("timeline-scroll-container")).toBeVisible();
 
     await expect(
       page.getByRole("group", { name: "Filter by my vote" }),
     ).toHaveCount(0);
 
     await page.goto(LIST_PATH);
-    await expect(page.getByTestId("list-schedule")).toBeVisible();
+    await expect(listSchedule(page)).toBeVisible();
 
     await expect(
       page.getByRole("group", { name: "Filter by my vote" }),
@@ -39,7 +37,7 @@ test.describe("My-vote chips", () => {
     page,
   }) => {
     await page.goto(`${LIST_PATH}?votes=mustGo`);
-    await expect(page.getByTestId("list-schedule")).toBeVisible();
+    await expect(listSchedule(page)).toBeVisible();
 
     // No viewer identity, so the vote filter must not empty the schedule.
     await expect(voteGroup(page, MAYA_SET_NAME)).toBeVisible();
@@ -56,7 +54,7 @@ test.describe("My-vote chips", () => {
     await signIn(page);
 
     await page.goto(LIST_PATH);
-    await expect(page.getByTestId("list-schedule")).toBeVisible();
+    await expect(listSchedule(page)).toBeVisible();
 
     // Vote Must Go on one set and Interested on another, leaving a third
     // (Kiara Scuro) unvoted.
@@ -67,11 +65,15 @@ test.describe("My-vote chips", () => {
       .getByRole("button", { name: "Interested" })
       .click();
 
-    // Below md the chips live inside the filter sheet, not the toolbar.
-    let chips = page.getByRole("group", { name: "Filter by my vote" });
+    // Below md the chips live inside the filter sheet, not the day header.
+    let chips = firstDayHeader(page).getByRole("group", {
+      name: "Filter by my vote",
+    });
     const inSheet = !(await chips.isVisible());
     if (inSheet) {
-      await page.getByTestId("schedule-filters-trigger").click();
+      await firstDayHeader(page)
+        .getByTestId("schedule-filters-trigger")
+        .click();
       chips = page.getByRole("dialog").getByRole("group", {
         name: "Filter by my vote",
       });
@@ -82,12 +84,17 @@ test.describe("My-vote chips", () => {
     await chips.getByRole("button", { name: "Interested" }).click();
 
     if (inSheet) {
-      await page.getByRole("dialog").getByRole("button", { name: "Done" }).click();
+      await page
+        .getByRole("dialog")
+        .getByRole("button", { name: "Done" })
+        .click();
       await expect(page.getByRole("dialog")).toHaveCount(0);
     }
 
     await expect(page).toHaveURL(/votes=/);
-    await expect(page.getByTestId("schedule-filters-badge")).toHaveText("2");
+    await expect(
+      firstDayHeader(page).getByTestId("schedule-filters-badge"),
+    ).toHaveText("2");
 
     await expect(voteGroup(page, MAYA_SET_NAME)).toBeVisible();
     await expect(voteGroup(page, BEN_SET_NAME)).toBeVisible();
@@ -96,12 +103,20 @@ test.describe("My-vote chips", () => {
     // Shared URL state: the Timeline view sees the same selection and badge.
     const url = new URL(page.url());
     await page.goto(`${TIMELINE_PATH}${url.search}`);
-    await expect(
-      page.getByTestId("timeline-scroll-container"),
-    ).toBeVisible();
+    await expect(page.getByTestId("timeline-scroll-container")).toBeVisible();
 
     await expect(page.getByTestId("schedule-filters-badge")).toHaveText("2");
     await expect(voteGroup(page, MAYA_SET_NAME)).toBeVisible();
     await expect(voteGroup(page, KIARA_SET_NAME)).toHaveCount(0);
   });
 });
+
+function listSchedule(page: Page) {
+  return page.getByRole("region", { name: "Schedule by day" });
+}
+
+// Every sticky day header carries its own copy of the filter controls, so
+// list-view assertions have to name a single day group.
+function firstDayHeader(page: Page) {
+  return listSchedule(page).getByRole("region").first();
+}

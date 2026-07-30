@@ -75,7 +75,6 @@ test.describe("Voting on a set", () => {
     await expect(mustGo).toHaveAttribute("aria-pressed", "true");
 
     await page.reload();
-    await page.waitForLoadState("networkidle");
 
     const setCardAfterReload = page
       .getByTestId("artist-item")
@@ -139,11 +138,11 @@ test.describe("Voting without authentication", () => {
     page,
   }) => {
     await page.goto(EDITION_SETS_PATH);
-    await page.waitForLoadState("networkidle");
 
     const setCard = page
       .getByTestId("artist-item")
       .filter({ hasText: "Moderat" });
+    await expect(setCard).toBeVisible();
     const mustGo = voteButton(setCard, "mustGo");
 
     await mustGo.click();
@@ -155,7 +154,6 @@ test.describe("Voting without authentication", () => {
 
 async function goToSet(page: Page, setName: string): Promise<Locator> {
   await page.goto(EDITION_SETS_PATH);
-  await page.waitForLoadState("networkidle");
 
   const setCard = page.getByTestId("artist-item").filter({ hasText: setName });
   await expect(setCard).toBeVisible();

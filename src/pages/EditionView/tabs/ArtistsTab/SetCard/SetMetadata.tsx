@@ -1,18 +1,20 @@
 import { Clock } from "lucide-react";
 import { formatDayOnly, formatTimeRange } from "@/lib/timeUtils";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useRouteContext } from "@tanstack/react-router";
 import { GenreBadge } from "@/components/GenreBadge";
 import { StageBadge } from "@/components/StageBadge";
 import { useFestivalSet } from "../FestivalSetContext";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 
 export function SetMetadata() {
   const { set, use24Hour } = useFestivalSet();
-  const { festival, edition } = useFestivalEdition();
+  const { festival, edition } = useRouteContext({
+    from: "/festivals/$festivalSlug/editions/$editionSlug",
+  });
   const { canShowStage, canShowDay, canShowTime } = useScheduleReveal();
-  const { data: stages } = useSuspenseQuery(stagesByEditionQuery(edition!.id));
+  const { data: stages } = useSuspenseQuery(stagesByEditionQuery(edition.id));
   const stage = canShowStage
     ? stages.find((s) => s.id === set?.stage_id)
     : undefined;

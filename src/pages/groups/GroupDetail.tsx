@@ -15,6 +15,7 @@ import { Users, UserMinus, Crown } from "lucide-react";
 import { InviteManagement } from "./GroupDetail/InviteManagement";
 import { AddMemberForm } from "./GroupDetail/AddMemberForm";
 import { Button } from "@/components/ui/button";
+import { confirm } from "@/hooks/use-confirm";
 import { groupBySlugQuery } from "@/api/groups/useGroupBySlug";
 import { groupMembersQuery } from "@/api/groups/useGroupMembers";
 import { useRemoveMemberMutation } from "@/api/groups/useRemoveMember";
@@ -48,7 +49,7 @@ function GroupDetail() {
 
 function GroupDetailContent({ user }: { user: User }) {
   const { groupSlug } = useParams({ from: "/groups/$groupSlug" });
-  const [removingMember, setRemovingMember] = useState<string | null>(null);
+  const [removingMemberId, setRemovingMemberId] = useState<string | null>(null);
 
   const { data: group } = useSuspenseQuery(
     groupBySlugQuery(groupSlug, user.id),
@@ -163,9 +164,12 @@ function GroupDetailContent({ user }: { user: User }) {
                             variant="destructive"
                             size="sm"
                             onClick={() =>
-                              handleRemoveMember(member.id, member.user_id)
+                              handleRemoveMemberRequest(
+                                member.id,
+                                member.user_id,
+                              )
                             }
-                            disabled={removingMember === member.id}
+                            disabled={removingMemberId === member.id}
                           >
                             <UserMinus className="h-4 w-4" />
                           </Button>
@@ -194,24 +198,23 @@ function GroupDetailContent({ user }: { user: User }) {
     </div>
   );
 
-  function handleRemoveMember(memberId: string, memberUserId: string) {
-    if (
-      window.confirm(
+  async function handleRemoveMemberRequest(
+    memberId: string,
+    memberUserId: string,
+  ) {
+    const confirmed = await confirm({
+      title: "Remove this member?",
+      description:
         "Are you sure you want to remove this member from the group?",
-      )
-    ) {
-      setRemovingMember(memberId);
-      removeMemberMutation.mutate(
-        {
-          userId: memberUserId,
-          currentUserId: user.id,
-        },
-        {
-          // The mutation automatically invalidates queries and shows toast
-          onSettled: () => setRemovingMember(null),
-        },
-      );
-    }
+      confirmLabel: "Remove",
+    });
+    if (!confirmed) return;
+
+    setRemovingMemberId(memberId);
+    removeMemberMutation.mutate(
+      { userId: memberUserId, currentUserId: user.id },
+      { onSettled: () => setRemovingMemberId(null) },
+    );
   }
 }
 

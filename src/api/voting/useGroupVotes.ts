@@ -12,7 +12,6 @@ async function fetchGroupVotes(
   setId: string,
   groupId: string,
 ): Promise<GroupVote[]> {
-  // First get group member user IDs
   const { data: groupMembers, error: membersError } = await supabase
     .from("group_members")
     .select("user_id")
@@ -28,10 +27,9 @@ async function fetchGroupVotes(
 
   const memberIds = groupMembers.map((member) => member.user_id);
 
-  // Then get votes from those users for this set
   const { data: votes, error: votesError } = await supabase
     .from("votes")
-    .select("vote_type, user_id")
+    .select("vote_type, user_id, profiles(username)")
     .eq("set_id", setId)
     .in("user_id", memberIds);
 
@@ -39,31 +37,15 @@ async function fetchGroupVotes(
     throw new Error("Failed to fetch group votes");
   }
 
-  if (!votes || votes.length === 0) {
+  if (!votes) {
     return [];
   }
 
-  // Finally get usernames for the voters
-  const { data: profiles, error: profilesError } = await supabase
-    .from("profiles")
-    .select("id, username")
-    .in(
-      "id",
-      votes.map((vote) => vote.user_id),
-    );
-
-  if (profilesError) {
-    console.error("Error fetching profiles:", profilesError);
-  }
-
-  return votes.map((vote) => {
-    const profile = profiles?.find((p) => p.id === vote.user_id);
-    return {
-      vote_type: vote.vote_type,
-      user_id: vote.user_id,
-      username: profile?.username || null,
-    };
-  });
+  return votes.map((vote) => ({
+    vote_type: vote.vote_type,
+    user_id: vote.user_id,
+    username: vote.profiles?.username || null,
+  }));
 }
 
 export function groupVotesQuery(setId: string, groupId: string) {

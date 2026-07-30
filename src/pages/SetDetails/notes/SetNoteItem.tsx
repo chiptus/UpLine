@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { confirm } from "@/hooks/use-confirm";
 import { SetNote } from "@/api/artist-notes/types";
 import { useDeleteNoteMutation } from "@/api/artist-notes/useDeleteNoteMutation";
 import { Trash2Icon } from "lucide-react";
@@ -22,7 +23,7 @@ export function SetNoteItem({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleDelete(note.id)}
+            onClick={handleDelete}
             className="border-red-400/50 text-red-400 hover:bg-red-400 hover:text-white"
             disabled={deleteNoteMutation.isPending}
           >
@@ -39,9 +40,15 @@ export function SetNoteItem({
     </div>
   );
 
-  async function handleDelete(noteId: string) {
-    if (window.confirm("Are you sure you want to delete this note?")) {
-      deleteNoteMutation.mutate(noteId, {});
-    }
+  async function handleDelete() {
+    const confirmed = await confirm({
+      title: "Delete this note?",
+      description:
+        "Are you sure you want to delete this note? This action cannot be undone.",
+      confirmLabel: "Delete",
+    });
+    if (!confirmed) return;
+
+    deleteNoteMutation.mutate(note.id);
   }
 }

@@ -1,5 +1,5 @@
 import { createFileRoute, stripSearchParams } from "@tanstack/react-router";
-import { ScheduleTabTimeline } from "@/pages/EditionView/tabs/ScheduleTab/TimelineTab";
+import { Timeline } from "@/pages/EditionView/tabs/ScheduleTab/horizontal/Timeline";
 import {
   timelineSearchDefaults,
   timelineSearchSchema,
@@ -14,3 +14,7 @@ export const Route = createFileRoute(
     middlewares: [stripSearchParams(timelineSearchDefaults)],
   },
 });
+
+function ScheduleTabTimeline() {
+  return <Timeline />;
+}

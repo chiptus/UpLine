@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, Copy, ArrowLeft, Zap } from "lucide-react";
-import { useDuplicateArtistsQuery } from "@/api/artists/useDuplicateArtists";
+import { duplicateArtistsQuery } from "@/api/artists/useDuplicateArtists";
 import { DuplicateGroupCard } from "@/pages/admin/ArtistsManagement/DuplicateGroupCard";
 import { BulkMergeDialog } from "@/pages/admin/ArtistsManagement/BulkMergeDialog";
 import { Link } from "@tanstack/react-router";
@@ -14,45 +15,14 @@ export const Route = createFileRoute("/admin/artists/duplicates")({
   component: DuplicateArtistsPage,
   loader: async ({ context }) => {
     void context.queryClient.ensureQueryData(genresQuery());
+    void context.queryClient.ensureQueryData(duplicateArtistsQuery());
   },
 });
 
 function DuplicateArtistsPage() {
-  const duplicatesQuery = useDuplicateArtistsQuery();
+  const duplicatesQuery = useSuspenseQuery(duplicateArtistsQuery());
   const [selectedGroups, setSelectedGroups] = useState<Set<string>>(new Set());
   const [showBulkMerge, setShowBulkMerge] = useState(false);
-
-  if (duplicatesQuery.isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading duplicate artists...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (duplicatesQuery.error) {
-    return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="text-center text-destructive">
-            <AlertTriangle className="h-8 w-8 mx-auto mb-2" />
-            <p>Failed to load duplicate artists</p>
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-2"
-              onClick={() => duplicatesQuery.refetch()}
-            >
-              Retry
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
 
   const duplicateGroups = duplicatesQuery.data || [];
   const totalDuplicates = duplicateGroups.reduce(

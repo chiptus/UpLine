@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
-import { useArtistsQuery } from "@/api/artists/useArtists";
+import { artistsQuery } from "@/api/artists/useArtists";
 import { AddArtistDialog } from "@/pages/admin/ArtistsManagement/AddArtistDialog";
 import { BulkEditorHeader } from "@/pages/admin/ArtistsManagement/components/BulkEditorHeader";
 import { BulkEditorSearchAndActions } from "@/pages/admin/ArtistsManagement/components/BulkEditorSearchAndActions";
 import { BulkEditorTable } from "@/pages/admin/ArtistsManagement/components/BulkEditorTable";
 import { BulkEditorFooter } from "@/pages/admin/ArtistsManagement/components/BulkEditorFooter";
-import { BulkEditorLoadingState } from "@/pages/admin/ArtistsManagement/components/BulkEditorLoadingState";
 import { useArtistSorting } from "@/pages/admin/ArtistsManagement/hooks/useArtistSorting";
 import { useArtistFiltering } from "@/pages/admin/ArtistsManagement/hooks/useArtistFiltering";
 import { useArtistSelection } from "@/pages/admin/ArtistsManagement/hooks/useArtistSelection";
@@ -17,14 +17,14 @@ export const Route = createFileRoute("/admin/artists")({
   component: ArtistBulkEditor,
   loader: async ({ context }) => {
     void context.queryClient.ensureQueryData(genresQuery());
+    void context.queryClient.ensureQueryData(artistsQuery());
   },
 });
 
 function ArtistBulkEditor() {
   const [addArtistOpen, setAddArtistOpen] = useState(false);
 
-  const artistsQuery = useArtistsQuery();
-  const artists = useMemo(() => artistsQuery.data || [], [artistsQuery.data]);
+  const { data: artists } = useSuspenseQuery(artistsQuery());
 
   // Custom hooks for managing state and logic
   const { sortConfig, handleSort, sortArtists } = useArtistSorting();
@@ -41,10 +41,6 @@ function ArtistBulkEditor() {
   // Wrapper function for select all
   function handleSelectAllWrapper() {
     handleSelectAll(filteredAndSortedArtists.map((a) => a.id));
-  }
-
-  if (artistsQuery.isLoading) {
-    return <BulkEditorLoadingState />;
   }
 
   return (

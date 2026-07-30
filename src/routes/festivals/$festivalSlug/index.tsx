@@ -1,4 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 import { editionsForFestivalQuery } from "@/api/editions/useFestivalEditionsForFestival";
 import { Calendar, MapPin, Clock, Users, ArrowLeft } from "lucide-react";
@@ -14,7 +15,6 @@ import { Button } from "@/components/ui/button";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { Link } from "@tanstack/react-router";
-import { useFestivalEditionsForFestivalQuery } from "@/api/editions/useFestivalEditionsForFestival";
 import { FestivalEdition } from "@/api/editions/types";
 import { TopBar } from "@/components/layout/TopBar";
 
@@ -42,25 +42,9 @@ export const Route = createFileRoute("/festivals/$festivalSlug/")({
 
 function EditionSelection() {
   const { festival } = useFestivalEdition();
-  const editionListQuery = useFestivalEditionsForFestivalQuery(festival?.id);
-
-  if (!festival) {
-    return (
-      <div className="min-h-screen bg-app-gradient flex items-center justify-center">
-        <div className="text-white text-xl">Loading festival...</div>
-      </div>
-    );
-  }
-
-  if (editionListQuery.isLoading) {
-    return (
-      <div className="min-h-screen bg-app-gradient flex items-center justify-center">
-        <div className="text-white text-xl">Loading editions...</div>
-      </div>
-    );
-  }
-
-  const availableEditions = editionListQuery.data || [];
+  const { data: availableEditions } = useSuspenseQuery(
+    editionsForFestivalQuery(festival.id),
+  );
 
   if (availableEditions.length === 0) {
     return (

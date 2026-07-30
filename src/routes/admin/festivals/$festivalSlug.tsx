@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useParams, useNavigate, Outlet } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { FestivalEditionManagement } from "@/pages/admin/festivals/FestivalEditionManagement";
 import { FestivalMissingInfoBadge } from "@/pages/admin/festivals/FestivalMissingInfoBadge";
 import { FestivalInfoDetails } from "@/pages/admin/festivals/info/FestivalInfoDetails";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useFestivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
-import { Loader2, Info, ChevronDown, ChevronUp } from "lucide-react";
+import { Info, ChevronDown, ChevronUp } from "lucide-react";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 
 export const Route = createFileRoute("/admin/festivals/$festivalSlug")({
@@ -21,46 +21,22 @@ export const Route = createFileRoute("/admin/festivals/$festivalSlug")({
 });
 
 function FestivalDetail() {
-  const { festivalSlug, editionSlug = "" } = useParams({ strict: false });
+  const { festivalSlug } = Route.useParams();
+  const { editionSlug = "" } = useParams({ strict: false });
   const [showFestivalInfo, setShowFestivalInfo] = useState(false);
   const navigate = useNavigate();
 
-  const festivalQuery = useFestivalBySlugQuery(festivalSlug);
-
-  if (!festivalSlug) {
-    return <div>festivalSlug param is missing</div>;
-  }
-
-  if (festivalQuery.isLoading) {
-    return (
-      <Card>
-        <CardContent className="flex items-center justify-center p-8">
-          <Loader2 className="h-6 w-6 animate-spin mr-2" />
-          <span>Loading festivals...</span>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (!festivalQuery.data) {
-    return (
-      <Card>
-        <CardContent className="flex items-center justify-center p-8">
-          <span>Festival not found</span>
-        </CardContent>
-      </Card>
-    );
-  }
+  const { data: festival } = useSuspenseQuery(
+    festivalBySlugQuery(festivalSlug),
+  );
 
   function handleEditionSelect(editionSlug: string | undefined) {
-    if (!editionSlug || !festivalSlug) return;
+    if (!editionSlug) return;
     navigate({
       to: "/admin/festivals/$festivalSlug/editions/$editionSlug/stages",
       params: { festivalSlug, editionSlug },
     });
   }
-
-  const festival = festivalQuery.data;
 
   return (
     <>

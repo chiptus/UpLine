@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { useAdminRolesQuery } from "@/api/admin-roles/useAdminRolesQuery";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { adminRolesQuery } from "@/api/admin-roles/useAdminRolesQuery";
 import { useAddAdminMutation } from "@/api/admin-roles/useAddAdminMutation";
 import { useRemoveAdminMutation } from "@/api/admin-roles/useRemoveAdminMutation";
 import { useUpdateAdminRoleMutation } from "@/api/admin-roles/useUpdateAdminRoleMutation";
@@ -54,6 +55,9 @@ import type { Database } from "@/integrations/supabase/types";
 
 export const Route = createFileRoute("/admin/admins")({
   component: AdminRolesTable,
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(adminRolesQuery());
+  },
 });
 
 function AdminRolesTable() {
@@ -62,8 +66,7 @@ function AdminRolesTable() {
   const [newUserRole, setNewUserRole] =
     useState<Database["public"]["Enums"]["admin_role"]>("moderator");
 
-  // React Query hooks
-  const { data: adminRoles = [], isLoading } = useAdminRolesQuery();
+  const { data: adminRoles } = useSuspenseQuery(adminRolesQuery());
   const addAdminMutation = useAddAdminMutation();
   const removeAdminMutation = useRemoveAdminMutation();
   const updateRoleMutation = useUpdateAdminRoleMutation();
@@ -108,16 +111,6 @@ function AdminRolesTable() {
       default:
         return "outline";
     }
-  }
-
-  if (isLoading) {
-    return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="text-center">Loading admin roles...</div>
-        </CardContent>
-      </Card>
-    );
   }
 
   return (

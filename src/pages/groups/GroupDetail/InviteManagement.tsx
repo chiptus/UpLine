@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { confirm } from "@/hooks/use-confirm";
 import { Link, Copy, Trash2, Calendar, Users } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -80,8 +81,15 @@ export function InviteManagement({
     }
   }
 
-  function deleteInvite(inviteId: string) {
-    if (!window.confirm("Are you sure you want to delete this invite?")) return;
+  async function handleDeleteInviteRequest(inviteId: string) {
+    const confirmed = await confirm({
+      title: "Delete this invite?",
+      description:
+        "Are you sure you want to delete this invite? This action cannot be undone.",
+      confirmLabel: "Delete",
+    });
+    if (!confirmed) return;
+
     deleteInviteMutation.mutate(inviteId);
   }
 
@@ -201,7 +209,7 @@ export function InviteManagement({
                       <Button
                         variant="destructive"
                         size="sm"
-                        onClick={() => deleteInvite(invite.id)}
+                        onClick={() => handleDeleteInviteRequest(invite.id)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

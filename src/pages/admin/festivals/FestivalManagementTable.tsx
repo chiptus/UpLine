@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { confirm } from "@/hooks/use-confirm";
 import { Edit2, Trash2, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FestivalLogoDialog } from "./FestivalLogoDialog";
@@ -32,14 +33,13 @@ export function FestivalManagementTable({
   const [selectedFestivalForLogo, setSelectedFestivalForLogo] =
     useState<Festival | null>(null);
 
-  function handleDelete(festival: Festival) {
-    if (
-      !confirm(
-        `Are you sure you want to delete "${festival.name}"? This will also delete all associated editions, stages, and sets.`,
-      )
-    ) {
-      return;
-    }
+  async function handleDeleteRequest(festival: Festival) {
+    const confirmed = await confirm({
+      title: "Delete this festival?",
+      description: `Are you sure you want to delete "${festival.name}"? This will also delete all associated editions, stages, and sets.`,
+      confirmLabel: "Delete",
+    });
+    if (!confirmed) return;
 
     deleteFestivalMutation.mutate(festival.id);
   }
@@ -116,7 +116,7 @@ export function FestivalManagementTable({
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      handleDelete(festival);
+                      handleDeleteRequest(festival);
                     }}
                     className="text-destructive hover:text-destructive"
                     title="Delete festival"

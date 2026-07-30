@@ -194,22 +194,23 @@ function GroupDetailContent({ user }: { user: User }) {
     </div>
   );
 
-  async function handleRemoveMember(memberId: string, memberUserId: string) {
+  function handleRemoveMember(memberId: string, memberUserId: string) {
     if (
       window.confirm(
         "Are you sure you want to remove this member from the group?",
       )
     ) {
       setRemovingMember(memberId);
-      try {
-        await removeMemberMutation.mutateAsync({
+      removeMemberMutation.mutate(
+        {
           userId: memberUserId,
           currentUserId: user.id,
-        });
-        // The mutation automatically invalidates queries and shows toast
-      } finally {
-        setRemovingMember(null);
-      }
+        },
+        {
+          // The mutation automatically invalidates queries and shows toast
+          onSettled: () => setRemovingMember(null),
+        },
+      );
     }
   }
 }

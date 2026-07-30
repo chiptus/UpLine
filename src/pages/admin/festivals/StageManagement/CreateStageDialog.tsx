@@ -20,12 +20,19 @@ export function CreateStageDialog({ editionId }: CreateStageDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const createStageMutation = useCreateStageMutation();
 
-  async function handleSubmit(data: StageFormData) {
-    await createStageMutation.mutateAsync({
-      ...data,
-      festival_edition_id: editionId,
+  function handleSubmit(data: StageFormData) {
+    return new Promise<void>((resolve) => {
+      createStageMutation.mutate(
+        {
+          ...data,
+          festival_edition_id: editionId,
+        },
+        {
+          onSuccess: () => setIsOpen(false),
+          onSettled: () => resolve(),
+        },
+      );
     });
-    setIsOpen(false);
   }
 
   function handleCancel() {

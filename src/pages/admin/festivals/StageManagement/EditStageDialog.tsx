@@ -23,18 +23,25 @@ export function EditStageDialog({
 }: EditStageDialogProps) {
   const updateStageMutation = useUpdateStageMutation();
 
-  async function handleSubmit(data: StageFormData) {
-    if (!stage) return;
+  function handleSubmit(data: StageFormData) {
+    if (!stage) return Promise.resolve();
 
-    await updateStageMutation.mutateAsync({
-      stageId: stage.id,
-      stageData: {
-        name: data.name,
-        stage_order: data.stage_order,
-        color: data.color,
-      },
+    return new Promise<void>((resolve) => {
+      updateStageMutation.mutate(
+        {
+          stageId: stage.id,
+          stageData: {
+            name: data.name,
+            stage_order: data.stage_order,
+            color: data.color,
+          },
+        },
+        {
+          onSuccess: () => onClose(),
+          onSettled: () => resolve(),
+        },
+      );
     });
-    onClose();
   }
 
   if (!stage) return null;

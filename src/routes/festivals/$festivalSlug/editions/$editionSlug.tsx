@@ -1,5 +1,8 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import EditionLayout from "@/pages/EditionView/EditionLayout";
+import { createFileRoute, redirect, Outlet } from "@tanstack/react-router";
+import { EditionHeader } from "@/pages/EditionView/EditionHeader";
+import { MainTabNavigation } from "@/pages/EditionView/TabNavigation/TabNavigation";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { editionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { getEffectiveFestivalPhase } from "@/lib/festivalPhase";
@@ -19,7 +22,10 @@ export const Route = createFileRoute(
     );
 
     const basePath = `/festivals/${params.festivalSlug}/editions/${params.editionSlug}`;
-    if (location.pathname === basePath || location.pathname === `${basePath}/`) {
+    if (
+      location.pathname === basePath ||
+      location.pathname === `${basePath}/`
+    ) {
       const phase = getEffectiveFestivalPhase({
         override: edition.phase_override,
         derivedInput: {
@@ -46,3 +52,35 @@ export const Route = createFileRoute(
     );
   },
 });
+
+function EditionLayout() {
+  const { festival, edition } = useFestivalEdition();
+
+  if (!edition) {
+    return (
+      <div className="min-h-screen bg-app-gradient flex items-center justify-center">
+        <div className="text-white text-xl">Loading edition...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-app-gradient">
+      <div className="container mx-auto px-4 py-4 md:py-8 pb-20 md:pb-8">
+        <EditionHeader
+          title={`${festival.name} - ${edition.name}`}
+          festivalName={festival.name}
+          logoUrl={festival.logo_url}
+        />
+
+        <MainTabNavigation />
+
+        <div className="mt-4 md:mt-8">
+          <ErrorBoundary>
+            <Outlet />
+          </ErrorBoundary>
+        </div>
+      </div>
+    </div>
+  );
+}

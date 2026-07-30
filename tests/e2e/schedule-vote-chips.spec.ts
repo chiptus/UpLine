@@ -68,10 +68,14 @@ test.describe("My-vote chips", () => {
       .click();
 
     // Below md the chips live inside the filter sheet, not the toolbar.
-    let chips = page.getByRole("group", { name: "Filter by my vote" }).first();
+    const dayGroups = page.getByRole("region");
+    const firstDayGroup = dayGroups.first();
+
+    let chips = firstDayGroup.getByRole("group", { name: "Filter by my vote" });
     const inSheet = !(await chips.isVisible());
     if (inSheet) {
-      await page.getByTestId("schedule-filters-trigger").first().click();
+      const filterButton = firstDayGroup.getByRole("button", { name: "Filters" });
+      await filterButton.click();
       chips = page.getByRole("dialog").getByRole("group", {
         name: "Filter by my vote",
       });

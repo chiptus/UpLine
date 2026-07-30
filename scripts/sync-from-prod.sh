@@ -184,8 +184,8 @@ CREATE TEMP TABLE _preserve_admin_roles (
 
 \copy _preserve_admin_roles FROM '$ADMIN_ROLES_CSV' WITH (FORMAT csv)
 
-INSERT INTO public.admin_roles (user_id, role)
-SELECT u.id, p.role
+INSERT INTO public.admin_roles (user_id, role, created_by)
+SELECT u.id, p.role, u.id
   FROM _preserve_admin_roles p
   JOIN auth.users u ON u.email = p.email
 ON CONFLICT (user_id, role) DO NOTHING;

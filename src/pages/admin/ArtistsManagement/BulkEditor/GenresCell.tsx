@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { GenreMultiSelect } from "../GenreMultiSelect";
-import { useGenresQuery } from "@/api/genres/useGenres";
+import { genresQuery } from "@/api/genres/useGenres";
 import { Check, X } from "lucide-react";
 
 interface GenresCellProps {
@@ -13,7 +14,7 @@ export function GenresCell({ value, onSave }: GenresCellProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [genreIds, setGenreIds] = useState<string[]>([]);
 
-  const { data: genres = [] } = useGenresQuery();
+  const { data: genres } = useSuspenseQuery(genresQuery());
 
   function handleEdit() {
     const currentGenreIds = value || [];

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Link } from "@tanstack/react-router";
 import { UserPlus, Users } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,22 +12,35 @@ const groupsButtonClassName =
 
 export function GroupsIndicator({ isMobile }: { isMobile: boolean }) {
   const { user } = useAuth();
-  const { activeGroup, hasGroups, isLoading } = useActiveGroup();
 
   if (!user) {
     return null;
   }
 
-  if (isLoading) {
-    return (
-      <Skeleton
-        className={cn(
-          "bg-purple-400/20",
-          isMobile ? "h-9 w-9 rounded-md" : "h-10 w-32 rounded-md",
-        )}
-      />
-    );
-  }
+  return (
+    <Suspense
+      fallback={
+        <Skeleton
+          className={cn(
+            "bg-purple-400/20",
+            isMobile ? "h-9 w-9 rounded-md" : "h-10 w-32 rounded-md",
+          )}
+        />
+      }
+    >
+      <GroupsIndicatorContent isMobile={isMobile} userId={user.id} />
+    </Suspense>
+  );
+}
+
+function GroupsIndicatorContent({
+  isMobile,
+  userId,
+}: {
+  isMobile: boolean;
+  userId: string;
+}) {
+  const { activeGroup, hasGroups } = useActiveGroup(userId);
 
   return (
     <Link to="/groups">
@@ -35,7 +49,11 @@ export function GroupsIndicator({ isMobile }: { isMobile: boolean }) {
           variant="outline"
           size={isMobile ? "sm" : "default"}
           className={groupsButtonClassName}
-          tooltip={activeGroup ? `Active group: ${activeGroup.name}` : "View Your Groups"}
+          tooltip={
+            activeGroup
+              ? `Active group: ${activeGroup.name}`
+              : "View Your Groups"
+          }
           isMobile={isMobile}
           aria-label={isMobile ? activeGroup?.name || "Groups" : undefined}
         >

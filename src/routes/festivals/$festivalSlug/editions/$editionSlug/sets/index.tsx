@@ -5,6 +5,7 @@ import {
   filterSortSearchSchema,
 } from "@/lib/searchSchemas";
 import { genresQuery } from "@/api/genres/useGenres";
+import { groupMembersQuery } from "@/api/groups/useGroupMembers";
 
 export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug/sets/",
@@ -14,7 +15,11 @@ export const Route = createFileRoute(
   search: {
     middlewares: [stripSearchParams(filterSortSearchDefaults)],
   },
-  loader: async ({ context }) => {
+  loaderDeps: ({ search }) => ({ groupId: search.groupId }),
+  loader: async ({ context, deps }) => {
     void context.queryClient.ensureQueryData(genresQuery());
+    if (deps.groupId) {
+      void context.queryClient.ensureQueryData(groupMembersQuery(deps.groupId));
+    }
   },
 });

@@ -1,3 +1,4 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -23,7 +24,7 @@ import {
 import { Music } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserPermissionsQuery } from "@/api/auth/useUserPermissions";
-import { useGenresQuery } from "@/api/genres/useGenres";
+import { genresQuery } from "@/api/genres/useGenres";
 import { useCreateArtistMutation } from "@/api/artists/useCreateArtist";
 import { useUpdateArtistMutation } from "@/api/artists/useUpdateArtist";
 import { GenreMultiSelect } from "./GenreMultiSelect";
@@ -62,7 +63,7 @@ export function AddArtistDialog({
   const [logoFile, setLogoFile] = useState<File | null>(null);
 
   // React Query hooks
-  const { data: genres = [], isLoading: isLoadingGenres } = useGenresQuery();
+  const { data: genres } = useSuspenseQuery(genresQuery());
   const createArtistMutation = useCreateArtistMutation();
   const updateArtistMutation = useUpdateArtistMutation();
 
@@ -185,12 +186,7 @@ export function AddArtistDialog({
                       genres={genres}
                       value={field.value || []}
                       onValueChange={field.onChange}
-                      placeholder={
-                        isLoadingGenres
-                          ? "Loading genres..."
-                          : "Select genres..."
-                      }
-                      disabled={isLoadingGenres}
+                      placeholder="Select genres..."
                     />
                   </FormControl>
                   <FormMessage />
@@ -264,9 +260,7 @@ export function AddArtistDialog({
               type="submit"
               className="w-full"
               disabled={
-                createArtistMutation.isPending ||
-                updateArtistMutation.isPending ||
-                isLoadingGenres
+                createArtistMutation.isPending || updateArtistMutation.isPending
               }
             >
               {createArtistMutation.isPending || updateArtistMutation.isPending

@@ -1,5 +1,6 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
-import { useGenresQuery } from "@/api/genres/useGenres";
+import { genresQuery } from "@/api/genres/useGenres";
 
 interface GenreBadgeProps {
   genreId: string;
@@ -7,9 +8,7 @@ interface GenreBadgeProps {
 }
 
 export function GenreBadge({ genreId, size = "default" }: GenreBadgeProps) {
-  const { data: genres = [], isLoading, error } = useGenresQuery();
-
-  if (isLoading || error) return null;
+  const { data: genres } = useSuspenseQuery(genresQuery());
 
   const genre = genres.find((g) => g.id === genreId);
   if (!genre) return null;

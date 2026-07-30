@@ -1,4 +1,4 @@
-import { queryOptions, useQuery } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Group } from "./types";
 import { groupsKeys } from "./types";
@@ -141,15 +141,5 @@ export function userGroupsQuery(
   return queryOptions({
     queryKey: groupsKeys.user(userId, params),
     queryFn: () => fetchUserGroups(userId, params),
-  });
-}
-
-export function useUserGroupsQuery(
-  userId: string | undefined,
-  params: { all?: boolean } = {},
-) {
-  return useQuery({
-    ...userGroupsQuery(userId!, params),
-    enabled: !!userId,
   });
 }

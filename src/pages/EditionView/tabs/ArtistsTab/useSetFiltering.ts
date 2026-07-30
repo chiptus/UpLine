@@ -1,20 +1,12 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import type { FilterSortState } from "@/hooks/useUrlState";
 import { FestivalSet } from "@/api/sets/types";
-import { useGroupMembersQuery } from "@/api/groups/useGroupMembers";
 
 export function useSetFiltering(
   sets: FestivalSet[],
   filterSortState: FilterSortState,
+  groupMemberIds: Set<string>,
 ) {
-  const groupMembersQuery = useGroupMembersQuery(
-    filterSortState?.groupId || "",
-  );
-  const groupMemberIds = useMemo(() => {
-    if (!groupMembersQuery.data) return new Set<string>();
-    return new Set(groupMembersQuery.data.map((member) => member.id));
-  }, [groupMembersQuery.data]);
-
   const [lockedOrder, setLockedOrder] = useState<FestivalSet[]>([]);
 
   // Calculate rating for a set based on vote weights

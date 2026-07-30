@@ -5,6 +5,7 @@ import { useStagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useDeleteStageMutation } from "@/api/stages/useDeleteStage";
 import type { Stage } from "@/api/stages/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { confirm } from "@/hooks/use-confirm";
 import { Loader2, MapPin } from "lucide-react";
 import { StagesTable } from "./StageManagement/StagesTable";
 import { CreateStageDialog } from "./StageManagement/CreateStageDialog";
@@ -43,14 +44,13 @@ export function StageManagement(_props: StageManagementProps) {
     setEditingStage(null);
   }
 
-  async function handleDelete(stage: Stage) {
-    if (
-      !confirm(
-        `Are you sure you want to delete "${stage.name}"? This will also affect all sets assigned to this stage.`,
-      )
-    ) {
-      return;
-    }
+  async function handleDeleteRequest(stage: Stage) {
+    const confirmed = await confirm({
+      title: "Delete this stage?",
+      description: `Are you sure you want to delete "${stage.name}"? This will also affect all sets assigned to this stage.`,
+      confirmLabel: "Delete",
+    });
+    if (!confirmed) return;
 
     deleteStageMutation.mutate(stage.id);
   }
@@ -85,7 +85,7 @@ export function StageManagement(_props: StageManagementProps) {
         <StagesTable
           stages={filteredStages}
           onEdit={handleEdit}
-          onDelete={handleDelete}
+          onDelete={handleDeleteRequest}
         />
 
         <EditStageDialog

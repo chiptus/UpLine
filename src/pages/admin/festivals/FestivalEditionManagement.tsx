@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { confirm } from "@/hooks/use-confirm";
 import {
   Dialog,
   DialogContent,
@@ -223,14 +224,13 @@ export function FestivalEditionManagement({
     }
   }
 
-  async function handleDelete(edition: FestivalEdition) {
-    if (
-      !confirm(
-        `Are you sure you want to delete "${edition.name}"? This will also delete all associated stages and sets.`,
-      )
-    ) {
-      return;
-    }
+  async function handleDeleteRequest(edition: FestivalEdition) {
+    const confirmed = await confirm({
+      title: "Delete this edition?",
+      description: `Are you sure you want to delete "${edition.name}"? This will also delete all associated stages and sets.`,
+      confirmLabel: "Delete",
+    });
+    if (!confirmed) return;
 
     deleteEditionMutation.mutate(edition.id);
   }
@@ -432,7 +432,7 @@ export function FestivalEditionManagement({
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          handleDelete(edition);
+                          handleDeleteRequest(edition);
                         }}
                         className="text-destructive hover:text-destructive"
                       >

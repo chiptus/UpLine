@@ -3,6 +3,7 @@ import { useParams } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { confirm } from "@/hooks/use-confirm";
 import { Loader2, Plus, Music } from "lucide-react";
 import { FestivalSet } from "@/api/sets/types";
 import { useSetsByEditionQuery } from "@/api/sets/useSetsByEdition";
@@ -40,14 +41,13 @@ export function SetManagement() {
     setIsDialogOpen(true);
   }
 
-  async function handleDelete(set: FestivalSet) {
-    if (
-      !confirm(
-        `Are you sure you want to delete "${set.name}"? This will also delete all votes for this set.`,
-      )
-    ) {
-      return;
-    }
+  async function handleDeleteRequest(set: FestivalSet) {
+    const confirmed = await confirm({
+      title: "Delete this set?",
+      description: `Are you sure you want to delete "${set.name}"? This will also delete all votes for this set.`,
+      confirmLabel: "Delete",
+    });
+    if (!confirmed) return;
 
     deleteSetMutation.mutate(set.id);
   }
@@ -91,7 +91,7 @@ export function SetManagement() {
         <SetsTable
           sets={setsQuery.data || []}
           onEdit={handleEdit}
-          onDelete={handleDelete}
+          onDelete={handleDeleteRequest}
           editionId={editionQuery.data.id}
           timezone={festival.timezone}
         />

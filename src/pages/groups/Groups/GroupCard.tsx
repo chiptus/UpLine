@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { confirm } from "@/hooks/use-confirm";
 import {
   Card,
   CardHeader,
@@ -85,7 +86,7 @@ export function GroupCard({
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    handleLeaveGroup();
+                    handleLeaveGroupRequest();
                   }}
                   className="bg-white/10 border-purple-400/30 text-white hover:bg-white/20"
                 >
@@ -107,9 +108,15 @@ export function GroupCard({
     </Link>
   );
 
-  async function handleLeaveGroup() {
-    if (window.confirm("Are you sure you want to leave this group?")) {
-      leaveGroupMutation.mutate({ groupId: group.id, userId: user?.id || "" });
-    }
+  async function handleLeaveGroupRequest() {
+    const confirmed = await confirm({
+      title: "Leave this group?",
+      description:
+        "Are you sure you want to leave this group? You will lose access to its votes and notes.",
+      confirmLabel: "Leave",
+    });
+    if (!confirmed) return;
+
+    leaveGroupMutation.mutate({ groupId: group.id, userId: user?.id || "" });
   }
 }

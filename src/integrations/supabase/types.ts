@@ -767,6 +767,13 @@ export type Database = {
         };
         Relationships: [
           {
+            foreignKeyName: "votes_user_id_profiles_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
             foreignKeyName: "votes_set_id_fkey";
             columns: ["set_id"];
             isOneToOne: false;

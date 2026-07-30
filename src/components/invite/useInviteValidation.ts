@@ -49,7 +49,7 @@ export function useInviteValidation(inviteToken: string | undefined) {
     }
   }, [inviteValidation, toast]);
 
-  function useInvite(userId: string): Promise<boolean> {
+  function acceptInvite(userId: string): Promise<boolean> {
     if (!inviteToken) return Promise.resolve(false);
 
     return new Promise((resolve) => {
@@ -67,7 +67,7 @@ export function useInviteValidation(inviteToken: string | undefined) {
             resolve(true);
           },
           onError: (error) => {
-            console.error("failed validating invite", error);
+            console.error("failed accepting invite", error);
             resolve(false);
           },
         },
@@ -80,7 +80,7 @@ export function useInviteValidation(inviteToken: string | undefined) {
     inviteValidation,
     isValidating,
     validationError: validationError?.message || null,
-    useInvite,
+    acceptInvite,
     hasValidInvite: inviteValidation?.is_valid === true,
   };
 }

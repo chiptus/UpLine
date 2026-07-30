@@ -72,14 +72,6 @@ export function useInviteMutation() {
 
       throw new Error("Failed to join group");
     },
-    onSuccess: () => {
-      // We'll need to get the group name from somewhere - let's make this flexible
-      toast({
-        title: "Success",
-        description: "Successfully joined the group!",
-      });
-      return true;
-    },
     onError: (error) => {
       toast({
         title: "Error",

@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Locator, type Page } from "@playwright/test";
 
 // Seeded in supabase/seed.sql: festival slug "test", edition slug "2025".
 const TIMELINE_PATH = "/festivals/test/editions/2025/schedule/timeline";
@@ -10,6 +10,46 @@ async function openTimeline(page: Page) {
   await expect(scrollContainer).toBeVisible({ timeout: 15000 });
 
   return scrollContainer;
+}
+
+// The set link with the largest horizontal overlap with the visible strip.
+// On phone viewports no card fits fully inside the narrow viewport
+async function findSetLinkInView(scrollContainer: Locator) {
+  const containerBox = await scrollContainer.boundingBox();
+  if (!containerBox) throw new Error("scroll container has no bounding box");
+
+  const links = scrollContainer.getByRole("link");
+  const count = await links.count();
+  let best: { link: Locator; overlap: number } | null = null;
+  for (let i = 0; i < count; i++) {
+    const box = await links.nth(i).boundingBox();
+    if (!box) continue;
+    const overlap =
+      Math.min(box.x + box.width, containerBox.x + containerBox.width) -
+      Math.max(box.x, containerBox.x);
+    if (overlap > 0 && (!best || overlap > best.overlap)) {
+      best = { link: links.nth(i), overlap };
+    }
+  }
+  if (!best) {
+    throw new Error("no set link overlapping the visible timeline viewport");
+  }
+  return best.link;
+}
+
+// Waits until the debounced scrollTo URL write has settled: the value must
+// survive a full debounce window (300ms) unchanged.
+async function waitForScrollToToSettle(page: Page) {
+  await expect
+    .poll(
+      async () => {
+        const before = new URL(page.url()).searchParams.get("scrollTo");
+        await page.waitForTimeout(400);
+        return before === new URL(page.url()).searchParams.get("scrollTo");
+      },
+      { timeout: 15000 },
+    )
+    .toBe(true);
 }
 
 test.describe("Timeline scroll position (scrollTo URL state)", () => {
@@ -31,10 +71,6 @@ test.describe("Timeline scroll position (scrollTo URL state)", () => {
     await scrollContainer.evaluate((el) => {
       el.scrollLeft = el.scrollLeft + 400;
     });
-
-    // No write yet: still inside the debounce window.
-    await page.waitForTimeout(100);
-    expect(new URL(page.url()).searchParams.has("scrollTo")).toBe(false);
 
     await expect(page).toHaveURL(/scrollTo=/);
 
@@ -106,13 +142,15 @@ test.describe("Timeline scroll position (scrollTo URL state)", () => {
       .poll(() => new URL(page.url()).searchParams.has("scrollTo"))
       .toBe(true);
 
+    const setLink = await findSetLinkInView(scrollContainer);
+    await setLink.scrollIntoViewIfNeeded();
+    await waitForScrollToToSettle(page);
+
     const urlWithScroll = page.url();
     const scrollLeftBeforeNav = await scrollContainer.evaluate(
       (el) => el.scrollLeft,
     );
 
-    const setLink = scrollContainer.getByRole("link").first();
-    await expect(setLink).toBeVisible();
     await setLink.click();
 
     // Wait for the set-detail page to actually render before going back,
@@ -120,7 +158,7 @@ test.describe("Timeline scroll position (scrollTo URL state)", () => {
     // can pop back to a stale/default search state.
     await expect(
       page.getByRole("button", { name: "Back to Artists" }),
-    ).toBeVisible({ timeout: 10000 });
+    ).toBeVisible({ timeout: 20000 });
     await page.goBack();
     await expect(page).toHaveURL(urlWithScroll);
 

@@ -64,8 +64,15 @@ test.describe("Rating a set in the Post-Festival phase", () => {
     const setCard = await goToSet(page, "Ben Böhmer");
     const liked = ratingButton(setCard, "liked");
 
+    const ratingWrite = page.waitForResponse(
+      (response) =>
+        response.url().includes("/rest/v1/set_ratings") &&
+        response.request().method() !== "GET" &&
+        response.ok(),
+    );
     await liked.click();
     await expect(liked).toHaveAttribute("aria-pressed", "true");
+    await ratingWrite;
 
     await page.reload();
 
@@ -109,7 +116,8 @@ async function goToSet(page: Page, setName: string): Promise<Locator> {
   await page.goto(EDITION_SETS_PATH);
 
   const setCard = page.getByTestId("artist-item").filter({ hasText: setName });
-  await expect(setCard).toBeVisible();
+  // The sets list can take a while to render under full parallel load.
+  await expect(setCard).toBeVisible({ timeout: 20000 });
   return setCard;
 }
 

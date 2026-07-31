@@ -67,17 +67,19 @@ test.describe("Timeline Now pill and current-time indicator", () => {
 
     await nowButton.click();
 
-    await expect(page).toHaveURL(/scrollTo=/);
-    const scrollTo = new URL(page.url()).searchParams.get("scrollTo");
-    expect(scrollTo).toBeTruthy();
-
-    const scrollToDate = new Date(scrollTo as string);
-    expect(scrollToDate.toString()).not.toBe("Invalid Date");
-    // Rounded to 5-minute granularity, so allow a small window either side
-    // of the fixed "now".
-    expect(
-      Math.abs(scrollToDate.getTime() - NOW_INSIDE_WINDOW.getTime()),
-    ).toBeLessThan(5 * 60 * 1000);
+    // The scrollTo param is written by a debounced scroll listener, so the
+    // URL can transiently hold the pre-jump position until the smooth-scroll
+    // animation settles. Poll until it converges on "now" (5-minute rounding
+    // allows a small window either side).
+    await expect
+      .poll(() => {
+        const scrollTo = new URL(page.url()).searchParams.get("scrollTo");
+        if (!scrollTo) return Infinity;
+        const scrollToDate = new Date(scrollTo);
+        if (Number.isNaN(scrollToDate.getTime())) return Infinity;
+        return Math.abs(scrollToDate.getTime() - NOW_INSIDE_WINDOW.getTime());
+      })
+      .toBeLessThan(5 * 60 * 1000);
 
     const scrollLeftAfterJump = await scrollContainer.evaluate(
       (el) => el.scrollLeft,

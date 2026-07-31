@@ -11,8 +11,21 @@ import { VOTE_CONFIG, type VoteType } from "../../src/lib/voteConfig";
 // Seeded via supabase/seed.sql: "Test festival" edition "Boom Festival 2025".
 const EDITION_SETS_PATH = "/festivals/test/editions/2025/sets";
 
-// Each scenario below targets a distinct seeded set so that parallel runs
-// (and parallel Playwright projects) never race over the same votes row.
+const CHANGES_VOTE_ARTIST: Record<string, string> = {
+  chromium: "Charlotte de Witte",
+  firefox: "Amelie Lens",
+  webkit: "Lane 8",
+  "Mobile Chrome": "Stephan Bodzin",
+  "Mobile Safari": "Disclosure",
+};
+
+const REMOVES_VOTE_ARTIST: Record<string, string> = {
+  chromium: "Four Tet",
+  firefox: "Bonobo",
+  webkit: "Shpongle",
+  "Mobile Chrome": "Maceo Plex",
+  "Mobile Safari": "Netsky",
+};
 test.describe("Voting on a set", () => {
   // These tests share a single signed-in page/context across the whole
   // describe block (see beforeAll below), so they must never run
@@ -71,22 +84,33 @@ test.describe("Voting on a set", () => {
     const setCard = await goToSet(page, "Nils Frahm");
     const mustGo = voteButton(setCard, "mustGo");
 
+    const voteWrite = page.waitForResponse(
+      (response) =>
+        response.url().includes("/rest/v1/votes") &&
+        response.request().method() !== "GET" &&
+        response.ok(),
+    );
     await mustGo.click();
     await expect(mustGo).toHaveAttribute("aria-pressed", "true");
+    await voteWrite;
 
     await page.reload();
 
     const setCardAfterReload = page
       .getByTestId("artist-item")
       .filter({ hasText: "Nils Frahm" });
+    await expect(setCardAfterReload).toBeVisible({ timeout: 20000 });
+
     await expect(voteButton(setCardAfterReload, "mustGo")).toHaveAttribute(
       "aria-pressed",
       "true",
     );
   });
 
-  test("changes a vote from one type to another instead of adding a second vote", async () => {
-    const setCard = await goToSet(page, "Charlotte de Witte");
+  test("changes a vote from one type to another instead of adding a second vote", async ({}, testInfo) => {
+    const artist =
+      CHANGES_VOTE_ARTIST[testInfo.project.name] ?? "Charlotte de Witte";
+    const setCard = await goToSet(page, artist);
     const mustGo = voteButton(setCard, "mustGo");
     const interested = voteButton(setCard, "interested");
     const mustGoCount = voteCount(setCard, "mustGo");
@@ -114,8 +138,9 @@ test.describe("Voting on a set", () => {
     );
   });
 
-  test("removes a vote and returns the set to the unvoted state", async () => {
-    const setCard = await goToSet(page, "Four Tet");
+  test("removes a vote and returns the set to the unvoted state", async ({}, testInfo) => {
+    const artist = REMOVES_VOTE_ARTIST[testInfo.project.name] ?? "Four Tet";
+    const setCard = await goToSet(page, artist);
     const mustGo = voteButton(setCard, "mustGo");
     const mustGoCount = voteCount(setCard, "mustGo");
 
@@ -156,7 +181,7 @@ async function goToSet(page: Page, setName: string): Promise<Locator> {
   await page.goto(EDITION_SETS_PATH);
 
   const setCard = page.getByTestId("artist-item").filter({ hasText: setName });
-  await expect(setCard).toBeVisible();
+  await expect(setCard).toBeVisible({ timeout: 20000 });
   return setCard;
 }
 

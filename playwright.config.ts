@@ -43,7 +43,10 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI ? [["blob"], ["html"]] : "html",
-  expect: { timeout: process.env.CI ? undefined : 10_000 },
+  /* Whole-test budget: sign-in flows + navigations under full parallel
+   * load routinely exceed the 30s default on local runs. */
+  timeout: process.env.CI ? undefined : 60_000,
+  expect: { timeout: process.env.CI ? undefined : 15_000 },
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */

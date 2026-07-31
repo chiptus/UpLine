@@ -194,8 +194,11 @@ function EditionSelection() {
                       )}
                     </div>
 
-                    <Button className="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white border-purple-600">
-                      Select Edition
+                    <Button
+                      asChild
+                      className="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white border-purple-600"
+                    >
+                      <span>Select Edition</span>
                     </Button>
                   </CardContent>
                 </Card>

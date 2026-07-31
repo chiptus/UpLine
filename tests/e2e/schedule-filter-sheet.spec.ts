@@ -20,11 +20,6 @@ test.describe("Schedule filter sheet", () => {
   }) => {
     await page.goto(TIMELINE_PATH);
 
-    const scrollContainer = page.getByTestId("timeline-scroll-container");
-    if (!(await scrollContainer.isVisible().catch(() => false))) {
-      test.skip(true, "Schedule not revealed in this environment");
-    }
-
     // The Filters trigger sits inline in the toolbar row, alongside the
     // day-jump buttons - never alone on its own line.
     const toolbar = page.getByTestId("timeline-day-toolbar");
@@ -62,9 +57,6 @@ test.describe("Schedule filter sheet", () => {
     await page.goto(TIMELINE_PATH);
 
     const scrollContainer = page.getByTestId("timeline-scroll-container");
-    if (!(await scrollContainer.isVisible().catch(() => false))) {
-      test.skip(true, "Schedule not revealed in this environment");
-    }
 
     await expect(page.getByTestId("schedule-filters-badge")).toHaveCount(0);
 
@@ -84,13 +76,23 @@ test.describe("Schedule filter sheet", () => {
     // it must never scroll the viewport.
     const toolbar = page.getByTestId("timeline-day-toolbar");
     await expect(
-      toolbar.getByTestId("timeline-day-buttons").getByRole("button"),
+      toolbar
+        .getByRole("radiogroup", { name: "Jump to day" })
+        .getByRole("radio"),
     ).toHaveCount(1);
 
-    const scrollLeftAfter = await scrollContainer.evaluate(
-      (el) => el.scrollLeft,
+    // Collapsing to one day can shrink total content below the viewport
+    // width, which forces the browser to clamp scrollLeft to 0 regardless of
+    // app behavior — so compare against the post-filter clamp ceiling rather
+    // than asserting raw equality.
+    const { scrollLeftAfter, maxScrollLeftAfter } =
+      await scrollContainer.evaluate((el) => ({
+        scrollLeftAfter: el.scrollLeft,
+        maxScrollLeftAfter: el.scrollWidth - el.clientWidth,
+      }));
+    expect(scrollLeftAfter).toBe(
+      Math.min(scrollLeftBefore, maxScrollLeftAfter),
     );
-    expect(scrollLeftAfter).toBe(scrollLeftBefore);
 
     // Shared URL state: the List view sees and can clear the same filter.
     await page.goto(`${LIST_PATH}?day=2025-07-12`);
@@ -100,12 +102,9 @@ test.describe("Schedule filter sheet", () => {
   test("clearing filters from the sheet restores both views and removes the badge", async ({
     page,
   }) => {
-    await page.goto(`${TIMELINE_PATH}?day=2025-07-12&stages=${MAIN_STAGE_ID}`);
-
-    const scrollContainer = page.getByTestId("timeline-scroll-container");
-    if (!(await scrollContainer.isVisible().catch(() => false))) {
-      test.skip(true, "Schedule not revealed in this environment");
-    }
+    await page.goto(
+      `${TIMELINE_PATH}?day=2025-07-12&stages=${encodeURIComponent(JSON.stringify([MAIN_STAGE_ID]))}`,
+    );
 
     await expect(page.getByTestId("schedule-filters-badge")).toHaveText("2");
 

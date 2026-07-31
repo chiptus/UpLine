@@ -163,7 +163,7 @@ export function ListSchedule() {
   }
 
   return (
-    <div className="space-y-8" data-testid="list-schedule">
+    <section aria-label="Schedule by day" className="space-y-8">
       {dayGroups.map((day) => (
         <ListDayGroup
           key={day.dayKey}
@@ -172,6 +172,6 @@ export function ListSchedule() {
           timezone={festival.timezone}
         />
       ))}
-    </div>
+    </section>
   );
 }

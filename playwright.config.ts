@@ -3,11 +3,10 @@ import { defineConfig, devices } from "@playwright/test";
 /**
  * @see https://playwright.dev/docs/test-configuration
  */
-const baseURL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:8080";
 
-// Pre-accepts cookie consent so the fixed banner never renders and can't
-// intercept clicks on content underneath it. cookie-consent.spec.ts is the
-// one place that needs to see the banner, so it opts out below.
+const port = process.env.CI ? 4173 : 8080;
+const baseURL = process.env.PLAYWRIGHT_BASE_URL || `http://localhost:${port}`;
+
 const consentedStorageState = {
   cookies: [],
   origins: [
@@ -44,6 +43,10 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI ? [["blob"], ["html"]] : "html",
+  /* Whole-test budget: sign-in flows + navigations under full parallel
+   * load routinely exceed the 30s default on local runs. */
+  timeout: process.env.CI ? undefined : 60_000,
+  expect: { timeout: process.env.CI ? undefined : 15_000 },
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
@@ -113,10 +116,9 @@ export default defineConfig({
     },
   ],
 
-  /* Run your local dev server before starting the tests */
   webServer: {
-    command: "pnpm run dev",
-    url: "http://localhost:8080",
+    command: process.env.CI ? "pnpm run preview" : "pnpm run dev",
+    url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },

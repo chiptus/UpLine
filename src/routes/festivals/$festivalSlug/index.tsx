@@ -194,11 +194,9 @@ function EditionSelection() {
                       )}
                     </div>
 
-                    <Link to={linkPath}>
-                      <Button className="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white border-purple-600">
-                        Select Edition
-                      </Button>
-                    </Link>
+                    <Button className="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white border-purple-600">
+                      Select Edition
+                    </Button>
                   </CardContent>
                 </Card>
               </Link>

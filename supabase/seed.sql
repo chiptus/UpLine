@@ -299,12 +299,25 @@ INSERT INTO public.festival_editions (id, festival_id, year, slug, name, descrip
 
 INSERT INTO public.stages (id, name, slug, festival_edition_id, created_at, updated_at) VALUES
   ('c3000000-0000-0000-0000-000000000002', 'Fixture Stage', 'fixture-stage', 'c2000000-0000-0000-0000-000000000002', now(), now()),
+  ('c3000000-0000-0000-0000-000000000012', 'Forest Stage', 'forest-stage', 'c2000000-0000-0000-0000-000000000002', now(), now()),
   ('c3000000-0000-0000-0000-000000000003', 'Fixture Stage', 'fixture-stage', 'c2000000-0000-0000-0000-000000000003', now(), now()),
+  ('c3000000-0000-0000-0000-000000000013', 'Forest Stage', 'forest-stage', 'c2000000-0000-0000-0000-000000000003', now(), now()),
   ('c3000000-0000-0000-0000-000000000004', 'Fixture Stage', 'fixture-stage', 'c2000000-0000-0000-0000-000000000004', now(), now());
 
 -- No sets for the "draft" edition: at that level the schedule tab is expected
 -- to short-circuit to the not-revealed placeholder before ever reading sets.
+-- "days" and "stages" editions get 2 stages x 2 days x multiple sets so the
+-- day-grouped lineup and stage x day grid both have something to group/grid.
+-- The original "Fixture Set Days"/"Fixture Set Stages" sets and "Fixture
+-- Stage" stage are kept as-is: tests/e2e/schedule-reveal-levels.spec.ts
+-- asserts on those exact names.
 INSERT INTO public.sets (id, name, slug, festival_edition_id, stage_id, time_start, time_end, description, created_by, created_at, updated_at) VALUES
   ('c4000000-0000-0000-0000-000000000002', 'Fixture Set Days', 'fixture-set-days', 'c2000000-0000-0000-0000-000000000002', 'c3000000-0000-0000-0000-000000000002', '2099-07-01 20:00:00+00', '2099-07-01 21:00:00+00', 'Fixture set for days reveal level', '11111111-1111-1111-1111-111111111111', now(), now()),
+  ('c4000000-0000-0000-0000-000000000022', 'Basslight', 'basslight', 'c2000000-0000-0000-0000-000000000002', 'c3000000-0000-0000-0000-000000000012', '2099-07-01 21:00:00+00', '2099-07-01 22:00:00+00', 'Fixture set for days reveal level', '11111111-1111-1111-1111-111111111111', now(), now()),
+  ('c4000000-0000-0000-0000-000000000032', 'Crescendo', 'crescendo', 'c2000000-0000-0000-0000-000000000002', 'c3000000-0000-0000-0000-000000000002', '2099-07-02 20:00:00+00', '2099-07-02 21:00:00+00', 'Fixture set for days reveal level', '11111111-1111-1111-1111-111111111111', now(), now()),
+  ('c4000000-0000-0000-0000-000000000042', 'Driftwood', 'driftwood', 'c2000000-0000-0000-0000-000000000002', 'c3000000-0000-0000-0000-000000000012', '2099-07-02 21:00:00+00', '2099-07-02 22:00:00+00', 'Fixture set for days reveal level', '11111111-1111-1111-1111-111111111111', now(), now()),
   ('c4000000-0000-0000-0000-000000000003', 'Fixture Set Stages', 'fixture-set-stages', 'c2000000-0000-0000-0000-000000000003', 'c3000000-0000-0000-0000-000000000003', '2099-07-01 20:00:00+00', '2099-07-01 21:00:00+00', 'Fixture set for stages reveal level', '11111111-1111-1111-1111-111111111111', now(), now()),
+  ('c4000000-0000-0000-0000-000000000023', 'Basslight', 'basslight-stages', 'c2000000-0000-0000-0000-000000000003', 'c3000000-0000-0000-0000-000000000013', '2099-07-01 21:00:00+00', '2099-07-01 22:00:00+00', 'Fixture set for stages reveal level', '11111111-1111-1111-1111-111111111111', now(), now()),
+  ('c4000000-0000-0000-0000-000000000033', 'Crescendo', 'crescendo-stages', 'c2000000-0000-0000-0000-000000000003', 'c3000000-0000-0000-0000-000000000003', '2099-07-02 20:00:00+00', '2099-07-02 21:00:00+00', 'Fixture set for stages reveal level', '11111111-1111-1111-1111-111111111111', now(), now()),
+  ('c4000000-0000-0000-0000-000000000043', 'Driftwood', 'driftwood-stages', 'c2000000-0000-0000-0000-000000000003', 'c3000000-0000-0000-0000-000000000013', '2099-07-02 21:00:00+00', '2099-07-02 22:00:00+00', 'Fixture set for stages reveal level', '11111111-1111-1111-1111-111111111111', now(), now()),
   ('c4000000-0000-0000-0000-000000000004', 'Fixture Set Full', 'fixture-set-full', 'c2000000-0000-0000-0000-000000000004', 'c3000000-0000-0000-0000-000000000004', '2099-07-01 20:00:00+00', '2099-07-01 21:00:00+00', 'Fixture set for full reveal level', '11111111-1111-1111-1111-111111111111', now(), now());

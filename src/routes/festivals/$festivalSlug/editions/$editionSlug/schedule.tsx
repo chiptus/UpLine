@@ -3,7 +3,10 @@ import {
   redirect,
   stripSearchParams,
 } from "@tanstack/react-router";
-import { ScheduleTab } from "@/pages/EditionView/tabs/ScheduleTab";
+import { ScheduleNavigation } from "@/pages/EditionView/tabs/ScheduleTab/ScheduleNavigation";
+import { Outlet } from "@tanstack/react-router";
+import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
+import { PageTitle } from "@/components/PageTitle/PageTitle";
 import { canShowNowView } from "@/lib/nowView";
 import {
   timelineSearchDefaults,
@@ -36,3 +39,18 @@ export const Route = createFileRoute(
     }
   },
 });
+
+function ScheduleTab() {
+  const { festival } = useFestivalEdition();
+
+  return (
+    <>
+      <PageTitle title="Schedule" prefix={festival?.name} />
+      <div className="space-y-3 md:space-y-6">
+        <ScheduleNavigation />
+
+        <Outlet />
+      </div>
+    </>
+  );
+}

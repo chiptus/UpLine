@@ -1,9 +1,6 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { useRouteContext } from "@tanstack/react-router";
 import { Badge } from "@/components/ui/badge";
 import { Clock } from "lucide-react";
-import { StageBadge } from "@/components/StageBadge";
-import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
+import { StageBadgeForStage } from "@/components/StageBadgeForStage";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 
 interface SetCardHeaderProps {
@@ -13,11 +10,6 @@ interface SetCardHeaderProps {
 
 export function SetCardHeader({ stageId, timeStart }: SetCardHeaderProps) {
   const { canShowStage, canShowDay, canShowTime } = useScheduleReveal();
-  const { edition } = useRouteContext({
-    from: "/festivals/$festivalSlug/editions/$editionSlug",
-  });
-  const { data: stages } = useSuspenseQuery(stagesByEditionQuery(edition.id));
-  const stage = canShowStage ? stages.find((s) => s.id === stageId) : undefined;
 
   function formatTime(dateString: string | null) {
     if (!dateString) return "";
@@ -61,13 +53,7 @@ export function SetCardHeader({ stageId, timeStart }: SetCardHeaderProps) {
         )}
       </div>
 
-      {canShowStage && stage && (
-        <StageBadge
-          stageName={stage.name}
-          stageColor={stage.color || undefined}
-          size="sm"
-        />
-      )}
+      {canShowStage && stageId && <StageBadgeForStage stageId={stageId} />}
     </div>
   );
 }

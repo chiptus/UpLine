@@ -81,10 +81,18 @@ test.describe("Schedule filter sheet", () => {
         .getByRole("radio"),
     ).toHaveCount(1);
 
-    const scrollLeftAfter = await scrollContainer.evaluate(
-      (el) => el.scrollLeft,
+    // Collapsing to one day can shrink total content below the viewport
+    // width, which forces the browser to clamp scrollLeft to 0 regardless of
+    // app behavior — so compare against the post-filter clamp ceiling rather
+    // than asserting raw equality.
+    const { scrollLeftAfter, maxScrollLeftAfter } =
+      await scrollContainer.evaluate((el) => ({
+        scrollLeftAfter: el.scrollLeft,
+        maxScrollLeftAfter: el.scrollWidth - el.clientWidth,
+      }));
+    expect(scrollLeftAfter).toBe(
+      Math.min(scrollLeftBefore, maxScrollLeftAfter),
     );
-    expect(scrollLeftAfter).toBe(scrollLeftBefore);
 
     // Shared URL state: the List view sees and can clear the same filter.
     await page.goto(`${LIST_PATH}?day=2025-07-12`);

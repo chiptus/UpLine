@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Clock } from "lucide-react";
-import { StageBadgeForStage } from "@/components/StageBadgeForStage";
+import { StageBadgeById } from "@/components/StageBadgeById";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 
 interface SetCardHeaderProps {
@@ -53,7 +53,7 @@ export function SetCardHeader({ stageId, timeStart }: SetCardHeaderProps) {
         )}
       </div>
 
-      {canShowStage && stageId && <StageBadgeForStage stageId={stageId} />}
+      {canShowStage && stageId && <StageBadgeById stageId={stageId} />}
     </div>
   );
 }

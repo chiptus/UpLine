@@ -1,7 +1,7 @@
 import { StageBadge } from "@/components/StageBadge";
 import { useStageQuery } from "@/api/stages/useStageQuery";
 
-export function StageBadgeForStage({ stageId }: { stageId: string }) {
+export function StageBadgeById({ stageId }: { stageId: string }) {
   const { data: stage } = useStageQuery(stageId);
   return stage ? (
     <StageBadge

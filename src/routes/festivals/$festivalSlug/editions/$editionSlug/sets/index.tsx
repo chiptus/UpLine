@@ -118,7 +118,7 @@ function GroupFilteredSetsPanel({
 }: FilteredSetsPanelProps & { groupId: string }) {
   const { data: members } = useSuspenseQuery(groupMembersQuery(groupId));
   const groupMemberIds = useMemo(
-    () => new Set(members.map((member) => member.id)),
+    () => new Set(members.map((member) => member.user_id)),
     [members],
   );
 

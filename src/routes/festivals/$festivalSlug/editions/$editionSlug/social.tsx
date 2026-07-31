@@ -57,6 +57,7 @@ function SocialTab() {
 
               <div className="relative">
                 <iframe
+                  title="Facebook page timeline"
                   src={`https://www.facebook.com/plugins/page.php?href=${encodeURIComponent(facebook_url)}&tabs=timeline&height=500&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=false&appId=1064955115428877`}
                   width="100%"
                   height="500"

@@ -15,7 +15,7 @@ test.describe("Active group", () => {
     await page.reload();
 
     await expect(
-      page.getByRole("link", { name: new RegExp(groupName, "i") }),
+      page.getByRole("button", { name: new RegExp(groupName, "i") }),
     ).toBeVisible({ timeout: 15000 });
   });
 });

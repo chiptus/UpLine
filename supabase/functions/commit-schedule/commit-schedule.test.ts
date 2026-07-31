@@ -11,16 +11,6 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 
-function skipIfNoEnv() {
-  if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
-    console.warn(
-      "Skipping integration tests: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set",
-    );
-    return true;
-  }
-  return false;
-}
-
 function adminClient() {
   return createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 }
@@ -50,7 +40,6 @@ async function getTestUserId(
 }
 
 Deno.test("commit_schedule: creates new artist and set", async () => {
-  if (skipIfNoEnv()) return;
   const db = adminClient();
   const editionId = await getTestEditionId(db);
   const userId = await getTestUserId(db);
@@ -92,7 +81,6 @@ Deno.test("commit_schedule: creates new artist and set", async () => {
 Deno.test(
   "commit_schedule: updates existing set without creating duplicate",
   async () => {
-    if (skipIfNoEnv()) return;
     const db = adminClient();
     const editionId = await getTestEditionId(db);
     const userId = await getTestUserId(db);
@@ -159,7 +147,6 @@ Deno.test(
 );
 
 Deno.test("commit_schedule: archives orphaned sets", async () => {
-  if (skipIfNoEnv()) return;
   const db = adminClient();
   const editionId = await getTestEditionId(db);
   const userId = await getTestUserId(db);
@@ -202,7 +189,6 @@ Deno.test("commit_schedule: archives orphaned sets", async () => {
 Deno.test(
   "commit_schedule: midnight-crossing times stored correctly",
   async () => {
-    if (skipIfNoEnv()) return;
     const db = adminClient();
     const editionId = await getTestEditionId(db);
     const userId = await getTestUserId(db);

@@ -57,6 +57,15 @@ INSERT INTO auth.identities (
   now()
 ) ON CONFLICT (id) DO NOTHING;
 
+-- Grants the seeded user an admin role so admin-only integration tests
+-- (e.g. commit-schedule's Deno tests) have a real admin user id to act as.
+INSERT INTO public.admin_roles (user_id, role, created_by)
+VALUES (
+  '11111111-1111-1111-1111-111111111111',
+  'admin',
+  '11111111-1111-1111-1111-111111111111'
+) ON CONFLICT (user_id, role) DO NOTHING;
+
 
 
 -- Insert festival artists with realistic schedule (July 12-14, 2025)

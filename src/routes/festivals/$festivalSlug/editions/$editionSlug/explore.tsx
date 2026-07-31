@@ -89,7 +89,7 @@ function ExploreSetPage() {
     </div>
   );
 
-  async function handleVote(voteType: number) {
+  function handleVote(voteType: number) {
     if (!currentSet || isAnimating) return;
 
     if (!user) {
@@ -101,31 +101,35 @@ function ExploreSetPage() {
 
     setIsAnimating(true);
 
-    try {
-      await voteMutation.mutateAsync({
+    voteMutation.mutate(
+      {
         setId: currentSet.id,
         voteType,
         userId: user.id,
         existingVote,
-      });
+      },
+      {
+        onSuccess: () => {
+          setDirection(voteType >= 1 ? "right" : "left");
 
-      setDirection(voteType >= 1 ? "right" : "left");
-
-      setTimeout(() => {
-        if (isLastSet) {
-          navigate({
-            from: "/festivals/$festivalSlug/editions/$editionSlug/explore",
-            to: "../sets",
-          });
-        } else {
-          setDirection(null);
-        }
-        setIsAnimating(false);
-      }, 300);
-    } catch (error) {
-      console.error("Failed to vote:", error);
-      setIsAnimating(false);
-    }
+          setTimeout(() => {
+            if (isLastSet) {
+              navigate({
+                from: "/festivals/$festivalSlug/editions/$editionSlug/explore",
+                to: "../sets",
+              });
+            } else {
+              setDirection(null);
+            }
+            setIsAnimating(false);
+          }, 300);
+        },
+        onError: (error) => {
+          console.error("Failed to vote:", error);
+          setIsAnimating(false);
+        },
+      },
+    );
   }
 
   function handleSwipe(direction: "left" | "right") {

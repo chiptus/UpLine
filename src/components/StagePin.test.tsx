@@ -15,8 +15,6 @@ describe("StagePin", () => {
   it("renders stage name when data is available", () => {
     vi.spyOn(useStageQueryModule, "useStageQuery").mockReturnValue({
       data: { id: "1", name: "Main Stage", color: "#ff0000", archived: false },
-      isLoading: false,
-      error: null,
     } as StageQueryResult);
 
     render(<StagePin stageId="1" />);
@@ -26,8 +24,6 @@ describe("StagePin", () => {
   it("renders MapPin icon when data is available", () => {
     vi.spyOn(useStageQueryModule, "useStageQuery").mockReturnValue({
       data: { id: "1", name: "Main Stage", color: "#ff0000", archived: false },
-      isLoading: false,
-      error: null,
     } as StageQueryResult);
 
     const { container } = render(<StagePin stageId="1" />);
@@ -38,8 +34,6 @@ describe("StagePin", () => {
   it("renders null when no data", () => {
     vi.spyOn(useStageQueryModule, "useStageQuery").mockReturnValue({
       data: null,
-      isLoading: false,
-      error: null,
     } as StageQueryResult);
 
     const { container } = render(<StagePin stageId="1" />);
@@ -48,31 +42,17 @@ describe("StagePin", () => {
 
   it("renders null when stageId is null", () => {
     vi.spyOn(useStageQueryModule, "useStageQuery").mockReturnValue({
-      data: null,
-      isLoading: false,
-      error: null,
+      data: { id: "1", name: "Main Stage", color: "#ff0000", archived: false },
     } as StageQueryResult);
 
     const { container } = render(<StagePin stageId={null} />);
     expect(container.firstChild).toBeNull();
-  });
-
-  it("renders null when loading", () => {
-    vi.spyOn(useStageQueryModule, "useStageQuery").mockReturnValue({
-      data: null,
-      isLoading: true,
-      error: null,
-    } as unknown as StageQueryResult);
-
-    const { container } = render(<StagePin stageId="1" />);
-    expect(container.firstChild).toBeNull();
+    expect(useStageQueryModule.useStageQuery).not.toHaveBeenCalled();
   });
 
   it("has correct container classes", () => {
     vi.spyOn(useStageQueryModule, "useStageQuery").mockReturnValue({
       data: { id: "1", name: "Main Stage", color: "#ff0000", archived: false },
-      isLoading: false,
-      error: null,
     } as StageQueryResult);
 
     const { container } = render(<StagePin stageId="1" />);
@@ -83,8 +63,6 @@ describe("StagePin", () => {
   it("has correct icon size", () => {
     vi.spyOn(useStageQueryModule, "useStageQuery").mockReturnValue({
       data: { id: "1", name: "Main Stage", color: "#ff0000", archived: false },
-      isLoading: false,
-      error: null,
     } as StageQueryResult);
 
     const { container } = render(<StagePin stageId="1" />);
@@ -95,8 +73,6 @@ describe("StagePin", () => {
   it("has correct text size", () => {
     vi.spyOn(useStageQueryModule, "useStageQuery").mockReturnValue({
       data: { id: "1", name: "Main Stage", color: "#ff0000", archived: false },
-      isLoading: false,
-      error: null,
     } as StageQueryResult);
 
     const { container } = render(<StagePin stageId="1" />);
@@ -112,8 +88,6 @@ describe("StagePin", () => {
         color: "#00ff00",
         archived: false,
       },
-      isLoading: false,
-      error: null,
     } as StageQueryResult);
 
     render(<StagePin stageId="2" />);

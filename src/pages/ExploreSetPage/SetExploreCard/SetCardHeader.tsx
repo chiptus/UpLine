@@ -1,7 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Clock } from "lucide-react";
-import { StageBadge } from "@/components/StageBadge";
-import { useStageQuery } from "@/api/stages/useStageQuery";
+import { StageBadgeById } from "@/components/StageBadgeById";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 
 interface SetCardHeaderProps {
@@ -11,7 +10,6 @@ interface SetCardHeaderProps {
 
 export function SetCardHeader({ stageId, timeStart }: SetCardHeaderProps) {
   const { canShowStage, canShowDay, canShowTime } = useScheduleReveal();
-  const stageQuery = useStageQuery(canShowStage ? stageId : null);
 
   function formatTime(dateString: string | null) {
     if (!dateString) return "";
@@ -55,13 +53,7 @@ export function SetCardHeader({ stageId, timeStart }: SetCardHeaderProps) {
         )}
       </div>
 
-      {canShowStage && stageQuery.data && (
-        <StageBadge
-          stageName={stageQuery.data.name}
-          stageColor={stageQuery.data.color || undefined}
-          size="sm"
-        />
-      )}
+      {canShowStage && stageId && <StageBadgeById stageId={stageId} />}
     </div>
   );
 }

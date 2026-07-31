@@ -1,4 +1,4 @@
-import { queryOptions, useQuery } from "@tanstack/react-query";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Stage } from "./types";
 import { stagesKeys } from "./types";
@@ -28,9 +28,6 @@ export function stageQuery(stageId: string) {
   });
 }
 
-export function useStageQuery(stageId: string | undefined | null) {
-  return useQuery({
-    ...stageQuery(stageId!),
-    enabled: !!stageId,
-  });
+export function useStageQuery(stageId: string) {
+  return useSuspenseQuery(stageQuery(stageId));
 }

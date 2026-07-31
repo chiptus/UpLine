@@ -1,17 +1,15 @@
 import { Clock } from "lucide-react";
 import { formatDayOnly, formatTimeRange } from "@/lib/timeUtils";
 import { GenreBadge } from "@/components/GenreBadge";
-import { StageBadge } from "@/components/StageBadge";
+import { StageBadgeById } from "@/components/StageBadgeById";
 import { useFestivalSet } from "../FestivalSetContext";
-import { useStageQuery } from "@/api/stages/useStageQuery";
-import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
+import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 
 export function SetMetadata() {
   const { set, use24Hour } = useFestivalSet();
   const { festival } = useFestivalEdition();
   const { canShowStage, canShowDay, canShowTime } = useScheduleReveal();
-  const stageQuery = useStageQuery(canShowStage ? set?.stage_id : null);
   const uniqueGenres = set.artists
     ?.flatMap((a) => a.artist_music_genres || [])
     .filter(
@@ -51,12 +49,8 @@ export function SetMetadata() {
 
       {/* Stage and Time Information */}
       <div className="flex flex-wrap gap-2 items-center">
-        {canShowStage && stageQuery.data && (
-          <StageBadge
-            stageName={stageQuery.data.name}
-            stageColor={stageQuery.data.color || undefined}
-            size="sm"
-          />
+        {canShowStage && set?.stage_id && (
+          <StageBadgeById stageId={set.stage_id} />
         )}
         {timeRangeFormatted && (
           <div className="flex items-center gap-1 text-sm text-purple-200">

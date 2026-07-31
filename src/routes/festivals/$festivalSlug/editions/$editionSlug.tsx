@@ -5,6 +5,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { editionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
+import { stagesKeys } from "@/api/stages/types";
 import { getEffectiveFestivalPhase } from "@/lib/festivalPhase";
 import { getDefaultTab } from "@/pages/EditionView/TabNavigation/defaultTab";
 import { tabRoutes } from "@/pages/EditionView/TabNavigation/tabRoutes";
@@ -47,9 +48,13 @@ export const Route = createFileRoute(
     return { edition };
   },
   loader: async ({ context }) => {
-    void context.queryClient.ensureQueryData(
-      stagesByEditionQuery(context.edition.id),
-    );
+    void context.queryClient
+      .ensureQueryData(stagesByEditionQuery(context.edition.id))
+      .then((stages) => {
+        for (const stage of stages) {
+          context.queryClient.setQueryData(stagesKeys.byId(stage.id), stage);
+        }
+      });
   },
 });
 

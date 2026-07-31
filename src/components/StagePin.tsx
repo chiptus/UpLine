@@ -1,12 +1,17 @@
-import { useStageQuery } from "@/api/stages/useStageQuery";
 import { MapPin } from "lucide-react";
+import { useStageQuery } from "@/api/stages/useStageQuery";
 
 export function StagePin({ stageId }: { stageId: string | null }) {
-  const stageQuery = useStageQuery(stageId);
-  return stageQuery.data ? (
+  if (!stageId) return null;
+  return <StagePinContent stageId={stageId} />;
+}
+
+function StagePinContent({ stageId }: { stageId: string }) {
+  const { data: stage } = useStageQuery(stageId);
+  return stage ? (
     <div className="flex items-center gap-2">
       <MapPin className="h-4 w-4" />
-      <span className="text-sm">{stageQuery.data.name}</span>
+      <span className="text-sm">{stage.name}</span>
     </div>
   ) : null;
 }

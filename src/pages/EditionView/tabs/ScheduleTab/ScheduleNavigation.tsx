@@ -6,7 +6,12 @@ import { ScheduleNavigationItem } from "./ScheduleNavigationItem";
 export function ScheduleNavigation() {
   const { phase } = useFestivalPhase();
   const { canShowTime } = useScheduleReveal();
-  const showNow = phase === "live" && canShowTime;
+
+  // Below "full" reveal, Timeline and List render the same lineup view -
+  // switching tabs would be a no-op, so there's nothing to navigate between.
+  if (!canShowTime) return null;
+
+  const showNow = phase === "live";
 
   return (
     <div className="bg-white/10 backdrop-blur-md rounded-lg p-1">

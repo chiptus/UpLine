@@ -22,7 +22,7 @@ import { useNow } from "@/hooks/useNow";
 import { filterScheduleDays } from "@/lib/scheduleFilter";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
-import { ScheduleNotRevealedPlaceholder } from "@/pages/EditionView/tabs/ScheduleTab/ScheduleNotRevealedPlaceholder";
+import { ScheduleLineupView } from "@/pages/EditionView/tabs/ScheduleTab/lineup/ScheduleLineupView";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserVotesQuery } from "@/api/voting/useUserVotesQuery";
 
@@ -37,11 +37,20 @@ export const Route = createFileRoute(
 });
 
 function ScheduleTabTimeline() {
+  const { canShowTime } = useScheduleReveal();
+
+  return canShowTime ? (
+    <TimelineContent />
+  ) : (
+    <ScheduleLineupView tab="timeline" />
+  );
+}
+
+function TimelineContent() {
   const { festival } = useFestivalEdition();
   const { edition } = useRouteContext({
     from: "/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline",
   });
-  const { canShowTime } = useScheduleReveal();
   const now = useNow();
   const { data: editionSets = [], isLoading: setsLoading } =
     useEditionSetsQuery(edition.id);
@@ -115,10 +124,6 @@ function ScheduleTabTimeline() {
         <p>Festival dates not available yet.</p>
       </div>
     );
-  }
-
-  if (!canShowTime) {
-    return <ScheduleNotRevealedPlaceholder />;
   }
 
   return (

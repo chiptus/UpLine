@@ -36,14 +36,6 @@ export const Route = createFileRoute(
       });
     }
   },
-  loader: ({ context }) => {
-    void context.queryClient.ensureQueryData(
-      setsByEditionQuery(context.edition.id),
-    );
-    void context.queryClient.ensureQueryData(
-      stagesByEditionQuery(context.edition.id),
-    );
-  },
 });
 
 function ScheduleTabNow() {

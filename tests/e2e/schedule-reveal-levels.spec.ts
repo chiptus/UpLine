@@ -43,9 +43,7 @@ test.describe("Schedule reveal levels", () => {
     page,
   }) => {
     await page.goto(PATHS.full);
-    await expect(
-      page.getByTestId("timeline-scroll-container"),
-    ).toBeVisible();
+    await expect(page.getByTestId("timeline-scroll-container")).toBeVisible();
     await expect(page.getByRole("link", { name: "Timeline" })).toBeVisible();
     await expect(page.getByRole("link", { name: "List" })).toBeVisible();
   });

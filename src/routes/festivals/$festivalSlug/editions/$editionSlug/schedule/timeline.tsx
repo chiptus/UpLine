@@ -39,7 +39,11 @@ export const Route = createFileRoute(
 function ScheduleTabTimeline() {
   const { canShowTime } = useScheduleReveal();
 
-  return canShowTime ? <TimelineContent /> : <ScheduleLineupView tab="timeline" />;
+  return canShowTime ? (
+    <TimelineContent />
+  ) : (
+    <ScheduleLineupView tab="timeline" />
+  );
 }
 
 function TimelineContent() {

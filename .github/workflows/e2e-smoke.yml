@@ -6,64 +6,24 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 jobs:
-  smoke:
-    timeout-minutes: 30
-    runs-on: ubuntu-latest
-    env:
-      VITE_SUPABASE_URL: http://127.0.0.1:54321
-      VITE_SUPABASE_PUBLISHABLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
-    steps:
-      - uses: actions/checkout@v5
+  test:
+    uses: ./.github/workflows/e2e-run.yml
+    with:
+      test-args: "--project=chromium --retries=2 --grep @smoke"
+      artifact-name: smoke-blob-report
+      browsers: chromium
 
-      - uses: pnpm/action-setup@v5
-
-      - uses: actions/setup-node@v5
-        with:
-          node-version-file: ".nvmrc"
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Get Playwright version
-        id: playwright-version
-        run: echo "version=$(node -e "console.log(require('@playwright/test/package.json').version)")" >> "$GITHUB_OUTPUT"
-
-      - name: Cache Playwright browsers
-        id: playwright-cache
-        uses: actions/cache@v6
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}-chromium
-
-      - name: Install Playwright Browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps chromium
-
-      - name: Install Playwright OS dependencies
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium
-
-      - name: Setup Supabase
-        run: |
-          npx supabase start
-          sleep 10
-          npx supabase db reset
-
-      - name: Build project
-        run: pnpm run build
-
-      - name: Run Playwright smoke tests
-        run: npx playwright test --project=chromium --retries=2 auth.spec.ts navigation.spec.ts artists.spec.ts voting.spec.ts onboarding.spec.ts
-        env:
-          TEST_SUPABASE_URL: http://localhost:54321
-          TEST_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCN9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
-
-      - name: Upload report
-        uses: actions/upload-artifact@v7
-        if: ${{ !cancelled() }}
-        with:
-          name: smoke-playwright-report
-          path: playwright-report/
-          retention-days: 7
+  report:
+    needs: test
+    if: always()
+    uses: ./.github/workflows/e2e-report.yml
+    with:
+      artifact-pattern: smoke-blob-report
+      post-pr-comment: true
+      report-artifact-name: smoke-playwright-report

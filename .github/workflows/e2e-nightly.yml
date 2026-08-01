@@ -1,0 +1,46 @@
+name: E2E Full Suite (Nightly)
+
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        shardIndex: [1, 2, 3, 4]
+        shardTotal: [4]
+        # Add shardIndex: [1, 2, 3, 4, 5, 6, 7, 8] and shardTotal: [8] for more shards
+    uses: ./.github/workflows/e2e-run.yml
+    with:
+      test-args: "--shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}"
+      artifact-name: blob-report-${{ matrix.shardIndex }}
+
+  report:
+    needs: test
+    if: always()
+    uses: ./.github/workflows/e2e-report.yml
+    with:
+      artifact-pattern: blob-report-*
+      post-pr-comment: false
+
+  notify-failure:
+    needs: [test, report]
+    runs-on: ubuntu-latest
+    if: failure()
+    permissions:
+      issues: write
+    steps:
+      - name: Report nightly failure as a GitHub issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const script = require('./.github/scripts/notify-nightly-failure.js');
+            await script({ github, context });

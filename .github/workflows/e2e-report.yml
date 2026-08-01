@@ -1,0 +1,61 @@
+name: E2E Report
+
+on:
+  workflow_call:
+    inputs:
+      artifact-pattern:
+        required: true
+        type: string
+      post-pr-comment:
+        required: false
+        type: boolean
+        default: false
+      report-artifact-name:
+        required: false
+        type: string
+        default: playwright-report
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    if: always()
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download blob reports from GitHub Actions Artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: all-blob-reports
+          pattern: ${{ inputs.artifact-pattern }}
+          merge-multiple: true
+
+      - name: Merge JSON reports
+        run: npx playwright merge-reports --reporter json ./all-blob-reports > ./all-json-reports.json
+
+      - name: Generate summary comment
+        uses: daun/playwright-report-summary@v4
+        if: always() && inputs.post-pr-comment && github.event_name == 'pull_request'
+        with:
+          report-file: all-json-reports.json
+
+      - name: Merge into HTML Report
+        run: npx playwright merge-reports --reporter html ./all-blob-reports
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ inputs.report-artifact-name }}
+          path: playwright-report/
+          retention-days: 30

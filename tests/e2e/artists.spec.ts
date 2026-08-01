@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { TestHelpers } from "../utils/test-helpers";
 
-test.describe("Artists", () => {
+test.describe("Artists", { tag: "@smoke" }, () => {
   let testHelpers: TestHelpers;
 
   test.beforeEach(async ({ page }) => {

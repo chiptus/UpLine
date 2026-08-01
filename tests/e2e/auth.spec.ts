@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("Authentication", () => {
+test.describe("Authentication", { tag: "@smoke" }, () => {
   test("should show login dialog when clicking sign in", async ({ page }) => {
     await page.goto("/");
 

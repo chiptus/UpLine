@@ -6,6 +6,8 @@ import { groupMembersQuery } from "@/api/groups/useGroupMembers";
 import type { FestivalSet } from "@/api/sets/types";
 import type { FilterSortState } from "@/hooks/useUrlState";
 
+const EMPTY_GROUP_MEMBER_IDS = new Set<string>();
+
 interface FilteredSetsPanelProps {
   sets: FestivalSet[];
   urlState: FilterSortState;
@@ -66,7 +68,7 @@ function SetsPanelContent({
   sets,
   urlState,
   updateUrlState,
-  groupMemberIds = new Set<string>(),
+  groupMemberIds = EMPTY_GROUP_MEMBER_IDS,
 }: FilteredSetsPanelProps & { groupMemberIds?: Set<string> }) {
   const { filteredAndSortedSets, lockCurrentOrder } = useSetFiltering(
     sets,

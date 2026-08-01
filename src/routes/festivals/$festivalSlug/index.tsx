@@ -126,11 +126,8 @@ function EditionSelection() {
             const linkPath = `/festivals/${festival.slug}/editions/${edition.slug}`;
 
             return (
-              <Link key={festival.id} to={linkPath} className="block">
-                <Card
-                  key={edition.id}
-                  className="bg-white/10 border-purple-400/30 hover:bg-white/15 transition-all duration-300 cursor-pointer group"
-                >
+              <Link key={edition.id} to={linkPath} className="block">
+                <Card className="bg-white/10 border-purple-400/30 hover:bg-white/15 transition-all duration-300 cursor-pointer group">
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -197,11 +194,12 @@ function EditionSelection() {
                       )}
                     </div>
 
-                    <Link to={linkPath}>
-                      <Button className="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white border-purple-600">
-                        Select Edition
-                      </Button>
-                    </Link>
+                    <Button
+                      asChild
+                      className="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white border-purple-600"
+                    >
+                      <span>Select Edition</span>
+                    </Button>
                   </CardContent>
                 </Card>
               </Link>

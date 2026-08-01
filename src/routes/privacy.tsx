@@ -3,6 +3,7 @@ import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { LEGAL_DOCS_LAST_UPDATED } from "@/lib/constants/legal";
 
 export const Route = createFileRoute("/privacy")({
   component: PrivacyPolicy,
@@ -24,7 +25,7 @@ function PrivacyPolicy() {
             </Button>
             <h1 className="text-3xl font-bold mb-2">Privacy Policy</h1>
             <p className="text-muted-foreground">
-              Last updated: {new Date().toLocaleDateString()}
+              Last updated: {LEGAL_DOCS_LAST_UPDATED}
             </p>
           </div>
 

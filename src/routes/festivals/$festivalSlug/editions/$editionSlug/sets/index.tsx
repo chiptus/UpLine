@@ -1,6 +1,6 @@
 import { createFileRoute, stripSearchParams } from "@tanstack/react-router";
-import { FilterSortControls } from "@/pages/EditionView/tabs/SetsTab/filters/FilterSortControls";
-import { FilteredSetsPanel } from "@/pages/EditionView/tabs/SetsTab/FilteredSetsPanel";
+import { FilterSortControls } from "@/pages/EditionView/tabs/VoteTab/filters/FilterSortControls";
+import { FilteredSetsPanel } from "@/pages/EditionView/tabs/VoteTab/FilteredSetsPanel";
 import { useUrlState } from "@/hooks/useUrlState";
 import { useSetsByEditionQuery } from "@/api/sets/useSetsByEdition";
 import { groupMembersQuery } from "@/api/groups/useGroupMembers";
@@ -15,7 +15,7 @@ import { genresQuery } from "@/api/genres/useGenres";
 export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug/sets/",
 )({
-  component: SetsTab,
+  component: VoteTab,
   validateSearch: filterSortSearchSchema,
   search: {
     middlewares: [stripSearchParams(filterSortSearchDefaults)],
@@ -29,7 +29,7 @@ export const Route = createFileRoute(
   },
 });
 
-function SetsTab() {
+function VoteTab() {
   const { state: urlState, updateUrlState, clearFilters } = useUrlState();
   const { edition, festival } = useFestivalEdition();
 

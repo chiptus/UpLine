@@ -1,11 +1,14 @@
+import { LineupDayHeader } from "./LineupDayHeader";
+import { LineupFilters } from "./LineupFilters";
 import { LineupSetItem } from "./LineupSetItem";
 import type { ScheduleDay } from "@/hooks/useScheduleData";
 
 interface DaysLineupViewProps {
   scheduleDays: ScheduleDay[];
+  tab: "timeline" | "list";
 }
 
-export function DaysLineupView({ scheduleDays }: DaysLineupViewProps) {
+export function DaysLineupView({ scheduleDays, tab }: DaysLineupViewProps) {
   const daysWithSets = scheduleDays
     .map((day) => ({
       ...day,
@@ -19,6 +22,9 @@ export function DaysLineupView({ scheduleDays }: DaysLineupViewProps) {
     return (
       <div className="text-center text-purple-300 py-12">
         <p>No scheduled sets found.</p>
+        <div className="mt-4 flex justify-center">
+          <LineupFilters tab={tab} />
+        </div>
       </div>
     );
   }
@@ -26,16 +32,14 @@ export function DaysLineupView({ scheduleDays }: DaysLineupViewProps) {
   return (
     <div className="space-y-8">
       {daysWithSets.map((day) => (
-        <div key={day.date}>
-          <h2 className="text-lg font-semibold text-purple-100 mb-4 px-4 py-2 bg-purple-900/40 rounded-lg backdrop-blur-sm sticky top-0 z-10">
-            {day.displayDate}
-          </h2>
+        <section key={day.date} aria-label={day.displayDate}>
+          <LineupDayHeader displayDate={day.displayDate} tab={tab} />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {day.sets.map((set) => (
               <LineupSetItem key={set.id} set={set} />
             ))}
           </div>
-        </div>
+        </section>
       ))}
     </div>
   );

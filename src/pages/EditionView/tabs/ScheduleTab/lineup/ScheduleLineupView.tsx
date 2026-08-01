@@ -8,7 +8,6 @@ import { useScheduleData } from "@/hooks/useScheduleData";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
 import { ScheduleNotRevealedPlaceholder } from "../ScheduleNotRevealedPlaceholder";
-import { LineupFilters } from "./LineupFilters";
 import { DaysLineupView } from "./DaysLineupView";
 import { StagesLineupGrid } from "./StagesLineupGrid";
 
@@ -64,14 +63,9 @@ function ScheduleLineupContent({ tab }: ScheduleLineupViewProps) {
     );
   }
 
-  return (
-    <div className="space-y-6">
-      <LineupFilters tab={tab} />
-      {canShowStage ? (
-        <StagesLineupGrid scheduleDays={filteredScheduleDays} />
-      ) : (
-        <DaysLineupView scheduleDays={filteredScheduleDays} />
-      )}
-    </div>
+  return canShowStage ? (
+    <StagesLineupGrid scheduleDays={filteredScheduleDays} tab={tab} />
+  ) : (
+    <DaysLineupView scheduleDays={filteredScheduleDays} tab={tab} />
   );
 }

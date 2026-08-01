@@ -1,17 +1,23 @@
+import { LineupDayHeader } from "./LineupDayHeader";
+import { LineupFilters } from "./LineupFilters";
 import { LineupSetItem } from "./LineupSetItem";
 import type { ScheduleDay } from "@/hooks/useScheduleData";
 
 interface StagesLineupGridProps {
   scheduleDays: ScheduleDay[];
+  tab: "timeline" | "list";
 }
 
-export function StagesLineupGrid({ scheduleDays }: StagesLineupGridProps) {
+export function StagesLineupGrid({ scheduleDays, tab }: StagesLineupGridProps) {
   const daysWithStages = scheduleDays.filter((day) => day.stages.length > 0);
 
   if (!daysWithStages.length) {
     return (
       <div className="text-center text-purple-300 py-12">
         <p>No scheduled sets found.</p>
+        <div className="mt-4 flex justify-center">
+          <LineupFilters tab={tab} />
+        </div>
       </div>
     );
   }
@@ -19,10 +25,8 @@ export function StagesLineupGrid({ scheduleDays }: StagesLineupGridProps) {
   return (
     <div className="space-y-8">
       {daysWithStages.map((day) => (
-        <div key={day.date}>
-          <h2 className="text-lg font-semibold text-purple-100 mb-4 px-4 py-2 bg-purple-900/40 rounded-lg backdrop-blur-sm sticky top-0 z-10">
-            {day.displayDate}
-          </h2>
+        <section key={day.date} aria-label={day.displayDate}>
+          <LineupDayHeader displayDate={day.displayDate} tab={tab} />
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {day.stages.map((stage) => (
               <div key={stage.id} className="bg-white/5 rounded-lg p-3">
@@ -40,7 +44,7 @@ export function StagesLineupGrid({ scheduleDays }: StagesLineupGridProps) {
               </div>
             ))}
           </div>
-        </div>
+        </section>
       ))}
     </div>
   );

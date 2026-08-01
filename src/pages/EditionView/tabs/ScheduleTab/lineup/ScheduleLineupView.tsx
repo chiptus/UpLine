@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
-import { useSetsByEditionQuery as useEditionSetsQuery } from "@/api/sets/useSetsByEdition";
+import { setsByEditionQuery } from "@/api/sets/useSetsByEdition";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useScheduleData } from "@/hooks/useScheduleData";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
@@ -31,8 +31,9 @@ function ScheduleLineupContent({ tab }: ScheduleLineupViewProps) {
   const route =
     `/festivals/$festivalSlug/editions/$editionSlug/schedule/${tab}` as const;
   const { edition } = useRouteContext({ from: route });
-  const { data: editionSets = [], isLoading: setsLoading } =
-    useEditionSetsQuery(edition.id);
+  const { data: editionSets } = useSuspenseQuery(
+    setsByEditionQuery(edition.id),
+  );
   const { data: stages } = useSuspenseQuery(stagesByEditionQuery(edition.id));
   const { scheduleDays } = useScheduleData({
     sets: editionSets,
@@ -54,14 +55,6 @@ function ScheduleLineupContent({ tab }: ScheduleLineupViewProps) {
         ),
       }));
   }, [scheduleDays, selectedDay, selectedStages, canShowStage]);
-
-  if (setsLoading) {
-    return (
-      <div className="text-center text-purple-300 py-12">
-        <p>Loading schedule...</p>
-      </div>
-    );
-  }
 
   return canShowStage ? (
     <StagesLineupGrid scheduleDays={filteredScheduleDays} tab={tab} />

@@ -8,8 +8,6 @@ interface LineupDayHeaderProps {
   tab: "timeline" | "list";
 }
 
-// Mirrors ListDayGroup's sticky day header so the filter trigger stays
-// reachable while scrolled through a day's sets, instead of only at the top.
 export function LineupDayHeader({ displayDate, tab }: LineupDayHeaderProps) {
   return (
     <header

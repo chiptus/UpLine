@@ -1,5 +1,4 @@
 import { LineupDayHeader } from "./LineupDayHeader";
-import { LineupFilters } from "./LineupFilters";
 import { LineupSetItem } from "./LineupSetItem";
 import type { ScheduleDay } from "@/hooks/useScheduleData";
 
@@ -15,9 +14,6 @@ export function StagesLineupGrid({ scheduleDays, tab }: StagesLineupGridProps) {
     return (
       <div className="text-center text-purple-300 py-12">
         <p>No scheduled sets found.</p>
-        <div className="mt-4 flex justify-center">
-          <LineupFilters tab={tab} />
-        </div>
       </div>
     );
   }

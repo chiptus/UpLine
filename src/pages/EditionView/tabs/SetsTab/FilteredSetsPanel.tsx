@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { SetsPanel } from "@/pages/EditionView/tabs/ArtistsTab/SetsPanel";
-import { useSetFiltering } from "@/pages/EditionView/tabs/ArtistsTab/useSetFiltering";
+import { SetsPanel } from "@/pages/EditionView/tabs/SetsTab/SetsPanel";
+import { useSetFiltering } from "@/pages/EditionView/tabs/SetsTab/useSetFiltering";
 import { groupMembersQuery } from "@/api/groups/useGroupMembers";
 import type { FestivalSet } from "@/api/sets/types";
 import type { FilterSortState } from "@/hooks/useUrlState";

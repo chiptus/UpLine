@@ -35,13 +35,12 @@ function ScheduleLineupContent({ tab }: ScheduleLineupViewProps) {
   const { data: editionSets = [], isLoading: setsLoading } =
     useEditionSetsQuery(edition.id);
   const { data: stages } = useSuspenseQuery(stagesByEditionQuery(edition.id));
-  const { scheduleDays, loading } = useScheduleData({
+  const { scheduleDays } = useScheduleData({
     sets: editionSets,
     stages,
     timezone: festival.timezone,
   });
-  const { day: selectedDay, stages: selectedStages } =
-    useTimelineUrlState(tab);
+  const { day: selectedDay, stages: selectedStages } = useTimelineUrlState(tab);
 
   const filteredScheduleDays = useMemo(() => {
     return scheduleDays
@@ -57,7 +56,7 @@ function ScheduleLineupContent({ tab }: ScheduleLineupViewProps) {
       }));
   }, [scheduleDays, selectedDay, selectedStages, canShowStage]);
 
-  if (loading || setsLoading) {
+  if (setsLoading) {
     return (
       <div className="text-center text-purple-300 py-12">
         <p>Loading schedule...</p>

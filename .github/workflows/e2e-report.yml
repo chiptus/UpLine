@@ -20,6 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     if: always()
     permissions:
+      contents: read
       issues: write
       pull-requests: write
     steps:

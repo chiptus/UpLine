@@ -1,10 +1,21 @@
 import { useState } from "react";
+import { Filter } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { DayFilterSelect } from "../DayFilterSelect";
 import { StageFilterButtons } from "../StageFilterButtons";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
-import { FilterToggle } from "@/components/filters/FilterToggle";
-import { FilterContainer } from "@/components/filters/FilterContainer";
 import { cn } from "@/lib/utils";
 
 interface LineupFiltersProps {
@@ -12,7 +23,7 @@ interface LineupFiltersProps {
 }
 
 export function LineupFilters({ tab }: LineupFiltersProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [open, setOpen] = useState(false);
   const { canShowStage } = useScheduleReveal();
   const { day, stages, updateDay, updateStages, clearFilters } =
     useTimelineUrlState(tab);
@@ -29,39 +40,85 @@ export function LineupFilters({ tab }: LineupFiltersProps) {
   const hasActiveFilters = activeFilterCount > 0;
 
   return (
-    <FilterContainer>
-      <div className="flex items-center gap-2 flex-wrap">
-        <h3 className="text-purple-100 font-medium">Filters</h3>
-        <div className="ml-auto" />
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          data-testid="schedule-filters-trigger"
+          aria-label={
+            hasActiveFilters
+              ? `Filters (${activeFilterCount} active)`
+              : "Filters"
+          }
+          className={
+            hasActiveFilters
+              ? "flex items-center gap-2 bg-purple-600/50 text-purple-100 hover:bg-purple-600/60"
+              : "flex items-center gap-2 text-purple-300 hover:bg-purple-400/10 hover:text-purple-100"
+          }
+        >
+          <Filter className="h-4 w-4" />
+          <span className="hidden md:inline">Filters</span>
+          {hasActiveFilters && (
+            <Badge
+              variant="secondary"
+              data-testid="schedule-filters-badge"
+              className="bg-purple-800/50 text-purple-100"
+            >
+              {activeFilterCount}
+            </Badge>
+          )}
+        </Button>
+      </SheetTrigger>
+      <SheetContent
+        side="bottom"
+        data-testid="schedule-filter-sheet"
+        className="bg-gray-900 border-purple-400/30 max-h-[85vh] overflow-y-auto"
+      >
+        <SheetHeader>
+          <SheetTitle className="text-purple-100">Filter schedule</SheetTitle>
+          <SheetDescription className="text-purple-300">
+            {canShowStage
+              ? "Narrow the schedule by day and stage."
+              : "Narrow the schedule by day."}
+          </SheetDescription>
+        </SheetHeader>
 
-        <FilterToggle
-          isExpanded={isExpanded}
-          onToggle={() => setIsExpanded(!isExpanded)}
-          hasActiveFilters={hasActiveFilters}
-          activeFilterCount={activeFilterCount}
-          label="Filters"
-          onClearFilters={hasActiveFilters ? clearFilters : undefined}
-        />
-      </div>
-
-      {isExpanded && (
-        <div className="mt-4">
-          <div
-            className={cn(
-              "grid grid-cols-1 gap-3 md:gap-4",
-              canShowStage && "md:grid-cols-2",
-            )}
-          >
-            <DayFilterSelect selectedDay={day} onDayChange={updateDay} />
-            {canShowStage && (
-              <StageFilterButtons
-                selectedStages={stages}
-                onStageToggle={handleStageToggle}
-              />
-            )}
-          </div>
+        <div
+          className={cn(
+            "mt-4 grid grid-cols-1 gap-4",
+            canShowStage && "md:grid-cols-2",
+          )}
+        >
+          <DayFilterSelect selectedDay={day} onDayChange={updateDay} />
+          {canShowStage && (
+            <StageFilterButtons
+              selectedStages={stages}
+              onStageToggle={handleStageToggle}
+            />
+          )}
         </div>
-      )}
-    </FilterContainer>
+
+        <SheetFooter className="mt-6">
+          {hasActiveFilters && (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={clearFilters}
+              data-testid="schedule-filters-clear"
+              className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
+            >
+              Clear all
+            </Button>
+          )}
+          <SheetClose asChild>
+            <Button type="button" className="bg-purple-600 hover:bg-purple-700">
+              Done
+            </Button>
+          </SheetClose>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 }

@@ -1,9 +1,11 @@
-import { ChevronDown, Users } from "lucide-react";
+import { ChevronDown, Settings, Users } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useSetActiveGroupMutation } from "@/api/groups/useSetActiveGroupMutation";
@@ -80,6 +82,16 @@ export function ActiveGroupSwitcher({
             {group.name}
           </DropdownMenuItem>
         ))}
+        <DropdownMenuSeparator className="bg-purple-400/30" />
+        <DropdownMenuItem
+          asChild
+          className="text-purple-100 hover:bg-purple-600/30"
+        >
+          <Link to="/groups">
+            <Settings className="h-4 w-4 mr-2" />
+            Manage groups
+          </Link>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

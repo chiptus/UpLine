@@ -57,7 +57,7 @@ On the Artists tab, which votes are aggregated into a set's rating and popularit
 _Avoid_: Group filter, rating scope
 
 **Vote Scope**:
-On the Schedule tab, whose votes the vote-type filter chips (Must Go / Interested / Won't Go) match against: Me, or the Active Group. Under Me, a chip matches the current user's own vote. Under the Active Group, a chip matches if *any* member of the Active Group (the current user included) cast that vote type. Scope filters — it hides sets that don't match a selected chip. Distinct from Vote Perspective: each tab keeps its own Me/Group(Everyone) choice independently, both drawing on the same Active Group. See ADR-0005.
+On the Schedule tab, whose votes the vote-type filter chips (Must Go / Interested / Won't Go) match against: Me, or the Active Group. Under Me, a chip matches the current user's own vote. Under the Active Group, a chip matches if _any_ member of the Active Group (the current user included) cast that vote type. Scope filters — it hides sets that don't match a selected chip. Distinct from Vote Perspective: each tab keeps its own Me/Group(Everyone) choice independently, both drawing on the same Active Group. See ADR-0005.
 _Avoid_: Group filter, vote filter
 
 **Core Team**:

@@ -523,6 +523,7 @@ export type Database = {
       profiles: {
         Row: {
           active_group_id: string | null;
+          active_group_selected: boolean;
           completed_onboarding: boolean | null;
           created_at: string;
           email: string | null;
@@ -531,6 +532,7 @@ export type Database = {
         };
         Insert: {
           active_group_id?: string | null;
+          active_group_selected?: boolean;
           completed_onboarding?: boolean | null;
           created_at?: string;
           email?: string | null;
@@ -539,6 +541,7 @@ export type Database = {
         };
         Update: {
           active_group_id?: string | null;
+          active_group_selected?: boolean;
           completed_onboarding?: boolean | null;
           created_at?: string;
           email?: string | null;

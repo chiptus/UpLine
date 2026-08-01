@@ -11,7 +11,7 @@ async function setActiveGroup(variables: {
 
   const { error } = await supabase
     .from("profiles")
-    .update({ active_group_id: groupId })
+    .update({ active_group_id: groupId, active_group_selected: true })
     .eq("id", userId);
 
   if (error) {

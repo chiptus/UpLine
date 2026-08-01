@@ -17,6 +17,7 @@ export function useActiveGroup(userId: string): ActiveGroupState {
 
   const activeGroupId = resolveActiveGroupId({
     profileActiveGroupId: profile?.active_group_id,
+    hasExplicitSelection: profile?.active_group_selected ?? false,
     groupIds: groups.map((group) => group.id),
   });
 

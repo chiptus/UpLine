@@ -4,7 +4,11 @@ import { resolveActiveGroupId } from "./activeGroup";
 describe("resolveActiveGroupId", () => {
   it("returns undefined when the user has no groups", () => {
     expect(
-      resolveActiveGroupId({ profileActiveGroupId: null, groupIds: [] }),
+      resolveActiveGroupId({
+        profileActiveGroupId: null,
+        hasExplicitSelection: false,
+        groupIds: [],
+      }),
     ).toBeUndefined();
   });
 
@@ -12,6 +16,7 @@ describe("resolveActiveGroupId", () => {
     expect(
       resolveActiveGroupId({
         profileActiveGroupId: null,
+        hasExplicitSelection: false,
         groupIds: ["group-1"],
       }),
     ).toBe("group-1");
@@ -21,6 +26,7 @@ describe("resolveActiveGroupId", () => {
     expect(
       resolveActiveGroupId({
         profileActiveGroupId: null,
+        hasExplicitSelection: false,
         groupIds: ["group-1", "group-2"],
       }),
     ).toBeUndefined();
@@ -30,6 +36,7 @@ describe("resolveActiveGroupId", () => {
     expect(
       resolveActiveGroupId({
         profileActiveGroupId: "group-2",
+        hasExplicitSelection: true,
         groupIds: ["group-1", "group-2"],
       }),
     ).toBe("group-2");
@@ -39,6 +46,7 @@ describe("resolveActiveGroupId", () => {
     expect(
       resolveActiveGroupId({
         profileActiveGroupId: "group-3",
+        hasExplicitSelection: true,
         groupIds: ["group-1", "group-2"],
       }),
     ).toBeUndefined();
@@ -48,6 +56,7 @@ describe("resolveActiveGroupId", () => {
     expect(
       resolveActiveGroupId({
         profileActiveGroupId: "group-3",
+        hasExplicitSelection: true,
         groupIds: ["group-1"],
       }),
     ).toBe("group-1");
@@ -57,8 +66,19 @@ describe("resolveActiveGroupId", () => {
     expect(
       resolveActiveGroupId({
         profileActiveGroupId: "group-1",
+        hasExplicitSelection: true,
         groupIds: ["group-1"],
       }),
     ).toBe("group-1");
+  });
+
+  it("respects an explicit Everyone selection even when exactly one group remains", () => {
+    expect(
+      resolveActiveGroupId({
+        profileActiveGroupId: null,
+        hasExplicitSelection: true,
+        groupIds: ["group-1"],
+      }),
+    ).toBeUndefined();
   });
 });

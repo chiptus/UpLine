@@ -8,6 +8,8 @@ import { Outlet } from "@tanstack/react-router";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { PageTitle } from "@/components/PageTitle/PageTitle";
 import { canShowNowView } from "@/lib/nowView";
+import { setsByEditionQuery } from "@/api/sets/useSetsByEdition";
+import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import {
   timelineSearchDefaults,
   timelineSearchSchema,
@@ -37,6 +39,14 @@ export const Route = createFileRoute(
         search: location.search as Record<string, unknown>,
       });
     }
+  },
+  loader: ({ context }) => {
+    void context.queryClient.ensureQueryData(
+      setsByEditionQuery(context.edition.id),
+    );
+    void context.queryClient.ensureQueryData(
+      stagesByEditionQuery(context.edition.id),
+    );
   },
 });
 

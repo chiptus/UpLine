@@ -13,7 +13,7 @@ describe("resolveVotesForScope", () => {
       resolveVotesForScope({
         votes,
         scope: "everyone",
-        groupMemberIds: [],
+        groupMemberIds: new Set(),
       }),
     ).toEqual(votes);
   });
@@ -23,7 +23,7 @@ describe("resolveVotesForScope", () => {
       resolveVotesForScope({
         votes,
         scope: "me",
-        groupMemberIds: [],
+        groupMemberIds: new Set(),
         currentUserId: "user-2",
       }),
     ).toEqual([votes[1]]);
@@ -34,7 +34,7 @@ describe("resolveVotesForScope", () => {
       resolveVotesForScope({
         votes,
         scope: "group",
-        groupMemberIds: ["user-1", "user-2"],
+        groupMemberIds: new Set(["user-1", "user-2"]),
         currentUserId: "user-1",
       }),
     ).toEqual([votes[0], votes[1]]);
@@ -45,7 +45,7 @@ describe("resolveVotesForScope", () => {
       resolveVotesForScope({
         votes,
         scope: "group",
-        groupMemberIds: ["user-2", "user-3"],
+        groupMemberIds: new Set(["user-2", "user-3"]),
         currentUserId: "user-1",
       }),
     ).toEqual([votes[1], votes[2]]);
@@ -56,7 +56,7 @@ describe("resolveVotesForScope", () => {
       resolveVotesForScope({
         votes: [],
         scope: "group",
-        groupMemberIds: ["user-1"],
+        groupMemberIds: new Set(["user-1"]),
       }),
     ).toEqual([]);
   });
@@ -66,18 +66,8 @@ describe("resolveVotesForScope", () => {
       resolveVotesForScope({
         votes,
         scope: "group",
-        groupMemberIds: ["user-4", "user-5"],
+        groupMemberIds: new Set(["user-4", "user-5"]),
       }),
     ).toEqual([]);
-  });
-
-  it("accepts group member ids as a Set", () => {
-    expect(
-      resolveVotesForScope({
-        votes,
-        scope: "group",
-        groupMemberIds: new Set(["user-3"]),
-      }),
-    ).toEqual([votes[2]]);
   });
 });

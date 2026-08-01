@@ -12,7 +12,7 @@ interface ScopedVote {
 interface ResolveVotesForScopeParams<TVote extends ScopedVote> {
   votes: TVote[];
   scope: VoteScope;
-  groupMemberIds: Set<string> | string[];
+  groupMemberIds: Set<string>;
   currentUserId?: string;
 }
 
@@ -30,8 +30,5 @@ export function resolveVotesForScope<TVote extends ScopedVote>({
     return votes.filter((vote) => vote.user_id === currentUserId);
   }
 
-  const memberIds =
-    groupMemberIds instanceof Set ? groupMemberIds : new Set(groupMemberIds);
-
-  return votes.filter((vote) => memberIds.has(vote.user_id));
+  return votes.filter((vote) => groupMemberIds.has(vote.user_id));
 }

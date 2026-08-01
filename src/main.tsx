@@ -25,7 +25,7 @@ const queryClient = new QueryClient({
 const reservedTopLevelSegments = new Set(
   Object.values(routeTree.children ?? {})
     .map((route) => route.fullPath.split("/")[1] ?? "")
-    .filter((segment) => segment !== "festivals"),
+    .filter((segment) => segment !== "festivals" && segment !== ""),
 );
 
 const router = createRouter({

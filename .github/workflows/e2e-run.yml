@@ -1,0 +1,76 @@
+name: E2E Run
+
+on:
+  workflow_call:
+    inputs:
+      test-args:
+        required: true
+        type: string
+      artifact-name:
+        required: true
+        type: string
+      browsers:
+        required: false
+        type: string
+        default: "all"
+
+jobs:
+  run:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    env:
+      VITE_SUPABASE_URL: http://127.0.0.1:54321
+      VITE_SUPABASE_PUBLISHABLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "version=$(node -e "console.log(require('@playwright/test/package.json').version)")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}-${{ inputs.browsers }}
+
+      - name: Install Playwright Browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps ${{ inputs.browsers != 'all' && inputs.browsers || '' }}
+
+      - name: Install Playwright OS dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps ${{ inputs.browsers != 'all' && inputs.browsers || '' }}
+
+      - name: Setup Supabase
+        run: |
+          npx supabase start
+          sleep 10
+          npx supabase db reset
+
+      - name: Build project
+        run: pnpm run build
+
+      - name: Run Playwright tests
+        run: npx playwright test ${{ inputs.test-args }} --reporter=blob
+        env:
+          TEST_SUPABASE_URL: http://localhost:54321
+          TEST_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCN9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: blob-report
+          retention-days: 1

@@ -297,6 +297,24 @@ INSERT INTO public.festival_editions (id, festival_id, year, slug, name, descrip
   ('c2000000-0000-0000-0000-000000000003', 'c1000000-0000-0000-0000-000000000001', 2099, 'stages', 'Reveal Test - Stages', 'Stages reveal level fixture', 'Nowhere', '2099-07-01', '2099-07-03', true, 'stages', now(), now()),
   ('c2000000-0000-0000-0000-000000000004', 'c1000000-0000-0000-0000-000000000001', 2099, 'full', 'Reveal Test - Full', 'Full reveal level fixture', 'Nowhere', '2099-07-01', '2099-07-03', true, 'full', now(), now());
 
+-- Wipe any previously-seeded fixture stages/sets for this festival's
+-- editions first, so this block is safe to re-run even after an older
+-- version of these fixtures (different ids/slugs) already ran once.
+-- Deletes sets before stages (sets.stage_id has no ON DELETE CASCADE);
+-- set_artists and votes cascade automatically off sets.
+DELETE FROM public.sets WHERE festival_edition_id IN (
+  'c2000000-0000-0000-0000-000000000001',
+  'c2000000-0000-0000-0000-000000000002',
+  'c2000000-0000-0000-0000-000000000003',
+  'c2000000-0000-0000-0000-000000000004'
+);
+DELETE FROM public.stages WHERE festival_edition_id IN (
+  'c2000000-0000-0000-0000-000000000001',
+  'c2000000-0000-0000-0000-000000000002',
+  'c2000000-0000-0000-0000-000000000003',
+  'c2000000-0000-0000-0000-000000000004'
+);
+
 -- Fixture artists shared by the days/stages sets below, plus the
 -- pre-existing "full" edition's set (its artist is the first row).
 INSERT INTO public.artists (id, name, slug, added_by, created_at, updated_at) VALUES
@@ -327,8 +345,7 @@ INSERT INTO public.stages (id, name, slug, festival_edition_id, created_at, upda
   ('c3000000-0000-0000-0000-0000000000c8', 'Fixture Stage', 'fixture-stage', 'c2000000-0000-0000-0000-000000000003', now(), now()),
   ('c3000000-0000-0000-0000-0000000000c9', 'Forest Stage', 'forest-stage', 'c2000000-0000-0000-0000-000000000003', now(), now()),
   ('c3000000-0000-0000-0000-0000000000ca', 'Lake Stage', 'lake-stage', 'c2000000-0000-0000-0000-000000000003', now(), now()),
-  ('c3000000-0000-0000-0000-000000000004', 'Fixture Stage', 'fixture-stage', 'c2000000-0000-0000-0000-000000000004', now(), now())
-ON CONFLICT (id) DO NOTHING;
+  ('c3000000-0000-0000-0000-000000000004', 'Fixture Stage', 'fixture-stage', 'c2000000-0000-0000-0000-000000000004', now(), now());
 
 -- "days" and "stages" editions each get 3 stages x 3 days x 2 sets so
 -- the day-grouped lineup and stage x day grid both have plenty to show.
@@ -374,8 +391,7 @@ INSERT INTO public.sets (id, name, slug, festival_edition_id, stage_id, time_sta
   ('c4000000-0000-0000-0000-000000000074', 'Copper Bloom', 'copper-bloom-stages', 'c2000000-0000-0000-0000-000000000003', 'c3000000-0000-0000-0000-0000000000ca', '2099-07-02 20:00:00+00', '2099-07-02 21:00:00+00', 'Fixture set for stages reveal level', '11111111-1111-1111-1111-111111111111', now(), now()),
   ('c4000000-0000-0000-0000-000000000075', 'Drift King', 'drift-king-stages', 'c2000000-0000-0000-0000-000000000003', 'c3000000-0000-0000-0000-0000000000ca', '2099-07-03 18:00:00+00', '2099-07-03 19:00:00+00', 'Fixture set for stages reveal level', '11111111-1111-1111-1111-111111111111', now(), now()),
   ('c4000000-0000-0000-0000-000000000076', 'Violet Static', 'violet-static-stages', 'c2000000-0000-0000-0000-000000000003', 'c3000000-0000-0000-0000-0000000000ca', '2099-07-03 20:00:00+00', '2099-07-03 21:00:00+00', 'Fixture set for stages reveal level', '11111111-1111-1111-1111-111111111111', now(), now()),
-  ('c4000000-0000-0000-0000-000000000fff', 'Fixture Set Full', 'fixture-set-full', 'c2000000-0000-0000-0000-000000000004', 'c3000000-0000-0000-0000-000000000004', '2099-07-01 20:00:00+00', '2099-07-01 21:00:00+00', 'Fixture set for full reveal level', '11111111-1111-1111-1111-111111111111', now(), now())
-ON CONFLICT (id) DO NOTHING;
+  ('c4000000-0000-0000-0000-000000000fff', 'Fixture Set Full', 'fixture-set-full', 'c2000000-0000-0000-0000-000000000004', 'c3000000-0000-0000-0000-000000000004', '2099-07-01 20:00:00+00', '2099-07-01 21:00:00+00', 'Fixture set for full reveal level', '11111111-1111-1111-1111-111111111111', now(), now());
 
 INSERT INTO public.set_artists (set_id, artist_id, role, created_at) VALUES
   ('c4000000-0000-0000-0000-000000000001', 'c5000000-0000-0000-0000-000000000001', 'performer', now()),
@@ -414,6 +430,5 @@ INSERT INTO public.set_artists (set_id, artist_id, role, created_at) VALUES
   ('c4000000-0000-0000-0000-000000000074', 'c5000000-0000-0000-0000-000000000010', 'performer', now()),
   ('c4000000-0000-0000-0000-000000000075', 'c5000000-0000-0000-0000-000000000011', 'performer', now()),
   ('c4000000-0000-0000-0000-000000000076', 'c5000000-0000-0000-0000-000000000012', 'performer', now()),
-  ('c4000000-0000-0000-0000-000000000fff', 'c5000000-0000-0000-0000-000000000001', 'performer', now())
-ON CONFLICT (set_id, artist_id) DO NOTHING;
+  ('c4000000-0000-0000-0000-000000000fff', 'c5000000-0000-0000-0000-000000000001', 'performer', now());
 

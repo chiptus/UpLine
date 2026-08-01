@@ -22,6 +22,12 @@ const queryClient = new QueryClient({
   },
 });
 
+const reservedTopLevelSegments = new Set(
+  Object.values(routeTree.children ?? {})
+    .map((route) => route.fullPath.split("/")[1] ?? "")
+    .filter((segment) => segment !== "festivals"),
+);
+
 const router = createRouter({
   routeTree,
   context: {
@@ -43,6 +49,9 @@ const router = createRouter({
 
       const [subdomain] = parts;
       if (subdomain === "www") return url;
+
+      const firstSegment = url.pathname.split("/")[1] ?? "";
+      if (reservedTopLevelSegments.has(firstSegment)) return url;
 
       url.pathname = `/festivals/${subdomain}${url.pathname}`;
       return url;

@@ -26,7 +26,7 @@ const REMOVES_VOTE_ARTIST: Record<string, string> = {
   "Mobile Chrome": "Maceo Plex",
   "Mobile Safari": "Netsky",
 };
-test.describe("Voting on a set", () => {
+test.describe("Voting on a set", { tag: "@smoke" }, () => {
   // These tests share a single signed-in page/context across the whole
   // describe block (see beforeAll below), so they must never run
   // concurrently regardless of the configured worker count.
@@ -158,7 +158,7 @@ test.describe("Voting on a set", () => {
   });
 });
 
-test.describe("Voting without authentication", () => {
+test.describe("Voting without authentication", { tag: "@smoke" }, () => {
   test("an unauthenticated vote attempt surfaces the sign-in prompt", async ({
     page,
   }) => {

@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("Navigation", () => {
+test.describe("Navigation", { tag: "@smoke" }, () => {
   test("should navigate to different pages", async ({ page }) => {
     await page.goto("/");
 

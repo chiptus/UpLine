@@ -10,7 +10,7 @@ jobs:
   test:
     uses: ./.github/workflows/e2e-run.yml
     with:
-      test-args: "--project=chromium --retries=2 auth.spec.ts navigation.spec.ts artists.spec.ts voting.spec.ts onboarding.spec.ts"
+      test-args: "--project=chromium --retries=2 --grep @smoke"
       artifact-name: smoke-blob-report
       browsers: chromium
 

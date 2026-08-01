@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { submitOtpSignIn, generateTestEmail } from "../utils/login";
 import { TEST_CONFIG } from "../config/test-env";
 
-test.describe("Onboarding", () => {
+test.describe("Onboarding", { tag: "@smoke" }, () => {
   test("a brand-new voter is shown the onboarding dialog after sign-in", async ({
     page,
   }) => {

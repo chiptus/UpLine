@@ -13,77 +13,85 @@ const NOW_BEFORE_WINDOW = new Date("2025-07-10T12:00:00Z");
 // Two days after the latest seeded set ends.
 const NOW_AFTER_WINDOW = new Date("2025-07-16T12:00:00Z");
 
-test.describe("Timeline Now pill and current-time indicator", () => {
-  test("render when now falls inside the festival window", async ({ page }) => {
-    await page.clock.setFixedTime(NOW_INSIDE_WINDOW);
-    await page.goto(TIMELINE_PATH);
+test.describe(
+  "Timeline Now pill and current-time indicator",
+  { tag: "@smoke" },
+  () => {
+    test("render when now falls inside the festival window", async ({
+      page,
+    }) => {
+      await page.clock.setFixedTime(NOW_INSIDE_WINDOW);
+      await page.goto(TIMELINE_PATH);
 
-    const nowButton = page.getByTestId("now-jump-button");
-    await expect(nowButton).toBeVisible();
+      const nowButton = page.getByTestId("now-jump-button");
+      await expect(nowButton).toBeVisible();
 
-    const indicator = page.getByTestId("timeline-now-indicator");
-    await expect(indicator).toBeVisible();
+      const indicator = page.getByTestId("timeline-now-indicator");
+      await expect(indicator).toBeVisible();
 
-    const left = await indicator.evaluate((el) =>
-      parseFloat((el as HTMLElement).style.left),
-    );
-    expect(left).toBeGreaterThan(0);
-    expect(Number.isFinite(left)).toBe(true);
-  });
-
-  test("are absent when now is before the festival window", async ({
-    page,
-  }) => {
-    await page.clock.setFixedTime(NOW_BEFORE_WINDOW);
-    await page.goto(TIMELINE_PATH);
-
-    await expect(page.getByTestId("now-jump-button")).toHaveCount(0);
-    await expect(page.getByTestId("timeline-now-indicator")).toHaveCount(0);
-  });
-
-  test("are absent when now is after the festival window", async ({ page }) => {
-    await page.clock.setFixedTime(NOW_AFTER_WINDOW);
-    await page.goto(TIMELINE_PATH);
-
-    await expect(page.getByTestId("now-jump-button")).toHaveCount(0);
-    await expect(page.getByTestId("timeline-now-indicator")).toHaveCount(0);
-  });
-
-  test("tapping Now writes scrollTo and smooth-scrolls to the current time", async ({
-    page,
-  }) => {
-    await page.clock.setFixedTime(NOW_INSIDE_WINDOW);
-    await page.goto(TIMELINE_PATH);
-
-    const scrollContainer = page.getByTestId("timeline-scroll-container");
-
-    const nowButton = page.getByTestId("now-jump-button");
-    await expect(nowButton).toBeVisible();
-
-    // Scroll away first so the jump is observable.
-    await scrollContainer.evaluate((el) => {
-      el.scrollLeft = 0;
+      const left = await indicator.evaluate((el) =>
+        parseFloat((el as HTMLElement).style.left),
+      );
+      expect(left).toBeGreaterThan(0);
+      expect(Number.isFinite(left)).toBe(true);
     });
 
-    await nowButton.click();
+    test("are absent when now is before the festival window", async ({
+      page,
+    }) => {
+      await page.clock.setFixedTime(NOW_BEFORE_WINDOW);
+      await page.goto(TIMELINE_PATH);
 
-    // The scrollTo param is written by a debounced scroll listener, so the
-    // URL can transiently hold the pre-jump position until the smooth-scroll
-    // animation settles. Poll until it converges on "now" (5-minute rounding
-    // allows a small window either side).
-    await expect
-      .poll(() => {
-        const scrollTo = new URL(page.url()).searchParams.get("scrollTo");
-        if (!scrollTo) return Infinity;
-        const scrollToDate = new Date(scrollTo);
-        if (Number.isNaN(scrollToDate.getTime())) return Infinity;
-        return Math.abs(scrollToDate.getTime() - NOW_INSIDE_WINDOW.getTime());
-      })
-      .toBeLessThan(5 * 60 * 1000);
+      await expect(page.getByTestId("now-jump-button")).toHaveCount(0);
+      await expect(page.getByTestId("timeline-now-indicator")).toHaveCount(0);
+    });
 
-    const scrollLeftAfterJump = await scrollContainer.evaluate(
-      (el) => el.scrollLeft,
-    );
-    expect(scrollLeftAfterJump).toBeGreaterThan(0);
-  });
-});
+    test("are absent when now is after the festival window", async ({
+      page,
+    }) => {
+      await page.clock.setFixedTime(NOW_AFTER_WINDOW);
+      await page.goto(TIMELINE_PATH);
+
+      await expect(page.getByTestId("now-jump-button")).toHaveCount(0);
+      await expect(page.getByTestId("timeline-now-indicator")).toHaveCount(0);
+    });
+
+    test("tapping Now writes scrollTo and smooth-scrolls to the current time", async ({
+      page,
+    }) => {
+      await page.clock.setFixedTime(NOW_INSIDE_WINDOW);
+      await page.goto(TIMELINE_PATH);
+
+      const scrollContainer = page.getByTestId("timeline-scroll-container");
+
+      const nowButton = page.getByTestId("now-jump-button");
+      await expect(nowButton).toBeVisible();
+
+      // Scroll away first so the jump is observable.
+      await scrollContainer.evaluate((el) => {
+        el.scrollLeft = 0;
+      });
+
+      await nowButton.click();
+
+      // The scrollTo param is written by a debounced scroll listener, so the
+      // URL can transiently hold the pre-jump position until the smooth-scroll
+      // animation settles. Poll until it converges on "now" (5-minute rounding
+      // allows a small window either side).
+      await expect
+        .poll(() => {
+          const scrollTo = new URL(page.url()).searchParams.get("scrollTo");
+          if (!scrollTo) return Infinity;
+          const scrollToDate = new Date(scrollTo);
+          if (Number.isNaN(scrollToDate.getTime())) return Infinity;
+          return Math.abs(scrollToDate.getTime() - NOW_INSIDE_WINDOW.getTime());
+        })
+        .toBeLessThan(5 * 60 * 1000);
+
+      const scrollLeftAfterJump = await scrollContainer.evaluate(
+        (el) => el.scrollLeft,
+      );
+      expect(scrollLeftAfterJump).toBeGreaterThan(0);
+    });
+  },
+);

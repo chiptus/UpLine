@@ -3,7 +3,7 @@ import { test, expect, Page } from "@playwright/test";
 // Seeded in supabase/seed.sql: festival slug "test", edition slug "2025".
 const LIST_PATH = "/festivals/test/editions/2025/schedule/list";
 
-test.describe("Mobile bottom tab bar auto-hide", () => {
+test.describe("Mobile bottom tab bar auto-hide", { tag: "@smoke" }, () => {
   test("hides on scroll down and returns on scroll up", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(LIST_PATH);

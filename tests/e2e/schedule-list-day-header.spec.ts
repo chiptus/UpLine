@@ -4,7 +4,7 @@ import { test, expect, Page, Locator } from "@playwright/test";
 // three festival days (Jul 12-14, 2025), stages "Main Stage" and "Club Stage".
 const LIST_PATH = "/festivals/test/editions/2025/schedule/list";
 
-test.describe("List view sticky day header", () => {
+test.describe("List view sticky day header", { tag: "@smoke" }, () => {
   test("stays stuck across a full day's sets and hands over to the next day", async ({
     page,
   }) => {

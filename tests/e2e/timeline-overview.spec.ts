@@ -4,7 +4,7 @@ import { test, expect } from "@playwright/test";
 // three festival days (Jul 12-14, 2025) each with timed sets.
 const TIMELINE_PATH = "/festivals/test/editions/2025/schedule/timeline";
 
-test.describe("Timeline overview mini-map", () => {
+test.describe("Timeline overview mini-map", { tag: "@smoke" }, () => {
   test("collapsed by default; toggle expands and collapses it", async ({
     page,
   }) => {

@@ -14,7 +14,7 @@ async function openSheet(
   await expect(page.getByTestId("schedule-filter-sheet")).toBeVisible();
 }
 
-test.describe("Schedule filter sheet", () => {
+test.describe("Schedule filter sheet", { tag: "@smoke" }, () => {
   test("opens from the Timeline toolbar with title and description", async ({
     page,
   }) => {

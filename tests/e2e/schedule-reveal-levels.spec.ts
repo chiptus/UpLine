@@ -10,7 +10,7 @@ const PATHS: Record<"draft" | "days" | "stages" | "full", string> = {
   full: "/festivals/reveal-test/editions/full/schedule/timeline",
 };
 
-test.describe("Schedule reveal levels", () => {
+test.describe("Schedule reveal levels", { tag: "@smoke" }, () => {
   test("draft shows the not-revealed placeholder and no sets", async ({
     page,
   }) => {

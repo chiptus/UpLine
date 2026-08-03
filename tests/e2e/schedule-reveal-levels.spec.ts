@@ -33,7 +33,9 @@ test.describe("Schedule reveal levels", () => {
     page,
   }) => {
     await page.goto(PATHS.stages);
-    await expect(page.getByText("Fixture Stage")).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Fixture Stage" }).first(),
+    ).toBeVisible();
     await expect(page.getByText("Fixture Set Stages")).toBeVisible();
     await expect(page.getByRole("link", { name: "Timeline" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "List" })).toHaveCount(0);

@@ -38,8 +38,9 @@ jobs:
     permissions:
       issues: write
     steps:
+      - uses: actions/checkout@v5
       - name: Report nightly failure as a GitHub issue
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const script = require('./.github/scripts/notify-nightly-failure.js');

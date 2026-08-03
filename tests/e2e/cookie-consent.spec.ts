@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 const CONSENT_KEY = "gdpr-consent";
 
-test.describe("Cookie consent banner", () => {
+test.describe("Cookie consent banner", { tag: "@smoke" }, () => {
   test("appears on a fresh visit with no stored consent", async ({ page }) => {
     await page.goto("/");
 

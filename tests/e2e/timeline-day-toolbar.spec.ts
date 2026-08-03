@@ -5,7 +5,7 @@ import { test, expect } from "@playwright/test";
 const TIMELINE_PATH = "/festivals/test/editions/2025/schedule/timeline";
 const SCROLL_ANIMATION_WAIT_MS = 800; // > smooth-scroll animation + the ~300ms debounce
 
-test.describe("Timeline day-jump toolbar", () => {
+test.describe("Timeline day-jump toolbar", { tag: "@smoke" }, () => {
   test("renders one sticky button per festival day, labeled weekday + date", async ({
     page,
   }) => {

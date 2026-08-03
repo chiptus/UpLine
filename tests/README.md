@@ -90,6 +90,20 @@ per-process email (`generateTestEmail()`) so parallel workers never race over
 the same Mailpit inbox or OTP code. New accounts get the onboarding dialog's
 username step auto-completed so it doesn't block later interactions.
 
+### Smoke tests
+
+`test.describe` blocks tagged `{ tag: "@smoke" }` run on every push/PR to
+`main` via `.github/workflows/e2e-smoke.yml` (`--grep @smoke`, chromium only).
+The full suite otherwise only runs nightly or on PRs labeled `full-e2e`, so
+smoke is most contributors' fast feedback loop — keep it there.
+
+Tag a `describe` block `@smoke` when it's cheap to run on every PR: no
+`signIn()` per test (the OTP flow polls Mailpit and dominates suite runtime),
+or a single shared `signIn()` in `beforeAll` amortized across serial tests
+(see `voting.spec.ts` / `rating.spec.ts`). Avoid tagging files that call
+`signIn()` per test with only one or two tests in the file — the OTP cost
+isn't amortized and isn't worth paying on every PR.
+
 ### Test Data
 
 The test data setup script creates:

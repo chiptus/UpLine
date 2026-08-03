@@ -10,7 +10,7 @@ const PATHS: Record<"draft" | "days" | "stages" | "full", string> = {
   full: "/festivals/reveal-test/editions/full/schedule/timeline",
 };
 
-test.describe("Schedule reveal levels", () => {
+test.describe("Schedule reveal levels", { tag: "@smoke" }, () => {
   test("draft shows the not-revealed placeholder and no sets", async ({
     page,
   }) => {
@@ -33,7 +33,9 @@ test.describe("Schedule reveal levels", () => {
     page,
   }) => {
     await page.goto(PATHS.stages);
-    await expect(page.getByText("Fixture Stage")).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Fixture Stage" }).first(),
+    ).toBeVisible();
     await expect(page.getByText("Fixture Set Stages")).toBeVisible();
     await expect(page.getByRole("link", { name: "Timeline" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "List" })).toHaveCount(0);

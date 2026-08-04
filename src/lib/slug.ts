@@ -16,14 +16,6 @@ export function generateSlug(text: string): string {
 }
 
 /**
- * Build the Nth candidate slug when disambiguating a collision:
- * attempt 1 is the bare slug, attempt 2+ appends a numeric counter.
- */
-export function slugCandidate(baseSlug: string, attempt: number): string {
-  return attempt <= 1 ? baseSlug : `${baseSlug}-${attempt}`;
-}
-
-/**
  * Validate that a slug is URL-safe
  */
 export function isValidSlug(slug: string): boolean {

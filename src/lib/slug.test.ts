@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { generateSlug, isValidSlug, sanitizeSlug, slugCandidate } from "./slug";
+import { generateSlug, isValidSlug, sanitizeSlug } from "./slug";
 
 describe("generateSlug", () => {
   it("converts basic text to lowercase slug", () => {
@@ -55,18 +55,6 @@ describe("generateSlug", () => {
     expect(generateSlug("Mix of-hyphens and spaces")).toBe(
       "mix-of-hyphens-and-spaces",
     );
-  });
-});
-
-describe("slugCandidate", () => {
-  it("returns the bare slug for attempt 1", () => {
-    expect(slugCandidate("my-set", 1)).toBe("my-set");
-  });
-
-  it("appends the attempt number for attempt 2 and beyond", () => {
-    expect(slugCandidate("my-set", 2)).toBe("my-set-2");
-    expect(slugCandidate("my-set", 3)).toBe("my-set-3");
-    expect(slugCandidate("my-set", 10)).toBe("my-set-10");
   });
 });
 

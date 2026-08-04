@@ -2,14 +2,17 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
-import { generateSlug, slugCandidate } from "@/lib/slug";
+import { generateSlug } from "@/lib/slug";
 import type { Artist } from "./types";
 import { artistsKeys } from "./types";
 
 type ArtistRow = Database["public"]["Tables"]["artists"]["Row"];
 
 const UNIQUE_VIOLATION = "23505";
-const MAX_SLUG_ATTEMPTS = 50;
+// The DB trigger dedupes the slug against a snapshot of existing rows, so a
+// concurrent insert can still race it to the same candidate; retrying lets
+// the trigger recompute against the now-committed row.
+const MAX_INSERT_ATTEMPTS = 5;
 
 // Mutation function
 async function createArtist(
@@ -33,16 +36,16 @@ async function createArtist(
   },
 ): Promise<Artist> {
   const { genre_ids, ...artist } = artistData;
-  const baseSlug = generateSlug(artist.name);
+  const slug = generateSlug(artist.name);
 
   let data: ArtistRow | null = null;
 
-  for (let attempt = 1; attempt <= MAX_SLUG_ATTEMPTS; attempt++) {
+  for (let attempt = 1; attempt <= MAX_INSERT_ATTEMPTS; attempt++) {
     const result = await supabase
       .from("artists")
       .insert({
         ...artist,
-        slug: slugCandidate(baseSlug, attempt),
+        slug,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })

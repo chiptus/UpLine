@@ -432,8 +432,6 @@ function PrototypeSwitcher({
   }
 
   useEffect(() => {
-    if (import.meta.env.PROD) return;
-
     function onKeyDown(e: KeyboardEvent) {
       const target = e.target as HTMLElement | null;
       if (
@@ -450,8 +448,6 @@ function PrototypeSwitcher({
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [idx, variants, onChange]);
-
-  if (import.meta.env.PROD) return null;
 
   return (
     <div className="fixed bottom-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-full border bg-foreground px-3 py-2 text-background shadow-lg">

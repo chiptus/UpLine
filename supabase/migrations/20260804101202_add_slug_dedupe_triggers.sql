@@ -8,9 +8,9 @@
 -- find. Either way, on a collision within scope, append a numeric counter:
 -- try the base slug, then `-2`, `-3`, etc, until one is free.
 --
--- public.slugify() mirrors src/lib/slug.ts generateSlug and
--- commit_schedule__slugify (which now delegates to it, see next migration)
--- so all three stay byte-for-byte identical by construction.
+-- public.slugify() mirrors src/lib/slug.ts generateSlug (commit_schedule's
+-- helpers call this directly too, see next migration) so they stay
+-- byte-for-byte identical by construction.
 CREATE OR REPLACE FUNCTION public.slugify(p_name TEXT)
 RETURNS TEXT
 LANGUAGE sql

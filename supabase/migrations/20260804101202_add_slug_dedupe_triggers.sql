@@ -1,10 +1,12 @@
--- Generate + dedupe slugs entirely at the DB layer on insert, so every
--- insert path (app code, the commit_schedule RPC, seed scripts, ...) gets a
--- correct, unique slug for free instead of relying on each caller to
--- compute one and pre-check or retry individually. Whatever slug the caller
--- passes in is ignored -- the trigger always derives it fresh from `name`.
--- On a collision within scope, append a numeric counter: try the base
--- slug, then `-2`, `-3`, etc, until one is free.
+-- Generate + dedupe slugs at the DB layer on insert. If the caller didn't
+-- supply a slug (the app create paths pass an empty placeholder -- they no
+-- longer compute one client-side), derive it from `name`. If the caller did
+-- supply one, trust it as the base instead of overriding it: commit_schedule
+-- threads its own precomputed slug through the same call (e.g. to look an
+-- artist back up via artistSlugs right after inserting it), so recomputing
+-- from `name` there would silently diverge from what the caller expects to
+-- find. Either way, on a collision within scope, append a numeric counter:
+-- try the base slug, then `-2`, `-3`, etc, until one is free.
 --
 -- public.slugify() mirrors src/lib/slug.ts generateSlug and
 -- commit_schedule__slugify (which now delegates to it, see next migration)
@@ -44,7 +46,7 @@ LANGUAGE plpgsql
 SET search_path = public
 AS $$
 DECLARE
-  v_base      TEXT := public.slugify(NEW.name);
+  v_base      TEXT := COALESCE(NULLIF(TRIM(NEW.slug), ''), public.slugify(NEW.name));
   v_candidate TEXT := v_base;
   v_attempt   INT := 1;
 BEGIN
@@ -79,7 +81,7 @@ LANGUAGE plpgsql
 SET search_path = public
 AS $$
 DECLARE
-  v_base      TEXT := public.slugify(NEW.name);
+  v_base      TEXT := COALESCE(NULLIF(TRIM(NEW.slug), ''), public.slugify(NEW.name));
   v_candidate TEXT := v_base;
   v_attempt   INT := 1;
 BEGIN

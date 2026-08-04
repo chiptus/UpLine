@@ -1,9 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { generateSlug } from "@/lib/slug";
+import type { Database } from "@/integrations/supabase/types";
+import { generateSlug, slugCandidate } from "@/lib/slug";
 import type { Artist } from "./types";
 import { artistsKeys } from "./types";
+
+type ArtistRow = Database["public"]["Tables"]["artists"]["Row"];
+
+const UNIQUE_VIOLATION = "23505";
+const MAX_SLUG_ATTEMPTS = 50;
 
 // Mutation function
 async function createArtist(
@@ -27,21 +33,36 @@ async function createArtist(
   },
 ): Promise<Artist> {
   const { genre_ids, ...artist } = artistData;
-  // First, create the artist without slug
-  const { data, error } = await supabase
-    .from("artists")
-    .insert({
-      ...artist,
-      slug: generateSlug(artist.name),
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })
-    .select("*")
-    .single();
+  const baseSlug = generateSlug(artist.name);
 
-  if (error) {
-    console.error("Error creating artist:", error);
-    throw new Error("Failed to create artist");
+  let data: ArtistRow | null = null;
+
+  for (let attempt = 1; attempt <= MAX_SLUG_ATTEMPTS; attempt++) {
+    const result = await supabase
+      .from("artists")
+      .insert({
+        ...artist,
+        slug: slugCandidate(baseSlug, attempt),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .select("*")
+      .single();
+
+    if (result.error) {
+      if (result.error.code === UNIQUE_VIOLATION) {
+        continue;
+      }
+      console.error("Error creating artist:", result.error);
+      throw new Error("Failed to create artist");
+    }
+
+    data = result.data;
+    break;
+  }
+
+  if (!data) {
+    throw new Error("Failed to create artist: could not find a unique slug");
   }
 
   if (genre_ids.length > 0) {

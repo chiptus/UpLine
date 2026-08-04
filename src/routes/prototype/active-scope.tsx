@@ -1,7 +1,7 @@
 /**
  * PROTOTYPE — throwaway. Not linked from any nav; visit /prototype/active-scope directly.
- * Answers: does the "scope pin lives in Settings, header dropdown is a transient
- * override" model (from the #124/#122/#125 grill session) feel right?
+ * Answers: does the "two settings (active group + active scope), compact mobile-first
+ * dropdown grouped groups-then-everyone/me" model feel right?
  * Delete this whole route once a variant wins or the question is answered.
  *
  * Mock data only — no Supabase calls. State lives in memory (useState), reset on reload.
@@ -20,7 +20,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -43,6 +42,8 @@ export const Route = createFileRoute("/prototype/active-scope")({
   component: ActiveScopePrototype,
   validateSearch: searchSchema,
 });
+
+type ScopeKind = "group" | "everyone" | "me";
 
 type Scope =
   | { kind: "group"; id: string; name: string }
@@ -70,23 +71,25 @@ function scopeIcon(s: Scope) {
   return UserIcon;
 }
 
-const ALL_SCOPES: Scope[] = [
-  ...MOCK_GROUPS.map((g) => ({
-    kind: "group" as const,
-    id: g.id,
-    name: g.name,
-  })),
-  { kind: "everyone" },
-  { kind: "me" },
-];
+function groupScope(id: string): Scope {
+  const g = MOCK_GROUPS.find((g) => g.id === id) ?? MOCK_GROUPS[0];
+  return { kind: "group", id: g.id, name: g.name };
+}
 
-// Shared mock state: pinned (Settings) scope + current (header override) scope.
+/**
+ * Two independent settings, per the model:
+ * - activeGroupId: "Active group" — which of your groups, regardless of scope.
+ * - pinnedKind: "Active scope" — group / everyone / me. When "group", the
+ *   pinned scope resolves through activeGroupId.
+ * `current` is the header's transient, session-only override of the pinned scope.
+ */
 function useMockScopeState() {
-  const [pinned, setPinned] = useState<Scope>({
-    kind: "group",
-    id: "g1",
-    name: "Desert Crew",
-  });
+  const [activeGroupId, setActiveGroupId] = useState(MOCK_GROUPS[0].id);
+  const [pinnedKind, setPinnedKind] = useState<ScopeKind>("group");
+
+  const pinned: Scope =
+    pinnedKind === "group" ? groupScope(activeGroupId) : { kind: pinnedKind };
+
   const [current, setCurrent] = useState<Scope>(pinned);
 
   function selectScope(s: Scope) {
@@ -95,22 +98,30 @@ function useMockScopeState() {
   function returnToDefault() {
     setCurrent(pinned);
   }
-  function pinScope(s: Scope) {
-    setPinned(s);
-    setCurrent(s);
+  function setActiveGroup(id: string) {
+    setActiveGroupId(id);
+    if (pinnedKind === "group") setCurrent(groupScope(id));
+  }
+  function setPinnedScope(kind: ScopeKind) {
+    setPinnedKind(kind);
+    setCurrent(kind === "group" ? groupScope(activeGroupId) : { kind });
   }
 
   const isOverridden = scopeKey(current) !== scopeKey(pinned);
 
   return {
+    activeGroupId,
     pinned,
     current,
     isOverridden,
     selectScope,
     returnToDefault,
-    pinScope,
+    setActiveGroup,
+    setPinnedScope,
   };
 }
+
+type ScopeState = ReturnType<typeof useMockScopeState>;
 
 function ActiveScopePrototype() {
   const { variant } = useSearch({ from: "/prototype/active-scope" });
@@ -145,22 +156,76 @@ function ActiveScopePrototype() {
   );
 }
 
-type ScopeState = ReturnType<typeof useMockScopeState>;
+/**
+ * Shared dropdown body, ordered per spec:
+ *   active group (if pinned scope is group) — context line, not clickable
+ *   pinned scope — context line, not clickable
+ *   -------
+ *   list of groups
+ *   ----
+ *   everyone
+ *   me
+ * Kept intentionally compact/flat (no nested submenus) for mobile.
+ */
+function ScopeMenuBody({
+  pinned,
+  current,
+  onSelect,
+}: {
+  pinned: Scope;
+  current: Scope;
+  onSelect: (s: Scope) => void;
+}) {
+  function Row({ s }: { s: Scope }) {
+    const ItemIcon = scopeIcon(s);
+    const isPinned = scopeKey(s) === scopeKey(pinned);
+    const isActive = scopeKey(s) === scopeKey(current);
+    return (
+      <DropdownMenuItem
+        onClick={() => onSelect(s)}
+        className={cn("flex items-center gap-2", isActive && "bg-accent")}
+      >
+        <ItemIcon className="h-4 w-4" />
+        <span className="flex-1">{scopeLabel(s)}</span>
+        {isPinned && (
+          <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+        )}
+      </DropdownMenuItem>
+    );
+  }
+
+  return (
+    <>
+      {pinned.kind === "group" && (
+        <div className="px-2 pb-0.5 pt-1.5 text-xs text-muted-foreground">
+          Active group:{" "}
+          <span className="font-medium text-foreground">{pinned.name}</span>
+        </div>
+      )}
+      <div className="flex items-center gap-1 px-2 pb-1.5 text-xs text-muted-foreground">
+        Pinned scope:
+        <span className="font-medium text-foreground">
+          {scopeLabel(pinned)}
+        </span>
+        <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+      </div>
+      <DropdownMenuSeparator />
+      {MOCK_GROUPS.map((g) => (
+        <Row key={g.id} s={{ kind: "group", id: g.id, name: g.name }} />
+      ))}
+      <DropdownMenuSeparator />
+      <Row s={{ kind: "everyone" }} />
+      <Row s={{ kind: "me" }} />
+    </>
+  );
+}
 
 /* ---------------- Variant A ----------------
- * Standard header dropdown. Pinned entry gets a star + "default" label inline.
- * "x return to default" pill appears next to the trigger when overridden.
- * Settings mocked as a simple card below.
+ * Standard, compact header dropdown. Trigger shows current scope only (small footprint
+ * on mobile). "x back to default" pill appears next to the trigger when overridden.
  */
 function VariantA({ state }: { state: ScopeState }) {
-  const {
-    pinned,
-    current,
-    isOverridden,
-    selectScope,
-    returnToDefault,
-    pinScope,
-  } = state;
+  const { pinned, current, isOverridden, selectScope, returnToDefault } = state;
   const Icon = scopeIcon(current);
 
   return (
@@ -169,36 +234,18 @@ function VariantA({ state }: { state: ScopeState }) {
         <span className="text-sm font-medium mr-2">Header:</span>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="gap-2">
-              <Icon className="h-4 w-4" />
+            <Button variant="outline" size="sm" className="gap-1.5">
+              <Icon className="h-3.5 w-3.5" />
               {scopeLabel(current)}
-              <ChevronDown className="h-4 w-4 opacity-50" />
+              <ChevronDown className="h-3.5 w-3.5 opacity-50" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56">
-            <DropdownMenuLabel>Viewing scope</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {ALL_SCOPES.map((s) => {
-              const ItemIcon = scopeIcon(s);
-              const isPinned = scopeKey(s) === scopeKey(pinned);
-              const isActive = scopeKey(s) === scopeKey(current);
-              return (
-                <DropdownMenuItem
-                  key={scopeKey(s)}
-                  onClick={() => selectScope(s)}
-                  className={cn(
-                    "flex items-center gap-2",
-                    isActive && "bg-accent",
-                  )}
-                >
-                  <ItemIcon className="h-4 w-4" />
-                  <span className="flex-1">{scopeLabel(s)}</span>
-                  {isPinned && (
-                    <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                  )}
-                </DropdownMenuItem>
-              );
-            })}
+            <ScopeMenuBody
+              pinned={pinned}
+              current={current}
+              onSelect={selectScope}
+            />
           </DropdownMenuContent>
         </DropdownMenu>
 
@@ -215,26 +262,18 @@ function VariantA({ state }: { state: ScopeState }) {
         )}
       </div>
 
-      <SettingsCard pinned={pinned} onPin={pinScope} />
+      <SettingsCard state={state} />
     </div>
   );
 }
 
 /* ---------------- Variant B ----------------
  * Two-row split: top row = "Your default" (pinned, always shown, click to jump straight
- * back — no dropdown needed for the common case). Second row = "Browse" dropdown for
- * everything else. Tests whether separating "go to default" from "explore" reads clearer
- * than one merged list.
+ * back — no dropdown needed for the common case). Second row = compact dropdown for
+ * everything else, same grouped ordering as variant A.
  */
 function VariantB({ state }: { state: ScopeState }) {
-  const {
-    pinned,
-    current,
-    isOverridden,
-    selectScope,
-    returnToDefault,
-    pinScope,
-  } = state;
+  const { pinned, current, isOverridden, selectScope, returnToDefault } = state;
   const PinnedIcon = scopeIcon(pinned);
 
   return (
@@ -262,57 +301,43 @@ function VariantB({ state }: { state: ScopeState }) {
           </span>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="gap-2">
-                Currently: {scopeLabel(current)}
-                <ChevronDown className="h-4 w-4 opacity-50" />
+              <Button variant="ghost" size="sm" className="gap-1.5">
+                {scopeLabel(current)}
+                <ChevronDown className="h-3.5 w-3.5 opacity-50" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              {ALL_SCOPES.map((s) => {
-                const ItemIcon = scopeIcon(s);
-                return (
-                  <DropdownMenuItem
-                    key={scopeKey(s)}
-                    onClick={() => selectScope(s)}
-                    className="flex items-center gap-2"
-                  >
-                    <ItemIcon className="h-4 w-4" />
-                    {scopeLabel(s)}
-                    {scopeKey(s) === scopeKey(pinned) && (
-                      <span className="ml-auto text-xs text-muted-foreground">
-                        default
-                      </span>
-                    )}
-                  </DropdownMenuItem>
-                );
-              })}
+              <ScopeMenuBody
+                pinned={pinned}
+                current={current}
+                onSelect={selectScope}
+              />
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
 
-      <SettingsCard pinned={pinned} onPin={pinScope} />
+      <SettingsCard state={state} />
     </div>
   );
 }
 
 /* ---------------- Variant C ----------------
  * Segmented control for the pinned group vs "other" (Everyone/Me/other groups) tucked
- * behind a single "More" affordance — tests whether making the group-pinned case the
- * primary, always-visible control (matching "centralize around your crew") beats a
- * generic dropdown outright, at the cost of one extra click to reach Everyone/Me.
+ * behind a single "More" affordance — makes the group-pinned case the primary,
+ * always-visible control, at the cost of one extra tap to reach Everyone/Me.
  */
 function VariantC({ state }: { state: ScopeState }) {
-  const {
-    pinned,
-    current,
-    isOverridden,
-    selectScope,
-    returnToDefault,
-    pinScope,
-  } = state;
+  const { pinned, current, isOverridden, selectScope, returnToDefault } = state;
   const [moreOpen, setMoreOpen] = useState(false);
-  const others = ALL_SCOPES.filter((s) => scopeKey(s) !== scopeKey(pinned));
+  const otherGroups = MOCK_GROUPS.filter(
+    (g) => !(pinned.kind === "group" && pinned.id === g.id),
+  ).map((g): Scope => ({ kind: "group", id: g.id, name: g.name }));
+  const others: Scope[] = [
+    ...otherGroups,
+    { kind: "everyone" },
+    { kind: "me" },
+  ];
 
   return (
     <div className="mx-auto max-w-2xl space-y-8 p-6">
@@ -369,47 +394,76 @@ function VariantC({ state }: { state: ScopeState }) {
         )}
       </div>
 
-      <SettingsCard pinned={pinned} onPin={pinScope} />
+      <SettingsCard state={state} />
     </div>
   );
 }
 
-function SettingsCard({
-  pinned,
-  onPin,
-}: {
-  pinned: Scope;
-  onPin: (s: Scope) => void;
-}) {
+/**
+ * Mocked Settings section — two independent controls per the model:
+ * "Active group" (which group, always settable) and "Active scope"
+ * (group / everyone / me — determines what the pin resolves to).
+ */
+function SettingsCard({ state }: { state: ScopeState }) {
+  const { activeGroupId, pinned, setActiveGroup, setPinnedScope } = state;
+
   return (
-    <div className="rounded-lg border p-4">
-      <h3 className="mb-1 text-sm font-semibold">Settings (mock)</h3>
-      <p className="mb-3 text-xs text-muted-foreground">
-        Your default scope — what you see every time you open the app.
-      </p>
-      <div className="flex flex-wrap gap-2">
-        {ALL_SCOPES.map((s) => {
-          const ItemIcon = scopeIcon(s);
-          const isPinned = scopeKey(s) === scopeKey(pinned);
-          return (
+    <div className="space-y-4 rounded-lg border p-4">
+      <h3 className="text-sm font-semibold">Settings (mock)</h3>
+
+      <div>
+        <p className="mb-2 text-xs text-muted-foreground">
+          Active group — which of your groups
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {MOCK_GROUPS.map((g) => (
             <button
-              key={scopeKey(s)}
-              onClick={() => onPin(s)}
+              key={g.id}
+              onClick={() => setActiveGroup(g.id)}
               className={cn(
                 "flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm",
-                isPinned
+                activeGroupId === g.id
                   ? "border-primary bg-primary/10 font-medium"
                   : "hover:bg-muted",
               )}
             >
-              <ItemIcon className="h-3.5 w-3.5" />
-              {scopeLabel(s)}
-              {isPinned && (
-                <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-              )}
+              <Users className="h-3.5 w-3.5" />
+              {g.name}
             </button>
-          );
-        })}
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <p className="mb-2 text-xs text-muted-foreground">
+          Active scope — your default steady-state view
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { kind: "group" as const, label: "Group" },
+            { kind: "everyone" as const, label: "Everyone" },
+            { kind: "me" as const, label: "Me" },
+          ].map((opt) => {
+            const isPinned = pinned.kind === opt.kind;
+            return (
+              <button
+                key={opt.kind}
+                onClick={() => setPinnedScope(opt.kind)}
+                className={cn(
+                  "flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm",
+                  isPinned
+                    ? "border-primary bg-primary/10 font-medium"
+                    : "hover:bg-muted",
+                )}
+              >
+                {opt.label}
+                {isPinned && (
+                  <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

@@ -15,6 +15,7 @@ import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GroupsIndexRouteImport } from './routes/groups/index'
+import { Route as PrototypeActiveScopeRouteImport } from './routes/prototype/active-scope'
 import { Route as GroupsGroupSlugRouteImport } from './routes/groups/$groupSlug'
 import { Route as FestivalsFestivalSlugRouteImport } from './routes/festivals/$festivalSlug'
 import { Route as AdminFestivalsRouteImport } from './routes/admin/festivals'
@@ -69,6 +70,11 @@ const IndexRoute = IndexRouteImport.update({
 const GroupsIndexRoute = GroupsIndexRouteImport.update({
   id: '/groups/',
   path: '/groups/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrototypeActiveScopeRoute = PrototypeActiveScopeRouteImport.update({
+  id: '/prototype/active-scope',
+  path: '/prototype/active-scope',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GroupsGroupSlugRoute = GroupsGroupSlugRouteImport.update({
@@ -227,6 +233,7 @@ export interface FileRoutesByFullPath {
   '/admin/festivals': typeof AdminFestivalsRouteWithChildren
   '/festivals/$festivalSlug': typeof FestivalsFestivalSlugRouteWithChildren
   '/groups/$groupSlug': typeof GroupsGroupSlugRoute
+  '/prototype/active-scope': typeof PrototypeActiveScopeRoute
   '/groups': typeof GroupsIndexRoute
   '/admin/artists/duplicates': typeof AdminArtistsDuplicatesRoute
   '/admin/festivals/$festivalSlug': typeof AdminFestivalsFestivalSlugRouteWithChildren
@@ -259,6 +266,7 @@ export interface FileRoutesByTo {
   '/admin/artists': typeof AdminArtistsRouteWithChildren
   '/admin/festivals': typeof AdminFestivalsRouteWithChildren
   '/groups/$groupSlug': typeof GroupsGroupSlugRoute
+  '/prototype/active-scope': typeof PrototypeActiveScopeRoute
   '/groups': typeof GroupsIndexRoute
   '/admin/artists/duplicates': typeof AdminArtistsDuplicatesRoute
   '/admin/festivals/$festivalSlug': typeof AdminFestivalsFestivalSlugRouteWithChildren
@@ -292,6 +300,7 @@ export interface FileRoutesById {
   '/admin/festivals': typeof AdminFestivalsRouteWithChildren
   '/festivals/$festivalSlug': typeof FestivalsFestivalSlugRouteWithChildren
   '/groups/$groupSlug': typeof GroupsGroupSlugRoute
+  '/prototype/active-scope': typeof PrototypeActiveScopeRoute
   '/groups/': typeof GroupsIndexRoute
   '/admin/artists/duplicates': typeof AdminArtistsDuplicatesRoute
   '/admin/festivals/$festivalSlug': typeof AdminFestivalsFestivalSlugRouteWithChildren
@@ -327,6 +336,7 @@ export interface FileRouteTypes {
     | '/admin/festivals'
     | '/festivals/$festivalSlug'
     | '/groups/$groupSlug'
+    | '/prototype/active-scope'
     | '/groups'
     | '/admin/artists/duplicates'
     | '/admin/festivals/$festivalSlug'
@@ -359,6 +369,7 @@ export interface FileRouteTypes {
     | '/admin/artists'
     | '/admin/festivals'
     | '/groups/$groupSlug'
+    | '/prototype/active-scope'
     | '/groups'
     | '/admin/artists/duplicates'
     | '/admin/festivals/$festivalSlug'
@@ -391,6 +402,7 @@ export interface FileRouteTypes {
     | '/admin/festivals'
     | '/festivals/$festivalSlug'
     | '/groups/$groupSlug'
+    | '/prototype/active-scope'
     | '/groups/'
     | '/admin/artists/duplicates'
     | '/admin/festivals/$festivalSlug'
@@ -421,6 +433,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   FestivalsFestivalSlugRoute: typeof FestivalsFestivalSlugRouteWithChildren
   GroupsGroupSlugRoute: typeof GroupsGroupSlugRoute
+  PrototypeActiveScopeRoute: typeof PrototypeActiveScopeRoute
   GroupsIndexRoute: typeof GroupsIndexRoute
 }
 
@@ -466,6 +479,13 @@ declare module '@tanstack/react-router' {
       path: '/groups'
       fullPath: '/groups'
       preLoaderRoute: typeof GroupsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prototype/active-scope': {
+      id: '/prototype/active-scope'
+      path: '/prototype/active-scope'
+      fullPath: '/prototype/active-scope'
+      preLoaderRoute: typeof PrototypeActiveScopeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/groups/$groupSlug': {
@@ -815,6 +835,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   FestivalsFestivalSlugRoute: FestivalsFestivalSlugRouteWithChildren,
   GroupsGroupSlugRoute: GroupsGroupSlugRoute,
+  PrototypeActiveScopeRoute: PrototypeActiveScopeRoute,
   GroupsIndexRoute: GroupsIndexRoute,
 }
 export const routeTree = rootRouteImport

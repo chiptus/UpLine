@@ -1,18 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import type { Database } from "@/integrations/supabase/types";
-import { generateSlug } from "@/lib/slug";
 import type { Artist } from "./types";
 import { artistsKeys } from "./types";
-
-type ArtistRow = Database["public"]["Tables"]["artists"]["Row"];
-
-const UNIQUE_VIOLATION = "23505";
-// The DB trigger dedupes the slug against a snapshot of existing rows, so a
-// concurrent insert can still race it to the same candidate; retrying lets
-// the trigger recompute against the now-committed row.
-const MAX_INSERT_ATTEMPTS = 5;
 
 // Mutation function
 async function createArtist(
@@ -36,36 +26,22 @@ async function createArtist(
   },
 ): Promise<Artist> {
   const { genre_ids, ...artist } = artistData;
-  const slug = generateSlug(artist.name);
+  const { data, error } = await supabase
+    .from("artists")
+    .insert({
+      ...artist,
+      // The artists_dedupe_slug trigger derives the real slug from `name`
+      // and overwrites this; the column is just NOT NULL with no DB default.
+      slug: "",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .select("*")
+    .single();
 
-  let data: ArtistRow | null = null;
-
-  for (let attempt = 1; attempt <= MAX_INSERT_ATTEMPTS; attempt++) {
-    const result = await supabase
-      .from("artists")
-      .insert({
-        ...artist,
-        slug,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })
-      .select("*")
-      .single();
-
-    if (result.error) {
-      if (result.error.code === UNIQUE_VIOLATION) {
-        continue;
-      }
-      console.error("Error creating artist:", result.error);
-      throw new Error("Failed to create artist");
-    }
-
-    data = result.data;
-    break;
-  }
-
-  if (!data) {
-    throw new Error("Failed to create artist: could not find a unique slug");
+  if (error) {
+    console.error("Error creating artist:", error);
+    throw new Error("Failed to create artist");
   }
 
   if (genre_ids.length > 0) {

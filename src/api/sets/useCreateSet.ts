@@ -2,16 +2,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
-import { generateSlug } from "@/lib/slug";
 import { FestivalSet, setsKeys } from "./types";
 
 type SetInsert = Database["public"]["Tables"]["sets"]["Insert"];
-
-const UNIQUE_VIOLATION = "23505";
-// The DB trigger dedupes the slug against a snapshot of existing rows, so a
-// concurrent insert can still race it to the same candidate; retrying lets
-// the trigger recompute against the now-committed row.
-const MAX_INSERT_ATTEMPTS = 5;
 
 // Mutation function
 async function createSet(
@@ -35,33 +28,28 @@ async function createSet(
     time_start: setData.time_start,
     time_end: setData.time_end,
     created_by: setData.created_by,
-    slug: generateSlug(setData.name),
+    // The sets_dedupe_slug trigger derives the real slug from `name` and
+    // overwrites this; the column is just NOT NULL with no DB default.
+    slug: "",
     archived: false,
   };
 
-  for (let attempt = 1; attempt <= MAX_INSERT_ATTEMPTS; attempt++) {
-    const { data, error } = await supabase
-      .from("sets")
-      .insert(insertData)
-      .select()
-      .single();
+  const { data, error } = await supabase
+    .from("sets")
+    .insert(insertData)
+    .select()
+    .single();
 
-    if (error) {
-      if (error.code === UNIQUE_VIOLATION) {
-        continue;
-      }
-      console.error("Error creating set:", error);
-      throw new Error("Failed to create set");
-    }
-
-    return {
-      ...data,
-      artists: [],
-      votes: [],
-    };
+  if (error) {
+    console.error("Error creating set:", error);
+    throw new Error("Failed to create set");
   }
 
-  throw new Error("Failed to create set: could not find a unique slug");
+  return {
+    ...data,
+    artists: [],
+    votes: [],
+  };
 }
 
 // Hook

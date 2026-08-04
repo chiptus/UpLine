@@ -8,6 +8,7 @@
  */
 import {
   createFileRoute,
+  notFound,
   useNavigate,
   useSearch,
 } from "@tanstack/react-router";
@@ -42,6 +43,9 @@ const searchSchema = z.object({
 export const Route = createFileRoute("/prototype/active-scope")({
   component: ActiveScopePrototype,
   validateSearch: searchSchema,
+  beforeLoad: () => {
+    if (import.meta.env.PROD) throw notFound();
+  },
 });
 
 type Scope =
@@ -432,6 +436,8 @@ function PrototypeSwitcher({
   }
 
   useEffect(() => {
+    if (import.meta.env.PROD) return;
+
     function onKeyDown(e: KeyboardEvent) {
       const target = e.target as HTMLElement | null;
       if (
@@ -447,8 +453,7 @@ function PrototypeSwitcher({
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idx]);
+  }, [idx, variants, onChange]);
 
   if (import.meta.env.PROD) return null;
 

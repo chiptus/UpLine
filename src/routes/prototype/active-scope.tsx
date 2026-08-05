@@ -157,14 +157,14 @@ function ActiveScopePrototype() {
 }
 
 /**
- * Shared dropdown body, ordered per spec:
- *   active group (if pinned scope is group) — context line, not clickable
- *   pinned scope — context line, not clickable
+ * Shared dropdown body. WINNER (per user verdict): the pinned scope always
+ * sits first — starred, at the top — so reverting to it never requires
+ * hunting through the list. Ordered:
+ *   pinned scope (starred)
  *   -------
- *   list of groups
+ *   remaining groups
  *   ----
- *   everyone
- *   me
+ *   remaining of everyone/me
  * Kept intentionally compact/flat (no nested submenus) for mobile.
  */
 function ScopeMenuBody({
@@ -194,28 +194,26 @@ function ScopeMenuBody({
     );
   }
 
+  const otherGroups = MOCK_GROUPS.filter(
+    (g) => !(pinned.kind === "group" && pinned.id === g.id),
+  ).map((g): Scope => ({ kind: "group", id: g.id, name: g.name }));
+  const otherScopes = (["everyone", "me"] as const)
+    .filter((kind) => pinned.kind !== kind)
+    .map((kind): Scope => ({ kind }));
+
   return (
     <>
-      {pinned.kind === "group" && (
-        <div className="px-2 pb-0.5 pt-1.5 text-xs text-muted-foreground">
-          Active group:{" "}
-          <span className="font-medium text-foreground">{pinned.name}</span>
-        </div>
-      )}
-      <div className="flex items-center gap-1 px-2 pb-1.5 text-xs text-muted-foreground">
-        Pinned scope:
-        <span className="font-medium text-foreground">
-          {scopeLabel(pinned)}
-        </span>
-        <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-      </div>
+      <Row s={pinned} />
       <DropdownMenuSeparator />
-      {MOCK_GROUPS.map((g) => (
-        <Row key={g.id} s={{ kind: "group", id: g.id, name: g.name }} />
+      {otherGroups.map((s) => (
+        <Row key={scopeKey(s)} s={s} />
       ))}
-      <DropdownMenuSeparator />
-      <Row s={{ kind: "everyone" }} />
-      <Row s={{ kind: "me" }} />
+      {otherGroups.length > 0 && otherScopes.length > 0 && (
+        <DropdownMenuSeparator />
+      )}
+      {otherScopes.map((s) => (
+        <Row key={scopeKey(s)} s={s} />
+      ))}
     </>
   );
 }

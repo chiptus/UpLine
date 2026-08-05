@@ -35,10 +35,17 @@ switching in the header.
 
 ## Verdict
 
-_Not yet decided — fill in after clicking through all three variants._
+**Variant A won** — a single flat dropdown, plus the two independent Settings
+controls (Active group, Active scope). Refinement on top of the original A:
+the pinned scope now always sorts to the **top of the dropdown list** (still
+starred), so reverting to it never requires hunting through groups/Everyone/Me
+in their natural order — it's always the first row. Variants B and C did not
+win; their code is left in place for reference only, not as live alternatives.
 
 ## Cleanup
 
-Once a variant wins (or the model is rejected), delete this whole
-`src/routes/prototype/` directory and fold the winning interaction into the
-real `ActiveGroupSwitcher` + a new Settings section, per PR #273's branch.
+Delete this whole `src/routes/prototype/` directory once the winning
+interaction (Variant A + pinned-to-top ordering + the two Settings controls)
+is folded into the real `ActiveGroupSwitcher` + a new Settings section, per
+PR #273's branch. PR #288 (this prototype) is throwaway and will not be
+merged to `main`.

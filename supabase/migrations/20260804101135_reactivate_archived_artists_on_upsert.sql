@@ -1,13 +1,7 @@
--- Replace ON CONFLICT (slug) upsert with an explicit reactivate-or-insert.
---
--- p_artists_to_create only ever contains slugs the diff step didn't find
--- among *active* artists (diff-schedule/index.ts queries archived = false),
--- so a slug collision here can only be against an archived artist -- the
--- ON CONFLICT branch existed purely to unarchive+rename that row. Doing the
--- match explicitly (instead of relying on the insert itself colliding)
--- means the INSERT branch below is a genuinely-new-artist insert, so the
--- slug-dedupe trigger added in the next migration can safely apply to it
--- without breaking this reactivation match.
+-- p_artists_to_create: JSONB array of {name, slug}. A slug collision here can
+-- only be against an archived artist (diff-schedule only proposes creates for
+-- slugs it didn't find among active ones), so match+reactivate explicitly
+-- instead of relying on ON CONFLICT.
 CREATE OR REPLACE FUNCTION public.commit_schedule__upsert_artists(
   p_artists_to_create JSONB,
   p_user_id           UUID

@@ -205,6 +205,36 @@ describe("useInviteAcceptance", () => {
     expect(navigateMock).not.toHaveBeenCalled();
   });
 
+  it("allows a retry after a failed attempt", async () => {
+    mockRpcResult({
+      success: false,
+      message: "Invalid invite token",
+      group_id: null,
+    });
+
+    const { rerender } = renderAcceptance({
+      inviteToken: "token-1",
+      inviteValidation: validInvite,
+      user,
+    });
+
+    await waitFor(() => expect(rpcMock).toHaveBeenCalledTimes(1));
+
+    mockRpcResult({
+      success: true,
+      message: "Successfully joined group",
+      group_id: "group-1",
+    });
+
+    rerender({
+      inviteToken: "token-1",
+      inviteValidation: validInvite,
+      user: { ...user },
+    });
+
+    await waitFor(() => expect(rpcMock).toHaveBeenCalledTimes(2));
+  });
+
   it("only accepts once per token across re-renders", async () => {
     mockRpcResult({
       success: true,

@@ -18,10 +18,9 @@ export function useInviteAcceptance({
 }: UseInviteAcceptanceParams) {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const acceptInviteMutation = useAcceptInviteMutation();
+  const { mutate: acceptInvite } = useAcceptInviteMutation();
   const attemptedTokenRef = useRef<string | null>(null);
 
-  const { mutate: acceptInvite } = acceptInviteMutation;
   const groupName = inviteValidation?.group_name;
   const isValid = inviteValidation?.is_valid === true;
 
@@ -37,7 +36,7 @@ export function useInviteAcceptance({
           toast({
             title: result.alreadyMember ? "Already a member" : "Success",
             description: result.alreadyMember
-              ? `You're already a member of ${groupName || "this group"}.`
+              ? `You're already a member of ${groupName || "the group"}.`
               : `Welcome to ${groupName || "the group"}!`,
           });
           navigate({
@@ -48,6 +47,7 @@ export function useInviteAcceptance({
         },
         onError: (error) => {
           console.error("Failed to accept invite", error);
+          attemptedTokenRef.current = null;
           toast({
             title: "Couldn't join group",
             description: error.message,
@@ -57,6 +57,4 @@ export function useInviteAcceptance({
       },
     );
   }, [user, inviteToken, isValid, acceptInvite, groupName, toast, navigate]);
-
-  return { isAcceptingInvite: acceptInviteMutation.isPending };
 }

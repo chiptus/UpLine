@@ -1,9 +1,6 @@
 import { useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  useInviteValidationQuery,
-  useInviteMutation,
-} from "@/api/invite-validation/useInviteValidationQuery";
+import { useInviteValidationQuery } from "@/api/invite-validation/useInviteValidationQuery";
 
 export function useInviteValidation(inviteToken: string | undefined) {
   const { toast } = useToast();
@@ -14,9 +11,6 @@ export function useInviteValidation(inviteToken: string | undefined) {
     error: validationError,
   } = useInviteValidationQuery(inviteToken || null);
 
-  const inviteMutation = useInviteMutation();
-
-  // Handle validation side effects
   useEffect(() => {
     if (validationError) {
       toast({
@@ -49,38 +43,11 @@ export function useInviteValidation(inviteToken: string | undefined) {
     }
   }, [inviteValidation, toast]);
 
-  function useInvite(userId: string): Promise<boolean> {
-    if (!inviteToken) return Promise.resolve(false);
-
-    return new Promise((resolve) => {
-      inviteMutation.mutate(
-        {
-          token: inviteToken,
-          userId,
-        },
-        {
-          onSuccess: () => {
-            toast({
-              title: "Success",
-              description: `Welcome to ${inviteValidation?.group_name || "the group"}!`,
-            });
-            resolve(true);
-          },
-          onError: (error) => {
-            console.error("failed validating invite", error);
-            resolve(false);
-          },
-        },
-      );
-    });
-  }
-
   return {
     inviteToken: inviteToken || null,
     inviteValidation,
     isValidating,
     validationError: validationError?.message || null,
-    useInvite,
     hasValidInvite: inviteValidation?.is_valid === true,
   };
 }

@@ -13,12 +13,12 @@ import type { InviteValidation } from "@/types/invites";
 
 interface InviteLandingPageProps {
   inviteValidation: InviteValidation;
-  onSignupSuccess: () => void;
+  inviteToken: string;
 }
 
 export function InviteLandingPage({
   inviteValidation,
-  onSignupSuccess,
+  inviteToken,
 }: InviteLandingPageProps) {
   const [showAuthDialog, setShowAuthDialog] = useState(false);
 
@@ -73,8 +73,8 @@ export function InviteLandingPage({
       <AuthDialog
         open={showAuthDialog}
         onOpenChange={setShowAuthDialog}
-        onSuccess={onSignupSuccess}
-        inviteToken={inviteValidation.invite_id}
+        onSuccess={() => setShowAuthDialog(false)}
+        inviteToken={inviteToken}
         groupName={inviteValidation.group_name}
       />
     </div>

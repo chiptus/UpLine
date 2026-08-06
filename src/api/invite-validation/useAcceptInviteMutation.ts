@@ -35,7 +35,8 @@ async function acceptInvite({
     return { ...result, alreadyMember: false };
   }
 
-  if (result.message === "User already in group") {
+  // Already-in-group is the only failure where the RPC returns a group_id
+  if (result.group_id) {
     return { ...result, alreadyMember: true };
   }
 

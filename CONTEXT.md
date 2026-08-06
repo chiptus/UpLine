@@ -24,6 +24,10 @@ _Avoid_: Roster, bill
 The arrangement of an edition's **sets** across **stages** and time. Presented to users via the Now, Timeline, and List views on the Schedule tab. Not a stored entity — derived from sets + stages of an edition.
 _Avoid_: Lineup (lineup = who; schedule = when/where), program, timetable
 
+**Current edition**:
+The single **edition** of a festival that its subdomain root resolves to. Explicit and admin-controlled — the `is_active` flag on `festival_editions`, not derived from dates. At most one current edition per festival. Distinct from **Festival phase** (which describes where a single edition sits in its own lifecycle) and from **Edition published** (which controls visibility, not which edition is "the" one).
+_Avoid_: Active edition (use Current edition — "active" collides with `is_active`'s column name but "current" is the reader-facing concept), live edition
+
 **Festival phase**:
 Which stage of its lifecycle an **edition** is in. An ordered, derived concept (parallel to how **Schedule** is derived) — not a stored entity and not a column. Computed from the edition's **schedule reveal level**, `start_date`/`end_date`, and the **festival timezone** at the current time. Four ordered values: **Pre-Schedule → Planning → Live → Post-Festival**. `draft` reveal level ⇒ Pre-Schedule; before the festival ⇒ Planning; during (with grace before/after) ⇒ Live; after ⇒ Post-Festival. See ADR-0003.
 _Avoid_: Status, state, stage (stage = a venue), stored phase

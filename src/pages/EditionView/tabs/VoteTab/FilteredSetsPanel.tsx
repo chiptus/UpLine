@@ -5,7 +5,7 @@ import { useSetFiltering } from "@/pages/EditionView/tabs/VoteTab/useSetFilterin
 import { FilterSortControls } from "@/pages/EditionView/tabs/VoteTab/filters/FilterSortControls";
 import { groupMembersQuery } from "@/api/groups/useGroupMembers";
 import { useAuth } from "@/contexts/AuthContext";
-import { useActiveGroup } from "@/hooks/useActiveGroup";
+import { useActiveScope } from "@/contexts/ActiveScopeContext";
 import type { FestivalSet } from "@/api/sets/types";
 import type { FilterSortState } from "@/hooks/useUrlState";
 import type { BinaryVoteScope, VoteScope } from "@/lib/voteScope";
@@ -49,11 +49,17 @@ export function FilteredSetsPanel(props: FilteredSetsPanelProps) {
 }
 
 // Preference between "everyone" and "group"; the active scope used for
-// filtering falls back to "everyone" whenever there is no Active Group.
+// filtering falls back to "everyone" whenever there is no active Group in
+// the header's current scope (including when it's pinned/overridden to Me,
+// which isn't a meaningful Vote Perspective on this tab).
 function AuthedFilteredSetsPanel(
   props: FilteredSetsPanelProps & { userId: string },
 ) {
-  const { activeGroupId, activeGroup } = useActiveGroup(props.userId);
+  const { current, groups } = useActiveScope();
+  const activeGroupId = current.kind === "group" ? current.groupId : undefined;
+  const activeGroupName = activeGroupId
+    ? groups.find((group) => group.id === activeGroupId)?.name
+    : undefined;
   const [perspective, setPerspective] = useState<BinaryVoteScope>("group");
 
   const voteScope: VoteScope =
@@ -67,11 +73,11 @@ function AuthedFilteredSetsPanel(
         onClear={props.clearFilters}
         editionId={props.editionId}
         votePerspective={
-          activeGroupId && activeGroup
+          activeGroupId && activeGroupName
             ? {
                 scope: voteScope,
                 onScopeChange: setPerspective,
-                groupName: activeGroup.name,
+                groupName: activeGroupName,
               }
             : undefined
         }

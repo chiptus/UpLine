@@ -3,25 +3,28 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { profileKeys } from "@/api/auth/types";
 
-async function setActiveGroup(variables: { userId: string; groupId: string }) {
-  const { userId, groupId } = variables;
+async function setActiveScope(variables: {
+  userId: string;
+  scope: "group" | "everyone" | "me";
+}) {
+  const { userId, scope } = variables;
 
   const { error } = await supabase
     .from("profiles")
-    .update({ active_group_id: groupId })
+    .update({ active_scope: scope })
     .eq("id", userId);
 
   if (error) {
-    throw new Error("Failed to update active group");
+    throw new Error("Failed to update active scope");
   }
 }
 
-export function useSetActiveGroupMutation() {
+export function useSetActiveScopeMutation() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: setActiveGroup,
+    mutationFn: setActiveScope,
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: profileKeys.detail(variables.userId),
@@ -30,7 +33,7 @@ export function useSetActiveGroupMutation() {
     onError: (error) => {
       toast({
         title: "Error",
-        description: error?.message || "Failed to update active group",
+        description: error?.message || "Failed to update active scope",
         variant: "destructive",
       });
     },

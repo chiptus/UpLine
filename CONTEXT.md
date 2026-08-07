@@ -49,8 +49,12 @@ A festival-agnostic crew of users who share votes and notes for collaborative de
 _Avoid_: Team, party, edition group
 
 **Active Group**:
-The one Group a user is currently viewing the app "as" — the group whose votes feed Vote Perspective and Vote Scope on any given screen. Global to the user (not per-edition), persisted, and defaults to the user's only Group when they have exactly one. Choosing a different Group anywhere always replaces it — there is no separate, non-persisting "peek" mode. A user with no Groups has no Active Group. See ADR-0005.
+Which Group is the user's, independent of what they're currently viewing. Global to the user (not per-edition), persisted in Settings, and defaults to the user's only Group when they have exactly one. A user with no Groups has no Active Group. See ADR-0005.
 _Avoid_: Selected group, current group, group filter
+
+**Active Scope**:
+The user's durable, Settings-level default lens: Group, Everyone, or Me. When set to Group, it resolves through the Active Group. Defaults to Group when the user has exactly one Group and has never chosen, else Everyone. The header switcher can temporarily override this per-session without changing the pin — see ADR-0005.
+_Avoid_: Active group (the pin covers both which Group and which lens; "Active Group" alone is only the former)
 
 **Vote Perspective**:
 On the Artists tab, which votes are aggregated into a set's rating and popularity score: Everyone, or the Active Group. Perspective re-scores and re-sorts; it never hides sets. See ADR-0005.

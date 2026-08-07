@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -44,6 +45,11 @@ import { Route as AdminFestivalsFestivalSlugEditionsEditionSlugImportRouteImport
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -220,6 +226,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/cookies': typeof CookiesRoute
   '/privacy': typeof PrivacyRoute
+  '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
   '/admin/admins': typeof AdminAdminsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
@@ -253,6 +260,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRouteWithChildren
   '/cookies': typeof CookiesRoute
   '/privacy': typeof PrivacyRoute
+  '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
   '/admin/admins': typeof AdminAdminsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
@@ -285,6 +293,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/cookies': typeof CookiesRoute
   '/privacy': typeof PrivacyRoute
+  '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
   '/admin/admins': typeof AdminAdminsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
@@ -320,6 +329,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/cookies'
     | '/privacy'
+    | '/settings'
     | '/terms'
     | '/admin/admins'
     | '/admin/analytics'
@@ -353,6 +363,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/cookies'
     | '/privacy'
+    | '/settings'
     | '/terms'
     | '/admin/admins'
     | '/admin/analytics'
@@ -384,6 +395,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/cookies'
     | '/privacy'
+    | '/settings'
     | '/terms'
     | '/admin/admins'
     | '/admin/analytics'
@@ -418,6 +430,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   CookiesRoute: typeof CookiesRoute
   PrivacyRoute: typeof PrivacyRoute
+  SettingsRoute: typeof SettingsRoute
   TermsRoute: typeof TermsRoute
   FestivalsFestivalSlugRoute: typeof FestivalsFestivalSlugRouteWithChildren
   GroupsGroupSlugRoute: typeof GroupsGroupSlugRoute
@@ -431,6 +444,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -812,6 +832,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   CookiesRoute: CookiesRoute,
   PrivacyRoute: PrivacyRoute,
+  SettingsRoute: SettingsRoute,
   TermsRoute: TermsRoute,
   FestivalsFestivalSlugRoute: FestivalsFestivalSlugRouteWithChildren,
   GroupsGroupSlugRoute: GroupsGroupSlugRoute,

@@ -1,9 +1,8 @@
-import { Suspense } from "react";
 import { Link } from "@tanstack/react-router";
 import { UserPlus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
-import { useActiveGroup } from "@/hooks/useActiveGroup";
+import { useActiveScope } from "@/contexts/ActiveScopeContext";
 import { cn } from "@/lib/utils";
 import { TooltipButton } from "./TooltipButton";
 import { ActiveGroupSwitcher } from "./ActiveGroupSwitcher";
@@ -13,36 +12,22 @@ const groupsButtonClassName =
 
 export function GroupsIndicator({ isMobile }: { isMobile: boolean }) {
   const { user } = useAuth();
+  const { isLoading, hasGroups } = useActiveScope();
 
   if (!user) {
     return null;
   }
 
-  return (
-    <Suspense
-      fallback={
-        <Skeleton
-          className={cn(
-            "bg-purple-400/20",
-            isMobile ? "h-9 w-9 rounded-md" : "h-10 w-32 rounded-md",
-          )}
-        />
-      }
-    >
-      <GroupsIndicatorContent isMobile={isMobile} userId={user.id} />
-    </Suspense>
-  );
-}
-
-function GroupsIndicatorContent({
-  isMobile,
-  userId,
-}: {
-  isMobile: boolean;
-  userId: string;
-}) {
-  const { activeGroup, activeGroupId, groups, hasGroups } =
-    useActiveGroup(userId);
+  if (isLoading) {
+    return (
+      <Skeleton
+        className={cn(
+          "bg-purple-400/20",
+          isMobile ? "h-9 w-9 rounded-md" : "h-10 w-32 rounded-md",
+        )}
+      />
+    );
+  }
 
   if (!hasGroups) {
     return (
@@ -65,10 +50,6 @@ function GroupsIndicatorContent({
   return (
     <ActiveGroupSwitcher
       isMobile={isMobile}
-      userId={userId}
-      activeGroupId={activeGroupId}
-      activeGroup={activeGroup}
-      groups={groups}
       className={groupsButtonClassName}
     />
   );

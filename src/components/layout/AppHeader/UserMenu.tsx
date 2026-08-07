@@ -81,11 +81,13 @@ export function UserMenu({
         </DropdownMenuItem>
 
         <DropdownMenuItem
+          asChild
           className="text-white hover:bg-purple-600 focus:bg-purple-600 cursor-pointer"
-          disabled
         >
-          <Settings className="mr-2 h-4 w-4" />
-          <span>Settings</span>
+          <Link to="/settings">
+            <Settings className="mr-2 h-4 w-4" />
+            <span>Settings</span>
+          </Link>
         </DropdownMenuItem>
 
         {isAdmin && (

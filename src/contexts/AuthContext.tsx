@@ -45,8 +45,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const profile = profileQuery.data;
 
   useEffect(() => {
-    // Set up auth state listener first. Invite acceptance is handled by
-    // useInviteAcceptance (calling supabase inside this callback can deadlock).
+    // Set up auth state listener first
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {

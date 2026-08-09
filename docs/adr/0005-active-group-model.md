@@ -17,11 +17,11 @@ Both are set explicitly only from **Settings** (`src/pages/Settings/`) — this 
 
 ## Asymmetric by design: header is a transient override, Settings holds the pin
 
-The header switcher (`ActiveGroupSwitcher.tsx`) no longer writes either column directly. Selecting an entry there sets a **transient, in-memory override** (`ActiveScopeContext`, plain `useState`, not persisted) — it reverts to the Settings pin on a fresh visit/reload. A "back to {pinned}" affordance appears next to the trigger whenever the current view diverges from the pin.
+The header switcher (`ActiveGroupSwitcher.tsx`) no longer writes either column directly. Selecting an entry there sets a **transient, in-memory override** (`ActiveScopeContext`, plain `useState`, not persisted) — it reverts to the Settings pin on a fresh visit/reload.
 
 This is intentionally asymmetric, not symmetric: real Group picks are meant to stay sticky/default with no friction (that's the whole point of this epic — centralizing the app around "your crew"), while Everyone/Me are meant to default to being a temporary lens. Putting the friction on the Settings-level pin (not on casual switching in the header) serves that goal; a uniform "every header pick is a commit" model — the original #124 shape — does not.
 
-The header dropdown lists the pinned entry first (starred), then remaining Groups, then remaining of Everyone/Me — so reverting to the pin never requires scanning the list.
+The header dropdown lists the pinned entry first (starred), then remaining Groups, then remaining of Everyone/Me — so reverting to the pin is always the first item in the list, one open + one click. There's deliberately no separate "back to default" affordance next to the trigger: it would just add a second way to do what the starred, always-first entry already does.
 
 ## Unifies with the future Schedule-tab Vote Scope
 
@@ -37,6 +37,6 @@ The three-way scope (`group` / `everyone` / `me`) is written to serve both the A
 ## Consequences
 
 - `src/lib/activeGroup.ts` exports `resolveActiveGroupId` (unchanged shape, now scope-independent) and `resolvePinnedScope` (new), both pure and framework-free.
-- `src/contexts/ActiveScopeContext.tsx` is the single seam every scope-aware surface reads from: `pinned` (durable), `current` (transient), `isOverridden`, and the two Settings-only mutators `setActiveGroup` / `setActiveScope`.
+- `src/contexts/ActiveScopeContext.tsx` is the single seam every scope-aware surface reads from: `pinned` (durable), `current` (transient), and the two Settings-only mutators `setActiveGroup` / `setActiveScope`.
 - `src/pages/EditionView/tabs/VoteTab/FilteredSetsPanel.tsx`'s Vote Perspective toggle seeds its default from `current`, mapping `me` to `everyone` since Vote Perspective has no Me option.
 - Any future Vote Scope work (Schedule tab, Me ↔ Active Group, issue #125) reuses `ActiveScopeContext` directly; it does not need its own auto-activation or override tracking.

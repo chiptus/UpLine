@@ -17,9 +17,7 @@ interface ActiveScopeContextValue {
   activeGroupId: string | undefined;
   pinned: PinnedScope;
   current: PinnedScope;
-  isOverridden: boolean;
   selectScope: (scope: PinnedScope) => void;
-  returnToDefault: () => void;
   setActiveGroup: (groupId: string) => void;
   setActiveScope: (scope: "group" | "everyone" | "me") => void;
 }
@@ -33,9 +31,7 @@ const ANONYMOUS_VALUE: ActiveScopeContextValue = {
   activeGroupId: undefined,
   pinned: EVERYONE_SCOPE,
   current: EVERYONE_SCOPE,
-  isOverridden: false,
   selectScope: () => {},
-  returnToDefault: () => {},
   setActiveGroup: () => {},
   setActiveScope: () => {},
 };
@@ -97,17 +93,12 @@ function AuthedActiveScopeProvider({
   });
 
   const current = override ?? pinned;
-  const isOverridden = override !== null && !scopeEquals(override, pinned);
 
   const setActiveGroupMutation = useSetActiveGroupMutation();
   const setActiveScopeMutation = useSetActiveScopeMutation();
 
   function selectScope(scope: PinnedScope) {
     setOverride(scopeEquals(scope, pinned) ? null : scope);
-  }
-
-  function returnToDefault() {
-    setOverride(null);
   }
 
   function setActiveGroup(groupId: string) {
@@ -127,9 +118,7 @@ function AuthedActiveScopeProvider({
     activeGroupId,
     pinned,
     current,
-    isOverridden,
     selectScope,
-    returnToDefault,
     setActiveGroup,
     setActiveScope,
   };

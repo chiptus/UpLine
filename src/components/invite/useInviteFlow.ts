@@ -12,29 +12,22 @@ export function useInviteFlow(
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const {
-    data: inviteValidation,
-    isLoading: isValidating,
-    error: validationError,
-  } = useInviteValidationQuery(inviteToken || null);
-
+  const inviteQuery = useInviteValidationQuery(inviteToken || null);
   const { mutate: acceptInvite } = useAcceptInviteMutation();
   const attemptedTokenRef = useRef<string | null>(null);
 
-  const groupName = inviteValidation?.group_name;
-  const isValid = inviteValidation?.is_valid === true;
-
   useEffect(() => {
-    if (validationError) {
+    if (inviteQuery.error) {
       toast({
         title: "Invalid Invite",
         description: "This invite link is not valid",
         variant: "destructive",
       });
     }
-  }, [validationError, toast]);
+  }, [inviteQuery.error, toast]);
 
   useEffect(() => {
+    const inviteValidation = inviteQuery.data;
     if (inviteValidation && !inviteValidation.is_valid) {
       let message = "This invite link is no longer valid";
       switch (inviteValidation.reason) {
@@ -54,10 +47,11 @@ export function useInviteFlow(
         variant: "destructive",
       });
     }
-  }, [inviteValidation, toast]);
+  }, [inviteQuery.data, toast]);
 
   useEffect(() => {
-    if (!user || !inviteToken || !isValid) return;
+    const groupName = inviteQuery.data?.group_name;
+    if (!user || !inviteToken || inviteQuery.data?.is_valid !== true) return;
     if (attemptedTokenRef.current === inviteToken) return;
     attemptedTokenRef.current = inviteToken;
 
@@ -88,11 +82,11 @@ export function useInviteFlow(
         },
       },
     );
-  }, [user, inviteToken, isValid, acceptInvite, groupName, toast, navigate]);
+  }, [user, inviteToken, inviteQuery.data, acceptInvite, toast, navigate]);
 
   return {
-    inviteValidation,
-    isValidating,
-    hasValidInvite: isValid,
+    inviteValidation: inviteQuery.data,
+    isValidating: inviteQuery.isLoading,
+    hasValidInvite: inviteQuery.data?.is_valid === true,
   };
 }

@@ -193,6 +193,11 @@ Deno.test(
     const editionId = await getTestEditionId(db);
     const userId = await getTestUserId(db);
     const setName = `Dup Name Set ${Date.now()}`;
+    const artistSlug = `test-dup-set-artist-${Date.now()}`;
+
+    await db
+      .from("artists")
+      .insert({ name: "Dup Set Artist", slug: artistSlug, added_by: userId });
 
     const { data, error } = await db.rpc("commit_schedule", {
       p_festival_edition_id: editionId,
@@ -206,7 +211,7 @@ Deno.test(
           stageName: null,
           timeStart: null,
           timeEnd: null,
-          artistSlugs: [],
+          artistSlugs: [artistSlug],
         },
         {
           name: setName,
@@ -214,7 +219,7 @@ Deno.test(
           stageName: null,
           timeStart: null,
           timeEnd: null,
-          artistSlugs: [],
+          artistSlugs: [artistSlug],
         },
       ],
       p_sets_to_update: [],
@@ -241,6 +246,7 @@ Deno.test(
       .delete()
       .eq("festival_edition_id", editionId)
       .eq("name", setName);
+    await db.from("artists").delete().eq("slug", artistSlug);
   },
 );
 

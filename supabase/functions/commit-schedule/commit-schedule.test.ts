@@ -187,6 +187,70 @@ Deno.test("commit_schedule: archives orphaned sets", async () => {
 });
 
 Deno.test(
+  "commit_schedule: two sets with the same name get distinct slugs",
+  async () => {
+    const db = adminClient();
+    const editionId = await getTestEditionId(db);
+    const userId = await getTestUserId(db);
+    const setName = `Dup Name Set ${Date.now()}`;
+    const artistSlug = `test-dup-set-artist-${Date.now()}`;
+
+    await db
+      .from("artists")
+      .insert({ name: "Dup Set Artist", slug: artistSlug, added_by: userId });
+
+    const { data, error } = await db.rpc("commit_schedule", {
+      p_festival_edition_id: editionId,
+      p_user_id: userId,
+      p_artists_to_create: [],
+      p_stages_to_create: [],
+      p_sets_to_create: [
+        {
+          name: setName,
+          description: null,
+          stageName: null,
+          timeStart: null,
+          timeEnd: null,
+          artistSlugs: [artistSlug],
+        },
+        {
+          name: setName,
+          description: null,
+          stageName: null,
+          timeStart: null,
+          timeEnd: null,
+          artistSlugs: [artistSlug],
+        },
+      ],
+      p_sets_to_update: [],
+      p_set_ids_to_archive: [],
+    });
+
+    assertEquals(error, null);
+    assertEquals(data.setsCreated, 2);
+
+    const { data: sets } = await db
+      .from("sets")
+      .select("id, slug")
+      .eq("festival_edition_id", editionId)
+      .eq("name", setName);
+
+    assertEquals(sets?.length, 2);
+    assertExists(sets![0].slug);
+    assertExists(sets![1].slug);
+    assertEquals(sets![0].slug === sets![1].slug, false);
+
+    // Cleanup
+    await db
+      .from("sets")
+      .delete()
+      .eq("festival_edition_id", editionId)
+      .eq("name", setName);
+    await db.from("artists").delete().eq("slug", artistSlug);
+  },
+);
+
+Deno.test(
   "commit_schedule: midnight-crossing times stored correctly",
   async () => {
     const db = adminClient();

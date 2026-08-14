@@ -1,7 +1,7 @@
 import { Users } from "lucide-react";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { ToggleGroup } from "@/components/ui/toggle-group";
 import { useActiveScope } from "@/contexts/ActiveScopeContext";
-import { settingsToggleItemClassName } from "@/pages/Settings/settingsToggleItemClassName";
+import { SettingsToggleItem } from "@/pages/Settings/SettingsToggleItem";
 
 export function ActiveGroupSetting() {
   const { groups, activeGroupId, setActiveGroup } = useActiveScope();
@@ -24,15 +24,14 @@ export function ActiveGroupSetting() {
         className="flex-wrap justify-start gap-2"
       >
         {groups.map((group) => (
-          <ToggleGroupItem
+          <SettingsToggleItem
             key={group.id}
             value={group.id}
-            className={settingsToggleItemClassName}
-            aria-label={`Set ${group.name} as active group`}
+            ariaLabel={`Set ${group.name} as active group`}
           >
             <Users className="h-3.5 w-3.5" />
             {group.name}
-          </ToggleGroupItem>
+          </SettingsToggleItem>
         ))}
       </ToggleGroup>
     </div>

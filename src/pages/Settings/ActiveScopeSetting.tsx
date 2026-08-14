@@ -1,7 +1,7 @@
 import { Globe, Star, User as UserIcon, Users } from "lucide-react";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { ToggleGroup } from "@/components/ui/toggle-group";
 import { useActiveScope } from "@/contexts/ActiveScopeContext";
-import { settingsToggleItemClassName } from "@/pages/Settings/settingsToggleItemClassName";
+import { SettingsToggleItem } from "@/pages/Settings/SettingsToggleItem";
 
 const SCOPE_OPTIONS = [
   { kind: "group" as const, label: "Group", icon: Users },
@@ -34,18 +34,17 @@ export function ActiveScopeSetting() {
         className="flex-wrap justify-start gap-2"
       >
         {options.map(({ kind, label, icon: Icon }) => (
-          <ToggleGroupItem
+          <SettingsToggleItem
             key={kind}
             value={kind}
-            className={settingsToggleItemClassName}
-            aria-label={`Set active scope to ${label}`}
+            ariaLabel={`Set active scope to ${label}`}
           >
             <Icon className="h-3.5 w-3.5" />
             {label}
             {pinned.kind === kind && (
               <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
             )}
-          </ToggleGroupItem>
+          </SettingsToggleItem>
         ))}
       </ToggleGroup>
     </div>

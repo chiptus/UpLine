@@ -51,12 +51,13 @@ export function FilteredSetsPanel(props: FilteredSetsPanelProps) {
 function AuthedFilteredSetsPanel(
   props: FilteredSetsPanelProps & { userId: string },
 ) {
-  const { current, groups } = useActiveScope();
-  const activeGroupId = current.kind === "group" ? current.groupId : undefined;
+  const { current, groups, activeGroupId } = useActiveScope();
   const activeGroupName = activeGroupId
     ? groups.find((group) => group.id === activeGroupId)?.name
     : undefined;
-  const [perspective, setPerspective] = useState<BinaryVoteScope>("group");
+  const [perspective, setPerspective] = useState<BinaryVoteScope>(
+    current.kind === "group" ? "group" : "everyone",
+  );
 
   const voteScope: VoteScope =
     perspective === "group" && activeGroupId ? "group" : "everyone";

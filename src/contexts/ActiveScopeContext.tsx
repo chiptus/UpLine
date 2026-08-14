@@ -3,8 +3,7 @@ import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { userGroupsQuery } from "@/api/groups/useUserGroups";
-import { useSetActiveGroupMutation } from "@/api/groups/useSetActiveGroupMutation";
-import { useSetActiveScopeMutation } from "@/api/groups/useSetActiveScopeMutation";
+import { useProfileFieldMutation } from "@/api/groups/useProfileFieldMutation";
 import { resolveActiveGroupId, resolvePinnedScope } from "@/lib/activeGroup";
 import type { PinnedScope } from "@/lib/activeGroup";
 import type { Group } from "@/api/groups/types";
@@ -94,20 +93,26 @@ function AuthedActiveScopeProvider({
 
   const current = override ?? pinned;
 
-  const setActiveGroupMutation = useSetActiveGroupMutation();
-  const setActiveScopeMutation = useSetActiveScopeMutation();
+  const setActiveGroupMutation = useProfileFieldMutation({
+    column: "active_group_id",
+    errorMessage: "Failed to update active group",
+  });
+  const setActiveScopeMutation = useProfileFieldMutation({
+    column: "active_scope",
+    errorMessage: "Failed to update active scope",
+  });
 
   function selectScope(scope: PinnedScope) {
     setOverride(scopeEquals(scope, pinned) ? null : scope);
   }
 
   function setActiveGroup(groupId: string) {
-    setActiveGroupMutation.mutate({ userId, groupId });
+    setActiveGroupMutation.mutate({ userId, value: groupId });
     setOverride(null);
   }
 
   function setActiveScope(scope: "group" | "everyone" | "me") {
-    setActiveScopeMutation.mutate({ userId, scope });
+    setActiveScopeMutation.mutate({ userId, value: scope });
     setOverride(null);
   }
 

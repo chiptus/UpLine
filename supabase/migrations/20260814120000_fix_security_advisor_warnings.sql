@@ -110,19 +110,26 @@ DROP POLICY IF EXISTS "Public read access for festival assets" ON storage.object
 --    Restricted below (not rpc'd from src/, not used inside any RLS policy):
 -- =============================================================================
 
+-- Postgres grants EXECUTE to PUBLIC by default on every new function, and
+-- both `anon` and `authenticated` inherit PUBLIC's privileges. Revoking only
+-- from the named roles below would leave them able to call through the
+-- inherited PUBLIC grant, so PUBLIC must be revoked explicitly too.
+
 -- One-time local-dev bootstrap for the first super admin. Already
 -- self-guards (only succeeds while zero super admins exist), but there is
 -- no reason for it to remain a permanently public RPC endpoint.
-REVOKE EXECUTE ON FUNCTION public.bootstrap_super_admin(text) FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.bootstrap_super_admin(text) FROM PUBLIC, anon, authenticated;
 
--- Internal helper only ever called from inside check_username_exists's
--- callers (validate_profile_update, handle_new_user), both SECURITY DEFINER
--- and therefore not dependent on the caller's own grants to invoke it.
-REVOKE EXECUTE ON FUNCTION public.check_username_exists(text, uuid) FROM anon, authenticated;
+-- Internal helper only ever called by validate_profile_update and
+-- handle_new_user, both SECURITY DEFINER and therefore not dependent on the
+-- caller's own grants to invoke it.
+REVOKE EXECUTE ON FUNCTION public.check_username_exists(text, uuid) FROM PUBLIC, anon, authenticated;
 
 -- Not called via supabase.rpc() anywhere in src/ today, and not referenced
 -- by any RLS policy. Keep the pre-existing `authenticated` grant (added
 -- deliberately in 20251112000000_add_duplicate_set_with_votes.sql, likely
 -- for an admin "duplicate set" feature that isn't wired into the frontend
--- yet), but there is no reason for `anon` to be able to invoke it.
-REVOKE EXECUTE ON FUNCTION public.duplicate_set_with_votes(uuid, timestamp with time zone, timestamp with time zone, uuid, text) FROM anon;
+-- yet), but there is no reason for `anon` (or PUBLIC, which `anon` inherits)
+-- to be able to invoke it.
+REVOKE EXECUTE ON FUNCTION public.duplicate_set_with_votes(uuid, timestamp with time zone, timestamp with time zone, uuid, text) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.duplicate_set_with_votes(uuid, timestamp with time zone, timestamp with time zone, uuid, text) TO authenticated;

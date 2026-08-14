@@ -8,10 +8,6 @@ import { scopeIcon, scopeKey, scopeLabel } from "./scopeDisplay";
 import type { PinnedScope } from "@/lib/activeGroup";
 import type { Group } from "@/api/groups/types";
 
-/**
- * Pinned entry always sorts first (starred), so reverting to it never
- * requires hunting through the list; then remaining groups, then Everyone/Me.
- */
 export function ScopeMenuBody({
   groups,
   pinned,

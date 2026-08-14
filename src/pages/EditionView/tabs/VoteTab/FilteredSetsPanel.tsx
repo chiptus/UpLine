@@ -48,10 +48,6 @@ export function FilteredSetsPanel(props: FilteredSetsPanelProps) {
   return <AuthedFilteredSetsPanel {...props} userId={user.id} />;
 }
 
-// Preference between "everyone" and "group"; the active scope used for
-// filtering falls back to "everyone" whenever there is no active Group in
-// the header's current scope (including when it's pinned/overridden to Me,
-// which isn't a meaningful Vote Perspective on this tab).
 function AuthedFilteredSetsPanel(
   props: FilteredSetsPanelProps & { userId: string },
 ) {

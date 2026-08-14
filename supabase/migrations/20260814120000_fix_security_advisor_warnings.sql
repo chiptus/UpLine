@@ -1,0 +1,128 @@
+-- Address Supabase database-linter security advisor warnings:
+--   1. function_search_path_mutable
+--   2. rls_policy_always_true (artist_music_genres)
+--   3. public_bucket_allows_listing (festival-assets)
+--   4. anon/authenticated_security_definer_function_executable
+--
+-- Note: "Leaked password protection disabled" and "Postgres version has
+-- security patches available" are dashboard/infra settings, not fixable via
+-- a SQL migration, and are intentionally not addressed here.
+
+-- =============================================================================
+-- 1. function_search_path_mutable: pin search_path on functions that had none
+-- =============================================================================
+
+ALTER FUNCTION public.create_festival_info() SET search_path = public, pg_temp;
+ALTER FUNCTION public.bootstrap_super_admin(text) SET search_path = public, pg_temp;
+ALTER FUNCTION public.duplicate_set_with_votes(uuid, timestamp with time zone, timestamp with time zone, uuid, text) SET search_path = public, pg_temp;
+ALTER FUNCTION public.handle_new_user() SET search_path = public, pg_temp;
+ALTER FUNCTION public.update_updated_at_column() SET search_path = public, pg_temp;
+ALTER FUNCTION public.commit_schedule__parse_ts(text) SET search_path = public, pg_temp;
+
+-- =============================================================================
+-- 2. rls_policy_always_true: artist_music_genres INSERT/UPDATE/DELETE policies
+--    used a bare `true` check for `authenticated`. Mirror the permission model
+--    used by the `artists` table itself, where mutation is gated by
+--    can_edit_artists() (admin / super_admin / moderator roles).
+-- =============================================================================
+
+DROP POLICY IF EXISTS "Authenticated users can create artist music genres" ON public.artist_music_genres;
+DROP POLICY IF EXISTS "Authenticated users can update artist music genres" ON public.artist_music_genres;
+DROP POLICY IF EXISTS "Authenticated users can delete artist music genres" ON public.artist_music_genres;
+
+CREATE POLICY "Authenticated users can create artist music genres" ON public.artist_music_genres
+  FOR INSERT TO authenticated WITH CHECK (public.can_edit_artists(auth.uid()));
+
+CREATE POLICY "Authenticated users can update artist music genres" ON public.artist_music_genres
+  FOR UPDATE TO authenticated USING (public.can_edit_artists(auth.uid()));
+
+CREATE POLICY "Authenticated users can delete artist music genres" ON public.artist_music_genres
+  FOR DELETE TO authenticated USING (public.can_edit_artists(auth.uid()));
+
+-- "Anyone can view artist music genres" (SELECT USING (true)) is left as-is:
+-- genre tags are public read-only data shown on the public artist listing.
+
+-- =============================================================================
+-- 3. public_bucket_allows_listing: festival-assets had two redundant public
+--    SELECT policies on storage.objects ("Anyone can view festival assets"
+--    and "Public read access for festival assets"), which both effectively
+--    allow bucket listing in addition to individual object GET.
+--
+--    Minimal, safe fix: dedupe down to a single SELECT policy so there is
+--    exactly one path granting public read (frontend relies on
+--    getPublicUrl()/direct object GET for festival-assets, see
+--    src/services/storage.ts and useMapUpload.ts — this must keep working).
+--
+--    Full listing-prevention is out of scope for an RLS-only tweak: it
+--    requires either (a) making the bucket private (public = false) and
+--    serving all asset URLs as signed URLs instead of getPublicUrl(), or
+--    (b) Supabase Storage's newer object-level policies that distinguish
+--    GetObject from ListObjects. Either path is a product/behavior change
+--    (every public asset URL in the app would need to switch to a
+--    signed-URL flow) and should be a deliberate follow-up, not something
+--    silently changed by a linter-driven migration.
+-- =============================================================================
+
+DROP POLICY IF EXISTS "Public read access for festival assets" ON storage.objects;
+-- "Anyone can view festival assets" (FOR SELECT USING (bucket_id = 'festival-assets')) is kept as the single public-read policy.
+
+-- =============================================================================
+-- 4. anon/authenticated_security_definer_function_executable
+--
+--    For each SECURITY DEFINER function flagged, the judgement below is
+--    based on (a) whether src/ calls it via supabase.rpc(...), and
+--    (b) whether it's used inside another RLS policy's USING/WITH CHECK
+--    clause (which runs as the querying role, so EXECUTE must stay granted
+--    to whichever roles that policy applies to).
+--
+--    Left as-is (EXECUTE intentionally still available), no action taken:
+--      - can_edit_artists   : rpc'd from src/ AND used inside RLS policies
+--                              (sets, admin_roles, artists). Revoking would
+--                              break both.
+--      - get_user_id_by_email: rpc'd from src/ (useAddAdminMutation,
+--                              useInviteToGroup).
+--      - group_member_counts : rpc'd from src/; already scoped to
+--                              `authenticated` only (REVOKE FROM PUBLIC done
+--                              in 20260728010000_add_group_member_counts_rpc.sql).
+--      - is_admin             : rpc'd from src/ AND used inside many RLS
+--                              policies (festivals, festival_editions,
+--                              festival_info, storage.objects, etc).
+--      - use_invite_token     : rpc'd from src/ (accepting a group invite).
+--      - validate_invite_token: rpc'd from src/ AND used inside the
+--                              "Anyone can validate invite tokens" RLS
+--                              policy.
+--      - validate_profile_update: rpc'd from src/ (useUpdateProfile);
+--                              already explicitly granted to
+--                              authenticated, anon (profile edits can happen
+--                              pre-confirmation) since it was introduced.
+--      - has_admin_role, is_group_creator, is_group_member,
+--        users_share_group : never called via rpc() from src/, but each is
+--                              used inside USING/WITH CHECK of RLS policies
+--                              that apply to (implicitly) all roles querying
+--                              the underlying tables. Revoking EXECUTE here
+--                              would turn ordinary SELECT/UPDATE/DELETE
+--                              queries against admin_roles / groups /
+--                              group_members / artist_notes into permission
+--                              errors instead of the intended row-filtering
+--                              behavior. Left granted; the WARN is accepted
+--                              as inherent to this RLS-helper usage pattern.
+--
+--    Restricted below (not rpc'd from src/, not used inside any RLS policy):
+-- =============================================================================
+
+-- One-time local-dev bootstrap for the first super admin. Already
+-- self-guards (only succeeds while zero super admins exist), but there is
+-- no reason for it to remain a permanently public RPC endpoint.
+REVOKE EXECUTE ON FUNCTION public.bootstrap_super_admin(text) FROM anon, authenticated;
+
+-- Internal helper only ever called from inside check_username_exists's
+-- callers (validate_profile_update, handle_new_user), both SECURITY DEFINER
+-- and therefore not dependent on the caller's own grants to invoke it.
+REVOKE EXECUTE ON FUNCTION public.check_username_exists(text, uuid) FROM anon, authenticated;
+
+-- Not called via supabase.rpc() anywhere in src/ today, and not referenced
+-- by any RLS policy. Keep the pre-existing `authenticated` grant (added
+-- deliberately in 20251112000000_add_duplicate_set_with_votes.sql, likely
+-- for an admin "duplicate set" feature that isn't wired into the frontend
+-- yet), but there is no reason for `anon` to be able to invoke it.
+REVOKE EXECUTE ON FUNCTION public.duplicate_set_with_votes(uuid, timestamp with time zone, timestamp with time zone, uuid, text) FROM anon;

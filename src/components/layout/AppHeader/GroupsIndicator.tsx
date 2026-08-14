@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useActiveScope } from "@/contexts/ActiveScopeContext";
 import { cn } from "@/lib/utils";
 import { TooltipButton } from "./TooltipButton";
-import { ActiveGroupSwitcher } from "./ActiveGroupSwitcher";
+import { ActiveGroupSwitcher } from "./GroupSwitcher/ActiveGroupSwitcher";
 
 const groupsButtonClassName =
   "bg-transparent border-purple-400/50 text-purple-300 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-colors";

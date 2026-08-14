@@ -5,29 +5,26 @@ import { profileKeys } from "@/api/auth/types";
 import type { Database } from "@/integrations/supabase/types";
 
 type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
+type ScopeColumn = "active_group_id" | "active_scope";
 
-export function useProfileFieldMutation<K extends keyof ProfileUpdate>({
-  column,
-  errorMessage,
-}: {
-  column: K;
-  errorMessage: string;
-}) {
+export function useProfileFieldMutation() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   return useMutation({
     mutationFn: async (variables: {
       userId: string;
-      value: ProfileUpdate[K];
+      column: ScopeColumn;
+      value: ProfileUpdate[ScopeColumn];
+      errorMessage: string;
     }) => {
       const { error } = await supabase
         .from("profiles")
-        .update({ [column]: variables.value } as ProfileUpdate)
+        .update({ [variables.column]: variables.value } as ProfileUpdate)
         .eq("id", variables.userId);
 
       if (error) {
-        throw new Error(errorMessage);
+        throw new Error(variables.errorMessage);
       }
     },
     onSuccess: (_data, variables) => {
@@ -35,10 +32,10 @@ export function useProfileFieldMutation<K extends keyof ProfileUpdate>({
         queryKey: profileKeys.detail(variables.userId),
       });
     },
-    onError: (error) => {
+    onError: (error, variables) => {
       toast({
         title: "Error",
-        description: error?.message || errorMessage,
+        description: error?.message || variables.errorMessage,
         variant: "destructive",
       });
     },

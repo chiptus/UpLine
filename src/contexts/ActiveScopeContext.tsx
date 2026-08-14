@@ -93,26 +93,29 @@ function AuthedActiveScopeProvider({
 
   const current = override ?? pinned;
 
-  const setActiveGroupMutation = useProfileFieldMutation({
-    column: "active_group_id",
-    errorMessage: "Failed to update active group",
-  });
-  const setActiveScopeMutation = useProfileFieldMutation({
-    column: "active_scope",
-    errorMessage: "Failed to update active scope",
-  });
+  const profileMutation = useProfileFieldMutation();
 
   function selectScope(scope: PinnedScope) {
     setOverride(scopeEquals(scope, pinned) ? null : scope);
   }
 
   function setActiveGroup(groupId: string) {
-    setActiveGroupMutation.mutate({ userId, value: groupId });
+    profileMutation.mutate({
+      userId,
+      column: "active_group_id",
+      value: groupId,
+      errorMessage: "Failed to update active group",
+    });
     setOverride(null);
   }
 
   function setActiveScope(scope: "group" | "everyone" | "me") {
-    setActiveScopeMutation.mutate({ userId, value: scope });
+    profileMutation.mutate({
+      userId,
+      column: "active_scope",
+      value: scope,
+      errorMessage: "Failed to update active scope",
+    });
     setOverride(null);
   }
 

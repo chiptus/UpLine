@@ -28,7 +28,7 @@ function Groups() {
   const { user } = useRouteContext({ from: "/groups/" });
 
   if (!user) {
-    return <SignInRequired />;
+    return <SignInRequired description="Please sign in to manage groups" />;
   }
 
   return <GroupsContent user={user} />;

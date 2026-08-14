@@ -1,5 +1,5 @@
 import { Users } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useActiveScope } from "@/contexts/ActiveScopeContext";
 
 export function ActiveGroupSetting() {
@@ -12,23 +12,28 @@ export function ActiveGroupSetting() {
         Which of your groups is yours by default, whenever your scope is set to
         a group.
       </p>
-      <div className="flex flex-wrap gap-2">
+      <ToggleGroup
+        type="single"
+        value={activeGroupId}
+        onValueChange={(value) => {
+          if (value) {
+            setActiveGroup(value);
+          }
+        }}
+        className="flex-wrap justify-start gap-2"
+      >
         {groups.map((group) => (
-          <button
+          <ToggleGroupItem
             key={group.id}
-            onClick={() => setActiveGroup(group.id)}
-            className={cn(
-              "flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm text-purple-100 transition-colors",
-              activeGroupId === group.id
-                ? "border-purple-400 bg-purple-600/20 font-medium"
-                : "border-purple-400/30 hover:bg-purple-600/10",
-            )}
+            value={group.id}
+            className="gap-1.5 rounded-md border border-purple-400/30 px-3 py-1.5 text-sm text-purple-100 data-[state=on]:border-purple-400 data-[state=on]:bg-purple-600/20 data-[state=on]:font-medium data-[state=on]:text-purple-100 hover:bg-purple-600/10"
+            aria-label={`Set ${group.name} as active group`}
           >
             <Users className="h-3.5 w-3.5" />
             {group.name}
-          </button>
+          </ToggleGroupItem>
         ))}
-      </div>
+      </ToggleGroup>
     </div>
   );
 }

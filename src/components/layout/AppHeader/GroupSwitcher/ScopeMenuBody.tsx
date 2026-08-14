@@ -25,13 +25,6 @@ export function ScopeMenuBody({
     (kind) => pinned.kind !== kind,
   );
 
-  function isPinned(scope: PinnedScope) {
-    return scopeKey(scope) === scopeKey(pinned);
-  }
-  function isActive(scope: PinnedScope) {
-    return scopeKey(scope) === scopeKey(current);
-  }
-
   return (
     <>
       <ScopeMenuRow
@@ -73,6 +66,13 @@ export function ScopeMenuBody({
       })}
     </>
   );
+
+  function isPinned(scope: PinnedScope) {
+    return scopeKey(scope) === scopeKey(pinned);
+  }
+  function isActive(scope: PinnedScope) {
+    return scopeKey(scope) === scopeKey(current);
+  }
 }
 
 function ScopeMenuRow({

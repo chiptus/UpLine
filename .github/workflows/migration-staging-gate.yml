@@ -18,6 +18,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
           PR: ${{ github.event.pull_request.number }}
+          HAS_LABEL: ${{ contains(github.event.pull_request.labels.*.name, 'staging') }}
         run: |
           set -euo pipefail
 
@@ -27,9 +28,6 @@ jobs:
           if grep -q '^supabase/migrations/' <<< "$CHANGED_FILES"; then
             TOUCHES_MIGRATIONS=true
           fi
-
-          HAS_LABEL=$(gh pr view "$PR" --repo "$REPO" --json labels \
-            --jq '[.labels[].name] | index("staging") != null')
 
           echo "Touches migrations: $TOUCHES_MIGRATIONS, holds staging label: $HAS_LABEL"
 

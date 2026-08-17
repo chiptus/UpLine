@@ -64,7 +64,7 @@ jobs:
 
   migrate:
     needs: resolve
-    if: needs.resolve.outputs.migrations == 'true'
+    if: needs.resolve.outputs.migrations == 'true' && (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'staging'))
     uses: ./.github/workflows/_db_migrate.yml
     with:
       target: ${{ needs.resolve.outputs.target }}

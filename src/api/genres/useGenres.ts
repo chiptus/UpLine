@@ -1,4 +1,4 @@
-import { queryOptions } from "@tanstack/react-query";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Genre, genresKeys } from "./types";
 
@@ -21,4 +21,8 @@ export function genresQuery() {
     queryFn: fetchGenres,
     staleTime: 10 * 60 * 1000,
   });
+}
+
+export function useGenresQuery() {
+  return useSuspenseQuery(genresQuery());
 }

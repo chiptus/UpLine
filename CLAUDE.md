@@ -17,6 +17,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pnpm test` - Run Vitest unit tests
 - `pnpm run test:ui` - Run unit tests with UI
 - `pnpm run test:coverage` - Run unit tests with coverage
+- `pnpm run test:integration` - Run Vitest integration tests (`*.integration.test.ts`) against a manually-started local Supabase instance
 - `pnpm run test:e2e` - Run Playwright end-to-end tests
 - `pnpm run test:e2e:ui` - Run tests with Playwright UI
 - `pnpm run test:e2e:headed` - Run tests in headed mode

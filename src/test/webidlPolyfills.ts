@@ -25,15 +25,15 @@ if (
 }
 
 // Polyfill for webidl-conversions and whatwg-url
-if (typeof global.Set === "undefined") {
-  global.Set = Set;
+if (typeof globalThis.Set === "undefined") {
+  globalThis.Set = Set;
 }
-if (typeof global.Map === "undefined") {
-  global.Map = Map;
+if (typeof globalThis.Map === "undefined") {
+  globalThis.Map = Map;
 }
-if (typeof global.WeakMap === "undefined") {
-  global.WeakMap = WeakMap;
+if (typeof globalThis.WeakMap === "undefined") {
+  globalThis.WeakMap = WeakMap;
 }
-if (typeof global.WeakSet === "undefined") {
-  global.WeakSet = WeakSet;
+if (typeof globalThis.WeakSet === "undefined") {
+  globalThis.WeakSet = WeakSet;
 }

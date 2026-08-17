@@ -1,28 +1,17 @@
-import { createElement, Suspense, type ReactNode } from "react";
 import { describe, expect, it } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useGenresQuery } from "./useGenres";
-import { registerCleanup, testSupabase } from "@/test/integration/harness";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { genresQuery } from "./useGenres";
+import {
+  createQueryWrapper,
+  registerCleanup,
+  testSupabase,
+} from "@/test/integration/harness";
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-
-  return function Wrapper({ children }: { children: ReactNode }) {
-    return createElement(
-      QueryClientProvider,
-      { client: queryClient },
-      createElement(Suspense, { fallback: null }, children),
-    );
-  };
-}
-
-describe("useGenresQuery", () => {
+describe("genresQuery", () => {
   it("returns the genres seeded in the local Supabase instance", async () => {
-    const { result } = renderHook(() => useGenresQuery(), {
-      wrapper: createWrapper(),
+    const { result } = renderHook(() => useSuspenseQuery(genresQuery()), {
+      wrapper: createQueryWrapper(),
     });
 
     await waitFor(() => {
@@ -70,8 +59,8 @@ describe("useGenresQuery", () => {
       .not("id", "is", null);
     if (deleteError) throw deleteError;
 
-    const { result } = renderHook(() => useGenresQuery(), {
-      wrapper: createWrapper(),
+    const { result } = renderHook(() => useSuspenseQuery(genresQuery()), {
+      wrapper: createQueryWrapper(),
     });
 
     await waitFor(() => {

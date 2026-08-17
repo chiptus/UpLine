@@ -15,16 +15,6 @@ export function ActiveGroupSetting({
   const { activeGroupId, clearOverride } = useActiveScope();
   const mutation = useProfileFieldMutation();
 
-  function setActiveGroup(groupId: string) {
-    mutation.mutate({
-      userId,
-      column: "active_group_id",
-      value: groupId,
-      errorMessage: "Failed to update active group",
-    });
-    clearOverride();
-  }
-
   return (
     <div>
       <h2 className="text-sm font-semibold text-white">Active group</h2>
@@ -55,4 +45,14 @@ export function ActiveGroupSetting({
       </ToggleGroup>
     </div>
   );
+
+  function setActiveGroup(groupId: string) {
+    mutation.mutate({
+      userId,
+      column: "active_group_id",
+      value: groupId,
+      errorMessage: "Failed to update active group",
+    });
+    clearOverride();
+  }
 }

@@ -24,16 +24,6 @@ export function ActiveScopeSetting({
     ? SCOPE_OPTIONS
     : SCOPE_OPTIONS.filter((option) => option.kind !== "group");
 
-  function setActiveScope(scope: "group" | "everyone" | "me") {
-    mutation.mutate({
-      userId,
-      column: "active_scope",
-      value: scope,
-      errorMessage: "Failed to update active scope",
-    });
-    clearOverride();
-  }
-
   return (
     <div>
       <h2 className="text-sm font-semibold text-white">Active scope</h2>
@@ -67,4 +57,14 @@ export function ActiveScopeSetting({
       </ToggleGroup>
     </div>
   );
+
+  function setActiveScope(scope: "group" | "everyone" | "me") {
+    mutation.mutate({
+      userId,
+      column: "active_scope",
+      value: scope,
+      errorMessage: "Failed to update active scope",
+    });
+    clearOverride();
+  }
 }

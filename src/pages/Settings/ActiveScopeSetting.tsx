@@ -1,6 +1,7 @@
 import { Globe, Star, User as UserIcon, Users } from "lucide-react";
 import { ToggleGroup } from "@/components/ui/toggle-group";
 import { useActiveScope } from "@/contexts/ActiveScopeContext";
+import { useProfileFieldMutation } from "@/api/groups/useProfileFieldMutation";
 import { SettingsToggleItem } from "@/pages/Settings/SettingsToggleItem";
 
 const SCOPE_OPTIONS = [
@@ -9,12 +10,29 @@ const SCOPE_OPTIONS = [
   { kind: "me" as const, label: "Me", icon: UserIcon },
 ];
 
-export function ActiveScopeSetting() {
-  const { hasGroups, pinned, setActiveScope } = useActiveScope();
+export function ActiveScopeSetting({
+  userId,
+  hasGroups,
+}: {
+  userId: string;
+  hasGroups: boolean;
+}) {
+  const { pinned, clearOverride } = useActiveScope();
+  const mutation = useProfileFieldMutation();
 
   const options = hasGroups
     ? SCOPE_OPTIONS
     : SCOPE_OPTIONS.filter((option) => option.kind !== "group");
+
+  function setActiveScope(scope: "group" | "everyone" | "me") {
+    mutation.mutate({
+      userId,
+      column: "active_scope",
+      value: scope,
+      errorMessage: "Failed to update active scope",
+    });
+    clearOverride();
+  }
 
   return (
     <div>

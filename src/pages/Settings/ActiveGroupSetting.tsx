@@ -1,10 +1,29 @@
 import { Users } from "lucide-react";
 import { ToggleGroup } from "@/components/ui/toggle-group";
 import { useActiveScope } from "@/contexts/ActiveScopeContext";
+import { useProfileFieldMutation } from "@/api/groups/useProfileFieldMutation";
 import { SettingsToggleItem } from "@/pages/Settings/SettingsToggleItem";
+import type { Group } from "@/api/groups/types";
 
-export function ActiveGroupSetting() {
-  const { groups, activeGroupId, setActiveGroup } = useActiveScope();
+export function ActiveGroupSetting({
+  userId,
+  groups,
+}: {
+  userId: string;
+  groups: Group[];
+}) {
+  const { activeGroupId, clearOverride } = useActiveScope();
+  const mutation = useProfileFieldMutation();
+
+  function setActiveGroup(groupId: string) {
+    mutation.mutate({
+      userId,
+      column: "active_group_id",
+      value: groupId,
+      errorMessage: "Failed to update active group",
+    });
+    clearOverride();
+  }
 
   return (
     <div>

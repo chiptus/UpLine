@@ -1,7 +1,9 @@
+import { Suspense } from "react";
 import { Link } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { TopBar } from "@/components/layout/TopBar";
 import { useAuth } from "@/contexts/AuthContext";
-import { useActiveScope } from "@/contexts/ActiveScopeContext";
+import { userGroupsQuery } from "@/api/groups/useUserGroups";
 import { SignInRequired } from "@/pages/groups/Groups/SignInRequired";
 import { ActiveGroupSetting } from "./ActiveGroupSetting";
 import { ActiveScopeSetting } from "./ActiveScopeSetting";
@@ -20,14 +22,17 @@ export function SettingsPage() {
       <TopBar showBackButton backLabel="Back" />
       <div className="container mx-auto max-w-2xl space-y-8 px-4 py-8">
         <h1 className="text-2xl font-bold text-white">Settings</h1>
-        <SettingsContent />
+        <Suspense fallback={<SettingsContentSkeleton />}>
+          <SettingsContent userId={user.id} />
+        </Suspense>
       </div>
     </div>
   );
 }
 
-function SettingsContent() {
-  const { hasGroups } = useActiveScope();
+function SettingsContent({ userId }: { userId: string }) {
+  const { data: groups } = useSuspenseQuery(userGroupsQuery(userId));
+  const hasGroups = groups.length > 0;
 
   return (
     <div className="space-y-8">
@@ -39,8 +44,17 @@ function SettingsContent() {
           to set an Active group.
         </p>
       )}
-      {hasGroups && <ActiveGroupSetting />}
-      <ActiveScopeSetting />
+      {hasGroups && <ActiveGroupSetting userId={userId} groups={groups} />}
+      <ActiveScopeSetting userId={userId} hasGroups={hasGroups} />
+    </div>
+  );
+}
+
+function SettingsContentSkeleton() {
+  return (
+    <div className="space-y-8 animate-pulse">
+      <div className="h-24 rounded-md bg-purple-400/10" />
+      <div className="h-24 rounded-md bg-purple-400/10" />
     </div>
   );
 }

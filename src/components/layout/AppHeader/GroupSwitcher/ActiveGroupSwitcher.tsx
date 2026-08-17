@@ -11,17 +11,20 @@ import {
 import { useActiveScope } from "@/contexts/ActiveScopeContext";
 import { scopeIcon, scopeLabel } from "./scopeDisplay";
 import { ScopeMenuBody } from "./ScopeMenuBody";
+import type { Group } from "@/api/groups/types";
 
 interface ActiveGroupSwitcherProps {
+  groups: Group[];
   isMobile: boolean;
   className: string;
 }
 
 export function ActiveGroupSwitcher({
+  groups,
   isMobile,
   className,
 }: ActiveGroupSwitcherProps) {
-  const { groups, pinned, current, selectScope } = useActiveScope();
+  const { pinned, current, selectScope } = useActiveScope();
 
   const CurrentIcon = scopeIcon(current);
   const currentLabel = scopeLabel(current, groups);

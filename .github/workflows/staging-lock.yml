@@ -1,0 +1,34 @@
+name: Staging Lock
+
+on:
+  pull_request_target:
+    types: [labeled]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: staging-lock
+  cancel-in-progress: false
+
+jobs:
+  enforce-lock:
+    name: Enforce exclusive staging lock
+    if: github.event.label.name == 'staging'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reject if another open PR already holds the lock
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          HOLDER=$(gh pr list --repo "$REPO" --label staging --state open --json number \
+            --jq "[.[] | select(.number != $PR)] | .[0].number // empty")
+
+          if [[ -n "$HOLDER" ]]; then
+            gh pr edit "$PR" --repo "$REPO" --remove-label staging
+            gh pr comment "$PR" --repo "$REPO" --body "The \`staging\` label was removed — PR #$HOLDER already holds the staging lock. Wait for it to merge or close, then re-add \`staging\` here."
+          fi

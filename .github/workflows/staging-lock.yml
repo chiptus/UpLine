@@ -8,6 +8,10 @@ permissions:
   contents: read
   pull-requests: write
 
+concurrency:
+  group: staging-lock
+  cancel-in-progress: false
+
 jobs:
   enforce-lock:
     name: Enforce exclusive staging lock

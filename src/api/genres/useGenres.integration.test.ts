@@ -35,6 +35,11 @@ describe("useGenresQuery", () => {
   });
 
   it("returns an empty array when there are no genres", async () => {
+    // music_genres has no per-request filter, so the only way to observe a
+    // real empty response is to empty the whole (shared, seeded) table and
+    // restore it after. #281 replaces this with scoped, uniquely-named
+    // fixtures so tests stop touching shared seed data — until then, this
+    // is deliberately the one place in the suite that does.
     const [genresSnapshot, linksSnapshot] = await Promise.all([
       testSupabase.from("music_genres").select("*"),
       testSupabase.from("artist_music_genres").select("*"),

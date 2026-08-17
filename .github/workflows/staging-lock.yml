@@ -20,6 +20,7 @@ jobs:
           REPO: ${{ github.repository }}
           PR: ${{ github.event.pull_request.number }}
         run: |
+          set -euo pipefail
           HOLDER=$(gh pr list --repo "$REPO" --label staging --state open --json number \
             --jq "[.[] | select(.number != $PR)] | .[0].number // empty")
 

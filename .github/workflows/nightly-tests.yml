@@ -50,9 +50,9 @@ jobs:
 
       - name: Setup Supabase
         run: |
-          npx supabase start
+          pnpm exec supabase start
           sleep 10
-          npx supabase db reset
+          pnpm exec supabase db reset
 
       - name: Run integration tests
         run: pnpm test:integration
@@ -61,7 +61,7 @@ jobs:
           TEST_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
 
   notify-failure:
-    needs: [test, report]
+    needs: [test, report, integration-test]
     runs-on: ubuntu-latest
     if: failure()
     permissions:
@@ -70,6 +70,9 @@ jobs:
       - uses: actions/checkout@v5
       - name: Report nightly failure as a GitHub issue
         uses: actions/github-script@v9
+        env:
+          E2E_RESULT: ${{ needs.test.result }}
+          INTEGRATION_RESULT: ${{ needs.integration-test.result }}
         with:
           script: |
             const script = require('./.github/scripts/notify-nightly-failure.js');

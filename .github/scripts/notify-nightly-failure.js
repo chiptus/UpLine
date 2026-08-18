@@ -1,8 +1,14 @@
 module.exports = async ({ github, context }) => {
-  const title = "Nightly E2E suite failing";
+  const failedSuites = [];
+  if (process.env.E2E_RESULT === "failure") failedSuites.push("E2E");
+  if (process.env.INTEGRATION_RESULT === "failure")
+    failedSuites.push("integration");
+  const suiteText = failedSuites.length ? failedSuites.join(" + ") : "nightly";
+
+  const title = `Nightly ${suiteText} suite failing`;
   const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-  const body = `The nightly E2E suite failed.\n\nRun: ${runUrl}`;
-  const label = "nightly-e2e-failure";
+  const body = `The nightly ${suiteText} suite failed.\n\nRun: ${runUrl}`;
+  const label = "nightly-test-failure";
 
   try {
     await github.rest.issues.getLabel({
@@ -16,7 +22,7 @@ module.exports = async ({ github, context }) => {
       repo: context.repo.repo,
       name: label,
       color: "d73a4a",
-      description: "Nightly E2E full-suite run failed",
+      description: "Nightly test run (E2E and/or integration) failed",
     });
   }
 

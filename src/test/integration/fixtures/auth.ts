@@ -1,15 +1,10 @@
 import { supabase } from "@/integrations/supabase/client";
 import { registerCleanup, testSupabase } from "../harness";
 
-export interface TestUser {
-  userId: string;
-  email: string;
-}
-
 /**
  * Signs the app's real Supabase client (the one hooks under test import) in
  * as a fresh, uniquely-named user — for RLS-gated integration tests that
- * need a real session, not a mocked one.
+ * need a real session, not a mocked one. Returns the new user's id.
  *
  * Mints a magic-link token via the service-role admin API — which also
  * creates the underlying `auth.users` row and, via the `handle_new_user`
@@ -18,7 +13,7 @@ export interface TestUser {
  * nothing polls Mailpit; the local stack's SMTP capture is bypassed
  * entirely.
  */
-export async function signInAsTestUser(): Promise<TestUser> {
+export async function signInAsTestUser(): Promise<string> {
   const email = `test-user-${crypto.randomUUID()}@example.com`;
 
   const { data: link, error: linkError } =
@@ -40,10 +35,13 @@ export async function signInAsTestUser(): Promise<TestUser> {
   const userId = link.user.id;
 
   registerCleanup(async () => {
-    await supabase.auth.signOut();
-    const { error } = await testSupabase.auth.admin.deleteUser(userId);
-    if (error) throw error;
+    const { error: signOutError } = await supabase.auth.signOut();
+    if (signOutError) throw signOutError;
+
+    const { error: deleteError } =
+      await testSupabase.auth.admin.deleteUser(userId);
+    if (deleteError) throw deleteError;
   });
 
-  return { userId, email };
+  return userId;
 }

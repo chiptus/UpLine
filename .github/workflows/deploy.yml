@@ -62,9 +62,29 @@ jobs:
             functions:
               - 'supabase/functions/**'
 
-  migrate:
+  check-lock:
+    name: Verify staging lock ownership
     needs: resolve
-    if: needs.resolve.outputs.migrations == 'true'
+    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'staging')
+    runs-on: ubuntu-latest
+    outputs:
+      is_holder: ${{ steps.check.outputs.is_holder }}
+    steps:
+      - name: Confirm no other open PR currently holds the staging label
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          OTHERS=$(gh pr list --repo "$REPO" --label staging --state open --json number \
+            --jq "[.[] | select(.number != $PR)] | length")
+          echo "is_holder=$([[ "$OTHERS" -eq 0 ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+  migrate:
+    needs: [resolve, check-lock]
+    if: needs.resolve.outputs.migrations == 'true' && (github.event_name != 'pull_request' || needs.check-lock.outputs.is_holder == 'true')
     uses: ./.github/workflows/_db_migrate.yml
     with:
       target: ${{ needs.resolve.outputs.target }}

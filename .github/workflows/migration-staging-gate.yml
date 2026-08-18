@@ -1,0 +1,37 @@
+name: Migration Staging Gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  gate:
+    name: Require staging label for migrations
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if migrations are touched without the staging label
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          HAS_LABEL: ${{ contains(github.event.pull_request.labels.*.name, 'staging') }}
+        run: |
+          set -euo pipefail
+
+          CHANGED_FILES=$(gh pr diff "$PR" --repo "$REPO" --name-only)
+
+          TOUCHES_MIGRATIONS=false
+          if grep -q '^supabase/migrations/' <<< "$CHANGED_FILES"; then
+            TOUCHES_MIGRATIONS=true
+          fi
+
+          echo "Touches migrations: $TOUCHES_MIGRATIONS, holds staging label: $HAS_LABEL"
+
+          if [[ "$TOUCHES_MIGRATIONS" == "true" && "$HAS_LABEL" != "true" ]]; then
+            echo "::error::This PR touches supabase/migrations/** but does not hold the 'staging' label. Add the 'staging' label to acquire the staging lock before this can merge."
+            exit 1
+          fi

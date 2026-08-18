@@ -4,8 +4,7 @@ import { SEEDED_USER_ID } from "./constants";
 
 type ArtistInsert = Database["public"]["Tables"]["artists"]["Insert"];
 
-// Creates a uniquely-named artist and self-registers its cleanup with the
-// harness, so tests never hand-write their own insert/delete for one.
+/** Creates a uniquely-named artist and self-registers its cleanup. */
 export async function createArtist(
   overrides: Partial<ArtistInsert> = {},
 ): Promise<string> {

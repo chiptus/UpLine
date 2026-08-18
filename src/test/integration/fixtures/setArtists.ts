@@ -1,7 +1,6 @@
 import { registerCleanup, testSupabase } from "../harness";
 
-// Links an artist to a set via the set_artists junction table, returning
-// the created row's id, and self-registers cleanup with the harness.
+/** Links an artist to a set and self-registers cleanup. */
 export async function linkArtistToSet(
   setId: string,
   artistId: string,

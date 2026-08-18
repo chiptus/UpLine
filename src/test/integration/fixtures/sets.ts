@@ -5,10 +5,10 @@ import { createScratchFestivalEdition } from "./scratchPool";
 
 type SetInsert = Database["public"]["Tables"]["sets"]["Insert"];
 
-// Creates a uniquely-named set and self-registers its cleanup with the
-// harness, so tests never hand-write their own insert/delete for one. Pass
-// `festival_edition_id` to scope it to a specific edition; otherwise a fresh
-// scratch edition is created for it.
+/**
+ * Creates a uniquely-named set and self-registers its cleanup.
+ * @param overrides.festival_edition_id - defaults to a fresh scratch edition when omitted.
+ */
 export async function createSet(
   overrides: Partial<SetInsert> = {},
 ): Promise<string> {

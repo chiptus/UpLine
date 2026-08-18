@@ -1,11 +1,6 @@
 import { registerCleanup, testSupabase } from "../harness";
 
-// A disposable festival + edition pair for tests that need *some* valid
-// festival_edition_id but don't care which one — so callers of createSet
-// aren't forced to build the festivals -> festival_editions chain by hand.
-// Every call creates its own uniquely-named row and self-registers cleanup,
-// same as the other fixture factories, so concurrent callers never share
-// (or race over) the same edition.
+/** Disposable festival + edition pair for tests that just need some valid `festival_edition_id`. */
 export async function createScratchFestivalEdition(): Promise<string> {
   const suffix = crypto.randomUUID();
 
@@ -19,8 +14,7 @@ export async function createScratchFestivalEdition(): Promise<string> {
     .single();
   if (festivalError) throw festivalError;
 
-  // Deleting the festival cascades to its edition (and festival_info), so
-  // one cleanup covers both rows this function creates.
+  // Deleting the festival cascades to its edition and festival_info.
   registerCleanup(async () => {
     const { error } = await testSupabase
       .from("festivals")

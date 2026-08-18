@@ -9,9 +9,7 @@ import { createScratchFestivalEdition } from "@/test/integration/fixtures/scratc
 import { linkArtistToSet } from "@/test/integration/fixtures/setArtists";
 
 describe("setsByEditionQuery", () => {
-  // Each run builds its own edition/artist/set via the fixture factories
-  // rather than reusing any shared seed data, so repeating this test never
-  // collides with a previous run's rows or leaves any behind.
+  // Each run creates its own rows, so repeats never collide.
   it.each(["first run", "second run"])(
     "returns only the set(s) scoped to a freshly created edition (%s)",
     async () => {

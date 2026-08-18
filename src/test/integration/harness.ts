@@ -1,5 +1,11 @@
-import { createElement, Suspense, type ReactNode } from "react";
-import { afterEach } from "vitest";
+import {
+  createElement,
+  Suspense,
+  type ReactElement,
+  type ReactNode,
+} from "react";
+import { afterEach, expect } from "vitest";
+import { render, waitFor } from "@testing-library/react";
 import { createClient } from "@supabase/supabase-js";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { Database } from "@/integrations/supabase/types";
@@ -58,4 +64,34 @@ export function createQueryWrapper() {
       createElement(Suspense, { fallback: null }, children),
     );
   };
+}
+
+/**
+ * Component-level equivalent of `createQueryWrapper`: renders `ui` through
+ * its own QueryClient + Suspense boundary and also returns that client, so
+ * callers can wait on it directly (see `waitForQueriesSettled`) — needed to
+ * distinguish "still loading" from "loaded but rendered nothing" for
+ * components whose success state can itself be empty output.
+ */
+export function renderWithQueryClient(ui: ReactElement) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+
+  const utils = render(
+    createElement(
+      QueryClientProvider,
+      { client: queryClient },
+      createElement(Suspense, { fallback: null }, ui),
+    ),
+  );
+
+  return { queryClient, ...utils };
+}
+
+/** Waits for every in-flight query on `queryClient` to settle (success or error). */
+export async function waitForQueriesSettled(
+  queryClient: QueryClient,
+): Promise<void> {
+  await waitFor(() => expect(queryClient.isFetching()).toBe(0));
 }

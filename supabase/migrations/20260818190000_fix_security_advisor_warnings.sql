@@ -27,7 +27,11 @@
 
 ALTER FUNCTION public.create_festival_info() SET search_path = '';
 ALTER FUNCTION public.bootstrap_super_admin(text) SET search_path = '';
-ALTER FUNCTION public.duplicate_set_with_votes(uuid, timestamp with time zone, timestamp with time zone, uuid, text) SET search_path = '';
+-- duplicate_set_with_votes intentionally NOT altered here: its current body
+-- (unqualified sets/set_artists/votes) is unsafe under search_path='' until
+-- replaced. The CREATE OR REPLACE in section 1b below both qualifies the
+-- body and sets search_path='' in one atomic statement, so it's never left
+-- in a broken intermediate state.
 ALTER FUNCTION public.handle_new_user() SET search_path = '';
 ALTER FUNCTION public.update_updated_at_column() SET search_path = '';
 ALTER FUNCTION public.commit_schedule__parse_ts(text) SET search_path = '';

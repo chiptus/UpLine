@@ -9,14 +9,23 @@ manually-started local Supabase instance (`supabase start`) — see the root
 **No mocks by default.** A test in this tier hits the real local Supabase
 instance through the app's real client (`@/integrations/supabase/client`)
 and real fixture rows (`fixtures/`). That's the point of the tier: it proves
-a hook's actual request shape, RLS behavior, and query-invalidation cycle,
-not a stand-in for them.
+a hook's actual request shape and RLS behavior, not a stand-in for them.
 
 Error paths are no exception. If a real Postgres/PostgREST condition is
 cheap to trigger — RLS denial, a unique-constraint violation, a not-found
 row — trigger it for real and assert on the actual error Supabase returns
-(see `useVoteMutation.integration.test.ts`'s unauthenticated-insert test for
-the pattern). Don't fake the error by mocking the client.
+(see `useVoteMutation.integration.test.ts`'s RLS-denial test for the
+pattern). Don't fake the error by mocking the client.
+
+**Don't test TanStack Query's own mechanics.** A hook's `invalidateQueries`
+call re-triggering a refetch is the query library doing its job, not our
+code — asserting on cache internals (`fetchStatus`, subscriber counts) to
+prove that mostly proves TanStack Query works, which it already does.
+Before adding a test to prove a hook's cache-invalidation wiring, check
+whether an existing Playwright E2E spec already proves the same user-visible
+outcome end-to-end (e.g. `tests/e2e/voting.spec.ts`'s "persists a vote
+across a reload") — if so, that's the stronger, sufficient signal and this
+tier doesn't need to duplicate it.
 
 **The one narrow exception:** mocking at the fetch/network boundary is
 permitted only for conditions that are impractical to reproduce for real —

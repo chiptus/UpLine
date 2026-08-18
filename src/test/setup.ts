@@ -1,5 +1,6 @@
 import "@testing-library/jest-dom/vitest";
 import { vi } from "vitest";
+import "./webidlPolyfills";
 
 // Pin the timezone so date formatting is deterministic regardless of the
 // machine's local zone. Tests that assert "UTC calendar day" fallbacks only
@@ -9,47 +10,11 @@ process.env.TZ = "UTC";
 
 // Stub the Supabase env vars so the client module can initialise even when
 // VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY aren't set in the test
-// environment. Tests that exercise data fetching mock the relevant query
-// hooks; the client itself never actually issues a request.
+// environment. This is the unit-test tier: tests that exercise data
+// fetching mock the relevant query hooks, so the client itself never
+// actually issues a request. Tests that need real Supabase data belong in
+// the integration tier instead (`*.integration.test.ts`, run via
+// `pnpm test:integration`), which wires up a real client — see
+// `src/test/integration/`.
 vi.stubEnv("VITE_SUPABASE_URL", "http://localhost:54321");
 vi.stubEnv("VITE_SUPABASE_PUBLISHABLE_KEY", "test-anon-key");
-
-// Polyfill for ArrayBuffer.prototype.resizable and SharedArrayBuffer.prototype.growable
-// These are needed by webidl-conversions package
-if (
-  typeof ArrayBuffer !== "undefined" &&
-  !Object.getOwnPropertyDescriptor(ArrayBuffer.prototype, "resizable")
-) {
-  Object.defineProperty(ArrayBuffer.prototype, "resizable", {
-    get() {
-      return false;
-    },
-    configurable: true,
-  });
-}
-
-if (
-  typeof SharedArrayBuffer !== "undefined" &&
-  !Object.getOwnPropertyDescriptor(SharedArrayBuffer.prototype, "growable")
-) {
-  Object.defineProperty(SharedArrayBuffer.prototype, "growable", {
-    get() {
-      return false;
-    },
-    configurable: true,
-  });
-}
-
-// Polyfill for webidl-conversions and whatwg-url
-if (typeof global.Set === "undefined") {
-  global.Set = Set;
-}
-if (typeof global.Map === "undefined") {
-  global.Map = Map;
-}
-if (typeof global.WeakMap === "undefined") {
-  global.WeakMap = WeakMap;
-}
-if (typeof global.WeakSet === "undefined") {
-  global.WeakSet = WeakSet;
-}

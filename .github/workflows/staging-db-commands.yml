@@ -76,11 +76,7 @@ jobs:
     timeout-minutes: 10
     environment: staging
     steps:
-      # Deliberately NOT the PR's head SHA: this job runs PR-comment-triggered
-      # repo scripts while staging secrets are in scope, and db-fix has no need
-      # for PR content (it only reads a version out of a CI log). Checking out
-      # PR-controlled code here would let a malicious PR exfiltrate the staging
-      # credentials the moment a maintainer comments /db-fix on it.
+      # Default branch, not PR head — db-fix runs repo scripts with staging secrets in scope, and doesn't need PR content.
       - uses: actions/checkout@v5
         with:
           ref: ${{ github.event.repository.default_branch }}

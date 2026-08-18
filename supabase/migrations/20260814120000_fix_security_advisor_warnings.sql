@@ -10,14 +10,112 @@
 
 -- =============================================================================
 -- 1. function_search_path_mutable: pin search_path on functions that had none
+--
+--    Using '' (empty) rather than `public, pg_temp`: every function below has
+--    a body that already fully schema-qualifies its table/function
+--    references (or has none), so the empty search_path is safe and is the
+--    strictest possible setting — it removes any schema, not just
+--    non-public ones, from implicit resolution for SECURITY DEFINER
+--    functions, closing the "attacker creates a same-named object earlier in
+--    search_path" hijack vector entirely rather than only partially.
+--
+--    duplicate_set_with_votes() was the one exception: its body referenced
+--    `sets`, `set_artists`, and `votes` unqualified, which would break under
+--    search_path=''. Its body is schema-qualified below (section 1b) so it
+--    can be safely included here too.
 -- =============================================================================
 
-ALTER FUNCTION public.create_festival_info() SET search_path = public, pg_temp;
-ALTER FUNCTION public.bootstrap_super_admin(text) SET search_path = public, pg_temp;
-ALTER FUNCTION public.duplicate_set_with_votes(uuid, timestamp with time zone, timestamp with time zone, uuid, text) SET search_path = public, pg_temp;
-ALTER FUNCTION public.handle_new_user() SET search_path = public, pg_temp;
-ALTER FUNCTION public.update_updated_at_column() SET search_path = public, pg_temp;
-ALTER FUNCTION public.commit_schedule__parse_ts(text) SET search_path = public, pg_temp;
+ALTER FUNCTION public.create_festival_info() SET search_path = '';
+ALTER FUNCTION public.bootstrap_super_admin(text) SET search_path = '';
+ALTER FUNCTION public.duplicate_set_with_votes(uuid, timestamp with time zone, timestamp with time zone, uuid, text) SET search_path = '';
+ALTER FUNCTION public.handle_new_user() SET search_path = '';
+ALTER FUNCTION public.update_updated_at_column() SET search_path = '';
+ALTER FUNCTION public.commit_schedule__parse_ts(text) SET search_path = '';
+
+-- Also flagged by the linter but not covered by the original pass above:
+-- SECURITY DEFINER functions that had no search_path pinned at all (fully
+-- mutable), each with a fully schema-qualified body.
+ALTER FUNCTION public.get_user_id_by_email(text) SET search_path = '';
+ALTER FUNCTION public.is_group_creator(uuid) SET search_path = '';
+ALTER FUNCTION public.has_admin_role(uuid, admin_role) SET search_path = '';
+ALTER FUNCTION public.is_admin(uuid) SET search_path = '';
+ALTER FUNCTION public.can_edit_artists(uuid) SET search_path = '';
+ALTER FUNCTION public.validate_invite_token(text) SET search_path = '';
+ALTER FUNCTION public.use_invite_token(text, uuid) SET search_path = '';
+ALTER FUNCTION public.is_group_member(uuid) SET search_path = '';
+ALTER FUNCTION public.users_share_group(uuid, uuid) SET search_path = '';
+
+-- =============================================================================
+-- 1b. duplicate_set_with_votes(): schema-qualify unqualified table
+--      references so it can safely run under search_path=''.
+-- =============================================================================
+
+CREATE OR REPLACE FUNCTION public.duplicate_set_with_votes(
+  source_set_id uuid,
+  new_time_start timestamp with time zone,
+  new_time_end timestamp with time zone,
+  new_stage_id uuid DEFAULT NULL,
+  new_description text DEFAULT NULL
+)
+RETURNS uuid
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+DECLARE
+  new_set_id uuid;
+  source_set record;
+  final_stage_id uuid;
+  final_description text;
+BEGIN
+  SELECT * INTO source_set
+  FROM public.sets
+  WHERE id = source_set_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Source set not found: %', source_set_id;
+  END IF;
+
+  final_stage_id := COALESCE(new_stage_id, source_set.stage_id);
+  final_description := COALESCE(new_description, source_set.description);
+
+  INSERT INTO public.sets (
+    name,
+    slug,
+    stage_id,
+    festival_edition_id,
+    time_start,
+    time_end,
+    description,
+    archived,
+    created_by
+  )
+  VALUES (
+    source_set.name,
+    source_set.slug,
+    final_stage_id,
+    source_set.festival_edition_id,
+    new_time_start,
+    new_time_end,
+    final_description,
+    source_set.archived,
+    source_set.created_by
+  )
+  RETURNING id INTO new_set_id;
+
+  INSERT INTO public.set_artists (set_id, artist_id)
+  SELECT new_set_id, artist_id
+  FROM public.set_artists
+  WHERE set_id = source_set_id;
+
+  INSERT INTO public.votes (user_id, set_id, vote_type, created_at)
+  SELECT user_id, new_set_id, vote_type, created_at
+  FROM public.votes
+  WHERE set_id = source_set_id;
+
+  RETURN new_set_id;
+END;
+$$;
 
 -- =============================================================================
 -- 2. rls_policy_always_true: artist_music_genres INSERT/UPDATE/DELETE policies

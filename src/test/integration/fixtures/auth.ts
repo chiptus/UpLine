@@ -36,10 +36,10 @@ export async function signInAsTestUser(): Promise<string> {
 
   registerCleanup(async () => {
     const { error: signOutError } = await supabase.auth.signOut();
-    if (signOutError) throw signOutError;
-
     const { error: deleteError } =
       await testSupabase.auth.admin.deleteUser(userId);
+
+    if (signOutError) throw signOutError;
     if (deleteError) throw deleteError;
   });
 

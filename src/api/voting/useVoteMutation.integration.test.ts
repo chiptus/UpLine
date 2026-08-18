@@ -54,14 +54,16 @@ describe("useVoteMutation", () => {
       }
     });
 
-    act(() => {
-      result.current.vote.mutate({ setId, voteType: 2, userId });
-    });
+    try {
+      act(() => {
+        result.current.vote.mutate({ setId, voteType: 2, userId });
+      });
 
-    await waitFor(() => expect(result.current.vote.isSuccess).toBe(true));
-    await waitFor(() => expect(result.current.votes.data?.[setId]).toBe(2));
-
-    unsubscribe();
+      await waitFor(() => expect(result.current.vote.isSuccess).toBe(true));
+      await waitFor(() => expect(result.current.votes.data?.[setId]).toBe(2));
+    } finally {
+      unsubscribe();
+    }
 
     // The mutation's onMutate writes the optimistic value via setQueryData,
     // which never touches fetchStatus. Only a genuine network refetch (the

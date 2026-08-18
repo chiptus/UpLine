@@ -1,4 +1,4 @@
-name: E2E Full Suite (Nightly)
+name: Nightly Tests
 
 on:
   schedule:
@@ -30,6 +30,35 @@ jobs:
     with:
       artifact-pattern: blob-report-*
       post-pr-comment: false
+
+  integration-test:
+    name: Run Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup Supabase
+        run: |
+          npx supabase start
+          sleep 10
+          npx supabase db reset
+
+      - name: Run integration tests
+        run: pnpm test:integration
+        env:
+          TEST_SUPABASE_URL: http://127.0.0.1:54321
+          TEST_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
 
   notify-failure:
     needs: [test, report]

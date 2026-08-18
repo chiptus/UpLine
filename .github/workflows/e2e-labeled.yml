@@ -1,4 +1,4 @@
-name: E2E Full Suite (Labeled PR)
+name: Full Test Suite (Labeled PR)
 
 on:
   pull_request:
@@ -29,3 +29,7 @@ jobs:
     with:
       artifact-pattern: blob-report-*
       post-pr-comment: true
+
+  integration-test:
+    if: contains(github.event.pull_request.labels.*.name, 'full-e2e')
+    uses: ./.github/workflows/integration-run.yml

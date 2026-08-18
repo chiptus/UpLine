@@ -55,9 +55,9 @@ jobs:
 
       - name: Setup Supabase
         run: |
-          npx supabase start
+          pnpm exec supabase start
           sleep 10
-          npx supabase db reset
+          pnpm exec supabase db reset
 
       - name: Build project
         run: pnpm run build

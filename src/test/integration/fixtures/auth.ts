@@ -6,26 +6,30 @@ import { registerCleanup, testSupabase } from "../harness";
  * as a fresh, uniquely-named user — for RLS-gated integration tests that
  * need a real session, not a mocked one. Returns the new user's id.
  *
- * Mints a magic-link token via the service-role admin API — which also
- * creates the underlying `auth.users` row and, via the `handle_new_user`
- * trigger, its `profiles` row — then redeems that token through the same
- * `verifyOtp` call the app's real OTP flow uses. No email is sent and
- * nothing polls Mailpit; the local stack's SMTP capture is bypassed
- * entirely.
+ * Mints a signup-confirmation token via the service-role admin API — which
+ * also creates the underlying `auth.users` row and, via the
+ * `handle_new_user` trigger, its `profiles` row — then redeems that token
+ * through the same `verifyOtp` call the app's real OTP flow uses. Type must
+ * be "signup" on both calls: since the email never has an existing user,
+ * GoTrue issues the link as a signup confirmation regardless of the type
+ * requested, and verifying it as "magiclink" fails as an invalid/expired
+ * token even though it's neither. No email is sent and nothing polls
+ * Mailpit; the local stack's SMTP capture is bypassed entirely.
  */
 export async function signInAsTestUser(): Promise<string> {
   const email = `test-user-${crypto.randomUUID()}@example.com`;
 
   const { data: link, error: linkError } =
     await testSupabase.auth.admin.generateLink({
-      type: "magiclink",
+      type: "signup",
       email,
+      password: crypto.randomUUID(),
     });
   if (linkError) throw linkError;
 
   const { data: verified, error: verifyError } = await supabase.auth.verifyOtp({
     token_hash: link.properties.hashed_token,
-    type: "magiclink",
+    type: "signup",
   });
   if (verifyError) throw verifyError;
   if (!verified.session) {

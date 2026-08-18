@@ -19,6 +19,7 @@ export default defineConfig({
       "**/tests/e2e/**", // Exclude Playwright E2E tests
       "supabase/**", // Exclude Deno-only Edge Function tests
       "**/*.integration.test.ts", // Exclude the integration-test tier (see vitest.integration.config.ts)
+      "**/*.integration.test.tsx",
     ],
   },
   resolve: {

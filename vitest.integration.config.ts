@@ -9,7 +9,7 @@ export default defineConfig({
     environment: "jsdom",
     globalSetup: "./vitest.global-setup.ts",
     setupFiles: ["./src/test/integration/setup.ts"],
-    include: ["src/**/*.integration.test.ts"],
+    include: ["src/**/*.integration.test.ts", "src/**/*.integration.test.tsx"],
     pool: "forks",
     // Tests share one local Supabase instance and some mutate shared tables
     // (see useGenres.integration.test.ts's empty-result case), so run test

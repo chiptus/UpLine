@@ -45,8 +45,7 @@ afterEach(async () => {
   }
 });
 
-// Shared QueryClient + Suspense wrapper for `renderHook` in integration
-// tests that exercise a Suspense query hook against real Supabase data.
+/** Shared QueryClient + Suspense wrapper for `renderHook` in integration tests. */
 export function createQueryWrapper() {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },

@@ -125,7 +125,7 @@ jobs:
           JOB_ID: ${{ steps.find.outputs.job_id }}
         run: |
           set -euo pipefail
-          gh api "repos/$REPO/actions/jobs/$JOB_ID/logs" > job.log
+          gh api --allow-escape-sequences "repos/$REPO/actions/jobs/$JOB_ID/logs" > job.log
           COMMAND=$(node .github/scripts/print-repair-command.ts job.log)
           if [[ -z "$COMMAND" ]]; then
             echo "found=false" >> "$GITHUB_OUTPUT"

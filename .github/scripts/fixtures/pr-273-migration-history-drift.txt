@@ -1,0 +1,10 @@
+2026-08-17T14:16:03.9620230Z Connecting to remote database...
+2026-08-17T14:16:05.3691921Z Remote migration versions not found in local migrations directory.
+
+Make sure your local git repo is up-to-date. If the error persists, try repairing the migration history table:
+supabase migration repair --status reverted 20260814140000
+
+And update local migrations to match remote database:
+supabase db pull
+
+##[error]Process completed with exit code 1.

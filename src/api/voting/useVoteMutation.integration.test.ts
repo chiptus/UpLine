@@ -1,30 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { act, renderHook, waitFor } from "@testing-library/react";
-import { useVoteMutation } from "./useVoteMutation";
+import { vote } from "./useVoteMutation";
 import { supabase } from "@/integrations/supabase/client";
-import { createQueryWrapper, testSupabase } from "@/test/integration/harness";
+import { testSupabase } from "@/test/integration/harness";
 import { signInAsTestUser } from "@/test/integration/fixtures/auth";
 import { createSet } from "@/test/integration/fixtures/sets";
 import { SEEDED_USER_ID } from "@/test/integration/fixtures/constants";
 
-describe("useVoteMutation", () => {
+describe("vote", () => {
   it("persists an authenticated vote through RLS", async () => {
     const userId = await signInAsTestUser();
     const setId = await createSet();
 
-    const { result } = renderHook(() => useVoteMutation(), {
-      wrapper: createQueryWrapper(),
-    });
+    await vote({ setId, voteType: 2, userId });
 
-    act(() => {
-      result.current.mutate({ setId, voteType: 2, userId });
-    });
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-
-    // Read back via the service-role client, bypassing the hook's own cache
-    // entirely, so this proves the vote actually landed in the database
-    // under RLS as this user — not just that the mutation call resolved.
+    // Read back via the service-role client to prove the vote actually
+    // landed in the database under RLS as this user, not just that the
+    // call resolved without throwing.
     const { data, error } = await testSupabase
       .from("votes")
       .select("vote_type")
@@ -39,10 +30,9 @@ describe("useVoteMutation", () => {
   it("rejects an unauthenticated vote with the real RLS-denial error", async () => {
     const setId = await createSet();
 
-    // Skips the hook entirely: useVoteMutation wraps every failure in a
-    // generic Error, discarding the real Supabase error, so the only way to
-    // assert on the actual RLS-denial code is the same request the hook's
-    // vote() sends, issued directly against the client.
+    // vote() wraps every failure in a generic Error, discarding the real
+    // Supabase error, so the only way to assert on the actual RLS-denial
+    // code is the identical request issued directly against the client.
     const { error } = await supabase
       .from("votes")
       .upsert(

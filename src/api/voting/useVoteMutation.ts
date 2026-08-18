@@ -4,8 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { userVotesKeys } from "./types";
 import { setsKeys } from "@/api/sets/types";
 
-// Mutation function
-async function vote(variables: {
+export async function vote(variables: {
   setId: string;
   voteType: number;
   userId: string;

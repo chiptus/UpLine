@@ -5,16 +5,24 @@ import { genresQuery } from "@/api/genres/useGenres";
 import { SortControls } from "./SortControls";
 import { MobileFilters } from "./MobileFilters";
 import { DesktopFilters } from "./DesktopFilters";
-import { GroupFilterDropdown } from "./GroupFilterDropdown";
+import { VotePerspectiveToggle } from "./VotePerspectiveToggle";
 import { FilterToggle } from "@/components/filters/FilterToggle";
 import { FilterContainer } from "@/components/filters/FilterContainer";
 import { RefreshButton } from "./RefreshButton";
+import type { BinaryVoteScope } from "@/lib/voteScope";
+
+interface VotePerspectiveProps {
+  scope: BinaryVoteScope;
+  onScopeChange: (scope: BinaryVoteScope) => void;
+  groupName: string;
+}
 
 interface FilterSortControlsProps {
   state: FilterSortState;
   onStateChange: (updates: Partial<FilterSortState>) => void;
   onClear: () => void;
   editionId: string;
+  votePerspective?: VotePerspectiveProps;
 }
 
 export function FilterSortControls({
@@ -22,6 +30,7 @@ export function FilterSortControls({
   onStateChange,
   onClear,
   editionId,
+  votePerspective,
 }: FilterSortControlsProps) {
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -64,10 +73,13 @@ export function FilterSortControls({
           )}
 
           <div className="ml-auto" />
-          <GroupFilterDropdown
-            selectedGroupId={state.groupId}
-            onGroupChange={(groupId) => onStateChange({ groupId })}
-          />
+          {votePerspective && (
+            <VotePerspectiveToggle
+              scope={votePerspective.scope}
+              onScopeChange={votePerspective.onScopeChange}
+              groupName={votePerspective.groupName}
+            />
+          )}
           <FilterToggle
             isExpanded={isFiltersExpanded}
             onToggle={() => setIsFiltersExpanded(!isFiltersExpanded)}

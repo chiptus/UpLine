@@ -37,7 +37,7 @@ A named venue/space within an edition where sets take place.
 _Avoid_: Venue, room
 
 **Vote**:
-A user's reaction to an artist within a group context. Three values: "Must Go" (+2), "Interested" (+1), "Won't Go" (-1). Anticipatory — answers "will I go." See Retrospective rating for the after-the-fact counterpart.
+A user's reaction to an artist. Three values: "Must Go" (+2), "Interested" (+1), "Won't Go" (-1). A vote belongs to the voting user alone — it is never scoped to a Group; Groups only change whose votes are being looked at, never which votes exist. Anticipatory — answers "will I go." See Retrospective rating for the after-the-fact counterpart.
 _Avoid_: Rating, like
 
 **Retrospective rating**:
@@ -45,8 +45,24 @@ A user's after-the-fact reaction to a **set** — "how was it" — recorded once
 _Avoid_: Vote, score
 
 **Group**:
-A collection of users who share votes and notes for collaborative decision-making within an edition.
-_Avoid_: Team, party
+A festival-agnostic crew of users who share votes and notes for collaborative decision-making. Not tied to any festival or edition — the same group carries over to whatever editions its members attend. A user can belong to several Groups at once (e.g. a standing group of friends across festivals, plus a group formed just for one edition's crew).
+_Avoid_: Team, party, edition group
+
+**Active Group**:
+Which Group is the user's, independent of what they're currently viewing. Global to the user (not per-edition), persisted in Settings, and defaults to the user's only Group when they have exactly one. A user with no Groups has no Active Group. See ADR-0005.
+_Avoid_: Selected group, current group, group filter
+
+**Active Scope**:
+The user's durable, Settings-level default lens: Group, Everyone, or Me. When set to Group, it resolves through the Active Group. Defaults to Group when the user has exactly one Group and has never chosen, else Everyone. The header switcher can temporarily override this per-session without changing the pin — see ADR-0005.
+_Avoid_: Active group (the pin covers both which Group and which lens; "Active Group" alone is only the former)
+
+**Vote Perspective**:
+On the Artists tab, which votes are aggregated into a set's rating and popularity score: Everyone, or the Active Group. Perspective re-scores and re-sorts; it never hides sets. See ADR-0005.
+_Avoid_: Group filter, rating scope
+
+**Vote Scope**:
+On the Schedule tab, whose votes the vote-type filter chips (Must Go / Interested / Won't Go) match against: Me, or the Active Group. Under Me, a chip matches the current user's own vote. Under the Active Group, a chip matches if _any_ member of the Active Group (the current user included) cast that vote type. Scope filters — it hides sets that don't match a selected chip. Distinct from Vote Perspective: each tab keeps its own Me/Group(Everyone) choice independently, both drawing on the same Active Group. See ADR-0005.
+_Avoid_: Group filter, vote filter
 
 **Core Team**:
 Admin users who curate editions, manage the lineup, and import the schedule.

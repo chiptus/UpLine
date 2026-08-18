@@ -1,86 +1,40 @@
-import { useMemo } from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { SetsPanel } from "@/pages/EditionView/tabs/VoteTab/SetsPanel";
-import { useSetFiltering } from "@/pages/EditionView/tabs/VoteTab/useSetFiltering";
-import { groupMembersQuery } from "@/api/groups/useGroupMembers";
+import { AuthedFilteredSetsPanel } from "@/pages/EditionView/tabs/VoteTab/AuthedFilteredSetsPanel";
+import { EveryoneSetsPanel } from "@/pages/EditionView/tabs/VoteTab/SetsPanelContent";
+import { FilterSortControls } from "@/pages/EditionView/tabs/VoteTab/filters/FilterSortControls";
+import { useAuth } from "@/contexts/AuthContext";
 import type { FestivalSet } from "@/api/sets/types";
 import type { FilterSortState } from "@/hooks/useUrlState";
 
-const EMPTY_GROUP_MEMBER_IDS = new Set<string>();
-
-interface FilteredSetsPanelProps {
+export interface FilteredSetsPanelProps {
   sets: FestivalSet[];
   urlState: FilterSortState;
   updateUrlState: (updates: Partial<FilterSortState>) => void;
+  clearFilters: () => void;
+  editionId: string;
 }
 
-// Gates whether the group-members query is mounted at all, so selecting a
-// group filter for the first time suspends this section rather than
-// requiring a separate loading state.
-export function FilteredSetsPanel({
-  sets,
-  urlState,
-  updateUrlState,
-}: FilteredSetsPanelProps) {
-  if (urlState.groupId) {
+export function FilteredSetsPanel(props: FilteredSetsPanelProps) {
+  const { user } = useAuth();
+
+  if (!user) {
     return (
-      <GroupFilteredSetsPanel
-        sets={sets}
-        urlState={urlState}
-        updateUrlState={updateUrlState}
-        groupId={urlState.groupId}
-      />
+      <>
+        <FilterSortControls
+          state={props.urlState}
+          onStateChange={props.updateUrlState}
+          onClear={props.clearFilters}
+          editionId={props.editionId}
+        />
+        <div className="mt-8">
+          <EveryoneSetsPanel
+            sets={props.sets}
+            urlState={props.urlState}
+            updateUrlState={props.updateUrlState}
+          />
+        </div>
+      </>
     );
   }
 
-  return (
-    <SetsPanelContent
-      sets={sets}
-      urlState={urlState}
-      updateUrlState={updateUrlState}
-    />
-  );
-}
-
-function GroupFilteredSetsPanel({
-  sets,
-  urlState,
-  updateUrlState,
-  groupId,
-}: FilteredSetsPanelProps & { groupId: string }) {
-  const { data: members } = useSuspenseQuery(groupMembersQuery(groupId));
-  const groupMemberIds = useMemo(
-    () => new Set(members.map((member) => member.user_id)),
-    [members],
-  );
-
-  return (
-    <SetsPanelContent
-      sets={sets}
-      urlState={urlState}
-      updateUrlState={updateUrlState}
-      groupMemberIds={groupMemberIds}
-    />
-  );
-}
-
-function SetsPanelContent({
-  sets,
-  urlState,
-  updateUrlState,
-  groupMemberIds = EMPTY_GROUP_MEMBER_IDS,
-}: FilteredSetsPanelProps & { groupMemberIds?: Set<string> }) {
-  const { filteredAndSortedSets, lockCurrentOrder } = useSetFiltering(
-    sets,
-    urlState,
-    groupMemberIds,
-  );
-
-  return (
-    <SetsPanel
-      sets={filteredAndSortedSets}
-      use24Hour={urlState.use24Hour}
-      onLockSort={() => lockCurrentOrder(updateUrlState)}
-    />
-  );
+  return <AuthedFilteredSetsPanel {...props} userId={user.id} />;
 }

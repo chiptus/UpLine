@@ -523,6 +523,7 @@ export type Database = {
       profiles: {
         Row: {
           active_group_id: string | null;
+          active_scope: Database["public"]["Enums"]["active_scope"] | null;
           completed_onboarding: boolean | null;
           created_at: string;
           email: string | null;
@@ -531,6 +532,7 @@ export type Database = {
         };
         Insert: {
           active_group_id?: string | null;
+          active_scope?: Database["public"]["Enums"]["active_scope"] | null;
           completed_onboarding?: boolean | null;
           created_at?: string;
           email?: string | null;
@@ -539,6 +541,7 @@ export type Database = {
         };
         Update: {
           active_group_id?: string | null;
+          active_scope?: Database["public"]["Enums"]["active_scope"] | null;
           completed_onboarding?: boolean | null;
           created_at?: string;
           email?: string | null;
@@ -907,6 +910,7 @@ export type Database = {
       };
     };
     Enums: {
+      active_scope: "group" | "everyone" | "me";
       admin_role: "super_admin" | "admin" | "moderator";
       festival_phase: "pre-schedule" | "planning" | "live" | "post-festival";
       link_type: "website" | "tickets" | "custom";

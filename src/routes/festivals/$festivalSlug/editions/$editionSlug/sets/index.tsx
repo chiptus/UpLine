@@ -1,9 +1,7 @@
 import { createFileRoute, stripSearchParams } from "@tanstack/react-router";
-import { FilterSortControls } from "@/pages/EditionView/tabs/VoteTab/filters/FilterSortControls";
 import { FilteredSetsPanel } from "@/pages/EditionView/tabs/VoteTab/FilteredSetsPanel";
 import { useUrlState } from "@/hooks/useUrlState";
 import { useSetsByEditionQuery } from "@/api/sets/useSetsByEdition";
-import { groupMembersQuery } from "@/api/groups/useGroupMembers";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { PageTitle } from "@/components/PageTitle/PageTitle";
 import {
@@ -20,12 +18,8 @@ export const Route = createFileRoute(
   search: {
     middlewares: [stripSearchParams(filterSortSearchDefaults)],
   },
-  loaderDeps: ({ search }) => ({ groupId: search.groupId }),
-  loader: async ({ context, deps }) => {
+  loader: async ({ context }) => {
     void context.queryClient.ensureQueryData(genresQuery());
-    if (deps.groupId) {
-      void context.queryClient.ensureQueryData(groupMembersQuery(deps.groupId));
-    }
   },
 });
 
@@ -52,20 +46,13 @@ function VoteTab() {
     <>
       <PageTitle title="Vote" prefix={festival?.name} />
       <div>
-        <FilterSortControls
-          state={urlState}
-          onStateChange={updateUrlState}
-          onClear={clearFilters}
+        <FilteredSetsPanel
+          sets={sets}
+          urlState={urlState}
+          updateUrlState={updateUrlState}
+          clearFilters={clearFilters}
           editionId={edition?.id || ""}
         />
-
-        <div className="mt-8">
-          <FilteredSetsPanel
-            sets={sets}
-            urlState={urlState}
-            updateUrlState={updateUrlState}
-          />
-        </div>
       </div>
     </>
   );

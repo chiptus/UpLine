@@ -16,6 +16,7 @@ import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { ActiveScopeProvider } from "@/contexts/ActiveScopeContext";
 import { useInviteValidation } from "@/components/invite/useInviteValidation";
 import { InviteLandingPage } from "@/components/invite/InviteLandingPage";
 import { OnboardingDialog } from "@/components/onboarding/OnboardingDialog";
@@ -65,7 +66,9 @@ function RootComponent() {
         <AppUpdatePrompt />
         <CookieConsentBanner />
         <AuthProvider>
-          <RootContent />
+          <ActiveScopeProvider>
+            <RootContent />
+          </ActiveScopeProvider>
         </AuthProvider>
         <OfflineIndicator />
         <SpeedInsights />

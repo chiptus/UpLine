@@ -11,6 +11,7 @@ on:
       - ".github/workflows/_deploy_edge_functions.yml"
   pull_request:
     branches: [main]
+    types: [opened, synchronize, reopened, labeled, unlabeled]
     paths:
       - "supabase/migrations/**"
       - "supabase/functions/**"
@@ -62,9 +63,21 @@ jobs:
             functions:
               - 'supabase/functions/**'
 
+  gate:
+    name: Require staging label for migrations
+    needs: resolve
+    if: github.event_name == 'pull_request' && needs.resolve.outputs.migrations == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if this PR touches migrations without holding the staging label
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'staging') }}
+        run: |
+          echo "::error::This PR touches supabase/migrations/** but does not hold the 'staging' label. Add the 'staging' label to acquire the staging lock before this can merge."
+          exit 1
+
   check-lock:
     name: Verify staging lock ownership
-    needs: resolve
+    needs: [resolve, gate]
     if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'staging')
     runs-on: ubuntu-latest
     outputs:
@@ -83,7 +96,7 @@ jobs:
           echo "is_holder=$([[ "$OTHERS" -eq 0 ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
 
   migrate:
-    needs: [resolve, check-lock]
+    needs: [resolve, gate, check-lock]
     if: needs.resolve.outputs.migrations == 'true' && (github.event_name != 'pull_request' || needs.check-lock.outputs.is_holder == 'true')
     uses: ./.github/workflows/_db_migrate.yml
     with:

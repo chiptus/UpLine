@@ -13,15 +13,17 @@ export function AuthedFilteredSetsPanel(
 ) {
   const { current, activeGroupId } = useActiveScope();
   const { data: groups } = useSuspenseQuery(userGroupsQuery(props.userId));
-  const activeGroupName = activeGroupId
-    ? groups.find((group) => group.id === activeGroupId)?.name
+  const perspectiveGroupId =
+    current.kind === "group" ? current.groupId : activeGroupId;
+  const perspectiveGroupName = perspectiveGroupId
+    ? groups.find((group) => group.id === perspectiveGroupId)?.name
     : undefined;
   const [perspective, setPerspective] = useState<BinaryVoteScope>(
     current.kind === "group" ? "group" : "everyone",
   );
 
   const voteScope: VoteScope =
-    perspective === "group" && activeGroupId ? "group" : "everyone";
+    perspective === "group" && perspectiveGroupId ? "group" : "everyone";
 
   return (
     <>
@@ -31,23 +33,23 @@ export function AuthedFilteredSetsPanel(
         onClear={props.clearFilters}
         editionId={props.editionId}
         votePerspective={
-          activeGroupId && activeGroupName
+          perspectiveGroupId && perspectiveGroupName
             ? {
                 scope: voteScope,
                 onScopeChange: setPerspective,
-                groupName: activeGroupName,
+                groupName: perspectiveGroupName,
               }
             : undefined
         }
       />
 
       <div className="mt-8">
-        {voteScope === "group" && activeGroupId ? (
+        {voteScope === "group" && perspectiveGroupId ? (
           <GroupScopedSetsPanel
             sets={props.sets}
             urlState={props.urlState}
             updateUrlState={props.updateUrlState}
-            groupId={activeGroupId}
+            groupId={perspectiveGroupId}
           />
         ) : (
           <EveryoneSetsPanel

@@ -11,7 +11,7 @@ import {
 describe("genresQuery", () => {
   it("returns the genres seeded in the local Supabase instance", async () => {
     const { result } = renderHook(() => useSuspenseQuery(genresQuery()), {
-      wrapper: createQueryWrapper(),
+      wrapper: createQueryWrapper().Wrapper,
     });
 
     await waitFor(() => {
@@ -60,7 +60,7 @@ describe("genresQuery", () => {
     if (deleteError) throw deleteError;
 
     const { result } = renderHook(() => useSuspenseQuery(genresQuery()), {
-      wrapper: createQueryWrapper(),
+      wrapper: createQueryWrapper().Wrapper,
     });
 
     await waitFor(() => {

@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { createElement, type ReactNode } from "react";
 import { act, renderHook, waitFor } from "@testing-library/react";
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQuery,
-} from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useVoteMutation } from "./useVoteMutation";
 import { userVotesQuery } from "./useUserVotesQuery";
 import { userVotesKeys } from "./types";
@@ -20,17 +15,7 @@ describe("useVoteMutation", () => {
     const userId = await signInAsTestUser();
     const setId = await createSet();
 
-    const queryClient = new QueryClient({
-      defaultOptions: { queries: { retry: false } },
-    });
-    function Wrapper({ children }: { children: ReactNode }) {
-      return createElement(
-        QueryClientProvider,
-        { client: queryClient },
-        children,
-      );
-    }
-
+    const { Wrapper, queryClient } = createQueryWrapper();
     const { result } = renderHook(
       () => ({
         vote: useVoteMutation(),
@@ -78,7 +63,7 @@ describe("useVoteMutation", () => {
     const setId = await createSet();
 
     const { result } = renderHook(() => useVoteMutation(), {
-      wrapper: createQueryWrapper(),
+      wrapper: createQueryWrapper().Wrapper,
     });
 
     act(() => {

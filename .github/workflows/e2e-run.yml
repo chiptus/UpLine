@@ -50,7 +50,7 @@ jobs:
         uses: actions/cache@v6
         with:
           path: /var/cache/apt/archives/*.deb
-          key: apt-${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+          key: apt-${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}-${{ inputs.browsers }}
 
       - name: Install Playwright Browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'

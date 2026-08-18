@@ -1,0 +1,24 @@
+import { registerCleanup, testSupabase } from "../harness";
+
+/** Links an artist to a set and self-registers cleanup. */
+export async function linkArtistToSet(
+  setId: string,
+  artistId: string,
+): Promise<string> {
+  const { data, error } = await testSupabase
+    .from("set_artists")
+    .insert({ set_id: setId, artist_id: artistId })
+    .select("id")
+    .single();
+  if (error) throw error;
+
+  registerCleanup(async () => {
+    const { error: deleteError } = await testSupabase
+      .from("set_artists")
+      .delete()
+      .eq("id", data.id);
+    if (deleteError) throw deleteError;
+  });
+
+  return data.id;
+}

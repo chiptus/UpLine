@@ -1,0 +1,213 @@
+name: Staging DB Commands
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+  actions: read
+
+jobs:
+  authorize:
+    name: Authorize command
+    if: github.event.issue.pull_request != null
+    runs-on: ubuntu-latest
+    outputs:
+      command: ${{ steps.resolve.outputs.command }}
+      pr: ${{ github.event.issue.number }}
+      head_sha: ${{ steps.pr.outputs.head_sha }}
+      head_ref: ${{ steps.pr.outputs.head_ref }}
+    steps:
+      - name: Resolve command
+        id: resolve
+        env:
+          BODY: ${{ github.event.comment.body }}
+        run: |
+          set -euo pipefail
+          TRIMMED=$(echo "$BODY" | xargs || true)
+          case "$TRIMMED" in
+            "/db-fix"|"/db-force-push") echo "command=$TRIMMED" >> "$GITHUB_OUTPUT" ;;
+            *) echo "command=" >> "$GITHUB_OUTPUT" ;;
+          esac
+
+      - name: Require write access to comment
+        if: steps.resolve.outputs.command != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          ACTOR: ${{ github.event.comment.user.login }}
+        run: |
+          set -euo pipefail
+          LEVEL=$(gh api "repos/$REPO/collaborators/$ACTOR/permission" --jq .permission)
+          echo "@$ACTOR has permission: $LEVEL"
+          case "$LEVEL" in
+            admin|write) ;;
+            *)
+              echo "::error::@$ACTOR does not have write access to $REPO; refusing to run ${{ steps.resolve.outputs.command }}."
+              exit 1
+              ;;
+          esac
+
+      - name: Require the staging label on this PR
+        id: pr
+        if: steps.resolve.outputs.command != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          HAS_LABEL=$(gh pr view "$PR" --repo "$REPO" --json labels --jq '[.labels[].name] | any(. == "staging")')
+          if [[ "$HAS_LABEL" != "true" ]]; then
+            echo "::error::PR #$PR does not hold the staging label; refusing to run ${{ steps.resolve.outputs.command }}."
+            exit 1
+          fi
+
+          echo "head_sha=$(gh pr view "$PR" --repo "$REPO" --json headRefOid --jq .headRefOid)" >> "$GITHUB_OUTPUT"
+          echo "head_ref=$(gh pr view "$PR" --repo "$REPO" --json headRefName --jq .headRefName)" >> "$GITHUB_OUTPUT"
+
+  db-fix:
+    name: /db-fix
+    needs: authorize
+    if: needs.authorize.outputs.command == '/db-fix'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: staging
+    steps:
+      # Default branch, not PR head — db-fix runs repo scripts with staging secrets in scope, and doesn't need PR content.
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: ".nvmrc"
+
+      - uses: supabase/setup-cli@v3
+
+      # The job name comes from how deploy.yml calls the reusable _db_migrate.yml
+      # workflow: "<calling job id> / <called job's name>". If either changes, this
+      # lookup silently stops matching.
+      - name: Find the latest failed staging-push run for this PR
+        id: find
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ needs.authorize.outputs.head_ref }}
+        run: |
+          set -euo pipefail
+          JOB_ID=""
+          for RUN_ID in $(gh run list --repo "$REPO" --workflow deploy.yml --branch "$BRANCH" --event pull_request --json databaseId --jq '.[].databaseId'); do
+            FOUND=$(gh api "repos/$REPO/actions/runs/$RUN_ID/jobs" --paginate \
+              --jq '.jobs[] | select(.name == "migrate / Push migrations (staging)" and .conclusion == "failure") | .id' | head -n1)
+            if [[ -n "$FOUND" ]]; then
+              JOB_ID="$FOUND"
+              break
+            fi
+          done
+
+          if [[ -z "$JOB_ID" ]]; then
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=true" >> "$GITHUB_OUTPUT"
+            echo "job_id=$JOB_ID" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Extract the repair command from that run's log
+        id: extract
+        if: steps.find.outputs.found == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          JOB_ID: ${{ steps.find.outputs.job_id }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$REPO/actions/jobs/$JOB_ID/logs" > job.log
+          COMMAND=$(node .github/scripts/print-repair-command.ts job.log)
+          if [[ -z "$COMMAND" ]]; then
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=true" >> "$GITHUB_OUTPUT"
+            echo "command=$COMMAND" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run the suggested migration repair
+        id: repair
+        if: steps.extract.outputs.found == 'true'
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          PROJECT_REF: ${{ vars.STAGING_PROJECT_REF }}
+          DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+          COMMAND: ${{ steps.extract.outputs.command }}
+        run: |
+          set -euo pipefail
+          supabase link --project-ref "$PROJECT_REF" --password "$DB_PASSWORD"
+          $COMMAND --password "$DB_PASSWORD"
+
+      - name: Report outcome
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ needs.authorize.outputs.pr }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          FOUND_RUN: ${{ steps.find.outputs.found }}
+          FOUND_COMMAND: ${{ steps.extract.outputs.found }}
+          COMMAND: ${{ steps.extract.outputs.command }}
+          REPAIR_OUTCOME: ${{ steps.repair.outcome }}
+        run: |
+          set -euo pipefail
+          if [[ "$FOUND_RUN" != "true" ]]; then
+            BODY="/db-fix: no failed staging-push run was found for this PR. Nothing was run. [Workflow run]($RUN_URL)"
+          elif [[ "$FOUND_COMMAND" != "true" ]]; then
+            BODY="/db-fix: found a failed staging-push run, but no \`supabase migration repair --status ...\` command was printed in its log. Nothing was run. [Workflow run]($RUN_URL)"
+          elif [[ "$REPAIR_OUTCOME" == "success" ]]; then
+            BODY="/db-fix: ran \`$COMMAND\` against staging — succeeded. [Workflow run]($RUN_URL)"
+          else
+            BODY="/db-fix: ran \`$COMMAND\` against staging — failed. [Workflow run]($RUN_URL)"
+          fi
+          gh pr comment "$PR" --repo "$REPO" --body "$BODY"
+
+  db-force-push:
+    name: /db-force-push
+    needs: authorize
+    if: needs.authorize.outputs.command == '/db-force-push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: staging
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.authorize.outputs.head_sha }}
+
+      - uses: supabase/setup-cli@v3
+
+      - name: Force push all migrations to staging
+        id: push
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          PROJECT_REF: ${{ vars.STAGING_PROJECT_REF }}
+          DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+        run: |
+          set -euo pipefail
+          supabase link --project-ref "$PROJECT_REF" --password "$DB_PASSWORD"
+          supabase db push --include-all --password "$DB_PASSWORD"
+
+      - name: Report outcome
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ needs.authorize.outputs.pr }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          OUTCOME: ${{ steps.push.outcome }}
+        run: |
+          set -euo pipefail
+          if [[ "$OUTCOME" == "success" ]]; then
+            BODY="/db-force-push: \`supabase db push --include-all\` against staging succeeded. [Workflow run]($RUN_URL)"
+          else
+            BODY="/db-force-push: \`supabase db push --include-all\` against staging failed. [Workflow run]($RUN_URL)"
+          fi
+          gh pr comment "$PR" --repo "$REPO" --body "$BODY"

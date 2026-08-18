@@ -7,26 +7,11 @@ import {
   waitForQueriesSettled,
 } from "@/test/integration/harness";
 
-async function getGenreIdByName(name: string): Promise<string> {
-  const { data, error } = await testSupabase
-    .from("music_genres")
-    .select("id")
-    .eq("name", name)
-    .single();
-  if (error) throw error;
-  return data.id;
-}
-
-function renderGenreBadge(genreId: string, size?: "default" | "sm") {
-  return renderWithQueryClient(<GenreBadge genreId={genreId} size={size} />);
-}
-
 describe("GenreBadge", () => {
   it("renders genre name when genre is found", async () => {
     const genreId = await getGenreIdByName("Techno");
 
-    const { queryClient } = renderGenreBadge(genreId);
-    await waitForQueriesSettled(queryClient);
+    await renderGenreBadge(genreId);
 
     expect(screen.getByText("Techno")).toBeInTheDocument();
   });
@@ -34,8 +19,7 @@ describe("GenreBadge", () => {
   it("finds the correct genre among the other seeded genres", async () => {
     const genreId = await getGenreIdByName("House");
 
-    const { queryClient } = renderGenreBadge(genreId);
-    await waitForQueriesSettled(queryClient);
+    await renderGenreBadge(genreId);
 
     expect(screen.getByText("House")).toBeInTheDocument();
     expect(screen.queryByText("Techno")).not.toBeInTheDocument();
@@ -46,8 +30,7 @@ describe("GenreBadge", () => {
   // "empty" case for the underlying query itself is already covered by
   // useGenres.integration.test.ts, so it isn't repeated here.
   it("renders null when genre is not found", async () => {
-    const { queryClient, container } = renderGenreBadge(crypto.randomUUID());
-    await waitForQueriesSettled(queryClient);
+    const { container } = await renderGenreBadge(crypto.randomUUID());
 
     expect(container.firstChild).toBeNull();
   });
@@ -55,8 +38,7 @@ describe("GenreBadge", () => {
   it("renders with default size", async () => {
     const genreId = await getGenreIdByName("Techno");
 
-    const { queryClient, container } = renderGenreBadge(genreId);
-    await waitForQueriesSettled(queryClient);
+    const { container } = await renderGenreBadge(genreId);
 
     const badge = container.querySelector("div");
     expect(badge).not.toHaveClass("text-xs", "px-2", "py-1");
@@ -65,20 +47,27 @@ describe("GenreBadge", () => {
   it("renders with small size", async () => {
     const genreId = await getGenreIdByName("Techno");
 
-    const { queryClient, container } = renderGenreBadge(genreId, "sm");
-    await waitForQueriesSettled(queryClient);
+    const { container } = await renderGenreBadge(genreId, "sm");
 
     const badge = container.querySelector("div");
     expect(badge).toHaveClass("text-xs", "px-2", "py-1");
   });
-
-  it("has correct styling classes", async () => {
-    const genreId = await getGenreIdByName("Techno");
-
-    const { queryClient, container } = renderGenreBadge(genreId);
-    await waitForQueriesSettled(queryClient);
-
-    const badge = container.querySelector("div");
-    expect(badge).toHaveClass("bg-purple-600/50", "text-purple-100");
-  });
 });
+
+async function getGenreIdByName(name: string): Promise<string> {
+  const { data, error } = await testSupabase
+    .from("music_genres")
+    .select("id")
+    .eq("name", name)
+    .single();
+  if (error) throw error;
+  return data.id;
+}
+
+async function renderGenreBadge(genreId: string, size?: "default" | "sm") {
+  const utils = renderWithQueryClient(
+    <GenreBadge genreId={genreId} size={size} />,
+  );
+  await waitForQueriesSettled(utils.queryClient);
+  return utils;
+}

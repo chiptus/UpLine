@@ -34,24 +34,6 @@ describe("GenreBadge", () => {
 
     expect(container.firstChild).toBeNull();
   });
-
-  it("renders with default size", async () => {
-    const genreId = await getGenreIdByName("Techno");
-
-    const { container } = await renderGenreBadge(genreId);
-
-    const badge = container.querySelector("div");
-    expect(badge).not.toHaveClass("text-xs", "px-2", "py-1");
-  });
-
-  it("renders with small size", async () => {
-    const genreId = await getGenreIdByName("Techno");
-
-    const { container } = await renderGenreBadge(genreId, "sm");
-
-    const badge = container.querySelector("div");
-    expect(badge).toHaveClass("text-xs", "px-2", "py-1");
-  });
 });
 
 async function getGenreIdByName(name: string): Promise<string> {
@@ -64,10 +46,8 @@ async function getGenreIdByName(name: string): Promise<string> {
   return data.id;
 }
 
-async function renderGenreBadge(genreId: string, size?: "default" | "sm") {
-  const utils = renderWithQueryClient(
-    <GenreBadge genreId={genreId} size={size} />,
-  );
+async function renderGenreBadge(genreId: string) {
+  const utils = renderWithQueryClient(<GenreBadge genreId={genreId} />);
   await waitForQueriesSettled(utils.queryClient);
   return utils;
 }

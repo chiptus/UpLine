@@ -17,7 +17,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { ActiveScopeProvider } from "@/contexts/ActiveScopeContext";
-import { useInviteValidation } from "@/components/invite/useInviteValidation";
+import { useInviteFlow } from "@/components/invite/useInviteFlow";
 import { InviteLandingPage } from "@/components/invite/InviteLandingPage";
 import { OnboardingDialog } from "@/components/onboarding/OnboardingDialog";
 import { useProfileQuery } from "@/api/auth/useProfile";
@@ -81,8 +81,10 @@ function RootComponent() {
 function RootContent() {
   const { user, loading: authLoading, needsOnboarding } = useAuth();
   const search = useSearch({ from: "__root__" });
-  const { inviteValidation, isValidating, hasValidInvite } =
-    useInviteValidation(search.invite);
+  const { inviteValidation, isValidating, hasValidInvite } = useInviteFlow(
+    search.invite,
+    user,
+  );
 
   const { isLoading: profileLoading } = useProfileQuery(user?.id);
 
@@ -104,11 +106,11 @@ function RootContent() {
     );
   }
 
-  if (hasValidInvite && !user && inviteValidation) {
+  if (hasValidInvite && !user && inviteValidation && search.invite) {
     return (
       <InviteLandingPage
         inviteValidation={inviteValidation}
-        onSignupSuccess={() => {}}
+        inviteToken={search.invite}
       />
     );
   }

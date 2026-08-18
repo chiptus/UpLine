@@ -1,9 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { useQuery } from "@tanstack/react-query";
 import { useVoteMutation } from "./useVoteMutation";
 import { userVotesQuery } from "./useUserVotesQuery";
-import { userVotesKeys } from "./types";
 import { supabase } from "@/integrations/supabase/client";
 import { createQueryWrapper } from "@/test/integration/harness";
 import { signInAsTestUser } from "@/test/integration/fixtures/auth";
@@ -15,55 +14,40 @@ describe("useVoteMutation", () => {
     const userId = await signInAsTestUser();
     const setId = await createSet();
 
-    const { Wrapper, queryClient } = createQueryWrapper();
+    // Wraps the real queryFn so it still runs for real, but lets the test
+    // count invocations: the mutation's onMutate writes the optimistic
+    // value via setQueryData, which never re-runs the queryFn, so a second
+    // call only happens if onSettled's invalidateQueries actually triggers
+    // a real refetch.
+    const votesQuery = userVotesQuery(userId);
+    const queryFnSpy = vi.fn(votesQuery.queryFn);
+
     const { result } = renderHook(
       () => ({
         vote: useVoteMutation(),
-        votes: useQuery(userVotesQuery(userId)),
+        votes: useQuery({ ...votesQuery, queryFn: queryFnSpy }),
       }),
-      { wrapper: Wrapper },
+      { wrapper: createQueryWrapper() },
     );
 
     await waitFor(() => expect(result.current.votes.isSuccess).toBe(true));
+    expect(queryFnSpy).toHaveBeenCalledTimes(1);
 
-    // Only start watching fetchStatus once the initial mount fetch has
-    // settled, so the assertion below isolates activity the mutation causes
-    // and doesn't just see that first fetch.
-    const fetchStatuses: string[] = [];
-    const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
-      if (
-        JSON.stringify(event.query.queryKey) ===
-        JSON.stringify(userVotesKeys.user(userId))
-      ) {
-        fetchStatuses.push(event.query.state.fetchStatus);
-      }
+    act(() => {
+      result.current.vote.mutate({ setId, voteType: 2, userId });
     });
 
-    try {
-      act(() => {
-        result.current.vote.mutate({ setId, voteType: 2, userId });
-      });
+    await waitFor(() => expect(result.current.vote.isSuccess).toBe(true));
+    await waitFor(() => expect(result.current.votes.data?.[setId]).toBe(2));
 
-      await waitFor(() => expect(result.current.vote.isSuccess).toBe(true));
-      await waitFor(() => expect(result.current.votes.data?.[setId]).toBe(2));
-    } finally {
-      unsubscribe();
-    }
-
-    // The mutation's onMutate writes the optimistic value via setQueryData,
-    // which never touches fetchStatus. Only a genuine network refetch (the
-    // one onSettled's invalidateQueries triggers) cycles fetchStatus through
-    // "fetching". Seeing it here proves the query result above came from a
-    // real commit -> invalidate -> refetch round trip, not merely the
-    // mutation's own optimistic cache write.
-    expect(fetchStatuses).toContain("fetching");
+    expect(queryFnSpy).toHaveBeenCalledTimes(2);
   });
 
   it("rejects an unauthenticated vote with the real RLS-denial error", async () => {
     const setId = await createSet();
 
     const { result } = renderHook(() => useVoteMutation(), {
-      wrapper: createQueryWrapper().Wrapper,
+      wrapper: createQueryWrapper(),
     });
 
     act(() => {

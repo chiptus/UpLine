@@ -20,7 +20,7 @@ describe("setsByEditionQuery", () => {
 
       const { result } = renderHook(
         () => useQuery(setsByEditionQuery(editionId)),
-        { wrapper: createQueryWrapper().Wrapper },
+        { wrapper: createQueryWrapper() },
       );
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true));

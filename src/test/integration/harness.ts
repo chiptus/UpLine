@@ -45,24 +45,17 @@ afterEach(async () => {
   }
 });
 
-/**
- * Shared QueryClient + Suspense wrapper for `renderHook` in integration
- * tests that exercise real Supabase data. Returns the `queryClient`
- * alongside the wrapper for tests that need to inspect it directly (e.g.
- * subscribing to `getQueryCache()` to observe refetch behavior).
- */
+/** Shared QueryClient + Suspense wrapper for `renderHook` in integration tests. */
 export function createQueryWrapper() {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
 
-  function Wrapper({ children }: { children: ReactNode }) {
+  return function Wrapper({ children }: { children: ReactNode }) {
     return createElement(
       QueryClientProvider,
       { client: queryClient },
       createElement(Suspense, { fallback: null }, children),
     );
-  }
-
-  return { Wrapper, queryClient };
+  };
 }

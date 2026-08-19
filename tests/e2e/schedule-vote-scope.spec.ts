@@ -99,6 +99,10 @@ test.describe("Schedule vote-chip scope follows the navbar Active Scope", () => 
   });
 
   test("group scope shows a teammate's vote, me scope hides it, everyone scope shows it", async () => {
+    // Three scope switches plus chip selection and assertions comfortably
+    // exceed the 30s CI default under slower browsers (e.g. firefox).
+    test.setTimeout(60_000);
+
     await viewerPage.goto(LIST_PATH);
     await expect(listSchedule(viewerPage)).toBeVisible();
 

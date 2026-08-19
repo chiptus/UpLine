@@ -5,6 +5,7 @@ import { NowButton } from "./NowButton";
 import { Button } from "@/components/ui/button";
 import { ScheduleFilterSheet } from "../ScheduleFilterSheet";
 import { VoteFilterChips } from "../VoteFilterChips";
+import { ScheduleVoteScopeToggle } from "../ScheduleVoteScopeToggle";
 import type { ScheduleDay } from "@/hooks/useScheduleData";
 import { useScrollEdgeFade } from "./useScrollEdgeFade";
 import { STICKY_TOP_BELOW_TOP_BAR_CLASS } from "@/lib/layout-constants";
@@ -98,7 +99,8 @@ export function TimelineToolbar({
             {isOverviewExpanded ? "Hide overview" : "Show overview"}
           </span>
         </Button>
-        <div className="hidden md:block">
+        <div className="hidden md:flex items-center gap-1">
+          <ScheduleVoteScopeToggle tab="timeline" />
           <VoteFilterChips tab="timeline" />
         </div>
         <ScheduleFilterSheet tab="timeline" />

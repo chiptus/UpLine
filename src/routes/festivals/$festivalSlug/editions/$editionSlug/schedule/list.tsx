@@ -15,7 +15,7 @@ import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 import { ScheduleLineupView } from "@/pages/EditionView/tabs/ScheduleTab/lineup/ScheduleLineupView";
 import { useAuth } from "@/contexts/AuthContext";
-import { useUserVotesQuery } from "@/api/voting/useUserVotesQuery";
+import { useScheduleVoteScope } from "@/hooks/useScheduleVoteScope";
 import {
   timelineSearchDefaults,
   timelineSearchSchema,
@@ -51,7 +51,7 @@ function ListSchedule() {
     useEditionSetsQuery(edition.id);
   const { data: stages } = useSuspenseQuery(stagesByEditionQuery(edition.id));
   const { user } = useAuth();
-  const { data: userVotes } = useUserVotesQuery(user?.id);
+  const { voteScope, groupMemberIds } = useScheduleVoteScope("list");
   const { scheduleDays } = useScheduleData({
     sets: editionSets,
     stages,
@@ -74,7 +74,9 @@ function ListSchedule() {
         time: selectedTime,
         stages: selectedStages,
         voteTypes: selectedVotes,
-        userVotes,
+        voteScope,
+        currentUserId: user?.id,
+        groupMemberIds,
       },
       festival.timezone,
     );
@@ -149,7 +151,9 @@ function ListSchedule() {
     selectedTime,
     selectedStages,
     selectedVotes,
-    userVotes,
+    voteScope,
+    user?.id,
+    groupMemberIds,
     stages,
     festival.timezone,
   ]);

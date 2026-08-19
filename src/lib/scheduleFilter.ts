@@ -1,6 +1,7 @@
 import { getFestivalHour } from "@/lib/timeUtils";
 import type { TimelineSearch } from "@/lib/searchSchemas";
 import { getVoteConfig, type VoteType } from "@/lib/voteConfig";
+import { resolveVotesForScope, type MeGroupVoteScope } from "@/lib/voteScope";
 import type {
   ScheduleDay,
   ScheduleSet,
@@ -14,8 +15,11 @@ export interface ScheduleFilterCriteria {
   time: ScheduleTimeFilter;
   stages: string[];
   voteTypes?: VoteType[];
+  voteScope?: MeGroupVoteScope;
   /** `undefined` (logged out) makes vote filtering inert, not exclusionary. */
-  userVotes?: Record<string, number>;
+  currentUserId?: string;
+  /** `undefined` (group members still loading, or no group) makes group-scope vote filtering inert. */
+  groupMemberIds?: Set<string>;
 }
 
 function matchesTimeOfDay(
@@ -43,16 +47,25 @@ function matchesTimeOfDay(
 function matchesVoteTypes(
   set: ScheduleSet,
   voteTypes: VoteType[] | undefined,
-  userVotes: Record<string, number> | undefined,
+  voteScope: MeGroupVoteScope | undefined,
+  currentUserId: string | undefined,
+  groupMemberIds: Set<string> | undefined,
 ): boolean {
   if (!voteTypes || voteTypes.length === 0) return true;
-  if (userVotes === undefined) return true;
+  if (currentUserId === undefined) return true;
+  if (voteScope === "group" && groupMemberIds === undefined) return true;
 
-  const voteValue = userVotes[set.id];
-  if (voteValue === undefined) return false;
+  const scopedVotes = resolveVotesForScope({
+    votes: set.votes || [],
+    scope: voteScope ?? "me",
+    groupMemberIds: groupMemberIds ?? new Set(),
+    currentUserId,
+  });
 
-  const voteType = getVoteConfig(voteValue);
-  return voteType !== undefined && voteTypes.includes(voteType);
+  return scopedVotes.some((vote) => {
+    const voteType = getVoteConfig(vote.vote_type);
+    return voteType !== undefined && voteTypes.includes(voteType);
+  });
 }
 
 /**
@@ -79,7 +92,13 @@ export function filterScheduleDays(
         sets: stage.sets.filter(
           (set) =>
             matchesTimeOfDay(set, criteria.time, timezone) &&
-            matchesVoteTypes(set, criteria.voteTypes, criteria.userVotes),
+            matchesVoteTypes(
+              set,
+              criteria.voteTypes,
+              criteria.voteScope,
+              criteria.currentUserId,
+              criteria.groupMemberIds,
+            ),
         ),
       }));
 

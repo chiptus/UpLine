@@ -10,6 +10,8 @@ import type {
 
 export type ScheduleTimeFilter = TimelineSearch["time"];
 
+const EMPTY_MEMBER_IDS: Set<string> = new Set();
+
 export interface ScheduleFilterCriteria {
   day: string;
   time: ScheduleTimeFilter;
@@ -58,7 +60,7 @@ function matchesVoteTypes(
   const scopedVotes = resolveVotesForScope({
     votes: set.votes || [],
     scope: voteScope ?? "me",
-    groupMemberIds: groupMemberIds ?? new Set(),
+    groupMemberIds: groupMemberIds ?? EMPTY_MEMBER_IDS,
     currentUserId,
   });
 

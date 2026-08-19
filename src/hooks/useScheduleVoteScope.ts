@@ -21,9 +21,19 @@ export function useScheduleVoteScope(tab: "timeline" | "list") {
     ...userGroupsQuery(user?.id ?? ""),
     enabled: !!user,
   });
+
+  const voteScope: MeGroupVoteScope =
+    urlVoteScope === "group" && activeGroupId
+      ? "group"
+      : urlVoteScope === "me"
+        ? "me"
+        : activeGroupId
+          ? "group"
+          : "me";
+
   const { data: members } = useQuery({
     ...groupMembersQuery(activeGroupId ?? ""),
-    enabled: !!activeGroupId,
+    enabled: !!activeGroupId && voteScope === "group",
   });
 
   const groupName = activeGroupId
@@ -35,15 +45,6 @@ export function useScheduleVoteScope(tab: "timeline" | "list") {
       members ? new Set(members.map((member) => member.user_id)) : undefined,
     [members],
   );
-
-  const voteScope: MeGroupVoteScope =
-    urlVoteScope === "group" && activeGroupId
-      ? "group"
-      : urlVoteScope === "me"
-        ? "me"
-        : activeGroupId
-          ? "group"
-          : "me";
 
   return {
     voteScope,

@@ -11,8 +11,8 @@ export type Group = Database["public"]["Tables"]["groups"]["Row"] & {
 export type GroupMember =
   Database["public"]["Tables"]["group_members"]["Row"] & {
     profiles?: {
-      username?: string;
-      email?: string;
+      username?: string | undefined;
+      email?: string | undefined;
     };
   };
 

@@ -22,7 +22,7 @@ interface FilterSortControlsProps {
   onStateChange: (updates: Partial<FilterSortState>) => void;
   onClear: () => void;
   editionId: string;
-  votePerspective?: VotePerspectiveProps;
+  votePerspective?: VotePerspectiveProps | undefined;
 }
 
 export function FilterSortControls({

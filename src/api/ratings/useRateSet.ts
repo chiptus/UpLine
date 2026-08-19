@@ -12,7 +12,7 @@ async function rateSet({
   setId: string;
   rating: number;
   userId: string;
-  existingRating?: number;
+  existingRating?: number | undefined;
 }) {
   if (existingRating === rating) {
     const { error } = await supabase

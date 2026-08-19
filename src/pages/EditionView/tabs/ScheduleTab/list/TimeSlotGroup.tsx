@@ -6,12 +6,15 @@ import type { ScheduleSet } from "@/hooks/useScheduleData";
 
 interface TimeSlot {
   time: Date;
-  sets: (ScheduleSet & { stageName: string; stageColor?: string })[];
+  sets: (ScheduleSet & {
+    stageName: string;
+    stageColor?: string | undefined;
+  })[];
 }
 
 interface TimeSlotGroupProps {
   timeSlot: TimeSlot;
-  timezone?: string;
+  timezone?: string | undefined;
 }
 
 export function TimeSlotGroup({ timeSlot, timezone }: TimeSlotGroupProps) {

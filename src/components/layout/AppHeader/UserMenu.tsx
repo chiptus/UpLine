@@ -18,7 +18,7 @@ type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
 interface UserMenuProps {
   user: User;
-  profile?: Profile;
+  profile?: Profile | undefined;
   onSignOut: () => void;
   isMobile?: boolean;
 }

@@ -8,7 +8,7 @@ export async function vote(variables: {
   setId: string;
   voteType: number;
   userId: string;
-  existingVote?: number;
+  existingVote?: number | undefined;
 }) {
   const { setId, voteType, userId, existingVote } = variables;
 

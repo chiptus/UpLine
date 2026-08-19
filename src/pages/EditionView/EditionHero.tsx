@@ -3,7 +3,7 @@ import { useFestivalPhase } from "@/hooks/useFestivalPhase";
 
 interface EditionHeroProps {
   title: string;
-  logoUrl?: string | null;
+  logoUrl?: string | null | undefined;
   onRowRefChange?: (node: HTMLElement | null) => void;
 }
 

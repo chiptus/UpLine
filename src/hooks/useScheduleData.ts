@@ -26,8 +26,8 @@ export interface ScheduleArtist {
   name: string;
   slug?: string;
   stageId?: string;
-  startTime?: Date;
-  endTime?: Date;
+  startTime?: Date | undefined;
+  endTime?: Date | undefined;
   votes?: { vote_type: number; user_id: string }[];
   formattedTimeRange?: string | null;
   conflictsWith?: string[];

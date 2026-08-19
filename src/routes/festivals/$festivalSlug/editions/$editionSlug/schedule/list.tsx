@@ -33,7 +33,10 @@ export const Route = createFileRoute(
 
 interface TimeSlot {
   time: Date;
-  sets: (ScheduleSet & { stageName: string; stageColor?: string })[];
+  sets: (ScheduleSet & {
+    stageName: string;
+    stageColor?: string | undefined;
+  })[];
 }
 
 interface DayGroup {
@@ -86,7 +89,7 @@ function ListSchedule() {
     // startTime can't be placed into a time slot, so they're dropped here.
     const allSets: (ScheduleSet & {
       stageName: string;
-      stageColor?: string;
+      stageColor?: string | undefined;
     })[] = [];
 
     filteredScheduleDays.forEach((day) => {
@@ -108,7 +111,7 @@ function ListSchedule() {
     // Group sets by start time
     const timeGroups = new Map<
       string,
-      (ScheduleSet & { stageName: string; stageColor?: string })[]
+      (ScheduleSet & { stageName: string; stageColor?: string | undefined })[]
     >();
 
     allSets.forEach((set) => {

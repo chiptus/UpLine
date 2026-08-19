@@ -7,7 +7,7 @@ import { generateSlug } from "@/lib/slug";
 // Mutation function
 async function createGroup(variables: {
   name: string;
-  description?: string;
+  description?: string | undefined;
   userId: string;
 }) {
   const { name, description, userId } = variables;
@@ -17,8 +17,8 @@ async function createGroup(variables: {
     .insert({
       name,
       slug: generateSlug(name),
-      description,
       created_by: userId,
+      ...(description !== undefined ? { description } : {}),
     })
     .select()
     .single();

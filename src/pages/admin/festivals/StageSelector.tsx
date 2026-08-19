@@ -22,7 +22,11 @@ export function StageSelector({
   return (
     <div className="space-y-2">
       <Label htmlFor="stage">Stage</Label>
-      <Select value={value} onValueChange={onValueChange} disabled={isLoading}>
+      <Select
+        value={value ?? ""}
+        onValueChange={onValueChange}
+        disabled={isLoading}
+      >
         <SelectTrigger>
           <SelectValue
             placeholder={isLoading ? "Loading stages..." : "Select a stage"}

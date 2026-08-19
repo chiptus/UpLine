@@ -25,8 +25,10 @@ async function generateInviteLink(
     group_id: groupId,
     invite_token: token,
     created_by: user.id,
-    expires_at: options?.expiresAt?.toISOString(),
-    max_uses: options?.maxUses,
+    ...(options?.expiresAt !== undefined
+      ? { expires_at: options.expiresAt.toISOString() }
+      : {}),
+    ...(options?.maxUses !== undefined ? { max_uses: options.maxUses } : {}),
   };
 
   const { error } = await supabase.from("group_invites").insert(inviteData);

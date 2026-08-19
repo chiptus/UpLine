@@ -24,7 +24,7 @@ export function useFestivalEdition() {
 
 interface FestivalEditionProviderProps {
   festival: Festival;
-  editionSlug?: string;
+  editionSlug?: string | undefined;
 }
 
 export function FestivalEditionProvider({

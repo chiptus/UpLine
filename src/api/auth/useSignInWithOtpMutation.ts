@@ -4,7 +4,7 @@ import { useToast } from "@/components/ui/use-toast";
 
 interface SignInWithOtpParams {
   email: string;
-  inviteToken?: string;
+  inviteToken?: string | undefined;
 }
 
 export function useSignInWithOtpMutation() {

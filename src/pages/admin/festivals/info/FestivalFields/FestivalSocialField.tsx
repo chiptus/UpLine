@@ -8,8 +8,8 @@ import { useFestivalInfoMutation } from "@/api/festival-info/useFestivalInfoMuta
 
 interface FestivalSocialFieldProps {
   festivalId: string;
-  facebookUrl?: string | null;
-  instagramUrl?: string | null;
+  facebookUrl?: string | null | undefined;
+  instagramUrl?: string | null | undefined;
 }
 
 interface SocialFormData {
@@ -72,8 +72,8 @@ function SocialFieldForm({
   onSave,
 }: {
   festivalId: string;
-  facebookUrl?: string | null;
-  instagramUrl?: string | null;
+  facebookUrl?: string | null | undefined;
+  instagramUrl?: string | null | undefined;
 
   onCancel: () => void;
   onSave: () => void;

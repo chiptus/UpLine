@@ -25,13 +25,19 @@ async function updateSet(variables: { id: string; updates: UpdateSetInput }) {
   const { id, updates } = variables;
 
   const updateData: SetUpdate = {
-    name: updates.name,
-    description: updates.description,
-    festival_edition_id: updates.festival_edition_id,
-    stage_id: updates.stage_id,
-    time_start: updates.time_start,
-    time_end: updates.time_end,
-    archived: updates.archived,
+    ...(updates.name !== undefined ? { name: updates.name } : {}),
+    ...(updates.description !== undefined
+      ? { description: updates.description }
+      : {}),
+    ...(updates.festival_edition_id !== undefined
+      ? { festival_edition_id: updates.festival_edition_id }
+      : {}),
+    ...(updates.stage_id !== undefined ? { stage_id: updates.stage_id } : {}),
+    ...(updates.time_start !== undefined
+      ? { time_start: updates.time_start }
+      : {}),
+    ...(updates.time_end !== undefined ? { time_end: updates.time_end } : {}),
+    ...(updates.archived !== undefined ? { archived: updates.archived } : {}),
   };
   if (updates.name !== undefined) {
     updateData.slug = generateSlug(updates.name);

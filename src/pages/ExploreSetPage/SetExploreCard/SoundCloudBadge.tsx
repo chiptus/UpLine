@@ -1,6 +1,6 @@
 interface SoundCloudBadgeProps {
   soundcloudUrl?: string | null;
-  onClick?: (e: React.MouseEvent) => void;
+  onClick?: ((e: React.MouseEvent) => void) | undefined;
 }
 
 export function SoundCloudBadge({

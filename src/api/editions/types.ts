@@ -8,7 +8,7 @@ export type FestivalEdition =
 export const editionsKeys = {
   root: (festivalId: string) =>
     [...festivalsKeys.root(), festivalId, "editions"] as const,
-  all: (festivalId: string, { all }: { all?: boolean } = {}) =>
+  all: (festivalId: string, { all }: { all?: boolean | undefined } = {}) =>
     [...editionsKeys.root(festivalId), { all }] as const,
   item: ({
     editionId,

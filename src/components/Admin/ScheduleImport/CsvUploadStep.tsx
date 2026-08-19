@@ -10,7 +10,7 @@ import { CsvDropZone } from "./CsvDropZone";
 
 type Props = {
   festivalEditionId: string;
-  defaultTimezone?: string;
+  defaultTimezone?: string | undefined;
   onDiffReady: (diff: DiffResult, timezone: string) => void;
 };
 

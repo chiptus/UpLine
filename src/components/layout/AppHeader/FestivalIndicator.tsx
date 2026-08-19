@@ -1,7 +1,7 @@
 interface FestivalIndicatorProps {
   isTitleVisible?: boolean;
-  logoUrl?: string | null;
-  festivalName?: string;
+  logoUrl?: string | null | undefined;
+  festivalName?: string | undefined;
 }
 
 export function FestivalIndicator({

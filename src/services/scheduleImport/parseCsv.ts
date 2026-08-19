@@ -23,14 +23,21 @@ export function parseScheduleCsv(csvContent: string): CsvRow[] {
           .filter(Boolean),
       );
 
+      const setName = row["set name"]?.trim() || undefined;
+      const stage = row.stage?.trim() || undefined;
+      const date = row.date?.trim() || undefined;
+      const startTime = row["start time"]?.trim() || undefined;
+      const endTime = row["end time"]?.trim() || undefined;
+      const description = row.description?.trim() || undefined;
+
       return {
         artists,
-        setName: row["set name"]?.trim() || undefined,
-        stage: row.stage?.trim() || undefined,
-        date: row.date?.trim() || undefined,
-        startTime: row["start time"]?.trim() || undefined,
-        endTime: row["end time"]?.trim() || undefined,
-        description: row.description?.trim() || undefined,
+        ...(setName !== undefined ? { setName } : {}),
+        ...(stage !== undefined ? { stage } : {}),
+        ...(date !== undefined ? { date } : {}),
+        ...(startTime !== undefined ? { startTime } : {}),
+        ...(endTime !== undefined ? { endTime } : {}),
+        ...(description !== undefined ? { description } : {}),
       };
     })
     .filter((row) => row.artists.length > 0);

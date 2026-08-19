@@ -15,8 +15,8 @@ interface AuthDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
-  inviteToken?: string;
-  groupName?: string;
+  inviteToken?: string | undefined;
+  groupName?: string | undefined;
 }
 
 export function AuthDialog({

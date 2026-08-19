@@ -1,8 +1,8 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface UserAvatarProps {
-  username?: string | null;
-  email?: string | null;
+  username?: string | null | undefined;
+  email?: string | null | undefined;
   size?: "sm" | "md" | "lg";
 }
 

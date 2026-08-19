@@ -3,7 +3,7 @@ import { fromZonedTime } from "date-fns-tz";
 import type { ScheduleWindow } from "@/lib/timelineCalculator";
 
 export interface TimelineMountMomentInput {
-  scrollTo?: string;
+  scrollTo?: string | undefined;
   day: string;
   timezone: string;
   festivalStart: Date;

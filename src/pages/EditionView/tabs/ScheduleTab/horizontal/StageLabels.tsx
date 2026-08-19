@@ -1,7 +1,7 @@
 import { DEFAULT_STAGE_COLOR } from "@/lib/constants/stages";
 
 interface StageLabelsProps {
-  stages: Array<{ name: string; color?: string }>;
+  stages: Array<{ name: string; color?: string | undefined }>;
 }
 
 export function StageLabels({ stages }: StageLabelsProps) {

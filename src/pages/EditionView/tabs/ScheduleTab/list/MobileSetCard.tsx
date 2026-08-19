@@ -8,8 +8,8 @@ import { StageBadge } from "@/components/StageBadge";
 import type { ScheduleSet } from "@/hooks/useScheduleData";
 
 interface MobileSetCardProps {
-  set: ScheduleSet & { stageName: string; stageColor?: string };
-  timezone?: string;
+  set: ScheduleSet & { stageName: string; stageColor?: string | undefined };
+  timezone?: string | undefined;
 }
 
 export function MobileSetCard({ set, timezone }: MobileSetCardProps) {

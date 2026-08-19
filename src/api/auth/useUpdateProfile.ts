@@ -1,7 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 import { profileKeys } from "./types";
+
+type ValidateProfileUpdateArgs =
+  Database["public"]["Functions"]["validate_profile_update"]["Args"];
 
 // Mutation function
 async function updateProfile(variables: {
@@ -12,10 +16,7 @@ async function updateProfile(variables: {
 
   // Validate username uniqueness before attempting update
   const trimmedUsername = updates.username?.trim();
-  const rpcArgs: {
-    user_id: string;
-    new_username?: string;
-  } = { user_id: userId };
+  const rpcArgs: ValidateProfileUpdateArgs = { user_id: userId };
   if (trimmedUsername !== undefined) {
     rpcArgs.new_username = trimmedUsername;
   }

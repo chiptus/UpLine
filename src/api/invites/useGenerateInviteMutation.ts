@@ -1,7 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 import { inviteKeys } from "./types";
+
+type GroupInviteInsert =
+  Database["public"]["Tables"]["group_invites"]["Insert"];
 
 async function generateInviteLink(
   groupId: string,
@@ -21,13 +25,7 @@ async function generateInviteLink(
     throw new Error("Authentication required");
   }
 
-  const inviteData: {
-    group_id: string;
-    invite_token: string;
-    created_by: string;
-    expires_at?: string;
-    max_uses?: number;
-  } = {
+  const inviteData: GroupInviteInsert = {
     group_id: groupId,
     invite_token: token,
     created_by: user.id,

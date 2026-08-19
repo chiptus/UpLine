@@ -1,8 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 import { groupsKeys } from "./types";
 import { generateSlug } from "@/lib/slug";
+
+type GroupInsert = Database["public"]["Tables"]["groups"]["Insert"];
 
 // Mutation function
 async function createGroup(variables: {
@@ -12,12 +15,7 @@ async function createGroup(variables: {
 }) {
   const { name, description, userId } = variables;
 
-  const groupData: {
-    name: string;
-    slug: string;
-    created_by: string;
-    description?: string;
-  } = {
+  const groupData: GroupInsert = {
     name,
     slug: generateSlug(name),
     created_by: userId,

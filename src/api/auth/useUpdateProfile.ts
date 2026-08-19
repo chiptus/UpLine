@@ -12,14 +12,16 @@ async function updateProfile(variables: {
 
   // Validate username uniqueness before attempting update
   const trimmedUsername = updates.username?.trim();
+  const rpcArgs: {
+    user_id: string;
+    new_username?: string;
+  } = { user_id: userId };
+  if (trimmedUsername !== undefined) {
+    rpcArgs.new_username = trimmedUsername;
+  }
   const { data: validationResult, error: validationError } = await supabase.rpc(
     "validate_profile_update",
-    {
-      user_id: userId,
-      ...(trimmedUsername !== undefined
-        ? { new_username: trimmedUsername }
-        : {}),
-    },
+    rpcArgs,
   );
 
   if (validationError) {

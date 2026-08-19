@@ -12,14 +12,23 @@ async function createGroup(variables: {
 }) {
   const { name, description, userId } = variables;
 
+  const groupData: {
+    name: string;
+    slug: string;
+    created_by: string;
+    description?: string;
+  } = {
+    name,
+    slug: generateSlug(name),
+    created_by: userId,
+  };
+  if (description !== undefined) {
+    groupData.description = description;
+  }
+
   const { data: group, error } = await supabase
     .from("groups")
-    .insert({
-      name,
-      slug: generateSlug(name),
-      created_by: userId,
-      ...(description !== undefined ? { description } : {}),
-    })
+    .insert(groupData)
     .select()
     .single();
 

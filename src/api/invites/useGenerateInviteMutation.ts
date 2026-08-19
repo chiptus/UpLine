@@ -21,15 +21,23 @@ async function generateInviteLink(
     throw new Error("Authentication required");
   }
 
-  const inviteData = {
+  const inviteData: {
+    group_id: string;
+    invite_token: string;
+    created_by: string;
+    expires_at?: string;
+    max_uses?: number;
+  } = {
     group_id: groupId,
     invite_token: token,
     created_by: user.id,
-    ...(options?.expiresAt !== undefined
-      ? { expires_at: options.expiresAt.toISOString() }
-      : {}),
-    ...(options?.maxUses !== undefined ? { max_uses: options.maxUses } : {}),
   };
+  if (options?.expiresAt !== undefined) {
+    inviteData.expires_at = options.expiresAt.toISOString();
+  }
+  if (options?.maxUses !== undefined) {
+    inviteData.max_uses = options.maxUses;
+  }
 
   const { error } = await supabase.from("group_invites").insert(inviteData);
 

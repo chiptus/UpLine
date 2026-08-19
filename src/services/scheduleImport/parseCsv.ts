@@ -30,15 +30,15 @@ export function parseScheduleCsv(csvContent: string): CsvRow[] {
       const endTime = row["end time"]?.trim() || undefined;
       const description = row.description?.trim() || undefined;
 
-      return {
-        artists,
-        ...(setName !== undefined ? { setName } : {}),
-        ...(stage !== undefined ? { stage } : {}),
-        ...(date !== undefined ? { date } : {}),
-        ...(startTime !== undefined ? { startTime } : {}),
-        ...(endTime !== undefined ? { endTime } : {}),
-        ...(description !== undefined ? { description } : {}),
-      };
+      const csvRow: CsvRow = { artists };
+      if (setName !== undefined) csvRow.setName = setName;
+      if (stage !== undefined) csvRow.stage = stage;
+      if (date !== undefined) csvRow.date = date;
+      if (startTime !== undefined) csvRow.startTime = startTime;
+      if (endTime !== undefined) csvRow.endTime = endTime;
+      if (description !== undefined) csvRow.description = description;
+
+      return csvRow;
     })
     .filter((row) => row.artists.length > 0);
 

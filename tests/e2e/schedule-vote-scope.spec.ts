@@ -26,9 +26,15 @@ function scopeSwitcher(page: Page) {
   return page.getByTestId("active-scope-switcher");
 }
 
+// Waits for the dropdown to fully open/close around each step so a menu
+// still mid-close from the previous selection can't detach the item
+// this click targets.
 async function selectScope(page: Page, label: string) {
   await scopeSwitcher(page).click();
-  await page.getByRole("menuitem", { name: label, exact: true }).click();
+  const menu = page.getByRole("menu");
+  await expect(menu).toBeVisible();
+  await menu.getByRole("menuitem", { name: label, exact: true }).click();
+  await expect(menu).toHaveCount(0);
 }
 
 // Below md the chips live inside the filter sheet, not the day header.

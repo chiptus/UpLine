@@ -24,7 +24,7 @@ export function ActiveGroupSetting({
       </p>
       <ToggleGroup
         type="single"
-        value={activeGroupId ?? ""}
+        {...(activeGroupId !== undefined ? { value: activeGroupId } : {})}
         onValueChange={(value) => {
           if (value) {
             setActiveGroup(value);

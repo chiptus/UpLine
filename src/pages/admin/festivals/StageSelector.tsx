@@ -23,7 +23,7 @@ export function StageSelector({
     <div className="space-y-2">
       <Label htmlFor="stage">Stage</Label>
       <Select
-        value={value ?? ""}
+        {...(value !== undefined ? { value } : {})}
         onValueChange={onValueChange}
         disabled={isLoading}
       >

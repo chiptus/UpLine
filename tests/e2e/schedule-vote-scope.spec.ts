@@ -32,18 +32,25 @@ async function selectScope(page: Page, label: string) {
 }
 
 // Below md the chips live inside the filter sheet, not the day header.
+// Uses a retrying wait (not a one-shot isVisible check) so a just-closed
+// dropdown's transition can't be mistaken for the mobile layout.
 async function selectMustGoChip(page: Page) {
-  let chips = firstDayHeader(page).getByRole("group", {
+  const headerChips = firstDayHeader(page).getByRole("group", {
     name: "Filter by my vote",
   });
 
-  if (!(await chips.isVisible())) {
+  const isDesktop = await headerChips
+    .waitFor({ state: "visible", timeout: 5000 })
+    .then(() => true)
+    .catch(() => false);
+
+  if (!isDesktop) {
     await firstDayHeader(page).getByTestId("schedule-filters-trigger").click();
-    chips = page
+    const sheetChips = page
       .getByRole("dialog")
       .getByRole("group", { name: "Filter by my vote" });
-    await expect(chips).toBeVisible();
-    await chips.getByRole("button", { name: "Must Go" }).click();
+    await expect(sheetChips).toBeVisible();
+    await sheetChips.getByRole("button", { name: "Must Go" }).click();
     await page
       .getByRole("dialog")
       .getByRole("button", { name: "Done" })
@@ -52,7 +59,7 @@ async function selectMustGoChip(page: Page) {
     return;
   }
 
-  await chips.getByRole("button", { name: "Must Go" }).click();
+  await headerChips.getByRole("button", { name: "Must Go" }).click();
 }
 
 test.describe("Schedule vote-chip scope follows the navbar Active Scope", () => {
@@ -67,11 +74,11 @@ test.describe("Schedule vote-chip scope follows the navbar Active Scope", () => 
   test.beforeAll(async ({ browser, baseURL, storageState }) => {
     voterContext = await browser.newContext({ baseURL, storageState });
     voterPage = await voterContext.newPage();
-    const voterEmail = await signIn(voterPage, generateTestEmail("voter"));
+    const voterEmail = await signIn(voterPage, generateTestEmail());
 
     viewerContext = await browser.newContext({ baseURL, storageState });
     viewerPage = await viewerContext.newPage();
-    const viewerEmail = await signIn(viewerPage, generateTestEmail("viewer"));
+    const viewerEmail = await signIn(viewerPage, generateTestEmail());
 
     const group = await createGroupWithMember(voterEmail);
     groupName = group.groupName;

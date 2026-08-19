@@ -4,7 +4,6 @@ import { STICKY_TOP_BELOW_TOP_BAR_CLASS } from "@/lib/layout-constants";
 import { getFestivalDayLabel } from "@/lib/timeUtils";
 import { ScheduleFilterSheet } from "../ScheduleFilterSheet";
 import { VoteFilterChips } from "../VoteFilterChips";
-import { ScheduleVoteScopeToggle } from "../ScheduleVoteScopeToggle";
 import { TimeSlotGroup } from "./TimeSlotGroup";
 import type { ScheduleSet } from "@/hooks/useScheduleData";
 
@@ -35,8 +34,7 @@ export function ListDayGroup({ dayKey, slots, timezone }: ListDayGroupProps) {
         <Calendar className="h-4 w-4 text-purple-300" />
         <h2 className="text-lg font-semibold text-purple-100">{dayLabel}</h2>
         <div className="ml-auto flex items-center gap-1">
-          <div className="hidden md:flex items-center gap-1">
-            <ScheduleVoteScopeToggle tab="list" />
+          <div className="hidden md:block">
             <VoteFilterChips tab="list" />
           </div>
           <ScheduleFilterSheet tab="list" />

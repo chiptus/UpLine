@@ -49,12 +49,6 @@ export const timelineSearchSchema = z.object({
         ),
       ),
     ]),
-  /**
-   * `undefined` means "not explicitly chosen" — the effective default
-   * (Active Group when one exists, else Me) is resolved by the consuming
-   * hook, not baked into this schema.
-   */
-  voteScope: z.enum(["me", "group"]).optional().catch(undefined),
   /** Viewport-centered moment; only written once the user scrolls. */
   scrollTo: z.string().optional().catch(undefined),
 });

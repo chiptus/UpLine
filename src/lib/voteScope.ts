@@ -3,7 +3,6 @@ export type VoteScope = (typeof VOTE_SCOPES)[number];
 
 /** The two-state subset used by toggles that don't offer a "me" option. */
 export type BinaryVoteScope = Exclude<VoteScope, "me">;
-export type MeGroupVoteScope = Exclude<VoteScope, "everyone">;
 
 interface ScopedVote {
   user_id: string;

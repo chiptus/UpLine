@@ -1,7 +1,7 @@
 import { getFestivalHour } from "@/lib/timeUtils";
 import type { TimelineSearch } from "@/lib/searchSchemas";
 import { getVoteConfig, type VoteType } from "@/lib/voteConfig";
-import { resolveVotesForScope, type MeGroupVoteScope } from "@/lib/voteScope";
+import { resolveVotesForScope, type VoteScope } from "@/lib/voteScope";
 import type {
   ScheduleDay,
   ScheduleSet,
@@ -17,7 +17,7 @@ export interface ScheduleFilterCriteria {
   time: ScheduleTimeFilter;
   stages: string[];
   voteTypes?: VoteType[];
-  voteScope?: MeGroupVoteScope;
+  voteScope?: VoteScope;
   /** `undefined` (logged out) makes vote filtering inert, not exclusionary. */
   currentUserId?: string;
   /** `undefined` (group members still loading, or no group) makes group-scope vote filtering inert. */
@@ -49,7 +49,7 @@ function matchesTimeOfDay(
 function matchesVoteTypes(
   set: ScheduleSet,
   voteTypes: VoteType[] | undefined,
-  voteScope: MeGroupVoteScope | undefined,
+  voteScope: VoteScope | undefined,
   currentUserId: string | undefined,
   groupMemberIds: Set<string> | undefined,
 ): boolean {

@@ -56,7 +56,7 @@ function TimelineContent() {
     useEditionSetsQuery(edition.id);
   const { data: stages } = useSuspenseQuery(stagesByEditionQuery(edition.id));
   const { user } = useAuth();
-  const { voteScope, groupMemberIds } = useScheduleVoteScope("timeline");
+  const { voteScope, groupMemberIds } = useScheduleVoteScope();
 
   const { scheduleDays } = useScheduleData({
     sets: editionSets,

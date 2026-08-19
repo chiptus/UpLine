@@ -417,6 +417,41 @@ describe("filterScheduleDays", () => {
       expect(result[0].stages[0].sets).toHaveLength(0);
     });
 
+    it("under everyone scope, matches a set voted on by any user at all", () => {
+      const days = [
+        makeDay({
+          stages: [
+            {
+              id: "stage-1",
+              name: "Main Stage",
+              stage_order: 1,
+              sets: [
+                makeSet({
+                  id: "stranger-must-go",
+                  votes: [{ user_id: "total-stranger", vote_type: 2 }],
+                }),
+                makeSet({ id: "unvoted" }),
+              ],
+            },
+          ],
+        }),
+      ];
+
+      const result = filterScheduleDays(
+        days,
+        baseCriteria({
+          voteTypes: ["mustGo"],
+          voteScope: "everyone",
+          currentUserId: "me",
+        }),
+        TIMEZONE,
+      );
+
+      expect(result[0].stages[0].sets.map((s) => s.id)).toEqual([
+        "stranger-must-go",
+      ]);
+    });
+
     it("under group scope, matches a set voted on by any group member", () => {
       const days = [
         makeDay({

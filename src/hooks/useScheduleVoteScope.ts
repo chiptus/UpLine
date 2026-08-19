@@ -1,44 +1,23 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "@/contexts/AuthContext";
 import { useActiveScope } from "@/contexts/ActiveScopeContext";
-import { userGroupsQuery } from "@/api/groups/useUserGroups";
 import { groupMembersQuery } from "@/api/groups/useGroupMembers";
-import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
-import type { MeGroupVoteScope } from "@/lib/voteScope";
+import type { VoteScope } from "@/lib/voteScope";
 
 /**
- * Resolves the Schedule tab's Vote Scope (Me / Active Group): the URL choice
- * when one was made, else Active Group when the user has one, else Me.
- * Also resolves the Active Group's member ids for group-scope filtering,
- * `undefined` while loading (or when there's no active group).
+ * Resolves the Schedule tab's vote-chip scope from the global Active Scope
+ * (the navbar switcher) — Everyone / Me / Active Group — plus the Active
+ * Group's member ids for group-scope filtering, `undefined` while loading
+ * (or when the scope isn't "group").
  */
-export function useScheduleVoteScope(tab: "timeline" | "list") {
-  const { user } = useAuth();
-  const { activeGroupId } = useActiveScope();
-  const { voteScope: urlVoteScope, updateVoteScope } = useTimelineUrlState(tab);
-  const { data: groups } = useQuery({
-    ...userGroupsQuery(user?.id ?? ""),
-    enabled: !!user,
-  });
-
-  const voteScope: MeGroupVoteScope =
-    urlVoteScope === "group" && activeGroupId
-      ? "group"
-      : urlVoteScope === "me"
-        ? "me"
-        : activeGroupId
-          ? "group"
-          : "me";
+export function useScheduleVoteScope() {
+  const { current } = useActiveScope();
+  const groupId = current.kind === "group" ? current.groupId : undefined;
 
   const { data: members } = useQuery({
-    ...groupMembersQuery(activeGroupId ?? ""),
-    enabled: !!activeGroupId && voteScope === "group",
+    ...groupMembersQuery(groupId ?? ""),
+    enabled: !!groupId,
   });
-
-  const groupName = activeGroupId
-    ? groups?.find((group) => group.id === activeGroupId)?.name
-    : undefined;
 
   const groupMemberIds = useMemo(
     () =>
@@ -46,11 +25,10 @@ export function useScheduleVoteScope(tab: "timeline" | "list") {
     [members],
   );
 
+  const voteScope: VoteScope = current.kind;
+
   return {
     voteScope,
-    activeGroupId,
-    groupName,
-    groupMemberIds: voteScope === "group" ? groupMemberIds : undefined,
-    updateVoteScope,
+    groupMemberIds: current.kind === "group" ? groupMemberIds : undefined,
   };
 }

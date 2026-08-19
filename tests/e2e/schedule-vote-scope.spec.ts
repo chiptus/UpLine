@@ -23,7 +23,7 @@ function firstDayHeader(page: Page) {
 }
 
 function scopeSwitcher(page: Page) {
-  return page.getByTestId("active-scope-switcher");
+  return page.getByRole("button", { name: /^Active scope:/ });
 }
 
 // Waits for the dropdown to fully open/close around each step so a menu

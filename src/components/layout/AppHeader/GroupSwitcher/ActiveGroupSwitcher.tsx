@@ -36,8 +36,7 @@ export function ActiveGroupSwitcher({
           variant="outline"
           size={isMobile ? "sm" : "default"}
           className={className}
-          data-testid="active-scope-switcher"
-          aria-label={isMobile ? `Active scope: ${currentLabel}` : undefined}
+          aria-label={`Active scope: ${currentLabel}`}
         >
           <CurrentIcon className="h-4 w-4" />
           {!isMobile && (

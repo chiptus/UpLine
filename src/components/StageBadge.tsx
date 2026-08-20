@@ -2,9 +2,9 @@ import { MapPin } from "lucide-react";
 
 interface StageBadgeProps {
   stageName: string;
-  stageColor?: string;
-  size?: "sm" | "md";
-  showIcon?: boolean;
+  stageColor?: string | undefined;
+  size?: "sm" | "md" | undefined;
+  showIcon?: boolean | undefined;
 }
 
 export function StageBadge({

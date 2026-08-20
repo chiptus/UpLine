@@ -4,7 +4,7 @@ import { StageBadgeById } from "@/components/StageBadgeById";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 
 interface SetCardHeaderProps {
-  stageId?: string;
+  stageId?: string | undefined;
   timeStart: string | null;
 }
 

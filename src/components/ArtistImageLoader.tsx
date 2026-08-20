@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Music } from "lucide-react";
 
 interface ArtistImageLoaderProps {
-  src?: string | null;
+  src?: string | null | undefined;
   alt: string;
   className?: string;
 }

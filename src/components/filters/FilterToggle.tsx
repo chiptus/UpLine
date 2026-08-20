@@ -8,7 +8,7 @@ interface FilterToggleProps {
   hasActiveFilters: boolean;
   activeFilterCount: number;
   label?: string;
-  onClearFilters?: () => void;
+  onClearFilters?: (() => void) | undefined;
 }
 
 export function FilterToggle({

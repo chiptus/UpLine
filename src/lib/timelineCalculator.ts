@@ -44,7 +44,7 @@ export interface TimelineData {
   timeSlots: Date[];
   stages: Array<{
     name: string;
-    color?: string;
+    color?: string | undefined;
     sets: HorizontalTimelineSet[];
   }>;
   totalWidth: number;

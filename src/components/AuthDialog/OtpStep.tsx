@@ -11,7 +11,7 @@ import {
 
 interface OtpStepProps {
   email: string;
-  inviteToken?: string;
+  inviteToken?: string | undefined;
   onSuccess: () => void;
 }
 

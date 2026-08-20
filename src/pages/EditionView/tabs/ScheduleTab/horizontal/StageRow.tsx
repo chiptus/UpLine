@@ -4,7 +4,7 @@ import type { HorizontalTimelineSet } from "@/lib/timelineCalculator";
 interface StageRowProps {
   stage: {
     name: string;
-    color?: string;
+    color?: string | undefined;
     sets: HorizontalTimelineSet[];
   };
   totalWidth: number;

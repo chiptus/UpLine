@@ -24,17 +24,28 @@ export type UpdateSetInput = Partial<
 async function updateSet(variables: { id: string; updates: UpdateSetInput }) {
   const { id, updates } = variables;
 
-  const updateData: SetUpdate = {
-    name: updates.name,
-    description: updates.description,
-    festival_edition_id: updates.festival_edition_id,
-    stage_id: updates.stage_id,
-    time_start: updates.time_start,
-    time_end: updates.time_end,
-    archived: updates.archived,
-  };
+  const updateData: SetUpdate = {};
   if (updates.name !== undefined) {
+    updateData.name = updates.name;
     updateData.slug = generateSlug(updates.name);
+  }
+  if (updates.description !== undefined) {
+    updateData.description = updates.description;
+  }
+  if (updates.festival_edition_id !== undefined) {
+    updateData.festival_edition_id = updates.festival_edition_id;
+  }
+  if (updates.stage_id !== undefined) {
+    updateData.stage_id = updates.stage_id;
+  }
+  if (updates.time_start !== undefined) {
+    updateData.time_start = updates.time_start;
+  }
+  if (updates.time_end !== undefined) {
+    updateData.time_end = updates.time_end;
+  }
+  if (updates.archived !== undefined) {
+    updateData.archived = updates.archived;
   }
 
   const { data, error } = await supabase

@@ -6,7 +6,9 @@ import { isTimeoutError, withTimeout } from "@/lib/timeout";
 async function fetchFestivals({
   all,
   signal,
-}: { all?: boolean; signal?: AbortSignal } = {}): Promise<Festival[]> {
+}: { all?: boolean | undefined; signal?: AbortSignal } = {}): Promise<
+  Festival[]
+> {
   let query = supabase
     .from("festivals")
     .select("*")
@@ -32,7 +34,7 @@ async function fetchFestivals({
 export function festivalsQuery({
   all,
   timeoutMs = 10000,
-}: { all?: boolean; timeoutMs?: number } = {}) {
+}: { all?: boolean | undefined; timeoutMs?: number } = {}) {
   return queryOptions({
     queryKey: festivalsKeys.all({ all }),
     queryFn: ({ signal }) =>

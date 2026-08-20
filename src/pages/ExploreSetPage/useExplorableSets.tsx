@@ -5,7 +5,7 @@ export function useExplorableSets({
   editionId,
   userVotes,
 }: {
-  editionId?: string;
+  editionId?: string | undefined;
   userVotes: Record<string, number>;
 }) {
   const setsQuery = useSetsByEditionQuery(editionId);

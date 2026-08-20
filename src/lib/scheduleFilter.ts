@@ -19,9 +19,9 @@ export interface ScheduleFilterCriteria {
   voteTypes?: VoteType[];
   voteScope?: VoteScope;
   /** `undefined` (logged out) makes vote filtering inert, not exclusionary. */
-  currentUserId?: string;
+  currentUserId?: string | undefined;
   /** `undefined` (group members still loading, or no group) makes group-scope vote filtering inert. */
-  groupMemberIds?: Set<string>;
+  groupMemberIds?: Set<string> | undefined;
 }
 
 function matchesTimeOfDay(

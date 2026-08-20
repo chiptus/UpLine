@@ -29,7 +29,7 @@ interface MultiSelectProps {
   searchPlaceholder?: string;
   emptyMessage?: string;
   disabled?: boolean;
-  className?: string;
+  className?: string | undefined;
 }
 
 export function MultiSelect({

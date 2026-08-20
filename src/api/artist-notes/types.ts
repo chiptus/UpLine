@@ -7,8 +7,8 @@ export type SetNote = {
   note_content: string;
   created_at: string;
   updated_at: string;
-  author_username?: string;
-  author_email?: string;
+  author_username?: string | undefined;
+  author_email?: string | undefined;
 };
 
 // Query key factory

@@ -1,5 +1,5 @@
 interface SetAudioPlayerProps {
-  soundcloudUrl?: string;
+  soundcloudUrl?: string | undefined;
   isActive?: boolean;
 }
 

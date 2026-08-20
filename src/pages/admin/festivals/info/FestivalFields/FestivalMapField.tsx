@@ -8,7 +8,7 @@ import { useMapUpload } from "./shared/useMapUpload";
 
 interface FestivalMapFieldProps {
   festivalId: string;
-  mapImageUrl?: string | null;
+  mapImageUrl?: string | null | undefined;
 }
 
 interface MapFormData {
@@ -51,7 +51,7 @@ function MapFieldForm({
   onSave,
 }: {
   festivalId: string;
-  mapImageUrl?: string | null;
+  mapImageUrl?: string | null | undefined;
   onCancel: () => void;
   onSave: () => void;
 }) {

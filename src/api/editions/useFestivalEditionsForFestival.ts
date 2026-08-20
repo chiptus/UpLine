@@ -4,7 +4,7 @@ import { FestivalEdition, editionsKeys } from "./types";
 
 export async function fetchFestivalEditions(
   festivalId: string,
-  { all }: { all?: boolean } = {},
+  { all }: { all?: boolean | undefined } = {},
 ): Promise<FestivalEdition[]> {
   let query = supabase
     .from("festival_editions")
@@ -31,7 +31,7 @@ export async function fetchFestivalEditions(
 
 export function editionsForFestivalQuery(
   festivalId: string,
-  { all }: { all?: boolean } = {},
+  { all }: { all?: boolean | undefined } = {},
 ) {
   return queryOptions({
     queryKey: editionsKeys.all(festivalId, { all }),
@@ -41,7 +41,7 @@ export function editionsForFestivalQuery(
 
 export function useFestivalEditionsForFestivalQuery(
   festivalId: string | undefined,
-  { all }: { all?: boolean } = {},
+  { all }: { all?: boolean | undefined } = {},
 ) {
   return useQuery({
     ...editionsForFestivalQuery(festivalId!, { all }),

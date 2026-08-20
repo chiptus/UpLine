@@ -8,7 +8,7 @@ import { getTextAlignmentClasses } from "@/lib/textAlignment";
 
 interface FestivalInfoFieldProps {
   festivalId: string;
-  infoText?: string | null;
+  infoText?: string | null | undefined;
 }
 
 interface InfoFormData {
@@ -50,7 +50,7 @@ function InfoFieldForm({
   onSave,
 }: {
   festivalId: string;
-  infoText?: string | null;
+  infoText?: string | null | undefined;
   onCancel: () => void;
   onSave: () => void;
 }) {

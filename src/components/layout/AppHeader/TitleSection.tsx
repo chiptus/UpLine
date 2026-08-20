@@ -3,7 +3,7 @@ import { Music, Heart } from "lucide-react";
 
 interface TitleSectionProps {
   title: string;
-  logoUrl?: string | null;
+  logoUrl?: string | null | undefined;
   onLogoRefChange?: (ref: HTMLElement | null) => void;
 }
 

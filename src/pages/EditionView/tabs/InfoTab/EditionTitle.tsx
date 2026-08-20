@@ -1,5 +1,5 @@
 interface EditionTitleProps {
-  name?: string;
+  name?: string | undefined;
 }
 
 export function EditionTitle({ name }: EditionTitleProps) {

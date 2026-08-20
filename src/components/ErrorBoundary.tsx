@@ -2,12 +2,15 @@ import React from "react";
 
 interface ErrorBoundaryState {
   hasError: boolean;
-  error?: Error;
+  error?: Error | undefined;
 }
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
-  fallback?: React.ComponentType<{ error?: Error; retry: () => void }>;
+  fallback?: React.ComponentType<{
+    error?: Error | undefined;
+    retry: () => void;
+  }>;
 }
 
 export class ErrorBoundary extends React.Component<
@@ -46,7 +49,7 @@ function DefaultErrorFallback({
   error,
   retry,
 }: {
-  error?: Error;
+  error?: Error | undefined;
   retry: () => void;
 }) {
   return (

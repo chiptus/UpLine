@@ -12,21 +12,42 @@ const ToggleGroupContext = React.createContext<
   variant: "default",
 });
 
+type ToggleGroupProps = (
+  | (Omit<ToggleGroupPrimitive.ToggleGroupSingleProps, "value"> & {
+      value?: string | undefined;
+    })
+  | (Omit<ToggleGroupPrimitive.ToggleGroupMultipleProps, "value"> & {
+      value?: string[] | undefined;
+    })
+) &
+  VariantProps<typeof toggleVariants>;
+
 const ToggleGroup = React.forwardRef<
   React.ElementRef<typeof ToggleGroupPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof ToggleGroupPrimitive.Root> &
-    VariantProps<typeof toggleVariants>
->(({ className, variant, size, children, ...props }, ref) => (
-  <ToggleGroupPrimitive.Root
-    ref={ref}
-    className={cn("flex items-center justify-center gap-1", className)}
-    {...props}
-  >
-    <ToggleGroupContext.Provider value={{ variant, size }}>
-      {children}
-    </ToggleGroupContext.Provider>
-  </ToggleGroupPrimitive.Root>
-));
+  ToggleGroupProps
+>(({ className, variant, size, children, value, ...props }, ref) => {
+  // TS can't carry the exactOptionalPropertyTypes-safe shape through a
+  // spread of a destructured union's rest; the cast just restates what
+  // ToggleGroupProps above already guarantees.
+  const rootProps = {
+    ...props,
+    ...(value !== undefined ? { value } : {}),
+  } as
+    | ToggleGroupPrimitive.ToggleGroupSingleProps
+    | ToggleGroupPrimitive.ToggleGroupMultipleProps;
+
+  return (
+    <ToggleGroupPrimitive.Root
+      ref={ref}
+      className={cn("flex items-center justify-center gap-1", className)}
+      {...rootProps}
+    >
+      <ToggleGroupContext.Provider value={{ variant, size }}>
+        {children}
+      </ToggleGroupContext.Provider>
+    </ToggleGroupPrimitive.Root>
+  );
+});
 
 ToggleGroup.displayName = ToggleGroupPrimitive.Root.displayName;
 

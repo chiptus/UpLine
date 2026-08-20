@@ -31,7 +31,8 @@ function SetGroupVotingContent({
   userId: string;
 }) {
   const { data: groups } = useSuspenseQuery(userGroupsQuery(userId));
-  const { activeGroupId } = useActiveScope();
+  const { current } = useActiveScope();
+  const activeGroupId = current.kind === "group" ? current.groupId : undefined;
 
   // Use React Query to fetch group votes
   const { data: groupVotes = [], isLoading: loading } = useGroupVotesQuery(

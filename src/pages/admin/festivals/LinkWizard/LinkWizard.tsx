@@ -13,7 +13,9 @@ interface LinkWizardProps {
 
 export function LinkWizard({ editionId }: LinkWizardProps) {
   const artistsQuery = useArtistsMissingLinksByEditionQuery(editionId);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentArtistId, setCurrentArtistId] = useState<string | undefined>(
+    undefined,
+  );
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState<AdminArtistsPageSize>(10);
 
@@ -29,15 +31,21 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
   }
 
   const artists = artistsQuery.data ?? [];
+  const currentIndex = currentArtistId
+    ? Math.max(
+        0,
+        artists.findIndex((artist) => artist.id === currentArtistId),
+      )
+    : 0;
   const currentArtist = artists[Math.min(currentIndex, artists.length - 1)];
 
   function goTo(index: number) {
-    setCurrentIndex(Math.max(0, Math.min(index, artists.length - 1)));
+    const clamped = Math.max(0, Math.min(index, artists.length - 1));
+    setCurrentArtistId(artists[clamped]?.id);
   }
 
   function handleSelectArtist(artist: Artist) {
-    const index = artists.findIndex((a) => a.id === artist.id);
-    if (index >= 0) goTo(index);
+    setCurrentArtistId(artist.id);
   }
 
   return (

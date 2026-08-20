@@ -1,7 +1,7 @@
 import { next } from "@vercel/edge";
 
 export const config = {
-  matcher: ["/festivals/:path*"],
+  matcher: ["/", "/festivals/:path*", "/editions/:path*"],
 };
 
 const BOT_USER_AGENT_RE =
@@ -10,6 +10,9 @@ const BOT_USER_AGENT_RE =
 const SET_PATH_RE = /^\/festivals\/([^/]+)\/editions\/([^/]+)\/sets\/([^/]+)/;
 const EDITION_PATH_RE = /^\/festivals\/([^/]+)\/editions\/([^/]+)/;
 const FESTIVAL_PATH_RE = /^\/festivals\/([^/]+)\/?$/;
+
+const SUBDOMAIN_SET_PATH_RE = /^\/editions\/([^/]+)\/sets\/([^/]+)/;
+const SUBDOMAIN_EDITION_PATH_RE = /^\/editions\/([^/]+)/;
 
 interface SocialMeta {
   title: string;
@@ -23,7 +26,7 @@ export default async function middleware(request: Request) {
   }
 
   const url = new URL(request.url);
-  const meta = await resolveSocialMeta(url.pathname);
+  const meta = await resolveSocialMeta(url);
   if (!meta) {
     return next();
   }
@@ -40,7 +43,40 @@ export default async function middleware(request: Request) {
   });
 }
 
-async function resolveSocialMeta(pathname: string): Promise<SocialMeta | null> {
+// Production festival pages are served from a subdomain (own-spirit.getupline.com),
+// with the path carrying only the edition/set segments (no /festivals prefix).
+function getFestivalSlugFromHost(hostname: string): string | null {
+  if (!hostname.endsWith("getupline.com")) return null;
+
+  const parts = hostname.split(".");
+  if (parts.length < 3) return null;
+
+  const [subdomain] = parts;
+  return subdomain === "www" ? null : subdomain;
+}
+
+async function resolveSocialMeta(url: URL): Promise<SocialMeta | null> {
+  const pathname = url.pathname;
+  const hostFestivalSlug = getFestivalSlugFromHost(url.hostname);
+
+  if (hostFestivalSlug) {
+    const setMatch = pathname.match(SUBDOMAIN_SET_PATH_RE);
+    if (setMatch) {
+      return resolveSetMeta(hostFestivalSlug, setMatch[1], setMatch[2]);
+    }
+
+    const editionMatch = pathname.match(SUBDOMAIN_EDITION_PATH_RE);
+    if (editionMatch) {
+      return resolveEditionMeta(hostFestivalSlug, editionMatch[1]);
+    }
+
+    if (pathname === "/") {
+      return resolveFestivalMeta(hostFestivalSlug);
+    }
+
+    return null;
+  }
+
   const setMatch = pathname.match(SET_PATH_RE);
   if (setMatch) {
     return resolveSetMeta(setMatch[1], setMatch[2], setMatch[3]);

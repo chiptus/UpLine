@@ -70,6 +70,7 @@
     "@tanstack/react-router": "^1.136.18",
     "@types/marked": "^5.0.2",
     "@types/react-helmet": "^6.1.11",
+    "@vercel/edge": "^1.2.2",
     "@vercel/speed-insights": "^1.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

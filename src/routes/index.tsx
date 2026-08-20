@@ -21,11 +21,11 @@ import { AppHeader } from "@/components/layout/AppHeader";
 
 export const Route = createFileRoute("/")({
   component: FestivalSelection,
-  beforeLoad: async ({ context }) => {
+  beforeLoad: async ({ context, search }) => {
     const festivals =
       await context.queryClient.ensureQueryData(festivalsQuery());
 
-    if (festivals.length === 1) {
+    if (festivals.length === 1 && !search.invite) {
       const festival = festivals[0];
 
       if (isMainGetuplineDomain()) {

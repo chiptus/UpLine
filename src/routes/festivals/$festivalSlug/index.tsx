@@ -20,7 +20,7 @@ import { TopBar } from "@/components/layout/TopBar";
 
 export const Route = createFileRoute("/festivals/$festivalSlug/")({
   component: EditionSelection,
-  beforeLoad: async ({ params, context }) => {
+  beforeLoad: async ({ params, context, search }) => {
     const festival = await context.queryClient.ensureQueryData(
       festivalBySlugQuery(params.festivalSlug),
     );
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/festivals/$festivalSlug/")({
       editionsForFestivalQuery(festival.id),
     );
 
-    if (editions.length === 1) {
+    if (editions.length === 1 && !search.invite) {
       throw redirect({
         to: "/festivals/$festivalSlug/editions/$editionSlug",
         params: {

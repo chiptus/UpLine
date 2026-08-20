@@ -1,6 +1,10 @@
 import { assertEquals } from "jsr:@std/assert@1";
 import type { SoundCloudUser } from "../_shared/soundcloud-api/schemas.ts";
-import { normalizeSoundCloudSearchResult } from "./normalize.ts";
+import type { SpotifyArtist } from "../_shared/spotify-api/schemas.ts";
+import {
+  normalizeSoundCloudSearchResult,
+  normalizeSpotifySearchResult,
+} from "./normalize.ts";
 
 Deno.test(
   "normalizeSoundCloudSearchResult converts SoundCloud user to Candidate",
@@ -135,3 +139,89 @@ Deno.test(
     assertEquals(result.followers, 5000);
   },
 );
+
+Deno.test(
+  "normalizeSpotifySearchResult converts Spotify artist to Candidate",
+  () => {
+    const artist: SpotifyArtist = {
+      id: "123abc",
+      name: "Test Artist",
+      genres: ["pop", "rock"],
+      followers: { total: 1500 },
+      images: [{ url: "https://example.com/image.jpg" }],
+      external_urls: { spotify: "https://open.spotify.com/artist/123abc" },
+    };
+
+    const result = normalizeSpotifySearchResult(artist);
+
+    assertEquals(result.name, "Test Artist");
+    assertEquals(result.url, "https://open.spotify.com/artist/123abc");
+    assertEquals(result.imageUrl, "https://example.com/image.jpg");
+    assertEquals(result.followers, 1500);
+    assertEquals(result.genres, ["pop", "rock"]);
+  },
+);
+
+Deno.test("normalizeSpotifySearchResult handles missing images", () => {
+  const artist: SpotifyArtist = {
+    id: "456def",
+    name: "Artist Without Image",
+    external_urls: { spotify: "https://open.spotify.com/artist/456def" },
+  };
+
+  const result = normalizeSpotifySearchResult(artist);
+
+  assertEquals(result.imageUrl, null);
+});
+
+Deno.test("normalizeSpotifySearchResult handles empty images array", () => {
+  const artist: SpotifyArtist = {
+    id: "789ghi",
+    name: "Artist With Empty Images",
+    images: [],
+    external_urls: { spotify: "https://open.spotify.com/artist/789ghi" },
+  };
+
+  const result = normalizeSpotifySearchResult(artist);
+
+  assertEquals(result.imageUrl, null);
+});
+
+Deno.test("normalizeSpotifySearchResult handles missing followers", () => {
+  const artist: SpotifyArtist = {
+    id: "101112",
+    name: "Artist Without Followers",
+    images: [{ url: "https://example.com/art.jpg" }],
+    external_urls: { spotify: "https://open.spotify.com/artist/101112" },
+  };
+
+  const result = normalizeSpotifySearchResult(artist);
+
+  assertEquals(result.followers, null);
+});
+
+Deno.test("normalizeSpotifySearchResult preserves followers count of 0", () => {
+  const artist: SpotifyArtist = {
+    id: "131415",
+    name: "New Artist",
+    followers: { total: 0 },
+    external_urls: { spotify: "https://open.spotify.com/artist/131415" },
+  };
+
+  const result = normalizeSpotifySearchResult(artist);
+
+  assertEquals(result.followers, 0);
+});
+
+Deno.test("normalizeSpotifySearchResult handles missing genres", () => {
+  const artist: SpotifyArtist = {
+    id: "161718",
+    name: "Artist Without Genres",
+    followers: { total: 500 },
+    external_urls: { spotify: "https://open.spotify.com/artist/161718" },
+  };
+
+  const result = normalizeSpotifySearchResult(artist);
+
+  assertEquals(result.genres, []);
+});

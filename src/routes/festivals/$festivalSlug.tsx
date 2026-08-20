@@ -4,7 +4,7 @@ import { FestivalEditionProvider } from "@/contexts/FestivalEditionContext";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 import { festivalInfoQuery } from "@/api/festival-info/useFestivalInfo";
 import { customLinksQuery } from "@/api/custom-links/useCustomLinks";
-import { PageTitle } from "@/components/PageTitle/PageTitle";
+import { pageMeta } from "@/lib/pageHead";
 
 export const Route = createFileRoute("/festivals/$festivalSlug")({
   beforeLoad: async ({ params, context }) => {
@@ -22,6 +22,9 @@ export const Route = createFileRoute("/festivals/$festivalSlug")({
     );
   },
   component: FestivalLayout,
+  head: ({ match }) => ({
+    meta: pageMeta({ title: match.context.festival.name }),
+  }),
 });
 
 function FestivalLayout() {
@@ -33,7 +36,6 @@ function FestivalLayout() {
 
   return (
     <FestivalEditionProvider festival={festival} editionSlug={editionSlug}>
-      <PageTitle title={festival.name} />
       <Outlet />
     </FestivalEditionProvider>
   );

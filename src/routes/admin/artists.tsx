@@ -19,10 +19,13 @@ import {
   adminArtistsSearchDefaults,
   adminArtistsSearchSchema,
 } from "@/pages/admin/ArtistsManagement/searchSchema";
-import { PageTitle } from "@/components/PageTitle/PageTitle";
+import { pageMeta } from "@/lib/pageHead";
 
 export const Route = createFileRoute("/admin/artists")({
   component: ArtistBulkEditor,
+  head: () => ({
+    meta: pageMeta({ title: "Artists", prefix: "Admin" }),
+  }),
   validateSearch: adminArtistsSearchSchema,
   search: {
     middlewares: [stripSearchParams(adminArtistsSearchDefaults)],
@@ -86,7 +89,6 @@ function ArtistBulkEditor() {
 
   return (
     <div className="space-y-6">
-      <PageTitle title="Artists" prefix="Admin" />
       <Card>
         <BulkEditorHeader onAddArtist={() => setAddArtistOpen(true)} />
 

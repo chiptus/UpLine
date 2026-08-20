@@ -2,13 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { festivalInfoQuery } from "@/api/festival-info/useFestivalInfo";
-import { PageTitle } from "@/components/PageTitle/PageTitle";
+import { pageMeta } from "@/lib/pageHead";
 import { ExternalLinkIcon } from "lucide-react";
 
 export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug/social",
 )({
   component: SocialTab,
+  head: ({ match }) => ({
+    meta: pageMeta({ title: "Social", prefix: match.context.festival.name }),
+  }),
 });
 
 function SocialTab() {
@@ -22,7 +25,6 @@ function SocialTab() {
   if (!facebook_url && !instagram_url) {
     return (
       <>
-        <PageTitle title="Social" prefix={festival?.name} />
         <div className="text-center text-purple-300 py-12">
           <p>Social feeds not available yet.</p>
         </div>
@@ -32,7 +34,6 @@ function SocialTab() {
 
   return (
     <>
-      <PageTitle title="Social" prefix={festival?.name} />
       <div className="space-y-8">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-white mb-4">Follow Us</h2>

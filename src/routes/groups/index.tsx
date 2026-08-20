@@ -12,10 +12,13 @@ import { SignInRequired } from "@/pages/groups/Groups/SignInRequired";
 import { GroupsHeader } from "@/pages/groups/Groups/GroupsHeader";
 import { MyGroupsList } from "@/pages/groups/Groups/MyGroupsList";
 import { Button } from "@/components/ui/button";
-import { PageTitle } from "@/components/PageTitle/PageTitle";
+import { pageMeta } from "@/lib/pageHead";
 
 export const Route = createFileRoute("/groups/")({
   component: Groups,
+  head: () => ({
+    meta: pageMeta({ title: "Groups" }),
+  }),
   loader: async ({ context }) => {
     if (context.user) {
       void context.queryClient.ensureQueryData(
@@ -29,20 +32,10 @@ function Groups() {
   const { user } = useRouteContext({ from: "/groups/" });
 
   if (!user) {
-    return (
-      <>
-        <PageTitle title="Groups" />
-        <SignInRequired description="Please sign in to manage groups" />
-      </>
-    );
+    return <SignInRequired description="Please sign in to manage groups" />;
   }
 
-  return (
-    <>
-      <PageTitle title="Groups" />
-      <GroupsContent user={user} />
-    </>
-  );
+  return <GroupsContent user={user} />;
 }
 
 function GroupsContent({ user }: { user: User }) {

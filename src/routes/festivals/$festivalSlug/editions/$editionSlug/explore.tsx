@@ -10,12 +10,17 @@ import { useVoteMutation } from "@/api/voting/useVoteMutation";
 import { useUserVotesQuery } from "@/api/voting/useUserVotesQuery";
 import { useState } from "react";
 import { useExplorableSets } from "@/pages/ExploreSetPage/useExplorableSets";
-import { PageTitle } from "@/components/PageTitle/PageTitle";
+import { pageMeta } from "@/lib/pageHead";
 
 export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug/explore",
 )({
   component: ExploreSetPage,
+  head: ({ match }) => ({
+    meta: pageMeta({
+      title: `Explore Sets - ${match.context.edition.name}`,
+    }),
+  }),
 });
 
 function ExploreSetPage() {
@@ -59,7 +64,6 @@ function ExploreSetPage() {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-purple-900 to-black">
-      <PageTitle title={`Explore Sets - ${edition.name}`} />
       <ExplorePageHeader
         editionName={edition.name}
         currentIndex={currentIndexInAllSets}

@@ -6,10 +6,13 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUserPermissionsQuery } from "@/api/auth/useUserPermissions";
 import { useEffect } from "react";
 import { Music, Calendar, BarChart3, UserPlus } from "lucide-react";
-import { PageTitle } from "@/components/PageTitle/PageTitle";
+import { pageMeta } from "@/lib/pageHead";
 
 export const Route = createFileRoute("/admin")({
   component: AdminLayout,
+  head: () => ({
+    meta: pageMeta({ title: "Admin" }),
+  }),
   beforeLoad: ({ location }) => {
     if (location.pathname === "/admin" || location.pathname === "/admin/") {
       throw redirect({
@@ -83,7 +86,6 @@ function AdminLayout() {
 
   return (
     <div className="min-h-screen bg-app-gradient">
-      <PageTitle title="Admin" />
       <div className="container mx-auto px-4 py-8">
         <TopBar showBackButton backLabel="Back to app" />
 

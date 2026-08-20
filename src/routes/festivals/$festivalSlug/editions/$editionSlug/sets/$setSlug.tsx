@@ -12,7 +12,7 @@ import { setBySlugQuery } from "@/api/sets/useSetBySlug";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useVoteCount } from "@/hooks/useVoteCount";
-import { PageTitle } from "@/components/PageTitle/PageTitle";
+import { pageMeta } from "@/lib/pageHead";
 import { TopBar } from "@/components/layout/TopBar";
 import { FestivalIndicator } from "@/components/layout/AppHeader/FestivalIndicator";
 import {
@@ -36,7 +36,14 @@ export const Route = createFileRoute(
       setBySlugQuery(params.setSlug, context.edition.id),
     );
     void context.queryClient.ensureQueryData(artistNotesQuery(set.id));
+    return { set };
   },
+  head: ({ loaderData, match }) => ({
+    meta: pageMeta({
+      title: loaderData?.set.name ?? "",
+      prefix: match.context.festival.name,
+    }),
+  }),
 });
 
 function SetDetails() {
@@ -55,8 +62,6 @@ function SetDetails() {
 
   const { getVoteCount } = useVoteCount(currentSet);
 
-  const setTitle = currentSet.name;
-
   const netVoteScore = 2 * getVoteCount(2) + getVoteCount(1) - getVoteCount(-1);
 
   const isMultiArtistSet = currentSet.artists.length > 1;
@@ -64,7 +69,6 @@ function SetDetails() {
 
   return (
     <>
-      <PageTitle title={setTitle} prefix={festival?.name} />
       <div className="min-h-screen bg-app-gradient">
         <div className="container mx-auto px-4 py-8">
           <TopBar showBackButton backLabel="Back to Artists" showGroupsButton>

@@ -22,12 +22,12 @@ import { Button } from "@/components/ui/button";
 import { confirm } from "@/hooks/use-confirm";
 import { useRemoveMemberMutation } from "@/api/groups/useRemoveMember";
 import { isGroupCreator } from "@/lib/groupPermissions";
-import { PageTitle } from "@/components/PageTitle/PageTitle";
+import { pageMeta } from "@/lib/pageHead";
 
 export const Route = createFileRoute("/groups/$groupSlug")({
   component: GroupDetail,
   loader: async ({ params, context }) => {
-    if (!context.user) return;
+    if (!context.user) return { group: undefined };
 
     const group = await context.queryClient.ensureQueryData(
       groupBySlugQuery(params.groupSlug, context.user.id),
@@ -37,7 +37,12 @@ export const Route = createFileRoute("/groups/$groupSlug")({
     if (group.created_by === context.user.id) {
       void context.queryClient.ensureQueryData(groupInvitesQuery(group.id));
     }
+
+    return { group };
   },
+  head: ({ loaderData }) => ({
+    meta: pageMeta({ title: loaderData?.group?.name ?? "Sign in required" }),
+  }),
 });
 
 function GroupDetail() {
@@ -46,7 +51,6 @@ function GroupDetail() {
   if (!user) {
     return (
       <div className="min-h-screen bg-app-gradient flex items-center justify-center">
-        <PageTitle title="Sign in required" />
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Sign in required</CardTitle>
@@ -81,7 +85,6 @@ function GroupDetailContent({ user }: { user: User }) {
 
   return (
     <div className="min-h-screen bg-app-gradient">
-      <PageTitle title={group.name} />
       <div className="container mx-auto px-4 py-8">
         <TopBar showBackButton backLabel="Back to Groups" />
 

@@ -10,7 +10,7 @@ import { getFestivalPhase } from "@/lib/festivalPhase";
 import { ScheduleRevealControl } from "@/pages/admin/festivals/ScheduleRevealControl";
 import { PhaseOverrideControl } from "@/pages/admin/festivals/PhaseOverrideControl";
 import { editionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
-import { PageTitle } from "@/components/PageTitle/PageTitle";
+import { pageMeta } from "@/lib/pageHead";
 
 export const Route = createFileRoute(
   "/admin/festivals/$festivalSlug/editions/$editionSlug",
@@ -34,6 +34,12 @@ export const Route = createFileRoute(
 
     return { edition };
   },
+  head: ({ match }) => ({
+    meta: pageMeta({
+      title: match.context.edition.name,
+      prefix: `Admin - ${match.context.festival.name}`,
+    }),
+  }),
 });
 
 function FestivalEdition() {
@@ -91,10 +97,6 @@ function FestivalEdition() {
 
   return (
     <div className="space-y-6">
-      <PageTitle
-        title={currentEdition.name}
-        prefix={`Admin - ${festival.name}`}
-      />
       <Card>
         <CardHeader>
           <CardTitle className="flex flex-wrap items-center justify-between gap-3">

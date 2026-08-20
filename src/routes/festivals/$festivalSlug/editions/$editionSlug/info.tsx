@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { festivalInfoQuery } from "@/api/festival-info/useFestivalInfo";
-import { PageTitle } from "@/components/PageTitle/PageTitle";
+import { pageMeta } from "@/lib/pageHead";
 import { EditionTitle } from "@/pages/EditionView/tabs/InfoTab/EditionTitle";
 import { InfoText } from "@/pages/EditionView/tabs/InfoTab/InfoText";
 import { CustomLinks } from "@/pages/EditionView/tabs/InfoTab/CustomLinks";
@@ -14,6 +14,9 @@ export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug/info",
 )({
   component: InfoTab,
+  head: ({ match }) => ({
+    meta: pageMeta({ title: "Info", prefix: match.context.festival.name }),
+  }),
 });
 
 function InfoTab() {
@@ -31,7 +34,6 @@ function InfoTab() {
 
   return (
     <>
-      <PageTitle title="Info" prefix={festival?.name} />
       <div className="space-y-8">
         <EditionTitle name={edition?.name} />
 

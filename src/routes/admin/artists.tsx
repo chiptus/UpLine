@@ -1,46 +1,86 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState, useMemo } from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, stripSearchParams } from "@tanstack/react-router";
+import { useCallback, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { artistsQuery } from "@/api/artists/useArtists";
+import { artistsPageQuery } from "@/api/artists/useArtistsPage";
 import { AddArtistDialog } from "@/pages/admin/ArtistsManagement/AddArtistDialog";
 import { BulkEditorHeader } from "@/pages/admin/ArtistsManagement/components/BulkEditorHeader";
 import { BulkEditorSearchAndActions } from "@/pages/admin/ArtistsManagement/components/BulkEditorSearchAndActions";
 import { BulkEditorTable } from "@/pages/admin/ArtistsManagement/components/BulkEditorTable";
 import { BulkEditorFooter } from "@/pages/admin/ArtistsManagement/components/BulkEditorFooter";
-import { useArtistSorting } from "@/pages/admin/ArtistsManagement/hooks/useArtistSorting";
-import { useArtistFiltering } from "@/pages/admin/ArtistsManagement/hooks/useArtistFiltering";
+import { BulkEditorPagination } from "@/pages/admin/ArtistsManagement/components/BulkEditorPagination";
+import { useDebouncedSearchInput } from "@/pages/admin/ArtistsManagement/hooks/useDebouncedSearchInput";
+import type { SortConfig } from "@/pages/admin/ArtistsManagement/types";
 import { useArtistSelection } from "@/pages/admin/ArtistsManagement/hooks/useArtistSelection";
+import { useAdminArtistsUrlState } from "@/pages/admin/ArtistsManagement/hooks/useAdminArtistsUrlState";
 import { genresQuery } from "@/api/genres/useGenres";
+import {
+  adminArtistsSearchDefaults,
+  adminArtistsSearchSchema,
+} from "@/pages/admin/ArtistsManagement/searchSchema";
 
 export const Route = createFileRoute("/admin/artists")({
   component: ArtistBulkEditor,
-  loader: async ({ context }) => {
+  validateSearch: adminArtistsSearchSchema,
+  search: {
+    middlewares: [stripSearchParams(adminArtistsSearchDefaults)],
+  },
+  loaderDeps: ({ search }) => search,
+  loader: async ({ context, deps }) => {
     void context.queryClient.ensureQueryData(genresQuery());
-    void context.queryClient.ensureQueryData(artistsQuery());
+    void context.queryClient.ensureQueryData(
+      artistsPageQuery({
+        page: deps.page,
+        pageSize: deps.pageSize,
+        search: deps.q,
+        sortKey: deps.sortKey,
+        sortDir: deps.sortDir,
+      }),
+    );
   },
 });
 
 function ArtistBulkEditor() {
   const [addArtistOpen, setAddArtistOpen] = useState(false);
 
-  const { data: artists } = useSuspenseQuery(artistsQuery());
+  const { state: urlState, updateUrlState } = useAdminArtistsUrlState();
 
-  // Custom hooks for managing state and logic
-  const { sortConfig, handleSort, sortArtists } = useArtistSorting();
-  const { searchTerm, setSearchTerm, filterArtists } = useArtistFiltering();
+  const handleDebouncedSearchChange = useCallback(
+    (q: string) => updateUrlState({ q, page: 0 }),
+    [updateUrlState],
+  );
+  const { searchTerm, setSearchTerm } = useDebouncedSearchInput(
+    urlState.q,
+    handleDebouncedSearchChange,
+  );
+
+  const sortConfig: SortConfig = {
+    key: urlState.sortKey,
+    direction: urlState.sortDir,
+  };
+
+  const artistsQuery = useQuery(
+    artistsPageQuery({
+      page: urlState.page,
+      pageSize: urlState.pageSize,
+      search: urlState.q,
+      sortKey: urlState.sortKey,
+      sortDir: urlState.sortDir,
+    }),
+  );
+  const artists = artistsQuery.data?.artists ?? [];
+  const totalCount = artistsQuery.data?.totalCount ?? 0;
+
   const { selectedIds, handleSelectAll, handleSelectArtist, clearSelection } =
     useArtistSelection();
 
-  // Apply filtering and sorting
-  const filteredAndSortedArtists = useMemo(() => {
-    const filtered = filterArtists(artists);
-    return sortArtists(filtered);
-  }, [artists, filterArtists, sortArtists]);
-
-  // Wrapper function for select all
-  function handleSelectAllWrapper() {
-    handleSelectAll(filteredAndSortedArtists.map((a) => a.id));
+  if (artistsQuery.isPending) {
+    return (
+      <div className="flex items-center justify-center py-12 text-muted-foreground">
+        Loading artists...
+      </div>
+    );
   }
 
   return (
@@ -53,25 +93,46 @@ function ArtistBulkEditor() {
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
             selectedCount={selectedIds.size}
-            totalCount={filteredAndSortedArtists.length}
+            totalCount={artists.length}
             selectedIds={selectedIds}
             onSelectAll={handleSelectAllWrapper}
             onClearSelection={clearSelection}
           />
 
-          <BulkEditorTable
-            artists={filteredAndSortedArtists}
-            selectedIds={selectedIds}
-            sortConfig={sortConfig}
-            searchTerm={searchTerm}
-            onSort={handleSort}
-            onSelectAll={handleSelectAllWrapper}
-            onSelectArtist={handleSelectArtist}
+          <div className="relative">
+            <BulkEditorTable
+              artists={artists}
+              selectedIds={selectedIds}
+              sortConfig={sortConfig}
+              searchTerm={urlState.q}
+              onSort={handleSort}
+              onSelectAll={handleSelectAllWrapper}
+              onSelectArtist={handleSelectArtist}
+            />
+            {artistsQuery.isFetching && (
+              <div className="absolute inset-0 flex items-center justify-center bg-background/60">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            )}
+          </div>
+
+          <BulkEditorPagination
+            page={urlState.page}
+            pageSize={urlState.pageSize}
+            totalCount={totalCount}
+            onPageChange={(page) => {
+              clearSelection();
+              updateUrlState({ page });
+            }}
+            onPageSizeChange={(pageSize) => {
+              clearSelection();
+              updateUrlState({ pageSize, page: 0 });
+            }}
           />
 
           <BulkEditorFooter
-            filteredCount={filteredAndSortedArtists.length}
-            totalCount={artists.length}
+            pageCount={artists.length}
+            totalCount={totalCount}
             selectedCount={selectedIds.size}
           />
         </CardContent>
@@ -86,4 +147,19 @@ function ArtistBulkEditor() {
       />
     </div>
   );
+
+  function handleSort(key: SortConfig["key"]) {
+    updateUrlState({
+      sortKey: key,
+      sortDir:
+        sortConfig.key === key && sortConfig.direction === "asc"
+          ? "desc"
+          : "asc",
+      page: 0,
+    });
+  }
+
+  function handleSelectAllWrapper() {
+    handleSelectAll(artists.map((a) => a.id));
+  }
 }

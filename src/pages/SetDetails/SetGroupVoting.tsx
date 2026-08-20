@@ -1,15 +1,8 @@
-import { useState, useEffect } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
+import { useActiveScope } from "@/contexts/ActiveScopeContext";
 import { userGroupsQuery } from "@/api/groups/useUserGroups";
 import { useGroupVotesQuery } from "@/api/voting/useGroupVotes";
 import { Users } from "lucide-react";
@@ -38,23 +31,17 @@ function SetGroupVotingContent({
   userId: string;
 }) {
   const { data: groups } = useSuspenseQuery(userGroupsQuery(userId));
-  const [selectedGroupId, setSelectedGroupId] = useState<string>("");
-
-  // Set default group when groups load
-  useEffect(() => {
-    if (groups.length > 0 && !selectedGroupId) {
-      setSelectedGroupId(groups[0].id);
-    }
-  }, [groups, selectedGroupId]);
+  const { current } = useActiveScope();
+  const activeGroupId = current.kind === "group" ? current.groupId : undefined;
 
   // Use React Query to fetch group votes
   const { data: groupVotes = [], isLoading: loading } = useGroupVotesQuery(
     artistId,
-    selectedGroupId,
+    activeGroupId ?? "",
   );
 
-  // Don't show if user has no groups
-  if (groups.length === 0) {
+  // Don't show if user has no groups or no active group
+  if (groups.length === 0 || !activeGroupId) {
     return null;
   }
 
@@ -64,34 +51,18 @@ function SetGroupVotingContent({
     [-1]: groupVotes.filter((vote) => vote.vote_type === -1).length,
   };
 
-  const selectedGroup = groups.find((g) => g.id === selectedGroupId);
+  const activeGroup = groups.find((g) => g.id === activeGroupId);
 
   return (
     <Card className="bg-white/10 backdrop-blur-md border-purple-400/30">
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-white flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            Group Voting
-          </CardTitle>
-          {groups.length > 1 && (
-            <Select value={selectedGroupId} onValueChange={setSelectedGroupId}>
-              <SelectTrigger className="w-48 bg-white/5 border-purple-400/30 text-white">
-                <SelectValue placeholder="Select group" />
-              </SelectTrigger>
-              <SelectContent>
-                {groups.map((group) => (
-                  <SelectItem key={group.id} value={group.id}>
-                    {group.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        </div>
-        {selectedGroup && (
+        <CardTitle className="text-white flex items-center gap-2">
+          <Users className="h-5 w-5" />
+          Group Voting
+        </CardTitle>
+        {activeGroup && (
           <p className="text-purple-200 text-sm">
-            How {selectedGroup.name} voted on this artist
+            How {activeGroup.name} voted on this artist
           </p>
         )}
       </CardHeader>

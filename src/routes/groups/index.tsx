@@ -12,6 +12,7 @@ import { SignInRequired } from "@/pages/groups/Groups/SignInRequired";
 import { GroupsHeader } from "@/pages/groups/Groups/GroupsHeader";
 import { MyGroupsList } from "@/pages/groups/Groups/MyGroupsList";
 import { Button } from "@/components/ui/button";
+import { PageTitle } from "@/components/PageTitle/PageTitle";
 
 export const Route = createFileRoute("/groups/")({
   component: Groups,
@@ -28,10 +29,20 @@ function Groups() {
   const { user } = useRouteContext({ from: "/groups/" });
 
   if (!user) {
-    return <SignInRequired description="Please sign in to manage groups" />;
+    return (
+      <>
+        <PageTitle title="Groups" />
+        <SignInRequired description="Please sign in to manage groups" />
+      </>
+    );
   }
 
-  return <GroupsContent user={user} />;
+  return (
+    <>
+      <PageTitle title="Groups" />
+      <GroupsContent user={user} />
+    </>
+  );
 }
 
 function GroupsContent({ user }: { user: User }) {

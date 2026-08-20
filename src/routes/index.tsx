@@ -21,22 +21,21 @@ import { AppHeader } from "@/components/layout/AppHeader";
 
 export const Route = createFileRoute("/")({
   component: FestivalSelection,
-  beforeLoad: async ({ context }) => {
+  beforeLoad: async ({ context, search }) => {
     const festivals =
       await context.queryClient.ensureQueryData(festivalsQuery());
 
-    if (festivals.length === 1) {
+    if (festivals.length === 1 && !search.invite) {
       const festival = festivals[0];
 
       if (isMainGetuplineDomain()) {
-        window.location.href = `${createFestivalSubdomainUrl(festival.slug)}${window.location.search}`;
+        window.location.href = createFestivalSubdomainUrl(festival.slug);
         return;
       }
 
       throw redirect({
         to: "/festivals/$festivalSlug",
         params: { festivalSlug: festival.slug },
-        search: (prev) => prev,
       });
     }
   },

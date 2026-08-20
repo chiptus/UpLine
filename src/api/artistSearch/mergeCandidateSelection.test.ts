@@ -115,48 +115,6 @@ describe("mergeCandidateSelection", () => {
     expect(update.image_url).toBeUndefined();
   });
 
-  it("fills description if not already set on artist", () => {
-    const artist = makeArtist({ id: "a1", description: null });
-    const candidate = makeCandidate({ name: "Test Band" });
-    const context: MergeContext = {
-      artist,
-      stagedUpdates: {},
-    };
-
-    const update = mergeCandidateSelection(context, candidate, "spotify");
-
-    expect(update.description).toBe("Test Band");
-  });
-
-  it("does not overwrite existing description on artist", () => {
-    const artist = makeArtist({
-      id: "a1",
-      description: "Existing description",
-    });
-    const candidate = makeCandidate({ name: "Test Band" });
-    const context: MergeContext = {
-      artist,
-      stagedUpdates: {},
-    };
-
-    const update = mergeCandidateSelection(context, candidate, "spotify");
-
-    expect(update.description).toBeUndefined();
-  });
-
-  it("does not overwrite staged description", () => {
-    const artist = makeArtist({ id: "a1", description: null });
-    const candidate = makeCandidate({ name: "Test Band" });
-    const context: MergeContext = {
-      artist,
-      stagedUpdates: { description: "Staged description" },
-    };
-
-    const update = mergeCandidateSelection(context, candidate, "spotify");
-
-    expect(update.description).toBeUndefined();
-  });
-
   it("first provider selection wins shared image_url when both providers selected", () => {
     const artist = makeArtist({ id: "a1" });
     const spotifyCandidate = makeCandidate({

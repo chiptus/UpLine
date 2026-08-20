@@ -21,6 +21,6 @@ export interface SearchResponse {
 export const artistSearchKeys = {
   all: ["artistSearch"] as const,
   searches: () => [...artistSearchKeys.all, "search"] as const,
-  search: (batch: number) =>
-    [...artistSearchKeys.searches(), { batch }] as const,
+  search: (artistNames: string[], provider?: Provider) =>
+    [...artistSearchKeys.searches(), { artistNames, provider }] as const,
 };

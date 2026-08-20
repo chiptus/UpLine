@@ -31,10 +31,9 @@ async function fetchSearchArtistLinks(
 export function searchArtistLinksQuery(
   artistNames: string[],
   provider?: Provider,
-  batch?: number,
 ) {
   return queryOptions({
-    queryKey: artistSearchKeys.search(batch ?? 0),
+    queryKey: artistSearchKeys.search(artistNames, provider),
     queryFn: () => fetchSearchArtistLinks(artistNames, provider),
     enabled: artistNames.length > 0,
     staleTime: 1000 * 60 * 30,
@@ -44,9 +43,8 @@ export function searchArtistLinksQuery(
 export function useSearchArtistLinksQuery(
   artistNames: string[],
   provider?: Provider,
-  batch?: number,
 ) {
   return useQuery({
-    ...searchArtistLinksQuery(artistNames, provider, batch),
+    ...searchArtistLinksQuery(artistNames, provider),
   });
 }

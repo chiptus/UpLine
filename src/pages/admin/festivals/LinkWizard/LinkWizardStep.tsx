@@ -3,16 +3,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
+import { Form } from "@/components/ui/form";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Artist } from "@/api/artists/types";
 import { useUpdateArtistMutation } from "@/api/artists/useUpdateArtist";
 import { useSearchArtistLinksQuery } from "@/api/artistSearch/useSearchArtistLinksQuery";
@@ -21,7 +13,7 @@ import {
   type CandidateUpdate,
 } from "@/api/artistSearch/mergeCandidateSelection";
 import type { Provider, Candidate } from "@/api/artistSearch/types";
-import { CandidateCards } from "./CandidateCards";
+import { ProviderLinkField } from "./ProviderLinkField";
 
 function requiredUrlSchema(isRequired: boolean) {
   return isRequired
@@ -42,6 +34,7 @@ interface LinkWizardStepProps {
   artist: Artist;
   position: number;
   total: number;
+  artists: Artist[];
   onPrev: () => void;
   onNext: () => void;
 }
@@ -50,21 +43,31 @@ export function LinkWizardStep({
   artist,
   position,
   total,
+  artists,
   onPrev,
   onNext,
 }: LinkWizardStepProps) {
   const updateArtistMutation = useUpdateArtistMutation();
   const [stagedUpdates, setStagedUpdates] = useState<CandidateUpdate>({});
-  const [customQuery, setCustomQuery] = useState<{
-    provider: Provider;
-    query: string;
-  } | null>(null);
+  const [customSpotifySearch, setCustomSpotifySearch] = useState("");
+  const [customSoundcloudSearch, setCustomSoundcloudSearch] = useState("");
 
-  const searchQuery = customQuery ? customQuery.query : artist.name;
+  const currentIndex = artists.findIndex((a) => a.id === artist.id);
+  const batchStart = Math.floor(currentIndex / 10) * 10;
+  const batchArtists = artists
+    .slice(batchStart, batchStart + 10)
+    .map((a) => a.name);
 
-  const searchQueryResult = useSearchArtistLinksQuery(
-    searchQuery ? [searchQuery] : [],
-    customQuery?.provider,
+  const batchQueryResult = useSearchArtistLinksQuery(batchArtists);
+
+  const spotifyCustomResult = useSearchArtistLinksQuery(
+    customSpotifySearch ? [customSpotifySearch] : [],
+    "spotify",
+  );
+
+  const soundcloudCustomResult = useSearchArtistLinksQuery(
+    customSoundcloudSearch ? [customSoundcloudSearch] : [],
+    "soundcloud",
   );
 
   const form = useForm<LinkStepData>({
@@ -74,6 +77,21 @@ export function LinkWizardStep({
       soundcloudUrl: artist.soundcloud_url ?? "",
     },
   });
+
+  function getCandidates(provider: Provider): Candidate[] {
+    if (provider === "spotify" && customSpotifySearch) {
+      return spotifyCustomResult.data?.results[0]?.candidates ?? [];
+    }
+    if (provider === "soundcloud" && customSoundcloudSearch) {
+      return soundcloudCustomResult.data?.results[0]?.candidates ?? [];
+    }
+
+    return (
+      batchQueryResult.data?.results.find(
+        (r) => r.artistName === artist.name && r.provider === provider,
+      )?.candidates ?? []
+    );
+  }
 
   function handleCandidateSelect(candidate: Candidate, provider: Provider) {
     const update = mergeCandidateSelection(
@@ -91,6 +109,14 @@ export function LinkWizardStep({
     }
   }
 
+  function handleSearchAgain(provider: Provider, query: string) {
+    if (provider === "spotify") {
+      setCustomSpotifySearch(query);
+    } else {
+      setCustomSoundcloudSearch(query);
+    }
+  }
+
   function onSubmit(data: LinkStepData) {
     updateArtistMutation.mutate(
       {
@@ -105,23 +131,16 @@ export function LinkWizardStep({
           ...(stagedUpdates.image_url && {
             image_url: stagedUpdates.image_url,
           }),
-          ...(stagedUpdates.description && {
-            description: stagedUpdates.description,
-          }),
         },
       },
       { onSuccess: onNext },
     );
   }
 
-  function handleSearchAgain(
-    provider: Provider,
-    currentUrl: string | undefined,
-  ) {
-    if (currentUrl) {
-      setCustomQuery({ provider, query: currentUrl });
-    }
-  }
+  const isLoadingCandidates =
+    batchQueryResult.isLoading ||
+    spotifyCustomResult.isLoading ||
+    soundcloudCustomResult.isLoading;
 
   return (
     <div className="space-y-4">
@@ -134,99 +153,35 @@ export function LinkWizardStep({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {!artist.spotify_url && (
-            <div className="space-y-3">
-              <CandidateCards
-                candidates={
-                  searchQueryResult.data?.results.find(
-                    (r) => r.provider === "spotify",
-                  )?.candidates ?? []
-                }
-                provider="spotify"
-                isLoading={searchQueryResult.isLoading}
-                onSelectCandidate={(candidate) =>
-                  handleCandidateSelect(candidate, "spotify")
-                }
-              />
-              <FormField
-                control={form.control}
-                name="spotifyUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex items-center justify-between">
-                      <FormLabel>Spotify URL</FormLabel>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          handleSearchAgain("spotify", field.value)
-                        }
-                        disabled={searchQueryResult.isLoading}
-                      >
-                        <RotateCcw className="h-3 w-3 mr-1" />
-                        Search Again
-                      </Button>
-                    </div>
-                    <FormControl>
-                      <Input
-                        type="url"
-                        placeholder="https://open.spotify.com/artist/..."
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <ProviderLinkField
+              provider="spotify"
+              fieldName="spotifyUrl"
+              label="Spotify URL"
+              placeholder="https://open.spotify.com/artist/..."
+              candidates={getCandidates("spotify")}
+              isLoadingCandidates={isLoadingCandidates}
+              form={form}
+              onSelectCandidate={(candidate) =>
+                handleCandidateSelect(candidate, "spotify")
+              }
+              onSearchAgain={(query) => handleSearchAgain("spotify", query)}
+            />
           )}
 
           {!artist.soundcloud_url && (
-            <div className="space-y-3">
-              <CandidateCards
-                candidates={
-                  searchQueryResult.data?.results.find(
-                    (r) => r.provider === "soundcloud",
-                  )?.candidates ?? []
-                }
-                provider="soundcloud"
-                isLoading={searchQueryResult.isLoading}
-                onSelectCandidate={(candidate) =>
-                  handleCandidateSelect(candidate, "soundcloud")
-                }
-              />
-              <FormField
-                control={form.control}
-                name="soundcloudUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex items-center justify-between">
-                      <FormLabel>SoundCloud URL</FormLabel>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          handleSearchAgain("soundcloud", field.value)
-                        }
-                        disabled={searchQueryResult.isLoading}
-                      >
-                        <RotateCcw className="h-3 w-3 mr-1" />
-                        Search Again
-                      </Button>
-                    </div>
-                    <FormControl>
-                      <Input
-                        type="url"
-                        placeholder="https://soundcloud.com/..."
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <ProviderLinkField
+              provider="soundcloud"
+              fieldName="soundcloudUrl"
+              label="SoundCloud URL"
+              placeholder="https://soundcloud.com/..."
+              candidates={getCandidates("soundcloud")}
+              isLoadingCandidates={isLoadingCandidates}
+              form={form}
+              onSelectCandidate={(candidate) =>
+                handleCandidateSelect(candidate, "soundcloud")
+              }
+              onSearchAgain={(query) => handleSearchAgain("soundcloud", query)}
+            />
           )}
 
           <div className="flex items-center justify-between gap-2 pt-2">

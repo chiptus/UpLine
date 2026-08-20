@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export function useArtistFiltering(
+export function useDebouncedSearchInput(
   urlSearchTerm: string,
   onDebouncedChange: (term: string) => void,
 ) {

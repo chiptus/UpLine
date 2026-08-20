@@ -57,13 +57,19 @@ export function LinkWizardTable({
           {pageArtists.map((artist) => (
             <TableRow
               key={artist.id}
-              onClick={() => onSelectArtist(artist)}
               className={cn(
-                "cursor-pointer",
                 artist.id === currentArtistId && "bg-purple-600/20",
               )}
             >
-              <TableCell>{artist.name}</TableCell>
+              <TableCell>
+                <button
+                  type="button"
+                  onClick={() => onSelectArtist(artist)}
+                  className="underline-offset-4 hover:underline text-left"
+                >
+                  {artist.name}
+                </button>
+              </TableCell>
               <TableCell className="flex gap-2">
                 {!artist.spotify_url && (
                   <Badge variant="outline">Spotify</Badge>

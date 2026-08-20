@@ -16,12 +16,20 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Artist } from "@/api/artists/types";
 import { useUpdateArtistMutation } from "@/api/artists/useUpdateArtist";
 
-const linkStepSchema = z.object({
-  spotifyUrl: z.string().url().optional().or(z.literal("")),
-  soundcloudUrl: z.string().url().optional().or(z.literal("")),
-});
+function requiredUrlSchema(isRequired: boolean) {
+  return isRequired
+    ? z.string().url("Enter a valid URL")
+    : z.string().url().optional().or(z.literal(""));
+}
 
-type LinkStepData = z.infer<typeof linkStepSchema>;
+function makeLinkStepSchema(artist: Artist) {
+  return z.object({
+    spotifyUrl: requiredUrlSchema(!artist.spotify_url),
+    soundcloudUrl: requiredUrlSchema(!artist.soundcloud_url),
+  });
+}
+
+type LinkStepData = z.infer<ReturnType<typeof makeLinkStepSchema>>;
 
 interface LinkWizardStepProps {
   artist: Artist;
@@ -41,7 +49,7 @@ export function LinkWizardStep({
   const updateArtistMutation = useUpdateArtistMutation();
 
   const form = useForm<LinkStepData>({
-    resolver: zodResolver(linkStepSchema),
+    resolver: zodResolver(makeLinkStepSchema(artist)),
     defaultValues: {
       spotifyUrl: artist.spotify_url ?? "",
       soundcloudUrl: artist.soundcloud_url ?? "",
@@ -74,8 +82,7 @@ export function LinkWizardStep({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium">{artist.name}</h3>
+      <div className="flex items-center justify-end">
         <span className="text-sm text-muted-foreground">
           {position} of {total}
         </span>
@@ -128,14 +135,19 @@ export function LinkWizardStep({
               type="button"
               variant="outline"
               onClick={onPrev}
-              disabled={position <= 1}
+              disabled={position <= 1 || updateArtistMutation.isPending}
             >
               <ChevronLeft className="h-4 w-4 mr-1" />
               Previous
             </Button>
 
             <div className="flex gap-2">
-              <Button type="button" variant="ghost" onClick={onNext}>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={onNext}
+                disabled={updateArtistMutation.isPending}
+              >
                 Skip
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>

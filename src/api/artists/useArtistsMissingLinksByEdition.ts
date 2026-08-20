@@ -7,15 +7,12 @@ export interface SetWithArtists {
 }
 
 export function selectArtistsMissingLinks(sets: SetWithArtists[]): Artist[] {
-  const artistsById = new Map<string, Artist>();
-  for (const set of sets) {
-    for (const setArtist of set.set_artists ?? []) {
-      const artist = setArtist.artists;
-      if (artist) {
-        artistsById.set(artist.id, artist);
-      }
-    }
-  }
+  const artists = sets
+    .flatMap((set) => set.set_artists ?? [])
+    .map((setArtist) => setArtist.artists)
+    .filter((artist): artist is Artist => artist !== null);
+
+  const artistsById = new Map(artists.map((artist) => [artist.id, artist]));
 
   return Array.from(artistsById.values()).filter(
     (artist) => !artist.spotify_url || !artist.soundcloud_url,

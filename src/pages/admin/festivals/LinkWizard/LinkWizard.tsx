@@ -54,7 +54,7 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <LinkIcon className="h-5 w-5" />
-            Link Wizard
+            Link Wizard{currentArtist && ` - ${currentArtist.name}`}
           </CardTitle>
         </CardHeader>
         <CardContent>

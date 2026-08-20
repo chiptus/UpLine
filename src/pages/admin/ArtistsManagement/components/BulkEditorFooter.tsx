@@ -1,19 +1,19 @@
 interface BulkEditorFooterProps {
-  filteredCount: number;
+  pageCount: number;
   totalCount: number;
   selectedCount: number;
 }
 
 export function BulkEditorFooter({
-  filteredCount,
+  pageCount,
   totalCount,
   selectedCount,
 }: BulkEditorFooterProps) {
-  if (filteredCount === 0) return null;
+  if (pageCount === 0) return null;
 
   return (
     <div className="text-sm text-muted-foreground text-center">
-      Showing {filteredCount} of {totalCount} artists
+      Showing {pageCount} of {totalCount} artists
       {selectedCount > 0 && (
         <span className="ml-2">• {selectedCount} selected</span>
       )}

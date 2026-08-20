@@ -61,3 +61,31 @@ export const timelineSearchDefaults: TimelineSearch = {
   stages: [],
   votes: [],
 };
+
+export const adminArtistsSortKeySchema = z.enum([
+  "name",
+  "description",
+  "image_url",
+  "spotify_url",
+  "soundcloud_url",
+  "created_at",
+  "genres",
+]);
+
+export type AdminArtistsSortKey = z.infer<typeof adminArtistsSortKeySchema>;
+
+export const adminArtistsSearchSchema = z.object({
+  page: z.coerce.number().catch(0),
+  q: z.string().catch(""),
+  sortKey: adminArtistsSortKeySchema.catch("created_at"),
+  sortDir: z.enum(["asc", "desc"]).catch("desc"),
+});
+
+export type AdminArtistsSearch = z.infer<typeof adminArtistsSearchSchema>;
+
+export const adminArtistsSearchDefaults: AdminArtistsSearch = {
+  page: 0,
+  q: "",
+  sortKey: "created_at",
+  sortDir: "desc",
+};

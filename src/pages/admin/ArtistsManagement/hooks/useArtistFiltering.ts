@@ -1,25 +1,17 @@
-import { useState, useMemo } from "react";
-import type { Artist } from "@/api/artists/types";
+import { useEffect, useState } from "react";
 
-export function useArtistFiltering() {
-  const [searchTerm, setSearchTerm] = useState("");
+export function useArtistFiltering(
+  urlSearchTerm: string,
+  onDebouncedChange: (term: string) => void,
+) {
+  const [searchTerm, setSearchTerm] = useState(urlSearchTerm);
 
-  const filterArtists = useMemo(() => {
-    return (artists: Artist[]) => {
-      if (!searchTerm.trim()) return artists;
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (searchTerm !== urlSearchTerm) onDebouncedChange(searchTerm);
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [searchTerm, urlSearchTerm, onDebouncedChange]);
 
-      const lowerSearchTerm = searchTerm.toLowerCase();
-      return artists.filter(
-        (artist) =>
-          artist.name.toLowerCase().includes(lowerSearchTerm) ||
-          artist.description?.toLowerCase().includes(lowerSearchTerm),
-      );
-    };
-  }, [searchTerm]);
-
-  return {
-    searchTerm,
-    setSearchTerm,
-    filterArtists,
-  };
+  return { searchTerm, setSearchTerm };
 }

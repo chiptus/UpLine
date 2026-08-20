@@ -851,6 +851,20 @@ export type Database = {
             Returns: string;
           };
       get_user_id_by_email: { Args: { user_email: string }; Returns: string };
+      get_artists_page: {
+        Args: {
+          p_page: number;
+          p_page_size: number;
+          p_search?: string | undefined;
+          p_sort_key?: string | undefined;
+          p_sort_dir?: string | undefined;
+        };
+        Returns: {
+          artist: Json;
+          genre_ids: Json;
+          total_count: number;
+        }[];
+      };
       group_member_counts: {
         Args: { p_group_ids: string[] };
         Returns: {

@@ -1,4 +1,4 @@
-import type { AdminArtistsSortKey } from "@/lib/searchSchemas";
+import type { AdminArtistsSortKey } from "./searchSchema";
 
 export type SortingKey = AdminArtistsSortKey;
 

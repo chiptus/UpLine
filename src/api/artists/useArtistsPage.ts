@@ -1,6 +1,6 @@
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { AdminArtistsSortKey } from "@/lib/searchSchemas";
+import type { AdminArtistsSortKey } from "@/pages/admin/ArtistsManagement/searchSchema";
 import type { Artist } from "./types";
 import { artistsKeys } from "./types";
 

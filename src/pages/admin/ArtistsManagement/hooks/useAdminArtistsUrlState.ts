@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import type { AdminArtistsSearch } from "@/lib/searchSchemas";
+import type { AdminArtistsSearch } from "../searchSchema";
 
 export function useAdminArtistsUrlState() {
   const search = useSearch({ from: "/admin/artists" });

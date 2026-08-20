@@ -18,7 +18,7 @@ import { genresQuery } from "@/api/genres/useGenres";
 import {
   adminArtistsSearchDefaults,
   adminArtistsSearchSchema,
-} from "@/lib/searchSchemas";
+} from "@/pages/admin/ArtistsManagement/searchSchema";
 
 export const Route = createFileRoute("/admin/artists")({
   component: ArtistBulkEditor,

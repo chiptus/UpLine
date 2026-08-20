@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { AdminArtistsPageSize } from "@/lib/searchSchemas";
+import type { AdminArtistsPageSize } from "../searchSchema";
 
 const PAGE_SIZE_OPTIONS: AdminArtistsPageSize[] = [10, 25, 50, 100];
 

@@ -2,6 +2,26 @@ import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { artistsKeys, type Artist } from "./types";
 
+export interface SetWithArtists {
+  set_artists: { artists: Artist | null }[] | null;
+}
+
+export function selectArtistsMissingLinks(sets: SetWithArtists[]): Artist[] {
+  const artistsById = new Map<string, Artist>();
+  for (const set of sets) {
+    for (const setArtist of set.set_artists ?? []) {
+      const artist = setArtist.artists;
+      if (artist) {
+        artistsById.set(artist.id, artist);
+      }
+    }
+  }
+
+  return Array.from(artistsById.values()).filter(
+    (artist) => !artist.spotify_url || !artist.soundcloud_url,
+  );
+}
+
 async function fetchArtistsMissingLinksByEdition(
   editionId: string,
 ): Promise<Artist[]> {
@@ -25,19 +45,7 @@ async function fetchArtistsMissingLinksByEdition(
     throw new Error("Failed to fetch artists");
   }
 
-  const artistsById = new Map<string, Artist>();
-  for (const set of data ?? []) {
-    for (const setArtist of set.set_artists ?? []) {
-      const artist = setArtist.artists;
-      if (artist) {
-        artistsById.set(artist.id, artist);
-      }
-    }
-  }
-
-  return Array.from(artistsById.values()).filter(
-    (artist) => !artist.spotify_url || !artist.soundcloud_url,
-  );
+  return selectArtistsMissingLinks(data ?? []);
 }
 
 export function artistsMissingLinksByEditionQuery(editionId: string) {

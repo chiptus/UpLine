@@ -62,6 +62,12 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 });
 
 function RootComponent() {
+  useEffect(() => {
+    document
+      .querySelectorAll("[data-static-head]")
+      .forEach((node) => node.remove());
+  }, []);
+
   return (
     <>
       {createPortal(<HeadContent />, document.head)}

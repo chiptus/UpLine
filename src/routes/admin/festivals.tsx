@@ -8,6 +8,7 @@ import { FestivalManagementTable } from "@/pages/admin/festivals/FestivalManagem
 import { Festival } from "@/api/festivals/types";
 import { Button } from "@/components/ui/button";
 import { festivalsQuery } from "@/api/festivals/useFestivals";
+import { PageTitle } from "@/components/PageTitle/PageTitle";
 
 export const Route = createFileRoute("/admin/festivals")({
   component: AdminFestivals,
@@ -36,6 +37,7 @@ function AdminFestivals() {
 
   return (
     <div className="space-y-6">
+      <PageTitle title="Festivals" prefix="Admin" />
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">

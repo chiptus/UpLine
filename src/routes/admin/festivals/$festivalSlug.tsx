@@ -9,6 +9,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Info, ChevronDown, ChevronUp } from "lucide-react";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
+import { PageTitle } from "@/components/PageTitle/PageTitle";
 
 export const Route = createFileRoute("/admin/festivals/$festivalSlug")({
   component: FestivalDetail,
@@ -40,6 +41,7 @@ function FestivalDetail() {
 
   return (
     <>
+      <PageTitle title={festival.name} prefix="Admin" />
       <>
         <Card>
           <CardHeader>

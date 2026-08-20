@@ -10,6 +10,7 @@ import { getFestivalPhase } from "@/lib/festivalPhase";
 import { ScheduleRevealControl } from "@/pages/admin/festivals/ScheduleRevealControl";
 import { PhaseOverrideControl } from "@/pages/admin/festivals/PhaseOverrideControl";
 import { editionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
+import { PageTitle } from "@/components/PageTitle/PageTitle";
 
 export const Route = createFileRoute(
   "/admin/festivals/$festivalSlug/editions/$editionSlug",
@@ -90,6 +91,7 @@ function FestivalEdition() {
 
   return (
     <div className="space-y-6">
+      <PageTitle title={currentEdition.name} prefix={festival.name} />
       <Card>
         <CardHeader>
           <CardTitle className="flex flex-wrap items-center justify-between gap-3">

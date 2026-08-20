@@ -12,6 +12,7 @@ import { CreateStageDialog } from "@/pages/admin/festivals/StageManagement/Creat
 import { EditStageDialog } from "@/pages/admin/festivals/StageManagement/EditStageDialog";
 import { useFestivalEditionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
+import { PageTitle } from "@/components/PageTitle/PageTitle";
 
 export const Route = createFileRoute(
   "/admin/festivals/$festivalSlug/editions/$editionSlug/stages",
@@ -76,6 +77,7 @@ function FestivalStages() {
 
   return (
     <Card>
+      <PageTitle title="Stages" prefix={festival.name} />
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span className="flex items-center gap-2">

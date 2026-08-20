@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ScheduleImportWizard } from "@/components/Admin/ScheduleImport/ScheduleImportWizard";
+import { PageTitle } from "@/components/PageTitle/PageTitle";
 
 export const Route = createFileRoute(
   "/admin/festivals/$festivalSlug/editions/$editionSlug/import",
@@ -10,10 +11,13 @@ export const Route = createFileRoute(
 function FestivalScheduleImport() {
   const { festival, edition } = Route.useRouteContext();
   return (
-    <ScheduleImportWizard
-      festivalEditionId={edition.id}
-      currentRevealLevel={edition.schedule_reveal_level ?? "draft"}
-      defaultTimezone={festival.timezone}
-    />
+    <>
+      <PageTitle title="Import" prefix={edition.name} />
+      <ScheduleImportWizard
+        festivalEditionId={edition.id}
+        currentRevealLevel={edition.schedule_reveal_level ?? "draft"}
+        defaultTimezone={festival.timezone}
+      />
+    </>
   );
 }

@@ -52,6 +52,7 @@ import {
 } from "@/components/ui/card";
 import { UserPlus, Trash2, Crown } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
+import { PageTitle } from "@/components/PageTitle/PageTitle";
 
 export const Route = createFileRoute("/admin/admins")({
   component: AdminRolesTable,
@@ -115,6 +116,7 @@ function AdminRolesTable() {
 
   return (
     <Card>
+      <PageTitle title="Admins" prefix="Admin" />
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>

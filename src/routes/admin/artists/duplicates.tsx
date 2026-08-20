@@ -10,6 +10,7 @@ import { DuplicateGroupCard } from "@/pages/admin/ArtistsManagement/DuplicateGro
 import { BulkMergeDialog } from "@/pages/admin/ArtistsManagement/BulkMergeDialog";
 import { Link } from "@tanstack/react-router";
 import { genresQuery } from "@/api/genres/useGenres";
+import { PageTitle } from "@/components/PageTitle/PageTitle";
 
 export const Route = createFileRoute("/admin/artists/duplicates")({
   component: DuplicateArtistsPage,
@@ -55,6 +56,7 @@ function DuplicateArtistsPage() {
 
   return (
     <div className="space-y-6">
+      <PageTitle title="Duplicate Artists" prefix="Admin" />
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">

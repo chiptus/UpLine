@@ -91,7 +91,10 @@ function FestivalEdition() {
 
   return (
     <div className="space-y-6">
-      <PageTitle title={currentEdition.name} prefix={festival.name} />
+      <PageTitle
+        title={currentEdition.name}
+        prefix={`Admin - ${festival.name}`}
+      />
       <Card>
         <CardHeader>
           <CardTitle className="flex flex-wrap items-center justify-between gap-3">

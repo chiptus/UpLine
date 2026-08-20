@@ -77,7 +77,7 @@ function FestivalStages() {
 
   return (
     <Card>
-      <PageTitle title="Stages" prefix={festival.name} />
+      <PageTitle title="Stages" prefix={`Admin - ${festival.name}`} />
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span className="flex items-center gap-2">

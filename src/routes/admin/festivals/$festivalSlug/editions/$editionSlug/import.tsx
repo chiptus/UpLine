@@ -12,7 +12,10 @@ function FestivalScheduleImport() {
   const { festival, edition } = Route.useRouteContext();
   return (
     <>
-      <PageTitle title="Import" prefix={edition.name} />
+      <PageTitle
+        title="Import"
+        prefix={`Admin - ${festival.name} - ${edition.name}`}
+      />
       <ScheduleImportWizard
         festivalEditionId={edition.id}
         currentRevealLevel={edition.schedule_reveal_level ?? "draft"}

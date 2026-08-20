@@ -69,6 +69,22 @@ Deno.test(
 );
 
 Deno.test(
+  "normalizeSoundCloudSearchResult preserves a followers_count of 0",
+  () => {
+    const user: SoundCloudUser = {
+      id: 12345,
+      username: "testartist",
+      permalink_url: "https://soundcloud.com/testartist",
+      followers_count: 0,
+    };
+
+    const result = normalizeSoundCloudSearchResult(user);
+
+    assertEquals(result.followers, 0);
+  },
+);
+
+Deno.test(
   "normalizeSoundCloudSearchResult handles user with all optional fields",
   () => {
     const user: SoundCloudUser = {

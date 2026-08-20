@@ -69,7 +69,6 @@ export const adminArtistsSortKeySchema = z.enum([
   "spotify_url",
   "soundcloud_url",
   "created_at",
-  "genres",
 ]);
 
 export type AdminArtistsSortKey = z.infer<typeof adminArtistsSortKeySchema>;

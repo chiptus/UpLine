@@ -24,21 +24,35 @@ async function fetchArtistsPage({
   sortKey,
   sortDir,
 }: ArtistsPageParams): Promise<ArtistsPageResult> {
-  const { data, error } = await supabase.rpc("get_artists_page", {
-    p_page: page,
-    p_page_size: pageSize,
-    p_search: search.trim() || undefined,
-    p_sort_key: sortKey,
-    p_sort_dir: sortDir,
-  });
+  const from = page * pageSize;
+  const to = from + pageSize - 1;
+
+  let query = supabase
+    .from("artists")
+    .select(
+      `
+      *,
+      artist_music_genres (music_genre_id)
+    `,
+      { count: "exact" },
+    )
+    .eq("archived", false);
+
+  if (search.trim()) {
+    query = query.ilike("name", `%${search.trim()}%`);
+  }
+
+  const { data, error, count } = await query
+    .order(sortKey, { ascending: sortDir === "asc" })
+    .order("id")
+    .range(from, to);
 
   if (error) {
     console.error("Error fetching artists page:", error);
     throw new Error("Failed to fetch artists");
   }
 
-  const rows = data ?? [];
-  const artistIds = rows.map((row) => (row.artist as { id: string }).id);
+  const artistIds = data.map((artist) => artist.id);
 
   const soundcloudMap = new Map<string, number>();
   if (artistIds.length > 0) {
@@ -58,16 +72,11 @@ async function fetchArtistsPage({
   }
 
   return {
-    artists: rows.map((row) => {
-      const artist = row.artist as Artist;
-      const genreIds = row.genre_ids as string[];
-      return {
-        ...artist,
-        artist_music_genres: genreIds.map((id) => ({ music_genre_id: id })),
-        soundcloud_followers: soundcloudMap.get(artist.id) || 0,
-      };
-    }),
-    totalCount: rows.length > 0 ? Number(rows[0].total_count) : 0,
+    artists: data.map((artist) => ({
+      ...artist,
+      soundcloud_followers: soundcloudMap.get(artist.id) || 0,
+    })),
+    totalCount: count ?? 0,
   };
 }
 

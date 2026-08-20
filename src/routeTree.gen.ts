@@ -40,6 +40,7 @@ import { Route as FestivalsFestivalSlugEditionsEditionSlugScheduleNowRouteImport
 import { Route as FestivalsFestivalSlugEditionsEditionSlugScheduleListRouteImport } from './routes/festivals/$festivalSlug/editions/$editionSlug/schedule/list'
 import { Route as AdminFestivalsFestivalSlugEditionsEditionSlugStagesRouteImport } from './routes/admin/festivals/$festivalSlug/editions/$editionSlug/stages'
 import { Route as AdminFestivalsFestivalSlugEditionsEditionSlugSetsRouteImport } from './routes/admin/festivals/$festivalSlug/editions/$editionSlug/sets'
+import { Route as AdminFestivalsFestivalSlugEditionsEditionSlugLinksRouteImport } from './routes/admin/festivals/$festivalSlug/editions/$editionSlug/links'
 import { Route as AdminFestivalsFestivalSlugEditionsEditionSlugImportRouteImport } from './routes/admin/festivals/$festivalSlug/editions/$editionSlug/import'
 
 const TermsRoute = TermsRouteImport.update({
@@ -214,6 +215,12 @@ const AdminFestivalsFestivalSlugEditionsEditionSlugSetsRoute =
     path: '/sets',
     getParentRoute: () => AdminFestivalsFestivalSlugEditionsEditionSlugRoute,
   } as any)
+const AdminFestivalsFestivalSlugEditionsEditionSlugLinksRoute =
+  AdminFestivalsFestivalSlugEditionsEditionSlugLinksRouteImport.update({
+    id: '/links',
+    path: '/links',
+    getParentRoute: () => AdminFestivalsFestivalSlugEditionsEditionSlugRoute,
+  } as any)
 const AdminFestivalsFestivalSlugEditionsEditionSlugImportRoute =
   AdminFestivalsFestivalSlugEditionsEditionSlugImportRouteImport.update({
     id: '/import',
@@ -247,6 +254,7 @@ export interface FileRoutesByFullPath {
   '/festivals/$festivalSlug/editions/$editionSlug/sets': typeof FestivalsFestivalSlugEditionsEditionSlugSetsRouteWithChildren
   '/festivals/$festivalSlug/editions/$editionSlug/social': typeof FestivalsFestivalSlugEditionsEditionSlugSocialRoute
   '/admin/festivals/$festivalSlug/editions/$editionSlug/import': typeof AdminFestivalsFestivalSlugEditionsEditionSlugImportRoute
+  '/admin/festivals/$festivalSlug/editions/$editionSlug/links': typeof AdminFestivalsFestivalSlugEditionsEditionSlugLinksRoute
   '/admin/festivals/$festivalSlug/editions/$editionSlug/sets': typeof AdminFestivalsFestivalSlugEditionsEditionSlugSetsRoute
   '/admin/festivals/$festivalSlug/editions/$editionSlug/stages': typeof AdminFestivalsFestivalSlugEditionsEditionSlugStagesRoute
   '/festivals/$festivalSlug/editions/$editionSlug/schedule/list': typeof FestivalsFestivalSlugEditionsEditionSlugScheduleListRoute
@@ -279,6 +287,7 @@ export interface FileRoutesByTo {
   '/festivals/$festivalSlug/editions/$editionSlug/schedule': typeof FestivalsFestivalSlugEditionsEditionSlugScheduleRouteWithChildren
   '/festivals/$festivalSlug/editions/$editionSlug/social': typeof FestivalsFestivalSlugEditionsEditionSlugSocialRoute
   '/admin/festivals/$festivalSlug/editions/$editionSlug/import': typeof AdminFestivalsFestivalSlugEditionsEditionSlugImportRoute
+  '/admin/festivals/$festivalSlug/editions/$editionSlug/links': typeof AdminFestivalsFestivalSlugEditionsEditionSlugLinksRoute
   '/admin/festivals/$festivalSlug/editions/$editionSlug/sets': typeof AdminFestivalsFestivalSlugEditionsEditionSlugSetsRoute
   '/admin/festivals/$festivalSlug/editions/$editionSlug/stages': typeof AdminFestivalsFestivalSlugEditionsEditionSlugStagesRoute
   '/festivals/$festivalSlug/editions/$editionSlug/schedule/list': typeof FestivalsFestivalSlugEditionsEditionSlugScheduleListRoute
@@ -314,6 +323,7 @@ export interface FileRoutesById {
   '/festivals/$festivalSlug/editions/$editionSlug/sets': typeof FestivalsFestivalSlugEditionsEditionSlugSetsRouteWithChildren
   '/festivals/$festivalSlug/editions/$editionSlug/social': typeof FestivalsFestivalSlugEditionsEditionSlugSocialRoute
   '/admin/festivals/$festivalSlug/editions/$editionSlug/import': typeof AdminFestivalsFestivalSlugEditionsEditionSlugImportRoute
+  '/admin/festivals/$festivalSlug/editions/$editionSlug/links': typeof AdminFestivalsFestivalSlugEditionsEditionSlugLinksRoute
   '/admin/festivals/$festivalSlug/editions/$editionSlug/sets': typeof AdminFestivalsFestivalSlugEditionsEditionSlugSetsRoute
   '/admin/festivals/$festivalSlug/editions/$editionSlug/stages': typeof AdminFestivalsFestivalSlugEditionsEditionSlugStagesRoute
   '/festivals/$festivalSlug/editions/$editionSlug/schedule/list': typeof FestivalsFestivalSlugEditionsEditionSlugScheduleListRoute
@@ -350,6 +360,7 @@ export interface FileRouteTypes {
     | '/festivals/$festivalSlug/editions/$editionSlug/sets'
     | '/festivals/$festivalSlug/editions/$editionSlug/social'
     | '/admin/festivals/$festivalSlug/editions/$editionSlug/import'
+    | '/admin/festivals/$festivalSlug/editions/$editionSlug/links'
     | '/admin/festivals/$festivalSlug/editions/$editionSlug/sets'
     | '/admin/festivals/$festivalSlug/editions/$editionSlug/stages'
     | '/festivals/$festivalSlug/editions/$editionSlug/schedule/list'
@@ -382,6 +393,7 @@ export interface FileRouteTypes {
     | '/festivals/$festivalSlug/editions/$editionSlug/schedule'
     | '/festivals/$festivalSlug/editions/$editionSlug/social'
     | '/admin/festivals/$festivalSlug/editions/$editionSlug/import'
+    | '/admin/festivals/$festivalSlug/editions/$editionSlug/links'
     | '/admin/festivals/$festivalSlug/editions/$editionSlug/sets'
     | '/admin/festivals/$festivalSlug/editions/$editionSlug/stages'
     | '/festivals/$festivalSlug/editions/$editionSlug/schedule/list'
@@ -416,6 +428,7 @@ export interface FileRouteTypes {
     | '/festivals/$festivalSlug/editions/$editionSlug/sets'
     | '/festivals/$festivalSlug/editions/$editionSlug/social'
     | '/admin/festivals/$festivalSlug/editions/$editionSlug/import'
+    | '/admin/festivals/$festivalSlug/editions/$editionSlug/links'
     | '/admin/festivals/$festivalSlug/editions/$editionSlug/sets'
     | '/admin/festivals/$festivalSlug/editions/$editionSlug/stages'
     | '/festivals/$festivalSlug/editions/$editionSlug/schedule/list'
@@ -656,6 +669,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugSetsRouteImport
       parentRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugRoute
     }
+    '/admin/festivals/$festivalSlug/editions/$editionSlug/links': {
+      id: '/admin/festivals/$festivalSlug/editions/$editionSlug/links'
+      path: '/links'
+      fullPath: '/admin/festivals/$festivalSlug/editions/$editionSlug/links'
+      preLoaderRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugLinksRouteImport
+      parentRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugRoute
+    }
     '/admin/festivals/$festivalSlug/editions/$editionSlug/import': {
       id: '/admin/festivals/$festivalSlug/editions/$editionSlug/import'
       path: '/import'
@@ -680,6 +700,7 @@ const AdminArtistsRouteWithChildren = AdminArtistsRoute._addFileChildren(
 
 interface AdminFestivalsFestivalSlugEditionsEditionSlugRouteChildren {
   AdminFestivalsFestivalSlugEditionsEditionSlugImportRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugImportRoute
+  AdminFestivalsFestivalSlugEditionsEditionSlugLinksRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugLinksRoute
   AdminFestivalsFestivalSlugEditionsEditionSlugSetsRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugSetsRoute
   AdminFestivalsFestivalSlugEditionsEditionSlugStagesRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugStagesRoute
 }
@@ -688,6 +709,8 @@ const AdminFestivalsFestivalSlugEditionsEditionSlugRouteChildren: AdminFestivals
   {
     AdminFestivalsFestivalSlugEditionsEditionSlugImportRoute:
       AdminFestivalsFestivalSlugEditionsEditionSlugImportRoute,
+    AdminFestivalsFestivalSlugEditionsEditionSlugLinksRoute:
+      AdminFestivalsFestivalSlugEditionsEditionSlugLinksRoute,
     AdminFestivalsFestivalSlugEditionsEditionSlugSetsRoute:
       AdminFestivalsFestivalSlugEditionsEditionSlugSetsRoute,
     AdminFestivalsFestivalSlugEditionsEditionSlugStagesRoute:

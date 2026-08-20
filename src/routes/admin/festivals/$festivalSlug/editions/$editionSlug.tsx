@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useParams, useLocation, Outlet, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Loader2, MapPin, Music, Upload } from "lucide-react";
+import { Link2, Loader2, MapPin, Music, Upload } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useFestivalEditionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
@@ -79,6 +79,7 @@ function FestivalEdition() {
   const isOnSets = location.pathname.includes("/sets");
   const isOnStages = location.pathname.includes("/stages");
   const isOnImport = location.pathname.includes("/import");
+  const isOnLinks = location.pathname.includes("/links");
 
   const derivedPhase = getFestivalPhase({
     revealLevel: currentEdition.schedule_reveal_level ?? "draft",
@@ -112,7 +113,7 @@ function FestivalEdition() {
         </CardHeader>
       </Card>
       <div className="w-full">
-        <div className="grid w-full grid-cols-3 gap-2 bg-white/10 backdrop-blur-md p-1 rounded-lg">
+        <div className="grid w-full grid-cols-4 gap-2 bg-white/10 backdrop-blur-md p-1 rounded-lg">
           <Link
             to="/admin/festivals/$festivalSlug/editions/$editionSlug/stages"
             params={{ festivalSlug, editionSlug }}
@@ -148,6 +149,18 @@ function FestivalEdition() {
           >
             <Upload className="h-4 w-4" />
             Import
+          </Link>
+          <Link
+            to="/admin/festivals/$festivalSlug/editions/$editionSlug/links"
+            params={{ festivalSlug, editionSlug }}
+            className={cn(
+              "flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors",
+              "text-white font-medium",
+              isOnLinks ? "bg-purple-600" : "hover:bg-white/10",
+            )}
+          >
+            <Link2 className="h-4 w-4" />
+            Links
           </Link>
         </div>
 

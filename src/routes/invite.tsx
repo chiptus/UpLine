@@ -23,7 +23,18 @@ const inviteSearchSchema = z.object({
 export const Route = createFileRoute("/invite")({
   component: InviteRoute,
   validateSearch: inviteSearchSchema,
+  errorComponent: InviteSearchError,
 });
+
+function InviteSearchError() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    navigate({ to: "/", replace: true });
+  }, [navigate]);
+
+  return null;
+}
 
 function InviteRoute() {
   const { invite: inviteToken, redirect } = Route.useSearch();

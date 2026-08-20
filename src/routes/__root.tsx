@@ -47,9 +47,18 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   }),
   beforeLoad: async ({ search, location }) => {
     if (search.invite && location.pathname !== "/invite") {
+      const { invite: _invite, ...restSearch } = location.search as Record<
+        string,
+        unknown
+      >;
+      const remainingSearch = new URLSearchParams(
+        restSearch as Record<string, string>,
+      ).toString();
+      const redirectTarget = `${location.pathname}${remainingSearch ? `?${remainingSearch}` : ""}${location.hash}`;
+
       throw redirect({
         to: "/invite",
-        search: { invite: search.invite, redirect: location.pathname },
+        search: { invite: search.invite, redirect: redirectTarget },
       });
     }
 

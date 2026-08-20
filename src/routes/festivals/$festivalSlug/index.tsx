@@ -35,6 +35,7 @@ export const Route = createFileRoute("/festivals/$festivalSlug/")({
           festivalSlug: params.festivalSlug,
           editionSlug: editions[0].slug,
         },
+        search: (prev) => prev,
       });
     }
   },

@@ -38,6 +38,8 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
       )
     : 0;
   const currentArtist = artists[Math.min(currentIndex, artists.length - 1)];
+  const pageCount = Math.max(1, Math.ceil(artists.length / pageSize));
+  const clampedPage = Math.min(page, pageCount - 1);
 
   function goTo(index: number) {
     const clamped = Math.max(0, Math.min(index, artists.length - 1));
@@ -85,7 +87,7 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
           <LinkWizardTable
             artists={artists}
             currentArtistId={currentArtist?.id}
-            page={page}
+            page={clampedPage}
             pageSize={pageSize}
             onPageChange={setPage}
             onPageSizeChange={(size) => {

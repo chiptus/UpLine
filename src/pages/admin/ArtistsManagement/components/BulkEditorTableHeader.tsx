@@ -1,6 +1,6 @@
 import { TableHeader, TableRow, TableHead } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { SortConfig, SortingKey } from "../hooks/useArtistSorting";
+import type { SortConfig, SortingKey } from "../types";
 
 interface BulkEditorTableHeaderProps {
   selectedCount: number;
@@ -49,12 +49,7 @@ export function BulkEditorTableHeader({
         >
           Description{getSortIndicator("description")}
         </TableHead>
-        <TableHead
-          className="cursor-pointer hover:bg-gray-50 min-w-32"
-          onClick={() => onSort("genres")}
-        >
-          Genres{getSortIndicator("genres")}
-        </TableHead>
+        <TableHead className="min-w-32">Genres</TableHead>
         <TableHead
           className="cursor-pointer hover:bg-gray-50 min-w-48"
           onClick={() => onSort("spotify_url")}

@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -55,13 +54,6 @@ export function LinkWizardStep({
       soundcloudUrl: artist.soundcloud_url ?? "",
     },
   });
-
-  useEffect(() => {
-    form.reset({
-      spotifyUrl: artist.spotify_url ?? "",
-      soundcloudUrl: artist.soundcloud_url ?? "",
-    });
-  }, [artist, form]);
 
   function onSubmit(data: LinkStepData) {
     updateArtistMutation.mutate(

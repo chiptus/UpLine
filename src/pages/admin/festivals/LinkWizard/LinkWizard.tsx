@@ -65,6 +65,7 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
           ) : (
             currentArtist && (
               <LinkWizardStep
+                key={currentArtist.id}
                 artist={currentArtist}
                 position={currentIndex + 1}
                 total={artists.length}

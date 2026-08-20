@@ -29,13 +29,14 @@ export const Route = createFileRoute("/")({
       const festival = festivals[0];
 
       if (isMainGetuplineDomain()) {
-        window.location.href = createFestivalSubdomainUrl(festival.slug);
+        window.location.href = `${createFestivalSubdomainUrl(festival.slug)}${window.location.search}`;
         return;
       }
 
       throw redirect({
         to: "/festivals/$festivalSlug",
         params: { festivalSlug: festival.slug },
+        search: (prev) => prev,
       });
     }
   },

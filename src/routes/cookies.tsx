@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { LEGAL_DOCS_LAST_UPDATED } from "@/lib/constants/legal";
+import { PageTitle } from "@/components/PageTitle/PageTitle";
 
 export const Route = createFileRoute("/cookies")({
   component: CookiePolicy,
@@ -12,6 +13,7 @@ export const Route = createFileRoute("/cookies")({
 function CookiePolicy() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background/95 to-muted/20">
+      <PageTitle title="Cookie Policy" />
       <TopBar />
 
       <div className="container mx-auto px-4 py-8">

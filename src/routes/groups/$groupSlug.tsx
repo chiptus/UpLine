@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { confirm } from "@/hooks/use-confirm";
 import { useRemoveMemberMutation } from "@/api/groups/useRemoveMember";
 import { isGroupCreator } from "@/lib/groupPermissions";
+import { PageTitle } from "@/components/PageTitle/PageTitle";
 
 export const Route = createFileRoute("/groups/$groupSlug")({
   component: GroupDetail,
@@ -45,6 +46,7 @@ function GroupDetail() {
   if (!user) {
     return (
       <div className="min-h-screen bg-app-gradient flex items-center justify-center">
+        <PageTitle title="Sign in required" />
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Sign in required</CardTitle>
@@ -79,6 +81,7 @@ function GroupDetailContent({ user }: { user: User }) {
 
   return (
     <div className="min-h-screen bg-app-gradient">
+      <PageTitle title={group.name} />
       <div className="container mx-auto px-4 py-8">
         <TopBar showBackButton backLabel="Back to Groups" />
 

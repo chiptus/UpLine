@@ -19,6 +19,7 @@ import {
   adminArtistsSearchDefaults,
   adminArtistsSearchSchema,
 } from "@/pages/admin/ArtistsManagement/searchSchema";
+import { PageTitle } from "@/components/PageTitle/PageTitle";
 
 export const Route = createFileRoute("/admin/artists")({
   component: ArtistBulkEditor,
@@ -85,6 +86,7 @@ function ArtistBulkEditor() {
 
   return (
     <div className="space-y-6">
+      <PageTitle title="Artists" prefix="Admin" />
       <Card>
         <BulkEditorHeader onAddArtist={() => setAddArtistOpen(true)} />
 

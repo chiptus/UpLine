@@ -4,6 +4,7 @@ import { FestivalEditionProvider } from "@/contexts/FestivalEditionContext";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 import { festivalInfoQuery } from "@/api/festival-info/useFestivalInfo";
 import { customLinksQuery } from "@/api/custom-links/useCustomLinks";
+import { PageTitle } from "@/components/PageTitle/PageTitle";
 
 export const Route = createFileRoute("/festivals/$festivalSlug")({
   beforeLoad: async ({ params, context }) => {
@@ -32,6 +33,7 @@ function FestivalLayout() {
 
   return (
     <FestivalEditionProvider festival={festival} editionSlug={editionSlug}>
+      <PageTitle title={festival.name} />
       <Outlet />
     </FestivalEditionProvider>
   );

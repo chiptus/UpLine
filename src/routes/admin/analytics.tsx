@@ -18,6 +18,7 @@ import {
 import { Users, Vote } from "lucide-react";
 import { groupAnalyticsQuery } from "@/api/analytics/useGroupAnalyticsQuery";
 import { userAnalyticsQuery } from "@/api/analytics/useUserAnalyticsQuery";
+import { PageTitle } from "@/components/PageTitle/PageTitle";
 
 export const Route = createFileRoute("/admin/analytics")({
   component: AdminAnalytics,
@@ -33,6 +34,7 @@ function AdminAnalytics() {
 
   return (
     <div className="space-y-6">
+      <PageTitle title="Analytics" prefix="Admin" />
       <Card className="bg-white/10 backdrop-blur-md border-white/20">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-white">

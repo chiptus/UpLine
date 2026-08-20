@@ -29,6 +29,14 @@ BEGIN
     RAISE EXCEPTION 'invalid sort direction: %', p_sort_dir;
   END IF;
 
+  IF p_page < 0 THEN
+    RAISE EXCEPTION 'invalid page: %', p_page;
+  END IF;
+
+  IF p_page_size < 1 OR p_page_size > 100 THEN
+    RAISE EXCEPTION 'invalid page size: %', p_page_size;
+  END IF;
+
   RETURN QUERY EXECUTE format(
     $q$
     SELECT to_jsonb(a.*) AS artist,
@@ -44,7 +52,7 @@ BEGIN
     ) g ON g.artist_id = a.id
     WHERE a.archived = false
       AND ($1 IS NULL OR a.name ILIKE '%%' || $1 || '%%')
-    ORDER BY %s %s NULLS LAST
+    ORDER BY %s %s NULLS LAST, a.id
     LIMIT $2 OFFSET $3
     $q$,
     -- p_sort_key is whitelisted above, so building the column reference

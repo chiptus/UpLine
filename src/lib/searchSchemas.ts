@@ -75,7 +75,7 @@ export const adminArtistsSortKeySchema = z.enum([
 export type AdminArtistsSortKey = z.infer<typeof adminArtistsSortKeySchema>;
 
 export const adminArtistsSearchSchema = z.object({
-  page: z.coerce.number().catch(0),
+  page: z.coerce.number().int().nonnegative().catch(0),
   q: z.string().catch(""),
   sortKey: adminArtistsSortKeySchema.catch("created_at"),
   sortDir: z.enum(["asc", "desc"]).catch("desc"),

@@ -118,7 +118,10 @@ function ArtistBulkEditor() {
             page={urlState.page}
             pageSize={PAGE_SIZE}
             totalCount={totalCount}
-            onPageChange={(page) => updateUrlState({ page })}
+            onPageChange={(page) => {
+              clearSelection();
+              updateUrlState({ page });
+            }}
           />
 
           <BulkEditorFooter

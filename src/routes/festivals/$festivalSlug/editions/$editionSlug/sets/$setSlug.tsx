@@ -41,7 +41,7 @@ export const Route = createFileRoute(
   head: ({ loaderData, match }) => ({
     meta: pageMeta({
       title: loaderData?.set.name ?? "",
-      prefix: match.context.festival.name,
+      prefix: match.context.festival?.name,
     }),
   }),
 });

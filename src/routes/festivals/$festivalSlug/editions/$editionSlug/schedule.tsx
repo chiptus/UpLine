@@ -19,7 +19,7 @@ export const Route = createFileRoute(
 )({
   component: ScheduleTab,
   head: ({ match }) => ({
-    meta: pageMeta({ title: "Schedule", prefix: match.context.festival.name }),
+    meta: pageMeta({ title: "Schedule", prefix: match.context.festival?.name }),
   }),
   validateSearch: timelineSearchSchema,
   search: {

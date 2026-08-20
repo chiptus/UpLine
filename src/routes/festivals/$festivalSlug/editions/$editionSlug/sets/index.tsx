@@ -15,7 +15,7 @@ export const Route = createFileRoute(
 )({
   component: VoteTab,
   head: ({ match }) => ({
-    meta: pageMeta({ title: "Vote", prefix: match.context.festival.name }),
+    meta: pageMeta({ title: "Vote", prefix: match.context.festival?.name }),
   }),
   validateSearch: filterSortSearchSchema,
   search: {

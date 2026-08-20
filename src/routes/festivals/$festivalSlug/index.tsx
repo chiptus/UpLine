@@ -24,7 +24,7 @@ export const Route = createFileRoute("/festivals/$festivalSlug/")({
   head: ({ match }) => ({
     meta: pageMeta({
       title: "Select Edition",
-      prefix: match.context.festival.name,
+      prefix: match.context.festival?.name,
     }),
   }),
   beforeLoad: async ({ params, context, search }) => {

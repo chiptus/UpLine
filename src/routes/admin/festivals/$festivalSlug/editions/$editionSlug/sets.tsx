@@ -21,7 +21,7 @@ export const Route = createFileRoute(
   head: ({ match }) => ({
     meta: pageMeta({
       title: "Sets",
-      prefix: `Admin - ${match.context.festival.name}`,
+      prefix: `Admin - ${match.context.festival?.name}`,
     }),
   }),
 });

@@ -15,7 +15,7 @@ export const Route = createFileRoute(
 )({
   component: InfoTab,
   head: ({ match }) => ({
-    meta: pageMeta({ title: "Info", prefix: match.context.festival.name }),
+    meta: pageMeta({ title: "Info", prefix: match.context.festival?.name }),
   }),
 });
 

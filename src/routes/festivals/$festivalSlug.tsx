@@ -23,7 +23,7 @@ export const Route = createFileRoute("/festivals/$festivalSlug")({
   },
   component: FestivalLayout,
   head: ({ match }) => ({
-    meta: pageMeta({ title: match.context.festival.name }),
+    meta: pageMeta({ title: match.context.festival?.name }),
   }),
 });
 

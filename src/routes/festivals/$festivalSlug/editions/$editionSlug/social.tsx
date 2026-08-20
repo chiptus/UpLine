@@ -10,7 +10,7 @@ export const Route = createFileRoute(
 )({
   component: SocialTab,
   head: ({ match }) => ({
-    meta: pageMeta({ title: "Social", prefix: match.context.festival.name }),
+    meta: pageMeta({ title: "Social", prefix: match.context.festival?.name }),
   }),
 });
 

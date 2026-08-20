@@ -9,7 +9,7 @@ export const Route = createFileRoute(
   head: ({ match }) => ({
     meta: pageMeta({
       title: "Import",
-      prefix: `Admin - ${match.context.festival.name} - ${match.context.edition.name}`,
+      prefix: `Admin - ${match.context.festival?.name} - ${match.context.edition?.name}`,
     }),
   }),
 });

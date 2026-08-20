@@ -16,11 +16,14 @@ export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug/explore",
 )({
   component: ExploreSetPage,
-  head: ({ match }) => ({
-    meta: pageMeta({
-      title: `Explore Sets - ${match.context.edition.name}`,
-    }),
-  }),
+  head: ({ match }) =>
+    match.context.edition
+      ? {
+          meta: pageMeta({
+            title: `Explore Sets - ${match.context.edition.name}`,
+          }),
+        }
+      : {},
 });
 
 function ExploreSetPage() {

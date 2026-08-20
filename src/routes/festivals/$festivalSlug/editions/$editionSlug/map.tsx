@@ -9,7 +9,7 @@ export const Route = createFileRoute(
 )({
   component: MapTab,
   head: ({ match }) => ({
-    meta: pageMeta({ title: "Map", prefix: match.context.festival.name }),
+    meta: pageMeta({ title: "Map", prefix: match.context.festival?.name }),
   }),
 });
 

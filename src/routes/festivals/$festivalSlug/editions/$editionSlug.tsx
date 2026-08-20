@@ -59,8 +59,8 @@ export const Route = createFileRoute(
   },
   head: ({ match }) => ({
     meta: pageMeta({
-      title: match.context.edition.name,
-      prefix: match.context.festival.name,
+      title: match.context.edition?.name,
+      prefix: match.context.festival?.name,
     }),
   }),
 });

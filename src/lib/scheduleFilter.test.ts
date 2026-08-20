@@ -202,7 +202,13 @@ describe("filterScheduleDays", () => {
               id: "stage-1",
               name: "Main Stage",
               stage_order: 1,
-              sets: [makeSet({ id: "set-1" }), makeSet({ id: "set-2" })],
+              sets: [
+                makeSet({
+                  id: "set-1",
+                  votes: [{ user_id: "me", vote_type: 2 }],
+                }),
+                makeSet({ id: "set-2" }),
+              ],
             },
           ],
         }),
@@ -210,7 +216,7 @@ describe("filterScheduleDays", () => {
 
       const result = filterScheduleDays(
         days,
-        baseCriteria({ voteTypes: [], userVotes: { "set-1": 2 } }),
+        baseCriteria({ voteTypes: [], currentUserId: "me" }),
         TIMEZONE,
       );
 
@@ -220,7 +226,7 @@ describe("filterScheduleDays", () => {
       ]);
     });
 
-    it("keeps only sets matching a single selected vote type", () => {
+    it("keeps only sets matching a single selected vote type (me scope)", () => {
       const days = [
         makeDay({
           stages: [
@@ -229,8 +235,14 @@ describe("filterScheduleDays", () => {
               name: "Main Stage",
               stage_order: 1,
               sets: [
-                makeSet({ id: "must-go-set" }),
-                makeSet({ id: "interested-set" }),
+                makeSet({
+                  id: "must-go-set",
+                  votes: [{ user_id: "me", vote_type: 2 }],
+                }),
+                makeSet({
+                  id: "interested-set",
+                  votes: [{ user_id: "me", vote_type: 1 }],
+                }),
               ],
             },
           ],
@@ -241,7 +253,8 @@ describe("filterScheduleDays", () => {
         days,
         baseCriteria({
           voteTypes: ["mustGo"],
-          userVotes: { "must-go-set": 2, "interested-set": 1 },
+          voteScope: "me",
+          currentUserId: "me",
         }),
         TIMEZONE,
       );
@@ -260,9 +273,18 @@ describe("filterScheduleDays", () => {
               name: "Main Stage",
               stage_order: 1,
               sets: [
-                makeSet({ id: "must-go-set" }),
-                makeSet({ id: "interested-set" }),
-                makeSet({ id: "wont-go-set" }),
+                makeSet({
+                  id: "must-go-set",
+                  votes: [{ user_id: "me", vote_type: 2 }],
+                }),
+                makeSet({
+                  id: "interested-set",
+                  votes: [{ user_id: "me", vote_type: 1 }],
+                }),
+                makeSet({
+                  id: "wont-go-set",
+                  votes: [{ user_id: "me", vote_type: -1 }],
+                }),
               ],
             },
           ],
@@ -273,11 +295,7 @@ describe("filterScheduleDays", () => {
         days,
         baseCriteria({
           voteTypes: ["mustGo", "interested"],
-          userVotes: {
-            "must-go-set": 2,
-            "interested-set": 1,
-            "wont-go-set": -1,
-          },
+          currentUserId: "me",
         }),
         TIMEZONE,
       );
@@ -304,14 +322,14 @@ describe("filterScheduleDays", () => {
 
       const result = filterScheduleDays(
         days,
-        baseCriteria({ voteTypes: ["mustGo"], userVotes: {} }),
+        baseCriteria({ voteTypes: ["mustGo"], currentUserId: "me" }),
         TIMEZONE,
       );
 
       expect(result[0].stages[0].sets).toHaveLength(0);
     });
 
-    it("is inert when userVotes is undefined (no viewer identity)", () => {
+    it("is inert when currentUserId is undefined (no viewer identity)", () => {
       const days = [
         makeDay({
           stages: [
@@ -327,7 +345,7 @@ describe("filterScheduleDays", () => {
 
       const result = filterScheduleDays(
         days,
-        baseCriteria({ voteTypes: ["mustGo"], userVotes: undefined }),
+        baseCriteria({ voteTypes: ["mustGo"], currentUserId: undefined }),
         TIMEZONE,
       );
 
@@ -345,7 +363,12 @@ describe("filterScheduleDays", () => {
               id: "stage-1",
               name: "Main Stage",
               stage_order: 1,
-              sets: [makeSet({ id: "weird-vote-set" })],
+              sets: [
+                makeSet({
+                  id: "weird-vote-set",
+                  votes: [{ user_id: "me", vote_type: 0 }],
+                }),
+              ],
             },
           ],
         }),
@@ -355,7 +378,7 @@ describe("filterScheduleDays", () => {
         days,
         baseCriteria({
           voteTypes: ["mustGo"],
-          userVotes: { "weird-vote-set": 0 },
+          currentUserId: "me",
         }),
         TIMEZONE,
       );
@@ -371,7 +394,12 @@ describe("filterScheduleDays", () => {
               id: "stage-1",
               name: "Main Stage",
               stage_order: 1,
-              sets: [makeSet({ id: "not-in-map" })],
+              sets: [
+                makeSet({
+                  id: "not-in-map",
+                  votes: [{ user_id: "someone-else", vote_type: 2 }],
+                }),
+              ],
             },
           ],
         }),
@@ -381,12 +409,117 @@ describe("filterScheduleDays", () => {
         days,
         baseCriteria({
           voteTypes: ["mustGo"],
-          userVotes: { "some-other-set": 2 },
+          currentUserId: "me",
         }),
         TIMEZONE,
       );
 
       expect(result[0].stages[0].sets).toHaveLength(0);
+    });
+
+    it("under everyone scope, matches a set voted on by any user at all", () => {
+      const days = [
+        makeDay({
+          stages: [
+            {
+              id: "stage-1",
+              name: "Main Stage",
+              stage_order: 1,
+              sets: [
+                makeSet({
+                  id: "stranger-must-go",
+                  votes: [{ user_id: "total-stranger", vote_type: 2 }],
+                }),
+                makeSet({ id: "unvoted" }),
+              ],
+            },
+          ],
+        }),
+      ];
+
+      const result = filterScheduleDays(
+        days,
+        baseCriteria({
+          voteTypes: ["mustGo"],
+          voteScope: "everyone",
+          currentUserId: "me",
+        }),
+        TIMEZONE,
+      );
+
+      expect(result[0].stages[0].sets.map((s) => s.id)).toEqual([
+        "stranger-must-go",
+      ]);
+    });
+
+    it("under group scope, matches a set voted on by any group member", () => {
+      const days = [
+        makeDay({
+          stages: [
+            {
+              id: "stage-1",
+              name: "Main Stage",
+              stage_order: 1,
+              sets: [
+                makeSet({
+                  id: "group-must-go",
+                  votes: [{ user_id: "teammate", vote_type: 2 }],
+                }),
+                makeSet({
+                  id: "outsider-must-go",
+                  votes: [{ user_id: "stranger", vote_type: 2 }],
+                }),
+              ],
+            },
+          ],
+        }),
+      ];
+
+      const result = filterScheduleDays(
+        days,
+        baseCriteria({
+          voteTypes: ["mustGo"],
+          voteScope: "group",
+          currentUserId: "me",
+          groupMemberIds: new Set(["me", "teammate"]),
+        }),
+        TIMEZONE,
+      );
+
+      expect(result[0].stages[0].sets.map((s) => s.id)).toEqual([
+        "group-must-go",
+      ]);
+    });
+
+    it("is inert under group scope when groupMemberIds is undefined (still loading)", () => {
+      const days = [
+        makeDay({
+          stages: [
+            {
+              id: "stage-1",
+              name: "Main Stage",
+              stage_order: 1,
+              sets: [makeSet({ id: "set-1" }), makeSet({ id: "set-2" })],
+            },
+          ],
+        }),
+      ];
+
+      const result = filterScheduleDays(
+        days,
+        baseCriteria({
+          voteTypes: ["mustGo"],
+          voteScope: "group",
+          currentUserId: "me",
+          groupMemberIds: undefined,
+        }),
+        TIMEZONE,
+      );
+
+      expect(result[0].stages[0].sets.map((s) => s.id)).toEqual([
+        "set-1",
+        "set-2",
+      ]);
     });
   });
 
@@ -466,6 +599,7 @@ function makeSet(overrides: Partial<ScheduleSet> = {}): ScheduleSet {
     id: "set-1",
     name: "A set",
     artists: [],
+    votes: [],
     startTime: new Date("2024-07-15T10:00:00Z"),
     ...overrides,
   };

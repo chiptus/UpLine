@@ -71,3 +71,26 @@ export async function createGroupWithMember(
 
   return { groupId: group.id, groupName };
 }
+
+// Adds an existing group's membership for another user.
+export async function addMemberToGroup(
+  groupId: string,
+  email: string,
+): Promise<void> {
+  const userId = await getUserIdByEmail(email);
+
+  const memberResponse = await fetch(
+    `${TEST_CONFIG.SUPABASE_URL}/rest/v1/group_members`,
+    {
+      method: "POST",
+      headers: { ...ADMIN_HEADERS, Prefer: "return=minimal" },
+      body: JSON.stringify({ group_id: groupId, user_id: userId }),
+    },
+  );
+
+  if (!memberResponse.ok) {
+    throw new Error(
+      `Failed to add test group member: ${memberResponse.status}`,
+    );
+  }
+}

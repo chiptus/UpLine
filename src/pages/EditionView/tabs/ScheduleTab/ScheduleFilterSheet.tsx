@@ -104,9 +104,7 @@ export function ScheduleFilterSheet({ tab }: ScheduleFilterSheetProps) {
 
         {user && (
           <div className="mt-4 space-y-2 md:hidden">
-            <label className="text-sm font-medium text-purple-200">
-              My vote
-            </label>
+            <label className="text-sm font-medium text-purple-200">Vote</label>
             <VoteFilterChips tab={tab} />
           </div>
         )}

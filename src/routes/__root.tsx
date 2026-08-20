@@ -61,11 +61,18 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   },
 });
 
+const STATIC_HEAD_SELECTORS = [
+  "title",
+  'meta[name="description"]',
+  'meta[property="og:title"]',
+  'meta[property="og:description"]',
+];
+
 function RootComponent() {
   useEffect(() => {
-    document
-      .querySelectorAll("[data-static-head]")
-      .forEach((node) => node.remove());
+    STATIC_HEAD_SELECTORS.forEach((selector) => {
+      document.head.querySelector(selector)?.remove();
+    });
   }, []);
 
   return (

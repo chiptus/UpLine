@@ -1,4 +1,4 @@
-import { queryOptions, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { AdminArtistsSortKey } from "@/lib/searchSchemas";
 import type { Artist } from "./types";
@@ -84,9 +84,6 @@ export function artistsPageQuery(params: ArtistsPageParams) {
   return queryOptions({
     queryKey: artistsKeys.list(params),
     queryFn: () => fetchArtistsPage(params),
+    placeholderData: keepPreviousData,
   });
-}
-
-export function useArtistsPageQuery(params: ArtistsPageParams) {
-  return useQuery(artistsPageQuery(params));
 }

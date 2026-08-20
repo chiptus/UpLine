@@ -9,8 +9,8 @@ import { BulkEditorSearchAndActions } from "@/pages/admin/ArtistsManagement/comp
 import { BulkEditorTable } from "@/pages/admin/ArtistsManagement/components/BulkEditorTable";
 import { BulkEditorFooter } from "@/pages/admin/ArtistsManagement/components/BulkEditorFooter";
 import { BulkEditorPagination } from "@/pages/admin/ArtistsManagement/components/BulkEditorPagination";
-import { useArtistSorting } from "@/pages/admin/ArtistsManagement/hooks/useArtistSorting";
 import { useArtistFiltering } from "@/pages/admin/ArtistsManagement/hooks/useArtistFiltering";
+import type { SortConfig } from "@/pages/admin/ArtistsManagement/types";
 import { useArtistSelection } from "@/pages/admin/ArtistsManagement/hooks/useArtistSelection";
 import { useAdminArtistsUrlState } from "@/pages/admin/ArtistsManagement/hooks/useAdminArtistsUrlState";
 import { genresQuery } from "@/api/genres/useGenres";
@@ -27,15 +27,16 @@ export const Route = createFileRoute("/admin/artists")({
   search: {
     middlewares: [stripSearchParams(adminArtistsSearchDefaults)],
   },
-  loader: async ({ context }) => {
+  loaderDeps: ({ search }) => search,
+  loader: async ({ context, deps }) => {
     void context.queryClient.ensureQueryData(genresQuery());
     void context.queryClient.ensureQueryData(
       artistsPageQuery({
-        page: adminArtistsSearchDefaults.page,
+        page: deps.page,
         pageSize: PAGE_SIZE,
-        search: adminArtistsSearchDefaults.q,
-        sortKey: adminArtistsSearchDefaults.sortKey,
-        sortDir: adminArtistsSearchDefaults.sortDir,
+        search: deps.q,
+        sortKey: deps.sortKey,
+        sortDir: deps.sortDir,
       }),
     );
   },
@@ -55,11 +56,20 @@ function ArtistBulkEditor() {
     handleDebouncedSearchChange,
   );
 
-  const { handleSort } = useArtistSorting(
-    { key: urlState.sortKey, direction: urlState.sortDir },
-    ({ key, direction }) =>
-      updateUrlState({ sortKey: key, sortDir: direction, page: 0 }),
-  );
+  const sortConfig: SortConfig = {
+    key: urlState.sortKey,
+    direction: urlState.sortDir,
+  };
+  function handleSort(key: SortConfig["key"]) {
+    updateUrlState({
+      sortKey: key,
+      sortDir:
+        sortConfig.key === key && sortConfig.direction === "asc"
+          ? "desc"
+          : "asc",
+      page: 0,
+    });
+  }
 
   const { data, isPending } = useQuery(
     artistsPageQuery({
@@ -107,7 +117,7 @@ function ArtistBulkEditor() {
           <BulkEditorTable
             artists={artists}
             selectedIds={selectedIds}
-            sortConfig={{ key: urlState.sortKey, direction: urlState.sortDir }}
+            sortConfig={sortConfig}
             searchTerm={urlState.q}
             onSort={handleSort}
             onSelectAll={handleSelectAllWrapper}

@@ -1,6 +1,6 @@
 import { TableHeader, TableRow, TableHead } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { SortConfig, SortingKey } from "../hooks/useArtistSorting";
+import type { SortConfig, SortingKey } from "../types";
 
 interface BulkEditorTableHeaderProps {
   selectedCount: number;

@@ -35,19 +35,6 @@ const linkStepSchema = z.object({
 
 type LinkStepData = z.infer<typeof linkStepSchema>;
 
-const URL_FIELDS = [
-  {
-    fieldName: "providerUrl.spotify",
-    label: "Spotify URL",
-    placeholder: "https://open.spotify.com/artist/...",
-  },
-  {
-    fieldName: "providerUrl.soundcloud",
-    label: "SoundCloud URL",
-    placeholder: "https://soundcloud.com/...",
-  },
-];
-
 interface LinkWizardStepProps {
   artist: Artist;
   position: number;
@@ -119,7 +106,7 @@ export function LinkWizardStep({
             />
           )}
 
-          <StagedFieldsPreview form={form} urlFields={URL_FIELDS} />
+          <StagedFieldsPreview form={form} />
 
           <div className="flex items-center justify-between gap-2 pt-2">
             <Button

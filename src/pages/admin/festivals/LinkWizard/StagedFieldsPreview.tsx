@@ -9,22 +9,25 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-interface UrlFieldConfig {
-  fieldName: string;
-  label: string;
-  placeholder: string;
-}
+const URL_FIELDS = [
+  {
+    fieldName: "providerUrl.spotify",
+    label: "Spotify URL",
+    placeholder: "https://open.spotify.com/artist/...",
+  },
+  {
+    fieldName: "providerUrl.soundcloud",
+    label: "SoundCloud URL",
+    placeholder: "https://soundcloud.com/...",
+  },
+];
 
 interface StagedFieldsPreviewProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: UseFormReturn<any>;
-  urlFields: UrlFieldConfig[];
 }
 
-export function StagedFieldsPreview({
-  form,
-  urlFields,
-}: StagedFieldsPreviewProps) {
+export function StagedFieldsPreview({ form }: StagedFieldsPreviewProps) {
   const imageUrl = form.watch("image_url") as string | null | undefined;
   const description = form.watch("description") as string | null | undefined;
 
@@ -32,7 +35,7 @@ export function StagedFieldsPreview({
     <div className="space-y-3 rounded-lg border p-3">
       <p className="text-sm font-medium">Staged</p>
 
-      {urlFields.map(({ fieldName, label, placeholder }) => (
+      {URL_FIELDS.map(({ fieldName, label, placeholder }) => (
         <FormField
           key={fieldName}
           control={form.control}

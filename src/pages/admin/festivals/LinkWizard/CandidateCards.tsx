@@ -75,6 +75,7 @@ export function CandidateCards({
                 </div>
               )}
               <Button
+                type="button"
                 size="sm"
                 className="w-full mt-2"
                 onClick={() => onSelectCandidate(candidate)}

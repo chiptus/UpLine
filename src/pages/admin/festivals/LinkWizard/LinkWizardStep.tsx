@@ -20,20 +20,18 @@ import type {
 } from "@/api/artistSearch/types";
 import { ProviderLinkField } from "./ProviderLinkField";
 
-function requiredUrlSchema(isRequired: boolean) {
-  return isRequired
-    ? z.string().url("Enter a valid URL")
-    : z.string().url().optional().or(z.literal(""));
-}
+const optionalUrlSchema = z
+  .string()
+  .url("Enter a valid URL")
+  .optional()
+  .or(z.literal(""));
 
-function makeLinkStepSchema(artist: Artist) {
-  return z.object({
-    spotifyUrl: requiredUrlSchema(!artist.spotify_url),
-    soundcloudUrl: requiredUrlSchema(!artist.soundcloud_url),
-  });
-}
+const linkStepSchema = z.object({
+  spotifyUrl: optionalUrlSchema,
+  soundcloudUrl: optionalUrlSchema,
+});
 
-type LinkStepData = z.infer<ReturnType<typeof makeLinkStepSchema>>;
+type LinkStepData = z.infer<typeof linkStepSchema>;
 
 interface LinkWizardStepProps {
   artist: Artist;
@@ -76,7 +74,7 @@ export function LinkWizardStep({
   );
 
   const form = useForm<LinkStepData>({
-    resolver: zodResolver(makeLinkStepSchema(artist)),
+    resolver: zodResolver(linkStepSchema),
     defaultValues: {
       spotifyUrl: artist.spotify_url ?? "",
       soundcloudUrl: artist.soundcloud_url ?? "",
@@ -202,6 +200,29 @@ export function LinkWizardStep({
               }
               onSearchAgain={(query) => handleSearchAgain("soundcloud", query)}
             />
+          )}
+
+          {(stagedUpdates.image_url || stagedUpdates.description) && (
+            <div className="flex items-start gap-3 rounded-lg border p-3 text-sm">
+              {stagedUpdates.image_url && (
+                <img
+                  src={stagedUpdates.image_url}
+                  alt=""
+                  className="h-12 w-12 rounded object-cover"
+                />
+              )}
+              <div className="space-y-1">
+                <p className="font-medium">Also staged from candidate</p>
+                {stagedUpdates.image_url && (
+                  <p className="text-muted-foreground">Image</p>
+                )}
+                {stagedUpdates.description && (
+                  <p className="text-muted-foreground line-clamp-2">
+                    {stagedUpdates.description}
+                  </p>
+                )}
+              </div>
+            </div>
           )}
 
           <div className="flex items-center justify-between gap-2 pt-2">

@@ -26,6 +26,22 @@ Deno.test(
   },
 );
 
+Deno.test(
+  "normalizeSoundCloudSearchResult strips tracking query params from permalink_url",
+  () => {
+    const user: SoundCloudUser = {
+      id: 12345,
+      username: "testartist",
+      permalink_url:
+        "https://soundcloud.com/testartist?utm_medium=api&utm_campaign=social_sharing&utm_source=id_318328",
+    };
+
+    const result = normalizeSoundCloudSearchResult(user);
+
+    assertEquals(result.url, "https://soundcloud.com/testartist");
+  },
+);
+
 Deno.test("normalizeSoundCloudSearchResult handles missing description", () => {
   const user: SoundCloudUser = {
     id: 12345,

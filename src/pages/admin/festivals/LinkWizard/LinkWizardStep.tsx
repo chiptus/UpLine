@@ -33,7 +33,7 @@ const linkStepSchema = z.object({
   description: z.string().nullable().optional(),
 });
 
-type LinkStepData = z.infer<typeof linkStepSchema>;
+export type LinkStepData = z.infer<typeof linkStepSchema>;
 
 interface LinkWizardStepProps {
   artist: Artist;

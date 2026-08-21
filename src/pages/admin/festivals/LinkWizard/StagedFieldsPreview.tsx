@@ -8,8 +8,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import type { LinkStepData } from "./LinkWizardStep";
 
-const URL_FIELDS = [
+const URL_FIELDS: {
+  fieldName: "providerUrl.spotify" | "providerUrl.soundcloud";
+  label: string;
+  placeholder: string;
+}[] = [
   {
     fieldName: "providerUrl.spotify",
     label: "Spotify URL",
@@ -23,13 +28,12 @@ const URL_FIELDS = [
 ];
 
 interface StagedFieldsPreviewProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  form: UseFormReturn<any>;
+  form: UseFormReturn<LinkStepData>;
 }
 
 export function StagedFieldsPreview({ form }: StagedFieldsPreviewProps) {
-  const imageUrl = form.watch("image_url") as string | null | undefined;
-  const description = form.watch("description") as string | null | undefined;
+  const imageUrl = form.watch("image_url");
+  const description = form.watch("description");
 
   return (
     <div className="space-y-3 rounded-lg border p-3">
@@ -47,7 +51,7 @@ export function StagedFieldsPreview({ form }: StagedFieldsPreviewProps) {
                 <Input
                   type="url"
                   placeholder={placeholder}
-                  value={(field.value as string) || ""}
+                  value={field.value || ""}
                   onChange={field.onChange}
                   onBlur={field.onBlur}
                   name={field.name}
@@ -78,7 +82,7 @@ export function StagedFieldsPreview({ form }: StagedFieldsPreviewProps) {
                   <FormItem>
                     <FormControl>
                       <Textarea
-                        value={(field.value as string) ?? ""}
+                        value={field.value ?? ""}
                         onChange={field.onChange}
                         onBlur={field.onBlur}
                         name={field.name}

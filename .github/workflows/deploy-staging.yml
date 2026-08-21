@@ -64,7 +64,13 @@ jobs:
           set -euo pipefail
           OTHERS=$(gh pr list --repo "$REPO" --label staging --state open --json number \
             --jq "[.[] | select(.number != $PR)] | length")
-          echo "is_holder=$([[ "$OTHERS" -eq 0 ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          IS_HOLDER=$([[ "$OTHERS" -eq 0 ]] && echo true || echo false)
+          echo "is_holder=$IS_HOLDER" >> "$GITHUB_OUTPUT"
+
+          if [[ "$IS_HOLDER" == "false" && "${{ needs.resolve.outputs.migrations }}" == "true" ]]; then
+            echo "::error::This PR touches supabase/migrations/** and holds the 'staging' label, but another open PR already holds the staging lock. Migrations will not be pushed until that PR merges or releases the label."
+            exit 1
+          fi
 
   migrate:
     needs: [resolve, gate, check-lock]

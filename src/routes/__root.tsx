@@ -4,7 +4,6 @@ import {
   Outlet,
   useSearch,
 } from "@tanstack/react-router";
-import { createPortal } from "react-dom";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -30,6 +29,7 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { userGroupsQuery } from "@/api/groups/useUserGroups";
 import { pageMeta } from "@/lib/pageHead";
+import { useClearStaticTags } from "@/hooks/useClearStaticTags";
 
 const rootSearchSchema = z.object({
   invite: z.string().optional(),
@@ -61,23 +61,12 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   },
 });
 
-const STATIC_HEAD_SELECTORS = [
-  "title",
-  'meta[name="description"]',
-  'meta[property="og:title"]',
-  'meta[property="og:description"]',
-];
-
 function RootComponent() {
-  useEffect(() => {
-    STATIC_HEAD_SELECTORS.forEach((selector) => {
-      document.head.querySelector(selector)?.remove();
-    });
-  }, []);
+  useClearStaticTags();
 
   return (
     <>
-      {createPortal(<HeadContent />, document.head)}
+      <HeadContent />
       <TooltipProvider>
         <Toaster />
         <Sonner />

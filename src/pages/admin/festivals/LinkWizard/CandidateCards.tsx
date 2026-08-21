@@ -56,7 +56,7 @@ export function CandidateCards({
                 {candidate.followers !== null && (
                   <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
                     <Users className="h-3 w-3" />
-                    {(candidate.followers / 1000).toFixed(1)}k
+                    {formatFollowers(candidate.followers)}
                   </div>
                 )}
               </div>
@@ -87,4 +87,10 @@ export function CandidateCards({
       </div>
     </div>
   );
+}
+
+function formatFollowers(followers: number): string {
+  return followers < 1000
+    ? followers.toString()
+    : `${(followers / 1000).toFixed(1)}k`;
 }

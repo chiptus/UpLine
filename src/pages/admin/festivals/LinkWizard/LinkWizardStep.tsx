@@ -9,7 +9,6 @@ import {
   useUpdateArtistMutation,
   type UpdateArtistUpdates,
 } from "@/api/artists/useUpdateArtist";
-import { useSearchArtistLinksQuery } from "@/api/artistSearch/useSearchArtistLinksQuery";
 import {
   mergeCandidateSelection,
   type SelectableField,
@@ -17,6 +16,7 @@ import {
 import type { Provider, Candidate } from "@/api/artistSearch/types";
 import { ProviderCandidatesPanel } from "./ProviderCandidatesPanel";
 import { StagedFieldsPreview } from "./StagedFieldsPreview";
+import { useArtistBatchQuery } from "./useArtistBatchQuery";
 
 const optionalUrlSchema = z
   .string()
@@ -53,14 +53,7 @@ export function LinkWizardStep({
   onNext,
 }: LinkWizardStepProps) {
   const updateArtistMutation = useUpdateArtistMutation();
-
-  const currentIndex = artists.findIndex((a) => a.id === artist.id);
-  const batchStart = Math.floor(currentIndex / 10) * 10;
-  const batchArtists = artists
-    .slice(batchStart, batchStart + 10)
-    .map((a) => a.name);
-
-  const batchQueryResult = useSearchArtistLinksQuery(batchArtists);
+  const batchQueryResult = useArtistBatchQuery(artist, artists);
 
   const form = useForm<LinkStepData>({
     resolver: zodResolver(linkStepSchema),

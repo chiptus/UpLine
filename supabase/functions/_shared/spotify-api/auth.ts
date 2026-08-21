@@ -11,10 +11,13 @@ let cachedToken: {
   expiresAt: number;
 } | null = null;
 
-export async function getSpotifyAccessToken(
-  clientId: string,
-  clientSecret: string,
-): Promise<string> {
+export async function getSpotifyAccessToken(): Promise<string> {
+  const clientId = Deno.env.get("SPOTIFY_CLIENT_ID");
+  const clientSecret = Deno.env.get("SPOTIFY_CLIENT_SECRET");
+  if (!clientId || !clientSecret) {
+    throw new Error("Spotify credentials are not configured");
+  }
+
   if (
     cachedToken &&
     cachedToken.expiresAt > Date.now() + 60 * 1000 // 1 minute buffer
@@ -62,7 +65,7 @@ export async function getSpotifyAccessToken(
         "[getSpotifyAccessToken] Successfully obtained and validated access token",
       );
       const token = tokenData.access_token;
-      const expiresIn = tokenData.expires_in || 3600; // Default to 1 hour if not provided
+      const expiresIn = tokenData.expires_in ?? 3600; // Default to 1 hour if not provided
       const expiresAt = Date.now() + expiresIn * 1000;
 
       cachedToken = { token, expiresAt };
@@ -70,7 +73,11 @@ export async function getSpotifyAccessToken(
     } catch (validationError) {
       console.error("[getSpotifyAccessToken] Invalid token response format:", {
         error: validationError,
-        rawData: JSON.stringify(rawData).slice(0, 200) + "...",
+        rawData:
+          JSON.stringify({ ...rawData, access_token: "[REDACTED]" }).slice(
+            0,
+            200,
+          ) + "...",
       });
       throw new Error("Invalid access token response from Spotify");
     }

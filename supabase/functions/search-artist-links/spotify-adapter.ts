@@ -8,20 +8,7 @@ export async function searchSpotify(
 ): Promise<Map<string, ProviderSearchOutcome>> {
   const results = new Map<string, ProviderSearchOutcome>();
 
-  const clientId = Deno.env.get("SPOTIFY_CLIENT_ID");
-  const clientSecret = Deno.env.get("SPOTIFY_CLIENT_SECRET");
-
-  if (!clientId || !clientSecret) {
-    console.warn(
-      "[searchSpotify] Missing Spotify credentials, skipping Spotify search",
-    );
-    for (const name of artistNames) {
-      results.set(name, { candidates: [] });
-    }
-    return results;
-  }
-
-  const accessToken = await getSpotifyAccessToken(clientId, clientSecret);
+  const accessToken = await getSpotifyAccessToken();
 
   for (const artistName of artistNames) {
     try {

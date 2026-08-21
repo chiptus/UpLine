@@ -3,13 +3,20 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Users } from "lucide-react";
 import type { Candidate } from "@/api/artistSearch/types";
+import type { SelectableField } from "@/api/artistSearch/mergeCandidateSelection";
 
 interface CandidateCardProps {
   candidate: Candidate;
-  onSelect: (candidate: Candidate) => void;
+  onSelect: (candidate: Candidate, fields: SelectableField[]) => void;
 }
 
 export function CandidateCard({ candidate, onSelect }: CandidateCardProps) {
+  const availableFields: SelectableField[] = [
+    "url",
+    ...(candidate.imageUrl ? (["image"] as const) : []),
+    ...(candidate.description ? (["description"] as const) : []),
+  ];
+
   return (
     <Card className="p-3">
       <div className="space-y-2">
@@ -47,10 +54,43 @@ export function CandidateCard({ candidate, onSelect }: CandidateCardProps) {
           type="button"
           size="sm"
           className="w-full mt-2"
-          onClick={() => onSelect(candidate)}
+          onClick={() => onSelect(candidate, availableFields)}
         >
-          Select
+          Select all
         </Button>
+        <div className="flex gap-1">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="flex-1"
+            onClick={() => onSelect(candidate, ["url"])}
+          >
+            URL
+          </Button>
+          {candidate.imageUrl && (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              className="flex-1"
+              onClick={() => onSelect(candidate, ["image"])}
+            >
+              Image
+            </Button>
+          )}
+          {candidate.description && (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              className="flex-1"
+              onClick={() => onSelect(candidate, ["description"])}
+            >
+              Description
+            </Button>
+          )}
+        </div>
       </div>
     </Card>
   );

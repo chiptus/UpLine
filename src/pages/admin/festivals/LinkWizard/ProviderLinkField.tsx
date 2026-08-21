@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, RotateCcw } from "lucide-react";
 import type { UseFormReturn } from "react-hook-form";
 import type { Candidate, Provider } from "@/api/artistSearch/types";
+import type { SelectableField } from "@/api/artistSearch/mergeCandidateSelection";
 import { CandidateCards } from "./CandidateCards";
 
 interface ProviderLinkFieldProps {
@@ -23,7 +24,7 @@ interface ProviderLinkFieldProps {
   searchError?: string | undefined;
   isLoadingCandidates: boolean;
   form: UseFormReturn<Record<string, unknown>>;
-  onSelectCandidate: (candidate: Candidate) => void;
+  onSelectCandidate: (candidate: Candidate, fields: SelectableField[]) => void;
   onSearchAgain: (query: string) => void;
 }
 

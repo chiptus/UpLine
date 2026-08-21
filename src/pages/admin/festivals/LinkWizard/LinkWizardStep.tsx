@@ -5,6 +5,7 @@ import { z } from "zod";
 import type { UseQueryResult } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Artist } from "@/api/artists/types";
 import { useUpdateArtistMutation } from "@/api/artists/useUpdateArtist";
@@ -12,6 +13,7 @@ import { useSearchArtistLinksQuery } from "@/api/artistSearch/useSearchArtistLin
 import {
   mergeCandidateSelection,
   type CandidateUpdate,
+  type SelectableField,
 } from "@/api/artistSearch/mergeCandidateSelection";
 import type {
   Provider,
@@ -109,8 +111,8 @@ export function LinkWizardStep({
               searchError={spotifyResult.error}
               isLoadingCandidates={isLoadingSpotify}
               form={form}
-              onSelectCandidate={(candidate) =>
-                handleCandidateSelect(candidate, "spotify")
+              onSelectCandidate={(candidate, fields) =>
+                handleCandidateSelect(candidate, "spotify", fields)
               }
               onSearchAgain={(query) => handleSearchAgain("spotify", query)}
             />
@@ -126,14 +128,15 @@ export function LinkWizardStep({
               searchError={soundcloudResult.error}
               isLoadingCandidates={isLoadingSoundcloud}
               form={form}
-              onSelectCandidate={(candidate) =>
-                handleCandidateSelect(candidate, "soundcloud")
+              onSelectCandidate={(candidate, fields) =>
+                handleCandidateSelect(candidate, "soundcloud", fields)
               }
               onSearchAgain={(query) => handleSearchAgain("soundcloud", query)}
             />
           )}
 
-          {(stagedUpdates.image_url || stagedUpdates.description) && (
+          {(stagedUpdates.image_url ||
+            stagedUpdates.description !== undefined) && (
             <div className="flex items-start gap-3 rounded-lg border p-3 text-sm">
               {stagedUpdates.image_url && (
                 <img
@@ -142,15 +145,23 @@ export function LinkWizardStep({
                   className="h-12 w-12 rounded object-cover"
                 />
               )}
-              <div className="space-y-1">
+              <div className="flex-1 space-y-1">
                 <p className="font-medium">Also staged from candidate</p>
                 {stagedUpdates.image_url && (
                   <p className="text-muted-foreground">Image</p>
                 )}
-                {stagedUpdates.description && (
-                  <p className="text-muted-foreground line-clamp-2">
-                    {stagedUpdates.description}
-                  </p>
+                {stagedUpdates.description !== undefined && (
+                  <Textarea
+                    value={stagedUpdates.description ?? ""}
+                    onChange={(e) =>
+                      setStagedUpdates((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
+                    }
+                    rows={2}
+                    className="text-sm"
+                  />
                 )}
               </div>
             </div>
@@ -209,12 +220,12 @@ export function LinkWizardStep({
     });
   }
 
-  function handleCandidateSelect(candidate: Candidate, provider: Provider) {
-    const update = mergeCandidateSelection(
-      { artist, stagedUpdates },
-      candidate,
-      provider,
-    );
+  function handleCandidateSelect(
+    candidate: Candidate,
+    provider: Provider,
+    fields: SelectableField[],
+  ) {
+    const update = mergeCandidateSelection(candidate, provider, fields);
 
     setStagedUpdates((prev) => ({ ...prev, ...update }));
 
@@ -247,7 +258,7 @@ export function LinkWizardStep({
           ...(stagedUpdates.image_url && {
             image_url: stagedUpdates.image_url,
           }),
-          ...(stagedUpdates.description && {
+          ...(stagedUpdates.description !== undefined && {
             description: stagedUpdates.description,
           }),
         },

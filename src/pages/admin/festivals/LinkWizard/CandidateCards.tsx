@@ -1,13 +1,14 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Candidate } from "@/api/artistSearch/types";
 import type { Provider } from "@/api/artistSearch/types";
+import type { SelectableField } from "@/api/artistSearch/mergeCandidateSelection";
 import { CandidateCard } from "./CandidateCard";
 
 interface CandidateCardsProps {
   candidates: Candidate[];
   provider: Provider;
   isLoading: boolean;
-  onSelectCandidate: (candidate: Candidate) => void;
+  onSelectCandidate: (candidate: Candidate, fields: SelectableField[]) => void;
 }
 
 export function CandidateCards({

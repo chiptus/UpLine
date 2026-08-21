@@ -1,237 +1,103 @@
 import { describe, expect, it } from "vitest";
-import {
-  mergeCandidateSelection,
-  type MergeContext,
-} from "./mergeCandidateSelection";
+import { mergeCandidateSelection } from "./mergeCandidateSelection";
 import type { Candidate } from "./types";
-import type { Artist } from "@/api/artists/types";
 
 describe("mergeCandidateSelection", () => {
-  it("always sets the provider URL field", () => {
-    const artist = makeArtist({ id: "a1" });
+  it("sets spotify_url when url is selected for spotify", () => {
     const candidate = makeCandidate();
-    const context: MergeContext = {
-      artist,
-      stagedUpdates: {},
-    };
 
-    const update = mergeCandidateSelection(context, candidate, "spotify");
+    const update = mergeCandidateSelection(candidate, "spotify", ["url"]);
 
     expect(update.spotify_url).toBe(candidate.url);
+    expect(update.soundcloud_url).toBeUndefined();
   });
 
-  it("sets soundcloud URL for soundcloud provider", () => {
-    const artist = makeArtist({ id: "a1" });
+  it("sets soundcloud_url when url is selected for soundcloud", () => {
     const candidate = makeCandidate({
       url: "https://soundcloud.com/artist",
     });
-    const context: MergeContext = {
-      artist,
-      stagedUpdates: {},
-    };
 
-    const update = mergeCandidateSelection(context, candidate, "soundcloud");
+    const update = mergeCandidateSelection(candidate, "soundcloud", ["url"]);
 
     expect(update.soundcloud_url).toBe(candidate.url);
+    expect(update.spotify_url).toBeUndefined();
   });
 
-  it("fills image_url if not already set on artist", () => {
-    const artist = makeArtist({ id: "a1", image_url: null });
+  it("does not set the url when url is not selected", () => {
+    const candidate = makeCandidate();
+
+    const update = mergeCandidateSelection(candidate, "spotify", ["image"]);
+
+    expect(update.spotify_url).toBeUndefined();
+  });
+
+  it("sets image_url when image is selected", () => {
     const candidate = makeCandidate({
       imageUrl: "https://example.com/img.jpg",
     });
-    const context: MergeContext = {
-      artist,
-      stagedUpdates: {},
-    };
 
-    const update = mergeCandidateSelection(context, candidate, "spotify");
+    const update = mergeCandidateSelection(candidate, "spotify", ["image"]);
 
     expect(update.image_url).toBe(candidate.imageUrl);
   });
 
-  it("does not overwrite existing image_url on artist", () => {
-    const artist = makeArtist({
-      id: "a1",
-      image_url: "https://existing.com/img.jpg",
-    });
-    const candidate = makeCandidate({
-      imageUrl: "https://example.com/img.jpg",
-    });
-    const context: MergeContext = {
-      artist,
-      stagedUpdates: {},
-    };
+  it("does not set image_url when the candidate has none", () => {
+    const candidate = makeCandidate({ imageUrl: null });
 
-    const update = mergeCandidateSelection(context, candidate, "spotify");
+    const update = mergeCandidateSelection(candidate, "spotify", ["image"]);
 
     expect(update.image_url).toBeUndefined();
   });
 
-  it("does not overwrite staged image_url", () => {
-    const artist = makeArtist({ id: "a1", image_url: null });
-    const candidate = makeCandidate({
-      imageUrl: "https://example.com/img.jpg",
-    });
-    const context: MergeContext = {
-      artist,
-      stagedUpdates: { image_url: "https://staged.com/img.jpg" },
-    };
-
-    const update = mergeCandidateSelection(context, candidate, "spotify");
-
-    expect(update.image_url).toBeUndefined();
-  });
-
-  it("first provider selection wins shared image_url when both providers selected", () => {
-    const artist = makeArtist({ id: "a1" });
-    const spotifyCandidate = makeCandidate({
-      url: "https://spotify.com/artist/123",
-      imageUrl: "https://spotify.com/img.jpg",
-    });
-    const soundcloudCandidate = makeCandidate({
-      url: "https://soundcloud.com/artist",
-      imageUrl: "https://soundcloud.com/img.jpg",
-    });
-
-    // First selection - Spotify
-    const context1: MergeContext = {
-      artist,
-      stagedUpdates: {},
-    };
-    const update1 = mergeCandidateSelection(
-      context1,
-      spotifyCandidate,
-      "spotify",
-    );
-
-    // Second selection - SoundCloud
-    const context2: MergeContext = {
-      artist,
-      stagedUpdates: update1,
-    };
-    const update2 = mergeCandidateSelection(
-      context2,
-      soundcloudCandidate,
-      "soundcloud",
-    );
-
-    // Spotify's image wins because it was set first
-    expect(update1.image_url).toBe("https://spotify.com/img.jpg");
-    expect(update2.image_url).toBeUndefined();
-  });
-
-  it("fills description if not already set on artist", () => {
-    const artist = makeArtist({ id: "a1", description: null });
+  it("sets description when description is selected", () => {
     const candidate = makeCandidate({ description: "A great artist." });
-    const context: MergeContext = {
-      artist,
-      stagedUpdates: {},
-    };
 
-    const update = mergeCandidateSelection(context, candidate, "spotify");
+    const update = mergeCandidateSelection(candidate, "spotify", [
+      "description",
+    ]);
 
     expect(update.description).toBe(candidate.description);
   });
 
-  it("does not overwrite existing description on artist", () => {
-    const artist = makeArtist({
-      id: "a1",
-      description: "Existing bio.",
-    });
-    const candidate = makeCandidate({ description: "A great artist." });
-    const context: MergeContext = {
-      artist,
-      stagedUpdates: {},
-    };
+  it("does not set description when the candidate has none", () => {
+    const candidate = makeCandidate({ description: null });
 
-    const update = mergeCandidateSelection(context, candidate, "spotify");
+    const update = mergeCandidateSelection(candidate, "spotify", [
+      "description",
+    ]);
 
     expect(update.description).toBeUndefined();
   });
 
-  it("does not overwrite staged description", () => {
-    const artist = makeArtist({ id: "a1", description: null });
-    const candidate = makeCandidate({ description: "A great artist." });
-    const context: MergeContext = {
-      artist,
-      stagedUpdates: { description: "Staged bio." },
-    };
-
-    const update = mergeCandidateSelection(context, candidate, "spotify");
-
-    expect(update.description).toBeUndefined();
-  });
-
-  it("first provider selection wins shared description when both providers selected", () => {
-    const artist = makeArtist({ id: "a1" });
-    const spotifyCandidate = makeCandidate({
-      url: "https://spotify.com/artist/123",
-      description: "Spotify bio.",
-    });
-    const soundcloudCandidate = makeCandidate({
-      url: "https://soundcloud.com/artist",
-      description: "SoundCloud bio.",
+  it("sets all requested fields when multiple are selected", () => {
+    const candidate = makeCandidate({
+      imageUrl: "https://example.com/img.jpg",
+      description: "A great artist.",
     });
 
-    const context1: MergeContext = {
-      artist,
-      stagedUpdates: {},
-    };
-    const update1 = mergeCandidateSelection(
-      context1,
-      spotifyCandidate,
-      "spotify",
-    );
+    const update = mergeCandidateSelection(candidate, "spotify", [
+      "url",
+      "image",
+      "description",
+    ]);
 
-    const context2: MergeContext = {
-      artist,
-      stagedUpdates: update1,
-    };
-    const update2 = mergeCandidateSelection(
-      context2,
-      soundcloudCandidate,
-      "soundcloud",
-    );
-
-    expect(update1.description).toBe("Spotify bio.");
-    expect(update2.description).toBeUndefined();
+    expect(update.spotify_url).toBe(candidate.url);
+    expect(update.image_url).toBe(candidate.imageUrl);
+    expect(update.description).toBe(candidate.description);
   });
 
   it("never writes genres to updates", () => {
-    const artist = makeArtist({ id: "a1" });
     const candidate = makeCandidate({ genres: ["rock", "pop"] });
-    const context: MergeContext = {
-      artist,
-      stagedUpdates: {},
-    };
 
-    const update = mergeCandidateSelection(context, candidate, "spotify");
+    const update = mergeCandidateSelection(candidate, "spotify", [
+      "url",
+      "image",
+      "description",
+    ]);
 
     expect(update).not.toHaveProperty("genres");
   });
 });
-
-function makeArtist(overrides: Partial<Artist> & { id: string }): Artist {
-  return {
-    name: overrides.name ?? overrides.id,
-    slug: overrides.slug ?? overrides.id,
-    description: null,
-    estimated_date: null,
-    image_url: null,
-    spotify_url: null,
-    soundcloud_url: null,
-    stage: null,
-    time_start: null,
-    time_end: null,
-    archived: false,
-    added_by: "user-1",
-    created_at: "2024-01-01T00:00:00Z",
-    updated_at: "2024-01-01T00:00:00Z",
-    artist_music_genres: [],
-    ...overrides,
-  };
-}
 
 function makeCandidate(overrides: Partial<Candidate> = {}): Candidate {
   return {

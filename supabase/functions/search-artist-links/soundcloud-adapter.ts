@@ -5,9 +5,12 @@ import { SoundCloudUserSchema } from "../_shared/soundcloud-api/schemas.ts";
 import { normalizeSoundCloudSearchResult } from "./normalize.ts";
 import type { ProviderSearchOutcome } from "./types.ts";
 
-const SoundCloudSearchResponseSchema = z.object({
-  collection: z.array(SoundCloudUserSchema).optional(),
-});
+// /users returns a bare array; with linked_partitioning SoundCloud wraps
+// results in { collection: [...] }. Accept both.
+const SoundCloudSearchResponseSchema = z.union([
+  z.array(SoundCloudUserSchema),
+  z.object({ collection: z.array(SoundCloudUserSchema) }),
+]);
 
 export async function searchSoundCloud(
   artistNames: string[],
@@ -34,9 +37,8 @@ export async function searchSoundCloud(
         SoundCloudSearchResponseSchema,
       );
 
-      const candidates = (response.collection || []).map(
-        normalizeSoundCloudSearchResult,
-      );
+      const users = Array.isArray(response) ? response : response.collection;
+      const candidates = users.map(normalizeSoundCloudSearchResult);
 
       results.set(artistName, { candidates });
       console.log(

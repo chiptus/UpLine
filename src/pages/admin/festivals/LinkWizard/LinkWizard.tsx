@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Loader2, LinkIcon } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useArtistsMissingLinksByEditionQuery } from "@/api/artists/useArtistsMissingLinksByEdition";
-import { searchArtistLinksQuery } from "@/api/artistSearch/useSearchArtistLinksQuery";
+import { usePrefetchNextBatchLinks } from "@/api/artistSearch/usePrefetchNextBatchLinks";
 import type { AdminArtistsPageSize } from "@/pages/admin/ArtistsManagement/searchSchema";
 import type { Artist } from "@/api/artists/types";
 import { LinkWizardStep } from "./LinkWizardStep";
@@ -14,7 +13,6 @@ interface LinkWizardProps {
 }
 
 export function LinkWizard({ editionId }: LinkWizardProps) {
-  const queryClient = useQueryClient();
   const artistsQuery = useArtistsMissingLinksByEditionQuery(editionId);
   const [currentArtistId, setCurrentArtistId] = useState<string | undefined>(
     undefined,
@@ -22,27 +20,7 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState<AdminArtistsPageSize>(10);
 
-  useEffect(() => {
-    const artists = artistsQuery.data ?? [];
-    if (!currentArtistId || artists.length === 0) return;
-
-    const currentIdx = Math.max(
-      0,
-      artists.findIndex((a) => a.id === currentArtistId),
-    );
-    const positionInBatch = currentIdx % 10;
-
-    if (positionInBatch >= 8) {
-      const nextBatchStart = Math.floor(currentIdx / 10) * 10 + 10;
-      const nextBatchArtists = artists
-        .slice(nextBatchStart, nextBatchStart + 10)
-        .map((a) => a.name);
-
-      if (nextBatchArtists.length > 0) {
-        queryClient.prefetchQuery(searchArtistLinksQuery(nextBatchArtists));
-      }
-    }
-  }, [currentArtistId, artistsQuery.data, queryClient]);
+  usePrefetchNextBatchLinks(artistsQuery.data ?? [], currentArtistId);
 
   if (artistsQuery.isLoading) {
     return (

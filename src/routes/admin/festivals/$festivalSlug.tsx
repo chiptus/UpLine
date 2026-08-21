@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useParams, useNavigate, Outlet, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { FestivalEditionManagement } from "@/pages/admin/festivals/FestivalEditionManagement";
-import { FestivalMissingInfoBadge } from "@/pages/admin/festivals/FestivalMissingInfoBadge";
 import { FestivalInfoDetails } from "@/pages/admin/festivals/info/FestivalInfoDetails";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -69,7 +68,6 @@ function FestivalDetail() {
           ) : (
             <span className="font-medium text-foreground">{festival.name}</span>
           )}
-          <FestivalMissingInfoBadge festivalId={festival.id} />
           {editionSlug && (
             <>
               <ChevronRight className="h-4 w-4" />

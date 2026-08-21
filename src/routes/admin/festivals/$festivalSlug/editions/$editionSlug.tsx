@@ -2,7 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useParams, useLocation, Outlet, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link2, Loader2, MapPin, Music, Upload } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useFestivalEditionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 import { cn } from "@/lib/utils";
@@ -98,27 +98,18 @@ function FestivalEdition() {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex flex-wrap items-center justify-between gap-3">
-            <span className="flex items-center gap-2">
-              Edition: {currentEdition.name}
-            </span>
-            <div className="flex flex-wrap items-center gap-2">
-              <ScheduleRevealControl
-                editionId={currentEdition.id}
-                level={currentEdition.schedule_reveal_level ?? "draft"}
-                editionPublished={currentEdition.published ?? false}
-              />
-              <PhaseOverrideControl
-                editionId={currentEdition.id}
-                override={currentEdition.phase_override ?? null}
-                derivedPhase={derivedPhase}
-              />
-            </div>
-          </CardTitle>
-        </CardHeader>
-      </Card>
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <ScheduleRevealControl
+          editionId={currentEdition.id}
+          level={currentEdition.schedule_reveal_level ?? "draft"}
+          editionPublished={currentEdition.published ?? false}
+        />
+        <PhaseOverrideControl
+          editionId={currentEdition.id}
+          override={currentEdition.phase_override ?? null}
+          derivedPhase={derivedPhase}
+        />
+      </div>
       <div className="w-full">
         <div className="sticky top-16 md:top-20 z-10 grid w-full grid-cols-4 gap-2 bg-white/10 backdrop-blur-md p-1 rounded-lg">
           <Link

@@ -28,6 +28,22 @@ function isAllowedStagingOrigin(origin: string): boolean {
   return origin.endsWith(".vercel.app");
 }
 
+// Festival subdomains (e.g. own-spirit.getupline.com) are legitimate prod
+// origins alongside the bare domain — see src/lib/subdomain.ts.
+function isAllowedGetuplineOrigin(origin: string): boolean {
+  try {
+    const url = new URL(origin);
+    if (url.protocol !== "https:") return false;
+
+    return (
+      url.hostname === "getupline.com" ||
+      url.hostname.endsWith(".getupline.com")
+    );
+  } catch {
+    return false;
+  }
+}
+
 export function buildCorsHeaders(req: Request): Record<string, string> {
   const prodOrigin = normalizeOrigin(
     Deno.env.get("APP_URL") ?? DEFAULT_PROD_ORIGIN,
@@ -36,9 +52,9 @@ export function buildCorsHeaders(req: Request): Record<string, string> {
   const requestOrigin = req.headers.get("Origin");
 
   const allowOrigin =
-    !isProdEnvironment() &&
     requestOrigin &&
-    isAllowedStagingOrigin(requestOrigin)
+    (isAllowedGetuplineOrigin(requestOrigin) ||
+      (!isProdEnvironment() && isAllowedStagingOrigin(requestOrigin)))
       ? requestOrigin
       : prodOrigin;
 

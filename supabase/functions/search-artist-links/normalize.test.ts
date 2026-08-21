@@ -12,6 +12,7 @@ Deno.test(
       avatar_url: "https://example.com/avatar.jpg",
       followers_count: 1500,
       display_name: "Test Artist",
+      description: "A test artist bio.",
     };
 
     const result = normalizeSoundCloudSearchResult(user);
@@ -19,10 +20,23 @@ Deno.test(
     assertEquals(result.name, "Test Artist");
     assertEquals(result.url, "https://soundcloud.com/testartist");
     assertEquals(result.imageUrl, "https://example.com/avatar.jpg");
+    assertEquals(result.description, "A test artist bio.");
     assertEquals(result.followers, 1500);
     assertEquals(result.genres, []);
   },
 );
+
+Deno.test("normalizeSoundCloudSearchResult handles missing description", () => {
+  const user: SoundCloudUser = {
+    id: 12345,
+    username: "testartist",
+    permalink_url: "https://soundcloud.com/testartist",
+  };
+
+  const result = normalizeSoundCloudSearchResult(user);
+
+  assertEquals(result.description, null);
+});
 
 Deno.test(
   "normalizeSoundCloudSearchResult uses username when display_name is null",

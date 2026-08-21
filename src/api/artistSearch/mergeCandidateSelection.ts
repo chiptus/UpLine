@@ -5,6 +5,7 @@ export interface CandidateUpdate {
   spotify_url?: string | null;
   soundcloud_url?: string | null;
   image_url?: string | null;
+  description?: string | null;
 }
 
 export interface MergeContext {
@@ -31,6 +32,13 @@ export function mergeCandidateSelection(
 
   if (!existingImage && candidate.imageUrl) {
     updates.image_url = candidate.imageUrl;
+  }
+
+  const existingDescription =
+    artist.description || stagedUpdates.description || null;
+
+  if (!existingDescription && candidate.description) {
+    updates.description = candidate.description;
   }
 
   return updates;

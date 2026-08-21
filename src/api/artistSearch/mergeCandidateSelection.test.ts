@@ -32,6 +32,7 @@ function makeCandidate(overrides: Partial<Candidate> = {}): Candidate {
     name: "Test Artist",
     url: "https://spotify.com/artist/123",
     imageUrl: "https://example.com/image.jpg",
+    description: "A test artist bio.",
     followers: 1000,
     genres: ["rock", "pop"],
     ...overrides,
@@ -151,6 +152,83 @@ describe("mergeCandidateSelection", () => {
     // Spotify's image wins because it was set first
     expect(update1.image_url).toBe("https://spotify.com/img.jpg");
     expect(update2.image_url).toBeUndefined();
+  });
+
+  it("fills description if not already set on artist", () => {
+    const artist = makeArtist({ id: "a1", description: null });
+    const candidate = makeCandidate({ description: "A great artist." });
+    const context: MergeContext = {
+      artist,
+      stagedUpdates: {},
+    };
+
+    const update = mergeCandidateSelection(context, candidate, "spotify");
+
+    expect(update.description).toBe(candidate.description);
+  });
+
+  it("does not overwrite existing description on artist", () => {
+    const artist = makeArtist({
+      id: "a1",
+      description: "Existing bio.",
+    });
+    const candidate = makeCandidate({ description: "A great artist." });
+    const context: MergeContext = {
+      artist,
+      stagedUpdates: {},
+    };
+
+    const update = mergeCandidateSelection(context, candidate, "spotify");
+
+    expect(update.description).toBeUndefined();
+  });
+
+  it("does not overwrite staged description", () => {
+    const artist = makeArtist({ id: "a1", description: null });
+    const candidate = makeCandidate({ description: "A great artist." });
+    const context: MergeContext = {
+      artist,
+      stagedUpdates: { description: "Staged bio." },
+    };
+
+    const update = mergeCandidateSelection(context, candidate, "spotify");
+
+    expect(update.description).toBeUndefined();
+  });
+
+  it("first provider selection wins shared description when both providers selected", () => {
+    const artist = makeArtist({ id: "a1" });
+    const spotifyCandidate = makeCandidate({
+      url: "https://spotify.com/artist/123",
+      description: "Spotify bio.",
+    });
+    const soundcloudCandidate = makeCandidate({
+      url: "https://soundcloud.com/artist",
+      description: "SoundCloud bio.",
+    });
+
+    const context1: MergeContext = {
+      artist,
+      stagedUpdates: {},
+    };
+    const update1 = mergeCandidateSelection(
+      context1,
+      spotifyCandidate,
+      "spotify",
+    );
+
+    const context2: MergeContext = {
+      artist,
+      stagedUpdates: update1,
+    };
+    const update2 = mergeCandidateSelection(
+      context2,
+      soundcloudCandidate,
+      "soundcloud",
+    );
+
+    expect(update1.description).toBe("Spotify bio.");
+    expect(update2.description).toBeUndefined();
   });
 
   it("never writes genres to updates", () => {

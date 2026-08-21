@@ -153,6 +153,9 @@ export function LinkWizardStep({
           ...(stagedUpdates.image_url && {
             image_url: stagedUpdates.image_url,
           }),
+          ...(stagedUpdates.description && {
+            description: stagedUpdates.description,
+          }),
         },
       },
       { onSuccess: onNext },

@@ -10,6 +10,7 @@ export function normalizeSoundCloudSearchResult(
     name,
     url: user.permalink_url,
     imageUrl: user.avatar_url || null,
+    description: user.description || null,
     followers: user.followers_count ?? null,
     genres: [],
   };

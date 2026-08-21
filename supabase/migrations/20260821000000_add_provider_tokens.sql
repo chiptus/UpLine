@@ -46,6 +46,7 @@ AS $$
 $$;
 
 REVOKE EXECUTE ON FUNCTION public.claim_provider_token_lease(TEXT, INTEGER) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.claim_provider_token_lease(TEXT, INTEGER) TO service_role;
 
 -- Store a freshly obtained token set and release the lease. expires_at is
 -- computed server-side to avoid client clock skew.
@@ -69,3 +70,4 @@ AS $$
 $$;
 
 REVOKE EXECUTE ON FUNCTION public.store_provider_token(TEXT, TEXT, TEXT, INTEGER) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.store_provider_token(TEXT, TEXT, TEXT, INTEGER) TO service_role;

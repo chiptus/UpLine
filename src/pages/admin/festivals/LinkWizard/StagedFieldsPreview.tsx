@@ -80,6 +80,7 @@ export function StagedFieldsPreview({ form }: StagedFieldsPreviewProps) {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
+                    <FormLabel>Description</FormLabel>
                     <FormControl>
                       <Textarea
                         value={field.value ?? ""}

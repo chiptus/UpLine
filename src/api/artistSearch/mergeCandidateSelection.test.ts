@@ -95,6 +95,47 @@ describe("mergeCandidateSelection", () => {
 
     expect(update).not.toHaveProperty("genres");
   });
+
+  it("does not overwrite an already-staged image_url", () => {
+    const candidate = makeCandidate({
+      imageUrl: "https://example.com/other-image.jpg",
+    });
+
+    const update = mergeCandidateSelection(candidate, "spotify", ["image"], {
+      image_url: "https://example.com/first-image.jpg",
+    });
+
+    expect(update.image_url).toBeUndefined();
+  });
+
+  it("does not overwrite an already-staged description", () => {
+    const candidate = makeCandidate({ description: "Another bio." });
+
+    const update = mergeCandidateSelection(
+      candidate,
+      "spotify",
+      ["description"],
+      { description: "First staged bio." },
+    );
+
+    expect(update.description).toBeUndefined();
+  });
+
+  it("still sets providerUrl even when other fields are already staged", () => {
+    const candidate = makeCandidate();
+
+    const update = mergeCandidateSelection(
+      candidate,
+      "spotify",
+      ["url", "image", "description"],
+      {
+        image_url: "https://example.com/first-image.jpg",
+        description: "First staged bio.",
+      },
+    );
+
+    expect(update.providerUrl).toEqual({ spotify: candidate.url });
+  });
 });
 
 function makeCandidate(overrides: Partial<Candidate> = {}): Candidate {

@@ -8,10 +8,16 @@ export interface CandidateUpdate {
 
 export type SelectableField = "url" | "image" | "description";
 
+export interface StagedValues {
+  image_url?: string | null | undefined;
+  description?: string | null | undefined;
+}
+
 export function mergeCandidateSelection(
   candidate: Candidate,
   provider: Provider,
   fields: SelectableField[],
+  staged: StagedValues = {},
 ): CandidateUpdate {
   const updates: CandidateUpdate = {};
 
@@ -19,11 +25,15 @@ export function mergeCandidateSelection(
     updates.providerUrl = { [provider]: candidate.url };
   }
 
-  if (fields.includes("image") && candidate.imageUrl) {
+  if (fields.includes("image") && candidate.imageUrl && !staged.image_url) {
     updates.image_url = candidate.imageUrl;
   }
 
-  if (fields.includes("description") && candidate.description) {
+  if (
+    fields.includes("description") &&
+    candidate.description &&
+    !staged.description
+  ) {
     updates.description = candidate.description;
   }
 

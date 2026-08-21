@@ -68,6 +68,7 @@ export function ProviderCandidatesPanel({
         <div className="flex gap-2">
           <Input
             type="text"
+            aria-label={`Search ${label}`}
             placeholder="Enter artist name..."
             value={customSearchQuery}
             onChange={(e) => setCustomSearchQuery(e.target.value)}

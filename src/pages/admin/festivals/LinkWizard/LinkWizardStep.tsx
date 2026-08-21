@@ -146,7 +146,10 @@ export function LinkWizardStep({
     provider: Provider,
     fields: SelectableField[],
   ) {
-    const update = mergeCandidateSelection(candidate, provider, fields);
+    const update = mergeCandidateSelection(candidate, provider, fields, {
+      image_url: form.getValues("image_url"),
+      description: form.getValues("description"),
+    });
 
     if (update.providerUrl) {
       for (const [providerKey, url] of Object.entries(update.providerUrl)) {

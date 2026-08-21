@@ -5,7 +5,7 @@ export const config = {
 };
 
 const BOT_USER_AGENT_RE =
-  /facebookexternalhit|Facebot|Twitterbot|Slackbot|LinkedInBot|WhatsApp|TelegramBot|Discordbot|SkypeUriPreview|iMessageLinkPreview|Applebot|redditbot|Pinterest|vkShare|W3C_Validator|Googlebot/i;
+  /facebookexternalhit|Facebot|Twitterbot|Slackbot|LinkedInBot|WhatsApp|TelegramBot|Discordbot|SkypeUriPreview|iMessageLinkPreview|Applebot|redditbot|Pinterest|vkShare|W3C_Validator|Googlebot|bot|crawler|spider|preview|unfurl|opengraph|embed|scraper|validator/i;
 
 const SET_PATH_RE = /^\/festivals\/([^/]+)\/editions\/([^/]+)\/sets\/([^/]+)/;
 const EDITION_PATH_RE = /^\/festivals\/([^/]+)\/editions\/([^/]+)/;

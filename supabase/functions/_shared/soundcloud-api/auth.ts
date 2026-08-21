@@ -11,6 +11,9 @@ const EXPIRY_BUFFER_MS = 60 * 1000;
 const LEASE_SECONDS = 15;
 const POLL_INTERVAL_MS = 500;
 const MAX_WAIT_MS = 15 * 1000;
+// Keep the token request strictly shorter than the lease so a hung request
+// can't outlive its own lease and race the next holder.
+const TOKEN_REQUEST_TIMEOUT_MS = 10 * 1000;
 
 let cachedToken: { token: string; expiresAt: number } | null = null;
 
@@ -55,14 +58,14 @@ export async function getSoundCloudAccessToken(): Promise<string> {
           clientSecret,
           lease.refreshToken,
         );
-        await storeToken(supabase, tokenData);
+        await storeToken(supabase, tokenData, lease.leaseId);
         cachedToken = {
           token: tokenData.access_token,
           expiresAt: Date.now() + tokenData.expires_in * 1000,
         };
         return tokenData.access_token;
       } catch (error) {
-        await releaseLease(supabase);
+        await releaseLease(supabase, lease.leaseId);
         throw error;
       }
     }
@@ -120,32 +123,46 @@ async function readStoredToken(
 
 async function claimLease(
   supabase: SupabaseClient,
-): Promise<{ claimed: boolean; refreshToken: string | null }> {
+): Promise<
+  | { claimed: true; refreshToken: string | null; leaseId: string }
+  | { claimed: false }
+> {
   const { data, error } = await supabase.rpc("claim_provider_token_lease", {
     p_provider: PROVIDER,
     p_lease_seconds: LEASE_SECONDS,
   });
 
   if (error) {
-    // Degraded mode: without the lease we can't guarantee serialization, but
-    // failing the search over a lease-bookkeeping error would be worse.
+    // Fail closed: proceeding without the lease would let every cold
+    // instance stampede the token endpoint, which is exactly what the
+    // lease exists to prevent.
     console.error("[getSoundCloudAccessToken] Failed to claim lease:", error);
-    return { claimed: true, refreshToken: null };
+    throw new Error(
+      "SoundCloud authentication is temporarily unavailable, please try again",
+    );
   }
 
-  const rows = data as { refresh_token: string | null }[] | null;
+  const rows = data as
+    | { refresh_token: string | null; lease_id: string }[]
+    | null;
   if (!rows || rows.length === 0) {
-    return { claimed: false, refreshToken: null };
+    return { claimed: false };
   }
-  return { claimed: true, refreshToken: rows[0].refresh_token };
+  return {
+    claimed: true,
+    refreshToken: rows[0].refresh_token,
+    leaseId: rows[0].lease_id,
+  };
 }
 
 async function storeToken(
   supabase: SupabaseClient,
   tokenData: SoundCloudTokenResponse,
+  leaseId: string,
 ): Promise<void> {
-  const { error } = await supabase.rpc("store_provider_token", {
+  const { data, error } = await supabase.rpc("store_provider_token", {
     p_provider: PROVIDER,
+    p_lease_id: leaseId,
     p_access_token: tokenData.access_token,
     p_refresh_token: tokenData.refresh_token,
     p_expires_in: tokenData.expires_in,
@@ -153,14 +170,21 @@ async function storeToken(
 
   if (error) {
     console.error("[getSoundCloudAccessToken] Failed to persist token:", error);
+  } else if (data === false) {
+    console.warn(
+      "[getSoundCloudAccessToken] Lease expired before the token was stored; keeping it in-memory only",
+    );
   }
 }
 
-async function releaseLease(supabase: SupabaseClient): Promise<void> {
-  const { error } = await supabase
-    .from("provider_tokens")
-    .update({ lock_until: null })
-    .eq("provider", PROVIDER);
+async function releaseLease(
+  supabase: SupabaseClient,
+  leaseId: string,
+): Promise<void> {
+  const { error } = await supabase.rpc("release_provider_token_lease", {
+    p_provider: PROVIDER,
+    p_lease_id: leaseId,
+  });
 
   if (error) {
     console.error("[getSoundCloudAccessToken] Failed to release lease:", error);
@@ -194,16 +218,23 @@ async function tryRefreshGrant(
 ): Promise<SoundCloudTokenResponse | null> {
   console.log("[getSoundCloudAccessToken] Refreshing access token...");
 
-  const response = await fetch(TOKEN_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      grant_type: "refresh_token",
-      client_id: clientId,
-      client_secret: clientSecret,
-      refresh_token: refreshToken,
-    }),
-  });
+  let response: Response;
+  try {
+    response = await fetch(TOKEN_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "refresh_token",
+        client_id: clientId,
+        client_secret: clientSecret,
+        refresh_token: refreshToken,
+      }),
+      signal: AbortSignal.timeout(TOKEN_REQUEST_TIMEOUT_MS),
+    });
+  } catch (error) {
+    console.error("[getSoundCloudAccessToken] Refresh request failed:", error);
+    return null;
+  }
 
   if (!response.ok) {
     const errorBody = await response
@@ -239,14 +270,21 @@ async function clientCredentialsGrant(
 ): Promise<SoundCloudTokenResponse> {
   console.log("[getSoundCloudAccessToken] Requesting new access token...");
 
-  const response = await fetch(TOKEN_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Basic ${btoa(`${clientId}:${clientSecret}`)}`,
-    },
-    body: "grant_type=client_credentials",
-  });
+  let response: Response;
+  try {
+    response = await fetch(TOKEN_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Basic ${btoa(`${clientId}:${clientSecret}`)}`,
+      },
+      body: "grant_type=client_credentials",
+      signal: AbortSignal.timeout(TOKEN_REQUEST_TIMEOUT_MS),
+    });
+  } catch (error) {
+    console.error("[getSoundCloudAccessToken] Token request failed:", error);
+    throw new Error("Failed to reach SoundCloud, please try again later");
+  }
 
   if (!response.ok) {
     const errorBody = await response

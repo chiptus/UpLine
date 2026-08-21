@@ -81,75 +81,6 @@ export function LinkWizardStep({
     },
   });
 
-  function getSpotifyResult() {
-    return resolveProviderResult({
-      provider: "spotify",
-      providerLabel: "Spotify",
-      artistName: artist.name,
-      customSearch: customSpotifySearch,
-      customResult: spotifyCustomResult,
-      batchQueryResult,
-    });
-  }
-
-  function getSoundcloudResult() {
-    return resolveProviderResult({
-      provider: "soundcloud",
-      providerLabel: "SoundCloud",
-      artistName: artist.name,
-      customSearch: customSoundcloudSearch,
-      customResult: soundcloudCustomResult,
-      batchQueryResult,
-    });
-  }
-
-  function handleCandidateSelect(candidate: Candidate, provider: Provider) {
-    const update = mergeCandidateSelection(
-      { artist, stagedUpdates },
-      candidate,
-      provider,
-    );
-
-    setStagedUpdates((prev) => ({ ...prev, ...update }));
-
-    if (provider === "spotify" && update.spotify_url) {
-      form.setValue("spotifyUrl", update.spotify_url);
-    } else if (provider === "soundcloud" && update.soundcloud_url) {
-      form.setValue("soundcloudUrl", update.soundcloud_url);
-    }
-  }
-
-  function handleSearchAgain(provider: Provider, query: string) {
-    if (provider === "spotify") {
-      setCustomSpotifySearch(query);
-    } else {
-      setCustomSoundcloudSearch(query);
-    }
-  }
-
-  function onSubmit(data: LinkStepData) {
-    updateArtistMutation.mutate(
-      {
-        id: artist.id,
-        updates: {
-          ...(!artist.spotify_url && {
-            spotify_url: data.spotifyUrl || null,
-          }),
-          ...(!artist.soundcloud_url && {
-            soundcloud_url: data.soundcloudUrl || null,
-          }),
-          ...(stagedUpdates.image_url && {
-            image_url: stagedUpdates.image_url,
-          }),
-          ...(stagedUpdates.description && {
-            description: stagedUpdates.description,
-          }),
-        },
-      },
-      { onSuccess: onNext },
-    );
-  }
-
   const isLoadingSpotify =
     batchQueryResult.isLoading || spotifyCustomResult.isLoading;
   const isLoadingSoundcloud =
@@ -255,6 +186,75 @@ export function LinkWizardStep({
       </Form>
     </div>
   );
+
+  function getSpotifyResult() {
+    return resolveProviderResult({
+      provider: "spotify",
+      providerLabel: "Spotify",
+      artistName: artist.name,
+      customSearch: customSpotifySearch,
+      customResult: spotifyCustomResult,
+      batchQueryResult,
+    });
+  }
+
+  function getSoundcloudResult() {
+    return resolveProviderResult({
+      provider: "soundcloud",
+      providerLabel: "SoundCloud",
+      artistName: artist.name,
+      customSearch: customSoundcloudSearch,
+      customResult: soundcloudCustomResult,
+      batchQueryResult,
+    });
+  }
+
+  function handleCandidateSelect(candidate: Candidate, provider: Provider) {
+    const update = mergeCandidateSelection(
+      { artist, stagedUpdates },
+      candidate,
+      provider,
+    );
+
+    setStagedUpdates((prev) => ({ ...prev, ...update }));
+
+    if (provider === "spotify" && update.spotify_url) {
+      form.setValue("spotifyUrl", update.spotify_url);
+    } else if (provider === "soundcloud" && update.soundcloud_url) {
+      form.setValue("soundcloudUrl", update.soundcloud_url);
+    }
+  }
+
+  function handleSearchAgain(provider: Provider, query: string) {
+    if (provider === "spotify") {
+      setCustomSpotifySearch(query);
+    } else {
+      setCustomSoundcloudSearch(query);
+    }
+  }
+
+  function onSubmit(data: LinkStepData) {
+    updateArtistMutation.mutate(
+      {
+        id: artist.id,
+        updates: {
+          ...(!artist.spotify_url && {
+            spotify_url: data.spotifyUrl || null,
+          }),
+          ...(!artist.soundcloud_url && {
+            soundcloud_url: data.soundcloudUrl || null,
+          }),
+          ...(stagedUpdates.image_url && {
+            image_url: stagedUpdates.image_url,
+          }),
+          ...(stagedUpdates.description && {
+            description: stagedUpdates.description,
+          }),
+        },
+      },
+      { onSuccess: onNext },
+    );
+  }
 }
 
 interface ResolveProviderResultArgs {

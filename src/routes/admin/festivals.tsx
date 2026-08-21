@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Outlet, useNavigate, useParams } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Plus } from "lucide-react";
@@ -8,7 +8,6 @@ import { FestivalManagementTable } from "@/pages/admin/festivals/FestivalManagem
 import { Festival } from "@/api/festivals/types";
 import { Button } from "@/components/ui/button";
 import { festivalsQuery } from "@/api/festivals/useFestivals";
-import { useFestivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 import { pageMeta } from "@/lib/pageHead";
 
 export const Route = createFileRoute("/admin/festivals")({
@@ -27,12 +26,6 @@ function AdminFestivals() {
 
   const navigate = useNavigate();
   const { festivalSlug = "" } = useParams({ strict: false });
-  const [showFestivalsList, setShowFestivalsList] = useState(!festivalSlug);
-  const selectedFestivalQuery = useFestivalBySlugQuery(festivalSlug);
-
-  useEffect(() => {
-    setShowFestivalsList(!festivalSlug);
-  }, [festivalSlug]);
 
   function handleFestivalChange(festivalSlug: string) {
     if (festivalSlug === "none") {
@@ -43,12 +36,11 @@ function AdminFestivals() {
         params: { festivalSlug },
       });
     }
-    setShowFestivalsList(false);
   }
 
   return (
     <div className="space-y-6">
-      {showFestivalsList ? (
+      {!festivalSlug && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
@@ -79,29 +71,9 @@ function AdminFestivals() {
             />
           </CardContent>
         </Card>
-      ) : (
-        <Card>
-          <CardContent className="flex items-center justify-between py-4">
-            <span className="flex items-center gap-2 text-sm">
-              <Calendar className="h-4 w-4" />
-              Festival:{" "}
-              <span className="font-medium">
-                {selectedFestivalQuery.data?.name ?? festivalSlug}
-              </span>
-            </span>
-            <Button
-              variant="outline"
-              onClick={() => setShowFestivalsList(true)}
-            >
-              Change Festival
-            </Button>
-          </CardContent>
-        </Card>
       )}
 
-      <div className="mt-4">
-        <Outlet />
-      </div>
+      <Outlet />
 
       <FestivalDialog
         open={isEditDialogOpen}

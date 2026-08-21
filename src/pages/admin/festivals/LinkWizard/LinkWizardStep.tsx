@@ -78,19 +78,41 @@ export function LinkWizardStep({
     },
   });
 
-  function getCandidates(provider: Provider): Candidate[] {
-    if (provider === "spotify" && customSpotifySearch) {
-      return spotifyCustomResult.data?.results[0]?.candidates ?? [];
-    }
-    if (provider === "soundcloud" && customSoundcloudSearch) {
-      return soundcloudCustomResult.data?.results[0]?.candidates ?? [];
+  function getProviderResult(provider: Provider): {
+    candidates: Candidate[];
+    error?: string | undefined;
+  } {
+    const customSearch =
+      provider === "spotify" ? customSpotifySearch : customSoundcloudSearch;
+    const customResult =
+      provider === "spotify" ? spotifyCustomResult : soundcloudCustomResult;
+
+    const providerLabel = provider === "spotify" ? "Spotify" : "SoundCloud";
+
+    if (customSearch) {
+      if (customResult.isError) {
+        return {
+          candidates: [],
+          error: `${providerLabel} search failed. Please try again.`,
+        };
+      }
+      const result = customResult.data?.results.find(
+        (r) => r.provider === provider,
+      );
+      return { candidates: result?.candidates ?? [], error: result?.error };
     }
 
-    return (
-      batchQueryResult.data?.results.find(
-        (r) => r.artistName === artist.name && r.provider === provider,
-      )?.candidates ?? []
+    if (batchQueryResult.isError) {
+      return {
+        candidates: [],
+        error: `${providerLabel} search failed. Please try again.`,
+      };
+    }
+
+    const result = batchQueryResult.data?.results.find(
+      (r) => r.artistName === artist.name && r.provider === provider,
     );
+    return { candidates: result?.candidates ?? [], error: result?.error };
   }
 
   function handleCandidateSelect(candidate: Candidate, provider: Provider) {
@@ -142,6 +164,9 @@ export function LinkWizardStep({
     spotifyCustomResult.isLoading ||
     soundcloudCustomResult.isLoading;
 
+  const spotifyResult = getProviderResult("spotify");
+  const soundcloudResult = getProviderResult("soundcloud");
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-end">
@@ -158,7 +183,8 @@ export function LinkWizardStep({
               fieldName="spotifyUrl"
               label="Spotify URL"
               placeholder="https://open.spotify.com/artist/..."
-              candidates={getCandidates("spotify")}
+              candidates={spotifyResult.candidates}
+              searchError={spotifyResult.error}
               isLoadingCandidates={isLoadingCandidates}
               form={form}
               onSelectCandidate={(candidate) =>
@@ -174,7 +200,8 @@ export function LinkWizardStep({
               fieldName="soundcloudUrl"
               label="SoundCloud URL"
               placeholder="https://soundcloud.com/..."
-              candidates={getCandidates("soundcloud")}
+              candidates={soundcloudResult.candidates}
+              searchError={soundcloudResult.error}
               isLoadingCandidates={isLoadingCandidates}
               form={form}
               onSelectCandidate={(candidate) =>

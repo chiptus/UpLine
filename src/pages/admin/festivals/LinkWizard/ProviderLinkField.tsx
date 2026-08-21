@@ -8,7 +8,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { RotateCcw } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle, RotateCcw } from "lucide-react";
 import type { UseFormReturn } from "react-hook-form";
 import type { Candidate, Provider } from "@/api/artistSearch/types";
 import { CandidateCards } from "./CandidateCards";
@@ -19,6 +20,7 @@ interface ProviderLinkFieldProps {
   label: string;
   placeholder: string;
   candidates: Candidate[];
+  searchError?: string | undefined;
   isLoadingCandidates: boolean;
   form: UseFormReturn<Record<string, unknown>>;
   onSelectCandidate: (candidate: Candidate) => void;
@@ -31,6 +33,7 @@ export function ProviderLinkField({
   label,
   placeholder,
   candidates,
+  searchError,
   isLoadingCandidates,
   form,
   onSelectCandidate,
@@ -52,6 +55,12 @@ export function ProviderLinkField({
 
   return (
     <div className="space-y-3">
+      {searchError && !isLoadingCandidates && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{searchError}</AlertDescription>
+        </Alert>
+      )}
       <CandidateCards
         candidates={candidates}
         provider={provider}

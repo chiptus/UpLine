@@ -99,7 +99,6 @@ export function ProviderLinkField({
                     }
                   }}
                   disabled={isLoadingCandidates}
-                  autoFocus
                 />
                 <Button
                   type="button"

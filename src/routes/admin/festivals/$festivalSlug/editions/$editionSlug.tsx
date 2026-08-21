@@ -1,11 +1,11 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useParams, useLocation, Outlet, Link } from "@tanstack/react-router";
+import { useParams, useLocation, Outlet } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link2, Loader2, MapPin, Music, Settings, Upload } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useFestivalEditionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
-import { cn } from "@/lib/utils";
+import { EditionNavLink } from "@/pages/admin/festivals/EditionNavLink";
 import { editionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { pageMeta } from "@/lib/pageHead";
 
@@ -90,66 +90,46 @@ function FestivalEdition() {
     <div className="space-y-6">
       <div className="w-full">
         <div className="sticky top-16 md:top-20 z-10 grid w-full grid-cols-5 gap-2 bg-white/10 backdrop-blur-md p-1 rounded-lg">
-          <Link
+          <EditionNavLink
             to="/admin/festivals/$festivalSlug/editions/$editionSlug/stages"
-            params={{ festivalSlug, editionSlug }}
-            className={cn(
-              "flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors",
-              "text-white font-medium",
-              isOnStages ? "bg-purple-600" : "hover:bg-white/10",
-            )}
-          >
-            <MapPin className="h-4 w-4" />
-            Stages
-          </Link>
-          <Link
+            festivalSlug={festivalSlug}
+            editionSlug={editionSlug}
+            icon={<MapPin className="h-4 w-4" />}
+            label="Stages"
+            isActive={isOnStages}
+          />
+          <EditionNavLink
             to="/admin/festivals/$festivalSlug/editions/$editionSlug/sets"
-            params={{ festivalSlug, editionSlug }}
-            className={cn(
-              "flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors",
-              "text-white font-medium",
-              isOnSets ? "bg-purple-600" : "hover:bg-white/10",
-            )}
-          >
-            <Music className="h-4 w-4" />
-            Sets
-          </Link>
-          <Link
+            festivalSlug={festivalSlug}
+            editionSlug={editionSlug}
+            icon={<Music className="h-4 w-4" />}
+            label="Sets"
+            isActive={isOnSets}
+          />
+          <EditionNavLink
             to="/admin/festivals/$festivalSlug/editions/$editionSlug/import"
-            params={{ festivalSlug, editionSlug }}
-            className={cn(
-              "flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors",
-              "text-white font-medium",
-              isOnImport ? "bg-purple-600" : "hover:bg-white/10",
-            )}
-          >
-            <Upload className="h-4 w-4" />
-            Import
-          </Link>
-          <Link
+            festivalSlug={festivalSlug}
+            editionSlug={editionSlug}
+            icon={<Upload className="h-4 w-4" />}
+            label="Import"
+            isActive={isOnImport}
+          />
+          <EditionNavLink
             to="/admin/festivals/$festivalSlug/editions/$editionSlug/links"
-            params={{ festivalSlug, editionSlug }}
-            className={cn(
-              "flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors",
-              "text-white font-medium",
-              isOnLinks ? "bg-purple-600" : "hover:bg-white/10",
-            )}
-          >
-            <Link2 className="h-4 w-4" />
-            Links
-          </Link>
-          <Link
+            festivalSlug={festivalSlug}
+            editionSlug={editionSlug}
+            icon={<Link2 className="h-4 w-4" />}
+            label="Links"
+            isActive={isOnLinks}
+          />
+          <EditionNavLink
             to="/admin/festivals/$festivalSlug/editions/$editionSlug/settings"
-            params={{ festivalSlug, editionSlug }}
-            className={cn(
-              "flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors",
-              "text-white font-medium",
-              isOnSettings ? "bg-purple-600" : "hover:bg-white/10",
-            )}
-          >
-            <Settings className="h-4 w-4" />
-            Settings
-          </Link>
+            festivalSlug={festivalSlug}
+            editionSlug={editionSlug}
+            icon={<Settings className="h-4 w-4" />}
+            label="Settings"
+            isActive={isOnSettings}
+          />
         </div>
 
         <div className="mt-6">

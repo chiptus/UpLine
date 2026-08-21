@@ -15,12 +15,12 @@ export function FestivalManagementSection({
   selected,
   onSelect,
 }: FestivalManagementSectionProps) {
-  const [editingFestival, setEditingFestival] = useState<Festival | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingFestival, setEditingFestival] = useState<
+    Festival | "new" | null
+  >(null);
 
   function handleCreate() {
-    setEditingFestival(null);
-    setIsEditDialogOpen(true);
+    setEditingFestival("new");
   }
 
   return (
@@ -46,7 +46,6 @@ export function FestivalManagementSection({
           <FestivalManagementTable
             onEdit={(festival) => {
               setEditingFestival(festival);
-              setIsEditDialogOpen(true);
             }}
             onSelect={onSelect}
             selected={selected}
@@ -54,14 +53,15 @@ export function FestivalManagementSection({
         </CardContent>
       </Card>
 
-      <FestivalDialog
-        open={isEditDialogOpen}
-        onOpenChange={() => {
-          setEditingFestival(null);
-          setIsEditDialogOpen(false);
-        }}
-        editingFestival={editingFestival}
-      />
+      {editingFestival && (
+        <FestivalDialog
+          open
+          onOpenChange={() => {
+            setEditingFestival(null);
+          }}
+          editingFestival={editingFestival === "new" ? null : editingFestival}
+        />
+      )}
     </>
   );
 }

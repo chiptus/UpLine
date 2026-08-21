@@ -1,18 +1,20 @@
 import { Link } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
+import { editionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 
 interface FestivalBreadcrumbProps {
   festivalSlug: string;
   festivalName: string;
+  festivalId: string;
   editionSlug?: string | undefined;
-  editionName?: string | undefined;
 }
 
 export function FestivalBreadcrumb({
   festivalSlug,
   festivalName,
+  festivalId,
   editionSlug,
-  editionName,
 }: FestivalBreadcrumbProps) {
   return (
     <nav
@@ -37,11 +39,23 @@ export function FestivalBreadcrumb({
       {editionSlug && (
         <>
           <ChevronRight className="h-4 w-4" />
-          <span className="font-medium text-foreground">
-            {editionName ?? editionSlug}
-          </span>
+          <EditionCrumb festivalId={festivalId} editionSlug={editionSlug} />
         </>
       )}
     </nav>
   );
+}
+
+function EditionCrumb({
+  festivalId,
+  editionSlug,
+}: {
+  festivalId: string;
+  editionSlug: string;
+}) {
+  const { data: edition } = useSuspenseQuery(
+    editionBySlugQuery({ festivalId, editionSlug }),
+  );
+
+  return <span className="font-medium text-foreground">{edition.name}</span>;
 }

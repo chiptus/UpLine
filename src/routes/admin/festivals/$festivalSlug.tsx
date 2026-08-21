@@ -4,7 +4,6 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { FestivalEditionManagement } from "@/pages/admin/festivals/FestivalEditionManagement";
 import { FestivalBreadcrumb } from "@/pages/admin/festivals/FestivalBreadcrumb";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
-import { useFestivalEditionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { pageMeta } from "@/lib/pageHead";
 
 export const Route = createFileRoute("/admin/festivals/$festivalSlug")({
@@ -28,18 +27,14 @@ function FestivalDetail() {
   const { data: festival } = useSuspenseQuery(
     festivalBySlugQuery(festivalSlug),
   );
-  const editionQuery = useFestivalEditionBySlugQuery({
-    editionSlug,
-    festivalId: festival.id,
-  });
 
   return (
     <>
       <FestivalBreadcrumb
         festivalSlug={festivalSlug}
         festivalName={festival.name}
+        festivalId={festival.id}
         editionSlug={editionSlug || undefined}
-        editionName={editionQuery.data?.name}
       />
 
       {!editionSlug && (

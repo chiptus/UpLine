@@ -1,8 +1,7 @@
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
-import { useFestivalEditionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
+import { editionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 import { getFestivalPhase } from "@/lib/festivalPhase";
 import { ScheduleRevealControl } from "@/pages/admin/festivals/ScheduleRevealControl";
@@ -28,23 +27,9 @@ function FestivalEditionSettings() {
   const { data: festival } = useSuspenseQuery(
     festivalBySlugQuery(festivalSlug),
   );
-  const editionQuery = useFestivalEditionBySlugQuery({
-    editionSlug,
-    festivalId: festival.id,
-  });
-
-  if (editionQuery.isLoading || !editionQuery.data) {
-    return (
-      <Card>
-        <CardContent className="flex items-center justify-center p-8">
-          <Loader2 className="h-6 w-6 animate-spin mr-2" />
-          <span>Loading settings...</span>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const currentEdition = editionQuery.data;
+  const { data: currentEdition } = useSuspenseQuery(
+    editionBySlugQuery({ festivalId: festival.id, editionSlug }),
+  );
 
   const derivedPhase = getFestivalPhase({
     revealLevel: currentEdition.schedule_reveal_level ?? "draft",

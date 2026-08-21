@@ -6,7 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Artist } from "@/api/artists/types";
-import { useUpdateArtistMutation } from "@/api/artists/useUpdateArtist";
+import {
+  useUpdateArtistMutation,
+  type UpdateArtistUpdates,
+} from "@/api/artists/useUpdateArtist";
 import { useSearchArtistLinksQuery } from "@/api/artistSearch/useSearchArtistLinksQuery";
 import {
   mergeCandidateSelection,
@@ -177,24 +180,23 @@ export function LinkWizardStep({
   }
 
   function onSubmit(data: LinkStepData) {
+    const updates: UpdateArtistUpdates = {};
+
+    if (!artist.spotify_url) {
+      updates.spotify_url = data.spotifyUrl || null;
+    }
+    if (!artist.soundcloud_url) {
+      updates.soundcloud_url = data.soundcloudUrl || null;
+    }
+    if (stagedUpdates.image_url) {
+      updates.image_url = stagedUpdates.image_url;
+    }
+    if (stagedUpdates.description !== undefined) {
+      updates.description = stagedUpdates.description;
+    }
+
     updateArtistMutation.mutate(
-      {
-        id: artist.id,
-        updates: {
-          ...(!artist.spotify_url && {
-            spotify_url: data.spotifyUrl || null,
-          }),
-          ...(!artist.soundcloud_url && {
-            soundcloud_url: data.soundcloudUrl || null,
-          }),
-          ...(stagedUpdates.image_url && {
-            image_url: stagedUpdates.image_url,
-          }),
-          ...(stagedUpdates.description !== undefined && {
-            description: stagedUpdates.description,
-          }),
-        },
-      },
+      { id: artist.id, updates },
       { onSuccess: onNext },
     );
   }

@@ -35,6 +35,7 @@ function FestivalDetail() {
   const { festivalSlug } = Route.useParams();
   const { editionSlug = "" } = useParams({ strict: false });
   const [showFestivalInfo, setShowFestivalInfo] = useState(false);
+  const [showFestivalCard, setShowFestivalCard] = useState(!editionSlug);
   const [showEditionsList, setShowEditionsList] = useState(!editionSlug);
   const navigate = useNavigate();
 
@@ -47,6 +48,7 @@ function FestivalDetail() {
   });
 
   useEffect(() => {
+    setShowFestivalCard(!editionSlug);
     setShowEditionsList(!editionSlug);
   }, [editionSlug]);
 
@@ -56,6 +58,7 @@ function FestivalDetail() {
       to: "/admin/festivals/$festivalSlug/editions/$editionSlug/stages",
       params: { festivalSlug, editionSlug },
     });
+    setShowFestivalCard(false);
     setShowEditionsList(false);
   }
 
@@ -71,33 +74,47 @@ function FestivalDetail() {
         )}
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span className="flex items-center gap-2">
-              {festival.name}
+      {showFestivalCard ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                {festival.name}
+                <FestivalMissingInfoBadge festivalId={festival.id} />
+              </span>
+              <Button
+                variant="outline"
+                onClick={() => setShowFestivalInfo(!showFestivalInfo)}
+              >
+                <Info className="h-4 w-4 mr-2" />
+                Festival Info
+                {showFestivalInfo ? (
+                  <ChevronUp className="h-4 w-4 ml-2" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 ml-2" />
+                )}
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          {showFestivalInfo && (
+            <CardContent>
+              <FestivalInfoDetails festivalId={festival.id} />
+            </CardContent>
+          )}
+        </Card>
+      ) : (
+        <Card>
+          <CardContent className="flex items-center justify-between py-4">
+            <span className="flex items-center gap-2 text-sm">
+              <span className="font-medium">{festival.name}</span>
               <FestivalMissingInfoBadge festivalId={festival.id} />
             </span>
-            <Button
-              variant="outline"
-              onClick={() => setShowFestivalInfo(!showFestivalInfo)}
-            >
-              <Info className="h-4 w-4 mr-2" />
-              Festival Info
-              {showFestivalInfo ? (
-                <ChevronUp className="h-4 w-4 ml-2" />
-              ) : (
-                <ChevronDown className="h-4 w-4 ml-2" />
-              )}
+            <Button variant="outline" onClick={() => setShowFestivalCard(true)}>
+              Show Festival Info
             </Button>
-          </CardTitle>
-        </CardHeader>
-        {showFestivalInfo && (
-          <CardContent>
-            <FestivalInfoDetails festivalId={festival.id} />
           </CardContent>
-        )}
-      </Card>
+        </Card>
+      )}
 
       <div className="mt-6">
         {showEditionsList ? (

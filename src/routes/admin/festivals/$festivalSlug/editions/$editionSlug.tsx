@@ -98,18 +98,20 @@ function FestivalEdition() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-end gap-2">
-        <ScheduleRevealControl
-          editionId={currentEdition.id}
-          level={currentEdition.schedule_reveal_level ?? "draft"}
-          editionPublished={currentEdition.published ?? false}
-        />
-        <PhaseOverrideControl
-          editionId={currentEdition.id}
-          override={currentEdition.phase_override ?? null}
-          derivedPhase={derivedPhase}
-        />
-      </div>
+      <Card>
+        <CardContent className="flex flex-wrap items-center justify-between gap-3 py-4">
+          <ScheduleRevealControl
+            editionId={currentEdition.id}
+            level={currentEdition.schedule_reveal_level ?? "draft"}
+            editionPublished={currentEdition.published ?? false}
+          />
+          <PhaseOverrideControl
+            editionId={currentEdition.id}
+            override={currentEdition.phase_override ?? null}
+            derivedPhase={derivedPhase}
+          />
+        </CardContent>
+      </Card>
       <div className="w-full">
         <div className="sticky top-16 md:top-20 z-10 grid w-full grid-cols-4 gap-2 bg-white/10 backdrop-blur-md p-1 rounded-lg">
           <Link

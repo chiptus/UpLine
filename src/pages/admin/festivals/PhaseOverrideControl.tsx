@@ -51,7 +51,7 @@ export function PhaseOverrideControl({
         else if (isFestivalPhase(value)) setOverride(value);
       }}
     >
-      <SelectTrigger className="w-[180px]">
+      <SelectTrigger className="h-9 w-[180px]">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

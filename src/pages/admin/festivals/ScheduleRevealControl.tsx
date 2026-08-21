@@ -54,7 +54,7 @@ export function ScheduleRevealControl({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="inline-flex items-center gap-1 rounded-md bg-purple-100 text-purple-900 px-2 py-1 text-sm font-medium">
+      <span className="inline-flex h-9 items-center gap-1 rounded-md bg-purple-100 text-purple-900 px-3 text-sm font-medium">
         {level === "full" && <Check className="h-3 w-3" />}
         {STATUS_LABEL[level]}
       </span>

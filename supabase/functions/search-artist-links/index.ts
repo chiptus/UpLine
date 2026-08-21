@@ -4,11 +4,20 @@ import { buildCorsHeaders } from "../_shared/cors.ts";
 import { searchSoundCloud } from "./soundcloud-adapter.ts";
 import { searchSpotify } from "./spotify-adapter.ts";
 import type {
+  Candidate,
   Provider,
   SearchRequest,
   SearchResponse,
   SearchResult,
 } from "./types.ts";
+
+const searchByProvider: Record<
+  Provider,
+  (artistNames: string[]) => Promise<Map<string, Candidate[]>>
+> = {
+  soundcloud: searchSoundCloud,
+  spotify: searchSpotify,
+};
 
 const SearchRequestSchema = z.object({
   artistNames: z.array(z.string()).min(1),
@@ -57,15 +66,9 @@ serve(async (req) => {
       console.log(`[search-artist-links] Searching ${provider}...`);
 
       try {
-        let candidatesMap;
-
-        if (provider === "soundcloud") {
-          candidatesMap = await searchSoundCloud(request.artistNames);
-        } else if (provider === "spotify") {
-          candidatesMap = await searchSpotify(request.artistNames);
-        } else {
-          continue;
-        }
+        const candidatesMap = await searchByProvider[provider](
+          request.artistNames,
+        );
 
         for (const artistName of request.artistNames) {
           const candidates = candidatesMap.get(artistName) || [];

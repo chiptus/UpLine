@@ -70,11 +70,6 @@ export function StagedFieldsPreview({ form }: StagedFieldsPreviewProps) {
             />
           )}
           <div className="flex-1 space-y-1">
-            {imageUrl && (
-              <p className="text-muted-foreground">
-                Image staged from candidate
-              </p>
-            )}
             {description !== undefined && (
               <FormField
                 control={form.control}

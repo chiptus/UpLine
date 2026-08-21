@@ -1,30 +1,15 @@
-name: Deploy
+name: Deploy Staging
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "supabase/migrations/**"
-      - "supabase/functions/**"
-      - ".github/workflows/deploy.yml"
-      - ".github/workflows/_db_migrate.yml"
-      - ".github/workflows/_deploy_edge_functions.yml"
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened, labeled, unlabeled]
     paths:
       - "supabase/migrations/**"
       - "supabase/functions/**"
-      - ".github/workflows/deploy.yml"
+      - ".github/workflows/deploy-staging.yml"
       - ".github/workflows/_db_migrate.yml"
       - ".github/workflows/_deploy_edge_functions.yml"
-  workflow_dispatch:
-    inputs:
-      target:
-        description: "Which environment to deploy"
-        required: true
-        type: choice
-        options: [staging, prod]
 
 permissions:
   contents: read
@@ -32,30 +17,16 @@ permissions:
 
 jobs:
   resolve:
-    name: Resolve target & changes
+    name: Resolve changes
     runs-on: ubuntu-latest
     outputs:
-      target: ${{ steps.target.outputs.target }}
-      migrations: ${{ steps.filter.outputs.migrations || 'true' }}
-      functions: ${{ steps.filter.outputs.functions || 'true' }}
+      migrations: ${{ steps.filter.outputs.migrations }}
+      functions: ${{ steps.filter.outputs.functions }}
     steps:
       - uses: actions/checkout@v5
 
-      - name: Resolve target
-        id: target
-        run: |
-          case "${{ github.event_name }}" in
-            workflow_dispatch) TARGET="${{ github.event.inputs.target }}" ;;
-            pull_request)      TARGET="staging" ;;
-            push)              TARGET="prod" ;;
-            *) echo "Unknown event"; exit 1 ;;
-          esac
-          echo "target=$TARGET" >> "$GITHUB_OUTPUT"
-          echo "Deploying: $TARGET"
-
       - uses: dorny/paths-filter@v4
         id: filter
-        if: github.event_name != 'workflow_dispatch'
         with:
           filters: |
             migrations:
@@ -66,7 +37,7 @@ jobs:
   gate:
     name: Require staging label for migrations
     needs: resolve
-    if: github.event_name == 'pull_request' && needs.resolve.outputs.migrations == 'true'
+    if: needs.resolve.outputs.migrations == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Fail if this PR touches migrations without holding the staging label
@@ -77,8 +48,8 @@ jobs:
 
   check-lock:
     name: Verify staging lock ownership
-    needs: [resolve, gate]
-    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'staging')
+    needs: resolve
+    if: contains(github.event.pull_request.labels.*.name, 'staging')
     runs-on: ubuntu-latest
     outputs:
       is_holder: ${{ steps.check.outputs.is_holder }}
@@ -97,10 +68,10 @@ jobs:
 
   migrate:
     needs: [resolve, gate, check-lock]
-    if: needs.resolve.outputs.migrations == 'true' && (github.event_name != 'pull_request' || needs.check-lock.outputs.is_holder == 'true')
+    if: needs.resolve.outputs.migrations == 'true' && needs.check-lock.outputs.is_holder == 'true'
     uses: ./.github/workflows/_db_migrate.yml
     with:
-      target: ${{ needs.resolve.outputs.target }}
+      target: staging
     secrets: inherit
 
   functions:
@@ -108,13 +79,13 @@ jobs:
     if: needs.resolve.outputs.functions == 'true'
     uses: ./.github/workflows/_deploy_edge_functions.yml
     with:
-      target: ${{ needs.resolve.outputs.target }}
+      target: staging
     secrets: inherit
 
   comment:
     name: Update PR comment
     needs: [resolve, migrate, functions]
-    if: always() && github.event_name == 'pull_request' && needs.resolve.result == 'success'
+    if: always() && needs.resolve.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -124,7 +95,7 @@ jobs:
           PR: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          TARGET: ${{ needs.resolve.outputs.target }}
+          TARGET: staging
           MIGRATE_RESULT: ${{ needs.migrate.result }}
           FUNCTIONS_RESULT: ${{ needs.functions.result }}
         run: .github/scripts/post-deploy-comment.sh

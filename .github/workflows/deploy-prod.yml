@@ -1,0 +1,51 @@
+name: Deploy Prod
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/migrations/**"
+      - "supabase/functions/**"
+      - ".github/workflows/deploy-prod.yml"
+      - ".github/workflows/_db_migrate.yml"
+      - ".github/workflows/_deploy_edge_functions.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    name: Resolve changes
+    runs-on: ubuntu-latest
+    outputs:
+      migrations: ${{ steps.filter.outputs.migrations || 'true' }}
+      functions: ${{ steps.filter.outputs.functions || 'true' }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: dorny/paths-filter@v4
+        id: filter
+        if: github.event_name != 'workflow_dispatch'
+        with:
+          filters: |
+            migrations:
+              - 'supabase/migrations/**'
+            functions:
+              - 'supabase/functions/**'
+
+  migrate:
+    needs: resolve
+    if: needs.resolve.outputs.migrations == 'true'
+    uses: ./.github/workflows/_db_migrate.yml
+    with:
+      target: prod
+    secrets: inherit
+
+  functions:
+    needs: resolve
+    if: needs.resolve.outputs.functions == 'true'
+    uses: ./.github/workflows/_deploy_edge_functions.yml
+    with:
+      target: prod
+    secrets: inherit

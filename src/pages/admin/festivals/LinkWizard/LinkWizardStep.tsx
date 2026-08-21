@@ -69,6 +69,8 @@ export function LinkWizardStep({
         spotify: artist.spotify_url ?? "",
         soundcloud: artist.soundcloud_url ?? "",
       },
+      image_url: artist.image_url ?? undefined,
+      description: artist.description ?? undefined,
     },
   });
 

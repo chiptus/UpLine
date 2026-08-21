@@ -32,8 +32,13 @@ function isAllowedStagingOrigin(origin: string): boolean {
 // origins alongside the bare domain — see src/lib/subdomain.ts.
 function isAllowedGetuplineOrigin(origin: string): boolean {
   try {
-    const hostname = new URL(origin).hostname;
-    return hostname === "getupline.com" || hostname.endsWith(".getupline.com");
+    const url = new URL(origin);
+    if (url.protocol !== "https:") return false;
+
+    return (
+      url.hostname === "getupline.com" ||
+      url.hostname.endsWith(".getupline.com")
+    );
   } catch {
     return false;
   }

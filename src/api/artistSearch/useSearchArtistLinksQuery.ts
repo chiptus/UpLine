@@ -1,6 +1,11 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { artistSearchKeys, type SearchResponse, type Provider } from "./types";
+import {
+  artistSearchKeys,
+  searchResponseSchema,
+  type SearchResponse,
+  type Provider,
+} from "./types";
 
 async function fetchSearchArtistLinks(
   artistNames: string[],
@@ -25,7 +30,7 @@ async function fetchSearchArtistLinks(
     throw new Error("Failed to search artist links");
   }
 
-  return data as SearchResponse;
+  return searchResponseSchema.parse(data);
 }
 
 export function searchArtistLinksQuery(

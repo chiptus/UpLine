@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import type { UseQueryResult } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -12,7 +13,11 @@ import {
   mergeCandidateSelection,
   type CandidateUpdate,
 } from "@/api/artistSearch/mergeCandidateSelection";
-import type { Provider, Candidate } from "@/api/artistSearch/types";
+import type {
+  Provider,
+  Candidate,
+  SearchResponse,
+} from "@/api/artistSearch/types";
 import { ProviderLinkField } from "./ProviderLinkField";
 
 function requiredUrlSchema(isRequired: boolean) {
@@ -78,41 +83,26 @@ export function LinkWizardStep({
     },
   });
 
-  function getProviderResult(provider: Provider): {
-    candidates: Candidate[];
-    error?: string | undefined;
-  } {
-    const customSearch =
-      provider === "spotify" ? customSpotifySearch : customSoundcloudSearch;
-    const customResult =
-      provider === "spotify" ? spotifyCustomResult : soundcloudCustomResult;
+  function getSpotifyResult() {
+    return resolveProviderResult({
+      provider: "spotify",
+      providerLabel: "Spotify",
+      artistName: artist.name,
+      customSearch: customSpotifySearch,
+      customResult: spotifyCustomResult,
+      batchQueryResult,
+    });
+  }
 
-    const providerLabel = provider === "spotify" ? "Spotify" : "SoundCloud";
-
-    if (customSearch) {
-      if (customResult.isError) {
-        return {
-          candidates: [],
-          error: `${providerLabel} search failed. Please try again.`,
-        };
-      }
-      const result = customResult.data?.results.find(
-        (r) => r.provider === provider,
-      );
-      return { candidates: result?.candidates ?? [], error: result?.error };
-    }
-
-    if (batchQueryResult.isError) {
-      return {
-        candidates: [],
-        error: `${providerLabel} search failed. Please try again.`,
-      };
-    }
-
-    const result = batchQueryResult.data?.results.find(
-      (r) => r.artistName === artist.name && r.provider === provider,
-    );
-    return { candidates: result?.candidates ?? [], error: result?.error };
+  function getSoundcloudResult() {
+    return resolveProviderResult({
+      provider: "soundcloud",
+      providerLabel: "SoundCloud",
+      artistName: artist.name,
+      customSearch: customSoundcloudSearch,
+      customResult: soundcloudCustomResult,
+      batchQueryResult,
+    });
   }
 
   function handleCandidateSelect(candidate: Candidate, provider: Provider) {
@@ -167,8 +157,8 @@ export function LinkWizardStep({
   const isLoadingSoundcloud =
     batchQueryResult.isLoading || soundcloudCustomResult.isLoading;
 
-  const spotifyResult = getProviderResult("spotify");
-  const soundcloudResult = getProviderResult("soundcloud");
+  const spotifyResult = getSpotifyResult();
+  const soundcloudResult = getSoundcloudResult();
 
   return (
     <div className="space-y-4">
@@ -244,4 +234,50 @@ export function LinkWizardStep({
       </Form>
     </div>
   );
+}
+
+interface ResolveProviderResultArgs {
+  provider: Provider;
+  providerLabel: string;
+  artistName: string;
+  customSearch: string;
+  customResult: UseQueryResult<SearchResponse>;
+  batchQueryResult: UseQueryResult<SearchResponse>;
+}
+
+function resolveProviderResult({
+  provider,
+  providerLabel,
+  artistName,
+  customSearch,
+  customResult,
+  batchQueryResult,
+}: ResolveProviderResultArgs): {
+  candidates: Candidate[];
+  error?: string | undefined;
+} {
+  if (customSearch) {
+    if (customResult.isError) {
+      return {
+        candidates: [],
+        error: `${providerLabel} search failed. Please try again.`,
+      };
+    }
+    const result = customResult.data?.results.find(
+      (r) => r.provider === provider,
+    );
+    return { candidates: result?.candidates ?? [], error: result?.error };
+  }
+
+  if (batchQueryResult.isError) {
+    return {
+      candidates: [],
+      error: `${providerLabel} search failed. Please try again.`,
+    };
+  }
+
+  const result = batchQueryResult.data?.results.find(
+    (r) => r.artistName === artistName && r.provider === provider,
+  );
+  return { candidates: result?.candidates ?? [], error: result?.error };
 }

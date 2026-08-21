@@ -1,24 +1,30 @@
-export type Provider = "soundcloud" | "spotify";
+import { z } from "zod";
 
-export interface Candidate {
-  name: string;
-  url: string;
-  imageUrl: string | null;
-  description: string | null;
-  followers: number | null;
-  genres: string[];
-}
+export const providerSchema = z.enum(["soundcloud", "spotify"]);
+export type Provider = z.infer<typeof providerSchema>;
 
-export interface SearchResult {
-  artistName: string;
-  provider: Provider;
-  candidates: Candidate[];
-  error?: string;
-}
+export const candidateSchema = z.object({
+  name: z.string(),
+  url: z.string(),
+  imageUrl: z.string().nullable(),
+  description: z.string().nullable(),
+  followers: z.number().nullable(),
+  genres: z.array(z.string()),
+});
+export type Candidate = z.infer<typeof candidateSchema>;
 
-export interface SearchResponse {
-  results: SearchResult[];
-}
+export const searchResultSchema = z.object({
+  artistName: z.string(),
+  provider: providerSchema,
+  candidates: z.array(candidateSchema),
+  error: z.string().optional(),
+});
+export type SearchResult = z.infer<typeof searchResultSchema>;
+
+export const searchResponseSchema = z.object({
+  results: z.array(searchResultSchema),
+});
+export type SearchResponse = z.infer<typeof searchResponseSchema>;
 
 export const artistSearchKeys = {
   all: ["artistSearch"] as const,

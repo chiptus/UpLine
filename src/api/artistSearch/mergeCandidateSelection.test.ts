@@ -6,39 +6,6 @@ import {
 import type { Candidate } from "./types";
 import type { Artist } from "@/api/artists/types";
 
-function makeArtist(overrides: Partial<Artist> & { id: string }): Artist {
-  return {
-    name: overrides.name ?? overrides.id,
-    slug: overrides.slug ?? overrides.id,
-    description: null,
-    estimated_date: null,
-    image_url: null,
-    spotify_url: null,
-    soundcloud_url: null,
-    stage: null,
-    time_start: null,
-    time_end: null,
-    archived: false,
-    added_by: "user-1",
-    created_at: "2024-01-01T00:00:00Z",
-    updated_at: "2024-01-01T00:00:00Z",
-    artist_music_genres: [],
-    ...overrides,
-  };
-}
-
-function makeCandidate(overrides: Partial<Candidate> = {}): Candidate {
-  return {
-    name: "Test Artist",
-    url: "https://spotify.com/artist/123",
-    imageUrl: "https://example.com/image.jpg",
-    description: "A test artist bio.",
-    followers: 1000,
-    genres: ["rock", "pop"],
-    ...overrides,
-  };
-}
-
 describe("mergeCandidateSelection", () => {
   it("always sets the provider URL field", () => {
     const artist = makeArtist({ id: "a1" });
@@ -244,3 +211,36 @@ describe("mergeCandidateSelection", () => {
     expect(update).not.toHaveProperty("genres");
   });
 });
+
+function makeArtist(overrides: Partial<Artist> & { id: string }): Artist {
+  return {
+    name: overrides.name ?? overrides.id,
+    slug: overrides.slug ?? overrides.id,
+    description: null,
+    estimated_date: null,
+    image_url: null,
+    spotify_url: null,
+    soundcloud_url: null,
+    stage: null,
+    time_start: null,
+    time_end: null,
+    archived: false,
+    added_by: "user-1",
+    created_at: "2024-01-01T00:00:00Z",
+    updated_at: "2024-01-01T00:00:00Z",
+    artist_music_genres: [],
+    ...overrides,
+  };
+}
+
+function makeCandidate(overrides: Partial<Candidate> = {}): Candidate {
+  return {
+    name: "Test Artist",
+    url: "https://spotify.com/artist/123",
+    imageUrl: "https://example.com/image.jpg",
+    description: "A test artist bio.",
+    followers: 1000,
+    genres: ["rock", "pop"],
+    ...overrides,
+  };
+}

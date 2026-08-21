@@ -17,9 +17,8 @@ import {
   type SelectableField,
 } from "@/api/artistSearch/mergeCandidateSelection";
 import type { Provider, Candidate } from "@/api/artistSearch/types";
-import { ProviderLinkField } from "./ProviderLinkField";
+import { ProviderCandidatesPanel } from "./ProviderCandidatesPanel";
 import { StagedFieldsPreview } from "./StagedFieldsPreview";
-import { useProviderCandidates } from "./useProviderCandidates";
 
 const optionalUrlSchema = z
   .string()
@@ -62,17 +61,6 @@ export function LinkWizardStep({
 
   const batchQueryResult = useSearchArtistLinksQuery(batchArtists);
 
-  const spotify = useProviderCandidates(
-    "spotify",
-    artist.name,
-    batchQueryResult,
-  );
-  const soundcloud = useProviderCandidates(
-    "soundcloud",
-    artist.name,
-    batchQueryResult,
-  );
-
   const form = useForm<LinkStepData>({
     resolver: zodResolver(linkStepSchema),
     defaultValues: {
@@ -109,28 +97,26 @@ export function LinkWizardStep({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {!artist.spotify_url && (
-            <ProviderLinkField
+            <ProviderCandidatesPanel
+              provider="spotify"
               label="Spotify Candidates"
-              candidates={spotify.candidates}
-              searchError={spotify.error}
-              isLoadingCandidates={spotify.isLoading}
+              artistName={artist.name}
+              batchQueryResult={batchQueryResult}
               onSelectCandidate={(candidate, fields) =>
                 handleCandidateSelect(candidate, "spotify", fields)
               }
-              onSearchAgain={spotify.search}
             />
           )}
 
           {!artist.soundcloud_url && (
-            <ProviderLinkField
+            <ProviderCandidatesPanel
+              provider="soundcloud"
               label="SoundCloud Candidates"
-              candidates={soundcloud.candidates}
-              searchError={soundcloud.error}
-              isLoadingCandidates={soundcloud.isLoading}
+              artistName={artist.name}
+              batchQueryResult={batchQueryResult}
               onSelectCandidate={(candidate, fields) =>
                 handleCandidateSelect(candidate, "soundcloud", fields)
               }
-              onSearchAgain={soundcloud.search}
             />
           )}
 

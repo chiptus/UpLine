@@ -1,29 +1,39 @@
 import { useState } from "react";
+import type { UseQueryResult } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, RotateCcw } from "lucide-react";
-import type { Candidate } from "@/api/artistSearch/types";
+import type {
+  Candidate,
+  Provider,
+  SearchResponse,
+} from "@/api/artistSearch/types";
 import type { SelectableField } from "@/api/artistSearch/mergeCandidateSelection";
 import { CandidateCards } from "./CandidateCards";
+import { useProviderCandidates } from "./useProviderCandidates";
 
-interface ProviderLinkFieldProps {
+interface ProviderCandidatesPanelProps {
+  provider: Provider;
   label: string;
-  candidates: Candidate[];
-  searchError?: string | undefined;
-  isLoadingCandidates: boolean;
+  artistName: string;
+  batchQueryResult: UseQueryResult<SearchResponse>;
   onSelectCandidate: (candidate: Candidate, fields: SelectableField[]) => void;
-  onSearchAgain: (query: string) => void;
 }
 
-export function ProviderLinkField({
+export function ProviderCandidatesPanel({
+  provider,
   label,
-  candidates,
-  searchError,
-  isLoadingCandidates,
+  artistName,
+  batchQueryResult,
   onSelectCandidate,
-  onSearchAgain,
-}: ProviderLinkFieldProps) {
+}: ProviderCandidatesPanelProps) {
+  const { candidates, error, isLoading, search } = useProviderCandidates(
+    provider,
+    artistName,
+    batchQueryResult,
+  );
+
   const [showCustomSearch, setShowCustomSearch] = useState(false);
   const [customSearchQuery, setCustomSearchQuery] = useState("");
 
@@ -33,7 +43,7 @@ export function ProviderLinkField({
 
   function handleCustomSearch() {
     if (customSearchQuery.trim()) {
-      onSearchAgain(customSearchQuery);
+      search(customSearchQuery);
       setCustomSearchQuery("");
     }
   }
@@ -47,7 +57,7 @@ export function ProviderLinkField({
           variant="ghost"
           size="sm"
           onClick={handleSearchClick}
-          disabled={isLoadingCandidates}
+          disabled={isLoading}
         >
           <RotateCcw className="h-3 w-3 mr-1" />
           Search Again
@@ -67,29 +77,29 @@ export function ProviderLinkField({
                 handleCustomSearch();
               }
             }}
-            disabled={isLoadingCandidates}
+            disabled={isLoading}
           />
           <Button
             type="button"
             size="sm"
             onClick={handleCustomSearch}
-            disabled={!customSearchQuery.trim() || isLoadingCandidates}
+            disabled={!customSearchQuery.trim() || isLoading}
           >
             Search
           </Button>
         </div>
       )}
 
-      {searchError && !isLoadingCandidates && (
+      {error && !isLoading && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{searchError}</AlertDescription>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
       <CandidateCards
         candidates={candidates}
-        isLoading={isLoadingCandidates}
+        isLoading={isLoading}
         onSelectCandidate={onSelectCandidate}
       />
     </div>

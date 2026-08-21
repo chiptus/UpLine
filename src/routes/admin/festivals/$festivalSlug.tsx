@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate, Outlet } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { FestivalEditionManagement } from "@/pages/admin/festivals/FestivalEditionManagement";
@@ -7,8 +7,15 @@ import { FestivalMissingInfoBadge } from "@/pages/admin/festivals/FestivalMissin
 import { FestivalInfoDetails } from "@/pages/admin/festivals/info/FestivalInfoDetails";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Info, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Info,
+  ChevronDown,
+  ChevronUp,
+  ChevronRight,
+  CalendarDays,
+} from "lucide-react";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
+import { useFestivalEditionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { pageMeta } from "@/lib/pageHead";
 
 export const Route = createFileRoute("/admin/festivals/$festivalSlug")({
@@ -28,11 +35,20 @@ function FestivalDetail() {
   const { festivalSlug } = Route.useParams();
   const { editionSlug = "" } = useParams({ strict: false });
   const [showFestivalInfo, setShowFestivalInfo] = useState(false);
+  const [showEditionsList, setShowEditionsList] = useState(!editionSlug);
   const navigate = useNavigate();
 
   const { data: festival } = useSuspenseQuery(
     festivalBySlugQuery(festivalSlug),
   );
+  const editionQuery = useFestivalEditionBySlugQuery({
+    editionSlug,
+    festivalId: festival.id,
+  });
+
+  useEffect(() => {
+    setShowEditionsList(!editionSlug);
+  }, [editionSlug]);
 
   function handleEditionSelect(editionSlug: string | undefined) {
     if (!editionSlug) return;
@@ -40,40 +56,51 @@ function FestivalDetail() {
       to: "/admin/festivals/$festivalSlug/editions/$editionSlug/stages",
       params: { festivalSlug, editionSlug },
     });
+    setShowEditionsList(false);
   }
 
   return (
     <>
-      <>
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span className="flex items-center gap-2">
-                {festival.name}
-                <FestivalMissingInfoBadge festivalId={festival.id} />
-              </span>
-              <Button
-                variant="outline"
-                onClick={() => setShowFestivalInfo(!showFestivalInfo)}
-              >
-                <Info className="h-4 w-4 mr-2" />
-                Festival Info
-                {showFestivalInfo ? (
-                  <ChevronUp className="h-4 w-4 ml-2" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 ml-2" />
-                )}
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          {showFestivalInfo && (
-            <CardContent>
-              <FestivalInfoDetails festivalId={festival.id} />
-            </CardContent>
-          )}
-        </Card>
+      <div className="flex items-center gap-1 text-sm text-muted-foreground mb-4">
+        <span className="font-medium text-foreground">{festival.name}</span>
+        {editionSlug && editionQuery.data && (
+          <>
+            <ChevronRight className="h-4 w-4" />
+            <span className="text-foreground">{editionQuery.data.name}</span>
+          </>
+        )}
+      </div>
 
-        <div className="mt-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              {festival.name}
+              <FestivalMissingInfoBadge festivalId={festival.id} />
+            </span>
+            <Button
+              variant="outline"
+              onClick={() => setShowFestivalInfo(!showFestivalInfo)}
+            >
+              <Info className="h-4 w-4 mr-2" />
+              Festival Info
+              {showFestivalInfo ? (
+                <ChevronUp className="h-4 w-4 ml-2" />
+              ) : (
+                <ChevronDown className="h-4 w-4 ml-2" />
+              )}
+            </Button>
+          </CardTitle>
+        </CardHeader>
+        {showFestivalInfo && (
+          <CardContent>
+            <FestivalInfoDetails festivalId={festival.id} />
+          </CardContent>
+        )}
+      </Card>
+
+      <div className="mt-6">
+        {showEditionsList ? (
           <FestivalEditionManagement
             festivalSlug={festivalSlug}
             onSelect={(editionSlug) => {
@@ -81,8 +108,26 @@ function FestivalDetail() {
             }}
             selected={editionSlug}
           />
-        </div>
-      </>
+        ) : (
+          <Card>
+            <CardContent className="flex items-center justify-between py-4">
+              <span className="flex items-center gap-2 text-sm">
+                <CalendarDays className="h-4 w-4" />
+                Edition:{" "}
+                <span className="font-medium">
+                  {editionQuery.data?.name ?? editionSlug}
+                </span>
+              </span>
+              <Button
+                variant="outline"
+                onClick={() => setShowEditionsList(true)}
+              >
+                Change Edition
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
       <div className="mt-6">
         <Outlet />

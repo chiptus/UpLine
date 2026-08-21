@@ -1,5 +1,11 @@
 import { Textarea } from "@/components/ui/textarea";
 import type { CandidateUpdate } from "@/api/artistSearch/mergeCandidateSelection";
+import type { Provider } from "@/api/artistSearch/types";
+
+const PROVIDER_LABELS: Record<Provider, string> = {
+  spotify: "Spotify",
+  soundcloud: "SoundCloud",
+};
 
 interface StagedFieldsPreviewProps {
   stagedUpdates: CandidateUpdate;
@@ -10,7 +16,13 @@ export function StagedFieldsPreview({
   stagedUpdates,
   onDescriptionChange,
 }: StagedFieldsPreviewProps) {
-  if (!stagedUpdates.image_url && stagedUpdates.description === undefined) {
+  const providerUrls = Object.entries(stagedUpdates.providerUrl ?? {});
+
+  if (
+    providerUrls.length === 0 &&
+    !stagedUpdates.image_url &&
+    stagedUpdates.description === undefined
+  ) {
     return null;
   }
 
@@ -24,7 +36,12 @@ export function StagedFieldsPreview({
         />
       )}
       <div className="flex-1 space-y-1">
-        <p className="font-medium">Also staged from candidate</p>
+        <p className="font-medium">Staged</p>
+        {providerUrls.map(([provider, url]) => (
+          <p key={provider} className="truncate text-muted-foreground">
+            {PROVIDER_LABELS[provider as Provider]} URL: {url}
+          </p>
+        ))}
         {stagedUpdates.image_url && (
           <p className="text-muted-foreground">Image</p>
         )}

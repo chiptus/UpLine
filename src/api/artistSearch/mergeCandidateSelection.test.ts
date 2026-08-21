@@ -3,32 +3,30 @@ import { mergeCandidateSelection } from "./mergeCandidateSelection";
 import type { Candidate } from "./types";
 
 describe("mergeCandidateSelection", () => {
-  it("sets spotify_url when url is selected for spotify", () => {
+  it("sets providerUrl.spotify when url is selected for spotify", () => {
     const candidate = makeCandidate();
 
     const update = mergeCandidateSelection(candidate, "spotify", ["url"]);
 
-    expect(update.spotify_url).toBe(candidate.url);
-    expect(update.soundcloud_url).toBeUndefined();
+    expect(update.providerUrl).toEqual({ spotify: candidate.url });
   });
 
-  it("sets soundcloud_url when url is selected for soundcloud", () => {
+  it("sets providerUrl.soundcloud when url is selected for soundcloud", () => {
     const candidate = makeCandidate({
       url: "https://soundcloud.com/artist",
     });
 
     const update = mergeCandidateSelection(candidate, "soundcloud", ["url"]);
 
-    expect(update.soundcloud_url).toBe(candidate.url);
-    expect(update.spotify_url).toBeUndefined();
+    expect(update.providerUrl).toEqual({ soundcloud: candidate.url });
   });
 
-  it("does not set the url when url is not selected", () => {
+  it("does not set providerUrl when url is not selected", () => {
     const candidate = makeCandidate();
 
     const update = mergeCandidateSelection(candidate, "spotify", ["image"]);
 
-    expect(update.spotify_url).toBeUndefined();
+    expect(update.providerUrl).toBeUndefined();
   });
 
   it("sets image_url when image is selected", () => {
@@ -81,7 +79,7 @@ describe("mergeCandidateSelection", () => {
       "description",
     ]);
 
-    expect(update.spotify_url).toBe(candidate.url);
+    expect(update.providerUrl).toEqual({ spotify: candidate.url });
     expect(update.image_url).toBe(candidate.imageUrl);
     expect(update.description).toBe(candidate.description);
   });

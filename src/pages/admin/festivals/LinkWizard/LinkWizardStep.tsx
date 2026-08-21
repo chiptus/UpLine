@@ -170,23 +170,23 @@ export function LinkWizardStep({
   ) {
     const update = mergeCandidateSelection(candidate, provider, fields);
 
-    setStagedUpdates((prev) => ({ ...prev, ...update }));
-
-    if (provider === "spotify" && update.spotify_url) {
-      form.setValue("spotifyUrl", update.spotify_url);
-    } else if (provider === "soundcloud" && update.soundcloud_url) {
-      form.setValue("soundcloudUrl", update.soundcloud_url);
-    }
+    setStagedUpdates((prev) => ({
+      ...prev,
+      ...update,
+      providerUrl: { ...prev.providerUrl, ...update.providerUrl },
+    }));
   }
 
   function onSubmit(data: LinkStepData) {
     const updates: UpdateArtistUpdates = {};
 
     if (!artist.spotify_url) {
-      updates.spotify_url = data.spotifyUrl || null;
+      updates.spotify_url =
+        stagedUpdates.providerUrl?.spotify ?? (data.spotifyUrl || null);
     }
     if (!artist.soundcloud_url) {
-      updates.soundcloud_url = data.soundcloudUrl || null;
+      updates.soundcloud_url =
+        stagedUpdates.providerUrl?.soundcloud ?? (data.soundcloudUrl || null);
     }
     if (stagedUpdates.image_url) {
       updates.image_url = stagedUpdates.image_url;

@@ -1,8 +1,7 @@
 import type { Candidate, Provider } from "./types";
 
 export interface CandidateUpdate {
-  spotify_url?: string | null;
-  soundcloud_url?: string | null;
+  providerUrl?: Partial<Record<Provider, string>>;
   image_url?: string | null;
   description?: string | null;
 }
@@ -17,11 +16,7 @@ export function mergeCandidateSelection(
   const updates: CandidateUpdate = {};
 
   if (fields.includes("url")) {
-    if (provider === "spotify") {
-      updates.spotify_url = candidate.url;
-    } else {
-      updates.soundcloud_url = candidate.url;
-    }
+    updates.providerUrl = { [provider]: candidate.url };
   }
 
   if (fields.includes("image") && candidate.imageUrl) {

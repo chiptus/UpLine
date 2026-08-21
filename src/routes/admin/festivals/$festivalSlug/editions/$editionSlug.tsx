@@ -1,14 +1,11 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useParams, useLocation, Outlet, Link } from "@tanstack/react-router";
+import { useParams, Outlet } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link2, Loader2, MapPin, Music, Upload } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link2, Loader2, MapPin, Music, Settings, Upload } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { useFestivalEditionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
-import { cn } from "@/lib/utils";
-import { getFestivalPhase } from "@/lib/festivalPhase";
-import { ScheduleRevealControl } from "@/pages/admin/festivals/ScheduleRevealControl";
-import { PhaseOverrideControl } from "@/pages/admin/festivals/PhaseOverrideControl";
+import { EditionNavLink } from "@/pages/admin/festivals/EditionNavLink";
 import { editionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { pageMeta } from "@/lib/pageHead";
 
@@ -46,7 +43,6 @@ function FestivalEdition() {
   const { festivalSlug, editionSlug } = useParams({
     from: "/admin/festivals/$festivalSlug/editions/$editionSlug",
   });
-  const location = useLocation();
 
   const { data: festival } = useSuspenseQuery(
     festivalBySlugQuery(festivalSlug),
@@ -83,92 +79,45 @@ function FestivalEdition() {
     );
   }
 
-  const isOnSets = location.pathname.includes("/sets");
-  const isOnStages = location.pathname.includes("/stages");
-  const isOnImport = location.pathname.includes("/import");
-  const isOnLinks = location.pathname.includes("/links");
-
-  const derivedPhase = getFestivalPhase({
-    revealLevel: currentEdition.schedule_reveal_level ?? "draft",
-    startDate: currentEdition.start_date,
-    endDate: currentEdition.end_date,
-    timezone: festival.timezone,
-    now: new Date(),
-  });
-
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex flex-wrap items-center justify-between gap-3">
-            <span className="flex items-center gap-2">
-              Edition: {currentEdition.name}
-            </span>
-            <div className="flex flex-wrap items-center gap-2">
-              <ScheduleRevealControl
-                editionId={currentEdition.id}
-                level={currentEdition.schedule_reveal_level ?? "draft"}
-                editionPublished={currentEdition.published ?? false}
-              />
-              <PhaseOverrideControl
-                editionId={currentEdition.id}
-                override={currentEdition.phase_override ?? null}
-                derivedPhase={derivedPhase}
-              />
-            </div>
-          </CardTitle>
-        </CardHeader>
-      </Card>
       <div className="w-full">
-        <div className="grid w-full grid-cols-4 gap-2 bg-white/10 backdrop-blur-md p-1 rounded-lg">
-          <Link
-            to="/admin/festivals/$festivalSlug/editions/$editionSlug/stages"
-            params={{ festivalSlug, editionSlug }}
-            className={cn(
-              "flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors",
-              "text-white font-medium",
-              isOnStages ? "bg-purple-600" : "hover:bg-white/10",
-            )}
-          >
-            <MapPin className="h-4 w-4" />
-            Stages
-          </Link>
-          <Link
-            to="/admin/festivals/$festivalSlug/editions/$editionSlug/sets"
-            params={{ festivalSlug, editionSlug }}
-            className={cn(
-              "flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors",
-              "text-white font-medium",
-              isOnSets ? "bg-purple-600" : "hover:bg-white/10",
-            )}
-          >
-            <Music className="h-4 w-4" />
-            Sets
-          </Link>
-          <Link
-            to="/admin/festivals/$festivalSlug/editions/$editionSlug/import"
-            params={{ festivalSlug, editionSlug }}
-            className={cn(
-              "flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors",
-              "text-white font-medium",
-              isOnImport ? "bg-purple-600" : "hover:bg-white/10",
-            )}
-          >
-            <Upload className="h-4 w-4" />
-            Import
-          </Link>
-          <Link
-            to="/admin/festivals/$festivalSlug/editions/$editionSlug/links"
-            params={{ festivalSlug, editionSlug }}
-            className={cn(
-              "flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors",
-              "text-white font-medium",
-              isOnLinks ? "bg-purple-600" : "hover:bg-white/10",
-            )}
-          >
-            <Link2 className="h-4 w-4" />
-            Links
-          </Link>
+        <div className="sticky top-16 md:top-20 z-10 grid w-full grid-cols-5 gap-2 bg-white/10 backdrop-blur-md p-1 rounded-lg">
+          <EditionNavLink
+            to="stages"
+            festivalSlug={festivalSlug}
+            editionSlug={editionSlug}
+            icon={<MapPin className="h-4 w-4" />}
+            label="Stages"
+          />
+          <EditionNavLink
+            to="sets"
+            festivalSlug={festivalSlug}
+            editionSlug={editionSlug}
+            icon={<Music className="h-4 w-4" />}
+            label="Sets"
+          />
+          <EditionNavLink
+            to="import"
+            festivalSlug={festivalSlug}
+            editionSlug={editionSlug}
+            icon={<Upload className="h-4 w-4" />}
+            label="Import"
+          />
+          <EditionNavLink
+            to="links"
+            festivalSlug={festivalSlug}
+            editionSlug={editionSlug}
+            icon={<Link2 className="h-4 w-4" />}
+            label="Links"
+          />
+          <EditionNavLink
+            to="settings"
+            festivalSlug={festivalSlug}
+            editionSlug={editionSlug}
+            icon={<Settings className="h-4 w-4" />}
+            label="Settings"
+          />
         </div>
 
         <div className="mt-6">

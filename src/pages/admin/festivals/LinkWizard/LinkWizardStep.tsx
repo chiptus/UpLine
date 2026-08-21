@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -13,7 +12,6 @@ import {
 import { useSearchArtistLinksQuery } from "@/api/artistSearch/useSearchArtistLinksQuery";
 import {
   mergeCandidateSelection,
-  type CandidateUpdate,
   type SelectableField,
 } from "@/api/artistSearch/mergeCandidateSelection";
 import type { Provider, Candidate } from "@/api/artistSearch/types";
@@ -27,11 +25,28 @@ const optionalUrlSchema = z
   .or(z.literal(""));
 
 const linkStepSchema = z.object({
-  spotifyUrl: optionalUrlSchema,
-  soundcloudUrl: optionalUrlSchema,
+  providerUrl: z.object({
+    spotify: optionalUrlSchema,
+    soundcloud: optionalUrlSchema,
+  }),
+  image_url: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
 });
 
 type LinkStepData = z.infer<typeof linkStepSchema>;
+
+const URL_FIELDS = [
+  {
+    fieldName: "providerUrl.spotify",
+    label: "Spotify URL",
+    placeholder: "https://open.spotify.com/artist/...",
+  },
+  {
+    fieldName: "providerUrl.soundcloud",
+    label: "SoundCloud URL",
+    placeholder: "https://soundcloud.com/...",
+  },
+];
 
 interface LinkWizardStepProps {
   artist: Artist;
@@ -51,7 +66,6 @@ export function LinkWizardStep({
   onNext,
 }: LinkWizardStepProps) {
   const updateArtistMutation = useUpdateArtistMutation();
-  const [stagedUpdates, setStagedUpdates] = useState<CandidateUpdate>({});
 
   const currentIndex = artists.findIndex((a) => a.id === artist.id);
   const batchStart = Math.floor(currentIndex / 10) * 10;
@@ -64,27 +78,12 @@ export function LinkWizardStep({
   const form = useForm<LinkStepData>({
     resolver: zodResolver(linkStepSchema),
     defaultValues: {
-      spotifyUrl: artist.spotify_url ?? "",
-      soundcloudUrl: artist.soundcloud_url ?? "",
+      providerUrl: {
+        spotify: artist.spotify_url ?? "",
+        soundcloud: artist.soundcloud_url ?? "",
+      },
     },
   });
-
-  const urlFields = [
-    !artist.spotify_url && {
-      fieldName: "spotifyUrl",
-      label: "Spotify URL",
-      placeholder: "https://open.spotify.com/artist/...",
-    },
-    !artist.soundcloud_url && {
-      fieldName: "soundcloudUrl",
-      label: "SoundCloud URL",
-      placeholder: "https://soundcloud.com/...",
-    },
-  ].filter(Boolean) as {
-    fieldName: string;
-    label: string;
-    placeholder: string;
-  }[];
 
   return (
     <div className="space-y-4">
@@ -120,14 +119,7 @@ export function LinkWizardStep({
             />
           )}
 
-          <StagedFieldsPreview
-            form={form}
-            urlFields={urlFields}
-            stagedUpdates={stagedUpdates}
-            onDescriptionChange={(description) =>
-              setStagedUpdates((prev) => ({ ...prev, description }))
-            }
-          />
+          <StagedFieldsPreview form={form} urlFields={URL_FIELDS} />
 
           <div className="flex items-center justify-between gap-2 pt-2">
             <Button
@@ -170,34 +162,33 @@ export function LinkWizardStep({
     if (update.providerUrl) {
       for (const [providerKey, url] of Object.entries(update.providerUrl)) {
         form.setValue(
-          `${providerKey}Url` as "spotifyUrl" | "soundcloudUrl",
+          `providerUrl.${providerKey}` as
+            | "providerUrl.spotify"
+            | "providerUrl.soundcloud",
           url,
         );
       }
     }
 
-    if (update.image_url !== undefined || update.description !== undefined) {
-      setStagedUpdates((prev) => ({
-        ...prev,
-        ...(update.image_url !== undefined && { image_url: update.image_url }),
-        ...(update.description !== undefined && {
-          description: update.description,
-        }),
-      }));
+    if (update.image_url !== undefined) {
+      form.setValue("image_url", update.image_url);
+    }
+    if (update.description !== undefined) {
+      form.setValue("description", update.description);
     }
   }
 
   function onSubmit(data: LinkStepData) {
     const updates: UpdateArtistUpdates = {
-      spotify_url: data.spotifyUrl || null,
-      soundcloud_url: data.soundcloudUrl || null,
+      spotify_url: data.providerUrl.spotify || null,
+      soundcloud_url: data.providerUrl.soundcloud || null,
     };
 
-    if (stagedUpdates.image_url) {
-      updates.image_url = stagedUpdates.image_url;
+    if (data.image_url) {
+      updates.image_url = data.image_url;
     }
-    if (stagedUpdates.description !== undefined) {
-      updates.description = stagedUpdates.description;
+    if (data.description !== undefined) {
+      updates.description = data.description;
     }
 
     updateArtistMutation.mutate(

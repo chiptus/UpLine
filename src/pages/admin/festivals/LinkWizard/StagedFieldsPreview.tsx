@@ -8,7 +8,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import type { CandidateUpdate } from "@/api/artistSearch/mergeCandidateSelection";
 
 interface UrlFieldConfig {
   fieldName: string;
@@ -17,18 +16,18 @@ interface UrlFieldConfig {
 }
 
 interface StagedFieldsPreviewProps {
-  form: UseFormReturn<Record<string, unknown>>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  form: UseFormReturn<any>;
   urlFields: UrlFieldConfig[];
-  stagedUpdates: CandidateUpdate;
-  onDescriptionChange: (description: string) => void;
 }
 
 export function StagedFieldsPreview({
   form,
   urlFields,
-  stagedUpdates,
-  onDescriptionChange,
 }: StagedFieldsPreviewProps) {
+  const imageUrl = form.watch("image_url") as string | null | undefined;
+  const description = form.watch("description") as string | null | undefined;
+
   return (
     <div className="space-y-3 rounded-lg border p-3">
       <p className="text-sm font-medium">Staged</p>
@@ -58,27 +57,40 @@ export function StagedFieldsPreview({
         />
       ))}
 
-      {(stagedUpdates.image_url || stagedUpdates.description !== undefined) && (
+      {(imageUrl || description !== undefined) && (
         <div className="flex items-start gap-3 text-sm">
-          {stagedUpdates.image_url && (
+          {imageUrl && (
             <img
-              src={stagedUpdates.image_url}
+              src={imageUrl}
               alt=""
               className="h-12 w-12 rounded object-cover"
             />
           )}
           <div className="flex-1 space-y-1">
-            {stagedUpdates.image_url && (
+            {imageUrl && (
               <p className="text-muted-foreground">
                 Image staged from candidate
               </p>
             )}
-            {stagedUpdates.description !== undefined && (
-              <Textarea
-                value={stagedUpdates.description ?? ""}
-                onChange={(e) => onDescriptionChange(e.target.value)}
-                rows={2}
-                className="text-sm"
+            {description !== undefined && (
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Textarea
+                        value={(field.value as string) ?? ""}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        name={field.name}
+                        ref={field.ref}
+                        rows={2}
+                        className="text-sm"
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
               />
             )}
           </div>

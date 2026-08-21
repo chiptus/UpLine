@@ -159,10 +159,10 @@ export function LinkWizardStep({
     );
   }
 
-  const isLoadingCandidates =
-    batchQueryResult.isLoading ||
-    spotifyCustomResult.isLoading ||
-    soundcloudCustomResult.isLoading;
+  const isLoadingSpotify =
+    batchQueryResult.isLoading || spotifyCustomResult.isLoading;
+  const isLoadingSoundcloud =
+    batchQueryResult.isLoading || soundcloudCustomResult.isLoading;
 
   const spotifyResult = getProviderResult("spotify");
   const soundcloudResult = getProviderResult("soundcloud");
@@ -185,7 +185,7 @@ export function LinkWizardStep({
               placeholder="https://open.spotify.com/artist/..."
               candidates={spotifyResult.candidates}
               searchError={spotifyResult.error}
-              isLoadingCandidates={isLoadingCandidates}
+              isLoadingCandidates={isLoadingSpotify}
               form={form}
               onSelectCandidate={(candidate) =>
                 handleCandidateSelect(candidate, "spotify")
@@ -202,7 +202,7 @@ export function LinkWizardStep({
               placeholder="https://soundcloud.com/..."
               candidates={soundcloudResult.candidates}
               searchError={soundcloudResult.error}
-              isLoadingCandidates={isLoadingCandidates}
+              isLoadingCandidates={isLoadingSoundcloud}
               form={form}
               onSelectCandidate={(candidate) =>
                 handleCandidateSelect(candidate, "soundcloud")

@@ -40,14 +40,8 @@ export function CandidateCards({
       </p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {candidates.slice(0, 3).map((candidate) => (
-          <Card
-            key={candidate.url}
-            className="p-3 cursor-pointer hover:shadow-md transition-shadow"
-          >
-            <div
-              onClick={() => onSelectCandidate(candidate)}
-              className="space-y-2"
-            >
+          <Card key={candidate.url} className="p-3">
+            <div className="space-y-2">
               {candidate.imageUrl && (
                 <img
                   src={candidate.imageUrl}
@@ -83,10 +77,7 @@ export function CandidateCards({
               <Button
                 size="sm"
                 className="w-full mt-2"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectCandidate(candidate);
-                }}
+                onClick={() => onSelectCandidate(candidate)}
               >
                 Select
               </Button>

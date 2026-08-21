@@ -94,6 +94,7 @@ export function ProviderLinkField({
                   onChange={(e) => setCustomSearchQuery(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
+                      e.preventDefault();
                       handleCustomSearch();
                     }
                   }}

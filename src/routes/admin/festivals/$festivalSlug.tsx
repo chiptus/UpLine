@@ -9,7 +9,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Info, ChevronDown, ChevronUp } from "lucide-react";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
-import { PageTitle } from "@/components/PageTitle/PageTitle";
+import { pageMeta } from "@/lib/pageHead";
 
 export const Route = createFileRoute("/admin/festivals/$festivalSlug")({
   component: FestivalDetail,
@@ -19,6 +19,9 @@ export const Route = createFileRoute("/admin/festivals/$festivalSlug")({
     );
     return { festival };
   },
+  head: ({ match }) => ({
+    meta: pageMeta({ title: match.context.festival?.name, prefix: "Admin" }),
+  }),
 });
 
 function FestivalDetail() {
@@ -41,7 +44,6 @@ function FestivalDetail() {
 
   return (
     <>
-      <PageTitle title={festival.name} prefix="Admin" />
       <>
         <Card>
           <CardHeader>

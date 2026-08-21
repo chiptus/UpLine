@@ -17,10 +17,16 @@ import { AppHeader } from "@/components/layout/AppHeader";
 import { Link } from "@tanstack/react-router";
 import { FestivalEdition } from "@/api/editions/types";
 import { TopBar } from "@/components/layout/TopBar";
-import { PageTitle } from "@/components/PageTitle/PageTitle";
+import { pageMeta } from "@/lib/pageHead";
 
 export const Route = createFileRoute("/festivals/$festivalSlug/")({
   component: EditionSelection,
+  head: ({ match }) => ({
+    meta: pageMeta({
+      title: "Select Edition",
+      prefix: match.context.festival?.name,
+    }),
+  }),
   beforeLoad: async ({ params, context, search }) => {
     const festival = await context.queryClient.ensureQueryData(
       festivalBySlugQuery(params.festivalSlug),
@@ -50,7 +56,6 @@ function EditionSelection() {
   if (availableEditions.length === 0) {
     return (
       <div className="min-h-screen bg-app-gradient">
-        <PageTitle title="Select Edition" prefix={festival.name} />
         <div className="container mx-auto px-4 py-8">
           <TopBar showBackButton backLabel="Back to Festivals" />
           <h1 className="text-4xl font-bold text-white text-center mb-8">
@@ -112,7 +117,6 @@ function EditionSelection() {
 
   return (
     <div className="min-h-screen bg-app-gradient">
-      <PageTitle title="Select Edition" prefix={festival.name} />
       <div className="container mx-auto px-4 py-8">
         <AppHeader
           showBackButton

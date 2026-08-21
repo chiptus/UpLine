@@ -12,12 +12,18 @@ import { useFestivalEditionBySlugQuery } from "@/api/editions/useFestivalEdition
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 import { SetFormDialog } from "@/pages/admin/festivals/SetFormDialog";
 import { SetsTable } from "@/pages/admin/festivals/SetsTable";
-import { PageTitle } from "@/components/PageTitle/PageTitle";
+import { pageMeta } from "@/lib/pageHead";
 
 export const Route = createFileRoute(
   "/admin/festivals/$festivalSlug/editions/$editionSlug/sets",
 )({
   component: FestivalSets,
+  head: ({ match }) => ({
+    meta: pageMeta({
+      title: "Sets",
+      prefix: `Admin - ${match.context.festival?.name}`,
+    }),
+  }),
 });
 
 function FestivalSets() {
@@ -77,7 +83,6 @@ function FestivalSets() {
 
   return (
     <Card>
-      <PageTitle title="Sets" prefix={`Admin - ${festival.name}`} />
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span className="flex items-center gap-2">

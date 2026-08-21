@@ -1,5 +1,6 @@
 import {
   createRootRouteWithContext,
+  HeadContent,
   Outlet,
   useSearch,
 } from "@tanstack/react-router";
@@ -13,7 +14,6 @@ import { OfflineIndicator } from "@/components/ui/OfflineIndicator";
 import { AppUpdatePrompt } from "@/components/layout/AppUpdatePrompt";
 import { AppFooter } from "@/components/layout/AppFooter";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
-import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { ActiveScopeProvider } from "@/contexts/ActiveScopeContext";
@@ -28,6 +28,8 @@ import type { QueryClient } from "@tanstack/react-query";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { userGroupsQuery } from "@/api/groups/useUserGroups";
+import { pageMeta } from "@/lib/pageHead";
+import { useClearStaticTags } from "@/hooks/useClearStaticTags";
 
 const rootSearchSchema = z.object({
   invite: z.string().optional(),
@@ -41,6 +43,9 @@ interface RouterContext {
 export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootComponent,
   validateSearch: rootSearchSchema,
+  head: () => ({
+    meta: pageMeta({ description: "UpLine - Your Festival companion" }),
+  }),
   beforeLoad: async () => {
     const {
       data: { session },
@@ -57,8 +62,11 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 });
 
 function RootComponent() {
+  useClearStaticTags();
+
   return (
-    <HelmetProvider>
+    <>
+      <HeadContent />
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -74,7 +82,7 @@ function RootComponent() {
         <SpeedInsights />
         {import.meta.env.DEV && <TanStackRouterDevtools />}
       </TooltipProvider>
-    </HelmetProvider>
+    </>
   );
 }
 

@@ -12,12 +12,18 @@ import { CreateStageDialog } from "@/pages/admin/festivals/StageManagement/Creat
 import { EditStageDialog } from "@/pages/admin/festivals/StageManagement/EditStageDialog";
 import { useFestivalEditionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
-import { PageTitle } from "@/components/PageTitle/PageTitle";
+import { pageMeta } from "@/lib/pageHead";
 
 export const Route = createFileRoute(
   "/admin/festivals/$festivalSlug/editions/$editionSlug/stages",
 )({
   component: FestivalStages,
+  head: ({ match }) => ({
+    meta: pageMeta({
+      title: "Stages",
+      prefix: `Admin - ${match.context.festival?.name}`,
+    }),
+  }),
 });
 
 function FestivalStages() {
@@ -77,7 +83,6 @@ function FestivalStages() {
 
   return (
     <Card>
-      <PageTitle title="Stages" prefix={`Admin - ${festival.name}`} />
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span className="flex items-center gap-2">

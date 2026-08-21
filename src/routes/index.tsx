@@ -15,12 +15,15 @@ import {
   isMainGetuplineDomain,
 } from "@/lib/subdomain";
 import { useCustomLinksQuery } from "@/api/custom-links/useCustomLinks";
-import { PageTitle } from "@/components/PageTitle/PageTitle";
+import { pageMeta } from "@/lib/pageHead";
 import { TopBar } from "@/components/layout/TopBar";
 import { AppHeader } from "@/components/layout/AppHeader";
 
 export const Route = createFileRoute("/")({
   component: FestivalSelection,
+  head: () => ({
+    meta: pageMeta({ title: "Select Festival" }),
+  }),
   beforeLoad: async ({ context, search }) => {
     const festivals =
       await context.queryClient.ensureQueryData(festivalsQuery());
@@ -48,7 +51,6 @@ function FestivalSelection() {
     return (
       <div className="min-h-screen bg-app-gradient">
         <div className="container mx-auto px-4 py-8">
-          <PageTitle title="Select Festival" />
           <TopBar showGroupsButton />
 
           <div className="flex items-center justify-center mt-16">

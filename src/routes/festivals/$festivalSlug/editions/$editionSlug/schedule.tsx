@@ -5,8 +5,7 @@ import {
 } from "@tanstack/react-router";
 import { ScheduleNavigation } from "@/pages/EditionView/tabs/ScheduleTab/ScheduleNavigation";
 import { Outlet } from "@tanstack/react-router";
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
-import { PageTitle } from "@/components/PageTitle/PageTitle";
+import { pageMeta } from "@/lib/pageHead";
 import { canShowNowView } from "@/lib/nowView";
 import { setsByEditionQuery } from "@/api/sets/useSetsByEdition";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
@@ -19,6 +18,9 @@ export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug/schedule",
 )({
   component: ScheduleTab,
+  head: ({ match }) => ({
+    meta: pageMeta({ title: "Schedule", prefix: match.context.festival?.name }),
+  }),
   validateSearch: timelineSearchSchema,
   search: {
     middlewares: [stripSearchParams(timelineSearchDefaults)],
@@ -51,11 +53,8 @@ export const Route = createFileRoute(
 });
 
 function ScheduleTab() {
-  const { festival } = useFestivalEdition();
-
   return (
     <>
-      <PageTitle title="Schedule" prefix={festival?.name} />
       <div className="space-y-3 md:space-y-6">
         <ScheduleNavigation />
 

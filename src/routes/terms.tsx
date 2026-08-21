@@ -4,16 +4,18 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { LEGAL_DOCS_LAST_UPDATED } from "@/lib/constants/legal";
-import { PageTitle } from "@/components/PageTitle/PageTitle";
+import { pageMeta } from "@/lib/pageHead";
 
 export const Route = createFileRoute("/terms")({
   component: TermsOfService,
+  head: () => ({
+    meta: pageMeta({ title: "Terms of Service" }),
+  }),
 });
 
 function TermsOfService() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background/95 to-muted/20">
-      <PageTitle title="Terms of Service" />
       <TopBar />
 
       <div className="container mx-auto px-4 py-8">

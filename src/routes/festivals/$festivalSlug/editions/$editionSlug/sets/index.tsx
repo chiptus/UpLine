@@ -3,7 +3,7 @@ import { FilteredSetsPanel } from "@/pages/EditionView/tabs/VoteTab/FilteredSets
 import { useUrlState } from "@/hooks/useUrlState";
 import { useSetsByEditionQuery } from "@/api/sets/useSetsByEdition";
 import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
-import { PageTitle } from "@/components/PageTitle/PageTitle";
+import { pageMeta } from "@/lib/pageHead";
 import {
   filterSortSearchDefaults,
   filterSortSearchSchema,
@@ -14,6 +14,9 @@ export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug/sets/",
 )({
   component: VoteTab,
+  head: ({ match }) => ({
+    meta: pageMeta({ title: "Vote", prefix: match.context.festival?.name }),
+  }),
   validateSearch: filterSortSearchSchema,
   search: {
     middlewares: [stripSearchParams(filterSortSearchDefaults)],
@@ -25,7 +28,7 @@ export const Route = createFileRoute(
 
 function VoteTab() {
   const { state: urlState, updateUrlState, clearFilters } = useUrlState();
-  const { edition, festival } = useFestivalEdition();
+  const { edition } = useFestivalEdition();
 
   const { data: sets = [], isLoading: setsLoading } = useSetsByEditionQuery(
     edition?.id,
@@ -34,7 +37,6 @@ function VoteTab() {
   if (setsLoading) {
     return (
       <>
-        <PageTitle title="Vote" prefix={festival?.name} />
         <div className="flex items-center justify-center py-12">
           <div className="text-white text-xl">Loading artists...</div>
         </div>
@@ -44,7 +46,6 @@ function VoteTab() {
 
   return (
     <>
-      <PageTitle title="Vote" prefix={festival?.name} />
       <div>
         <FilteredSetsPanel
           sets={sets}

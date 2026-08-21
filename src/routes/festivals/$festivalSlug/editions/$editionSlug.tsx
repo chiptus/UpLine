@@ -9,7 +9,7 @@ import { stagesKeys } from "@/api/stages/types";
 import { getEffectiveFestivalPhase } from "@/lib/festivalPhase";
 import { getDefaultTab } from "@/pages/EditionView/TabNavigation/defaultTab";
 import { tabRoutes } from "@/pages/EditionView/TabNavigation/tabRoutes";
-import { PageTitle } from "@/components/PageTitle/PageTitle";
+import { pageMeta } from "@/lib/pageHead";
 
 export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug",
@@ -57,6 +57,12 @@ export const Route = createFileRoute(
         }
       });
   },
+  head: ({ match }) => ({
+    meta: pageMeta({
+      title: match.context.edition?.name,
+      prefix: match.context.festival?.name,
+    }),
+  }),
 });
 
 function EditionLayout() {
@@ -72,7 +78,6 @@ function EditionLayout() {
 
   return (
     <div className="min-h-screen bg-app-gradient">
-      <PageTitle title={edition.name} prefix={festival.name} />
       <div className="container mx-auto px-4 py-4 md:py-8 pb-20 md:pb-8">
         <EditionHeader
           title={`${festival.name} - ${edition.name}`}

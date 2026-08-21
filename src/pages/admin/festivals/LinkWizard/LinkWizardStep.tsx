@@ -151,19 +151,27 @@ export function LinkWizardStep({
             | "providerUrl.spotify"
             | "providerUrl.soundcloud",
           url,
+          { shouldDirty: true },
         );
       }
     }
 
     if (update.image_url !== undefined) {
-      form.setValue("image_url", update.image_url);
+      form.setValue("image_url", update.image_url, { shouldDirty: true });
     }
     if (update.description !== undefined) {
-      form.setValue("description", update.description);
+      form.setValue("description", update.description, {
+        shouldDirty: true,
+      });
     }
   }
 
   function onSubmit(data: LinkStepData) {
+    if (!form.formState.isDirty) {
+      onNext();
+      return;
+    }
+
     const updates: UpdateArtistUpdates = {
       spotify_url: data.providerUrl.spotify || null,
       soundcloud_url: data.providerUrl.soundcloud || null,

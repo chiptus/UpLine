@@ -34,7 +34,15 @@ export function useProviderCandidates(
     batchQueryResult,
   });
 
-  return { candidates, error, isLoading, search: setCustomSearch };
+  function search(query: string) {
+    if (query === customSearch) {
+      customResult.refetch();
+      return;
+    }
+    setCustomSearch(query);
+  }
+
+  return { candidates, error, isLoading, search };
 }
 
 interface ResolveProviderResultArgs {

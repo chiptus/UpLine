@@ -18,6 +18,7 @@ export const SoundCloudUserSchema = z.object({
   followers_count: z.number().optional(),
   full_name: z.string().nullable().optional(),
   display_name: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
 });
 
 export const SoundCloudTrackSchema = z.object({

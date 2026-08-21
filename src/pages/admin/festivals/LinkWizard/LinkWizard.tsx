@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Loader2, LinkIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useArtistsMissingLinksByEditionQuery } from "@/api/artists/useArtistsMissingLinksByEdition";
+import { usePrefetchNextBatchLinks } from "@/api/artistSearch/usePrefetchNextBatchLinks";
 import type { AdminArtistsPageSize } from "@/pages/admin/ArtistsManagement/searchSchema";
 import type { Artist } from "@/api/artists/types";
 import { LinkWizardStep } from "./LinkWizardStep";
@@ -18,6 +19,8 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
   );
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState<AdminArtistsPageSize>(10);
+
+  usePrefetchNextBatchLinks(artistsQuery.data ?? [], currentArtistId);
 
   if (artistsQuery.isLoading) {
     return (
@@ -71,6 +74,7 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
                 artist={currentArtist}
                 position={currentIndex + 1}
                 total={artists.length}
+                artists={artists}
                 onPrev={() => goTo(currentIndex - 1)}
                 onNext={() => goTo(currentIndex + 1)}
               />

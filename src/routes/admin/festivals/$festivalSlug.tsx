@@ -68,6 +68,8 @@ function FestivalDetail() {
         aria-label="Breadcrumb"
         className="flex items-center gap-1 text-sm text-muted-foreground mb-4"
       >
+        <span className="font-medium text-foreground">Festivals</span>
+        <ChevronRight className="h-4 w-4" />
         <span className="font-medium text-foreground">{festival.name}</span>
         {editionSlug && (
           <>

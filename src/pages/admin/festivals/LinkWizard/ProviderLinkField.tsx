@@ -3,12 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, RotateCcw } from "lucide-react";
-import type { Candidate, Provider } from "@/api/artistSearch/types";
+import type { Candidate } from "@/api/artistSearch/types";
 import type { SelectableField } from "@/api/artistSearch/mergeCandidateSelection";
 import { CandidateCards } from "./CandidateCards";
 
 interface ProviderLinkFieldProps {
-  provider: Provider;
   label: string;
   candidates: Candidate[];
   searchError?: string | undefined;
@@ -18,7 +17,6 @@ interface ProviderLinkFieldProps {
 }
 
 export function ProviderLinkField({
-  provider,
   label,
   candidates,
   searchError,
@@ -91,7 +89,6 @@ export function ProviderLinkField({
 
       <CandidateCards
         candidates={candidates}
-        provider={provider}
         isLoading={isLoadingCandidates}
         onSelectCandidate={onSelectCandidate}
       />

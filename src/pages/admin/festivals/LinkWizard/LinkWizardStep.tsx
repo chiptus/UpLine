@@ -110,7 +110,6 @@ export function LinkWizardStep({
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {!artist.spotify_url && (
             <ProviderLinkField
-              provider="spotify"
               label="Spotify Candidates"
               candidates={spotify.candidates}
               searchError={spotify.error}
@@ -124,7 +123,6 @@ export function LinkWizardStep({
 
           {!artist.soundcloud_url && (
             <ProviderLinkField
-              provider="soundcloud"
               label="SoundCloud Candidates"
               candidates={soundcloud.candidates}
               searchError={soundcloud.error}

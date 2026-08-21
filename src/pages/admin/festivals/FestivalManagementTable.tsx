@@ -12,9 +12,11 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { confirm } from "@/hooks/use-confirm";
-import { Edit2, Trash2, Image as ImageIcon } from "lucide-react";
+import { Edit2, Trash2, Image as ImageIcon, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FestivalLogoDialog } from "./FestivalLogoDialog";
+import { FestivalInfoDialog } from "./FestivalInfoDialog";
+import { FestivalMissingInfoBadge } from "./FestivalMissingInfoBadge";
 import { useState } from "react";
 
 export function FestivalManagementTable({
@@ -32,6 +34,9 @@ export function FestivalManagementTable({
   const [logoDialogOpen, setLogoDialogOpen] = useState(false);
   const [selectedFestivalForLogo, setSelectedFestivalForLogo] =
     useState<Festival | null>(null);
+  const [infoDialogOpen, setInfoDialogOpen] = useState(false);
+  const [selectedFestivalForInfo, setSelectedFestivalForInfo] =
+    useState<Festival | null>(null);
 
   async function handleDeleteRequest(festival: Festival) {
     const confirmed = await confirm({
@@ -47,6 +52,11 @@ export function FestivalManagementTable({
   function handleLogoManagement(festival: Festival) {
     setSelectedFestivalForLogo(festival);
     setLogoDialogOpen(true);
+  }
+
+  function handleInfoManagement(festival: Festival) {
+    setSelectedFestivalForInfo(festival);
+    setInfoDialogOpen(true);
   }
 
   return (
@@ -82,7 +92,12 @@ export function FestivalManagementTable({
                   </div>
                 )}
               </TableCell>
-              <TableCell className="font-medium">{festival.name}</TableCell>
+              <TableCell className="font-medium">
+                <div className="flex items-center gap-2">
+                  {festival.name}
+                  <FestivalMissingInfoBadge festivalId={festival.id} />
+                </div>
+              </TableCell>
 
               <TableCell>
                 <div className="flex gap-1">
@@ -97,6 +112,18 @@ export function FestivalManagementTable({
                     title="Manage logo"
                   >
                     <ImageIcon className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleInfoManagement(festival);
+                    }}
+                    title="Festival info"
+                  >
+                    <Info className="h-4 w-4" />
                   </Button>
                   <Button
                     size="sm"
@@ -139,6 +166,11 @@ export function FestivalManagementTable({
         open={logoDialogOpen}
         onOpenChange={setLogoDialogOpen}
         festival={selectedFestivalForLogo}
+      />
+      <FestivalInfoDialog
+        open={infoDialogOpen}
+        onOpenChange={setInfoDialogOpen}
+        festival={selectedFestivalForInfo}
       />
     </>
   );

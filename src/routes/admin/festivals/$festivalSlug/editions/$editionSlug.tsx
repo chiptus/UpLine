@@ -1,7 +1,8 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useParams, useLocation, Outlet, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link2, Loader2, MapPin, Music, Upload } from "lucide-react";
+import { useState } from "react";
+import { Link2, Loader2, MapPin, Music, Settings, Upload } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useFestivalEditionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
@@ -47,6 +48,7 @@ function FestivalEdition() {
     from: "/admin/festivals/$festivalSlug/editions/$editionSlug",
   });
   const location = useLocation();
+  const [showSettings, setShowSettings] = useState(false);
 
   const { data: festival } = useSuspenseQuery(
     festivalBySlugQuery(festivalSlug),
@@ -98,29 +100,18 @@ function FestivalEdition() {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardContent className="flex flex-wrap items-center justify-between gap-3 py-4">
-          <ScheduleRevealControl
-            editionId={currentEdition.id}
-            level={currentEdition.schedule_reveal_level ?? "draft"}
-            editionPublished={currentEdition.published ?? false}
-          />
-          <PhaseOverrideControl
-            editionId={currentEdition.id}
-            override={currentEdition.phase_override ?? null}
-            derivedPhase={derivedPhase}
-          />
-        </CardContent>
-      </Card>
       <div className="w-full">
-        <div className="sticky top-16 md:top-20 z-10 grid w-full grid-cols-4 gap-2 bg-white/10 backdrop-blur-md p-1 rounded-lg">
+        <div className="sticky top-16 md:top-20 z-10 grid w-full grid-cols-5 gap-2 bg-white/10 backdrop-blur-md p-1 rounded-lg">
           <Link
             to="/admin/festivals/$festivalSlug/editions/$editionSlug/stages"
             params={{ festivalSlug, editionSlug }}
+            onClick={() => setShowSettings(false)}
             className={cn(
               "flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors",
               "text-white font-medium",
-              isOnStages ? "bg-purple-600" : "hover:bg-white/10",
+              !showSettings && isOnStages
+                ? "bg-purple-600"
+                : "hover:bg-white/10",
             )}
           >
             <MapPin className="h-4 w-4" />
@@ -129,10 +120,11 @@ function FestivalEdition() {
           <Link
             to="/admin/festivals/$festivalSlug/editions/$editionSlug/sets"
             params={{ festivalSlug, editionSlug }}
+            onClick={() => setShowSettings(false)}
             className={cn(
               "flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors",
               "text-white font-medium",
-              isOnSets ? "bg-purple-600" : "hover:bg-white/10",
+              !showSettings && isOnSets ? "bg-purple-600" : "hover:bg-white/10",
             )}
           >
             <Music className="h-4 w-4" />
@@ -141,10 +133,13 @@ function FestivalEdition() {
           <Link
             to="/admin/festivals/$festivalSlug/editions/$editionSlug/import"
             params={{ festivalSlug, editionSlug }}
+            onClick={() => setShowSettings(false)}
             className={cn(
               "flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors",
               "text-white font-medium",
-              isOnImport ? "bg-purple-600" : "hover:bg-white/10",
+              !showSettings && isOnImport
+                ? "bg-purple-600"
+                : "hover:bg-white/10",
             )}
           >
             <Upload className="h-4 w-4" />
@@ -153,19 +148,51 @@ function FestivalEdition() {
           <Link
             to="/admin/festivals/$festivalSlug/editions/$editionSlug/links"
             params={{ festivalSlug, editionSlug }}
+            onClick={() => setShowSettings(false)}
             className={cn(
               "flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors",
               "text-white font-medium",
-              isOnLinks ? "bg-purple-600" : "hover:bg-white/10",
+              !showSettings && isOnLinks
+                ? "bg-purple-600"
+                : "hover:bg-white/10",
             )}
           >
             <Link2 className="h-4 w-4" />
             Links
           </Link>
+          <button
+            type="button"
+            onClick={() => setShowSettings(true)}
+            className={cn(
+              "flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors",
+              "text-white font-medium",
+              showSettings ? "bg-purple-600" : "hover:bg-white/10",
+            )}
+          >
+            <Settings className="h-4 w-4" />
+            Settings
+          </button>
         </div>
 
         <div className="mt-6">
-          <Outlet />
+          {showSettings ? (
+            <Card>
+              <CardContent className="flex flex-wrap items-center justify-between gap-3 py-4">
+                <ScheduleRevealControl
+                  editionId={currentEdition.id}
+                  level={currentEdition.schedule_reveal_level ?? "draft"}
+                  editionPublished={currentEdition.published ?? false}
+                />
+                <PhaseOverrideControl
+                  editionId={currentEdition.id}
+                  override={currentEdition.phase_override ?? null}
+                  derivedPhase={derivedPhase}
+                />
+              </CardContent>
+            </Card>
+          ) : (
+            <Outlet />
+          )}
         </div>
       </div>
     </div>

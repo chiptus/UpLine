@@ -92,7 +92,7 @@ export async function fetchSoundCloudAPI<T>(
       rawData: JSON.stringify(rawData).slice(0, 200) + "...",
     });
     throw new SoundCloudAPIError(
-      "Invalid response format from SoundCloud API",
+      "SoundCloud returned data in an unexpected format (their API may have changed), see function logs for details",
       {
         status: 200,
         statusText: "OK",

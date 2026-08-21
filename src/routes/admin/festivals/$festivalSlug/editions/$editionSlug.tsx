@@ -120,7 +120,7 @@ function FestivalEdition() {
         </CardHeader>
       </Card>
       <div className="w-full">
-        <div className="sticky top-0 z-10 grid w-full grid-cols-4 gap-2 bg-white/10 backdrop-blur-md p-1 rounded-lg">
+        <div className="sticky top-16 md:top-20 z-10 grid w-full grid-cols-4 gap-2 bg-white/10 backdrop-blur-md p-1 rounded-lg">
           <Link
             to="/admin/festivals/$festivalSlug/editions/$editionSlug/stages"
             params={{ festivalSlug, editionSlug }}

@@ -13,10 +13,16 @@ export interface Candidate {
   genres: string[];
 }
 
+export interface ProviderSearchOutcome {
+  candidates: Candidate[];
+  error?: string;
+}
+
 export interface SearchResult {
   artistName: string;
   provider: Provider;
   candidates: Candidate[];
+  error?: string;
 }
 
 export interface SearchResponse {

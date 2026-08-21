@@ -3,7 +3,7 @@ import { fetchSoundCloudAPI } from "../_shared/soundcloud-api/api.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { SoundCloudUserSchema } from "../_shared/soundcloud-api/schemas.ts";
 import { normalizeSoundCloudSearchResult } from "./normalize.ts";
-import type { Candidate } from "./types.ts";
+import type { ProviderSearchOutcome } from "./types.ts";
 
 const SoundCloudSearchResponseSchema = z.object({
   collection: z.array(SoundCloudUserSchema).optional(),
@@ -11,20 +11,14 @@ const SoundCloudSearchResponseSchema = z.object({
 
 export async function searchSoundCloud(
   artistNames: string[],
-): Promise<Map<string, Candidate[]>> {
-  const results = new Map<string, Candidate[]>();
+): Promise<Map<string, ProviderSearchOutcome>> {
+  const results = new Map<string, ProviderSearchOutcome>();
 
   const clientId = Deno.env.get("SOUNDCLOUD_CLIENT_ID");
   const clientSecret = Deno.env.get("SOUNDCLOUD_CLIENT_SECRET");
 
   if (!clientId || !clientSecret) {
-    console.warn(
-      "[searchSoundCloud] Missing SoundCloud credentials, skipping SoundCloud search",
-    );
-    for (const name of artistNames) {
-      results.set(name, []);
-    }
-    return results;
+    throw new Error("SoundCloud credentials are not configured");
   }
 
   const accessToken = await getSoundCloudAccessToken(clientId, clientSecret);
@@ -44,7 +38,7 @@ export async function searchSoundCloud(
         normalizeSoundCloudSearchResult,
       );
 
-      results.set(artistName, candidates);
+      results.set(artistName, { candidates });
       console.log(
         `[searchSoundCloud] Found ${candidates.length} candidates for ${artistName}`,
       );
@@ -53,7 +47,11 @@ export async function searchSoundCloud(
         `[searchSoundCloud] Error searching for artist ${artistName}:`,
         error,
       );
-      results.set(artistName, []);
+      results.set(artistName, {
+        candidates: [],
+        error:
+          error instanceof Error ? error.message : "SoundCloud search failed",
+      });
     }
   }
 

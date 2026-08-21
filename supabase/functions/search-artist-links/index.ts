@@ -4,8 +4,8 @@ import { buildCorsHeaders } from "../_shared/cors.ts";
 import { searchSoundCloud } from "./soundcloud-adapter.ts";
 import { searchSpotify } from "./spotify-adapter.ts";
 import type {
-  Candidate,
   Provider,
+  ProviderSearchOutcome,
   SearchRequest,
   SearchResponse,
   SearchResult,
@@ -13,7 +13,7 @@ import type {
 
 const searchByProvider: Record<
   Provider,
-  (artistNames: string[]) => Promise<Map<string, Candidate[]>>
+  (artistNames: string[]) => Promise<Map<string, ProviderSearchOutcome>>
 > = {
   soundcloud: searchSoundCloud,
   spotify: searchSpotify,
@@ -66,16 +66,17 @@ serve(async (req) => {
       console.log(`[search-artist-links] Searching ${provider}...`);
 
       try {
-        const candidatesMap = await searchByProvider[provider](
+        const outcomeMap = await searchByProvider[provider](
           request.artistNames,
         );
 
         for (const artistName of request.artistNames) {
-          const candidates = candidatesMap.get(artistName) || [];
+          const outcome = outcomeMap.get(artistName) ?? { candidates: [] };
           results.push({
             artistName,
             provider,
-            candidates,
+            candidates: outcome.candidates,
+            ...(outcome.error && { error: outcome.error }),
           });
         }
       } catch (providerError) {
@@ -84,11 +85,17 @@ serve(async (req) => {
           providerError,
         );
 
+        const message =
+          providerError instanceof Error
+            ? providerError.message
+            : `${provider} search failed`;
+
         for (const artistName of request.artistNames) {
           results.push({
             artistName,
             provider,
             candidates: [],
+            error: message,
           });
         }
       }

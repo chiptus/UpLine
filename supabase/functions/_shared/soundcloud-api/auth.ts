@@ -25,10 +25,13 @@ interface StoredToken {
 // in the provider_tokens table and shared across instances. Acquisition is
 // serialized through a DB lease so only one instance ever hits the token
 // endpoint; everyone else reuses the stored token or waits for the refresh.
-export async function getSoundCloudAccessToken(
-  clientId: string,
-  clientSecret: string,
-): Promise<string> {
+export async function getSoundCloudAccessToken(): Promise<string> {
+  const clientId = Deno.env.get("SOUNDCLOUD_CLIENT_ID");
+  const clientSecret = Deno.env.get("SOUNDCLOUD_CLIENT_SECRET");
+  if (!clientId || !clientSecret) {
+    throw new Error("SoundCloud credentials are not configured");
+  }
+
   if (cachedToken && cachedToken.expiresAt > Date.now() + EXPIRY_BUFFER_MS) {
     return cachedToken.token;
   }

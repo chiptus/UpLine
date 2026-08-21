@@ -17,14 +17,7 @@ export async function searchSoundCloud(
 ): Promise<Map<string, ProviderSearchOutcome>> {
   const results = new Map<string, ProviderSearchOutcome>();
 
-  const clientId = Deno.env.get("SOUNDCLOUD_CLIENT_ID");
-  const clientSecret = Deno.env.get("SOUNDCLOUD_CLIENT_SECRET");
-
-  if (!clientId || !clientSecret) {
-    throw new Error("SoundCloud credentials are not configured");
-  }
-
-  const accessToken = await getSoundCloudAccessToken(clientId, clientSecret);
+  const accessToken = await getSoundCloudAccessToken();
 
   for (const artistName of artistNames) {
     try {

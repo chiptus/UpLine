@@ -39,22 +39,8 @@ serve(async (req) => {
       );
     }
 
-    // Get SoundCloud credentials from environment
-    const clientId = Deno.env.get("SOUNDCLOUD_CLIENT_ID");
-    const clientSecret = Deno.env.get("SOUNDCLOUD_CLIENT_SECRET");
-
-    if (!clientId || !clientSecret) {
-      return new Response(
-        JSON.stringify({ error: "SoundCloud credentials not configured" }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
-    }
-
     console.log("Getting SoundCloud access token...");
-    const accessToken = await getSoundCloudAccessToken(clientId, clientSecret);
+    const accessToken = await getSoundCloudAccessToken();
 
     console.log("Resolving SoundCloud URL:", soundcloudUrl);
     // First resolve the URL to get user info

@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useParams, useLocation, Outlet } from "@tanstack/react-router";
+import { useParams, Outlet } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link2, Loader2, MapPin, Music, Settings, Upload } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -43,7 +43,6 @@ function FestivalEdition() {
   const { festivalSlug, editionSlug } = useParams({
     from: "/admin/festivals/$festivalSlug/editions/$editionSlug",
   });
-  const location = useLocation();
 
   const { data: festival } = useSuspenseQuery(
     festivalBySlugQuery(festivalSlug),
@@ -80,55 +79,44 @@ function FestivalEdition() {
     );
   }
 
-  const isOnSets = location.pathname.includes("/sets");
-  const isOnStages = location.pathname.includes("/stages");
-  const isOnImport = location.pathname.includes("/import");
-  const isOnLinks = location.pathname.includes("/links");
-  const isOnSettings = location.pathname.includes("/settings");
-
   return (
     <div className="space-y-6">
       <div className="w-full">
         <div className="sticky top-16 md:top-20 z-10 grid w-full grid-cols-5 gap-2 bg-white/10 backdrop-blur-md p-1 rounded-lg">
           <EditionNavLink
-            to="/admin/festivals/$festivalSlug/editions/$editionSlug/stages"
+            to="stages"
             festivalSlug={festivalSlug}
             editionSlug={editionSlug}
             icon={<MapPin className="h-4 w-4" />}
             label="Stages"
-            isActive={isOnStages}
           />
           <EditionNavLink
-            to="/admin/festivals/$festivalSlug/editions/$editionSlug/sets"
+            to="sets"
             festivalSlug={festivalSlug}
             editionSlug={editionSlug}
             icon={<Music className="h-4 w-4" />}
             label="Sets"
-            isActive={isOnSets}
           />
           <EditionNavLink
-            to="/admin/festivals/$festivalSlug/editions/$editionSlug/import"
+            to="import"
             festivalSlug={festivalSlug}
             editionSlug={editionSlug}
             icon={<Upload className="h-4 w-4" />}
             label="Import"
-            isActive={isOnImport}
           />
           <EditionNavLink
-            to="/admin/festivals/$festivalSlug/editions/$editionSlug/links"
+            to="links"
             festivalSlug={festivalSlug}
             editionSlug={editionSlug}
             icon={<Link2 className="h-4 w-4" />}
             label="Links"
-            isActive={isOnLinks}
           />
           <EditionNavLink
-            to="/admin/festivals/$festivalSlug/editions/$editionSlug/settings"
+            to="settings"
             festivalSlug={festivalSlug}
             editionSlug={editionSlug}
             icon={<Settings className="h-4 w-4" />}
             label="Settings"
-            isActive={isOnSettings}
           />
         </div>
 

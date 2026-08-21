@@ -1,4 +1,4 @@
-import { createFileRoute, useParams } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { editionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
@@ -21,9 +21,7 @@ export const Route = createFileRoute(
 });
 
 function FestivalEditionSettings() {
-  const { festivalSlug, editionSlug } = useParams({
-    from: "/admin/festivals/$festivalSlug/editions/$editionSlug/settings",
-  });
+  const { festivalSlug, editionSlug } = Route.useParams();
   const { data: festival } = useSuspenseQuery(
     festivalBySlugQuery(festivalSlug),
   );

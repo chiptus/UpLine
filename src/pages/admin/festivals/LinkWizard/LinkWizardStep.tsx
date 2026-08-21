@@ -81,6 +81,23 @@ export function LinkWizardStep({
     },
   });
 
+  const urlFields = [
+    !artist.spotify_url && {
+      fieldName: "spotifyUrl",
+      label: "Spotify URL",
+      placeholder: "https://open.spotify.com/artist/...",
+    },
+    !artist.soundcloud_url && {
+      fieldName: "soundcloudUrl",
+      label: "SoundCloud URL",
+      placeholder: "https://soundcloud.com/...",
+    },
+  ].filter(Boolean) as {
+    fieldName: string;
+    label: string;
+    placeholder: string;
+  }[];
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-end">
@@ -94,13 +111,10 @@ export function LinkWizardStep({
           {!artist.spotify_url && (
             <ProviderLinkField
               provider="spotify"
-              fieldName="spotifyUrl"
-              label="Spotify URL"
-              placeholder="https://open.spotify.com/artist/..."
+              label="Spotify Candidates"
               candidates={spotify.candidates}
               searchError={spotify.error}
               isLoadingCandidates={spotify.isLoading}
-              form={form}
               onSelectCandidate={(candidate, fields) =>
                 handleCandidateSelect(candidate, "spotify", fields)
               }
@@ -111,13 +125,10 @@ export function LinkWizardStep({
           {!artist.soundcloud_url && (
             <ProviderLinkField
               provider="soundcloud"
-              fieldName="soundcloudUrl"
-              label="SoundCloud URL"
-              placeholder="https://soundcloud.com/..."
+              label="SoundCloud Candidates"
               candidates={soundcloud.candidates}
               searchError={soundcloud.error}
               isLoadingCandidates={soundcloud.isLoading}
-              form={form}
               onSelectCandidate={(candidate, fields) =>
                 handleCandidateSelect(candidate, "soundcloud", fields)
               }
@@ -126,6 +137,8 @@ export function LinkWizardStep({
           )}
 
           <StagedFieldsPreview
+            form={form}
+            urlFields={urlFields}
             stagedUpdates={stagedUpdates}
             onDescriptionChange={(description) =>
               setStagedUpdates((prev) => ({ ...prev, description }))
@@ -170,24 +183,32 @@ export function LinkWizardStep({
   ) {
     const update = mergeCandidateSelection(candidate, provider, fields);
 
-    setStagedUpdates((prev) => ({
-      ...prev,
-      ...update,
-      providerUrl: { ...prev.providerUrl, ...update.providerUrl },
-    }));
+    if (update.providerUrl) {
+      for (const [providerKey, url] of Object.entries(update.providerUrl)) {
+        form.setValue(
+          `${providerKey}Url` as "spotifyUrl" | "soundcloudUrl",
+          url,
+        );
+      }
+    }
+
+    if (update.image_url !== undefined || update.description !== undefined) {
+      setStagedUpdates((prev) => ({
+        ...prev,
+        ...(update.image_url !== undefined && { image_url: update.image_url }),
+        ...(update.description !== undefined && {
+          description: update.description,
+        }),
+      }));
+    }
   }
 
   function onSubmit(data: LinkStepData) {
-    const updates: UpdateArtistUpdates = {};
+    const updates: UpdateArtistUpdates = {
+      spotify_url: data.spotifyUrl || null,
+      soundcloud_url: data.soundcloudUrl || null,
+    };
 
-    if (!artist.spotify_url) {
-      updates.spotify_url =
-        stagedUpdates.providerUrl?.spotify ?? (data.spotifyUrl || null);
-    }
-    if (!artist.soundcloud_url) {
-      updates.soundcloud_url =
-        stagedUpdates.providerUrl?.soundcloud ?? (data.soundcloudUrl || null);
-    }
     if (stagedUpdates.image_url) {
       updates.image_url = stagedUpdates.image_url;
     }

@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useParams, useNavigate, Outlet, Link } from "@tanstack/react-router";
+import { useParams, useNavigate, Outlet } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { FestivalEditionManagement } from "@/pages/admin/festivals/FestivalEditionManagement";
-import { ChevronRight } from "lucide-react";
+import { FestivalBreadcrumb } from "@/pages/admin/festivals/FestivalBreadcrumb";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 import { useFestivalEditionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { pageMeta } from "@/lib/pageHead";
@@ -35,34 +35,12 @@ function FestivalDetail() {
 
   return (
     <>
-      <nav
-        aria-label="Breadcrumb"
-        className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground mb-6"
-      >
-        <Link to="/admin/festivals" className="font-medium hover:underline">
-          Festivals
-        </Link>
-        <ChevronRight className="h-4 w-4" />
-        {editionSlug ? (
-          <Link
-            to="/admin/festivals/$festivalSlug"
-            params={{ festivalSlug }}
-            className="font-medium hover:underline text-foreground"
-          >
-            {festival.name}
-          </Link>
-        ) : (
-          <span className="font-medium text-foreground">{festival.name}</span>
-        )}
-        {editionSlug && (
-          <>
-            <ChevronRight className="h-4 w-4" />
-            <span className="font-medium text-foreground">
-              {editionQuery.data?.name ?? editionSlug}
-            </span>
-          </>
-        )}
-      </nav>
+      <FestivalBreadcrumb
+        festivalSlug={festivalSlug}
+        festivalName={festival.name}
+        editionSlug={editionSlug || undefined}
+        editionName={editionQuery.data?.name}
+      />
 
       {!editionSlug && (
         <div className="mb-6">

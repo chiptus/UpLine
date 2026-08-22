@@ -10,12 +10,6 @@ import { getEffectiveFestivalPhase } from "@/lib/festivalPhase";
 import { getDefaultTab } from "@/pages/EditionView/TabNavigation/defaultTab";
 import { tabRoutes } from "@/pages/EditionView/TabNavigation/tabRoutes";
 import { pageMeta } from "@/lib/pageHead";
-import {
-  PrototypeIdentitySwitcher,
-  identityClass,
-  useIdentityVariant,
-} from "@/pages/EditionView/prototype/PrototypeIdentitySwitcher";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug",
@@ -73,7 +67,6 @@ export const Route = createFileRoute(
 
 function EditionLayout() {
   const { festival, edition } = useFestivalEdition();
-  const identityVariant = useIdentityVariant();
 
   if (!edition) {
     return (
@@ -84,12 +77,7 @@ function EditionLayout() {
   }
 
   return (
-    <div
-      className={cn(
-        "edition-view min-h-screen bg-app-gradient",
-        identityClass(identityVariant),
-      )}
-    >
+    <div className="edition-view min-h-screen bg-app-gradient">
       <div className="container mx-auto px-4 py-4 md:py-8 pb-20 md:pb-8">
         <EditionHeader
           title={`${festival.name} - ${edition.name}`}
@@ -105,7 +93,6 @@ function EditionLayout() {
           </ErrorBoundary>
         </div>
       </div>
-      <PrototypeIdentitySwitcher />
     </div>
   );
 }

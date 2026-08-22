@@ -15,7 +15,7 @@ export async function searchSpotify(
       console.log(`[searchSpotify] Searching for artist: ${artistName}`);
 
       const query = encodeURIComponent(artistName);
-      const endpoint = `https://api.spotify.com/v1/search?type=artist&q=${query}&limit=3`;
+      const endpoint = `https://api.spotify.com/v1/search?type=artist&q=${query}&limit=10`;
 
       const response = await fetch(endpoint, {
         headers: {

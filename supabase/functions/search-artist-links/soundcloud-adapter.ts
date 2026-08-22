@@ -23,7 +23,7 @@ export async function searchSoundCloud(
     try {
       console.log(`[searchSoundCloud] Searching for artist: ${artistName}`);
 
-      const endpoint = `/users?q=${encodeURIComponent(artistName)}&limit=3`;
+      const endpoint = `/users?q=${encodeURIComponent(artistName)}&limit=10`;
       const response = await fetchSoundCloudAPI(
         endpoint,
         accessToken,

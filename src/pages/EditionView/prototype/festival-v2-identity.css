@@ -154,3 +154,22 @@
   letter-spacing: -0.01em;
   font-weight: 800;
 }
+
+/* ---- hybrid light: same soft light ground, coral-red accent ---- */
+
+.proto-festival-v2.proto-hybrid.proto-light {
+  --proto-text: #1a1c22;
+  --proto-muted: #484d59;
+  --proto-subtle: #676d7a;
+  --proto-surface: #ffffff;
+  --proto-raised: #ffffff;
+  --proto-border: #dcdfe3;
+  --proto-accent: #d32a17;
+  --proto-accent-fg: #ffffff;
+  --proto-solid: #ffffff;
+  --proto-live: #c1180a;
+}
+
+.proto-festival-v2.proto-hybrid.proto-light.bg-app-gradient {
+  background: #fafaf7;
+}

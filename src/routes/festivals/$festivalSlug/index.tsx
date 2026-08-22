@@ -1,7 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { z } from "zod";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 import { editionsForFestivalQuery } from "@/api/editions/useFestivalEditionsForFestival";
 import { Calendar, MapPin, Clock, Users, ArrowLeft } from "lucide-react";
@@ -19,16 +17,9 @@ import { Link } from "@tanstack/react-router";
 import { FestivalEdition } from "@/api/editions/types";
 import { TopBar } from "@/components/layout/TopBar";
 import { pageMeta } from "@/lib/pageHead";
-import { useToast } from "@/components/ui/use-toast";
-
-const editionSelectionSearchSchema = z.object({
-  invite: z.string().optional(),
-  editionNotFound: z.boolean().optional().catch(undefined),
-});
 
 export const Route = createFileRoute("/festivals/$festivalSlug/")({
   component: EditionSelection,
-  validateSearch: editionSelectionSearchSchema,
   head: ({ match }) => ({
     meta: pageMeta({
       title: "Select Edition",
@@ -57,26 +48,9 @@ export const Route = createFileRoute("/festivals/$festivalSlug/")({
 
 function EditionSelection() {
   const { festival } = Route.useRouteContext();
-  const { editionNotFound } = Route.useSearch();
-  const navigate = Route.useNavigate();
-  const { toast } = useToast();
   const { data: availableEditions } = useSuspenseQuery(
     editionsForFestivalQuery(festival.id),
   );
-
-  useEffect(() => {
-    if (!editionNotFound) return;
-    toast({
-      title: "Festival edition not found",
-      description:
-        "We couldn't find that edition. It may have been removed or the link may be incorrect.",
-      variant: "destructive",
-    });
-    void navigate({
-      search: (prev) => ({ ...prev, editionNotFound: undefined }),
-      replace: true,
-    });
-  }, [editionNotFound, navigate, toast]);
 
   if (availableEditions.length === 0) {
     return (

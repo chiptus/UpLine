@@ -1,4 +1,10 @@
-import { createFileRoute, redirect, Outlet } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  notFound,
+  redirect,
+  Link,
+  Outlet,
+} from "@tanstack/react-router";
 import { EditionHeader } from "@/pages/EditionView/EditionHeader";
 import { MainTabNavigation } from "@/pages/EditionView/TabNavigation/TabNavigation";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -17,6 +23,7 @@ export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug",
 )({
   component: EditionLayout,
+  notFoundComponent: EditionNotFound,
   beforeLoad: async ({ params, location, context }) => {
     let edition;
     try {
@@ -28,12 +35,7 @@ export const Route = createFileRoute(
       );
     } catch (error) {
       if (error instanceof EditionNotFoundError) {
-        throw redirect({
-          to: "/festivals/$festivalSlug",
-          params: { festivalSlug: params.festivalSlug },
-          search: { editionNotFound: true },
-          replace: true,
-        });
+        throw notFound();
       }
       throw error;
     }
@@ -99,6 +101,29 @@ function EditionLayout() {
             <Outlet />
           </ErrorBoundary>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function EditionNotFound() {
+  const { festivalSlug } = Route.useParams();
+
+  return (
+    <div className="min-h-screen bg-app-gradient flex items-center justify-center p-4">
+      <div className="text-center text-white">
+        <h1 className="text-2xl font-bold mb-4">Edition not found</h1>
+        <p className="mb-6 text-purple-200">
+          We couldn&apos;t find that festival edition. It may have been removed
+          or the link may be incorrect.
+        </p>
+        <Link
+          to="/festivals/$festivalSlug"
+          params={{ festivalSlug }}
+          className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded inline-block"
+        >
+          Back to festival
+        </Link>
       </div>
     </div>
   );

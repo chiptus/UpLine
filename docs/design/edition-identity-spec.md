@@ -14,7 +14,7 @@ One skeleton, two color themes. **Dark is the default**: a violet poster ground 
 
 - Token values are CSS variables scoped to the edition-view root. Dark values are the default; light values apply under an explicit `data-edition-theme="light"` scope on that root.
 - Both themes ship. How the theme is chosen (system preference vs in-app toggle) and persisted is a rollout decision — [#322](https://github.com/chiptus/UpLine/issues/322)'s territory. The CSS contract above is what it plugs into.
-- Values are stored as HSL triples to match the existing shadcn `hsl(var(--…))` plumbing; hex given here for legibility.
+- Values are stored as HSL channels to match the existing shadcn `hsl(var(--…))` plumbing; hex given here for legibility. Opaque roles are plain triples (`H S% L%`); the inherently translucent roles (`surface*`, `accent-soft`, `border*`, `*-soft`) carry their alpha inside the variable (`H S% L% / A`) — see the vocabulary's ground rules for why those roles must not take Tailwind `/NN` modifiers.
 
 ## Palette
 
@@ -90,7 +90,7 @@ Same in both themes.
 
 - **Display** (`h1`, `h2`, hero artist names, day-strip labels): **Unbounded** 500/700, uppercase, `letter-spacing: 0.02em`. Fallback `"Arial Black", system-ui, sans-serif`.
 - **Body & UI** (everything else): **Space Grotesk** 400/500/700. Fallback `"Segoe UI", system-ui, sans-serif`.
-- Loaded via Google Fonts (self-hosting is a rollout option, not a spec requirement). Only these two families and weights — Bricolage/Public Sans were the rejected hybrid's.
+- Loaded via Google Fonts (self-hosting is a rollout option, not a spec requirement). Only these two families and weights — Bricolage/Public Sans belonged to the rejected hybrid direction.
 - No new type-scale system: existing Tailwind size classes stay; the identity change is family + case + tracking on the display level.
 - Display type is reserved for the poster moments (hero, section headers, day strip). Card titles, list rows, and controls stay in Space Grotesk so density screens (Schedule List/Timeline) stay legible.
 

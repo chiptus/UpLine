@@ -9,59 +9,44 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TermsRouteImport } from './routes/terms'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as CookiesRouteImport } from './routes/cookies'
-import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as CookiesRouteImport } from './routes/cookies'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as AdminAdminsRouteImport } from './routes/admin/admins'
+import { Route as AdminAnalyticsRouteImport } from './routes/admin/analytics'
+import { Route as AdminArtistsRouteImport } from './routes/admin/artists'
+import { Route as AdminFestivalsRouteImport } from './routes/admin/festivals'
+import { Route as FestivalsFestivalSlugRouteImport } from './routes/festivals/$festivalSlug'
 import { Route as GroupsIndexRouteImport } from './routes/groups/index'
 import { Route as GroupsGroupSlugRouteImport } from './routes/groups/$groupSlug'
-import { Route as FestivalsFestivalSlugRouteImport } from './routes/festivals/$festivalSlug'
-import { Route as AdminFestivalsRouteImport } from './routes/admin/festivals'
-import { Route as AdminArtistsRouteImport } from './routes/admin/artists'
-import { Route as AdminAnalyticsRouteImport } from './routes/admin/analytics'
-import { Route as AdminAdminsRouteImport } from './routes/admin/admins'
-import { Route as FestivalsFestivalSlugIndexRouteImport } from './routes/festivals/$festivalSlug/index'
-import { Route as AdminFestivalsFestivalSlugRouteImport } from './routes/admin/festivals/$festivalSlug'
 import { Route as AdminArtistsDuplicatesRouteImport } from './routes/admin/artists/duplicates'
+import { Route as AdminFestivalsFestivalSlugRouteImport } from './routes/admin/festivals/$festivalSlug'
+import { Route as FestivalsFestivalSlugIndexRouteImport } from './routes/festivals/$festivalSlug/index'
 import { Route as FestivalsFestivalSlugEditionsEditionSlugRouteImport } from './routes/festivals/$festivalSlug/editions/$editionSlug'
-import { Route as FestivalsFestivalSlugEditionsEditionSlugSocialRouteImport } from './routes/festivals/$festivalSlug/editions/$editionSlug/social'
-import { Route as FestivalsFestivalSlugEditionsEditionSlugSetsRouteImport } from './routes/festivals/$festivalSlug/editions/$editionSlug/sets'
-import { Route as FestivalsFestivalSlugEditionsEditionSlugScheduleRouteImport } from './routes/festivals/$festivalSlug/editions/$editionSlug/schedule'
-import { Route as FestivalsFestivalSlugEditionsEditionSlugMapRouteImport } from './routes/festivals/$festivalSlug/editions/$editionSlug/map'
-import { Route as FestivalsFestivalSlugEditionsEditionSlugInfoRouteImport } from './routes/festivals/$festivalSlug/editions/$editionSlug/info'
-import { Route as FestivalsFestivalSlugEditionsEditionSlugExploreRouteImport } from './routes/festivals/$festivalSlug/editions/$editionSlug/explore'
 import { Route as AdminFestivalsFestivalSlugEditionsEditionSlugRouteImport } from './routes/admin/festivals/$festivalSlug/editions/$editionSlug'
+import { Route as FestivalsFestivalSlugEditionsEditionSlugExploreRouteImport } from './routes/festivals/$festivalSlug/editions/$editionSlug/explore'
+import { Route as FestivalsFestivalSlugEditionsEditionSlugInfoRouteImport } from './routes/festivals/$festivalSlug/editions/$editionSlug/info'
+import { Route as FestivalsFestivalSlugEditionsEditionSlugMapRouteImport } from './routes/festivals/$festivalSlug/editions/$editionSlug/map'
+import { Route as FestivalsFestivalSlugEditionsEditionSlugScheduleRouteImport } from './routes/festivals/$festivalSlug/editions/$editionSlug/schedule'
+import { Route as FestivalsFestivalSlugEditionsEditionSlugSetsRouteImport } from './routes/festivals/$festivalSlug/editions/$editionSlug/sets'
+import { Route as FestivalsFestivalSlugEditionsEditionSlugSocialRouteImport } from './routes/festivals/$festivalSlug/editions/$editionSlug/social'
+import { Route as AdminFestivalsFestivalSlugEditionsEditionSlugImportRouteImport } from './routes/admin/festivals/$festivalSlug/editions/$editionSlug/import'
+import { Route as AdminFestivalsFestivalSlugEditionsEditionSlugLinksRouteImport } from './routes/admin/festivals/$festivalSlug/editions/$editionSlug/links'
+import { Route as AdminFestivalsFestivalSlugEditionsEditionSlugSetsRouteImport } from './routes/admin/festivals/$festivalSlug/editions/$editionSlug/sets'
+import { Route as AdminFestivalsFestivalSlugEditionsEditionSlugSettingsRouteImport } from './routes/admin/festivals/$festivalSlug/editions/$editionSlug/settings'
+import { Route as AdminFestivalsFestivalSlugEditionsEditionSlugStagesRouteImport } from './routes/admin/festivals/$festivalSlug/editions/$editionSlug/stages'
+import { Route as FestivalsFestivalSlugEditionsEditionSlugScheduleListRouteImport } from './routes/festivals/$festivalSlug/editions/$editionSlug/schedule/list'
+import { Route as FestivalsFestivalSlugEditionsEditionSlugScheduleNowRouteImport } from './routes/festivals/$festivalSlug/editions/$editionSlug/schedule/now'
+import { Route as FestivalsFestivalSlugEditionsEditionSlugScheduleTimelineRouteImport } from './routes/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline'
 import { Route as FestivalsFestivalSlugEditionsEditionSlugSetsIndexRouteImport } from './routes/festivals/$festivalSlug/editions/$editionSlug/sets/index'
 import { Route as FestivalsFestivalSlugEditionsEditionSlugSetsSetSlugRouteImport } from './routes/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug'
-import { Route as FestivalsFestivalSlugEditionsEditionSlugScheduleTimelineRouteImport } from './routes/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline'
-import { Route as FestivalsFestivalSlugEditionsEditionSlugScheduleNowRouteImport } from './routes/festivals/$festivalSlug/editions/$editionSlug/schedule/now'
-import { Route as FestivalsFestivalSlugEditionsEditionSlugScheduleListRouteImport } from './routes/festivals/$festivalSlug/editions/$editionSlug/schedule/list'
-import { Route as AdminFestivalsFestivalSlugEditionsEditionSlugStagesRouteImport } from './routes/admin/festivals/$festivalSlug/editions/$editionSlug/stages'
-import { Route as AdminFestivalsFestivalSlugEditionsEditionSlugSettingsRouteImport } from './routes/admin/festivals/$festivalSlug/editions/$editionSlug/settings'
-import { Route as AdminFestivalsFestivalSlugEditionsEditionSlugSetsRouteImport } from './routes/admin/festivals/$festivalSlug/editions/$editionSlug/sets'
-import { Route as AdminFestivalsFestivalSlugEditionsEditionSlugLinksRouteImport } from './routes/admin/festivals/$festivalSlug/editions/$editionSlug/links'
-import { Route as AdminFestivalsFestivalSlugEditionsEditionSlugImportRouteImport } from './routes/admin/festivals/$festivalSlug/editions/$editionSlug/import'
 
-const TermsRoute = TermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CookiesRoute = CookiesRouteImport.update({
-  id: '/cookies',
-  path: '/cookies',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -69,9 +54,49 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const CookiesRoute = CookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminAdminsRoute = AdminAdminsRouteImport.update({
+  id: '/admins',
+  path: '/admins',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAnalyticsRoute = AdminAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminArtistsRoute = AdminArtistsRouteImport.update({
+  id: '/artists',
+  path: '/artists',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminFestivalsRoute = AdminFestivalsRouteImport.update({
+  id: '/festivals',
+  path: '/festivals',
+  getParentRoute: () => AdminRoute,
+} as any)
+const FestivalsFestivalSlugRoute = FestivalsFestivalSlugRouteImport.update({
+  id: '/festivals/$festivalSlug',
+  path: '/festivals/$festivalSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GroupsIndexRoute = GroupsIndexRouteImport.update({
@@ -84,76 +109,39 @@ const GroupsGroupSlugRoute = GroupsGroupSlugRouteImport.update({
   path: '/groups/$groupSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const FestivalsFestivalSlugRoute = FestivalsFestivalSlugRouteImport.update({
-  id: '/festivals/$festivalSlug',
-  path: '/festivals/$festivalSlug',
-  getParentRoute: () => rootRouteImport,
+const AdminArtistsDuplicatesRoute = AdminArtistsDuplicatesRouteImport.update({
+  id: '/duplicates',
+  path: '/duplicates',
+  getParentRoute: () => AdminArtistsRoute,
 } as any)
-const AdminFestivalsRoute = AdminFestivalsRouteImport.update({
-  id: '/festivals',
-  path: '/festivals',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminArtistsRoute = AdminArtistsRouteImport.update({
-  id: '/artists',
-  path: '/artists',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminAnalyticsRoute = AdminAnalyticsRouteImport.update({
-  id: '/analytics',
-  path: '/analytics',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminAdminsRoute = AdminAdminsRouteImport.update({
-  id: '/admins',
-  path: '/admins',
-  getParentRoute: () => AdminRoute,
-} as any)
-const FestivalsFestivalSlugIndexRoute =
-  FestivalsFestivalSlugIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => FestivalsFestivalSlugRoute,
-  } as any)
 const AdminFestivalsFestivalSlugRoute =
   AdminFestivalsFestivalSlugRouteImport.update({
     id: '/$festivalSlug',
     path: '/$festivalSlug',
     getParentRoute: () => AdminFestivalsRoute,
   } as any)
-const AdminArtistsDuplicatesRoute = AdminArtistsDuplicatesRouteImport.update({
-  id: '/duplicates',
-  path: '/duplicates',
-  getParentRoute: () => AdminArtistsRoute,
-} as any)
+const FestivalsFestivalSlugIndexRoute =
+  FestivalsFestivalSlugIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => FestivalsFestivalSlugRoute,
+  } as any)
 const FestivalsFestivalSlugEditionsEditionSlugRoute =
   FestivalsFestivalSlugEditionsEditionSlugRouteImport.update({
     id: '/editions/$editionSlug',
     path: '/editions/$editionSlug',
     getParentRoute: () => FestivalsFestivalSlugRoute,
   } as any)
-const FestivalsFestivalSlugEditionsEditionSlugSocialRoute =
-  FestivalsFestivalSlugEditionsEditionSlugSocialRouteImport.update({
-    id: '/social',
-    path: '/social',
-    getParentRoute: () => FestivalsFestivalSlugEditionsEditionSlugRoute,
+const AdminFestivalsFestivalSlugEditionsEditionSlugRoute =
+  AdminFestivalsFestivalSlugEditionsEditionSlugRouteImport.update({
+    id: '/editions/$editionSlug',
+    path: '/editions/$editionSlug',
+    getParentRoute: () => AdminFestivalsFestivalSlugRoute,
   } as any)
-const FestivalsFestivalSlugEditionsEditionSlugSetsRoute =
-  FestivalsFestivalSlugEditionsEditionSlugSetsRouteImport.update({
-    id: '/sets',
-    path: '/sets',
-    getParentRoute: () => FestivalsFestivalSlugEditionsEditionSlugRoute,
-  } as any)
-const FestivalsFestivalSlugEditionsEditionSlugScheduleRoute =
-  FestivalsFestivalSlugEditionsEditionSlugScheduleRouteImport.update({
-    id: '/schedule',
-    path: '/schedule',
-    getParentRoute: () => FestivalsFestivalSlugEditionsEditionSlugRoute,
-  } as any)
-const FestivalsFestivalSlugEditionsEditionSlugMapRoute =
-  FestivalsFestivalSlugEditionsEditionSlugMapRouteImport.update({
-    id: '/map',
-    path: '/map',
+const FestivalsFestivalSlugEditionsEditionSlugExploreRoute =
+  FestivalsFestivalSlugEditionsEditionSlugExploreRouteImport.update({
+    id: '/explore',
+    path: '/explore',
     getParentRoute: () => FestivalsFestivalSlugEditionsEditionSlugRoute,
   } as any)
 const FestivalsFestivalSlugEditionsEditionSlugInfoRoute =
@@ -162,17 +150,77 @@ const FestivalsFestivalSlugEditionsEditionSlugInfoRoute =
     path: '/info',
     getParentRoute: () => FestivalsFestivalSlugEditionsEditionSlugRoute,
   } as any)
-const FestivalsFestivalSlugEditionsEditionSlugExploreRoute =
-  FestivalsFestivalSlugEditionsEditionSlugExploreRouteImport.update({
-    id: '/explore',
-    path: '/explore',
+const FestivalsFestivalSlugEditionsEditionSlugMapRoute =
+  FestivalsFestivalSlugEditionsEditionSlugMapRouteImport.update({
+    id: '/map',
+    path: '/map',
     getParentRoute: () => FestivalsFestivalSlugEditionsEditionSlugRoute,
   } as any)
-const AdminFestivalsFestivalSlugEditionsEditionSlugRoute =
-  AdminFestivalsFestivalSlugEditionsEditionSlugRouteImport.update({
-    id: '/editions/$editionSlug',
-    path: '/editions/$editionSlug',
-    getParentRoute: () => AdminFestivalsFestivalSlugRoute,
+const FestivalsFestivalSlugEditionsEditionSlugScheduleRoute =
+  FestivalsFestivalSlugEditionsEditionSlugScheduleRouteImport.update({
+    id: '/schedule',
+    path: '/schedule',
+    getParentRoute: () => FestivalsFestivalSlugEditionsEditionSlugRoute,
+  } as any)
+const FestivalsFestivalSlugEditionsEditionSlugSetsRoute =
+  FestivalsFestivalSlugEditionsEditionSlugSetsRouteImport.update({
+    id: '/sets',
+    path: '/sets',
+    getParentRoute: () => FestivalsFestivalSlugEditionsEditionSlugRoute,
+  } as any)
+const FestivalsFestivalSlugEditionsEditionSlugSocialRoute =
+  FestivalsFestivalSlugEditionsEditionSlugSocialRouteImport.update({
+    id: '/social',
+    path: '/social',
+    getParentRoute: () => FestivalsFestivalSlugEditionsEditionSlugRoute,
+  } as any)
+const AdminFestivalsFestivalSlugEditionsEditionSlugImportRoute =
+  AdminFestivalsFestivalSlugEditionsEditionSlugImportRouteImport.update({
+    id: '/import',
+    path: '/import',
+    getParentRoute: () => AdminFestivalsFestivalSlugEditionsEditionSlugRoute,
+  } as any)
+const AdminFestivalsFestivalSlugEditionsEditionSlugLinksRoute =
+  AdminFestivalsFestivalSlugEditionsEditionSlugLinksRouteImport.update({
+    id: '/links',
+    path: '/links',
+    getParentRoute: () => AdminFestivalsFestivalSlugEditionsEditionSlugRoute,
+  } as any)
+const AdminFestivalsFestivalSlugEditionsEditionSlugSetsRoute =
+  AdminFestivalsFestivalSlugEditionsEditionSlugSetsRouteImport.update({
+    id: '/sets',
+    path: '/sets',
+    getParentRoute: () => AdminFestivalsFestivalSlugEditionsEditionSlugRoute,
+  } as any)
+const AdminFestivalsFestivalSlugEditionsEditionSlugSettingsRoute =
+  AdminFestivalsFestivalSlugEditionsEditionSlugSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AdminFestivalsFestivalSlugEditionsEditionSlugRoute,
+  } as any)
+const AdminFestivalsFestivalSlugEditionsEditionSlugStagesRoute =
+  AdminFestivalsFestivalSlugEditionsEditionSlugStagesRouteImport.update({
+    id: '/stages',
+    path: '/stages',
+    getParentRoute: () => AdminFestivalsFestivalSlugEditionsEditionSlugRoute,
+  } as any)
+const FestivalsFestivalSlugEditionsEditionSlugScheduleListRoute =
+  FestivalsFestivalSlugEditionsEditionSlugScheduleListRouteImport.update({
+    id: '/list',
+    path: '/list',
+    getParentRoute: () => FestivalsFestivalSlugEditionsEditionSlugScheduleRoute,
+  } as any)
+const FestivalsFestivalSlugEditionsEditionSlugScheduleNowRoute =
+  FestivalsFestivalSlugEditionsEditionSlugScheduleNowRouteImport.update({
+    id: '/now',
+    path: '/now',
+    getParentRoute: () => FestivalsFestivalSlugEditionsEditionSlugScheduleRoute,
+  } as any)
+const FestivalsFestivalSlugEditionsEditionSlugScheduleTimelineRoute =
+  FestivalsFestivalSlugEditionsEditionSlugScheduleTimelineRouteImport.update({
+    id: '/timeline',
+    path: '/timeline',
+    getParentRoute: () => FestivalsFestivalSlugEditionsEditionSlugScheduleRoute,
   } as any)
 const FestivalsFestivalSlugEditionsEditionSlugSetsIndexRoute =
   FestivalsFestivalSlugEditionsEditionSlugSetsIndexRouteImport.update({
@@ -185,54 +233,6 @@ const FestivalsFestivalSlugEditionsEditionSlugSetsSetSlugRoute =
     id: '/$setSlug',
     path: '/$setSlug',
     getParentRoute: () => FestivalsFestivalSlugEditionsEditionSlugSetsRoute,
-  } as any)
-const FestivalsFestivalSlugEditionsEditionSlugScheduleTimelineRoute =
-  FestivalsFestivalSlugEditionsEditionSlugScheduleTimelineRouteImport.update({
-    id: '/timeline',
-    path: '/timeline',
-    getParentRoute: () => FestivalsFestivalSlugEditionsEditionSlugScheduleRoute,
-  } as any)
-const FestivalsFestivalSlugEditionsEditionSlugScheduleNowRoute =
-  FestivalsFestivalSlugEditionsEditionSlugScheduleNowRouteImport.update({
-    id: '/now',
-    path: '/now',
-    getParentRoute: () => FestivalsFestivalSlugEditionsEditionSlugScheduleRoute,
-  } as any)
-const FestivalsFestivalSlugEditionsEditionSlugScheduleListRoute =
-  FestivalsFestivalSlugEditionsEditionSlugScheduleListRouteImport.update({
-    id: '/list',
-    path: '/list',
-    getParentRoute: () => FestivalsFestivalSlugEditionsEditionSlugScheduleRoute,
-  } as any)
-const AdminFestivalsFestivalSlugEditionsEditionSlugStagesRoute =
-  AdminFestivalsFestivalSlugEditionsEditionSlugStagesRouteImport.update({
-    id: '/stages',
-    path: '/stages',
-    getParentRoute: () => AdminFestivalsFestivalSlugEditionsEditionSlugRoute,
-  } as any)
-const AdminFestivalsFestivalSlugEditionsEditionSlugSettingsRoute =
-  AdminFestivalsFestivalSlugEditionsEditionSlugSettingsRouteImport.update({
-    id: '/settings',
-    path: '/settings',
-    getParentRoute: () => AdminFestivalsFestivalSlugEditionsEditionSlugRoute,
-  } as any)
-const AdminFestivalsFestivalSlugEditionsEditionSlugSetsRoute =
-  AdminFestivalsFestivalSlugEditionsEditionSlugSetsRouteImport.update({
-    id: '/sets',
-    path: '/sets',
-    getParentRoute: () => AdminFestivalsFestivalSlugEditionsEditionSlugRoute,
-  } as any)
-const AdminFestivalsFestivalSlugEditionsEditionSlugLinksRoute =
-  AdminFestivalsFestivalSlugEditionsEditionSlugLinksRouteImport.update({
-    id: '/links',
-    path: '/links',
-    getParentRoute: () => AdminFestivalsFestivalSlugEditionsEditionSlugRoute,
-  } as any)
-const AdminFestivalsFestivalSlugEditionsEditionSlugImportRoute =
-  AdminFestivalsFestivalSlugEditionsEditionSlugImportRouteImport.update({
-    id: '/import',
-    path: '/import',
-    getParentRoute: () => AdminFestivalsFestivalSlugEditionsEditionSlugRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -248,7 +248,7 @@ export interface FileRoutesByFullPath {
   '/admin/festivals': typeof AdminFestivalsRouteWithChildren
   '/festivals/$festivalSlug': typeof FestivalsFestivalSlugRouteWithChildren
   '/groups/$groupSlug': typeof GroupsGroupSlugRoute
-  '/groups': typeof GroupsIndexRoute
+  '/groups/': typeof GroupsIndexRoute
   '/admin/artists/duplicates': typeof AdminArtistsDuplicatesRoute
   '/admin/festivals/$festivalSlug': typeof AdminFestivalsFestivalSlugRouteWithChildren
   '/festivals/$festivalSlug/': typeof FestivalsFestivalSlugIndexRoute
@@ -357,7 +357,7 @@ export interface FileRouteTypes {
     | '/admin/festivals'
     | '/festivals/$festivalSlug'
     | '/groups/$groupSlug'
-    | '/groups'
+    | '/groups/'
     | '/admin/artists/duplicates'
     | '/admin/festivals/$festivalSlug'
     | '/festivals/$festivalSlug/'
@@ -465,32 +465,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cookies': {
-      id: '/cookies'
-      path: '/cookies'
-      fullPath: '/cookies'
-      preLoaderRoute: typeof CookiesRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -500,17 +479,73 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/cookies': {
+      id: '/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof CookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/admins': {
+      id: '/admin/admins'
+      path: '/admins'
+      fullPath: '/admin/admins'
+      preLoaderRoute: typeof AdminAdminsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/analytics': {
+      id: '/admin/analytics'
+      path: '/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AdminAnalyticsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/artists': {
+      id: '/admin/artists'
+      path: '/artists'
+      fullPath: '/admin/artists'
+      preLoaderRoute: typeof AdminArtistsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/festivals': {
+      id: '/admin/festivals'
+      path: '/festivals'
+      fullPath: '/admin/festivals'
+      preLoaderRoute: typeof AdminFestivalsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/festivals/$festivalSlug': {
+      id: '/festivals/$festivalSlug'
+      path: '/festivals/$festivalSlug'
+      fullPath: '/festivals/$festivalSlug'
+      preLoaderRoute: typeof FestivalsFestivalSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/groups/': {
       id: '/groups/'
       path: '/groups'
-      fullPath: '/groups'
+      fullPath: '/groups/'
       preLoaderRoute: typeof GroupsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -521,47 +556,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GroupsGroupSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/festivals/$festivalSlug': {
-      id: '/festivals/$festivalSlug'
-      path: '/festivals/$festivalSlug'
-      fullPath: '/festivals/$festivalSlug'
-      preLoaderRoute: typeof FestivalsFestivalSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/festivals': {
-      id: '/admin/festivals'
-      path: '/festivals'
-      fullPath: '/admin/festivals'
-      preLoaderRoute: typeof AdminFestivalsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/artists': {
-      id: '/admin/artists'
-      path: '/artists'
-      fullPath: '/admin/artists'
-      preLoaderRoute: typeof AdminArtistsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/analytics': {
-      id: '/admin/analytics'
-      path: '/analytics'
-      fullPath: '/admin/analytics'
-      preLoaderRoute: typeof AdminAnalyticsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/admins': {
-      id: '/admin/admins'
-      path: '/admins'
-      fullPath: '/admin/admins'
-      preLoaderRoute: typeof AdminAdminsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/festivals/$festivalSlug/': {
-      id: '/festivals/$festivalSlug/'
-      path: '/'
-      fullPath: '/festivals/$festivalSlug/'
-      preLoaderRoute: typeof FestivalsFestivalSlugIndexRouteImport
-      parentRoute: typeof FestivalsFestivalSlugRoute
+    '/admin/artists/duplicates': {
+      id: '/admin/artists/duplicates'
+      path: '/duplicates'
+      fullPath: '/admin/artists/duplicates'
+      preLoaderRoute: typeof AdminArtistsDuplicatesRouteImport
+      parentRoute: typeof AdminArtistsRoute
     }
     '/admin/festivals/$festivalSlug': {
       id: '/admin/festivals/$festivalSlug'
@@ -570,12 +570,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminFestivalsFestivalSlugRouteImport
       parentRoute: typeof AdminFestivalsRoute
     }
-    '/admin/artists/duplicates': {
-      id: '/admin/artists/duplicates'
-      path: '/duplicates'
-      fullPath: '/admin/artists/duplicates'
-      preLoaderRoute: typeof AdminArtistsDuplicatesRouteImport
-      parentRoute: typeof AdminArtistsRoute
+    '/festivals/$festivalSlug/': {
+      id: '/festivals/$festivalSlug/'
+      path: '/'
+      fullPath: '/festivals/$festivalSlug/'
+      preLoaderRoute: typeof FestivalsFestivalSlugIndexRouteImport
+      parentRoute: typeof FestivalsFestivalSlugRoute
     }
     '/festivals/$festivalSlug/editions/$editionSlug': {
       id: '/festivals/$festivalSlug/editions/$editionSlug'
@@ -584,32 +584,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FestivalsFestivalSlugEditionsEditionSlugRouteImport
       parentRoute: typeof FestivalsFestivalSlugRoute
     }
-    '/festivals/$festivalSlug/editions/$editionSlug/social': {
-      id: '/festivals/$festivalSlug/editions/$editionSlug/social'
-      path: '/social'
-      fullPath: '/festivals/$festivalSlug/editions/$editionSlug/social'
-      preLoaderRoute: typeof FestivalsFestivalSlugEditionsEditionSlugSocialRouteImport
-      parentRoute: typeof FestivalsFestivalSlugEditionsEditionSlugRoute
+    '/admin/festivals/$festivalSlug/editions/$editionSlug': {
+      id: '/admin/festivals/$festivalSlug/editions/$editionSlug'
+      path: '/editions/$editionSlug'
+      fullPath: '/admin/festivals/$festivalSlug/editions/$editionSlug'
+      preLoaderRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugRouteImport
+      parentRoute: typeof AdminFestivalsFestivalSlugRoute
     }
-    '/festivals/$festivalSlug/editions/$editionSlug/sets': {
-      id: '/festivals/$festivalSlug/editions/$editionSlug/sets'
-      path: '/sets'
-      fullPath: '/festivals/$festivalSlug/editions/$editionSlug/sets'
-      preLoaderRoute: typeof FestivalsFestivalSlugEditionsEditionSlugSetsRouteImport
-      parentRoute: typeof FestivalsFestivalSlugEditionsEditionSlugRoute
-    }
-    '/festivals/$festivalSlug/editions/$editionSlug/schedule': {
-      id: '/festivals/$festivalSlug/editions/$editionSlug/schedule'
-      path: '/schedule'
-      fullPath: '/festivals/$festivalSlug/editions/$editionSlug/schedule'
-      preLoaderRoute: typeof FestivalsFestivalSlugEditionsEditionSlugScheduleRouteImport
-      parentRoute: typeof FestivalsFestivalSlugEditionsEditionSlugRoute
-    }
-    '/festivals/$festivalSlug/editions/$editionSlug/map': {
-      id: '/festivals/$festivalSlug/editions/$editionSlug/map'
-      path: '/map'
-      fullPath: '/festivals/$festivalSlug/editions/$editionSlug/map'
-      preLoaderRoute: typeof FestivalsFestivalSlugEditionsEditionSlugMapRouteImport
+    '/festivals/$festivalSlug/editions/$editionSlug/explore': {
+      id: '/festivals/$festivalSlug/editions/$editionSlug/explore'
+      path: '/explore'
+      fullPath: '/festivals/$festivalSlug/editions/$editionSlug/explore'
+      preLoaderRoute: typeof FestivalsFestivalSlugEditionsEditionSlugExploreRouteImport
       parentRoute: typeof FestivalsFestivalSlugEditionsEditionSlugRoute
     }
     '/festivals/$festivalSlug/editions/$editionSlug/info': {
@@ -619,19 +605,89 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FestivalsFestivalSlugEditionsEditionSlugInfoRouteImport
       parentRoute: typeof FestivalsFestivalSlugEditionsEditionSlugRoute
     }
-    '/festivals/$festivalSlug/editions/$editionSlug/explore': {
-      id: '/festivals/$festivalSlug/editions/$editionSlug/explore'
-      path: '/explore'
-      fullPath: '/festivals/$festivalSlug/editions/$editionSlug/explore'
-      preLoaderRoute: typeof FestivalsFestivalSlugEditionsEditionSlugExploreRouteImport
+    '/festivals/$festivalSlug/editions/$editionSlug/map': {
+      id: '/festivals/$festivalSlug/editions/$editionSlug/map'
+      path: '/map'
+      fullPath: '/festivals/$festivalSlug/editions/$editionSlug/map'
+      preLoaderRoute: typeof FestivalsFestivalSlugEditionsEditionSlugMapRouteImport
       parentRoute: typeof FestivalsFestivalSlugEditionsEditionSlugRoute
     }
-    '/admin/festivals/$festivalSlug/editions/$editionSlug': {
-      id: '/admin/festivals/$festivalSlug/editions/$editionSlug'
-      path: '/editions/$editionSlug'
-      fullPath: '/admin/festivals/$festivalSlug/editions/$editionSlug'
-      preLoaderRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugRouteImport
-      parentRoute: typeof AdminFestivalsFestivalSlugRoute
+    '/festivals/$festivalSlug/editions/$editionSlug/schedule': {
+      id: '/festivals/$festivalSlug/editions/$editionSlug/schedule'
+      path: '/schedule'
+      fullPath: '/festivals/$festivalSlug/editions/$editionSlug/schedule'
+      preLoaderRoute: typeof FestivalsFestivalSlugEditionsEditionSlugScheduleRouteImport
+      parentRoute: typeof FestivalsFestivalSlugEditionsEditionSlugRoute
+    }
+    '/festivals/$festivalSlug/editions/$editionSlug/sets': {
+      id: '/festivals/$festivalSlug/editions/$editionSlug/sets'
+      path: '/sets'
+      fullPath: '/festivals/$festivalSlug/editions/$editionSlug/sets'
+      preLoaderRoute: typeof FestivalsFestivalSlugEditionsEditionSlugSetsRouteImport
+      parentRoute: typeof FestivalsFestivalSlugEditionsEditionSlugRoute
+    }
+    '/festivals/$festivalSlug/editions/$editionSlug/social': {
+      id: '/festivals/$festivalSlug/editions/$editionSlug/social'
+      path: '/social'
+      fullPath: '/festivals/$festivalSlug/editions/$editionSlug/social'
+      preLoaderRoute: typeof FestivalsFestivalSlugEditionsEditionSlugSocialRouteImport
+      parentRoute: typeof FestivalsFestivalSlugEditionsEditionSlugRoute
+    }
+    '/admin/festivals/$festivalSlug/editions/$editionSlug/import': {
+      id: '/admin/festivals/$festivalSlug/editions/$editionSlug/import'
+      path: '/import'
+      fullPath: '/admin/festivals/$festivalSlug/editions/$editionSlug/import'
+      preLoaderRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugImportRouteImport
+      parentRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugRoute
+    }
+    '/admin/festivals/$festivalSlug/editions/$editionSlug/links': {
+      id: '/admin/festivals/$festivalSlug/editions/$editionSlug/links'
+      path: '/links'
+      fullPath: '/admin/festivals/$festivalSlug/editions/$editionSlug/links'
+      preLoaderRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugLinksRouteImport
+      parentRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugRoute
+    }
+    '/admin/festivals/$festivalSlug/editions/$editionSlug/sets': {
+      id: '/admin/festivals/$festivalSlug/editions/$editionSlug/sets'
+      path: '/sets'
+      fullPath: '/admin/festivals/$festivalSlug/editions/$editionSlug/sets'
+      preLoaderRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugSetsRouteImport
+      parentRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugRoute
+    }
+    '/admin/festivals/$festivalSlug/editions/$editionSlug/settings': {
+      id: '/admin/festivals/$festivalSlug/editions/$editionSlug/settings'
+      path: '/settings'
+      fullPath: '/admin/festivals/$festivalSlug/editions/$editionSlug/settings'
+      preLoaderRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugSettingsRouteImport
+      parentRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugRoute
+    }
+    '/admin/festivals/$festivalSlug/editions/$editionSlug/stages': {
+      id: '/admin/festivals/$festivalSlug/editions/$editionSlug/stages'
+      path: '/stages'
+      fullPath: '/admin/festivals/$festivalSlug/editions/$editionSlug/stages'
+      preLoaderRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugStagesRouteImport
+      parentRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugRoute
+    }
+    '/festivals/$festivalSlug/editions/$editionSlug/schedule/list': {
+      id: '/festivals/$festivalSlug/editions/$editionSlug/schedule/list'
+      path: '/list'
+      fullPath: '/festivals/$festivalSlug/editions/$editionSlug/schedule/list'
+      preLoaderRoute: typeof FestivalsFestivalSlugEditionsEditionSlugScheduleListRouteImport
+      parentRoute: typeof FestivalsFestivalSlugEditionsEditionSlugScheduleRoute
+    }
+    '/festivals/$festivalSlug/editions/$editionSlug/schedule/now': {
+      id: '/festivals/$festivalSlug/editions/$editionSlug/schedule/now'
+      path: '/now'
+      fullPath: '/festivals/$festivalSlug/editions/$editionSlug/schedule/now'
+      preLoaderRoute: typeof FestivalsFestivalSlugEditionsEditionSlugScheduleNowRouteImport
+      parentRoute: typeof FestivalsFestivalSlugEditionsEditionSlugScheduleRoute
+    }
+    '/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline': {
+      id: '/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline'
+      path: '/timeline'
+      fullPath: '/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline'
+      preLoaderRoute: typeof FestivalsFestivalSlugEditionsEditionSlugScheduleTimelineRouteImport
+      parentRoute: typeof FestivalsFestivalSlugEditionsEditionSlugScheduleRoute
     }
     '/festivals/$festivalSlug/editions/$editionSlug/sets/': {
       id: '/festivals/$festivalSlug/editions/$editionSlug/sets/'
@@ -646,62 +702,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug'
       preLoaderRoute: typeof FestivalsFestivalSlugEditionsEditionSlugSetsSetSlugRouteImport
       parentRoute: typeof FestivalsFestivalSlugEditionsEditionSlugSetsRoute
-    }
-    '/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline': {
-      id: '/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline'
-      path: '/timeline'
-      fullPath: '/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline'
-      preLoaderRoute: typeof FestivalsFestivalSlugEditionsEditionSlugScheduleTimelineRouteImport
-      parentRoute: typeof FestivalsFestivalSlugEditionsEditionSlugScheduleRoute
-    }
-    '/festivals/$festivalSlug/editions/$editionSlug/schedule/now': {
-      id: '/festivals/$festivalSlug/editions/$editionSlug/schedule/now'
-      path: '/now'
-      fullPath: '/festivals/$festivalSlug/editions/$editionSlug/schedule/now'
-      preLoaderRoute: typeof FestivalsFestivalSlugEditionsEditionSlugScheduleNowRouteImport
-      parentRoute: typeof FestivalsFestivalSlugEditionsEditionSlugScheduleRoute
-    }
-    '/festivals/$festivalSlug/editions/$editionSlug/schedule/list': {
-      id: '/festivals/$festivalSlug/editions/$editionSlug/schedule/list'
-      path: '/list'
-      fullPath: '/festivals/$festivalSlug/editions/$editionSlug/schedule/list'
-      preLoaderRoute: typeof FestivalsFestivalSlugEditionsEditionSlugScheduleListRouteImport
-      parentRoute: typeof FestivalsFestivalSlugEditionsEditionSlugScheduleRoute
-    }
-    '/admin/festivals/$festivalSlug/editions/$editionSlug/stages': {
-      id: '/admin/festivals/$festivalSlug/editions/$editionSlug/stages'
-      path: '/stages'
-      fullPath: '/admin/festivals/$festivalSlug/editions/$editionSlug/stages'
-      preLoaderRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugStagesRouteImport
-      parentRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugRoute
-    }
-    '/admin/festivals/$festivalSlug/editions/$editionSlug/settings': {
-      id: '/admin/festivals/$festivalSlug/editions/$editionSlug/settings'
-      path: '/settings'
-      fullPath: '/admin/festivals/$festivalSlug/editions/$editionSlug/settings'
-      preLoaderRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugSettingsRouteImport
-      parentRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugRoute
-    }
-    '/admin/festivals/$festivalSlug/editions/$editionSlug/sets': {
-      id: '/admin/festivals/$festivalSlug/editions/$editionSlug/sets'
-      path: '/sets'
-      fullPath: '/admin/festivals/$festivalSlug/editions/$editionSlug/sets'
-      preLoaderRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugSetsRouteImport
-      parentRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugRoute
-    }
-    '/admin/festivals/$festivalSlug/editions/$editionSlug/links': {
-      id: '/admin/festivals/$festivalSlug/editions/$editionSlug/links'
-      path: '/links'
-      fullPath: '/admin/festivals/$festivalSlug/editions/$editionSlug/links'
-      preLoaderRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugLinksRouteImport
-      parentRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugRoute
-    }
-    '/admin/festivals/$festivalSlug/editions/$editionSlug/import': {
-      id: '/admin/festivals/$festivalSlug/editions/$editionSlug/import'
-      path: '/import'
-      fullPath: '/admin/festivals/$festivalSlug/editions/$editionSlug/import'
-      preLoaderRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugImportRouteImport
-      parentRoute: typeof AdminFestivalsFestivalSlugEditionsEditionSlugRoute
     }
   }
 }

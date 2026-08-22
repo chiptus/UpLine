@@ -30,7 +30,7 @@ function VoteTab() {
   const { edition } = Route.useRouteContext();
 
   const { data: sets = [], isLoading: setsLoading } = useSetsByEditionQuery(
-    edition?.id,
+    edition.id,
   );
 
   if (setsLoading) {
@@ -51,7 +51,7 @@ function VoteTab() {
           urlState={urlState}
           updateUrlState={updateUrlState}
           clearFilters={clearFilters}
-          editionId={edition?.id || ""}
+          editionId={edition.id}
         />
       </div>
     </>

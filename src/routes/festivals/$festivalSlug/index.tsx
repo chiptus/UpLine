@@ -1,6 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 import { editionsForFestivalQuery } from "@/api/editions/useFestivalEditionsForFestival";
 import { Calendar, MapPin, Clock, Users, ArrowLeft } from "lucide-react";
 import {
@@ -27,11 +26,8 @@ export const Route = createFileRoute("/festivals/$festivalSlug/")({
     }),
   }),
   beforeLoad: async ({ params, context, search }) => {
-    const festival = await context.queryClient.ensureQueryData(
-      festivalBySlugQuery(params.festivalSlug),
-    );
     const editions = await context.queryClient.ensureQueryData(
-      editionsForFestivalQuery(festival.id),
+      editionsForFestivalQuery(context.festival.id),
     );
 
     if (editions.length === 1 && !search.invite) {

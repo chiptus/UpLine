@@ -10,11 +10,11 @@ export function useFestivalPhase(): { phase: FestivalPhase } {
   });
 
   const phase = getEffectiveFestivalPhase({
-    override: edition?.phase_override ?? null,
+    override: edition.phase_override,
     derivedInput: {
-      revealLevel: edition?.schedule_reveal_level ?? "draft",
-      startDate: edition?.start_date ?? null,
-      endDate: edition?.end_date ?? null,
+      revealLevel: edition.schedule_reveal_level ?? "draft",
+      startDate: edition.start_date,
+      endDate: edition.end_date,
       timezone: festival.timezone,
       now: new Date(),
     },

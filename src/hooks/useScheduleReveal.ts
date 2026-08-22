@@ -12,7 +12,7 @@ export function useScheduleReveal() {
   const { edition } = useRouteContext({
     from: "/festivals/$festivalSlug/editions/$editionSlug",
   });
-  const level: RevealLevel = edition?.schedule_reveal_level ?? "draft";
+  const level: RevealLevel = edition.schedule_reveal_level ?? "draft";
 
   return {
     level,

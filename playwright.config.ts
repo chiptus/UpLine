@@ -80,7 +80,13 @@ export default defineConfig({
 
     {
       name: "webkit",
-      use: { ...devices["Desktop Safari"] },
+      // WebKit can't intercept requests that pass through an active Service
+      // Worker (page.route() silently misses them, unlike Chromium's
+      // CDP-based interception) — the app's PWA service worker was letting
+      // mocked API calls (e.g. search-artist-links) fall through to the real
+      // network. Blocking service workers for this project keeps route()
+      // mocks reliable.
+      use: { ...devices["Desktop Safari"], serviceWorkers: "block" },
       testIgnore: COOKIE_CONSENT_SPEC,
     },
 

@@ -13,7 +13,7 @@ export const VOTE_CONFIG = {
     textColor: "text-orange-900 dark:text-vote-must-foreground",
     descColor: "text-vote-must dark:text-vote-must-foreground",
     circleColor: "bg-vote-must",
-    buttonSelected: "bg-vote-must hover:bg-vote-must",
+    buttonSelected: "bg-vote-must hover:bg-orange-700",
     buttonUnselected:
       "border-vote-must-foreground text-vote-must-foreground hover:bg-vote-must-foreground hover:text-white",
     spinnerColor: "border-vote-must-foreground",
@@ -28,7 +28,7 @@ export const VOTE_CONFIG = {
     textColor: "text-blue-900 dark:text-vote-interested-foreground",
     descColor: "text-vote-interested dark:text-vote-interested-foreground",
     circleColor: "bg-vote-interested",
-    buttonSelected: "bg-vote-interested hover:bg-vote-interested",
+    buttonSelected: "bg-vote-interested hover:bg-blue-700",
     buttonUnselected:
       "border-vote-interested-foreground text-vote-interested-foreground hover:bg-vote-interested-foreground hover:text-white",
     spinnerColor: "border-vote-interested-foreground",
@@ -43,7 +43,7 @@ export const VOTE_CONFIG = {
     textColor: "text-gray-900 dark:text-vote-skip-foreground",
     descColor: "text-vote-skip dark:text-vote-skip-foreground",
     circleColor: "bg-vote-skip",
-    buttonSelected: "bg-vote-skip hover:bg-vote-skip",
+    buttonSelected: "bg-vote-skip hover:bg-gray-700",
     buttonUnselected:
       "border-vote-skip-foreground text-vote-skip-foreground hover:bg-vote-skip-foreground hover:text-white",
     spinnerColor: "border-vote-skip-foreground",

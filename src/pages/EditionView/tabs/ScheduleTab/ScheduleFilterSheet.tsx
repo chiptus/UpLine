@@ -118,7 +118,7 @@ export function ScheduleFilterSheet({ tab }: ScheduleFilterSheetProps) {
               variant="ghost"
               onClick={clearFilters}
               data-testid="schedule-filters-clear"
-              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+              className="text-destructive hover:text-red-300 hover:bg-destructive/10"
             >
               Clear all
             </Button>

@@ -45,7 +45,7 @@ export function OverviewViewportWindow({
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={Math.round(leftPercent)}
-      className="absolute top-0 h-full cursor-grab rounded border-2 border-white/80 bg-surface-active outline-none focus-visible:ring-2 focus-visible:ring-ring active:cursor-grabbing"
+      className="absolute top-0 h-full cursor-grab rounded border-2 border-white/80 bg-surface-active outline-none focus-visible:ring-2 focus-visible:ring-white active:cursor-grabbing"
       style={{ left: `${leftPercent}%`, width: `${widthPercent}%` }}
       onClick={(event) => event.stopPropagation()}
       onPointerDown={handlePointerDown}

@@ -56,7 +56,9 @@ describe("selectArtistsMissingLinks", () => {
       }),
     ];
 
-    expect(selectArtistsMissingLinks(sets)).toHaveLength(1);
+    const result = selectArtistsMissingLinks(sets);
+    expect(result).toHaveLength(1);
+    expect(result[0].sets.map((s) => s.id).sort()).toEqual(["s1", "s2"]);
   });
 
   it("excludes artists that already have both links", () => {

@@ -1,5 +1,21 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { setsKeys } from "./types";
+
+interface RawArtistSet {
+  id: string;
+  name: string;
+  description: string | null;
+  time_start: string | null;
+  time_end: string | null;
+  stage_id: string | null;
+  stages: { name: string } | null;
+  set_artists: Array<{
+    artist_id: string;
+    artists: { name: string } | null;
+    role: string | null;
+  }>;
+}
 
 export interface ArtistSetWithCoPerformers {
   id: string;
@@ -25,7 +41,7 @@ async function fetchArtistSetsByEdition(
     .select(
       `
       set_id,
-      sets (
+      sets!inner (
         id,
         name,
         description,
@@ -44,7 +60,8 @@ async function fetchArtistSetsByEdition(
     .eq("artist_id", artistId)
     .eq("sets.festival_edition_id", editionId)
     .eq("sets.archived", false)
-    .order("sets.time_start", { ascending: true });
+    .order("sets.time_start", { ascending: true })
+    .returns<Array<{ set_id: string; sets: RawArtistSet }>>();
 
   if (error) {
     console.error("Error fetching artist sets by edition:", error);
@@ -57,20 +74,7 @@ async function fetchArtistSetsByEdition(
   data?.forEach((setArtist) => {
     if (!setArtist.sets) return;
 
-    const set = setArtist.sets as unknown as {
-      id: string;
-      name: string;
-      description: string | null;
-      time_start: string | null;
-      time_end: string | null;
-      stage_id: string | null;
-      stages?: { name: string } | null;
-      set_artists?: Array<{
-        artist_id: string;
-        artists?: { name: string } | null;
-        role: string | null;
-      }> | null;
-    };
+    const set = setArtist.sets;
     const setId = set.id;
 
     if (!setsMap.has(setId)) {
@@ -113,7 +117,7 @@ export function artistSetsByEditionQuery(
   editionId: string | undefined,
 ) {
   return queryOptions({
-    queryKey: ["artist-sets", artistId, editionId],
+    queryKey: setsKeys.byArtistAndEdition(artistId ?? "", editionId ?? ""),
     queryFn: () => fetchArtistSetsByEdition(artistId!, editionId!),
     enabled: !!artistId && !!editionId,
   });

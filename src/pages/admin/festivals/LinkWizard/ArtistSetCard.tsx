@@ -1,4 +1,5 @@
 import type { ArtistSetWithCoPerformers } from "@/api/artists/useArtistsMissingLinksByEdition";
+import { formatTimeOnly } from "@/lib/timeUtils";
 import { SetCoPerformers } from "./SetCoPerformers";
 
 interface ArtistSetCardProps {
@@ -7,6 +8,8 @@ interface ArtistSetCardProps {
 }
 
 export function ArtistSetCard({ set, currentArtistId }: ArtistSetCardProps) {
+  const time = formatTimeOnly(set.time_start, set.time_end, true);
+
   return (
     <div className="border-l-2 border-primary pl-4 py-2">
       <div className="space-y-2">
@@ -19,17 +22,7 @@ export function ArtistSetCard({ set, currentArtistId }: ArtistSetCardProps) {
           )}
         </div>
 
-        {set.time_start && (
-          <div className="text-xs text-muted-foreground">
-            <span>{formatSetTime(set.time_start)}</span>
-            {set.time_end && (
-              <>
-                <span> - </span>
-                <span>{formatSetTime(set.time_end)}</span>
-              </>
-            )}
-          </div>
-        )}
+        {time && <div className="text-xs text-muted-foreground">{time}</div>}
 
         {set.description && (
           <p className="text-xs text-muted-foreground">{set.description}</p>
@@ -44,12 +37,4 @@ export function ArtistSetCard({ set, currentArtistId }: ArtistSetCardProps) {
       </div>
     </div>
   );
-}
-
-function formatSetTime(time: string): string {
-  return new Date(time).toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
 }

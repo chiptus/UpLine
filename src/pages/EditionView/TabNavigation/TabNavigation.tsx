@@ -42,7 +42,7 @@ export function MainTabNavigation() {
     <>
       {/* Desktop: Horizontal tabs at top */}
       <div className="hidden md:block mb-6">
-        <div className="bg-white/10 backdrop-blur-md rounded-lg p-2">
+        <div className="bg-surface-raised backdrop-blur-md rounded-lg p-2">
           <div className="flex gap-1 justify-center">
             {visibleTabs.map((config) => (
               <DesktopTabButton key={config.key} config={config} />
@@ -55,7 +55,7 @@ export function MainTabNavigation() {
       <div
         data-testid="mobile-tab-bar"
         className={cn(
-          "md:hidden fixed bottom-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-md border-t border-purple-400/20 safe-area-pb transition-transform duration-200",
+          "md:hidden fixed bottom-0 left-0 right-0 z-50 bg-popover backdrop-blur-md border-t border-border safe-area-pb transition-transform duration-200",
           hideBottomBar && "translate-y-full",
         )}
       >

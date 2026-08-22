@@ -32,6 +32,7 @@ export const Route = createFileRoute(
           to: "/festivals/$festivalSlug",
           params: { festivalSlug: params.festivalSlug },
           search: { editionNotFound: true },
+          replace: true,
         });
       }
       throw error;

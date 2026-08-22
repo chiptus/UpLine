@@ -77,7 +77,7 @@ function EditionLayout() {
 
   if (!edition) {
     return (
-      <div className="min-h-screen bg-app-gradient flex items-center justify-center">
+      <div className="edition-view min-h-screen bg-app-gradient flex items-center justify-center">
         <div className="text-white text-xl">Loading edition...</div>
       </div>
     );
@@ -86,7 +86,7 @@ function EditionLayout() {
   return (
     <div
       className={cn(
-        "min-h-screen bg-app-gradient",
+        "edition-view min-h-screen bg-app-gradient",
         identityClass(identityVariant),
       )}
     >

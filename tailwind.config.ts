@@ -25,6 +25,37 @@ export default {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        "subtle-foreground": "hsl(var(--subtle-foreground))",
+        surface: {
+          DEFAULT: "hsl(var(--surface))",
+          raised: "hsl(var(--surface-raised))",
+          active: "hsl(var(--surface-active))",
+        },
+        live: {
+          DEFAULT: "hsl(var(--live))",
+          foreground: "hsl(var(--live-foreground))",
+        },
+        notice: {
+          DEFAULT: "hsl(var(--notice))",
+          foreground: "hsl(var(--notice-foreground))",
+        },
+        vote: {
+          must: {
+            DEFAULT: "hsl(var(--vote-must))",
+            foreground: "hsl(var(--vote-must-foreground))",
+            soft: "hsl(var(--vote-must-soft))",
+          },
+          interested: {
+            DEFAULT: "hsl(var(--vote-interested))",
+            foreground: "hsl(var(--vote-interested-foreground))",
+            soft: "hsl(var(--vote-interested-soft))",
+          },
+          skip: {
+            DEFAULT: "hsl(var(--vote-skip))",
+            foreground: "hsl(var(--vote-skip-foreground))",
+            soft: "hsl(var(--vote-skip-soft))",
+          },
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -44,6 +75,7 @@ export default {
         accent: {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
+          soft: "hsl(var(--accent-soft))",
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",
@@ -73,6 +105,9 @@ export default {
           button: "hsl(var(--app-button))",
           "button-hover": "hsl(var(--app-button-hover))",
         },
+      },
+      borderColor: {
+        strong: "hsl(var(--border-strong))",
       },
       borderRadius: {
         lg: "var(--radius)",

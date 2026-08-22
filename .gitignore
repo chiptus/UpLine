@@ -44,3 +44,6 @@ scripts/.env.sync
 
 # Isolated worktrees for background agents
 .claude/worktrees/
+
+# playwright-cli session artifacts
+.playwright-cli/

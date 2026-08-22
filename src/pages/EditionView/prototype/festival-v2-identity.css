@@ -87,10 +87,10 @@
 }
 
 .proto-festival-v2 .rounded-lg {
-  border-radius: 18px;
+  border-radius: 12px;
 }
 .proto-festival-v2 .rounded-md {
-  border-radius: 14px;
+  border-radius: 10px;
 }
 
 /* ---- light variant: soft borders grafted from the neutral direction ---- */

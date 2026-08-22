@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
-import "./festival-v2-identity.css";
 
 // PROTOTYPE — throwaway switcher for #320's decided identity. Delete with the
 // rest of src/pages/EditionView/prototype/ once the verdict is captured.
+
+// The stylesheet (and its Google Fonts @import) must not load for normal
+// production visitors — only when the prototype is explicitly enabled.
+if (typeof window !== "undefined" && isPrototypeEnabled()) {
+  import("./festival-v2-identity.css");
+}
 
 const VARIANTS = [
   "current",

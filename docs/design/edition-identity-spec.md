@@ -18,7 +18,7 @@ One skeleton, two color themes. **Dark is the default**: a violet poster ground 
 
 ## Palette
 
-All text-role pairs below were checked ≥ 4.5:1 (WCAG AA); ratios noted per row. Outdoor-night legibility (the brief's constraint) is carried by the dark theme's high floor — nothing below 6.8:1 for text on ground.
+All text-role pairs below were checked ≥ 4.5:1 (WCAG AA); ratios noted per row. Outdoor-night legibility (the brief's constraint) is carried by the dark theme's high floor — the text hierarchy stays at 6.8:1 or above, and the status accents (`live` 6.1, `destructive` 6.5), used for dots, badges, and short labels, stay well clear of the 4.5:1 AA line.
 
 ### Dark (default)
 

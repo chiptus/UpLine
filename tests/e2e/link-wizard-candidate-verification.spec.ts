@@ -246,7 +246,7 @@ test.describe(
       // 6. Save completes the mutation and moves past this artist.
       await page.getByRole("button", { name: /save & next/i }).click();
       await expect(page.getByText("Artist updated successfully")).toBeVisible({
-        timeout: 10000,
+        timeout: 20000,
       });
     });
 

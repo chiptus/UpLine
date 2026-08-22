@@ -93,10 +93,14 @@ async function mockSearchArtistLinks(
     if (request.method() === "OPTIONS") {
       await route.fulfill({
         status: 200,
+        // A wildcard here does NOT cover "Authorization" per the CORS spec,
+        // so it must be listed explicitly or the browser silently blocks
+        // supabase-js's actual request even though this preflight "succeeds".
         headers: {
           "Access-Control-Allow-Origin": "*",
           "Access-Control-Allow-Methods": "POST, OPTIONS",
-          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Headers":
+            "authorization, x-client-info, apikey, content-type",
         },
       });
       return;

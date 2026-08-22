@@ -46,8 +46,8 @@ export function VotingActions({
           variant="outline"
           className={`h-16 w-16 rounded-full transition-all duration-100 ${
             isLeftDrag
-              ? `bg-gray-500 border-gray-500 text-white shadow-lg`
-              : "border-gray-500 hover:bg-gray-500 hover:border-gray-500 text-gray-500 hover:text-white"
+              ? `bg-vote-skip border-vote-skip text-foreground shadow-lg`
+              : "border-vote-skip hover:bg-vote-skip hover:border-vote-skip text-vote-skip hover:text-foreground"
           }`}
           onClick={() => onVote(wontGoConfig.value)}
         >
@@ -59,7 +59,7 @@ export function VotingActions({
       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
         <Button
           variant="ghost"
-          className="text-white/60 hover:text-white"
+          className="text-foreground/60 hover:text-foreground"
           onClick={onSkip}
         >
           Skip
@@ -78,7 +78,7 @@ export function VotingActions({
         <Button
           size="lg"
           variant="outline"
-          className="h-16 w-16 rounded-full border-orange-500 hover:bg-orange-500 hover:border-orange-500 text-orange-500 hover:text-white"
+          className="h-16 w-16 rounded-full border-vote-must hover:bg-vote-must hover:border-vote-must text-vote-must hover:text-foreground"
           onClick={() => onVote(mustGoConfig.value)}
         >
           <MustGoIcon className="h-6 w-6" />
@@ -100,8 +100,8 @@ export function VotingActions({
           variant="outline"
           className={`h-16 w-16 rounded-full transition-all duration-100 ${
             isRightDrag
-              ? `bg-blue-500 border-blue-500 text-white shadow-lg`
-              : "border-blue-500 hover:bg-blue-500 hover:border-blue-500 text-blue-500 hover:text-white"
+              ? `bg-vote-interested border-vote-interested text-foreground shadow-lg`
+              : "border-vote-interested hover:bg-vote-interested hover:border-vote-interested text-vote-interested hover:text-foreground"
           }`}
           onClick={() => onVote(interestedConfig.value)}
         >

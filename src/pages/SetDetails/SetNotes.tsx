@@ -25,13 +25,13 @@ export function SetNotes({ setId, userId }: SetNotesProps) {
 
   if (!userId) {
     return (
-      <Card className="bg-white/10 backdrop-blur-md border-purple-400/30">
+      <Card className="bg-surface-raised backdrop-blur-md border">
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2 text-white">
+          <CardTitle className="flex items-center space-x-2 text-foreground">
             <StickyNote className="h-5 w-5" />
             <span>Group Notes</span>
           </CardTitle>
-          <CardDescription className="text-purple-200">
+          <CardDescription className="text-muted-foreground">
             Sign in to add notes and see notes from group members
           </CardDescription>
         </CardHeader>
@@ -40,15 +40,15 @@ export function SetNotes({ setId, userId }: SetNotesProps) {
   }
 
   return (
-    <Card className="bg-white/10 backdrop-blur-md border-purple-400/30">
+    <Card className="bg-surface-raised backdrop-blur-md border">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="flex items-center space-x-2 text-white">
+            <CardTitle className="flex items-center space-x-2 text-foreground">
               <StickyNote className="h-5 w-5" />
               <span>Group Notes</span>
             </CardTitle>
-            <CardDescription className="text-purple-200">
+            <CardDescription className="text-muted-foreground">
               Notes from you and group members about this artist
             </CardDescription>
           </div>
@@ -77,10 +77,10 @@ export function SetNotes({ setId, userId }: SetNotesProps) {
               </div>
             )}
 
-            <div className="text-center py-4 border-t border-purple-400/20">
+            <div className="text-center py-4 border-t border-border">
               <Button
                 onClick={() => setIsEditing(true)}
-                className="bg-purple-600 hover:bg-purple-700"
+                className="bg-accent hover:bg-accent"
               >
                 <Edit3 className="h-4 w-4 mr-2" />
                 Add Note

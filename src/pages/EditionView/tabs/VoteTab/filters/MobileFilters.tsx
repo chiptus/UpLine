@@ -47,23 +47,25 @@ export function MobileFilters({
       {/* Stage Filter Select */}
       {canShowStage && (
         <div>
-          <h4 className="text-sm font-medium text-purple-200 mb-2">Stage</h4>
+          <h4 className="text-sm font-medium text-muted-foreground mb-2">
+            Stage
+          </h4>
           <Select
             value={state.stages.length === 1 ? state.stages[0] : "all"}
             onValueChange={handleStageSelect}
           >
-            <SelectTrigger className="w-full bg-white/10 border-purple-400/30 text-purple-100">
+            <SelectTrigger className="w-full bg-surface-raised border text-foreground">
               <SelectValue placeholder="All Stages" />
             </SelectTrigger>
-            <SelectContent className="bg-gray-800 border-purple-400/30">
-              <SelectItem value="all" className="text-purple-100">
+            <SelectContent className="bg-popover border">
+              <SelectItem value="all" className="text-foreground">
                 All Stages
               </SelectItem>
               {stagesLoading ? (
                 <SelectItem
                   value="loading"
                   disabled
-                  className="text-purple-300"
+                  className="text-subtle-foreground"
                 >
                   Loading stages...
                 </SelectItem>
@@ -72,7 +74,7 @@ export function MobileFilters({
                   <SelectItem
                     key={stage.id}
                     value={stage.id}
-                    className="text-purple-100"
+                    className="text-foreground"
                   >
                     {stage.name}
                   </SelectItem>
@@ -85,23 +87,25 @@ export function MobileFilters({
 
       {/* Genre Filter Select */}
       <div>
-        <h4 className="text-sm font-medium text-purple-200 mb-2">Genre</h4>
+        <h4 className="text-sm font-medium text-muted-foreground mb-2">
+          Genre
+        </h4>
         <Select
           value={state.genres.length === 1 ? state.genres[0] : "all"}
           onValueChange={handleGenreSelect}
         >
-          <SelectTrigger className="w-full bg-white/10 border-purple-400/30 text-purple-100">
+          <SelectTrigger className="w-full bg-surface-raised border text-foreground">
             <SelectValue placeholder="All Genres" />
           </SelectTrigger>
-          <SelectContent className="bg-gray-800 border-purple-400/30">
-            <SelectItem value="all" className="text-purple-100">
+          <SelectContent className="bg-popover border">
+            <SelectItem value="all" className="text-foreground">
               All Genres
             </SelectItem>
             {genres.map((genre) => (
               <SelectItem
                 key={genre.id}
                 value={genre.id}
-                className="text-purple-100"
+                className="text-foreground"
               >
                 {genre.name}
               </SelectItem>
@@ -112,7 +116,7 @@ export function MobileFilters({
 
       {/* Rating Filter */}
       <div>
-        <h4 className="text-sm font-medium text-purple-200 mb-2">
+        <h4 className="text-sm font-medium text-muted-foreground mb-2">
           Minimum Rating
         </h4>
         <Select
@@ -121,20 +125,20 @@ export function MobileFilters({
             onStateChange({ minRating: parseInt(value) })
           }
         >
-          <SelectTrigger className="w-full bg-white/10 border-purple-400/30 text-purple-100">
+          <SelectTrigger className="w-full bg-surface-raised border text-foreground">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="bg-gray-800 border-purple-400/30">
-            <SelectItem value="0" className="text-purple-100">
+          <SelectContent className="bg-popover border">
+            <SelectItem value="0" className="text-foreground">
               Any Rating
             </SelectItem>
-            <SelectItem value="1" className="text-purple-100">
+            <SelectItem value="1" className="text-foreground">
               1+ Rating
             </SelectItem>
-            <SelectItem value="2" className="text-purple-100">
+            <SelectItem value="2" className="text-foreground">
               2+ Rating
             </SelectItem>
-            <SelectItem value="3" className="text-purple-100">
+            <SelectItem value="3" className="text-foreground">
               3+ Rating
             </SelectItem>
           </SelectContent>

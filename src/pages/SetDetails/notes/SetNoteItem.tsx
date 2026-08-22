@@ -14,9 +14,9 @@ export function SetNoteItem({
   const deleteNoteMutation = useDeleteNoteMutation();
 
   return (
-    <div className="bg-white/5 rounded-lg p-4 border border-purple-400/20">
+    <div className="bg-surface rounded-lg p-4 border">
       <div className="flex items-start justify-between mb-2">
-        <div className="text-sm text-purple-300">
+        <div className="text-sm text-subtle-foreground">
           By: {note.author_username || note.author_email || "Unknown User"}
         </div>
         {isOwn && (
@@ -24,17 +24,17 @@ export function SetNoteItem({
             variant="outline"
             size="sm"
             onClick={handleDelete}
-            className="border-red-400/50 text-red-400 hover:bg-red-400 hover:text-white"
+            className="border-red-400/50 text-destructive hover:bg-red-400 hover:text-foreground"
             disabled={deleteNoteMutation.isPending}
           >
             <Trash2Icon className="h-4 w-4" />
           </Button>
         )}
       </div>
-      <div className="text-white whitespace-pre-wrap break-words mb-2">
+      <div className="text-foreground whitespace-pre-wrap break-words mb-2">
         {note.note_content}
       </div>
-      <div className="text-xs text-purple-400">
+      <div className="text-xs text-accent">
         {new Date(note.updated_at).toLocaleDateString()}
       </div>
     </div>

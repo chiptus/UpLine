@@ -57,19 +57,19 @@ export function MultiArtistSetInfoCard({
   return (
     <div className="lg:col-span-2 space-y-6">
       {/* Main Set Info Card */}
-      <Card className="bg-white/10 backdrop-blur-md border-purple-400/30">
+      <Card className="bg-surface-raised backdrop-blur-md border">
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <CardTitle className="text-3xl font-bold text-white mb-2">
+              <CardTitle className="text-3xl font-bold text-foreground mb-2">
                 {set.name}
               </CardTitle>
 
               {/* Set Summary */}
               <div className="mb-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <Users className="h-4 w-4 text-purple-200" />
-                  <span className="text-sm text-purple-200 font-medium">
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground font-medium">
                     {set.artists.length} Artists
                   </span>
                 </div>
@@ -99,7 +99,7 @@ export function MultiArtistSetInfoCard({
               </div>
 
               {/* Performance Information */}
-              <div className="flex flex-wrap gap-4 mb-4 text-purple-200">
+              <div className="flex flex-wrap gap-4 mb-4 text-muted-foreground">
                 {canShowStage && <StagePin stageId={set.stage_id} />}
                 {timeRangeFormatted && (
                   <div className="flex items-center gap-2">
@@ -120,7 +120,7 @@ export function MultiArtistSetInfoCard({
             </div>
           </div>
           {set.description && (
-            <CardDescription className="text-purple-200 text-lg leading-relaxed">
+            <CardDescription className="text-muted-foreground text-lg leading-relaxed">
               <MarkdownText
                 content={set.description}
                 className="prose-sm prose-invert"
@@ -135,7 +135,7 @@ export function MultiArtistSetInfoCard({
 
       {/* Individual Artist Cards */}
       <div>
-        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+        <h3 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
           <Users className="h-5 w-5" />
           Artists in this Set
         </h3>

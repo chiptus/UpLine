@@ -12,7 +12,7 @@ export function ArtistImageCard({
 }: ArtistImageCardProps) {
   return (
     <div className="lg:col-span-1">
-      <Card className="bg-white/10 backdrop-blur-md border-purple-400/30">
+      <Card className="bg-surface-raised backdrop-blur-md border">
         <CardContent className="p-6">
           <ArtistImageLoader
             src={imageUrl}

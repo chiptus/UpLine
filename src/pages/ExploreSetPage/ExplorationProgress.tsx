@@ -13,11 +13,11 @@ export function ExplorationProgress({
 
   return (
     <div className="flex items-center space-x-2">
-      <span className="text-sm text-white/80">
+      <span className="text-sm text-foreground/80">
         {current} of {total}
       </span>
       <div className="w-20">
-        <Progress value={percentage} className="h-2 bg-white/20" />
+        <Progress value={percentage} className="h-2 bg-surface-active" />
       </div>
     </div>
   );

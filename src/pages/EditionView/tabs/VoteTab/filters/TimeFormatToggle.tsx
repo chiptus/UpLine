@@ -26,8 +26,8 @@ export function TimeFormatToggle({
             onClick={() => onChange(!use24Hour)}
             className={`flex items-center gap-2 ${
               use24Hour
-                ? "bg-purple-600/50 text-purple-100 hover:bg-purple-600/60"
-                : "text-purple-300 hover:text-purple-100"
+                ? "bg-accent-soft text-foreground hover:bg-accent-soft"
+                : "text-subtle-foreground hover:text-foreground"
             }`}
           >
             <Clock className="h-4 w-4" />

@@ -14,8 +14,8 @@ export function SetHeader({ size = "lg" }: SetHeaderProps) {
 
   const titleClass =
     size === "sm"
-      ? "text-white text-lg font-semibold truncate"
-      : "text-white text-xl";
+      ? "text-foreground text-lg font-semibold truncate"
+      : "text-foreground text-xl";
 
   return (
     <div className="flex items-center gap-2 mb-2">
@@ -24,7 +24,7 @@ export function SetHeader({ size = "lg" }: SetHeaderProps) {
       {isMultiArtist && (
         <Badge
           variant="secondary"
-          className="bg-purple-600/50 text-purple-100 text-xs"
+          className="bg-accent-soft text-foreground text-xs"
         >
           <Users className="h-3 w-3 mr-1" />
           {set.artists.length}

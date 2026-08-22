@@ -14,7 +14,7 @@ export function PrimaryArtistDisplay({
 }: PrimaryArtistDisplayProps) {
   return (
     <div className="text-center space-y-2">
-      <div className="w-20 h-20 mx-auto rounded-full overflow-hidden border-4 border-white/20">
+      <div className="w-20 h-20 mx-auto rounded-full overflow-hidden border-4 border-surface-active">
         {artist.image_url ? (
           <img
             src={artist.image_url}
@@ -23,7 +23,7 @@ export function PrimaryArtistDisplay({
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center">
-            <Users className="h-8 w-8 text-white" />
+            <Users className="h-8 w-8 text-foreground" />
           </div>
         )}
       </div>

@@ -39,10 +39,14 @@ export function DesktopFilters({
       {/* Stage Filter */}
       {canShowStage && (
         <div>
-          <h4 className="text-sm font-medium text-purple-200 mb-2">Stages</h4>
+          <h4 className="text-sm font-medium text-muted-foreground mb-2">
+            Stages
+          </h4>
           <div className="flex flex-wrap gap-2">
             {stagesLoading ? (
-              <div className="text-sm text-purple-300">Loading stages...</div>
+              <div className="text-sm text-subtle-foreground">
+                Loading stages...
+              </div>
             ) : (
               stages.map((stage) => (
                 <Button
@@ -54,8 +58,8 @@ export function DesktopFilters({
                   onClick={() => handleStageToggle(stage.id)}
                   className={
                     state.stages.includes(stage.id)
-                      ? "bg-purple-600 hover:bg-purple-700"
-                      : "border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white"
+                      ? "bg-accent hover:bg-accent"
+                      : "border-purple-400 text-accent hover:bg-purple-400 hover:text-foreground"
                   }
                 >
                   {stage.name}

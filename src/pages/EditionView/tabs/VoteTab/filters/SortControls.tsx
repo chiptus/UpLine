@@ -41,24 +41,24 @@ export function SortControls({ sort, onSortChange }: SortControlsProps) {
 
   return (
     <div className="flex items-center gap-2">
-      <SortAsc className="h-4 w-4 text-purple-300 hidden sm:block" />
+      <SortAsc className="h-4 w-4 text-subtle-foreground hidden sm:block" />
       <Select value={sort} onValueChange={onSortChange}>
-        <SelectTrigger className="w-10 sm:w-44 bg-white/10 border-purple-400/30 text-purple-100">
+        <SelectTrigger className="w-10 sm:w-44 bg-surface-raised border text-foreground">
           <div className="hidden sm:block">
             <SelectValue />
           </div>
           <div className="block sm:hidden">
-            <CurrentSortIcon className="h-4 w-4 text-purple-300" />
+            <CurrentSortIcon className="h-4 w-4 text-subtle-foreground" />
           </div>
         </SelectTrigger>
-        <SelectContent className="bg-gray-800 border-purple-400/30">
+        <SelectContent className="bg-popover border">
           {SORT_OPTIONS.map((option) => {
             const Icon = SORT_ICONS[option.value as keyof typeof SORT_ICONS];
             return (
               <SelectItem
                 key={option.value}
                 value={option.value}
-                className="text-purple-100"
+                className="text-foreground"
               >
                 <div className="flex items-center gap-2">
                   <Icon className="h-4 w-4" />
@@ -74,44 +74,50 @@ export function SortControls({ sort, onSortChange }: SortControlsProps) {
         <PopoverTrigger asChild>
           <button
             type="button"
-            className="p-1 hover:bg-white/10 rounded transition-colors hidden sm:block"
+            className="p-1 hover:bg-surface-raised rounded transition-colors hidden sm:block"
             title="Click for sorting help"
           >
-            <HelpCircle className="h-4 w-4 text-purple-300 hover:text-purple-200" />
+            <HelpCircle className="h-4 w-4 text-subtle-foreground hover:text-purple-200" />
           </button>
         </PopoverTrigger>
-        <PopoverContent className="bg-gray-800 border-purple-400/30 text-purple-100 w-80">
+        <PopoverContent className="bg-popover border text-foreground w-80">
           <div className="space-y-3">
-            <h3 className="font-semibold text-purple-200 mb-2">
+            <h3 className="font-semibold text-muted-foreground mb-2">
               Sort Options Explained
             </h3>
 
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2">
-                <ArrowUpAZ className="h-4 w-4 text-purple-300" />
+                <ArrowUpAZ className="h-4 w-4 text-subtle-foreground" />
                 <div>
-                  <strong className="text-purple-300">Name (A-Z):</strong>
-                  <p className="text-purple-100/80">
+                  <strong className="text-subtle-foreground">
+                    Name (A-Z):
+                  </strong>
+                  <p className="text-foreground/80">
                     Sort artists alphabetically from A to Z
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
-                <ArrowDownAZ className="h-4 w-4 text-purple-300" />
+                <ArrowDownAZ className="h-4 w-4 text-subtle-foreground" />
                 <div>
-                  <strong className="text-purple-300">Name (Z-A):</strong>
-                  <p className="text-purple-100/80">
+                  <strong className="text-subtle-foreground">
+                    Name (Z-A):
+                  </strong>
+                  <p className="text-foreground/80">
                     Sort artists alphabetically from Z to A
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
-                <Star className="h-4 w-4 text-purple-300" />
+                <Star className="h-4 w-4 text-subtle-foreground" />
                 <div>
-                  <strong className="text-purple-300">Highest Rated:</strong>
-                  <p className="text-purple-100/80">
+                  <strong className="text-subtle-foreground">
+                    Highest Rated:
+                  </strong>
+                  <p className="text-foreground/80">
                     Sort by weighted average rating based on votes (Must go = 2
                     points, Interested = 1 point, Won't go = -1 point)
                   </p>
@@ -119,10 +125,12 @@ export function SortControls({ sort, onSortChange }: SortControlsProps) {
               </div>
 
               <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-purple-300" />
+                <TrendingUp className="h-4 w-4 text-subtle-foreground" />
                 <div>
-                  <strong className="text-purple-300">Most Popular:</strong>
-                  <p className="text-purple-100/80">
+                  <strong className="text-subtle-foreground">
+                    Most Popular:
+                  </strong>
+                  <p className="text-foreground/80">
                     Sort by weighted popularity score (Must go = 2 points,
                     Interested = 1 point)
                   </p>
@@ -130,10 +138,10 @@ export function SortControls({ sort, onSortChange }: SortControlsProps) {
               </div>
 
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-purple-300" />
+                <Calendar className="h-4 w-4 text-subtle-foreground" />
                 <div>
-                  <strong className="text-purple-300">By Date:</strong>
-                  <p className="text-purple-100/80">
+                  <strong className="text-subtle-foreground">By Date:</strong>
+                  <p className="text-foreground/80">
                     Sort by estimated performance date (earliest performances
                     first)
                   </p>

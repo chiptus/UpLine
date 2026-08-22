@@ -54,25 +54,25 @@ function SetGroupVotingContent({
   const activeGroup = groups.find((g) => g.id === activeGroupId);
 
   return (
-    <Card className="bg-white/10 backdrop-blur-md border-purple-400/30">
+    <Card className="bg-surface-raised backdrop-blur-md border">
       <CardHeader>
-        <CardTitle className="text-white flex items-center gap-2">
+        <CardTitle className="text-foreground flex items-center gap-2">
           <Users className="h-5 w-5" />
           Group Voting
         </CardTitle>
         {activeGroup && (
-          <p className="text-purple-200 text-sm">
+          <p className="text-muted-foreground text-sm">
             How {activeGroup.name} voted on this artist
           </p>
         )}
       </CardHeader>
       <CardContent>
         {loading ? (
-          <div className="text-center py-4 text-purple-200">
+          <div className="text-center py-4 text-muted-foreground">
             Loading votes...
           </div>
         ) : groupVotes.length === 0 ? (
-          <div className="text-center py-4 text-purple-200">
+          <div className="text-center py-4 text-muted-foreground">
             No one in this group has voted on this artist yet.
           </div>
         ) : (
@@ -110,7 +110,7 @@ function SetGroupVotingContent({
 
             {/* Individual Votes */}
             <div className="space-y-2">
-              <h4 className="text-white font-medium text-sm mb-2">
+              <h4 className="text-foreground font-medium text-sm mb-2">
                 Individual Votes:
               </h4>
               {groupVotes.map((vote) => {
@@ -119,9 +119,9 @@ function SetGroupVotingContent({
                 return (
                   <div
                     key={vote.user_id}
-                    className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5"
+                    className="flex items-center justify-between py-2 px-3 rounded-lg bg-surface"
                   >
-                    <span className="text-purple-200">
+                    <span className="text-muted-foreground">
                       {vote.username || "Unknown User"}
                     </span>
                     <Badge

@@ -20,7 +20,7 @@ export function MixedArtistImage({
       <div
         className={`bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center ${className}`}
       >
-        <div className="text-white text-center p-4">
+        <div className="text-foreground text-center p-4">
           <div className="text-2xl font-bold mb-2">🎵</div>
           {/* <div className="text-sm font-medium">{setName}</div> */}
         </div>
@@ -128,7 +128,7 @@ export function MixedArtistImage({
             {/* Show count overlay on last image if more than 4 */}
             {index === 3 && artistsWithImages.length > 4 && (
               <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                <div className="text-white text-lg font-bold">
+                <div className="text-foreground text-lg font-bold">
                   +{artistsWithImages.length - 4}
                 </div>
               </div>

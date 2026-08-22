@@ -21,12 +21,12 @@ export function VotePerspectiveToggle({
           onScopeChange(value);
         }
       }}
-      className="rounded-md border border-purple-400/30 p-0.5"
+      className="rounded-md border p-0.5"
     >
       <ToggleGroupItem
         value="everyone"
         size="sm"
-        className="text-purple-300 data-[state=on]:bg-purple-600/30 data-[state=on]:text-purple-100"
+        className="text-subtle-foreground data-[state=on]:bg-accent-soft data-[state=on]:text-foreground"
         aria-label="Rate by everyone's votes"
       >
         Everyone
@@ -34,7 +34,7 @@ export function VotePerspectiveToggle({
       <ToggleGroupItem
         value="group"
         size="sm"
-        className="text-purple-300 data-[state=on]:bg-purple-600/30 data-[state=on]:text-purple-100"
+        className="text-subtle-foreground data-[state=on]:bg-accent-soft data-[state=on]:text-foreground"
         aria-label={`Rate by ${groupName}'s votes`}
       >
         {groupName}

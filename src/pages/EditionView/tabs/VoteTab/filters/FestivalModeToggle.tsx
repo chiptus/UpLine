@@ -42,8 +42,8 @@ export function FestivalModeToggle({ onModeChange }: FestivalModeToggleProps) {
           onClick={toggleMode}
           className={
             isFestivalMode
-              ? "bg-orange-600 hover:bg-orange-700 text-white border-orange-600"
-              : "border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white"
+              ? "bg-orange-600 hover:bg-orange-700 text-foreground border-orange-600"
+              : "border-purple-400 text-accent hover:bg-purple-400 hover:text-foreground"
           }
         >
           {isFestivalMode ? (
@@ -67,7 +67,7 @@ export function FestivalModeToggle({ onModeChange }: FestivalModeToggleProps) {
       <Tooltip>
         <TooltipTrigger asChild>
           <Button variant="ghost" size="sm" className="p-1 h-6 w-6">
-            <Info className="h-3 w-3 text-purple-400" />
+            <Info className="h-3 w-3 text-accent" />
           </Button>
         </TooltipTrigger>
         <TooltipContent side="bottom" className="max-w-xs">

@@ -55,7 +55,7 @@ export function SetMetadata() {
           <StageBadgeById stageId={set.stage_id} />
         )}
         {timeRangeFormatted && (
-          <div className="flex items-center gap-1 text-sm text-purple-200">
+          <div className="flex items-center gap-1 text-sm text-muted-foreground">
             <Clock className="h-3 w-3" />
             <span>{timeRangeFormatted}</span>
           </div>
@@ -67,7 +67,7 @@ export function SetMetadata() {
           </div>
         )}
         {(timeRangeFormatted || dayOnlyFormatted) && (
-          <span className="text-xs text-purple-200/60">
+          <span className="text-xs text-muted-foreground/60">
             {festival.timezone}
           </span>
         )}

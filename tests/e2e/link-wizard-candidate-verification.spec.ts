@@ -111,6 +111,11 @@ async function mockSearchArtistLinks(
     const providers = postData.provider
       ? [postData.provider]
       : ["spotify", "soundcloud"];
+    // eslint-disable-next-line no-console
+    console.log(
+      "[mockSearchArtistLinks] request:",
+      JSON.stringify({ artistNames, providers }),
+    );
 
     await route.fulfill({
       status: 200,

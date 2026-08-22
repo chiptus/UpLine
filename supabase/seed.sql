@@ -92,7 +92,7 @@ INSERT INTO auth.users (
   '22222222-2222-2222-2222-222222222222',
   '00000000-0000-0000-0000-000000000000',
   'authenticated',
-  'dev@example.com',
+  'chiptus+devlogin@gmail.com',
   '$2a$10$example_hash',
   now(),
   now(),
@@ -101,7 +101,7 @@ INSERT INTO auth.users (
   false,
   'authenticated',
   '',
-  encode(sha224(concat('dev@example.com', '123456')::bytea), 'hex'),
+  encode(sha224(concat('chiptus+devlogin@gmail.com', '123456')::bytea), 'hex'),
   now(),
   '',
   ''
@@ -117,7 +117,7 @@ INSERT INTO auth.identities (
   '22222222-2222-2222-2222-222222222222',
   '22222222-2222-2222-2222-222222222222',
   '22222222-2222-2222-2222-222222222222',
-  jsonb_build_object('sub', '22222222-2222-2222-2222-222222222222', 'email', 'dev@example.com'),
+  jsonb_build_object('sub', '22222222-2222-2222-2222-222222222222', 'email', 'chiptus+devlogin@gmail.com'),
   'email',
   now(),
   now(),
@@ -130,6 +130,26 @@ VALUES (
   'super_admin',
   '22222222-2222-2222-2222-222222222222'
 ) ON CONFLICT (user_id, role) DO NOTHING;
+
+-- Real `signInWithOtp` calls (clicking "Send" in the UI) overwrite
+-- recovery_token with an actual generated one, breaking the fixed code
+-- above. Re-pin it back to the fixed code on every update to this email so
+-- it survives real sends too.
+CREATE OR REPLACE FUNCTION public.pin_dev_login_otp()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.email = 'chiptus+devlogin@gmail.com' THEN
+    NEW.recovery_token := encode(sha224(concat(NEW.email, '123456')::bytea), 'hex');
+    NEW.recovery_sent_at := now();
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS pin_dev_login_otp_trigger ON auth.users;
+CREATE TRIGGER pin_dev_login_otp_trigger
+BEFORE INSERT OR UPDATE ON auth.users
+FOR EACH ROW EXECUTE FUNCTION public.pin_dev_login_otp();
 
 
 

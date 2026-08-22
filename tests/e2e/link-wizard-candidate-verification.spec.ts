@@ -1,11 +1,34 @@
 import { test, expect } from "@playwright/test";
-import { signIn } from "../utils/login";
+import { submitOtpSignIn } from "../utils/login";
+import { TEST_CONFIG } from "../config/test-env";
 
-// Seeded via supabase/seed.sql: "Test festival" edition "Boom Festival 2025"
-// This is an admin page, so we sign in
-const LINK_WIZARD_PATH = "/festivals/test/editions/2025/links";
+// Seeded via supabase/seed.sql: festival "test", edition "2025" ("Boom Festival 2025").
+// Kiara Scuro is missing only her Spotify link there, so her step renders a
+// single (Spotify) candidates panel.
+const LINK_WIZARD_PATH = "/admin/festivals/test/editions/2025/links";
+const KIARA_SET_DESCRIPTION = "Rising star in dark techno";
+const KIARA_ARTIST_ID = "a3333333-3333-3333-3333-333333333333";
 
-// Mock candidate data with varying followers and descriptions
+// The happy-path test really saves Kiara's spotify_url (no mock on the
+// artists PATCH), which would make her step stop rendering a Spotify panel
+// for any test that runs after it. Restore her seeded state so both tests
+// stay independent of run order.
+test.afterEach(async () => {
+  await fetch(
+    `${TEST_CONFIG.SUPABASE_URL}/rest/v1/artists?id=eq.${KIARA_ARTIST_ID}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: TEST_CONFIG.SUPABASE_SERVICE_ROLE_KEY,
+        Authorization: `Bearer ${TEST_CONFIG.SUPABASE_SERVICE_ROLE_KEY}`,
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify({ spotify_url: null }),
+    },
+  );
+});
+
 const MOCK_CANDIDATES = [
   {
     name: "Test Artist Pro",
@@ -14,14 +37,6 @@ const MOCK_CANDIDATES = [
     description: "Professional artist with extensive touring history",
     followers: 500000,
     genres: ["Electronic", "Techno"],
-  },
-  {
-    name: "Test Artist Indie",
-    url: "https://spotify.com/artist/test-indie",
-    imageUrl: "https://example.com/image-indie.jpg",
-    description: "Independent artist focused on experimental sounds",
-    followers: 50000,
-    genres: ["Ambient"],
   },
   {
     name: "Test Artist Rising",
@@ -33,12 +48,12 @@ const MOCK_CANDIDATES = [
     genres: ["House", "Deep House"],
   },
   {
-    name: "Test Artist Micro",
-    url: "https://spotify.com/artist/test-micro",
-    imageUrl: null,
-    description: null,
-    followers: 5000,
-    genres: [],
+    name: "Test Artist Indie",
+    url: "https://spotify.com/artist/test-indie",
+    imageUrl: "https://example.com/image-indie.jpg",
+    description: "Independent artist focused on experimental sounds",
+    followers: 50000,
+    genres: ["Ambient"],
   },
   {
     name: "Test Artist Niche",
@@ -48,296 +63,200 @@ const MOCK_CANDIDATES = [
     followers: 25000,
     genres: ["Downtempo"],
   },
+  {
+    name: "Test Artist Micro",
+    url: "https://spotify.com/artist/test-micro",
+    imageUrl: null,
+    description: null,
+    followers: 5000,
+    genres: [],
+  },
 ];
+
+async function signInAsAdmin(page: import("@playwright/test").Page) {
+  await submitOtpSignIn(page, TEST_CONFIG.SEEDED_ONBOARDED_USER_EMAIL);
+  await expect(page.getByRole("button", { name: /user menu/i })).toBeVisible({
+    timeout: 15000,
+  });
+}
+
+// search-artist-links is invoked cross-origin (app on :8080, Supabase on
+// :54321), so the browser sends a CORS preflight OPTIONS request before the
+// real POST. That must be answered separately from the mocked JSON response.
+async function mockSearchArtistLinks(
+  page: import("@playwright/test").Page,
+  candidatesByArtist: Record<string, typeof MOCK_CANDIDATES>,
+) {
+  await page.route("**/functions/v1/search-artist-links", async (route) => {
+    const request = route.request();
+
+    if (request.method() === "OPTIONS") {
+      await route.fulfill({
+        status: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "*",
+        },
+      });
+      return;
+    }
+
+    const postData = request.postDataJSON();
+    const artistNames: string[] = postData.artistNames || [];
+    const providers = postData.provider
+      ? [postData.provider]
+      : ["spotify", "soundcloud"];
+
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        results: artistNames.flatMap((name) =>
+          providers.map((provider) => ({
+            artistName: name,
+            provider,
+            candidates:
+              provider === "spotify" ? (candidatesByArtist[name] ?? []) : [],
+            error: null,
+          })),
+        ),
+      }),
+    });
+  });
+}
+
+async function selectArtistByName(
+  page: import("@playwright/test").Page,
+  name: string,
+) {
+  await page
+    .getByRole("row")
+    .filter({ hasText: name })
+    .getByRole("button", { name })
+    .click();
+  await expect(
+    page.getByRole("heading", {
+      name: new RegExp(`link wizard.*${name}`, "i"),
+    }),
+  ).toBeVisible();
+}
 
 test.describe(
   "Link Wizard: candidate verification flow",
   { tag: "@smoke" },
   () => {
-    test("completes the full happy-path flow: search → set info → link-out → show more → select → save", async ({
+    test("completes the full happy-path flow: set info → sort → link-out → show more → select → save", async ({
       page,
       context,
     }) => {
-      // Sign in as an authenticated admin user
-      await signIn(page);
+      await signInAsAdmin(page);
+      await mockSearchArtistLinks(page, { "Kiara Scuro": MOCK_CANDIDATES });
 
-      // Intercept and mock the search-artist-links edge function
-      // This returns our controlled candidate dataset
-      await page.route("**/functions/v1/search-artist-links", async (route) => {
-        const request = route.request();
-        const postData = request.postDataJSON();
-        const artistNames = postData.artistNames || [];
-        const provider = postData.provider || "spotify";
-
-        if (artistNames.length > 0) {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify({
-              results: artistNames.map((name: string) => ({
-                artistName: name,
-                provider,
-                candidates: MOCK_CANDIDATES,
-                error: null,
-              })),
-            }),
-          });
-        } else {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify({ results: [] }),
-          });
-        }
-      });
-
-      // Navigate to the Link Wizard page
       await page.goto(LINK_WIZARD_PATH);
+      await expect(
+        page.getByRole("heading", { name: /link wizard/i }),
+      ).toBeVisible({ timeout: 15000 });
 
-      // Wait for the Link Wizard to load and display the first artist
-      const linkWizardTitle = page.getByRole("heading", {
-        name: /link wizard/i,
-      });
-      await expect(linkWizardTitle).toBeVisible({ timeout: 15000 });
+      await selectArtistByName(page, "Kiara Scuro");
 
-      // 1. Verify the set-info panel shows the artist's set information
-      const setInfoPanel = page.getByText(/Festival Sets?$/);
+      // 1. Set-info panel shows the artist's actual set details.
+      const setInfoPanel = page.getByText("Kiara Scuro - Festival Set");
       await expect(setInfoPanel).toBeVisible();
+      await expect(page.getByText("Club Stage")).toBeVisible();
+      await expect(page.getByText(KIARA_SET_DESCRIPTION)).toBeVisible();
 
-      // Check that set title is displayed
-      const setTitle = page.locator("h4").first();
-      await expect(setTitle).toBeVisible();
-      const setTitleText = await setTitle.textContent();
-      expect(setTitleText).toBeTruthy();
+      // 2. Candidates render sorted by descending followers; only 3 show initially.
+      await expect(page.getByText("Spotify Candidates")).toBeVisible();
 
-      // Check stage information
-      const stageInfo = page.locator("text=/Stage:/");
-      await expect(stageInfo.first()).toBeVisible();
-
-      // Check time information (pattern like "18:00 - 19:30")
-      const timeInfo = page.locator(
-        "text=/\\d{1,2}:\\d{2}\\s*-\\s*\\d{1,2}:\\d{2}/",
-      );
-      await expect(timeInfo.first()).toBeVisible();
-
-      // 2. Verify candidates render in descending-follower order
-      const spotifyCandidatesLabel = page.getByText("Spotify Candidates");
-      await expect(spotifyCandidatesLabel).toBeVisible();
-
-      // Find all "Select all" buttons for the Spotify candidates section
-      // Get the container that holds the candidates
-      const candidatesContainer = spotifyCandidatesLabel
-        .locator("..")
-        .locator("..");
-
-      // Wait for candidates to load
-      await page.waitForTimeout(1000);
-
-      const selectAllButtons = candidatesContainer.locator(
-        "button:has-text('Select all')",
-      );
-      const initialButtonCount = await selectAllButtons.count();
-      expect(initialButtonCount).toBe(3);
-
-      // Verify the order: Pro (500k) > Rising (150k) > Indie (50k)
-      const proCard = page.getByText("Test Artist Pro");
-      const risingCard = page.getByText("Test Artist Rising");
-      const indieCard = page.getByText("Test Artist Indie");
-
-      await expect(proCard).toBeVisible();
-      await expect(risingCard).toBeVisible();
-      await expect(indieCard).toBeVisible();
-
-      // 3. Verify "Show more" button appears
-      const showMoreButton = candidatesContainer.getByRole("button", {
-        name: "Show more",
+      const candidateCards = page.locator(".bg-card").filter({
+        has: page.getByRole("button", { name: "Select all" }),
       });
-      await expect(showMoreButton).toBeVisible();
+      await expect(candidateCards).toHaveCount(3);
+      await expect(candidateCards.nth(0)).toContainText("Test Artist Pro");
+      await expect(candidateCards.nth(1)).toContainText("Test Artist Rising");
+      await expect(candidateCards.nth(2)).toContainText("Test Artist Indie");
 
-      // 4. Click the provider link to verify it opens a new tab without selecting the candidate
-      // Find the external link button in the first candidate card
-      const firstCandidateContainer = candidatesContainer
-        .locator("[class*='Card']")
-        .first();
-      const externalLinkButton =
-        firstCandidateContainer.locator("a[target='_blank']");
+      // Description renders when present.
+      await expect(
+        page.getByText("innovative production techniques"),
+      ).toBeVisible();
 
-      // Verify staged URL is empty before clicking link
-      const spotifyUrlInput = page
-        .locator('input[placeholder*="open.spotify.com"]')
-        .first();
-      const initialSpotifyUrl = await spotifyUrlInput.inputValue();
-      expect(initialSpotifyUrl).toBe("");
+      // 3. Provider link opens a new tab and does NOT stage/select the candidate.
+      const spotifyUrlInput = page.locator(
+        'input[placeholder*="open.spotify.com"]',
+      );
+      await expect(spotifyUrlInput).toHaveValue("");
 
-      // Listen for new page and click the external link
       const [newPage] = await Promise.all([
         context.waitForEvent("page"),
-        externalLinkButton.click(),
+        candidateCards
+          .nth(0)
+          .getByRole("link", { name: /view.*provider profile/i })
+          .click(),
       ]);
-
-      // Verify the new page is to spotify.com
-      expect(newPage.url()).toContain("spotify.com");
+      await expect(newPage).toHaveURL(/spotify\.com/);
       await newPage.close();
+      await expect(spotifyUrlInput).toHaveValue("");
 
-      // Verify that the staged URL is still empty (link click did not select the candidate)
-      const spotifyUrlAfterLinkClick = await spotifyUrlInput.inputValue();
-      expect(spotifyUrlAfterLinkClick).toBe("");
+      // 4. "Show more" reveals all 5 candidates, including one without a description.
+      await page.getByRole("button", { name: "Show more" }).click();
+      await expect(candidateCards).toHaveCount(5);
+      await expect(page.getByText("Test Artist Micro")).toBeVisible();
 
-      // 5. Click "Show more" to reveal all candidates
-      await showMoreButton.click();
-
-      // Verify all 5 candidates are now visible
-      await page.waitForTimeout(500);
-      const allSelectAllButtons = candidatesContainer.locator(
-        "button:has-text('Select all')",
-      );
-      const finalButtonCount = await allSelectAllButtons.count();
-      expect(finalButtonCount).toBe(5);
-
-      // 6. Verify candidate descriptions render when present
-      const risingDescription = page.getByText(
-        "innovative production techniques",
-      );
-      await expect(risingDescription).toBeVisible();
-
-      // Verify the Micro candidate (no description) is still visible
-      const microCard = page.getByText("Test Artist Micro");
-      await expect(microCard).toBeVisible();
-
-      // 7. Select a candidate and verify it updates the staged fields
-      // Find the "Rising" candidate card and click its "Select all" button
-      const risingCardContainer = page
-        .locator("text=Test Artist Rising")
-        .locator("../../../..");
-
-      const risingSelectButton = risingCardContainer.getByRole("button", {
-        name: "Select all",
-      });
-      await risingSelectButton.click();
-
-      // Verify the Spotify URL was populated
-      const spotifyUrlAfterSelect = await spotifyUrlInput.inputValue();
-      expect(spotifyUrlAfterSelect).toBe(
+      // 5. Selecting a candidate stages its URL.
+      await candidateCards
+        .filter({ hasText: "Test Artist Rising" })
+        .getByRole("button", { name: "Select all" })
+        .click();
+      await expect(spotifyUrlInput).toHaveValue(
         "https://spotify.com/artist/test-rising",
       );
 
-      // 8. Save the changes and verify the save completes the flow
-      const saveButton = page.getByRole("button", { name: /save & next/i });
-      await expect(saveButton).toBeEnabled();
-
-      // Mock the artist update response
-      await page.route("**/rest/v1/artists", async (route) => {
-        if (route.request().method() === "PATCH") {
-          const body = route.request().postDataJSON();
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify(body),
-          });
-        } else {
-          await route.continue();
-        }
+      // 6. Save completes the mutation and moves past this artist.
+      await page.getByRole("button", { name: /save & next/i }).click();
+      await expect(page.getByText("Artist updated successfully")).toBeVisible({
+        timeout: 10000,
       });
-
-      // Click save
-      await saveButton.click();
-
-      // Verify the save completed
-      await expect(saveButton).toBeEnabled({ timeout: 5000 });
     });
 
     test("validates that link-out click does NOT select the candidate (regression guard)", async ({
       page,
       context,
     }) => {
-      // This test ensures the link-out functionality is isolated and does not trigger candidate selection
-      await signIn(page);
-
-      // Intercept and mock the search-artist-links edge function
-      await page.route("**/functions/v1/search-artist-links", async (route) => {
-        const request = route.request();
-        const postData = request.postDataJSON();
-        const artistNames = postData.artistNames || [];
-        const provider = postData.provider || "spotify";
-
-        if (artistNames.length > 0) {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify({
-              results: artistNames.map((name: string) => ({
-                artistName: name,
-                provider,
-                candidates: [
-                  {
-                    name: "Regression Guard Candidate",
-                    url: "https://spotify.com/artist/regression-test",
-                    imageUrl: null,
-                    description: null,
-                    followers: 100000,
-                    genres: ["Electronic"],
-                  },
-                ],
-                error: null,
-              })),
-            }),
-          });
-        } else {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify({ results: [] }),
-          });
-        }
-      });
+      await signInAsAdmin(page);
+      await mockSearchArtistLinks(page, { "Kiara Scuro": MOCK_CANDIDATES });
 
       await page.goto(LINK_WIZARD_PATH);
+      await expect(
+        page.getByRole("heading", { name: /link wizard/i }),
+      ).toBeVisible({ timeout: 15000 });
 
-      const linkWizardTitle = page.getByRole("heading", {
-        name: /link wizard/i,
-      });
-      await expect(linkWizardTitle).toBeVisible({ timeout: 15000 });
+      await selectArtistByName(page, "Kiara Scuro");
 
-      // Get the initial state of the staged fields
-      const spotifyUrlInput = page
-        .locator('input[placeholder*="open.spotify.com"]')
-        .first();
-      const initialSpotifyUrl = await spotifyUrlInput.inputValue();
-      expect(initialSpotifyUrl).toBe("");
+      const spotifyUrlInput = page.locator(
+        'input[placeholder*="open.spotify.com"]',
+      );
+      await expect(spotifyUrlInput).toHaveValue("");
 
-      // Wait for candidate to load
-      await page.waitForTimeout(1000);
+      const candidateCard = page
+        .locator(".bg-card")
+        .filter({ hasText: "Test Artist Pro" });
+      await expect(candidateCard).toBeVisible();
 
-      // Find the external link button for the candidate
-      const candidateContainer = page
-        .getByText("Regression Guard Candidate")
-        .locator("../../../..");
-      const externalLinkButton =
-        candidateContainer.locator("a[target='_blank']");
-
-      // Click the external link and listen for new page
       const [newPage] = await Promise.all([
         context.waitForEvent("page"),
-        externalLinkButton.click(),
+        candidateCard
+          .getByRole("link", { name: /view.*provider profile/i })
+          .click(),
       ]);
-
-      // Verify the new page opened to spotify.com
-      expect(newPage.url()).toContain("spotify.com");
+      await expect(newPage).toHaveURL(/spotify\.com/);
       await newPage.close();
 
-      // Wait a moment for any potential state updates
-      await page.waitForTimeout(500);
-
-      // Verify the staged fields were NOT updated
-      const finalSpotifyUrl = await spotifyUrlInput.inputValue();
-      expect(finalSpotifyUrl).toBe(""); // Should still be empty
-
-      // Verify the "Select all" button is still available and not activated
-      const selectAllButton = candidateContainer.getByRole("button", {
-        name: "Select all",
-      });
-      await expect(selectAllButton).toBeVisible();
-      await expect(selectAllButton).toBeEnabled();
+      await expect(spotifyUrlInput).toHaveValue("");
+      await expect(
+        candidateCard.getByRole("button", { name: "Select all" }),
+      ).toBeEnabled();
     });
   },
 );

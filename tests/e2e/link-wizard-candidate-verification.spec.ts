@@ -160,11 +160,16 @@ test.describe(
 
       await selectArtistByName(page, "Kiara Scuro");
 
-      // 1. Set-info panel shows the artist's actual set details.
-      const setInfoPanel = page.getByText("Kiara Scuro - Festival Set");
+      // 1. Set-info panel shows the artist's actual set details. Scoped to the
+      // set-info Card itself: the artist's own description happens to equal
+      // the set description in the seed data, and also appears (editable) in
+      // the "Staged" description textarea further down the page.
+      const setInfoPanel = page.locator(".bg-slate-50").filter({
+        hasText: "Kiara Scuro - Festival Set",
+      });
       await expect(setInfoPanel).toBeVisible();
-      await expect(page.getByText("Club Stage")).toBeVisible();
-      await expect(page.getByText(KIARA_SET_DESCRIPTION)).toBeVisible();
+      await expect(setInfoPanel.getByText("Club Stage")).toBeVisible();
+      await expect(setInfoPanel.getByText(KIARA_SET_DESCRIPTION)).toBeVisible();
 
       // 2. Candidates render sorted by descending followers; only 3 show initially.
       await expect(page.getByText("Spotify Candidates")).toBeVisible();
@@ -172,6 +177,7 @@ test.describe(
       const candidateCards = page.locator(".bg-card").filter({
         has: page.getByRole("button", { name: "Select all" }),
       });
+      await expect(candidateCards.first()).toBeVisible({ timeout: 15000 });
       await expect(candidateCards).toHaveCount(3);
       await expect(candidateCards.nth(0)).toContainText("Test Artist Pro");
       await expect(candidateCards.nth(1)).toContainText("Test Artist Rising");
@@ -234,6 +240,8 @@ test.describe(
 
       await selectArtistByName(page, "Kiara Scuro");
 
+      await expect(page.getByText("Spotify Candidates")).toBeVisible();
+
       const spotifyUrlInput = page.locator(
         'input[placeholder*="open.spotify.com"]',
       );
@@ -241,8 +249,9 @@ test.describe(
 
       const candidateCard = page
         .locator(".bg-card")
+        .filter({ has: page.getByRole("button", { name: "Select all" }) })
         .filter({ hasText: "Test Artist Pro" });
-      await expect(candidateCard).toBeVisible();
+      await expect(candidateCard).toBeVisible({ timeout: 15000 });
 
       const [newPage] = await Promise.all([
         context.waitForEvent("page"),

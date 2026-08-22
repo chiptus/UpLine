@@ -4,13 +4,19 @@ import "./festival-v2-identity.css";
 // PROTOTYPE — throwaway switcher for #320's decided identity. Delete with the
 // rest of src/pages/EditionView/prototype/ once the verdict is captured.
 
-const VARIANTS = ["current", "festival-dark", "festival-light"] as const;
+const VARIANTS = [
+  "current",
+  "festival-dark",
+  "festival-light",
+  "hybrid-dark",
+] as const;
 export type IdentityVariant = (typeof VARIANTS)[number];
 
 const LABELS: Record<IdentityVariant, string> = {
   current: "Current identity",
   "festival-dark": "Festival v2 — dark",
   "festival-light": "Festival v2 — light (soft borders)",
+  "hybrid-dark": "Hybrid — dark (coral on neutral)",
 };
 
 export function useIdentityVariant(): IdentityVariant {
@@ -34,6 +40,7 @@ export function useIdentityVariant(): IdentityVariant {
 export function identityClass(variant: IdentityVariant) {
   if (variant === "festival-dark") return "proto-festival-v2";
   if (variant === "festival-light") return "proto-festival-v2 proto-light";
+  if (variant === "hybrid-dark") return "proto-festival-v2 proto-hybrid";
   return "";
 }
 

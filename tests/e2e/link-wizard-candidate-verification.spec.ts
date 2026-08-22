@@ -111,11 +111,6 @@ async function mockSearchArtistLinks(
     const providers = postData.provider
       ? [postData.provider]
       : ["spotify", "soundcloud"];
-    // eslint-disable-next-line no-console
-    console.log(
-      "[mockSearchArtistLinks] request:",
-      JSON.stringify({ artistNames, providers }),
-    );
 
     await route.fulfill({
       status: 200,
@@ -126,9 +121,11 @@ async function mockSearchArtistLinks(
           providers.map((provider) => ({
             artistName: name,
             provider,
+            // searchResponseSchema's "error" field is optional but does NOT
+            // accept null — omitting it (rather than `error: null`) avoids
+            // failing zod's .parse() and looping into query retries.
             candidates:
               provider === "spotify" ? (candidatesByArtist[name] ?? []) : [],
-            error: null,
           })),
         ),
       }),

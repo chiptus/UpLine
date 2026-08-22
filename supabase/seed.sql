@@ -71,74 +71,15 @@ VALUES (
 -- (local) and scripts/recreate-staging.sh's `db reset --linked` (staging)
 -- -- prod is never reset, only migrated (`supabase db push`), so this never
 -- reaches prod.
-INSERT INTO auth.users (
-  id,
-  instance_id,
-  aud,
-  email,
-  encrypted_password,
-  email_confirmed_at,
-  created_at,
-  updated_at,
-  raw_user_meta_data,
-  is_super_admin,
-  role,
-  confirmation_token,
-  recovery_token,
-  recovery_sent_at,
-  email_change,
-  email_change_token_new
-) VALUES (
-  '22222222-2222-2222-2222-222222222222',
-  '00000000-0000-0000-0000-000000000000',
-  'authenticated',
-  'chiptus+devlogin@gmail.com',
-  '$2a$10$example_hash',
-  now(),
-  now(),
-  now(),
-  '{"username": "devlogin"}',
-  false,
-  'authenticated',
-  '',
-  encode(sha224(concat('chiptus+devlogin@gmail.com', '123456')::bytea), 'hex'),
-  now(),
-  '',
-  ''
-) ON CONFLICT (id) DO NOTHING;
-
-UPDATE public.profiles
-SET completed_onboarding = true
-WHERE id = '22222222-2222-2222-2222-222222222222';
-
-INSERT INTO auth.identities (
-  id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at
-) VALUES (
-  '22222222-2222-2222-2222-222222222222',
-  '22222222-2222-2222-2222-222222222222',
-  '22222222-2222-2222-2222-222222222222',
-  jsonb_build_object('sub', '22222222-2222-2222-2222-222222222222', 'email', 'chiptus+devlogin@gmail.com'),
-  'email',
-  now(),
-  now(),
-  now()
-) ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO public.admin_roles (user_id, role, created_by)
-VALUES (
-  '22222222-2222-2222-2222-222222222222',
-  'super_admin',
-  '22222222-2222-2222-2222-222222222222'
-) ON CONFLICT (user_id, role) DO NOTHING;
-
+--
 -- Real `signInWithOtp` calls (clicking "Send" in the UI) overwrite
--- recovery_token with an actual generated one, breaking the fixed code
--- above. Re-pin it back to the fixed code on every update to this email so
--- it survives real sends too.
+-- recovery_token with an actual generated one, breaking the fixed code.
+-- This trigger re-pins it back to the fixed code on every insert/update to
+-- this email, so it survives real sends too.
 CREATE OR REPLACE FUNCTION public.pin_dev_login_otp()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF NEW.email = 'chiptus+devlogin@gmail.com' THEN
+  IF NEW.email = 'chiptus@gmail.com' THEN
     NEW.recovery_token := encode(sha224(concat(NEW.email, '123456')::bytea), 'hex');
     NEW.recovery_sent_at := now();
   END IF;
@@ -150,6 +91,48 @@ DROP TRIGGER IF EXISTS pin_dev_login_otp_trigger ON auth.users;
 CREATE TRIGGER pin_dev_login_otp_trigger
 BEFORE INSERT OR UPDATE ON auth.users
 FOR EACH ROW EXECUTE FUNCTION public.pin_dev_login_otp();
+
+-- Upserts by email rather than a fixed id, since staging syncs anonymized
+-- prod data (scripts/sync-from-prod.sh) which may already have a real row
+-- for this email -- in that case we just touch it so the trigger above
+-- re-pins its OTP, instead of inserting a conflicting duplicate.
+DO $$
+DECLARE
+  dev_user_id UUID;
+BEGIN
+  SELECT id INTO dev_user_id FROM auth.users WHERE email = 'chiptus@gmail.com';
+
+  IF dev_user_id IS NULL THEN
+    dev_user_id := '22222222-2222-2222-2222-222222222222';
+    INSERT INTO auth.users (
+      id, instance_id, aud, email, encrypted_password, email_confirmed_at,
+      created_at, updated_at, raw_user_meta_data, is_super_admin, role,
+      confirmation_token, recovery_token, recovery_sent_at, email_change, email_change_token_new
+    ) VALUES (
+      dev_user_id, '00000000-0000-0000-0000-000000000000', 'authenticated',
+      'chiptus@gmail.com', '$2a$10$example_hash', now(), now(), now(),
+      '{"username": "devlogin"}', false, 'authenticated', '', '', now(), '', ''
+    );
+
+    INSERT INTO auth.identities (
+      id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at
+    ) VALUES (
+      dev_user_id, dev_user_id, dev_user_id,
+      jsonb_build_object('sub', dev_user_id, 'email', 'chiptus@gmail.com'),
+      'email', now(), now(), now()
+    );
+  ELSE
+    -- Row already exists (e.g. synced from prod) -- touch it so the trigger
+    -- above re-pins recovery_token to the fixed OTP.
+    UPDATE auth.users SET updated_at = now() WHERE id = dev_user_id;
+  END IF;
+
+  UPDATE public.profiles SET completed_onboarding = true WHERE id = dev_user_id;
+
+  INSERT INTO public.admin_roles (user_id, role, created_by)
+  VALUES (dev_user_id, 'super_admin', dev_user_id)
+  ON CONFLICT (user_id, role) DO NOTHING;
+END $$;
 
 
 

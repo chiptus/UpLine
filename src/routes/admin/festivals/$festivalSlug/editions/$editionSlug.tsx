@@ -1,18 +1,25 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useParams, Outlet } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link2, Loader2, MapPin, Music, Settings, Upload } from "lucide-react";
+import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
+import { useParams, Link, Outlet } from "@tanstack/react-router";
+import { Link2, MapPin, Music, Settings, Upload } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { useFestivalEditionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
-import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
+import {
+  editionBySlugQuery,
+  EditionNotFoundError,
+} from "@/api/editions/useFestivalEditionBySlug";
 import { EditionNavLink } from "@/pages/admin/festivals/EditionNavLink";
-import { editionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { pageMeta } from "@/lib/pageHead";
 
 export const Route = createFileRoute(
   "/admin/festivals/$festivalSlug/editions/$editionSlug",
 )({
   component: FestivalEdition,
+  notFoundComponent: EditionNotFound,
+  onError: (error) => {
+    if (error instanceof EditionNotFoundError) {
+      throw notFound();
+    }
+    throw error;
+  },
   beforeLoad: async ({ params, location, context }) => {
     if (params?.editionSlug && location.pathname.endsWith(params.editionSlug)) {
       throw redirect({
@@ -39,45 +46,29 @@ export const Route = createFileRoute(
   }),
 });
 
+function EditionNotFound() {
+  const { festivalSlug } = Route.useParams();
+
+  return (
+    <Card>
+      <CardContent className="flex flex-col items-center justify-center gap-4 p-8">
+        <span>Edition not found</span>
+        <Link
+          to="/admin/festivals/$festivalSlug"
+          params={{ festivalSlug }}
+          className="text-primary underline"
+        >
+          Back to festival
+        </Link>
+      </CardContent>
+    </Card>
+  );
+}
+
 function FestivalEdition() {
   const { festivalSlug, editionSlug } = useParams({
     from: "/admin/festivals/$festivalSlug/editions/$editionSlug",
   });
-
-  const { data: festival } = useSuspenseQuery(
-    festivalBySlugQuery(festivalSlug),
-  );
-  const editionQuery = useFestivalEditionBySlugQuery({
-    editionSlug,
-    festivalId: festival.id,
-  });
-
-  if (!festivalSlug || !editionSlug) {
-    return <div>Festival or edition not found</div>;
-  }
-
-  if (editionQuery.isLoading) {
-    return (
-      <Card>
-        <CardContent className="flex items-center justify-center p-8">
-          <Loader2 className="h-6 w-6 animate-spin mr-2" />
-          <span>Loading festivals...</span>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const currentEdition = editionQuery.data;
-
-  if (!currentEdition) {
-    return (
-      <Card>
-        <CardContent className="flex items-center justify-center p-8">
-          <span>Edition not found</span>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <div className="space-y-6">

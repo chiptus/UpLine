@@ -1,10 +1,24 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
+import {
+  createFileRoute,
+  notFound,
+  Link,
+  Outlet,
+} from "@tanstack/react-router";
+import {
+  festivalBySlugQuery,
+  FestivalNotFoundError,
+} from "@/api/festivals/useFestivalBySlug";
 import { festivalInfoQuery } from "@/api/festival-info/useFestivalInfo";
 import { customLinksQuery } from "@/api/custom-links/useCustomLinks";
 import { pageMeta } from "@/lib/pageHead";
 
 export const Route = createFileRoute("/festivals/$festivalSlug")({
+  onError: (error) => {
+    if (error instanceof FestivalNotFoundError) {
+      throw notFound();
+    }
+    throw error;
+  },
   beforeLoad: async ({ params, context }) => {
     const festival = await context.queryClient.ensureQueryData(
       festivalBySlugQuery(params.festivalSlug),
@@ -20,6 +34,7 @@ export const Route = createFileRoute("/festivals/$festivalSlug")({
     );
   },
   component: FestivalLayout,
+  notFoundComponent: FestivalNotFound,
   head: ({ match }) => ({
     meta: pageMeta({ title: match.context.festival?.name }),
   }),
@@ -27,4 +42,24 @@ export const Route = createFileRoute("/festivals/$festivalSlug")({
 
 function FestivalLayout() {
   return <Outlet />;
+}
+
+function FestivalNotFound() {
+  return (
+    <div className="min-h-screen bg-app-gradient flex items-center justify-center p-4">
+      <div className="text-center text-white">
+        <h1 className="text-2xl font-bold mb-4">Festival not found</h1>
+        <p className="mb-6 text-purple-200">
+          We couldn&apos;t find that festival. It may have been removed or the
+          link may be incorrect.
+        </p>
+        <Link
+          to="/"
+          className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded inline-block"
+        >
+          Back to festivals
+        </Link>
+      </div>
+    </div>
+  );
 }

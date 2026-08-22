@@ -3,6 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Festival, festivalsKeys } from "./types";
 import { isTimeoutError, withTimeout } from "@/lib/timeout";
 
+export class FestivalNotFoundError extends Error {
+  constructor() {
+    super("Festival not found");
+    this.name = "FestivalNotFoundError";
+  }
+}
+
 export async function fetchFestivalBySlug(
   festivalSlug: string,
   signal?: AbortSignal,
@@ -18,6 +25,9 @@ export async function fetchFestivalBySlug(
   if (error) {
     if (isTimeoutError(signal)) {
       throw new Error("Failed to load festival - request timed out");
+    }
+    if (error.code === "PGRST116") {
+      throw new FestivalNotFoundError();
     }
     throw new Error("Failed to load festival");
   }

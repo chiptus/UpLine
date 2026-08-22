@@ -1,13 +1,24 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useParams, useNavigate, Outlet } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
+import { useParams, useNavigate, Link, Outlet } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { Card, CardContent } from "@/components/ui/card";
 import { FestivalEditionManagement } from "@/pages/admin/festivals/FestivalEditionManagement";
 import { FestivalBreadcrumb } from "@/pages/admin/festivals/FestivalBreadcrumb";
-import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
+import {
+  festivalBySlugQuery,
+  FestivalNotFoundError,
+} from "@/api/festivals/useFestivalBySlug";
 import { pageMeta } from "@/lib/pageHead";
 
 export const Route = createFileRoute("/admin/festivals/$festivalSlug")({
   component: FestivalDetail,
+  notFoundComponent: FestivalNotFound,
+  onError: (error) => {
+    if (error instanceof FestivalNotFoundError) {
+      throw notFound();
+    }
+    throw error;
+  },
   beforeLoad: async ({ params, context }) => {
     const festival = await context.queryClient.ensureQueryData(
       festivalBySlugQuery(params.festivalSlug),
@@ -18,6 +29,19 @@ export const Route = createFileRoute("/admin/festivals/$festivalSlug")({
     meta: pageMeta({ title: match.context.festival?.name, prefix: "Admin" }),
   }),
 });
+
+function FestivalNotFound() {
+  return (
+    <Card>
+      <CardContent className="flex flex-col items-center justify-center gap-4 p-8">
+        <span>Festival not found</span>
+        <Link to="/admin/festivals" className="text-primary underline">
+          Back to festivals
+        </Link>
+      </CardContent>
+    </Card>
+  );
+}
 
 function FestivalDetail() {
   const { festivalSlug } = Route.useParams();

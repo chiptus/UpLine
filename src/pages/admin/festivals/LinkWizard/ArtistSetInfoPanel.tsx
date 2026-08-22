@@ -28,7 +28,7 @@ export function ArtistSetInfoPanel({
     );
   }
 
-  if (setsQuery.error) {
+  if (setsQuery.isError) {
     return (
       <Card>
         <CardContent className="p-6">
@@ -94,32 +94,36 @@ export function ArtistSetInfoPanel({
                 </p>
               )}
 
-              {set.co_performers.length > 0 && (
-                <div className="pt-2">
-                  <p className="text-xs font-medium mb-1">Co-performers:</p>
-                  <div className="flex flex-wrap gap-1">
-                    {set.co_performers
-                      .filter((cp) => cp.artist_id !== artist.id)
-                      .map((coPerformer) => (
-                        <Badge
-                          key={coPerformer.artist_id}
-                          variant="secondary"
-                          className="text-xs"
-                        >
-                          {coPerformer.artist_name}
-                          {coPerformer.role && ` (${coPerformer.role})`}
-                        </Badge>
-                      ))}
-                    {set.co_performers.filter(
-                      (cp) => cp.artist_id !== artist.id,
-                    ).length === 0 && (
-                      <span className="text-xs text-muted-foreground">
-                        No other co-performers
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
+              {set.co_performers.length > 0 &&
+                (() => {
+                  const otherPerformers = set.co_performers.filter(
+                    (cp) => cp.artist_id !== artist.id,
+                  );
+
+                  return (
+                    <div className="pt-2">
+                      <p className="text-xs font-medium mb-1">Co-performers:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {otherPerformers.length === 0 ? (
+                          <span className="text-xs text-muted-foreground">
+                            No other co-performers
+                          </span>
+                        ) : (
+                          otherPerformers.map((coPerformer) => (
+                            <Badge
+                              key={coPerformer.artist_id}
+                              variant="secondary"
+                              className="text-xs"
+                            >
+                              {coPerformer.artist_name}
+                              {coPerformer.role && ` (${coPerformer.role})`}
+                            </Badge>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
             </div>
           </div>
         ))}

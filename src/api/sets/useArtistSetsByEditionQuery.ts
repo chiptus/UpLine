@@ -68,17 +68,12 @@ async function fetchArtistSetsByEdition(
     throw new Error("Failed to fetch artist sets");
   }
 
-  // Transform the data to match expected structure
-  const setsMap = new Map<string, ArtistSetWithCoPerformers>();
+  return (data ?? [])
+    .filter((setArtist) => setArtist.sets)
+    .map((setArtist) => {
+      const set = setArtist.sets;
 
-  data?.forEach((setArtist) => {
-    if (!setArtist.sets) return;
-
-    const set = setArtist.sets;
-    const setId = set.id;
-
-    if (!setsMap.has(setId)) {
-      setsMap.set(setId, {
+      return {
         id: set.id,
         name: set.name,
         description: set.description,
@@ -86,40 +81,19 @@ async function fetchArtistSetsByEdition(
         time_end: set.time_end,
         stage_id: set.stage_id,
         stage_name: set.stages?.name || null,
-        co_performers: [],
-      });
-    }
-
-    const artistSet = setsMap.get(setId)!;
-
-    // Add all co-performers from this set
-    set.set_artists?.forEach((sa) => {
-      const coPerformer = {
-        artist_id: sa.artist_id,
-        artist_name: sa.artists?.name || "Unknown Artist",
-        role: sa.role,
+        co_performers: (set.set_artists ?? []).map((sa) => ({
+          artist_id: sa.artist_id,
+          artist_name: sa.artists?.name || "Unknown Artist",
+          role: sa.role,
+        })),
       };
-
-      // Avoid duplicates
-      if (
-        !artistSet.co_performers.some((cp) => cp.artist_id === sa.artist_id)
-      ) {
-        artistSet.co_performers.push(coPerformer);
-      }
     });
-  });
-
-  return Array.from(setsMap.values());
 }
 
-export function artistSetsByEditionQuery(
-  artistId: string | undefined,
-  editionId: string | undefined,
-) {
+export function artistSetsByEditionQuery(artistId: string, editionId: string) {
   return queryOptions({
-    queryKey: setsKeys.byArtistAndEdition(artistId ?? "", editionId ?? ""),
-    queryFn: () => fetchArtistSetsByEdition(artistId!, editionId!),
-    enabled: !!artistId && !!editionId,
+    queryKey: setsKeys.byArtistAndEdition(artistId, editionId),
+    queryFn: () => fetchArtistSetsByEdition(artistId, editionId),
   });
 }
 
@@ -128,7 +102,7 @@ export function useArtistSetsByEditionQuery(
   editionId: string | undefined,
 ) {
   return useQuery({
-    ...artistSetsByEditionQuery(artistId, editionId),
+    ...artistSetsByEditionQuery(artistId ?? "", editionId ?? ""),
     enabled: !!artistId && !!editionId,
   });
 }

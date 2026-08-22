@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Artist } from "@/api/artists/types";
+import type { ArtistWithSets } from "@/api/artists/useArtistsMissingLinksByEdition";
 import {
   useUpdateArtistMutation,
   type UpdateArtistUpdates,
@@ -16,6 +17,7 @@ import {
 import type { Provider, Candidate } from "@/api/artistSearch/types";
 import { ProviderCandidatesPanel } from "./ProviderCandidatesPanel";
 import { StagedFieldsPreview } from "./StagedFieldsPreview";
+import { ArtistSetInfoPanel } from "./ArtistSetInfoPanel";
 import { useArtistBatchQuery } from "./useArtistBatchQuery";
 
 const optionalUrlSchema = z
@@ -36,7 +38,7 @@ const linkStepSchema = z.object({
 export type LinkStepData = z.infer<typeof linkStepSchema>;
 
 interface LinkWizardStepProps {
-  artist: Artist;
+  artist: ArtistWithSets;
   position: number;
   total: number;
   artists: Artist[];
@@ -74,6 +76,8 @@ export function LinkWizardStep({
           {position} of {total}
         </span>
       </div>
+
+      <ArtistSetInfoPanel artist={artist} />
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

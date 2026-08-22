@@ -245,9 +245,27 @@ test.describe(
 
       // 6. Save completes the mutation and moves past this artist.
       await page.getByRole("button", { name: /save & next/i }).click();
-      await expect(page.getByText("Artist updated successfully")).toBeVisible({
-        timeout: 20000,
-      });
+
+      const successToast = page.getByText("Artist updated successfully");
+      const anyToast = page.locator('[role="status"], [role="alert"]');
+      const appeared = await Promise.race([
+        successToast
+          .waitFor({ state: "visible", timeout: 20000 })
+          .then(() => "success" as const),
+        anyToast
+          .waitFor({ state: "visible", timeout: 20000 })
+          .then(() => "other" as const),
+      ]).catch(() => "none" as const);
+
+      if (appeared !== "success") {
+        const toastText = await anyToast
+          .first()
+          .textContent()
+          .catch(() => null);
+        throw new Error(
+          `Expected the "Artist updated successfully" toast; got ${appeared} (text: ${toastText ?? "no toast found"})`,
+        );
+      }
     });
 
     test("validates that link-out click does NOT select the candidate (regression guard)", async ({

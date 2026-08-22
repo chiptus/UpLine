@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users } from "lucide-react";
+import { Users, ExternalLink } from "lucide-react";
 import type { Candidate } from "@/api/artistSearch/types";
 import type { SelectableField } from "@/api/artistSearch/mergeCandidateSelection";
 
@@ -27,15 +27,40 @@ export function CandidateCard({ candidate, onSelect }: CandidateCardProps) {
             className="w-full h-24 object-cover rounded"
           />
         )}
-        <div>
-          <p className="font-medium text-sm line-clamp-2">{candidate.name}</p>
+        <div className="space-y-1">
+          <div className="flex items-start gap-2">
+            <p className="font-medium text-sm line-clamp-2 flex-1">
+              {candidate.name}
+            </p>
+            <a
+              href={candidate.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-shrink-0 mt-0.5"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-6 w-6 p-0"
+              >
+                <ExternalLink className="h-4 w-4" />
+              </Button>
+            </a>
+          </div>
           {candidate.followers !== null && (
-            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <Users className="h-3 w-3" />
               {formatFollowers(candidate.followers)}
             </div>
           )}
         </div>
+        {candidate.description && (
+          <p className="text-sm text-muted-foreground line-clamp-3">
+            {candidate.description}
+          </p>
+        )}
         {candidate.genres.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {candidate.genres.slice(0, 2).map((genre) => (

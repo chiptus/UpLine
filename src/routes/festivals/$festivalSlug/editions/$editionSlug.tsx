@@ -24,21 +24,19 @@ export const Route = createFileRoute(
 )({
   component: EditionLayout,
   notFoundComponent: EditionNotFound,
-  beforeLoad: async ({ params, location, context }) => {
-    let edition;
-    try {
-      edition = await context.queryClient.ensureQueryData(
-        editionBySlugQuery({
-          festivalId: context.festival.id,
-          editionSlug: params.editionSlug,
-        }),
-      );
-    } catch (error) {
-      if (error instanceof EditionNotFoundError) {
-        throw notFound();
-      }
-      throw error;
+  onError: (error) => {
+    if (error instanceof EditionNotFoundError) {
+      throw notFound();
     }
+    throw error;
+  },
+  beforeLoad: async ({ params, location, context }) => {
+    const edition = await context.queryClient.ensureQueryData(
+      editionBySlugQuery({
+        festivalId: context.festival.id,
+        editionSlug: params.editionSlug,
+      }),
+    );
 
     const basePath = `/festivals/${params.festivalSlug}/editions/${params.editionSlug}`;
     if (

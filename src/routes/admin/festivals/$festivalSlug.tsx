@@ -4,17 +4,15 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { FestivalEditionManagement } from "@/pages/admin/festivals/FestivalEditionManagement";
 import { FestivalBreadcrumb } from "@/pages/admin/festivals/FestivalBreadcrumb";
-import {
-  festivalBySlugQuery,
-  FestivalNotFoundError,
-} from "@/api/festivals/useFestivalBySlug";
+import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 import { pageMeta } from "@/lib/pageHead";
+import { SupabaseNotFoundError } from "@/lib/supabaseErrors";
 
 export const Route = createFileRoute("/admin/festivals/$festivalSlug")({
   component: FestivalDetail,
   notFoundComponent: FestivalNotFound,
   onError: (error) => {
-    if (error instanceof FestivalNotFoundError) {
+    if (error instanceof SupabaseNotFoundError) {
       throw notFound();
     }
     throw error;

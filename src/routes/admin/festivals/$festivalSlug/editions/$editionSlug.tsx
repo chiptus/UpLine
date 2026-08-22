@@ -2,12 +2,10 @@ import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
 import { useParams, Link, Outlet } from "@tanstack/react-router";
 import { Link2, MapPin, Music, Settings, Upload } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  editionBySlugQuery,
-  EditionNotFoundError,
-} from "@/api/editions/useFestivalEditionBySlug";
+import { editionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { EditionNavLink } from "@/pages/admin/festivals/EditionNavLink";
 import { pageMeta } from "@/lib/pageHead";
+import { SupabaseNotFoundError } from "@/lib/supabaseErrors";
 
 export const Route = createFileRoute(
   "/admin/festivals/$festivalSlug/editions/$editionSlug",
@@ -15,7 +13,7 @@ export const Route = createFileRoute(
   component: FestivalEdition,
   notFoundComponent: EditionNotFound,
   onError: (error) => {
-    if (error instanceof EditionNotFoundError) {
+    if (error instanceof SupabaseNotFoundError) {
       throw notFound();
     }
     throw error;

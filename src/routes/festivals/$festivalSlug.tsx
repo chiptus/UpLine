@@ -4,17 +4,15 @@ import {
   Link,
   Outlet,
 } from "@tanstack/react-router";
-import {
-  festivalBySlugQuery,
-  FestivalNotFoundError,
-} from "@/api/festivals/useFestivalBySlug";
+import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 import { festivalInfoQuery } from "@/api/festival-info/useFestivalInfo";
 import { customLinksQuery } from "@/api/custom-links/useCustomLinks";
 import { pageMeta } from "@/lib/pageHead";
+import { SupabaseNotFoundError } from "@/lib/supabaseErrors";
 
 export const Route = createFileRoute("/festivals/$festivalSlug")({
   onError: (error) => {
-    if (error instanceof FestivalNotFoundError) {
+    if (error instanceof SupabaseNotFoundError) {
       throw notFound();
     }
     throw error;

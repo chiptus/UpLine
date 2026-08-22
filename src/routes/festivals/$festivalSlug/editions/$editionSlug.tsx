@@ -8,16 +8,14 @@ import {
 import { EditionHeader } from "@/pages/EditionView/EditionHeader";
 import { MainTabNavigation } from "@/pages/EditionView/TabNavigation/TabNavigation";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import {
-  editionBySlugQuery,
-  EditionNotFoundError,
-} from "@/api/editions/useFestivalEditionBySlug";
+import { editionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { stagesKeys } from "@/api/stages/types";
 import { getEffectiveFestivalPhase } from "@/lib/festivalPhase";
 import { getDefaultTab } from "@/pages/EditionView/TabNavigation/defaultTab";
 import { tabRoutes } from "@/pages/EditionView/TabNavigation/tabRoutes";
 import { pageMeta } from "@/lib/pageHead";
+import { SupabaseNotFoundError } from "@/lib/supabaseErrors";
 
 export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug",
@@ -25,7 +23,7 @@ export const Route = createFileRoute(
   component: EditionLayout,
   notFoundComponent: EditionNotFound,
   onError: (error) => {
-    if (error instanceof EditionNotFoundError) {
+    if (error instanceof SupabaseNotFoundError) {
       throw notFound();
     }
     throw error;

@@ -2,13 +2,10 @@ import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Festival, festivalsKeys } from "./types";
 import { isTimeoutError, withTimeout } from "@/lib/timeout";
-
-export class FestivalNotFoundError extends Error {
-  constructor() {
-    super("Festival not found");
-    this.name = "FestivalNotFoundError";
-  }
-}
+import {
+  isSupabaseNotFoundError,
+  SupabaseNotFoundError,
+} from "@/lib/supabaseErrors";
 
 export async function fetchFestivalBySlug(
   festivalSlug: string,
@@ -26,8 +23,8 @@ export async function fetchFestivalBySlug(
     if (isTimeoutError(signal)) {
       throw new Error("Failed to load festival - request timed out");
     }
-    if (error.code === "PGRST116") {
-      throw new FestivalNotFoundError();
+    if (isSupabaseNotFoundError(error)) {
+      throw new SupabaseNotFoundError("Festival");
     }
     throw new Error("Failed to load festival");
   }

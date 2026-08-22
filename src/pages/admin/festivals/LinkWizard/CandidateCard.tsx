@@ -32,22 +32,22 @@ export function CandidateCard({ candidate, onSelect }: CandidateCardProps) {
             <p className="font-medium text-sm line-clamp-2 flex-1">
               {candidate.name}
             </p>
-            <a
-              href={candidate.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-shrink-0 mt-0.5"
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0 flex-shrink-0 mt-0.5"
+              asChild
               onClick={(e) => e.stopPropagation()}
             >
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-6 w-6 p-0"
+              <a
+                href={candidate.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`View ${candidate.name} on provider profile`}
               >
                 <ExternalLink className="h-4 w-4" />
-              </Button>
-            </a>
+              </a>
+            </Button>
           </div>
           {candidate.followers !== null && (
             <div className="flex items-center gap-1 text-xs text-muted-foreground">

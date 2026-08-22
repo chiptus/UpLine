@@ -171,6 +171,12 @@ test.describe(
       page,
       context,
     }) => {
+      // Default 30s test timeout was being exceeded by the up-to-20s save-toast
+      // wait stacked on top of sign-in, navigation, and several UI interactions
+      // earlier in this test — the test was killed mid-wait, before it could
+      // ever observe which toast (if any) appeared.
+      test.setTimeout(60000);
+
       await signInAsAdmin(page);
       await mockSearchArtistLinks(page, { "Kiara Scuro": MOCK_CANDIDATES });
 

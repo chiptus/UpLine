@@ -66,6 +66,71 @@ VALUES (
   '11111111-1111-1111-1111-111111111111'
 ) ON CONFLICT (user_id, role) DO NOTHING;
 
+-- Dev login: fixed email + OTP so local/staging don't need a real magic-link
+-- email to sign in as a super admin. Runs only via `supabase db reset`
+-- (local) and scripts/recreate-staging.sh's `db reset --linked` (staging)
+-- -- prod is never reset, only migrated (`supabase db push`), so this never
+-- reaches prod.
+INSERT INTO auth.users (
+  id,
+  instance_id,
+  aud,
+  email,
+  encrypted_password,
+  email_confirmed_at,
+  created_at,
+  updated_at,
+  raw_user_meta_data,
+  is_super_admin,
+  role,
+  confirmation_token,
+  recovery_token,
+  recovery_sent_at,
+  email_change,
+  email_change_token_new
+) VALUES (
+  '22222222-2222-2222-2222-222222222222',
+  '00000000-0000-0000-0000-000000000000',
+  'authenticated',
+  'dev@example.com',
+  '$2a$10$example_hash',
+  now(),
+  now(),
+  now(),
+  '{"username": "devlogin"}',
+  false,
+  'authenticated',
+  '',
+  encode(sha224(concat('dev@example.com', '123456')::bytea), 'hex'),
+  now(),
+  '',
+  ''
+) ON CONFLICT (id) DO NOTHING;
+
+UPDATE public.profiles
+SET completed_onboarding = true
+WHERE id = '22222222-2222-2222-2222-222222222222';
+
+INSERT INTO auth.identities (
+  id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at
+) VALUES (
+  '22222222-2222-2222-2222-222222222222',
+  '22222222-2222-2222-2222-222222222222',
+  '22222222-2222-2222-2222-222222222222',
+  jsonb_build_object('sub', '22222222-2222-2222-2222-222222222222', 'email', 'dev@example.com'),
+  'email',
+  now(),
+  now(),
+  now()
+) ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.admin_roles (user_id, role, created_by)
+VALUES (
+  '22222222-2222-2222-2222-222222222222',
+  'super_admin',
+  '22222222-2222-2222-2222-222222222222'
+) ON CONFLICT (user_id, role) DO NOTHING;
+
 
 
 -- Insert festival artists with realistic schedule (July 12-14, 2025)

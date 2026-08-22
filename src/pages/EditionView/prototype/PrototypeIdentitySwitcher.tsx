@@ -49,7 +49,6 @@ export function PrototypeIdentitySwitcher() {
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (import.meta.env.PROD && !isProtoEnabled()) return;
       const target = e.target as HTMLElement | null;
       if (
         target &&
@@ -65,8 +64,6 @@ export function PrototypeIdentitySwitcher() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
-
-  if (import.meta.env.PROD && !isProtoEnabled()) return null;
 
   return (
     <div
@@ -120,11 +117,6 @@ const arrowStyle: React.CSSProperties = {
   cursor: "pointer",
 };
 
-function isProtoEnabled() {
-  const params = new URLSearchParams(window.location.search);
-  return params.has("proto") || params.has("identity");
-}
-
 function readVariant(): IdentityVariant {
   const v = new URLSearchParams(window.location.search).get("identity");
   return (VARIANTS as readonly string[]).includes(v ?? "")
@@ -139,12 +131,8 @@ function cycle(dir: number) {
       (VARIANTS.indexOf(current) + dir + VARIANTS.length) % VARIANTS.length
     ];
   const url = new URL(window.location.href);
-  if (next === "current") {
-    url.searchParams.delete("identity");
-    url.searchParams.set("proto", "1");
-  } else {
-    url.searchParams.set("identity", next);
-  }
+  if (next === "current") url.searchParams.delete("identity");
+  else url.searchParams.set("identity", next);
   window.history.replaceState(null, "", url);
   window.dispatchEvent(new Event("proto-identity-change"));
 }

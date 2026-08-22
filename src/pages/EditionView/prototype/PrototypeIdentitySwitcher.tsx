@@ -49,6 +49,7 @@ export function PrototypeIdentitySwitcher() {
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
+      if (import.meta.env.PROD && !isProtoEnabled()) return;
       const target = e.target as HTMLElement | null;
       if (
         target &&

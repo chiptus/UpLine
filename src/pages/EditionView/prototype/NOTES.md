@@ -5,8 +5,11 @@ ground, Unbounded display, lime accent — plus the soft-border light mode) hold
 against the real edition views, with real data and chrome?
 
 **How to run:** `pnpm run dev`, open any edition view, use the floating
-PROTOTYPE bar at the bottom (or ←/→ keys) to cycle
-`current` → `festival-dark` → `festival-light`. Shareable via `?identity=`.
+PROTOTYPE bar at the top (or ←/→ keys) to cycle
+`current` → `festival-dark` → `festival-light` → `hybrid-dark` (comparison
+only — the #320 decision is Festival v2). Shareable via `?identity=`. On
+production/preview builds the switcher stays hidden unless the URL carries
+`?proto=1` or an `?identity=` value (so it works on Vercel PR previews).
 
 **What this is NOT:** the implementation. It brute-forces overrides of today's
 hardcoded palette classes with scoped CSS. The real rollout is specced in #321

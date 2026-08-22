@@ -88,7 +88,7 @@ jobs:
 
       - uses: supabase/setup-cli@v3
 
-      # The job name comes from how deploy.yml calls the reusable _db_migrate.yml
+      # The job name comes from how deploy-staging.yml calls the reusable _db_migrate.yml
       # workflow: "<calling job id> / <called job's name>". If either changes, this
       # lookup silently stops matching.
       - name: Find the latest failed staging-push run for this PR
@@ -100,7 +100,7 @@ jobs:
         run: |
           set -euo pipefail
           JOB_ID=""
-          for RUN_ID in $(gh run list --repo "$REPO" --workflow deploy.yml --branch "$BRANCH" --event pull_request --json databaseId --jq '.[].databaseId'); do
+          for RUN_ID in $(gh run list --repo "$REPO" --workflow deploy-staging.yml --branch "$BRANCH" --event pull_request --json databaseId --jq '.[].databaseId'); do
             FOUND=$(gh api "repos/$REPO/actions/runs/$RUN_ID/jobs" --paginate \
               --jq '.jobs[] | select(.name == "migrate / Push migrations (staging)" and .conclusion == "failure") | .id' | head -n1)
             if [[ -n "$FOUND" ]]; then

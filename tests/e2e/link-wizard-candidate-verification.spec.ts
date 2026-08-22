@@ -196,9 +196,11 @@ test.describe(
       await expect(page.getByText("Spotify Candidates")).toBeVisible();
       await failOnCandidatesError(page);
 
-      const candidateCards = page.locator(".bg-card").filter({
-        has: page.getByRole("button", { name: "Select all" }),
-      });
+      // ".bg-card.p-3" (not just ".bg-card") because the wizard's own outer
+      // Card wraps everything below it, including the candidate cards, so a
+      // plain ".bg-card" filtered by descendant text/content also matches
+      // that ancestor.
+      const candidateCards = page.locator(".bg-card.p-3");
       await expect(candidateCards.first()).toBeVisible({ timeout: 15000 });
       await expect(candidateCards).toHaveCount(3);
       await expect(candidateCards.nth(0)).toContainText("Test Artist Pro");
@@ -271,8 +273,7 @@ test.describe(
       await expect(spotifyUrlInput).toHaveValue("");
 
       const candidateCard = page
-        .locator(".bg-card")
-        .filter({ has: page.getByRole("button", { name: "Select all" }) })
+        .locator(".bg-card.p-3")
         .filter({ hasText: "Test Artist Pro" });
       await expect(candidateCard).toBeVisible({ timeout: 15000 });
 

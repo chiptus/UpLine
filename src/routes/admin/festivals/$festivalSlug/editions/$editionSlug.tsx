@@ -19,7 +19,11 @@ export const Route = createFileRoute(
     throw error;
   },
   beforeLoad: async ({ params, location, context }) => {
-    if (params?.editionSlug && location.pathname.endsWith(params.editionSlug)) {
+    const basePath = `/admin/festivals/${params.festivalSlug}/editions/${params.editionSlug}`;
+    if (
+      location.pathname === basePath ||
+      location.pathname === `${basePath}/`
+    ) {
       throw redirect({
         to: "/admin/festivals/$festivalSlug/editions/$editionSlug/stages",
         params,
@@ -50,7 +54,7 @@ function EditionNotFound() {
   return (
     <Card>
       <CardContent className="flex flex-col items-center justify-center gap-4 p-8">
-        <span>Edition not found</span>
+        <h1>Edition not found</h1>
         <Link
           to="/admin/festivals/$festivalSlug"
           params={{ festivalSlug }}

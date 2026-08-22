@@ -1,6 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useParams, useNavigate, Link, Outlet } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { FestivalEditionManagement } from "@/pages/admin/festivals/FestivalEditionManagement";
 import { FestivalBreadcrumb } from "@/pages/admin/festivals/FestivalBreadcrumb";
@@ -32,7 +31,7 @@ function FestivalNotFound() {
   return (
     <Card>
       <CardContent className="flex flex-col items-center justify-center gap-4 p-8">
-        <span>Festival not found</span>
+        <h1>Festival not found</h1>
         <Link to="/admin/festivals" className="text-primary underline">
           Back to festivals
         </Link>
@@ -43,12 +42,9 @@ function FestivalNotFound() {
 
 function FestivalDetail() {
   const { festivalSlug } = Route.useParams();
+  const { festival } = Route.useRouteContext();
   const { editionSlug = "" } = useParams({ strict: false });
   const navigate = useNavigate();
-
-  const { data: festival } = useSuspenseQuery(
-    festivalBySlugQuery(festivalSlug),
-  );
 
   return (
     <>

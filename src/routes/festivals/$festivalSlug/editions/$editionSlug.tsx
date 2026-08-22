@@ -10,6 +10,7 @@ import { getEffectiveFestivalPhase } from "@/lib/festivalPhase";
 import { getDefaultTab } from "@/pages/EditionView/TabNavigation/defaultTab";
 import { tabRoutes } from "@/pages/EditionView/TabNavigation/tabRoutes";
 import { pageMeta } from "@/lib/pageHead";
+import { EditionViewRoot } from "@/pages/EditionView/EditionViewRoot";
 
 export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug",
@@ -70,14 +71,14 @@ function EditionLayout() {
 
   if (!edition) {
     return (
-      <div className="min-h-screen bg-app-gradient flex items-center justify-center">
+      <EditionViewRoot className="flex items-center justify-center">
         <div className="text-white text-xl">Loading edition...</div>
-      </div>
+      </EditionViewRoot>
     );
   }
 
   return (
-    <div className="min-h-screen bg-app-gradient">
+    <EditionViewRoot>
       <div className="container mx-auto px-4 py-4 md:py-8 pb-20 md:pb-8">
         <EditionHeader
           title={`${festival.name} - ${edition.name}`}
@@ -93,6 +94,6 @@ function EditionLayout() {
           </ErrorBoundary>
         </div>
       </div>
-    </div>
+    </EditionViewRoot>
   );
 }

@@ -140,6 +140,8 @@ In this codebase, it is acceptable and preferred to define helper functions (suc
 
 ## Git Workflow
 
+- **No automatic scheduled check-ins**: Never create scheduled triggers/reminders (e.g. `send_later` or cron-style "re-check PR" check-ins) automatically after opening or subscribing to a PR. Rely on PR event subscriptions only; create a trigger only when explicitly asked.
+
 - **Auto-commit Rule**: For every user message that requests code changes, suggest committing the changes after implementation with an appropriate commit message, if there are no other staged files
 
 - never run "supabase db push"

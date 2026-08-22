@@ -15,7 +15,6 @@ import {
   calculateTimelineData,
 } from "@/lib/timelineCalculator";
 import { TimelineContainer } from "@/pages/EditionView/tabs/ScheduleTab/horizontal/TimelineContainer";
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { useSetsByEditionQuery as useEditionSetsQuery } from "@/api/sets/useSetsByEdition";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
 import { useNow } from "@/hooks/useNow";
@@ -47,8 +46,7 @@ function ScheduleTabTimeline() {
 }
 
 function TimelineContent() {
-  const { festival } = useFestivalEdition();
-  const { edition } = useRouteContext({
+  const { festival, edition } = useRouteContext({
     from: "/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline",
   });
   const now = useNow();

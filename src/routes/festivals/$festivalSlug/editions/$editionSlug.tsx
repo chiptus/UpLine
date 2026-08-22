@@ -2,8 +2,10 @@ import { createFileRoute, redirect, Outlet } from "@tanstack/react-router";
 import { EditionHeader } from "@/pages/EditionView/EditionHeader";
 import { MainTabNavigation } from "@/pages/EditionView/TabNavigation/TabNavigation";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
-import { editionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
+import {
+  editionBySlugQuery,
+  EditionNotFoundError,
+} from "@/api/editions/useFestivalEditionBySlug";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { stagesKeys } from "@/api/stages/types";
 import { getEffectiveFestivalPhase } from "@/lib/festivalPhase";
@@ -16,12 +18,24 @@ export const Route = createFileRoute(
 )({
   component: EditionLayout,
   beforeLoad: async ({ params, location, context }) => {
-    const edition = await context.queryClient.ensureQueryData(
-      editionBySlugQuery({
-        festivalId: context.festival.id,
-        editionSlug: params.editionSlug,
-      }),
-    );
+    let edition;
+    try {
+      edition = await context.queryClient.ensureQueryData(
+        editionBySlugQuery({
+          festivalId: context.festival.id,
+          editionSlug: params.editionSlug,
+        }),
+      );
+    } catch (error) {
+      if (error instanceof EditionNotFoundError) {
+        throw redirect({
+          to: "/festivals/$festivalSlug",
+          params: { festivalSlug: params.festivalSlug },
+          search: { editionNotFound: true },
+        });
+      }
+      throw error;
+    }
 
     const basePath = `/festivals/${params.festivalSlug}/editions/${params.editionSlug}`;
     if (
@@ -66,15 +80,7 @@ export const Route = createFileRoute(
 });
 
 function EditionLayout() {
-  const { festival, edition } = useFestivalEdition();
-
-  if (!edition) {
-    return (
-      <div className="min-h-screen bg-app-gradient flex items-center justify-center">
-        <div className="text-white text-xl">Loading edition...</div>
-      </div>
-    );
-  }
+  const { festival, edition } = Route.useRouteContext();
 
   return (
     <div className="min-h-screen bg-app-gradient">

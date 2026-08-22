@@ -1,5 +1,4 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { LoadingState } from "@/pages/ExploreSetPage/components/LoadingState";
 import { EmptyState } from "@/pages/ExploreSetPage/components/EmptyState";
 import { ExplorePageHeader } from "@/pages/ExploreSetPage/components/ExplorePageHeader";
@@ -27,7 +26,7 @@ export const Route = createFileRoute(
 });
 
 function ExploreSetPage() {
-  const { edition } = useFestivalEdition();
+  const { edition } = Route.useRouteContext();
   const navigate = useNavigate();
   const { user, showAuthDialog } = useAuth();
   const voteMutation = useVoteMutation();

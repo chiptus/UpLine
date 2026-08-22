@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
+import { useRouteContext } from "@tanstack/react-router";
 import { festivalInfoQuery } from "@/api/festival-info/useFestivalInfo";
 import { customLinksQuery } from "@/api/custom-links/useCustomLinks";
 import { useFestivalPhase } from "@/hooks/useFestivalPhase";
@@ -17,7 +17,9 @@ const PRIMARY_TAB_LABEL = {
 } as const;
 
 export function MainTabNavigation() {
-  const { festival } = useFestivalEdition();
+  const { festival } = useRouteContext({
+    from: "/festivals/$festivalSlug/editions/$editionSlug",
+  });
   const { data: festivalInfo } = useSuspenseQuery(
     festivalInfoQuery(festival.id),
   );

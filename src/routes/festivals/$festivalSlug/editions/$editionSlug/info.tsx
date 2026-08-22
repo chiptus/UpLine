@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { festivalInfoQuery } from "@/api/festival-info/useFestivalInfo";
 import { pageMeta } from "@/lib/pageHead";
 import { EditionTitle } from "@/pages/EditionView/tabs/InfoTab/EditionTitle";
@@ -20,7 +19,7 @@ export const Route = createFileRoute(
 });
 
 function InfoTab() {
-  const { edition, festival } = useFestivalEdition();
+  const { edition, festival } = Route.useRouteContext();
   const { data: festivalInfo } = useSuspenseQuery(
     festivalInfoQuery(festival.id),
   );

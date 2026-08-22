@@ -1,4 +1,4 @@
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
+import { useRouteContext } from "@tanstack/react-router";
 import {
   type MaskableSet,
   type RevealLevel,
@@ -9,7 +9,9 @@ import {
 } from "@/lib/scheduleReveal";
 
 export function useScheduleReveal() {
-  const { edition } = useFestivalEdition();
+  const { edition } = useRouteContext({
+    from: "/festivals/$festivalSlug/editions/$editionSlug",
+  });
   const level: RevealLevel = edition?.schedule_reveal_level ?? "draft";
 
   return {

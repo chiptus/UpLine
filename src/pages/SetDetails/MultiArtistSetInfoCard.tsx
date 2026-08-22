@@ -15,7 +15,7 @@ import { IndividualArtistCard } from "./IndividualArtistCard";
 import { StagePin } from "@/components/StagePin";
 import { MarkdownText } from "@/components/ui/markdown-text";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
+import { useRouteContext } from "@tanstack/react-router";
 import { FestivalTimeHint } from "@/components/FestivalTimeHint";
 
 interface MultiArtistSetInfoCardProps {
@@ -37,7 +37,9 @@ export function MultiArtistSetInfoCard({
       index ===
       self.findIndex((g) => g.music_genre_id === genre.music_genre_id),
   );
-  const { festival } = useFestivalEdition();
+  const { festival } = useRouteContext({
+    from: "/festivals/$festivalSlug/editions/$editionSlug",
+  });
   const { canShowStage, canShowDay, canShowTime } = useScheduleReveal();
   const timeRangeFormatted = canShowTime
     ? formatTimeRange(

@@ -1,11 +1,13 @@
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
+import { useRouteContext } from "@tanstack/react-router";
 import {
   type FestivalPhase,
   getEffectiveFestivalPhase,
 } from "@/lib/festivalPhase";
 
 export function useFestivalPhase(): { phase: FestivalPhase } {
-  const { festival, edition } = useFestivalEdition();
+  const { festival, edition } = useRouteContext({
+    from: "/festivals/$festivalSlug/editions/$editionSlug",
+  });
 
   const phase = getEffectiveFestivalPhase({
     override: edition?.phase_override ?? null,

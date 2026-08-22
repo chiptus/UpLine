@@ -2,7 +2,6 @@ import { createFileRoute, stripSearchParams } from "@tanstack/react-router";
 import { FilteredSetsPanel } from "@/pages/EditionView/tabs/VoteTab/FilteredSetsPanel";
 import { useUrlState } from "@/hooks/useUrlState";
 import { useSetsByEditionQuery } from "@/api/sets/useSetsByEdition";
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { pageMeta } from "@/lib/pageHead";
 import {
   filterSortSearchDefaults,
@@ -28,7 +27,7 @@ export const Route = createFileRoute(
 
 function VoteTab() {
   const { state: urlState, updateUrlState, clearFilters } = useUrlState();
-  const { edition } = useFestivalEdition();
+  const { edition } = Route.useRouteContext();
 
   const { data: sets = [], isLoading: setsLoading } = useSetsByEditionQuery(
     edition?.id,

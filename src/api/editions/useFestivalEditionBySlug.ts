@@ -3,6 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { FestivalEdition, editionsKeys } from "./types";
 import { isTimeoutError, withTimeout } from "@/lib/timeout";
 
+export class EditionNotFoundError extends Error {
+  constructor() {
+    super("Festival edition not found");
+    this.name = "EditionNotFoundError";
+  }
+}
+
 export async function fetchFestivalEditionBySlug({
   editionSlug,
   festivalId,
@@ -24,6 +31,9 @@ export async function fetchFestivalEditionBySlug({
   if (error) {
     if (isTimeoutError(signal)) {
       throw new Error("Failed to load festival edition - request timed out");
+    }
+    if (error.code === "PGRST116") {
+      throw new EditionNotFoundError();
     }
     throw new Error("Failed to load festival edition");
   }

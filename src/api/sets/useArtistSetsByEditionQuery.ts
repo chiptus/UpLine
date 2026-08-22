@@ -60,7 +60,7 @@ async function fetchArtistSetsByEdition(
     .eq("artist_id", artistId)
     .eq("sets.festival_edition_id", editionId)
     .eq("sets.archived", false)
-    .order("sets.time_start", { ascending: true })
+    .order("time_start", { referencedTable: "sets", ascending: true })
     .returns<Array<{ set_id: string; sets: RawArtistSet }>>();
 
   if (error) {

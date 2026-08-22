@@ -16,6 +16,7 @@ import {
 import type { Provider, Candidate } from "@/api/artistSearch/types";
 import { ProviderCandidatesPanel } from "./ProviderCandidatesPanel";
 import { StagedFieldsPreview } from "./StagedFieldsPreview";
+import { ArtistSetInfoPanel } from "./ArtistSetInfoPanel";
 import { useArtistBatchQuery } from "./useArtistBatchQuery";
 
 const optionalUrlSchema = z
@@ -37,6 +38,7 @@ export type LinkStepData = z.infer<typeof linkStepSchema>;
 
 interface LinkWizardStepProps {
   artist: Artist;
+  editionId: string;
   position: number;
   total: number;
   artists: Artist[];
@@ -46,6 +48,7 @@ interface LinkWizardStepProps {
 
 export function LinkWizardStep({
   artist,
+  editionId,
   position,
   total,
   artists,
@@ -74,6 +77,8 @@ export function LinkWizardStep({
           {position} of {total}
         </span>
       </div>
+
+      <ArtistSetInfoPanel artist={artist} editionId={editionId} />
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

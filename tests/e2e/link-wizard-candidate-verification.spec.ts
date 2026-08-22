@@ -111,6 +111,7 @@ async function mockSearchArtistLinks(
     await route.fulfill({
       status: 200,
       contentType: "application/json",
+      headers: { "Access-Control-Allow-Origin": "*" },
       body: JSON.stringify({
         results: artistNames.flatMap((name) =>
           providers.map((provider) => ({

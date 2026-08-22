@@ -10,6 +10,7 @@ const VARIANTS = [
   "festival-light",
   "hybrid-dark",
   "hybrid-light",
+  "unified-light",
 ] as const;
 export type IdentityVariant = (typeof VARIANTS)[number];
 
@@ -19,6 +20,7 @@ const LABELS: Record<IdentityVariant, string> = {
   "festival-light": "Festival v2 — light (soft borders)",
   "hybrid-dark": "Hybrid — dark (coral on neutral)",
   "hybrid-light": "Hybrid — light (coral, soft borders)",
+  "unified-light": "Unified — light (coral colors, festival type)",
 };
 
 export function useIdentityVariant(): IdentityVariant {
@@ -45,6 +47,8 @@ export function identityClass(variant: IdentityVariant) {
   if (variant === "hybrid-dark") return "proto-festival-v2 proto-hybrid";
   if (variant === "hybrid-light")
     return "proto-festival-v2 proto-hybrid proto-light";
+  if (variant === "unified-light")
+    return "proto-festival-v2 proto-light proto-coral";
   return "";
 }
 

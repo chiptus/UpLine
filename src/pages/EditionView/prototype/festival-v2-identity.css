@@ -173,3 +173,11 @@
 .proto-festival-v2.proto-hybrid.proto-light.bg-app-gradient {
   background: #fafaf7;
 }
+
+/* ---- unified light: hybrid's coral light colors, Festival v2 typography ---- */
+
+.proto-festival-v2.proto-light.proto-coral {
+  --proto-accent: #d32a17;
+  --proto-accent-fg: #ffffff;
+  --proto-live: #c1180a;
+}

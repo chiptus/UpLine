@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import type { Candidate } from "@/api/artistSearch/types";
@@ -17,6 +17,10 @@ export function CandidateCards({
   onSelectCandidate,
 }: CandidateCardsProps) {
   const [showMore, setShowMore] = useState(false);
+
+  useEffect(() => {
+    setShowMore(false);
+  }, [candidates]);
 
   if (isLoading) {
     return (

@@ -10,6 +10,7 @@ on:
       - ".github/workflows/deploy-staging.yml"
       - ".github/workflows/_db_migrate.yml"
       - ".github/workflows/_deploy_edge_functions.yml"
+  workflow_dispatch: {}
 
 permissions:
   contents: read
@@ -20,13 +21,14 @@ jobs:
     name: Resolve changes
     runs-on: ubuntu-latest
     outputs:
-      migrations: ${{ steps.filter.outputs.migrations }}
-      functions: ${{ steps.filter.outputs.functions }}
+      migrations: ${{ steps.filter.outputs.migrations || 'true' }}
+      functions: ${{ steps.filter.outputs.functions || 'true' }}
     steps:
       - uses: actions/checkout@v5
 
       - uses: dorny/paths-filter@v4
         id: filter
+        if: github.event_name != 'workflow_dispatch'
         with:
           filters: |
             migrations:
@@ -37,7 +39,7 @@ jobs:
   gate:
     name: Require staging label for migrations
     needs: resolve
-    if: needs.resolve.outputs.migrations == 'true'
+    if: github.event_name == 'pull_request' && needs.resolve.outputs.migrations == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Fail if this PR touches migrations without holding the staging label
@@ -49,7 +51,7 @@ jobs:
   check-lock:
     name: Verify staging lock ownership
     needs: resolve
-    if: contains(github.event.pull_request.labels.*.name, 'staging')
+    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'staging')
     runs-on: ubuntu-latest
     outputs:
       is_holder: ${{ steps.check.outputs.is_holder }}
@@ -74,7 +76,11 @@ jobs:
 
   migrate:
     needs: [resolve, gate, check-lock]
-    if: needs.resolve.outputs.migrations == 'true' && needs.check-lock.outputs.is_holder == 'true'
+    if: >
+      always() &&
+      needs.resolve.result == 'success' &&
+      needs.resolve.outputs.migrations == 'true' &&
+      (github.event_name != 'pull_request' || (needs.check-lock.result == 'success' && needs.check-lock.outputs.is_holder == 'true'))
     uses: ./.github/workflows/_db_migrate.yml
     with:
       target: staging
@@ -91,7 +97,7 @@ jobs:
   comment:
     name: Update PR comment
     needs: [resolve, migrate, functions]
-    if: always() && needs.resolve.result == 'success'
+    if: always() && needs.resolve.result == 'success' && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5

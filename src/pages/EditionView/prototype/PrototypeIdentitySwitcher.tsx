@@ -54,9 +54,12 @@ export function identityClass(variant: IdentityVariant) {
 
 export function PrototypeIdentitySwitcher() {
   const variant = useIdentityVariant();
+  const enabled = isPrototypeEnabled();
 
   useEffect(() => {
+    if (!enabled) return;
     function onKey(e: KeyboardEvent) {
+      if (!e.shiftKey) return;
       const target = e.target as HTMLElement | null;
       if (
         target &&
@@ -71,7 +74,9 @@ export function PrototypeIdentitySwitcher() {
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [enabled]);
+
+  if (!enabled) return null;
 
   return (
     <div
@@ -124,6 +129,12 @@ const arrowStyle: React.CSSProperties = {
   height: 26,
   cursor: "pointer",
 };
+
+function isPrototypeEnabled() {
+  if (import.meta.env.DEV) return true;
+  const params = new URLSearchParams(window.location.search);
+  return params.has("proto") || params.has("identity");
+}
 
 function readVariant(): IdentityVariant {
   const v = new URLSearchParams(window.location.search).get("identity");

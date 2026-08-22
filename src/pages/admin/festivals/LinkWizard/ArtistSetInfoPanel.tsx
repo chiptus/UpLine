@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
-import { useArtistSetsByEditionQuery } from "@/api/sets/useArtistSetsByEditionQuery";
+import { useArtistSetsByEditionQuery } from "@/api/artists/useArtistsMissingLinksByEdition";
 import type { Artist } from "@/api/artists/types";
 
 interface ArtistSetInfoPanelProps {
@@ -13,7 +13,7 @@ export function ArtistSetInfoPanel({
   artist,
   editionId,
 }: ArtistSetInfoPanelProps) {
-  const setsQuery = useArtistSetsByEditionQuery(artist.id, editionId);
+  const setsQuery = useArtistSetsByEditionQuery(editionId, artist.id);
 
   if (setsQuery.isLoading) {
     return (

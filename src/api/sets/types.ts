@@ -18,6 +18,4 @@ export const setsKeys = {
   bySlug: (params: unknown) => [...setsKeys.details(), params] as const,
   byEdition: (editionId: string) =>
     [...setsKeys.all, "edition", editionId] as const,
-  byArtistAndEdition: (artistId: string, editionId: string) =>
-    [...setsKeys.all, "artist", artistId, "edition", editionId] as const,
 };

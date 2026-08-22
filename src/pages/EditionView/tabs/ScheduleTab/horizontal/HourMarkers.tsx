@@ -29,10 +29,10 @@ export function HourMarkers({ timeSlots, timezone }: HourMarkersProps) {
               width: 0,
             }}
           >
-            <div className="text-sm font-medium text-purple-300 whitespace-nowrap">
+            <div className="text-sm font-medium text-subtle-foreground whitespace-nowrap">
               {formatInTimeZone(timeSlot, timezone, "HH:mm")}
             </div>
-            <div className="w-px h-4 bg-purple-400/30" />
+            <div className="w-px h-4 bg-border" />
           </div>
         );
       })}

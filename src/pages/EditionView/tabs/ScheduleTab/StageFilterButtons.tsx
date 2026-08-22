@@ -21,8 +21,10 @@ export function StageFilterButtons({
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
-        <MapPin className="h-3 w-3 text-purple-300" />
-        <label className="text-sm font-medium text-purple-200">Stages</label>
+        <MapPin className="h-3 w-3 text-subtle-foreground" />
+        <label className="text-sm font-medium text-muted-foreground">
+          Stages
+        </label>
       </div>
       <div className="flex flex-wrap gap-2 max-h-20 overflow-y-auto">
         {stages.map((stage) => (
@@ -33,8 +35,8 @@ export function StageFilterButtons({
             onClick={() => onStageToggle(stage.id)}
             className={
               selectedStages.includes(stage.id)
-                ? "bg-purple-600 hover:bg-purple-700 text-xs"
-                : "bg-white/5 border-purple-400/40 text-purple-300 hover:border-purple-300 hover:bg-purple-400/20 hover:text-purple-100 text-xs"
+                ? "bg-accent hover:bg-accent text-xs"
+                : "bg-surface border-strong text-subtle-foreground hover:border-strong hover:bg-accent-soft hover:text-foreground text-xs"
             }
           >
             {stage.name}

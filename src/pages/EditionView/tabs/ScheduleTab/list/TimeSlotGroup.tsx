@@ -21,13 +21,13 @@ export function TimeSlotGroup({ timeSlot, timezone }: TimeSlotGroupProps) {
   return (
     <div className="relative">
       <div className="flex items-center gap-3 mb-3 px-1">
-        <div className="flex items-center gap-2 bg-purple-800/50 px-3 py-1.5 rounded-full">
-          <Clock className="h-3 w-3 text-purple-300" />
-          <span className="text-sm font-medium text-purple-200">
+        <div className="flex items-center gap-2 bg-accent-soft px-3 py-1.5 rounded-full">
+          <Clock className="h-3 w-3 text-subtle-foreground" />
+          <span className="text-sm font-medium text-muted-foreground">
             {formatTimeOnly(timeSlot.time.toISOString(), null, true, timezone)}
           </span>
         </div>
-        <div className="flex-1 h-px bg-purple-400/20"></div>
+        <div className="flex-1 h-px bg-border"></div>
       </div>
 
       <div

@@ -47,22 +47,22 @@ export function DayFilterSelect({
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
-        <Calendar className="h-3 w-3 text-purple-300" />
-        <label className="text-sm font-medium text-purple-200">Day</label>
+        <Calendar className="h-3 w-3 text-subtle-foreground" />
+        <label className="text-sm font-medium text-muted-foreground">Day</label>
       </div>
       <Select value={selectedDay} onValueChange={onDayChange}>
         <SelectTrigger
           data-testid="day-filter-trigger"
-          className="bg-white/10 border-purple-400/30 text-purple-100"
+          className="bg-surface-raised border-border text-foreground"
         >
           <SelectValue />
         </SelectTrigger>
-        <SelectContent className="bg-gray-800 border-purple-400/30">
+        <SelectContent className="bg-popover border-border">
           {dayOptions.map((option) => (
             <SelectItem
               key={option.value}
               value={option.value}
-              className="text-purple-100"
+              className="text-foreground"
             >
               {option.label}
             </SelectItem>

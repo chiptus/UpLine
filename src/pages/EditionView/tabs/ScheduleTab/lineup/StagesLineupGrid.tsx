@@ -12,7 +12,7 @@ export function StagesLineupGrid({ scheduleDays, tab }: StagesLineupGridProps) {
 
   if (!daysWithStages.length) {
     return (
-      <div className="text-center text-purple-300 py-12">
+      <div className="text-center text-subtle-foreground py-12">
         <p>No scheduled sets found.</p>
       </div>
     );
@@ -25,8 +25,8 @@ export function StagesLineupGrid({ scheduleDays, tab }: StagesLineupGridProps) {
           <LineupDayHeader displayDate={day.displayDate} tab={tab} />
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {day.stages.map((stage) => (
-              <div key={stage.id} className="bg-white/5 rounded-lg p-3">
-                <h3 className="text-purple-200 font-medium mb-3">
+              <div key={stage.id} className="bg-surface rounded-lg p-3">
+                <h3 className="text-muted-foreground font-medium mb-3">
                   {stage.name}
                 </h3>
                 <div className="space-y-2">

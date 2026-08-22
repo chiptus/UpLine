@@ -40,7 +40,7 @@ export function DayJumpButtons({
             {breakBefore && (
               <span
                 aria-hidden
-                className="mx-1 w-px shrink-0 self-stretch bg-purple-400/25"
+                className="mx-1 w-px shrink-0 self-stretch bg-border"
               />
             )}
             <button
@@ -51,10 +51,10 @@ export function DayJumpButtons({
               onClick={() => onJumpToDay(getDayJumpMoment(day, timezone))}
               className={cn(
                 "group relative shrink-0 rounded-md px-3 pb-1 pt-1.5 text-center transition-colors",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 isActive
-                  ? "text-white"
-                  : "text-purple-200/60 hover:text-purple-100",
+                  ? "text-foreground"
+                  : "text-muted-foreground/60 hover:text-foreground",
               )}
             >
               {parts ? (
@@ -76,8 +76,8 @@ export function DayJumpButtons({
                 className={cn(
                   "absolute inset-x-2 -bottom-1.5 h-0.5 rounded-full transition-colors",
                   isActive
-                    ? "bg-purple-400"
-                    : "bg-transparent group-hover:bg-purple-400/30",
+                    ? "bg-accent"
+                    : "bg-transparent group-hover:bg-border",
                 )}
               />
             </button>

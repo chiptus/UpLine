@@ -14,7 +14,7 @@ export function ScheduleNavigation() {
   const showNow = phase === "live";
 
   return (
-    <div className="bg-white/10 backdrop-blur-md rounded-lg p-1">
+    <div className="bg-surface-raised backdrop-blur-md rounded-lg p-1">
       <div className="flex items-center justify-center gap-1">
         {showNow && (
           <ScheduleNavigationItem view="now" label="Now" icon={Radio} />

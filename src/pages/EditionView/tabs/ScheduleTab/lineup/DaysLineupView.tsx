@@ -19,7 +19,7 @@ export function DaysLineupView({ scheduleDays, tab }: DaysLineupViewProps) {
 
   if (!daysWithSets.length) {
     return (
-      <div className="text-center text-purple-300 py-12">
+      <div className="text-center text-subtle-foreground py-12">
         <p>No scheduled sets found.</p>
       </div>
     );

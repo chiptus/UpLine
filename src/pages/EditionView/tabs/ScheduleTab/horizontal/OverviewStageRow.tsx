@@ -34,7 +34,7 @@ export function OverviewStageRow({
   return (
     <div
       data-testid="timeline-overview-stage-row"
-      className="absolute inset-x-0 rounded-sm bg-white/5"
+      className="absolute inset-x-0 rounded-sm bg-surface"
       style={{ top, height }}
     >
       {blocks.map((block) => {

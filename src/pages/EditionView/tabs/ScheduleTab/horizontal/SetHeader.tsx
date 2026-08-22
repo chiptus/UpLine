@@ -15,7 +15,7 @@ export function SetHeader({ set }: SetHeaderProps) {
       <Link
         to="/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug"
         params={{ festivalSlug, editionSlug, setSlug: set.slug ?? "" }}
-        className="text-white font-semibold hover:text-purple-300 transition-colors block text-sm whitespace-nowrap overflow-hidden text-ellipsis"
+        className="text-foreground font-semibold hover:text-subtle-foreground transition-colors block text-sm whitespace-nowrap overflow-hidden text-ellipsis"
       >
         {set.name}
       </Link>

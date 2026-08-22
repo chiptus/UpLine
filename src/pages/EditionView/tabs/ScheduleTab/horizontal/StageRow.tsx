@@ -16,7 +16,7 @@ export function StageRow({ stage, totalWidth, timezone }: StageRowProps) {
     <div key={stage.name} className="flex items-start">
       {/* Timeline Track */}
       <div
-        className="relative h-24 bg-white/5 rounded-lg border-2"
+        className="relative h-24 bg-surface rounded-lg border-2"
         style={{
           minWidth: totalWidth,
           borderColor: stage.color ? `${stage.color}40` : "#7c3aed33",

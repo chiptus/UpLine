@@ -17,7 +17,7 @@ export function TimeScaleContainer({
   return (
     <div
       className={cn(
-        "sticky z-30 overflow-hidden rounded-b-lg bg-gray-900",
+        "sticky z-30 overflow-hidden rounded-b-lg bg-popover",
         HEADER_STRIP_TOP_CLASS,
       )}
     >

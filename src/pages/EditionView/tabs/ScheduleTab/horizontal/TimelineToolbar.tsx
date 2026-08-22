@@ -63,7 +63,7 @@ export function TimelineToolbar({
       role="toolbar"
       aria-label="Timeline navigation"
       className={cn(
-        "sticky z-40 mb-4 flex items-end gap-1 rounded-lg border border-purple-400/20 bg-gray-900/95 px-2 pb-2.5 pt-2 backdrop-blur-md",
+        "sticky z-40 mb-4 flex items-end gap-1 rounded-lg border border-border bg-popover px-2 pb-2.5 pt-2 backdrop-blur-md",
         STICKY_TOP_BELOW_TOP_BAR_CLASS,
       )}
     >
@@ -81,14 +81,14 @@ export function TimelineToolbar({
           onJumpToDay={onJumpToDay}
         />
       </div>
-      <div className="flex shrink-0 items-center gap-1 self-center border-l border-purple-400/20 pl-1">
+      <div className="flex shrink-0 items-center gap-1 self-center border-l border-border pl-1">
         {showNowButton && <NowButton onJumpToNow={onJumpToNow} />}
         <Button
           type="button"
           variant="ghost"
           size="sm"
           data-testid="timeline-overview-toggle"
-          className="shrink-0 gap-1.5 text-purple-200/60 hover:bg-purple-400/10 hover:text-purple-100"
+          className="shrink-0 gap-1.5 text-muted-foreground/60 hover:bg-accent-soft hover:text-foreground"
           aria-expanded={isOverviewExpanded}
           aria-label={isOverviewExpanded ? "Hide overview" : "Show overview"}
           onClick={onToggleOverview}

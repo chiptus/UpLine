@@ -22,21 +22,21 @@ export function MobileSetCard({ set, timezone }: MobileSetCardProps) {
       : null;
 
   return (
-    <Card className="bg-white/10 backdrop-blur-md border-purple-400/30 hover:border-purple-400/50 transition-colors">
+    <Card className="bg-surface-raised backdrop-blur-md border-border hover:border-strong transition-colors">
       <CardContent className="p-4">
         {/* Artist name */}
         <div className="mb-3">
           <Link
             to="/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug"
             params={{ festivalSlug, editionSlug, setSlug: set.slug ?? "" }}
-            className="text-white font-semibold hover:text-purple-300 transition-colors block text-lg"
+            className="text-foreground font-semibold hover:text-subtle-foreground transition-colors block text-lg"
           >
             {set.name}
           </Link>
         </div>
 
         {/* Stage and duration info */}
-        <div className="flex items-center gap-4 mb-3 text-sm text-purple-200">
+        <div className="flex items-center gap-4 mb-3 text-sm text-muted-foreground">
           {set.stageName && (
             <StageBadge
               stageName={set.stageName}

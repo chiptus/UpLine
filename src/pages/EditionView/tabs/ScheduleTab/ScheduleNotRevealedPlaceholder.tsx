@@ -10,7 +10,7 @@ export function ScheduleNotRevealedPlaceholder() {
   const { level } = useScheduleReveal();
   const copy = level === "full" ? COPY.draft : COPY[level];
   return (
-    <div className="text-center text-purple-300 py-12">
+    <div className="text-center text-subtle-foreground py-12">
       <p>{copy}</p>
     </div>
   );

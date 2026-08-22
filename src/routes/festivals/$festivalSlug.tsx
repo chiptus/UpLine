@@ -1,4 +1,9 @@
-import { createFileRoute, notFound, Link } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  notFound,
+  Link,
+  Outlet,
+} from "@tanstack/react-router";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 import { festivalInfoQuery } from "@/api/festival-info/useFestivalInfo";
 import { customLinksQuery } from "@/api/custom-links/useCustomLinks";
@@ -26,6 +31,7 @@ export const Route = createFileRoute("/festivals/$festivalSlug")({
       customLinksQuery(context.festival.id),
     );
   },
+  component: () => <Outlet />,
   notFoundComponent: FestivalNotFound,
   head: ({ match }) => ({
     meta: pageMeta({ title: match.context.festival?.name }),

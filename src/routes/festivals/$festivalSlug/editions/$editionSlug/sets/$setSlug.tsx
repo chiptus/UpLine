@@ -1,5 +1,5 @@
 import { createFileRoute, stripSearchParams } from "@tanstack/react-router";
-import { useParams, useRouteContext } from "@tanstack/react-router";
+import { useParams } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArtistImageCard } from "@/pages/SetDetails/SetImageCard";
 import { MixedArtistImage } from "@/pages/SetDetails/MixedArtistImage";
@@ -50,9 +50,7 @@ function SetDetails() {
   const { setSlug } = useParams({
     from: "/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug",
   });
-  const { festival, edition } = useRouteContext({
-    from: "/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug",
-  });
+  const { festival, edition } = Route.useRouteContext();
   const { state: urlState } = useUrlState();
   const { data: currentSet } = useSuspenseQuery(
     setBySlugQuery(setSlug, edition.id),

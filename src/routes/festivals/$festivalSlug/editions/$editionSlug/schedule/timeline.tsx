@@ -1,9 +1,5 @@
 import { useMemo } from "react";
-import {
-  createFileRoute,
-  stripSearchParams,
-  useRouteContext,
-} from "@tanstack/react-router";
+import { createFileRoute, stripSearchParams } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   timelineSearchDefaults,
@@ -46,9 +42,7 @@ function ScheduleTabTimeline() {
 }
 
 function TimelineContent() {
-  const { festival, edition } = useRouteContext({
-    from: "/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline",
-  });
+  const { festival, edition } = Route.useRouteContext();
   const now = useNow();
   const { data: editionSets = [], isLoading: setsLoading } =
     useEditionSetsQuery(edition.id);

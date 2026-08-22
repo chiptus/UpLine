@@ -98,7 +98,9 @@ export default defineConfig({
     },
     {
       name: "Mobile Safari",
-      use: { ...devices["iPhone 12"] },
+      // Also WebKit-engine-based — see the "webkit" project above for why
+      // service workers must be blocked for page.route() mocks to work.
+      use: { ...devices["iPhone 12"], serviceWorkers: "block" },
       testIgnore: COOKIE_CONSENT_SPEC,
     },
 

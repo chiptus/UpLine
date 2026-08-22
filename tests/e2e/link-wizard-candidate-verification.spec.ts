@@ -131,6 +131,20 @@ async function mockSearchArtistLinks(
   });
 }
 
+// Fails fast with the panel's own error text instead of a generic "not
+// found" timeout, so a CI failure is actionable without downloading traces.
+async function failOnCandidatesError(page: import("@playwright/test").Page) {
+  const errorAlert = page.getByRole("alert");
+  const appeared = await errorAlert
+    .waitFor({ state: "visible", timeout: 5000 })
+    .then(() => true)
+    .catch(() => false);
+  if (appeared) {
+    const errorText = await errorAlert.textContent();
+    throw new Error(`Candidates panel shows an error: ${errorText}`);
+  }
+}
+
 async function selectArtistByName(
   page: import("@playwright/test").Page,
   name: string,
@@ -178,6 +192,7 @@ test.describe(
 
       // 2. Candidates render sorted by descending followers; only 3 show initially.
       await expect(page.getByText("Spotify Candidates")).toBeVisible();
+      await failOnCandidatesError(page);
 
       const candidateCards = page.locator(".bg-card").filter({
         has: page.getByRole("button", { name: "Select all" }),
@@ -246,6 +261,7 @@ test.describe(
       await selectArtistByName(page, "Kiara Scuro");
 
       await expect(page.getByText("Spotify Candidates")).toBeVisible();
+      await failOnCandidatesError(page);
 
       const spotifyUrlInput = page.locator(
         'input[placeholder*="open.spotify.com"]',

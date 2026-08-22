@@ -1,46 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2 } from "lucide-react";
-import { useArtistSetsByEditionQuery } from "@/api/artists/useArtistsMissingLinksByEdition";
-import type { Artist } from "@/api/artists/types";
+import type { ArtistWithSets } from "@/api/artists/useArtistsMissingLinksByEdition";
 
 interface ArtistSetInfoPanelProps {
-  artist: Artist;
-  editionId: string;
+  artist: ArtistWithSets;
 }
 
-export function ArtistSetInfoPanel({
-  artist,
-  editionId,
-}: ArtistSetInfoPanelProps) {
-  const setsQuery = useArtistSetsByEditionQuery(editionId, artist.id);
-
-  if (setsQuery.isLoading) {
-    return (
-      <Card>
-        <CardContent className="flex items-center justify-center p-6">
-          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-          <span className="text-sm text-muted-foreground">
-            Loading set information...
-          </span>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (setsQuery.isError) {
-    return (
-      <Card>
-        <CardContent className="p-6">
-          <p className="text-sm text-destructive">
-            Failed to load set information
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const sets = setsQuery.data ?? [];
+export function ArtistSetInfoPanel({ artist }: ArtistSetInfoPanelProps) {
+  const sets = artist.sets;
 
   if (sets.length === 0) {
     return null;

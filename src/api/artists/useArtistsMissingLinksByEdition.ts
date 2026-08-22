@@ -30,7 +30,11 @@ export interface ArtistSetWithCoPerformers {
   }>;
 }
 
-export function selectArtistsMissingLinks(sets: SetWithArtists[]): Artist[] {
+export type ArtistWithSets = Artist & { sets: ArtistSetWithCoPerformers[] };
+
+export function selectArtistsMissingLinks(
+  sets: SetWithArtists[],
+): ArtistWithSets[] {
   const artists = sets
     .flatMap((set) => set.set_artists ?? [])
     .map((setArtist) => setArtist.artists)
@@ -38,9 +42,12 @@ export function selectArtistsMissingLinks(sets: SetWithArtists[]): Artist[] {
 
   const artistsById = new Map(artists.map((artist) => [artist.id, artist]));
 
-  return Array.from(artistsById.values()).filter(
-    (artist) => !artist.spotify_url || !artist.soundcloud_url,
-  );
+  return Array.from(artistsById.values())
+    .filter((artist) => !artist.spotify_url || !artist.soundcloud_url)
+    .map((artist) => ({
+      ...artist,
+      sets: selectArtistSetsById(sets, artist.id),
+    }));
 }
 
 export function selectArtistSetsById(
@@ -114,16 +121,5 @@ export function useArtistsMissingLinksByEditionQuery(
     ...setsWithArtistsByEditionQuery(editionId!),
     enabled: !!editionId,
     select: selectArtistsMissingLinks,
-  });
-}
-
-export function useArtistSetsByEditionQuery(
-  editionId: string | undefined,
-  artistId: string | undefined,
-) {
-  return useQuery({
-    ...setsWithArtistsByEditionQuery(editionId!),
-    enabled: !!editionId && !!artistId,
-    select: (sets) => selectArtistSetsById(sets, artistId!),
   });
 }

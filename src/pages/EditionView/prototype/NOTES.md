@@ -16,6 +16,14 @@ merged as-is.
 hardcoded palette classes with scoped CSS. The real rollout is specced in #321
 using the token vocabulary from `docs/design/edition-color-vocabulary.md`.
 
-**Verdict:** _(fill in after review, then delete this directory, the switcher
-wiring in `src/routes/festivals/$festivalSlug/editions/$editionSlug.tsx`, and
-capture the answer in #321)_
+**Verdict (2026-08-22):** Festival v2 holds up on real screens and is
+confirmed for both modes: `festival-dark` (violet ground, lime accent,
+Unbounded) and `festival-light` (olive-green #4c7a00 accent, soft borders on
+#fafaf7). One skeleton, two color themes — typography does NOT change between
+modes. The hybrid variants (coral, Bricolage/Public Sans) and the
+`unified-light` comparison were reviewed and rejected; this also settles
+#320's open light-accent question in favor of green. Border radius was
+softened from the mockups' 18/14px to 12/10px and stays an open knob for
+#321 (single `--radius` token). Next: spec in #321, then delete this
+directory and its wiring in
+`src/routes/festivals/$festivalSlug/editions/$editionSlug.tsx`.

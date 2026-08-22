@@ -8,6 +8,8 @@ This names the **roles** colors play in the voter-facing edition views, independ
 
 - **Reuse and retheme the existing shadcn token names** where a role already exists (`background`, `foreground`, `muted-foreground`, `border`, `ring`, `popover`, `accent`, `destructive`). New names are added only for roles shadcn doesn't cover. No `ed-*` namespace.
 - **No numeric ramps.** Each role is one value per theme; "lighter/darker" variants are expressed as alpha on the base token (Tailwind `/NN` over an HSL var) or as an explicit `-soft` companion, not as `-100…-900` scales.
+- **`/NN` opacity modifiers work only on opaque roles** (`foreground`, `accent`, `live`, `vote-must`, …). The inherently translucent roles (`surface`/`surface-raised`/`surface-active`, `accent-soft`, `border`/`border-strong`, `*-soft`) carry their alpha inside the CSS variable, so `bg-surface/50` expands to a double-alpha `hsl(… / 0.05 / .5)` — silently invalid CSS. Use the next step in the role family (`surface` → `surface-raised` → `surface-active`) instead of a modifier.
+- **Portals escape the scope.** The variables live on the edition root (`EditionViewRoot`), but Radix `Select`/`Popover`/`Sheet` content portals under `document.body` and resolves the global values there. Before tokenizing portaled content, give it the scope (portal `container` inside the edition root, or the scope class on the content element).
 - Values below reference today's hardcoded classes only to define the mapping; the actual palette is chosen in #320/#321.
 
 ## Token set

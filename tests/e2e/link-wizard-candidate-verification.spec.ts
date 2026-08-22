@@ -69,11 +69,6 @@ test.describe(
         const artistNames = postData.artistNames || [];
         const provider = postData.provider || "spotify";
 
-        if (artistNames.includes("Kiara Scuro")) {
-          await route.abort("aborted");
-          return;
-        }
-
         if (artistNames.length > 0) {
           await route.fulfill({
             status: 200,

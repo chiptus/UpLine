@@ -19,7 +19,7 @@ export function SetCoPerformers({
       <p className="text-xs font-medium mb-1">Co-performers:</p>
       <div className="flex flex-wrap gap-1">
         {otherPerformers.length === 0 ? (
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs text-paper-muted-foreground">
             No other co-performers
           </span>
         ) : (

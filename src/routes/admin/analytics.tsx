@@ -37,7 +37,7 @@ function AdminAnalytics() {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-surface-raised backdrop-blur-md border-surface-active">
+      <Card className="bg-surface-raised backdrop-blur-md border-white/20">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-foreground">
             <Users className="h-5 w-5" />
@@ -50,7 +50,7 @@ function AdminAnalytics() {
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow className="border-surface-active">
+              <TableRow className="border-white/20">
                 <TableHead className="text-foreground">Group Name</TableHead>
                 <TableHead className="text-foreground">Members</TableHead>
                 <TableHead className="text-foreground">Created</TableHead>
@@ -75,7 +75,7 @@ function AdminAnalytics() {
         </CardContent>
       </Card>
 
-      <Card className="bg-surface-raised backdrop-blur-md border-surface-active">
+      <Card className="bg-surface-raised backdrop-blur-md border-white/20">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-foreground">
             <Vote className="h-5 w-5" />
@@ -88,7 +88,7 @@ function AdminAnalytics() {
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow className="border-surface-active">
+              <TableRow className="border-white/20">
                 <TableHead className="text-foreground">Username</TableHead>
                 <TableHead className="text-foreground">Email</TableHead>
                 <TableHead className="text-foreground">Votes</TableHead>

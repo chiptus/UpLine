@@ -101,14 +101,14 @@ function AdminLayout() {
             >
               <TabsTrigger
                 value="artists"
-                className="data-[state=active]:bg-accent data-[state=active]:text-foreground text-foreground"
+                className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground text-foreground"
               >
                 <Music className="h-4 w-4 mr-2" />
                 Artists
               </TabsTrigger>
               <TabsTrigger
                 value="festivals"
-                className="data-[state=active]:bg-accent data-[state=active]:text-foreground text-foreground"
+                className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground text-foreground"
               >
                 <Calendar className="h-4 w-4 mr-2" />
                 Festival Management
@@ -117,14 +117,14 @@ function AdminLayout() {
                 <>
                   <TabsTrigger
                     value="analytics"
-                    className="data-[state=active]:bg-accent data-[state=active]:text-foreground text-foreground"
+                    className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground text-foreground"
                   >
                     <BarChart3 className="h-4 w-4 mr-2" />
                     Analytics
                   </TabsTrigger>
                   <TabsTrigger
                     value="admins"
-                    className="data-[state=active]:bg-accent data-[state=active]:text-foreground text-foreground"
+                    className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground text-foreground"
                   >
                     <UserPlus className="h-4 w-4 mr-2" />
                     Admin Roles

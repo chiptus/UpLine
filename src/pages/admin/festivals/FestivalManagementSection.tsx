@@ -35,7 +35,7 @@ export function FestivalManagementSection({
 
             <Button
               onClick={handleCreate}
-              className="bg-accent hover:bg-purple-700"
+              className="bg-accent text-accent-foreground hover:bg-accent-hover"
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Festival

@@ -37,7 +37,7 @@ function AdminAnalytics() {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-surface-raised backdrop-blur-md border-white/20">
+      <Card className="bg-surface-raised backdrop-blur-md border-foreground/20">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-foreground">
             <Users className="h-5 w-5" />
@@ -50,7 +50,7 @@ function AdminAnalytics() {
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow className="border-white/20">
+              <TableRow className="border-foreground/20">
                 <TableHead className="text-foreground">Group Name</TableHead>
                 <TableHead className="text-foreground">Members</TableHead>
                 <TableHead className="text-foreground">Created</TableHead>
@@ -58,7 +58,7 @@ function AdminAnalytics() {
             </TableHeader>
             <TableBody>
               {groupAnalytics.map((group) => (
-                <TableRow key={group.id} className="border-white/10">
+                <TableRow key={group.id} className="border-foreground/10">
                   <TableCell className="text-foreground font-medium">
                     {group.name}
                   </TableCell>
@@ -75,7 +75,7 @@ function AdminAnalytics() {
         </CardContent>
       </Card>
 
-      <Card className="bg-surface-raised backdrop-blur-md border-white/20">
+      <Card className="bg-surface-raised backdrop-blur-md border-foreground/20">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-foreground">
             <Vote className="h-5 w-5" />
@@ -88,7 +88,7 @@ function AdminAnalytics() {
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow className="border-white/20">
+              <TableRow className="border-foreground/20">
                 <TableHead className="text-foreground">Username</TableHead>
                 <TableHead className="text-foreground">Email</TableHead>
                 <TableHead className="text-foreground">Votes</TableHead>
@@ -97,7 +97,7 @@ function AdminAnalytics() {
             </TableHeader>
             <TableBody>
               {userAnalytics.map((user) => (
-                <TableRow key={user.id} className="border-white/10">
+                <TableRow key={user.id} className="border-foreground/10">
                   <TableCell className="text-foreground font-medium">
                     {user.username || "No username"}
                   </TableCell>

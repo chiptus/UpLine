@@ -2,6 +2,10 @@ import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { FestivalEdition, editionsKeys } from "./types";
 import { isTimeoutError, withTimeout } from "@/lib/timeout";
+import {
+  isSupabaseNotFoundError,
+  SupabaseNotFoundError,
+} from "@/lib/supabaseErrors";
 
 export async function fetchFestivalEditionBySlug({
   editionSlug,
@@ -24,6 +28,9 @@ export async function fetchFestivalEditionBySlug({
   if (error) {
     if (isTimeoutError(signal)) {
       throw new Error("Failed to load festival edition - request timed out");
+    }
+    if (isSupabaseNotFoundError(error)) {
+      throw new SupabaseNotFoundError("Festival edition");
     }
     throw new Error("Failed to load festival edition");
   }

@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { festivalInfoQuery } from "@/api/festival-info/useFestivalInfo";
 import { pageMeta } from "@/lib/pageHead";
 import { ExternalLinkIcon } from "lucide-react";
@@ -15,7 +14,7 @@ export const Route = createFileRoute(
 });
 
 function SocialTab() {
-  const { festival } = useFestivalEdition();
+  const { festival } = Route.useRouteContext();
   const { data: festivalInfo } = useSuspenseQuery(
     festivalInfoQuery(festival.id),
   );

@@ -1,9 +1,5 @@
 import { useMemo } from "react";
-import {
-  createFileRoute,
-  stripSearchParams,
-  useRouteContext,
-} from "@tanstack/react-router";
+import { createFileRoute, stripSearchParams } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   timelineSearchDefaults,
@@ -15,7 +11,6 @@ import {
   calculateTimelineData,
 } from "@/lib/timelineCalculator";
 import { TimelineContainer } from "@/pages/EditionView/tabs/ScheduleTab/horizontal/TimelineContainer";
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { useSetsByEditionQuery as useEditionSetsQuery } from "@/api/sets/useSetsByEdition";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
 import { useNow } from "@/hooks/useNow";
@@ -47,10 +42,7 @@ function ScheduleTabTimeline() {
 }
 
 function TimelineContent() {
-  const { festival } = useFestivalEdition();
-  const { edition } = useRouteContext({
-    from: "/festivals/$festivalSlug/editions/$editionSlug/schedule/timeline",
-  });
+  const { festival, edition } = Route.useRouteContext();
   const now = useNow();
   const { data: editionSets = [], isLoading: setsLoading } =
     useEditionSetsQuery(edition.id);

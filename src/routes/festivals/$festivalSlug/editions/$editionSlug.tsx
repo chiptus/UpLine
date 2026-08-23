@@ -1,8 +1,13 @@
-import { createFileRoute, redirect, Outlet } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  notFound,
+  redirect,
+  Link,
+  Outlet,
+} from "@tanstack/react-router";
 import { EditionHeader } from "@/pages/EditionView/EditionHeader";
 import { MainTabNavigation } from "@/pages/EditionView/TabNavigation/TabNavigation";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { editionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { stagesKeys } from "@/api/stages/types";
@@ -10,12 +15,20 @@ import { getEffectiveFestivalPhase } from "@/lib/festivalPhase";
 import { getDefaultTab } from "@/pages/EditionView/TabNavigation/defaultTab";
 import { tabRoutes } from "@/pages/EditionView/TabNavigation/tabRoutes";
 import { pageMeta } from "@/lib/pageHead";
+import { SupabaseNotFoundError } from "@/lib/supabaseErrors";
 import { EditionViewRoot } from "@/pages/EditionView/EditionViewRoot";
 
 export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug",
 )({
   component: EditionLayout,
+  notFoundComponent: EditionNotFound,
+  onError: (error) => {
+    if (error instanceof SupabaseNotFoundError) {
+      throw notFound();
+    }
+    throw error;
+  },
   beforeLoad: async ({ params, location, context }) => {
     const edition = await context.queryClient.ensureQueryData(
       editionBySlugQuery({
@@ -67,15 +80,7 @@ export const Route = createFileRoute(
 });
 
 function EditionLayout() {
-  const { festival, edition } = useFestivalEdition();
-
-  if (!edition) {
-    return (
-      <EditionViewRoot className="flex items-center justify-center">
-        <div className="text-white text-xl">Loading edition...</div>
-      </EditionViewRoot>
-    );
-  }
+  const { festival, edition } = Route.useRouteContext();
 
   return (
     <EditionViewRoot>
@@ -93,6 +98,29 @@ function EditionLayout() {
             <Outlet />
           </ErrorBoundary>
         </div>
+      </div>
+    </EditionViewRoot>
+  );
+}
+
+function EditionNotFound() {
+  const { festivalSlug } = Route.useParams();
+
+  return (
+    <EditionViewRoot className="flex items-center justify-center p-4">
+      <div className="text-center text-white">
+        <h1 className="text-2xl font-bold mb-4">Edition not found</h1>
+        <p className="mb-6 text-purple-200">
+          We couldn&apos;t find that festival edition. It may have been removed
+          or the link may be incorrect.
+        </p>
+        <Link
+          to="/festivals/$festivalSlug"
+          params={{ festivalSlug }}
+          className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded inline-block"
+        >
+          Back to festival
+        </Link>
       </div>
     </EditionViewRoot>
   );

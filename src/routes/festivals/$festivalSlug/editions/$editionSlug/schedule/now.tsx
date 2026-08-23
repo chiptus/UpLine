@@ -8,7 +8,6 @@ import {
 import { StageBadge } from "@/components/StageBadge";
 import { setsByEditionQuery } from "@/api/sets/useSetsByEdition";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { useNow } from "@/hooks/useNow";
 import { canShowNowView } from "@/lib/nowView";
 import {
@@ -39,8 +38,7 @@ export const Route = createFileRoute(
 });
 
 function ScheduleTabNow() {
-  const { festival } = useFestivalEdition();
-  const { edition } = Route.useRouteContext();
+  const { festival, edition } = Route.useRouteContext();
   const { data: sets } = useSuspenseQuery(setsByEditionQuery(edition.id));
   const { data: stages } = useSuspenseQuery(stagesByEditionQuery(edition.id));
   const now = useNow();

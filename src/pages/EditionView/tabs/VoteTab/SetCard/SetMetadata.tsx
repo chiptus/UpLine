@@ -3,12 +3,14 @@ import { formatDayOnly, formatTimeRange } from "@/lib/timeUtils";
 import { GenreBadge } from "@/components/GenreBadge";
 import { StageBadgeById } from "@/components/StageBadgeById";
 import { useFestivalSet } from "../FestivalSetContext";
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
+import { useRouteContext } from "@tanstack/react-router";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 
 export function SetMetadata() {
   const { set, use24Hour } = useFestivalSet();
-  const { festival } = useFestivalEdition();
+  const { festival } = useRouteContext({
+    from: "/festivals/$festivalSlug/editions/$editionSlug",
+  });
   const { canShowStage, canShowDay, canShowTime } = useScheduleReveal();
   const uniqueGenres = set.artists
     ?.flatMap((a) => a.artist_music_genres || [])

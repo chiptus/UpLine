@@ -1,9 +1,7 @@
 import { createFileRoute, stripSearchParams } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useRouteContext } from "@tanstack/react-router";
 import { useScheduleData } from "@/hooks/useScheduleData";
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { useSetsByEditionQuery as useEditionSetsQuery } from "@/api/sets/useSetsByEdition";
 import { getFestivalDayKey } from "@/lib/timeUtils";
 import { filterScheduleDays } from "@/lib/scheduleFilter";
@@ -45,10 +43,7 @@ interface DayGroup {
 }
 
 function ListSchedule() {
-  const { festival } = useFestivalEdition();
-  const { edition } = useRouteContext({
-    from: "/festivals/$festivalSlug/editions/$editionSlug/schedule/list",
-  });
+  const { festival, edition } = Route.useRouteContext();
   const { canShowTime } = useScheduleReveal();
   const { data: editionSets = [], isLoading: setsLoading } =
     useEditionSetsQuery(edition.id);

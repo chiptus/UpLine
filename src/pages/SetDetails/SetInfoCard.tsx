@@ -15,7 +15,7 @@ import { GenreBadge } from "@/components/GenreBadge";
 import { StagePin } from "@/components/StagePin";
 import { MarkdownText } from "@/components/ui/markdown-text";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
+import { useRouteContext } from "@tanstack/react-router";
 import { FestivalTimeHint } from "@/components/FestivalTimeHint";
 
 interface SetInfoCardProps {
@@ -30,7 +30,9 @@ export function SetInfoCard({
   use24Hour = false,
 }: SetInfoCardProps) {
   const artist = set.artists[0];
-  const { festival } = useFestivalEdition();
+  const { festival } = useRouteContext({
+    from: "/festivals/$festivalSlug/editions/$editionSlug",
+  });
   const { canShowStage, canShowDay, canShowTime } = useScheduleReveal();
   const timeRangeFormatted = canShowTime
     ? formatTimeRange(

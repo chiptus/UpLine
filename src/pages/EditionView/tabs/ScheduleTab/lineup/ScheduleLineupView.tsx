@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { setsByEditionQuery } from "@/api/sets/useSetsByEdition";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useScheduleData } from "@/hooks/useScheduleData";
@@ -26,11 +25,10 @@ export function ScheduleLineupView({ tab }: ScheduleLineupViewProps) {
 }
 
 function ScheduleLineupContent({ tab }: ScheduleLineupViewProps) {
-  const { festival } = useFestivalEdition();
   const { canShowStage } = useScheduleReveal();
   const route =
     `/festivals/$festivalSlug/editions/$editionSlug/schedule/${tab}` as const;
-  const { edition } = useRouteContext({ from: route });
+  const { festival, edition } = useRouteContext({ from: route });
   const { data: editionSets } = useSuspenseQuery(
     setsByEditionQuery(edition.id),
   );

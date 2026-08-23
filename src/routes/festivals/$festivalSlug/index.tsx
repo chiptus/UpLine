@@ -1,6 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 import { editionsForFestivalQuery } from "@/api/editions/useFestivalEditionsForFestival";
 import { Calendar, MapPin, Clock, Users, ArrowLeft } from "lucide-react";
 import {
@@ -12,7 +11,6 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { Link } from "@tanstack/react-router";
 import { FestivalEdition } from "@/api/editions/types";
@@ -28,11 +26,8 @@ export const Route = createFileRoute("/festivals/$festivalSlug/")({
     }),
   }),
   beforeLoad: async ({ params, context, search }) => {
-    const festival = await context.queryClient.ensureQueryData(
-      festivalBySlugQuery(params.festivalSlug),
-    );
     const editions = await context.queryClient.ensureQueryData(
-      editionsForFestivalQuery(festival.id),
+      editionsForFestivalQuery(context.festival.id),
     );
 
     if (editions.length === 1 && !search.invite) {
@@ -48,7 +43,7 @@ export const Route = createFileRoute("/festivals/$festivalSlug/")({
 });
 
 function EditionSelection() {
-  const { festival } = useFestivalEdition();
+  const { festival } = Route.useRouteContext();
   const { data: availableEditions } = useSuspenseQuery(
     editionsForFestivalQuery(festival.id),
   );

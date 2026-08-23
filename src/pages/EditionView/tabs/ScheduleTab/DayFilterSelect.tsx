@@ -6,7 +6,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Calendar } from "lucide-react";
-import { useFestivalEdition } from "@/contexts/FestivalEditionContext";
+import { useRouteContext } from "@tanstack/react-router";
 import { format, parseISO, isValid } from "date-fns";
 
 interface DayFilterSelectProps {
@@ -18,7 +18,9 @@ export function DayFilterSelect({
   selectedDay,
   onDayChange,
 }: DayFilterSelectProps) {
-  const { edition } = useFestivalEdition();
+  const { edition } = useRouteContext({
+    from: "/festivals/$festivalSlug/editions/$editionSlug",
+  });
 
   // Generate day options from edition dates
   const dayOptions = [];

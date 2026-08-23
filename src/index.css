@@ -30,14 +30,17 @@
     --surface-active: 0 0% 100% / 0.2; /* bg-white/20 */
 
     /*
-     * Text/border roles for light (white-background) surfaces: dialogs, toasts, admin tables.
+     * Background/text/border roles for light (white) chrome surfaces: dialogs, toasts,
+     * admin tables. Distinct from the --surface/-raised/-active overlay tokens above,
+     * which are translucent fills on the dark ground, not opaque page backgrounds.
      * TODO(#359): these are hardcoded, not theme-aware. Once light/dark theming lands
-     * (data-edition-theme), fold these into --foreground/--muted-foreground/--border
-     * instead so these surfaces follow the theme, and remove this token family.
+     * (data-edition-theme), fold these into --background/--foreground/--muted-foreground/
+     * --border instead so these surfaces follow the theme, and remove this token family.
      */
-    --surface-foreground: 221 39% 11%; /* gray-900 */
-    --surface-muted-foreground: 220 9% 46%; /* gray-500 */
-    --surface-border: 216 12% 84%; /* gray-300 */
+    --paper-background: 0 0% 100%; /* white */
+    --paper-foreground: 221 39% 11%; /* gray-900 */
+    --paper-muted-foreground: 220 9% 46%; /* gray-500 */
+    --paper-border: 216 12% 84%; /* gray-300 */
 
     --accent: 271.5 81.3% 55.9%; /* purple-600 */
     --accent-foreground: 0 0% 100%;

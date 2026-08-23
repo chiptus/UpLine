@@ -30,9 +30,12 @@ export default {
           DEFAULT: "hsl(var(--surface))",
           raised: "hsl(var(--surface-raised))",
           active: "hsl(var(--surface-active))",
-          foreground: "hsl(var(--surface-foreground))",
-          "muted-foreground": "hsl(var(--surface-muted-foreground))",
-          border: "hsl(var(--surface-border))",
+        },
+        paper: {
+          background: "hsl(var(--paper-background))",
+          foreground: "hsl(var(--paper-foreground))",
+          "muted-foreground": "hsl(var(--paper-muted-foreground))",
+          border: "hsl(var(--paper-border))",
         },
         live: {
           DEFAULT: "hsl(var(--live))",

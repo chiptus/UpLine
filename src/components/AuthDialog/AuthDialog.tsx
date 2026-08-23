@@ -42,7 +42,7 @@ export function AuthDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center space-x-2 text-surface-foreground">
+          <DialogTitle className="flex items-center space-x-2 text-paper-foreground">
             {step === "otp" && (
               <Button
                 variant="ghost"
@@ -65,7 +65,7 @@ export function AuthDialog({
               </>
             )}
           </DialogTitle>
-          <DialogDescription className="text-surface-muted-foreground">
+          <DialogDescription className="text-paper-muted-foreground">
             {step === "email"
               ? inviteToken && groupName
                 ? `Enter your email to join ${groupName} - we'll send you a magic link and verification code!`

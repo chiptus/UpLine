@@ -171,11 +171,6 @@ export function LinkWizardStep({
   }
 
   function onSubmit(data: LinkStepData) {
-    if (!form.formState.isDirty) {
-      onNext();
-      return;
-    }
-
     const updates: UpdateArtistUpdates = {
       spotify_url: data.providerUrl.spotify || null,
       soundcloud_url: data.providerUrl.soundcloud || null,

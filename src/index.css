@@ -29,6 +29,11 @@
     --surface-raised: 0 0% 100% / 0.1; /* bg-white/10 */
     --surface-active: 0 0% 100% / 0.2; /* bg-white/20 */
 
+    /* Text/border roles for light (white-background) surfaces: dialogs, toasts, admin tables */
+    --surface-foreground: 221 39% 11%; /* gray-900 */
+    --surface-muted-foreground: 220 9% 46%; /* gray-500 */
+    --surface-border: 216 12% 84%; /* gray-300 */
+
     --accent: 271.5 81.3% 55.9%; /* purple-600 */
     --accent-foreground: 0 0% 100%;
     --accent-hover: 272.1 71.7% 47.1%; /* purple-700 */

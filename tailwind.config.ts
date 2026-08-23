@@ -30,6 +30,9 @@ export default {
           DEFAULT: "hsl(var(--surface))",
           raised: "hsl(var(--surface-raised))",
           active: "hsl(var(--surface-active))",
+          foreground: "hsl(var(--surface-foreground))",
+          "muted-foreground": "hsl(var(--surface-muted-foreground))",
+          border: "hsl(var(--surface-border))",
         },
         live: {
           DEFAULT: "hsl(var(--live))",

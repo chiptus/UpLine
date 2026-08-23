@@ -96,7 +96,9 @@ export function GenresCell({ value, onSave }: GenresCellProps) {
           ))}
         </div>
       ) : (
-        <span className="text-gray-500 italic">Click to add genres...</span>
+        <span className="text-surface-muted-foreground italic">
+          Click to add genres...
+        </span>
       )}
     </div>
   );

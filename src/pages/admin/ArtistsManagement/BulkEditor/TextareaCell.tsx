@@ -74,7 +74,7 @@ export function TextareaCell({
       {value ? (
         <MarkdownText content={value} className="prose-sm" />
       ) : (
-        <span className="text-gray-500 italic">
+        <span className="text-surface-muted-foreground italic">
           {placeholder || "Click to add..."}
         </span>
       )}

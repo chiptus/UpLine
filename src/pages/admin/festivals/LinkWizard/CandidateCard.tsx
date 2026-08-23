@@ -18,7 +18,7 @@ export function CandidateCard({ candidate, onSelect }: CandidateCardProps) {
   ];
 
   return (
-    <Card className="p-3">
+    <Card className="p-3" data-testid="candidate-card">
       <div className="space-y-2">
         {candidate.imageUrl && (
           <img

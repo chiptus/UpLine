@@ -7,7 +7,6 @@ import { useUserPermissionsQuery } from "@/api/auth/useUserPermissions";
 import { useEffect } from "react";
 import { Music, Calendar, BarChart3, UserPlus } from "lucide-react";
 import { pageMeta } from "@/lib/pageHead";
-import { EditionViewRoot } from "@/pages/EditionView/EditionViewRoot";
 
 export const Route = createFileRoute("/admin")({
   component: AdminLayout,
@@ -77,16 +76,16 @@ function AdminLayout() {
 
   if (isLoadingPermissions || authLoading || isLoadingSuperAdmin) {
     return (
-      <EditionViewRoot className="flex items-center justify-center">
+      <div className="min-h-screen bg-app-gradient flex items-center justify-center">
         <div className="text-foreground text-xl">Loading...</div>
-      </EditionViewRoot>
+      </div>
     );
   }
 
   if (!canEdit) return null;
 
   return (
-    <EditionViewRoot>
+    <div className="min-h-screen bg-app-gradient">
       <div className="container mx-auto px-4 py-8">
         <TopBar showBackButton backLabel="Back to app" />
 
@@ -139,6 +138,6 @@ function AdminLayout() {
           </div>
         </div>
       </div>
-    </EditionViewRoot>
+    </div>
   );
 }

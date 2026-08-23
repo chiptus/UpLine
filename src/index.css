@@ -115,28 +115,6 @@
     --app-button-hover: 195 85% 40%;
   }
 
-  /* Edition-view identity tokens (#317 / #355 / #367).
-     Role vocabulary: docs/design/edition-color-vocabulary.md
-     Target values: docs/design/edition-identity-spec.md
-     Current values are TODAY's rendered colors so migrating hardcoded
-     classes onto these tokens is a zero-visual-change operation; the
-     Festival v2 values land in the flip (#359).
-     These used to live under a `.edition-view` scope class so only
-     voter-facing pages picked them up, but that meant every other surface
-     (admin included) still carried the old shadcn light-theme defaults for
-     the same variable names, which made partial migrations (like #367's
-     admin sweep) recolor whatever hadn't been touched yet. The whole app
-     renders on the same dark identity today, so the tokens now live
-     directly on `:root` — one set of values for the whole app, no scope
-     class required.
-     Ground stays bg-app-gradient until the flip, so --background and
-     --app-gradient-from/to are not overridden here.
-     Translucent roles carry their alpha inside the variable
-     (hsl H S% L% / A form), consumed via the same hsl(var(--x)) plumbing. */
-
-  /* Light-theme stub per the CSS contract in the identity spec: light values
-     apply under an explicit data-edition-theme="light" on the document root.
-     Values land with the flip (#359). */
   :root[data-edition-theme="light"] {
   }
 

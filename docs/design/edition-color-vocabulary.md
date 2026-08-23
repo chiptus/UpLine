@@ -32,6 +32,8 @@ This names the **roles** colors play in the voter-facing edition views, independ
 | `surface-active` **(new)** | Hover/pressed/selected layer              | `bg-white/20`, `bg-white/30`                     |
 | `popover` (existing)       | Solid floating sheets, dropdowns, drawers | `bg-gray-800`, `bg-gray-900`, `bg-gray-900/95`   |
 
+`surface-foreground` / `surface-muted-foreground` / `surface-border` **(new, admin/auth only)** are a stopgap for shared shadcn primitives (`Input`, `InputOTP`, `Table`, toasts, `AuthDialog`) that render on a plain white background outside the edition views and were left invisible when `foreground`/`muted-foreground`/`border` were repointed to the dark identity. They're hardcoded grays today, not theme-aware. Once the light/dark flip (#359) lands, fold them into `foreground`/`muted-foreground`/`border` (scoped to the light theme value) and delete this family.
+
 ### Borders & focus
 
 | Token                     | Role                         | Absorbs today                                                              |

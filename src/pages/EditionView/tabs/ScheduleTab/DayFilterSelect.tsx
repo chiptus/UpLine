@@ -53,16 +53,16 @@ export function DayFilterSelect({
       <Select value={selectedDay} onValueChange={onDayChange}>
         <SelectTrigger
           data-testid="day-filter-trigger"
-          className="bg-surface-raised border-border text-foreground"
+          className="bg-surface-raised border-border text-popover-foreground"
         >
           <SelectValue />
         </SelectTrigger>
-        <SelectContent className="bg-popover border-border">
+        <SelectContent className="edition-view bg-popover border-border">
           {dayOptions.map((option) => (
             <SelectItem
               key={option.value}
               value={option.value}
-              className="text-foreground"
+              className="text-popover-foreground"
             >
               {option.label}
             </SelectItem>

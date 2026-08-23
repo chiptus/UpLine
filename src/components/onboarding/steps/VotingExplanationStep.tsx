@@ -45,7 +45,7 @@ export function VotingExplanationStep({
         </div>
 
         {/* Vote Types */}
-        <div className="space-y-3">
+        <div className="edition-view space-y-3">
           {Object.entries(VOTE_CONFIG).map(([key, config]) => {
             const IconComponent = config.icon;
             return (

@@ -35,8 +35,8 @@ export function StageFilterButtons({
             onClick={() => onStageToggle(stage.id)}
             className={
               selectedStages.includes(stage.id)
-                ? "bg-accent hover:bg-accent text-xs"
-                : "bg-surface border-strong text-subtle-foreground hover:border-strong hover:bg-accent-soft hover:text-foreground text-xs"
+                ? "bg-accent hover:bg-purple-700 text-xs"
+                : "bg-surface border-strong text-subtle-foreground hover:border-purple-300 hover:bg-accent-soft hover:text-foreground text-xs"
             }
           >
             {stage.name}

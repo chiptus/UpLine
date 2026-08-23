@@ -54,7 +54,7 @@ export function LineupFilters({ tab }: LineupFiltersProps) {
           }
           className={
             hasActiveFilters
-              ? "flex items-center gap-2 bg-accent-soft text-foreground hover:bg-accent-soft"
+              ? "flex items-center gap-2 bg-accent-soft text-foreground hover:bg-purple-600/60"
               : "flex items-center gap-2 text-subtle-foreground hover:bg-accent-soft hover:text-foreground"
           }
         >
@@ -74,7 +74,7 @@ export function LineupFilters({ tab }: LineupFiltersProps) {
       <SheetContent
         side="bottom"
         data-testid="schedule-filter-sheet"
-        className="bg-popover border-border max-h-[85vh] overflow-y-auto"
+        className="edition-view bg-popover border-border max-h-[85vh] overflow-y-auto"
       >
         <SheetHeader>
           <SheetTitle className="text-foreground">Filter schedule</SheetTitle>
@@ -113,7 +113,7 @@ export function LineupFilters({ tab }: LineupFiltersProps) {
             </Button>
           )}
           <SheetClose asChild>
-            <Button type="button" className="bg-accent hover:bg-accent">
+            <Button type="button" className="bg-accent hover:bg-purple-700">
               Done
             </Button>
           </SheetClose>

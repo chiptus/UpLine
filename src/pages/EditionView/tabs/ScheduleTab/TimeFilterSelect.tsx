@@ -28,21 +28,21 @@ export function TimeFilterSelect({
       <Select value={selectedTime} onValueChange={onTimeChange}>
         <SelectTrigger
           data-testid="time-filter-trigger"
-          className="bg-surface-raised border-border text-foreground"
+          className="bg-surface-raised border-border text-popover-foreground"
         >
           <SelectValue />
         </SelectTrigger>
-        <SelectContent className="bg-popover border-border">
-          <SelectItem value="all" className="text-foreground">
+        <SelectContent className="edition-view bg-popover border-border">
+          <SelectItem value="all" className="text-popover-foreground">
             All Day
           </SelectItem>
-          <SelectItem value="morning" className="text-foreground">
+          <SelectItem value="morning" className="text-popover-foreground">
             Morning (6-12)
           </SelectItem>
-          <SelectItem value="afternoon" className="text-foreground">
+          <SelectItem value="afternoon" className="text-popover-foreground">
             Afternoon (12-18)
           </SelectItem>
-          <SelectItem value="evening" className="text-foreground">
+          <SelectItem value="evening" className="text-popover-foreground">
             Evening (18-24)
           </SelectItem>
         </SelectContent>

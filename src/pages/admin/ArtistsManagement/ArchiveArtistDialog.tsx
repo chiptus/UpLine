@@ -49,7 +49,7 @@ export function ArchiveArtistDialog({
     <Button
       variant="outline"
       size="sm"
-      className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white"
+      className="border-red-400 text-red-400 hover:bg-red-400 hover:text-foreground"
     >
       <Trash className="h-4 w-4" />
     </Button>

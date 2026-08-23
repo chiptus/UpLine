@@ -37,35 +37,35 @@ function AdminAnalytics() {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-white/10 backdrop-blur-md border-white/20">
+      <Card className="bg-surface-raised backdrop-blur-md border-surface-active">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-white">
+          <CardTitle className="flex items-center gap-2 text-foreground">
             <Users className="h-5 w-5" />
             Groups Analytics
           </CardTitle>
-          <CardDescription className="text-white/70">
+          <CardDescription className="text-foreground/70">
             Groups with member counts
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow className="border-white/20">
-                <TableHead className="text-white">Group Name</TableHead>
-                <TableHead className="text-white">Members</TableHead>
-                <TableHead className="text-white">Created</TableHead>
+              <TableRow className="border-surface-active">
+                <TableHead className="text-foreground">Group Name</TableHead>
+                <TableHead className="text-foreground">Members</TableHead>
+                <TableHead className="text-foreground">Created</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {groupAnalytics.map((group) => (
                 <TableRow key={group.id} className="border-white/10">
-                  <TableCell className="text-white font-medium">
+                  <TableCell className="text-foreground font-medium">
                     {group.name}
                   </TableCell>
-                  <TableCell className="text-white/80">
+                  <TableCell className="text-foreground/80">
                     {group.member_count}
                   </TableCell>
-                  <TableCell className="text-white/80">
+                  <TableCell className="text-foreground/80">
                     {new Date(group.created_at).toLocaleDateString()}
                   </TableCell>
                 </TableRow>
@@ -75,39 +75,39 @@ function AdminAnalytics() {
         </CardContent>
       </Card>
 
-      <Card className="bg-white/10 backdrop-blur-md border-white/20">
+      <Card className="bg-surface-raised backdrop-blur-md border-surface-active">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-white">
+          <CardTitle className="flex items-center gap-2 text-foreground">
             <Vote className="h-5 w-5" />
             Users Analytics
           </CardTitle>
-          <CardDescription className="text-white/70">
+          <CardDescription className="text-foreground/70">
             Users with vote counts
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow className="border-white/20">
-                <TableHead className="text-white">Username</TableHead>
-                <TableHead className="text-white">Email</TableHead>
-                <TableHead className="text-white">Votes</TableHead>
-                <TableHead className="text-white">Joined</TableHead>
+              <TableRow className="border-surface-active">
+                <TableHead className="text-foreground">Username</TableHead>
+                <TableHead className="text-foreground">Email</TableHead>
+                <TableHead className="text-foreground">Votes</TableHead>
+                <TableHead className="text-foreground">Joined</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {userAnalytics.map((user) => (
                 <TableRow key={user.id} className="border-white/10">
-                  <TableCell className="text-white font-medium">
+                  <TableCell className="text-foreground font-medium">
                     {user.username || "No username"}
                   </TableCell>
-                  <TableCell className="text-white/80">
+                  <TableCell className="text-foreground/80">
                     {user.email || "No email"}
                   </TableCell>
-                  <TableCell className="text-white/80">
+                  <TableCell className="text-foreground/80">
                     {user.vote_count}
                   </TableCell>
-                  <TableCell className="text-white/80">
+                  <TableCell className="text-foreground/80">
                     {new Date(user.created_at).toLocaleDateString()}
                   </TableCell>
                 </TableRow>

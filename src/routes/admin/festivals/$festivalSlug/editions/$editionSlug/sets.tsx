@@ -92,7 +92,7 @@ function FestivalSets() {
           <div className="flex gap-2">
             <Button
               onClick={handleCreate}
-              className="bg-purple-600 hover:bg-purple-700"
+              className="bg-accent hover:bg-purple-700"
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Set

@@ -39,7 +39,7 @@ export function CreateStageDialog({ editionId }: CreateStageDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-purple-600 hover:bg-purple-700">
+        <Button className="bg-accent hover:bg-purple-700">
           <Plus className="h-4 w-4 mr-2" />
           Add Stage
         </Button>

@@ -6,7 +6,6 @@ import {
 } from "@tanstack/react-router";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { ConfirmDialogHost } from "@/components/ConfirmDialogHost";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CookieConsentBanner } from "@/components/layout/legal/CookieConsentBanner";
@@ -69,7 +68,6 @@ function RootComponent() {
       <HeadContent />
       <TooltipProvider>
         <Toaster />
-        <Sonner />
         <ConfirmDialogHost />
         <AppUpdatePrompt />
         <CookieConsentBanner />

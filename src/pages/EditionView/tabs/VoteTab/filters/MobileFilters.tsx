@@ -57,7 +57,7 @@ export function MobileFilters({
             <SelectTrigger className="w-full bg-surface-raised border text-foreground">
               <SelectValue placeholder="All Stages" />
             </SelectTrigger>
-            <SelectContent className="edition-view bg-popover border">
+            <SelectContent className="bg-popover border">
               <SelectItem value="all" className="text-foreground">
                 All Stages
               </SelectItem>
@@ -97,7 +97,7 @@ export function MobileFilters({
           <SelectTrigger className="w-full bg-surface-raised border text-foreground">
             <SelectValue placeholder="All Genres" />
           </SelectTrigger>
-          <SelectContent className="edition-view bg-popover border">
+          <SelectContent className="bg-popover border">
             <SelectItem value="all" className="text-foreground">
               All Genres
             </SelectItem>
@@ -128,7 +128,7 @@ export function MobileFilters({
           <SelectTrigger className="w-full bg-surface-raised border text-foreground">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="edition-view bg-popover border">
+          <SelectContent className="bg-popover border">
             <SelectItem value="0" className="text-foreground">
               Any Rating
             </SelectItem>

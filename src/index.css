@@ -41,6 +41,7 @@
     --paper-foreground: 221 39% 11%; /* gray-900 */
     --paper-muted-foreground: 220 9% 46%; /* gray-500 */
     --paper-border: 216 12% 84%; /* gray-300 */
+    --paper-ring: 218 11% 65%; /* gray-400 */
 
     --accent: 271.5 81.3% 55.9%; /* purple-600 */
     --accent-foreground: 0 0% 100%;

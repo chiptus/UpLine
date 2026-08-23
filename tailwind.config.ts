@@ -36,6 +36,7 @@ export default {
           foreground: "hsl(var(--paper-foreground))",
           "muted-foreground": "hsl(var(--paper-muted-foreground))",
           border: "hsl(var(--paper-border))",
+          ring: "hsl(var(--paper-ring))",
         },
         live: {
           DEFAULT: "hsl(var(--live))",

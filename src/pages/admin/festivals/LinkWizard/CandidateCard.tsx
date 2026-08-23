@@ -18,7 +18,7 @@ export function CandidateCard({ candidate, onSelect }: CandidateCardProps) {
   ];
 
   return (
-    <Card className="p-3" data-testid="candidate-card">
+    <Card className="p-3" role="listitem" aria-label={candidate.name}>
       <div className="space-y-2">
         {candidate.imageUrl && (
           <img

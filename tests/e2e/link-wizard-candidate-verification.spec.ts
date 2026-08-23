@@ -17,7 +17,7 @@ const KIARA_ARTIST_ID = "a3333333-3333-3333-3333-333333333333";
 // service-role cleanup (see tests/utils/groups.ts) rather than adding a new
 // supabase-js client just for this file.
 test.afterEach(async () => {
-  await fetch(
+  const response = await fetch(
     `${TEST_CONFIG.SUPABASE_URL}/rest/v1/artists?id=eq.${KIARA_ARTIST_ID}`,
     {
       method: "PATCH",
@@ -30,6 +30,11 @@ test.afterEach(async () => {
       body: JSON.stringify({ spotify_url: null, image_url: null }),
     },
   );
+  if (!response.ok) {
+    throw new Error(
+      `Failed to reset Kiara's seeded state: ${response.status} ${await response.text()}`,
+    );
+  }
 });
 
 // Deliberately NOT in descending-follower order — the app's own sort is
@@ -104,8 +109,13 @@ test.describe(
 
       // 1. Set-info panel shows the artist's actual set details, including
       // the formatted time range and the (seed-driven) co-performers state.
-      const setInfoPanel = page.getByTestId("artist-set-info-panel");
+      const setInfoPanel = page.getByRole("region", {
+        name: /Kiara Scuro - Festival Set/i,
+      });
       await expect(setInfoPanel).toBeVisible();
+      await expect(
+        setInfoPanel.getByRole("heading", { name: "Kiara Scuro", exact: true }),
+      ).toBeVisible();
       await expect(setInfoPanel.getByText("Club Stage")).toBeVisible();
       await expect(setInfoPanel.getByText(KIARA_SET_DESCRIPTION)).toBeVisible();
       // Rendered in the browser's local timezone (no explicit TZ passed to
@@ -124,7 +134,7 @@ test.describe(
       await expect(page.getByText("Spotify Candidates")).toBeVisible();
       await failOnCandidatesError(page);
 
-      const candidateCards = page.getByTestId("candidate-card");
+      const candidateCards = page.getByRole("listitem");
       await expect(candidateCards.first()).toBeVisible({ timeout: 15000 });
       await expect(candidateCards).toHaveCount(3);
       await expect(candidateCards.nth(0)).toContainText("Test Artist Pro");
@@ -209,7 +219,7 @@ test.describe(
       await expect(spotifyUrlInput).toHaveValue("");
 
       const candidateCard = page
-        .getByTestId("candidate-card")
+        .getByRole("listitem")
         .filter({ hasText: "Test Artist Pro" });
       await expect(candidateCard).toBeVisible({ timeout: 15000 });
 

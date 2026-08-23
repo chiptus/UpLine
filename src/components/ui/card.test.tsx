@@ -34,9 +34,10 @@ describe("Card", () => {
   });
 
   it("forwards ref", () => {
-    const ref = { current: null };
+    const ref: { current: HTMLElement | null } = { current: null };
     render(<Card ref={ref}>Test</Card>);
-    expect(ref.current).toBeInstanceOf(HTMLDivElement);
+    expect(ref.current).toBeInstanceOf(HTMLElement);
+    expect(ref.current?.tagName).toBe("SECTION");
   });
 
   it("passes through HTML attributes", () => {

@@ -44,7 +44,7 @@ export function CandidateCards({
 
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3" role="list">
         {displayedCandidates.map((candidate) => (
           <CandidateCard
             key={candidate.url}

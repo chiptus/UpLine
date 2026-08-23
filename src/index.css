@@ -48,7 +48,7 @@
     --accent-soft: 271.5 81.3% 55.9% / 0.4; /* bg-purple-600/40 */
 
     --destructive: 0 90.6% 70.8%; /* red-400 */
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 221 39% 11%; /* gray-900 — red-400 is too light for a white foreground */
 
     --border: 270 95.2% 75.3% / 0.3; /* border-purple-400/30 */
     --border-strong: 270 95.2% 75.3% / 0.5; /* border-purple-400/50 */

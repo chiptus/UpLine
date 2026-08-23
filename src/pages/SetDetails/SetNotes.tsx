@@ -80,7 +80,7 @@ export function SetNotes({ setId, userId }: SetNotesProps) {
             <div className="text-center py-4 border-t border-border">
               <Button
                 onClick={() => setIsEditing(true)}
-                className="bg-accent hover:bg-accent"
+                className="bg-accent hover:bg-purple-700"
               >
                 <Edit3 className="h-4 w-4 mr-2" />
                 Add Note

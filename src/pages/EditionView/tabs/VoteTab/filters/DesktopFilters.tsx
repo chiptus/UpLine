@@ -58,7 +58,7 @@ export function DesktopFilters({
                   onClick={() => handleStageToggle(stage.id)}
                   className={
                     state.stages.includes(stage.id)
-                      ? "bg-accent hover:bg-accent"
+                      ? "bg-accent hover:bg-purple-700"
                       : "border-purple-400 text-accent hover:bg-purple-400 hover:text-foreground"
                   }
                 >

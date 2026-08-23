@@ -29,7 +29,7 @@ export function CreateNoteForm({
         <Button
           onClick={handleSave}
           disabled={mutation.isPending || !noteContent.trim()}
-          className="bg-accent hover:bg-accent"
+          className="bg-accent hover:bg-purple-700"
         >
           <SaveIcon className="h-4 w-4 mr-2" />
           {mutation.isPending ? "Saving..." : "Save Note"}

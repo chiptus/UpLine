@@ -51,7 +51,7 @@ export function SortControls({ sort, onSortChange }: SortControlsProps) {
             <CurrentSortIcon className="h-4 w-4 text-subtle-foreground" />
           </div>
         </SelectTrigger>
-        <SelectContent className="bg-popover border">
+        <SelectContent className="edition-view bg-popover border">
           {SORT_OPTIONS.map((option) => {
             const Icon = SORT_ICONS[option.value as keyof typeof SORT_ICONS];
             return (
@@ -80,7 +80,7 @@ export function SortControls({ sort, onSortChange }: SortControlsProps) {
             <HelpCircle className="h-4 w-4 text-subtle-foreground hover:text-purple-200" />
           </button>
         </PopoverTrigger>
-        <PopoverContent className="bg-popover border text-foreground w-80">
+        <PopoverContent className="edition-view bg-popover border text-foreground w-80">
           <div className="space-y-3">
             <h3 className="font-semibold text-muted-foreground mb-2">
               Sort Options Explained

@@ -32,7 +32,7 @@ export function TimeFilterSelect({
         >
           <SelectValue />
         </SelectTrigger>
-        <SelectContent className="edition-view bg-popover border-border">
+        <SelectContent className="bg-popover border-border">
           <SelectItem value="all" className="text-popover-foreground">
             All Day
           </SelectItem>

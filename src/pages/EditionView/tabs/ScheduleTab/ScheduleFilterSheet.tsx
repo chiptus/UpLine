@@ -84,7 +84,7 @@ export function ScheduleFilterSheet({ tab }: ScheduleFilterSheetProps) {
       <SheetContent
         side="bottom"
         data-testid="schedule-filter-sheet"
-        className="edition-view bg-popover border-border max-h-[85vh] overflow-y-auto"
+        className="bg-popover border-border max-h-[85vh] overflow-y-auto"
       >
         <SheetHeader>
           <SheetTitle className="text-foreground">Filter schedule</SheetTitle>

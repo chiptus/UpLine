@@ -57,7 +57,7 @@ export function DayFilterSelect({
         >
           <SelectValue />
         </SelectTrigger>
-        <SelectContent className="edition-view bg-popover border-border">
+        <SelectContent className="bg-popover border-border">
           {dayOptions.map((option) => (
             <SelectItem
               key={option.value}

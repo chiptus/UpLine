@@ -49,7 +49,7 @@ A hairline drawn in `border-white/NN` (not purple) doesn't fit either border rol
 | Token                          | Role                                             | Absorbs today                                      |
 | ------------------------------ | ------------------------------------------------ | -------------------------------------------------- |
 | `accent` / `accent-foreground` | Primary interactive fill: selected toggles, CTAs | `bg-purple-600`, `bg-purple-400`                   |
-| `accent-hover` **(new)**       | Hover state for the accent fill                  | `hover:bg-purple-700`                              |
+| `accent-hover`                 | Hover state for the accent fill                  | `hover:bg-purple-700`                              |
 | `accent-soft` **(new)**        | Translucent accent wash for selected/hover chips | `bg-purple-600/30`–`/60`, `bg-purple-400/10`–`/30` |
 | `text-accent`                  | Accent-colored text/icons                        | `text-purple-400`                                  |
 

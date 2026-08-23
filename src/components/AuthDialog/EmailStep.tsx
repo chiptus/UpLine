@@ -46,7 +46,6 @@ export function EmailStep({ inviteToken, onSuccess }: EmailStepProps) {
           id="email"
           type="email"
           placeholder="your@email.com"
-          className="border-paper-border focus-visible:ring-paper-foreground"
           {...register("email", {
             required: "Email is required",
             pattern: {

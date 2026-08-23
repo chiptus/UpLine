@@ -33,7 +33,7 @@ export function BulkEditorHeader({ onAddArtist }: BulkEditorHeaderProps) {
           <Button
             onClick={onAddArtist}
             size="sm"
-            className="bg-purple-600 hover:bg-purple-700"
+            className="bg-accent text-accent-foreground hover:bg-accent-hover"
           >
             <Plus className="h-4 w-4 mr-1" />
             <span className="hidden md:block">Add Artist</span>

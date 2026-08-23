@@ -48,7 +48,7 @@ export function LinkWizardTable({
             <TableRow>
               <TableCell
                 colSpan={2}
-                className="text-center text-muted-foreground"
+                className="text-center text-paper-muted-foreground"
               >
                 No artists missing links for this edition.
               </TableCell>
@@ -57,9 +57,7 @@ export function LinkWizardTable({
           {pageArtists.map((artist) => (
             <TableRow
               key={artist.id}
-              className={cn(
-                artist.id === currentArtistId && "bg-purple-600/20",
-              )}
+              className={cn(artist.id === currentArtistId && "bg-accent/20")}
             >
               <TableCell>
                 <button

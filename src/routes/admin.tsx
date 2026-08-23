@@ -77,7 +77,7 @@ function AdminLayout() {
   if (isLoadingPermissions || authLoading || isLoadingSuperAdmin) {
     return (
       <div className="min-h-screen bg-app-gradient flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
+        <div className="text-foreground text-xl">Loading...</div>
       </div>
     );
   }
@@ -96,18 +96,18 @@ function AdminLayout() {
             className="w-full"
           >
             <TabsList
-              className={`grid w-full ${isSuperAdmin ? "grid-cols-4" : "grid-cols-3"} bg-white/10 backdrop-blur-md`}
+              className={`grid w-full ${isSuperAdmin ? "grid-cols-4" : "grid-cols-3"} bg-surface-raised backdrop-blur-md`}
             >
               <TabsTrigger
                 value="artists"
-                className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-white"
+                className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground text-foreground"
               >
                 <Music className="h-4 w-4 mr-2" />
                 Artists
               </TabsTrigger>
               <TabsTrigger
                 value="festivals"
-                className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-white"
+                className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground text-foreground"
               >
                 <Calendar className="h-4 w-4 mr-2" />
                 Festival Management
@@ -116,14 +116,14 @@ function AdminLayout() {
                 <>
                   <TabsTrigger
                     value="analytics"
-                    className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-white"
+                    className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground text-foreground"
                   >
                     <BarChart3 className="h-4 w-4 mr-2" />
                     Analytics
                   </TabsTrigger>
                   <TabsTrigger
                     value="admins"
-                    className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-white"
+                    className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground text-foreground"
                   >
                     <UserPlus className="h-4 w-4 mr-2" />
                     Admin Roles

@@ -16,16 +16,20 @@ export function ArtistSetCard({ set, currentArtistId }: ArtistSetCardProps) {
         <div>
           <h4 className="font-semibold text-sm">{set.name}</h4>
           {set.stage_name && (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-paper-muted-foreground">
               Stage: {set.stage_name}
             </p>
           )}
         </div>
 
-        {time && <div className="text-xs text-muted-foreground">{time}</div>}
+        {time && (
+          <div className="text-xs text-paper-muted-foreground">{time}</div>
+        )}
 
         {set.description && (
-          <p className="text-xs text-muted-foreground">{set.description}</p>
+          <p className="text-xs text-paper-muted-foreground">
+            {set.description}
+          </p>
         )}
 
         {set.co_performers.length > 0 && (

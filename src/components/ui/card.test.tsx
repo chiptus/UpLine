@@ -118,7 +118,7 @@ describe("CardDescription", () => {
   it("has base classes", () => {
     const { container } = render(<CardDescription>Test</CardDescription>);
     const description = container.firstChild as HTMLElement;
-    expect(description).toHaveClass("text-sm", "text-muted-foreground");
+    expect(description).toHaveClass("text-sm", "text-paper-muted-foreground");
   });
 
   it("applies custom className", () => {

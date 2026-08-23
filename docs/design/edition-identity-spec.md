@@ -2,7 +2,7 @@
 
 Resolution of [#321](https://github.com/chiptus/UpLine/issues/321), part of the visual-identity wayfinder map [#317](https://github.com/chiptus/UpLine/issues/317). Written in the semantic token vocabulary from [`edition-color-vocabulary.md`](./edition-color-vocabulary.md); implementation tickets are cut from this document.
 
-**Scope:** the voter-facing edition views only (EditionView hero/tabs, schedule Now/Timeline/List, artists, explore, set details). Admin, groups/settings, and landing/auth keep the old skin.
+**Scope:** the voter-facing edition views (EditionView hero/tabs, schedule Now/Timeline/List, artists, explore, set details). The tokens themselves live on `:root` globally (#367), so admin and Radix portal content pick them up too — but the palette and component work described here targets the edition views.
 
 **Provenance:** direction decided in [#320](https://github.com/chiptus/UpLine/issues/320) (Festival v2 winner, soft-border light graft), confirmed against real screens by the in-app prototype pass on PR #354 (`src/pages/EditionView/prototype/`, deleted after rollout). Values below are the prototype's confirmed values, extended to the full #319 role set.
 
@@ -12,7 +12,7 @@ One skeleton, two color themes. **Dark is the default**: a violet poster ground 
 
 ## Theme mechanics (CSS contract)
 
-- Token values are CSS variables scoped to the edition-view root. Dark values are the default; light values apply under an explicit `data-edition-theme="light"` scope on that root.
+- Token values are CSS variables on `:root` (#367). Dark values are the default; light values apply under an explicit `data-edition-theme="light"` attribute on the document root.
 - Both themes ship. How the theme is chosen (system preference vs in-app toggle) and persisted is a rollout decision — [#322](https://github.com/chiptus/UpLine/issues/322)'s territory. The CSS contract above is what it plugs into.
 - Values are stored as HSL channels to match the existing shadcn `hsl(var(--…))` plumbing; hex given here for legibility. Opaque roles are plain triples (`H S% L%`); the inherently translucent roles (`surface*`, `accent-soft`, `border*`, `*-soft`) carry their alpha inside the variable (`H S% L% / A`) — see the vocabulary's ground rules for why those roles must not take Tailwind `/NN` modifiers.
 
@@ -107,7 +107,7 @@ Same in both themes.
 
 ## What implementation consumes
 
-1. Token values above land in `src/index.css` under the edition scope, replacing the roles named in `edition-color-vocabulary.md`'s "absorbs today" mapping (~350 occurrences / 60 files per the #319 audit).
+1. Token values above land in `src/index.css` under `:root`, replacing the roles named in `edition-color-vocabulary.md`'s "absorbs today" mapping (~350 occurrences / 60 files per the #319 audit).
 2. `tailwind.config.ts` gains the new role names (`surface*`, `subtle-foreground`, `border-strong`, `accent-soft`, `live*`, `notice*`, `vote-*`).
 3. Font families wired once at the edition-view root; display styling via the heading rules above.
 4. The prototype directory `src/pages/EditionView/prototype/` and its wiring are deleted once the real implementation lands.

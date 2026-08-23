@@ -9,7 +9,7 @@ This names the **roles** colors play in the voter-facing edition views, independ
 - **Reuse and retheme the existing shadcn token names** where a role already exists (`background`, `foreground`, `muted-foreground`, `border`, `ring`, `popover`, `accent`, `destructive`). New names are added only for roles shadcn doesn't cover. No `ed-*` namespace.
 - **No numeric ramps.** Each role is one value per theme; "lighter/darker" variants are expressed as alpha on the base token (Tailwind `/NN` over an HSL var) or as an explicit `-soft` companion, not as `-100…-900` scales.
 - **`/NN` opacity modifiers work only on opaque roles** (`foreground`, `accent`, `live`, `vote-must`, …). The inherently translucent roles (`surface`/`surface-raised`/`surface-active`, `accent-soft`, `border`/`border-strong`, `*-soft`) carry their alpha inside the CSS variable, so `bg-surface/50` expands to a double-alpha `hsl(… / 0.05 / .5)` — silently invalid CSS. Use the next step in the role family (`surface` → `surface-raised` → `surface-active`) instead of a modifier.
-- **Portals escape the scope.** The variables live on the edition root (`EditionViewRoot`), but Radix `Select`/`Popover`/`Sheet` content portals under `document.body` and resolves the global values there. Before tokenizing portaled content, give it the scope (portal `container` inside the edition root, or the scope class on the content element).
+- **The tokens live on `:root`, not a scope class (#367).** The whole app renders on the same dark identity today, so there's one set of values for the whole app — including admin and Radix portal content — and no scope class to remember. The flip (#359) will attach `data-edition-theme="light"` to the document root.
 - Values below reference today's hardcoded classes only to define the mapping; the actual palette is chosen in #320/#321.
 
 ## Token set
@@ -32,6 +32,8 @@ This names the **roles** colors play in the voter-facing edition views, independ
 | `surface-active` **(new)** | Hover/pressed/selected layer              | `bg-white/20`, `bg-white/30`                     |
 | `popover` (existing)       | Solid floating sheets, dropdowns, drawers | `bg-gray-800`, `bg-gray-900`, `bg-gray-900/95`   |
 
+`paper-background` / `paper-foreground` / `paper-muted-foreground` / `paper-border` **(new, admin/auth only)** are a stopgap for shared shadcn primitives (`Dialog`, `Input`, `InputOTP`, `Table`, toasts, `AuthDialog`) that render on a plain white chrome surface outside the edition views and were left invisible when `background`/`foreground`/`muted-foreground`/`border` were repointed to the dark identity. Named `paper-*` (not `surface-*`) specifically to avoid colliding with the `surface`/`surface-raised`/`surface-active` overlay-fill family above — those are translucent layers on the dark ground, `paper-*` is an opaque light page/dialog background, and the two are unrelated roles that happen to share a domain vocabulary. They're hardcoded grays/white today, not theme-aware. Once the light/dark flip (#359) lands, fold them into `background`/`foreground`/`muted-foreground`/`border` (scoped to the light theme value) and delete this family.
+
 ### Borders & focus
 
 | Token                     | Role                         | Absorbs today                                                              |
@@ -40,11 +42,14 @@ This names the **roles** colors play in the voter-facing edition views, independ
 | `border-strong` **(new)** | Emphasis / selected outlines | `border-purple-400/40`–`/50`, `border-purple-400`, `border-white/50`–`/80` |
 | `ring`                    | Focus/selection ring         | `ring-purple-400`, `ring-white`                                            |
 
+A hairline drawn in `border-white/NN` (not purple) doesn't fit either border role — reach for `border-foreground/NN` instead: `foreground` is opaque and already carries today's white value, so the opacity modifier reproduces the exact color without borrowing a fill role (`surface`) for a border.
+
 ### Brand accent (interactive)
 
 | Token                          | Role                                             | Absorbs today                                      |
 | ------------------------------ | ------------------------------------------------ | -------------------------------------------------- |
-| `accent` / `accent-foreground` | Primary interactive fill: selected toggles, CTAs | `bg-purple-600`, `bg-purple-700`, `bg-purple-400`  |
+| `accent` / `accent-foreground` | Primary interactive fill: selected toggles, CTAs | `bg-purple-600`, `bg-purple-400`                   |
+| `accent-hover`                 | Hover state for the accent fill                  | `hover:bg-purple-700`                              |
 | `accent-soft` **(new)**        | Translucent accent wash for selected/hover chips | `bg-purple-600/30`–`/60`, `bg-purple-400/10`–`/30` |
 | `text-accent`                  | Accent-colored text/icons                        | `text-purple-400`                                  |
 

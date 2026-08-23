@@ -16,7 +16,6 @@ import { getDefaultTab } from "@/pages/EditionView/TabNavigation/defaultTab";
 import { tabRoutes } from "@/pages/EditionView/TabNavigation/tabRoutes";
 import { pageMeta } from "@/lib/pageHead";
 import { SupabaseNotFoundError } from "@/lib/supabaseErrors";
-import { EditionViewRoot } from "@/pages/EditionView/EditionViewRoot";
 
 export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug",
@@ -83,7 +82,7 @@ function EditionLayout() {
   const { festival, edition } = Route.useRouteContext();
 
   return (
-    <EditionViewRoot>
+    <div className="min-h-screen bg-app-gradient">
       <div className="container mx-auto px-4 py-4 md:py-8 pb-20 md:pb-8">
         <EditionHeader
           title={`${festival.name} - ${edition.name}`}
@@ -99,7 +98,7 @@ function EditionLayout() {
           </ErrorBoundary>
         </div>
       </div>
-    </EditionViewRoot>
+    </div>
   );
 }
 
@@ -107,7 +106,7 @@ function EditionNotFound() {
   const { festivalSlug } = Route.useParams();
 
   return (
-    <EditionViewRoot className="flex items-center justify-center p-4">
+    <div className="min-h-screen bg-app-gradient flex items-center justify-center p-4">
       <div className="text-center text-white">
         <h1 className="text-2xl font-bold mb-4">Edition not found</h1>
         <p className="mb-6 text-purple-200">
@@ -122,6 +121,6 @@ function EditionNotFound() {
           Back to festival
         </Link>
       </div>
-    </EditionViewRoot>
+    </div>
   );
 }

@@ -75,7 +75,7 @@ function FestivalEdition() {
   return (
     <div className="space-y-6">
       <div className="w-full">
-        <div className="sticky top-16 md:top-20 z-10 grid w-full grid-cols-5 gap-2 bg-white/10 backdrop-blur-md p-1 rounded-lg">
+        <div className="sticky top-16 md:top-20 z-10 grid w-full grid-cols-5 gap-2 bg-surface-raised backdrop-blur-md p-1 rounded-lg">
           <EditionNavLink
             to="stages"
             festivalSlug={festivalSlug}

@@ -64,7 +64,7 @@ export function ScheduleFilterSheet({ tab }: ScheduleFilterSheetProps) {
           }
           className={
             hasActiveFilters
-              ? "flex items-center gap-2 bg-accent-soft text-foreground hover:bg-purple-600/60"
+              ? "flex items-center gap-2 bg-accent-soft text-foreground hover:bg-accent/60"
               : "flex items-center gap-2 text-subtle-foreground hover:bg-accent-soft hover:text-foreground"
           }
         >

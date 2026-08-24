@@ -6,8 +6,8 @@
 
 /*
  * Festival v2 identity fonts, self-hosted (docs/design/edition-identity-spec.md).
- * Variable woff2 files cover all shipped weights (Space Grotesk 400/500/700,
- * Unbounded 500/700).
+ * Variable woff2 files (Space Grotesk 300–700, Unbounded 200–900) cover all
+ * shipped weights.
  */
 @font-face {
   font-family: "Space Grotesk";

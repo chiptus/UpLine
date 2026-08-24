@@ -107,16 +107,16 @@ function EditionNotFound() {
 
   return (
     <div className="edition-view min-h-screen bg-edition-ground flex items-center justify-center p-4">
-      <div className="text-center text-white">
+      <div className="text-center text-foreground">
         <h1 className="text-2xl font-bold mb-4">Edition not found</h1>
-        <p className="mb-6 text-purple-200">
+        <p className="mb-6 text-muted-foreground">
           We couldn&apos;t find that festival edition. It may have been removed
           or the link may be incorrect.
         </p>
         <Link
           to="/festivals/$festivalSlug"
           params={{ festivalSlug }}
-          className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded inline-block"
+          className="bg-accent text-accent-foreground hover:bg-accent/90 px-4 py-2 rounded inline-block"
         >
           Back to festival
         </Link>

@@ -31,10 +31,8 @@
                 : "dark"
               : pref;
           if (resolved === "light") {
-            document.documentElement.setAttribute(
-              "data-edition-theme",
-              "light",
-            );
+            var root = document.documentElement;
+            root.setAttribute("data-edition-theme", "light");
           }
         } catch (e) {
           /* default dark */

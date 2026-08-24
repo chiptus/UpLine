@@ -32,18 +32,23 @@ function applyTheme(preference: ThemePreference) {
   }
 }
 
+let media: MediaQueryList | null = null;
+
 function subscribe(onStoreChange: () => void) {
+  if (listeners.size === 0) {
+    media = window.matchMedia("(prefers-color-scheme: light)");
+    media.addEventListener("change", handleSystemChange);
+    window.addEventListener("storage", handleStorageChange);
+  }
   listeners.add(onStoreChange);
-
-  const media = window.matchMedia("(prefers-color-scheme: light)");
-  media.addEventListener("change", handleSystemChange);
-
-  window.addEventListener("storage", handleStorageChange);
 
   return () => {
     listeners.delete(onStoreChange);
-    media.removeEventListener("change", handleSystemChange);
-    window.removeEventListener("storage", handleStorageChange);
+    if (listeners.size === 0) {
+      media?.removeEventListener("change", handleSystemChange);
+      media = null;
+      window.removeEventListener("storage", handleStorageChange);
+    }
   };
 }
 

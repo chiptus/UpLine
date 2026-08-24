@@ -113,7 +113,7 @@ export function LineupFilters({ tab }: LineupFiltersProps) {
             </Button>
           )}
           <SheetClose asChild>
-            <Button type="button" className="bg-accent hover:bg-purple-700">
+            <Button type="button" className="bg-accent hover:bg-accent-hover">
               Done
             </Button>
           </SheetClose>

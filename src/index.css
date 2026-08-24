@@ -125,8 +125,8 @@
 
     --radius: 0.75rem;
 
-    --edition-glow-from: 273.4 69.9% 22.2%; /* #3d1160 */
-    --edition-glow-mid: 268.6 75.9% 11.4%; /* #1c0733 */
+    --ground-glow-from: 273.4 69.9% 22.2%; /* #3d1160 */
+    --ground-glow-mid: 268.6 75.9% 11.4%; /* #1c0733 */
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -278,11 +278,11 @@
   }
 
   /*
-   * Display type is reserved for the poster moments inside the edition views
+   * Display type is reserved for the poster moments on user-facing views
    * (hero, section headers, day strip). Everything else stays Space Grotesk.
    */
-  .edition-view h1,
-  .edition-view h2 {
+  .app-view h1,
+  .app-view h2 {
     font-family: "Unbounded", "Arial Black", system-ui, sans-serif;
     text-transform: uppercase;
     letter-spacing: 0.02em;
@@ -291,23 +291,19 @@
 
 @layer utilities {
   /* Festival v2 ground: fixed violet radial glow (dark); flat #fafaf7 (light) */
-  .bg-edition-ground {
+  .bg-ground {
     background-color: hsl(var(--background));
     background-image: radial-gradient(
       120% 70% at 50% -10%,
-      hsl(var(--edition-glow-from)) 0%,
-      hsl(var(--edition-glow-mid)) 55%,
+      hsl(var(--ground-glow-from)) 0%,
+      hsl(var(--ground-glow-mid)) 55%,
       hsl(var(--background)) 100%
     );
     background-attachment: fixed;
   }
 
-  :root[data-theme="light"] .bg-edition-ground {
+  :root[data-theme="light"] .bg-ground {
     background-image: none;
-  }
-
-  .bg-app-gradient {
-    @apply bg-gradient-to-br from-app-gradient-from to-app-gradient-to;
   }
 
   .bg-app-card-gradient {

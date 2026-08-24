@@ -106,7 +106,7 @@ function RootContent() {
 
   if (isValidating) {
     return (
-      <div className="min-h-screen bg-app-gradient flex items-center justify-center">
+      <div className="app-view min-h-screen bg-ground flex items-center justify-center">
         <div className="text-white text-xl">Validating invite...</div>
       </div>
     );
@@ -123,7 +123,7 @@ function RootContent() {
 
   if (inviteValidation && !inviteValidation.is_valid) {
     return (
-      <div className="min-h-screen bg-app-gradient flex items-center justify-center p-4">
+      <div className="app-view min-h-screen bg-ground flex items-center justify-center p-4">
         <div className="text-center text-white">
           <h1 className="text-2xl font-bold mb-4">Invalid Invite</h1>
           <p className="mb-4">This invite link is no longer valid.</p>
@@ -139,7 +139,7 @@ function RootContent() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="app-view min-h-screen bg-ground flex flex-col">
       <div className="flex-1">
         <Outlet />
       </div>

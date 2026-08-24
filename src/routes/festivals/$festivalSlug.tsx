@@ -40,7 +40,7 @@ export const Route = createFileRoute("/festivals/$festivalSlug")({
 
 function FestivalNotFound() {
   return (
-    <div className="min-h-screen bg-app-gradient flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <div className="text-center text-white">
         <h1 className="text-2xl font-bold mb-4">Festival not found</h1>
         <p className="mb-6 text-purple-200">

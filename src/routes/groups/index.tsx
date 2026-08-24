@@ -79,7 +79,7 @@ function GroupsContent({ user }: { user: User }) {
   }
 
   return (
-    <div className="min-h-screen bg-app-gradient">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <GroupsHeader onCreate={() => setCreateDialogOpen(true)} />
 

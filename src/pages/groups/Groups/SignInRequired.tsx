@@ -10,7 +10,7 @@ import { Link } from "@tanstack/react-router";
 
 export function SignInRequired({ description }: { description: string }) {
   return (
-    <div className="min-h-screen bg-app-gradient flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Sign in required</CardTitle>

@@ -50,7 +50,7 @@ function GroupDetail() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-app-gradient flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Sign in required</CardTitle>
@@ -84,7 +84,7 @@ function GroupDetailContent({ user }: { user: User }) {
   const isCreator = isGroupCreator(group.created_by, user.id);
 
   return (
-    <div className="min-h-screen bg-app-gradient">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <TopBar showBackButton backLabel="Back to Groups" />
 

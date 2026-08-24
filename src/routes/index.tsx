@@ -49,18 +49,18 @@ function FestivalSelection() {
 
   if (availableFestivals.length === 0) {
     return (
-      <div className="min-h-screen bg-app-gradient">
+      <div className="min-h-screen">
         <div className="container mx-auto px-4 py-8">
           <TopBar showGroupsButton />
 
           <div className="flex items-center justify-center mt-16">
-            <Card className="w-full max-w-md bg-white/10 border-purple-400/30">
+            <Card className="w-full max-w-md bg-surface border-border">
               <CardHeader className="text-center">
-                <Music className="h-16 w-16 mx-auto text-purple-400 mb-4" />
-                <CardTitle className="text-white">
+                <Music className="h-16 w-16 mx-auto text-accent mb-4" />
+                <CardTitle className="text-foreground">
                   No Festivals Available
                 </CardTitle>
-                <CardDescription className="text-purple-200">
+                <CardDescription className="text-muted-foreground">
                   There are currently no festivals open for voting. Check back
                   soon!
                 </CardDescription>
@@ -73,7 +73,7 @@ function FestivalSelection() {
   }
 
   return (
-    <div className="min-h-screen bg-app-gradient">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <AppHeader title="UpLine" showGroupsButton />
 
@@ -84,7 +84,7 @@ function FestivalSelection() {
         </div>
 
         <div className="mt-16 text-center">
-          <p className="text-purple-200 text-sm">
+          <p className="text-muted-foreground text-sm">
             Festival organizers can add their events through the admin panel
           </p>
         </div>
@@ -116,26 +116,26 @@ function FestivalCard({ festival }: { festival: Festival }) {
       params={{ festivalSlug: festival.slug }}
       onClick={handleClick}
     >
-      <Card className="bg-white/10 border-purple-400/30 hover:bg-white/15 transition-all duration-300 cursor-pointer group">
+      <Card className="bg-surface border-border hover:bg-surface-active transition-all duration-300 cursor-pointer group">
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <CardTitle className="text-white text-xl mb-2 group-hover:text-purple-200 transition-colors">
+              <CardTitle className="text-foreground text-xl mb-2 group-hover:text-accent transition-colors">
                 {festival.name}
               </CardTitle>
               {festival.description && (
-                <CardDescription className="text-purple-200 text-sm">
+                <CardDescription className="text-muted-foreground text-sm">
                   {festival.description}
                 </CardDescription>
               )}
             </div>
-            <Music className="h-6 w-6 text-purple-400 ml-4" />
+            <Music className="h-6 w-6 text-accent ml-4" />
           </div>
         </CardHeader>
 
         <CardContent className="space-y-4">
           {websiteUrl && (
-            <div className="flex items-center gap-2 text-sm text-purple-200">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <GlobeIcon className="h-4 w-4" />
               <span className="truncate">
                 {websiteUrl.replace(/^https?:\/\//, "")}

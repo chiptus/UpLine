@@ -50,7 +50,7 @@ function EditionSelection() {
 
   if (availableEditions.length === 0) {
     return (
-      <div className="min-h-screen bg-app-gradient">
+      <div className="min-h-screen">
         <div className="container mx-auto px-4 py-8">
           <TopBar showBackButton backLabel="Back to Festivals" />
           <h1 className="text-4xl font-bold text-white text-center mb-8">
@@ -111,7 +111,7 @@ function EditionSelection() {
   }
 
   return (
-    <div className="min-h-screen bg-app-gradient">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <AppHeader
           showBackButton

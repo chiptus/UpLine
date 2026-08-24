@@ -7,7 +7,7 @@ export function EmptyState() {
     from: "/festivals/$festivalSlug/editions/$editionSlug/explore",
   });
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-900 to-black flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4">
       <div className="text-foreground text-center">
         <h1 className="text-2xl font-bold mb-4">No Sets Available</h1>
         <p className="mb-6">

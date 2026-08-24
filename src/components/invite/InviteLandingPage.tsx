@@ -24,7 +24,7 @@ export function InviteLandingPage({
 
   if (!inviteValidation.is_valid) {
     return (
-      <div className="min-h-screen bg-app-gradient flex items-center justify-center p-4">
+      <div className="app-view min-h-screen bg-ground flex items-center justify-center p-4">
         <Card className="max-w-md w-full">
           <CardHeader className="text-center">
             <AlertCircle className="h-12 w-12 mx-auto mb-4 text-red-500" />
@@ -39,7 +39,7 @@ export function InviteLandingPage({
   }
 
   return (
-    <div className="min-h-screen bg-app-gradient flex items-center justify-center p-4">
+    <div className="app-view min-h-screen bg-ground flex items-center justify-center p-4">
       <Card className="max-w-md w-full">
         <CardHeader className="text-center">
           <Users className="h-12 w-12 mx-auto mb-4 text-purple-400" />

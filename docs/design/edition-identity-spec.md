@@ -109,7 +109,7 @@ Same in both themes.
 
 1. Token values above land in `src/index.css` under `:root`, replacing the roles named in `edition-color-vocabulary.md`'s "absorbs today" mapping (~350 occurrences / 60 files per the #319 audit).
 2. `tailwind.config.ts` gains the new role names (`surface*`, `subtle-foreground`, `border-strong`, `accent-soft`, `live*`, `notice*`, `vote-*`).
-3. Font families wired once at the edition-view root; display styling via the heading rules above.
+3. Font families wired once at the app-view root; display styling via the heading rules above.
 4. The prototype directory `src/pages/EditionView/prototype/` and its wiring are deleted once the real implementation lands.
 
 How this is sliced into PRs (tokenize-then-flip vs surface-by-surface, and #230's fate) is [#322](https://github.com/chiptus/UpLine/issues/322).

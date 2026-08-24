@@ -18,7 +18,7 @@ export function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-app-gradient">
+    <div className="min-h-screen">
       <TopBar showBackButton backLabel="Back" />
       <div className="container mx-auto max-w-2xl space-y-8 px-4 py-8">
         <h1 className="text-2xl font-bold text-white">Settings</h1>

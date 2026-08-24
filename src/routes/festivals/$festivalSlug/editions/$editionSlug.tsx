@@ -82,7 +82,7 @@ function EditionLayout() {
   const { festival, edition } = Route.useRouteContext();
 
   return (
-    <div className="edition-view min-h-screen bg-edition-ground">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-4 md:py-8 pb-20 md:pb-8">
         <EditionHeader
           title={`${festival.name} - ${edition.name}`}
@@ -106,7 +106,7 @@ function EditionNotFound() {
   const { festivalSlug } = Route.useParams();
 
   return (
-    <div className="edition-view min-h-screen bg-edition-ground flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <div className="text-center text-foreground">
         <h1 className="text-2xl font-bold mb-4">Edition not found</h1>
         <p className="mb-6 text-muted-foreground">

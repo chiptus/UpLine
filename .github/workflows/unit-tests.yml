@@ -67,7 +67,7 @@ jobs:
 
       - name: Setup Supabase
         run: |
-          pnpm exec supabase start
+          pnpm exec supabase start -x realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
           sleep 10
           pnpm exec supabase db reset
 

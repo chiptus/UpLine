@@ -88,15 +88,12 @@ test.describe(
   "Link Wizard: candidate verification flow",
   { tag: "@smoke" },
   () => {
-    test("completes the full happy-path flow: set info → sort → link-out → show more → select → save", async ({
-      page,
-      context,
-    }) => {
-      // Default 30s test timeout was being exceeded by the up-to-30s save
-      // wait stacked on top of sign-in, navigation, and several UI interactions
-      // earlier in this test.
-      test.setTimeout(60000);
+    // Both tests below act on the same seeded artist (Kiara Scuro) and the
+    // happy-path test mutates + the afterEach resets her row, so they must
+    // not run concurrently in separate workers under fullyParallel.
+    test.describe.configure({ mode: "serial" });
 
+    test.beforeEach(async ({ page }) => {
       await signInAsAdmin(page);
       await mockSearchArtistLinks(page, { "Kiara Scuro": MOCK_CANDIDATES });
 
@@ -106,6 +103,16 @@ test.describe(
       ).toBeVisible({ timeout: 15000 });
 
       await selectArtistByName(page, "Kiara Scuro");
+    });
+
+    test("completes the full happy-path flow: set info → sort → link-out → show more → select → save", async ({
+      page,
+      context,
+    }) => {
+      // Default 30s test timeout was being exceeded by the up-to-30s save
+      // wait stacked on top of sign-in, navigation, and several UI interactions
+      // earlier in this test.
+      test.setTimeout(60000);
 
       // 1. Set-info panel shows the artist's actual set details, including
       // the formatted time range and the (seed-driven) co-performers state.
@@ -147,9 +154,7 @@ test.describe(
       ).toBeVisible();
 
       // 3. Provider link opens a new tab and does NOT stage/select the candidate.
-      const spotifyUrlInput = page.locator(
-        'input[placeholder*="open.spotify.com"]',
-      );
+      const spotifyUrlInput = page.getByLabel("Spotify URL");
       await expect(spotifyUrlInput).toHaveValue("");
 
       const [newPage] = await Promise.all([
@@ -185,10 +190,17 @@ test.describe(
       // instead, which is the real signal the mutation succeeded.
       const [patchResponse] = await Promise.all([
         page.waitForResponse(
-          (response) =>
-            response.request().method() === "PATCH" &&
-            response.url().includes("/rest/v1/artists") &&
-            response.url().includes(KIARA_ARTIST_ID),
+          (response) => {
+            if (
+              response.request().method() !== "PATCH" ||
+              !response.url().includes("/rest/v1/artists") ||
+              !response.url().includes(KIARA_ARTIST_ID)
+            ) {
+              return false;
+            }
+            const body = response.request().postDataJSON();
+            return body?.spotify_url === MOCK_CANDIDATES[3].url;
+          },
           { timeout: 30000 },
         ),
         page.getByRole("button", { name: /save & next/i }).click(),
@@ -200,22 +212,10 @@ test.describe(
       page,
       context,
     }) => {
-      await signInAsAdmin(page);
-      await mockSearchArtistLinks(page, { "Kiara Scuro": MOCK_CANDIDATES });
-
-      await page.goto(LINK_WIZARD_PATH);
-      await expect(
-        page.getByRole("heading", { name: /link wizard/i }),
-      ).toBeVisible({ timeout: 15000 });
-
-      await selectArtistByName(page, "Kiara Scuro");
-
       await expect(page.getByText("Spotify Candidates")).toBeVisible();
       await failOnCandidatesError(page);
 
-      const spotifyUrlInput = page.locator(
-        'input[placeholder*="open.spotify.com"]',
-      );
+      const spotifyUrlInput = page.getByLabel("Spotify URL");
       await expect(spotifyUrlInput).toHaveValue("");
 
       const candidateCard = page

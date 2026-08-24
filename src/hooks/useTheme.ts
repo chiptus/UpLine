@@ -2,7 +2,7 @@ import { useCallback, useSyncExternalStore } from "react";
 
 export type ThemePreference = "light" | "dark" | "system";
 
-const STORAGE_KEY = "edition-theme";
+const STORAGE_KEY = "theme";
 
 const listeners = new Set<() => void>();
 
@@ -26,9 +26,9 @@ function resolveTheme(preference: ThemePreference): "light" | "dark" {
 
 function applyTheme(preference: ThemePreference) {
   if (resolveTheme(preference) === "light") {
-    document.documentElement.setAttribute("data-edition-theme", "light");
+    document.documentElement.setAttribute("data-theme", "light");
   } else {
-    document.documentElement.removeAttribute("data-edition-theme");
+    document.documentElement.removeAttribute("data-theme");
   }
 }
 
@@ -52,7 +52,7 @@ function subscribe(onStoreChange: () => void) {
   };
 }
 
-export function useEditionTheme() {
+export function useTheme() {
   const preference = useSyncExternalStore(subscribe, readPreference);
 
   const setPreference = useCallback((next: ThemePreference) => {

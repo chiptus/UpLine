@@ -85,7 +85,7 @@
      * admin tables. Distinct from the --surface/-raised/-active overlay tokens above,
      * which are translucent fills on the dark ground, not opaque page backgrounds.
      * TODO(#359): these are hardcoded, not theme-aware. Once light/dark theming lands
-     * (data-edition-theme), fold these into --background/--foreground/--muted-foreground/
+     * (data-theme), fold these into --background/--foreground/--muted-foreground/
      * --border instead so these surfaces follow the theme, and remove this token family.
      */
     --paper-background: 0 0% 100%; /* white */
@@ -185,7 +185,7 @@
   }
 
   /* Festival v2 — light theme: same skeleton, soft-border light graft */
-  :root[data-edition-theme="light"] {
+  :root[data-theme="light"] {
     --background: 60 23.1% 97.5%; /* #fafaf7 */
     --foreground: 225 13.3% 11.8%; /* #1a1c22 */
 
@@ -302,7 +302,7 @@
     background-attachment: fixed;
   }
 
-  :root[data-edition-theme="light"] .bg-edition-ground {
+  :root[data-theme="light"] .bg-edition-ground {
     background-image: none;
   }
 

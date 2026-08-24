@@ -6,11 +6,11 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useEditionTheme } from "@/hooks/useEditionTheme";
+import { useTheme } from "@/hooks/useTheme";
 import { Moon, Sun, SunMoon } from "lucide-react";
 
 export function ThemeToggle() {
-  const { preference, setPreference } = useEditionTheme();
+  const { preference, setPreference } = useTheme();
 
   return (
     <DropdownMenu>

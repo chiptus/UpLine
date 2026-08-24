@@ -21,7 +21,7 @@
     <script>
       (function () {
         try {
-          var stored = localStorage.getItem("edition-theme");
+          var stored = localStorage.getItem("theme");
           var pref =
             stored === "light" || stored === "dark" ? stored : "system";
           var resolved =
@@ -32,7 +32,7 @@
               : pref;
           if (resolved === "light") {
             var root = document.documentElement;
-            root.setAttribute("data-edition-theme", "light");
+            root.setAttribute("data-theme", "light");
           }
         } catch (e) {
           /* default dark */

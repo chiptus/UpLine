@@ -12,7 +12,7 @@ One skeleton, two color themes. **Dark is the default**: a violet poster ground 
 
 ## Theme mechanics (CSS contract)
 
-- Token values are CSS variables on `:root` (#367). Dark values are the default; light values apply under an explicit `data-edition-theme="light"` attribute on the document root.
+- Token values are CSS variables on `:root` (#367). Dark values are the default; light values apply under an explicit `data-theme="light"` attribute on the document root.
 - Both themes ship. How the theme is chosen (system preference vs in-app toggle) and persisted is a rollout decision — [#322](https://github.com/chiptus/UpLine/issues/322)'s territory. The CSS contract above is what it plugs into.
 - Values are stored as HSL channels to match the existing shadcn `hsl(var(--…))` plumbing; hex given here for legibility. Opaque roles are plain triples (`H S% L%`); the inherently translucent roles (`surface*`, `accent-soft`, `border*`, `*-soft`) carry their alpha inside the variable (`H S% L% / A`) — see the vocabulary's ground rules for why those roles must not take Tailwind `/NN` modifiers.
 

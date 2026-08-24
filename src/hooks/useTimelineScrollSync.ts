@@ -120,6 +120,7 @@ export function useTimelineScrollSync({
           to: ".",
           search: (prev) => ({ ...prev, scrollTo: rounded.toISOString() }),
           replace: true,
+          resetScroll: false,
         });
       }, SCROLL_DEBOUNCE_MS);
     }

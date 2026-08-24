@@ -23,13 +23,13 @@ export function CreateNoteForm({
         value={noteContent}
         onChange={(e) => setNoteContent(e.target.value)}
         placeholder="Add your thoughts about this artist..."
-        className="min-h-[120px] bg-white/5 border-purple-400/30 text-white placeholder:text-purple-300"
+        className="min-h-[120px] bg-surface border text-foreground placeholder:text-subtle-foreground"
       />
       <div className="flex items-center space-x-2">
         <Button
           onClick={handleSave}
           disabled={mutation.isPending || !noteContent.trim()}
-          className="bg-purple-600 hover:bg-purple-700"
+          className="bg-accent text-accent-foreground hover:bg-accent-hover"
         >
           <SaveIcon className="h-4 w-4 mr-2" />
           {mutation.isPending ? "Saving..." : "Save Note"}
@@ -38,7 +38,7 @@ export function CreateNoteForm({
           variant="outline"
           onClick={handleCancel}
           disabled={mutation.isPending}
-          className="border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white"
+          className="border-ring text-ring hover:bg-ring hover:text-foreground"
         >
           <XIcon className="h-4 w-4 mr-2" />
           Cancel

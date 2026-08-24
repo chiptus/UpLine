@@ -48,11 +48,11 @@ export function SetInfoCard({
       : null;
   return (
     <div className="lg:col-span-2">
-      <Card className="bg-white/10 backdrop-blur-md border-purple-400/30 h-full">
+      <Card className="bg-surface-raised backdrop-blur-md border h-full">
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <CardTitle className="text-3xl font-bold text-white mb-2">
+              <CardTitle className="text-3xl font-bold text-foreground mb-2">
                 {set.name}
               </CardTitle>
               <div className="flex flex-wrap gap-2 mb-4">
@@ -78,7 +78,7 @@ export function SetInfoCard({
               </div>
 
               {/* Performance Information */}
-              <div className="flex flex-wrap gap-4 mb-4 text-purple-200">
+              <div className="flex flex-wrap gap-4 mb-4 text-muted-foreground">
                 {canShowStage && <StagePin stageId={set.stage_id} />}
                 {timeRangeFormatted && (
                   <div className="flex items-center gap-2">
@@ -99,7 +99,7 @@ export function SetInfoCard({
             </div>
           </div>
           {(set.description || artist.description) && (
-            <CardDescription className="text-purple-200 text-lg leading-relaxed">
+            <CardDescription className="text-muted-foreground text-lg leading-relaxed">
               <MarkdownText
                 content={set.description || artist.description || ""}
                 className="prose-sm prose-invert"

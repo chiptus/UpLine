@@ -63,7 +63,7 @@ export function SetExploreCard({
           )}
 
           {/* Content */}
-          <div className="relative h-full flex flex-col justify-between p-6 text-white">
+          <div className="relative h-full flex flex-col justify-between p-6 text-foreground">
             {/* Header Info */}
             <SetCardHeader
               stageId={set.stage_id || undefined}
@@ -98,7 +98,7 @@ export function SetExploreCard({
 
             {/* Footer */}
             <div className="text-center">
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-subtle-foreground">
                 Swipe or tap buttons to vote
               </p>
             </div>

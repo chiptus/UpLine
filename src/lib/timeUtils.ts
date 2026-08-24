@@ -166,6 +166,18 @@ export function combineDateAndTime(
   return `${datePart} ${timePart}`;
 }
 
+export function formatDateOnly(
+  dateTime: string | null,
+  timezone?: string,
+): string | null {
+  if (!dateTime) return null;
+  const date = parseISO(dateTime);
+  if (!isValid(date)) return null;
+  const dateFormat = "MMM d, yyyy";
+  if (timezone) return formatInTimeZone(date, timezone, dateFormat);
+  return format(date, dateFormat);
+}
+
 export function formatDayOnly(
   dateTime: string | null,
   timezone?: string,

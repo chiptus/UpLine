@@ -16,7 +16,7 @@ export function SupportingArtists({ artists }: SupportingArtistsProps) {
 
   return (
     <div className="space-y-2">
-      <p className="text-center text-sm text-gray-400">
+      <p className="text-center text-sm text-subtle-foreground">
         {artists.length === 1 ? "With" : "With"}
       </p>
       <div className="flex flex-wrap gap-2 justify-center">
@@ -24,7 +24,7 @@ export function SupportingArtists({ artists }: SupportingArtistsProps) {
           <Badge
             key={artist.id}
             variant="outline"
-            className="bg-white/10 text-white border-white/20 text-xs"
+            className="bg-surface-raised text-foreground border-surface-active text-xs"
           >
             {artist.name}
           </Badge>
@@ -32,7 +32,7 @@ export function SupportingArtists({ artists }: SupportingArtistsProps) {
         {artists.length > 3 && (
           <Badge
             variant="outline"
-            className="bg-white/10 text-white border-white/20 text-xs"
+            className="bg-surface-raised text-foreground border-surface-active text-xs"
           >
             +{artists.length - 3} more
           </Badge>

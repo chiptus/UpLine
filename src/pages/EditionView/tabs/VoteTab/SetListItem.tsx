@@ -7,7 +7,7 @@ import { SetActionButtons } from "./SetCard/SetActionButtons";
 export function SetListItem() {
   return (
     <div
-      className="bg-white/10 backdrop-blur-md border-purple-400/30 hover:bg-white/15 transition-all duration-300 rounded-lg p-4"
+      className="bg-surface-raised backdrop-blur-md border hover:bg-surface-active transition-all duration-300 rounded-lg p-4"
       data-testid="artist-item"
     >
       {/* Mobile Layout (sm and below) */}
@@ -20,7 +20,7 @@ export function SetListItem() {
           </div>
         </div>
 
-        <SetDescription className="text-purple-200 text-sm" />
+        <SetDescription className="text-muted-foreground text-sm" />
 
         <div className="self-end">
           <SetActionButtons size="sm" layout="horizontal" />

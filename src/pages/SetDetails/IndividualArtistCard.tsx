@@ -17,7 +17,7 @@ export function IndividualArtistCard({
   showFullDetails = false,
 }: IndividualArtistCardProps) {
   return (
-    <Card className="bg-white/5 backdrop-blur-sm border-purple-400/20">
+    <Card className="bg-surface backdrop-blur-sm border">
       {/* Artist Image */}
       <div className="aspect-square overflow-hidden rounded-t-lg">
         <ArtistImageLoader
@@ -28,7 +28,7 @@ export function IndividualArtistCard({
       </div>
 
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-bold text-white">
+        <CardTitle className="text-lg font-bold text-foreground">
           {artist.name}
         </CardTitle>
 
@@ -48,7 +48,7 @@ export function IndividualArtistCard({
             artist.artist_music_genres.length > 2 && (
               <Badge
                 variant="outline"
-                className="text-xs border-purple-400/50 text-purple-300"
+                className="text-xs border-strong text-subtle-foreground"
               >
                 +{artist.artist_music_genres.length - 2}
               </Badge>
@@ -62,7 +62,7 @@ export function IndividualArtistCard({
           <div className="mb-3">
             <MarkdownText
               content={artist.description}
-              className="prose-sm prose-invert text-purple-200 line-clamp-3"
+              className="prose-sm prose-invert text-muted-foreground line-clamp-3"
             />
           </div>
         )}

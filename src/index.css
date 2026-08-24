@@ -47,6 +47,7 @@
     --accent-foreground: 0 0% 100%;
     --accent-hover: 272.1 71.7% 47.1%; /* purple-700 */
     --accent-soft: 271.5 81.3% 55.9% / 0.4; /* bg-purple-600/40 */
+    --accent-soft-foreground: 270 95.2% 75.3%; /* purple-400 */
 
     --destructive: 0 90.6% 70.8%; /* red-400 */
     --destructive-foreground: 221 39% 11%; /* gray-900 — red-400 is too light for a white foreground */

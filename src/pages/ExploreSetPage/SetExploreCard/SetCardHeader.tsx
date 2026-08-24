@@ -40,7 +40,7 @@ export function SetCardHeader({ stageId, timeStart }: SetCardHeaderProps) {
         {dateLabel && (
           <Badge
             variant="secondary"
-            className="bg-purple-600/80 text-white border-0"
+            className="bg-accent/80 text-foreground border-0"
           >
             {dateLabel}
           </Badge>

@@ -7,7 +7,7 @@ import { SetVotingButtons } from "./SetCard/SetVotingButtons";
 
 export function SingleArtistSetCard() {
   return (
-    <Card className="bg-white/10 backdrop-blur-md border-purple-400/30 hover:bg-white/15 transition-all duration-300 overflow-hidden">
+    <Card className="bg-surface-raised backdrop-blur-md border hover:bg-surface-active transition-all duration-300 overflow-hidden">
       <CardHeader className="pb-4">
         <SetImage />
 

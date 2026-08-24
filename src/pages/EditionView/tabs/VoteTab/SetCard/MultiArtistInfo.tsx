@@ -20,7 +20,9 @@ export function MultiArtistInfo({
     <div className="flex gap-4">
       {artists.map((artist) => (
         <div key={artist.id} className="flex items-center gap-2">
-          <span className="text-xs text-purple-200 mr-1">{artist.name}</span>
+          <span className="text-xs text-muted-foreground mr-1">
+            {artist.name}
+          </span>
           <SocialPlatformLinkList artist={artist} size={size} />
         </div>
       ))}

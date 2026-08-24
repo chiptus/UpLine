@@ -28,7 +28,7 @@ export function ExplorePageHeader({
           asChild
           variant="ghost"
           size="sm"
-          className="text-white hover:bg-white/20 flex items-center "
+          className="text-foreground hover:bg-surface-active flex items-center "
         >
           <Link
             from="/festivals/$festivalSlug/editions/$editionSlug/explore"
@@ -40,7 +40,7 @@ export function ExplorePageHeader({
         </Button>
       </div>
 
-      <div className="text-center text-white">
+      <div className="text-center text-foreground">
         <h1 className="font-semibold">{editionName}</h1>
         <ExplorationProgress current={currentIndex + 1} total={totalSets} />
       </div>

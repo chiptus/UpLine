@@ -26,7 +26,9 @@ test.describe("List view sticky day header", { tag: "@smoke" }, () => {
     // Still inside the first day, so the same header must not budge.
     await scrollBy(page, 400);
     await expect.poll(() => topOf(firstHeading)).toBeCloseTo(dockedTop, 0);
-    await expect(firstHeading).toHaveText(firstHeadingText);
+    await expect(firstHeading).toHaveText(firstHeadingText, {
+      useInnerText: true,
+    });
 
     // Land just inside the second day: far enough that its header has docked,
     // not so far that the section's bottom edge pushes the header back out.

@@ -54,7 +54,7 @@ export function MobileFilters({
             value={state.stages.length === 1 ? state.stages[0] : "all"}
             onValueChange={handleStageSelect}
           >
-            <SelectTrigger className="w-full bg-surface-raised border text-popover-foreground">
+            <SelectTrigger className="w-full bg-surface-raised border-border text-popover-foreground">
               <SelectValue placeholder="All Stages" />
             </SelectTrigger>
             <SelectContent className="bg-popover border">
@@ -94,7 +94,7 @@ export function MobileFilters({
           value={state.genres.length === 1 ? state.genres[0] : "all"}
           onValueChange={handleGenreSelect}
         >
-          <SelectTrigger className="w-full bg-surface-raised border text-popover-foreground">
+          <SelectTrigger className="w-full bg-surface-raised border-border text-popover-foreground">
             <SelectValue placeholder="All Genres" />
           </SelectTrigger>
           <SelectContent className="bg-popover border">
@@ -125,7 +125,7 @@ export function MobileFilters({
             onStateChange({ minRating: parseInt(value) })
           }
         >
-          <SelectTrigger className="w-full bg-surface-raised border text-popover-foreground">
+          <SelectTrigger className="w-full bg-surface-raised border-border text-popover-foreground">
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="bg-popover border">

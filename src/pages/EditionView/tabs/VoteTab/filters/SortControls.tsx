@@ -43,7 +43,7 @@ export function SortControls({ sort, onSortChange }: SortControlsProps) {
     <div className="flex items-center gap-2">
       <SortAsc className="h-4 w-4 text-subtle-foreground hidden sm:block" />
       <Select value={sort} onValueChange={onSortChange}>
-        <SelectTrigger className="w-10 sm:w-44 bg-surface-raised border text-popover-foreground">
+        <SelectTrigger className="w-10 sm:w-44 bg-surface-raised border-border text-popover-foreground">
           <div className="hidden sm:block">
             <SelectValue />
           </div>

@@ -1,10 +1,11 @@
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "../../src/integrations/supabase/types";
 import { TEST_CONFIG } from "../config/test-env";
 
-const ADMIN_HEADERS = {
-  "Content-Type": "application/json",
-  apikey: TEST_CONFIG.SUPABASE_SERVICE_ROLE_KEY,
-  Authorization: `Bearer ${TEST_CONFIG.SUPABASE_SERVICE_ROLE_KEY}`,
-};
+const adminClient = createClient<Database>(
+  TEST_CONFIG.SUPABASE_URL,
+  TEST_CONFIG.SUPABASE_SERVICE_ROLE_KEY,
+);
 
 // Seeded via supabase/seed.sql: festival "test", edition "2025" ("Boom Festival 2025"),
 // stage "Club Stage".
@@ -23,43 +24,38 @@ export interface LinkWizardTestArtist {
 // shared seeded row) so link-wizard e2e tests never race each other across
 // parallel workers/browser projects. Missing spotify_url (with
 // soundcloud_url set) makes the artist's link-wizard step render exactly
-// one (Spotify) candidates panel, matching a single set_artists row keeps
-// its co-performers section empty.
+// one (Spotify) candidates panel, and a single set_artists row keeps its
+// co-performers section empty.
 export async function createLinkWizardTestArtist(): Promise<LinkWizardTestArtist> {
   const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const artistName = `E2E Candidate ${suffix}`;
   const setDescription = "Rising star seeded for link-wizard e2e coverage";
 
-  const artistResponse = await fetch(
-    `${TEST_CONFIG.SUPABASE_URL}/rest/v1/artists`,
-    {
-      method: "POST",
-      headers: { ...ADMIN_HEADERS, Prefer: "return=representation" },
-      body: JSON.stringify({
-        name: artistName,
-        slug: `e2e-candidate-${suffix}`,
-        description: setDescription,
-        added_by: SEEDED_USER_ID,
-        spotify_url: null,
-        soundcloud_url: "https://soundcloud.com/e2e-candidate",
-      }),
-    },
-  );
-  if (!artistResponse.ok) {
+  const { data: artist, error: artistError } = await adminClient
+    .from("artists")
+    .insert({
+      name: artistName,
+      slug: `e2e-candidate-${suffix}`,
+      description: setDescription,
+      added_by: SEEDED_USER_ID,
+      spotify_url: null,
+      soundcloud_url: "https://soundcloud.com/e2e-candidate",
+    })
+    .select("id")
+    .single();
+  if (artistError) {
     throw new Error(
-      `Failed to create link-wizard test artist: ${artistResponse.status} ${await artistResponse.text()}`,
+      `Failed to create link-wizard test artist: ${artistError.message}`,
     );
   }
-  const [artist] = (await artistResponse.json()) as { id: string }[];
 
-  const setResponse = await fetch(`${TEST_CONFIG.SUPABASE_URL}/rest/v1/sets`, {
-    method: "POST",
-    headers: { ...ADMIN_HEADERS, Prefer: "return=representation" },
-    body: JSON.stringify({
-      // ArtistSetInfoPanel derives the "{name} - Festival Set" heading from
-      // the artist's name, and ArtistSetCard renders this set.name as its
-      // own heading — matching the seeded convention (set.name === artist
-      // name) keeps both headings showing the same text.
+  // ArtistSetInfoPanel derives the "{name} - Festival Set" heading from the
+  // artist's name, and ArtistSetCard renders this set.name as its own
+  // heading — matching the seeded convention (set.name === artist name)
+  // keeps both headings showing the same text.
+  const { data: set, error: setError } = await adminClient
+    .from("sets")
+    .insert({
       name: artistName,
       slug: `e2e-candidate-set-${suffix}`,
       festival_edition_id: TEST_EDITION_ID,
@@ -68,30 +64,25 @@ export async function createLinkWizardTestArtist(): Promise<LinkWizardTestArtist
       time_end: "2025-07-13T01:00:00+00:00",
       description: setDescription,
       created_by: SEEDED_USER_ID,
-    }),
-  });
-  if (!setResponse.ok) {
+    })
+    .select("id")
+    .single();
+  if (setError) {
     throw new Error(
-      `Failed to create link-wizard test set: ${setResponse.status} ${await setResponse.text()}`,
+      `Failed to create link-wizard test set: ${setError.message}`,
     );
   }
-  const [set] = (await setResponse.json()) as { id: string }[];
 
-  const setArtistResponse = await fetch(
-    `${TEST_CONFIG.SUPABASE_URL}/rest/v1/set_artists`,
-    {
-      method: "POST",
-      headers: { ...ADMIN_HEADERS, Prefer: "return=minimal" },
-      body: JSON.stringify({
-        set_id: set.id,
-        artist_id: artist.id,
-        role: "performer",
-      }),
-    },
-  );
-  if (!setArtistResponse.ok) {
+  const { error: setArtistError } = await adminClient
+    .from("set_artists")
+    .insert({
+      set_id: set.id,
+      artist_id: artist.id,
+      role: "performer",
+    });
+  if (setArtistError) {
     throw new Error(
-      `Failed to link test artist to set: ${setArtistResponse.status} ${await setArtistResponse.text()}`,
+      `Failed to link test artist to set: ${setArtistError.message}`,
     );
   }
 
@@ -103,23 +94,23 @@ export async function createLinkWizardTestArtist(): Promise<LinkWizardTestArtist
 export async function deleteLinkWizardTestArtist(
   fixture: LinkWizardTestArtist,
 ): Promise<void> {
-  const setResponse = await fetch(
-    `${TEST_CONFIG.SUPABASE_URL}/rest/v1/sets?id=eq.${fixture.setId}`,
-    { method: "DELETE", headers: ADMIN_HEADERS },
-  );
-  if (!setResponse.ok) {
+  const { error: setError } = await adminClient
+    .from("sets")
+    .delete()
+    .eq("id", fixture.setId);
+  if (setError) {
     throw new Error(
-      `Failed to delete link-wizard test set: ${setResponse.status} ${await setResponse.text()}`,
+      `Failed to delete link-wizard test set: ${setError.message}`,
     );
   }
 
-  const artistResponse = await fetch(
-    `${TEST_CONFIG.SUPABASE_URL}/rest/v1/artists?id=eq.${fixture.artistId}`,
-    { method: "DELETE", headers: ADMIN_HEADERS },
-  );
-  if (!artistResponse.ok) {
+  const { error: artistError } = await adminClient
+    .from("artists")
+    .delete()
+    .eq("id", fixture.artistId);
+  if (artistError) {
     throw new Error(
-      `Failed to delete link-wizard test artist: ${artistResponse.status} ${await artistResponse.text()}`,
+      `Failed to delete link-wizard test artist: ${artistError.message}`,
     );
   }
 }

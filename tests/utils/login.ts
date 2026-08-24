@@ -13,14 +13,33 @@ export async function signIn(page: Page, email = generateTestEmail()) {
   return email;
 }
 
+// Signs in a fresh, pre-onboarded admin user via OTP — a distinct email per
+// call (rather than the shared seeded admin) so concurrent sign-ins across
+// parallel workers/browser projects never race over the same Mailpit inbox.
+export async function signInAsAdmin(page: Page, email = generateTestEmail()) {
+  await submitOtpSignIn(page, email, { preOnboard: true, asAdmin: true });
+
+  await expect(page.getByRole("button", { name: /user menu/i })).toBeVisible({
+    timeout: 15000,
+  });
+
+  return email;
+}
+
 // Runs the OTP flow up through code verification; pass preOnboard to skip onboarding.
 export async function submitOtpSignIn(
   page: Page,
   email: string,
-  { preOnboard = false }: { preOnboard?: boolean } = {},
+  {
+    preOnboard = false,
+    asAdmin = false,
+  }: { preOnboard?: boolean; asAdmin?: boolean } = {},
 ) {
   if (preOnboard) {
-    await createPreOnboardedUser(email);
+    const userId = await createPreOnboardedUser(email);
+    if (asAdmin) {
+      await grantAdminRole(userId);
+    }
   }
 
   await page.goto("/");
@@ -73,7 +92,7 @@ const ADMIN_HEADERS = {
 };
 
 // Pre-creates an already-onboarded voter via the admin API so OTP sign-in never shows onboarding.
-async function createPreOnboardedUser(email: string): Promise<void> {
+async function createPreOnboardedUser(email: string): Promise<string> {
   const username = email.split("@")[0];
 
   const createResponse = await fetch(
@@ -102,4 +121,27 @@ async function createPreOnboardedUser(email: string): Promise<void> {
     headers: { ...ADMIN_HEADERS, Prefer: "return=minimal" },
     body: JSON.stringify({ completed_onboarding: true }),
   });
+
+  return id;
+}
+
+async function grantAdminRole(userId: string): Promise<void> {
+  const response = await fetch(
+    `${TEST_CONFIG.SUPABASE_URL}/rest/v1/admin_roles`,
+    {
+      method: "POST",
+      headers: { ...ADMIN_HEADERS, Prefer: "return=minimal" },
+      body: JSON.stringify({
+        user_id: userId,
+        role: "admin",
+        created_by: userId,
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to grant admin role to test user ${userId}: ${response.status} ${await response.text()}`,
+    );
+  }
 }

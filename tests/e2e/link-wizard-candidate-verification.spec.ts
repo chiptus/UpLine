@@ -1,6 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { submitOtpSignIn } from "../utils/login";
-import { TEST_CONFIG } from "../config/test-env";
+import { signInAsAdmin } from "../utils/login";
 import {
   createLinkWizardTestArtist,
   deleteLinkWizardTestArtist,
@@ -224,13 +223,6 @@ test.describe(
     });
   },
 );
-
-async function signInAsAdmin(page: Page) {
-  await submitOtpSignIn(page, TEST_CONFIG.SEEDED_ONBOARDED_USER_EMAIL);
-  await expect(page.getByRole("button", { name: /user menu/i })).toBeVisible({
-    timeout: 15000,
-  });
-}
 
 // search-artist-links is invoked cross-origin (app on :8080, Supabase on
 // :54321), so the browser sends a CORS preflight OPTIONS request before the

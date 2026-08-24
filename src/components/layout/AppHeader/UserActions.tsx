@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { LogIn } from "lucide-react";
 import { Navigation } from "./Navigation";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { UserMenu } from "./UserMenu";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -27,6 +28,8 @@ export function UserActions({
         showGroupsButton={showGroupsButton}
         isMobile={isMobile}
       />
+
+      <ThemeToggle />
 
       <div className="flex items-center">
         {user ? (

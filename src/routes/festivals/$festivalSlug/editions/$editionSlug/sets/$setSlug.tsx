@@ -65,7 +65,7 @@ function SetDetails() {
 
   return (
     <>
-      <div className="min-h-screen bg-app-gradient">
+      <div className="edition-view min-h-screen bg-edition-ground">
         <div className="container mx-auto px-4 py-8">
           <TopBar showBackButton backLabel="Back to Artists" showGroupsButton>
             <FestivalIndicator

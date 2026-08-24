@@ -51,7 +51,7 @@ export function UserMenu({
             size={isMobile ? "sm" : "md"}
           />
           {!isMobile && (
-            <span className="text-white font-medium">{displayName}</span>
+            <span className="text-foreground font-medium">{displayName}</span>
           )}
         </Button>
       </DropdownMenuTrigger>

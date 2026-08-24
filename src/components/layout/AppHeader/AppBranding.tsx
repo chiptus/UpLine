@@ -24,7 +24,9 @@ export function AppBranding({ isMobile }: AppBrandingProps) {
       <Link to="/">
         <div className="flex items-center gap-3">
           <Music className="h-6 w-6 text-purple-400" />
-          <h1 className="text-xl md:text-2xl font-bold text-white">UpLine</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-foreground">
+            UpLine
+          </h1>
         </div>
       </Link>
 

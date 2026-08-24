@@ -26,7 +26,7 @@ export function FestivalIndicator({
             className="size-8 md:size-12 object-contain rounded"
           />
         ) : (
-          <span className="truncate text-sm md:text-base font-semibold text-white">
+          <span className="truncate text-sm md:text-base font-semibold text-foreground">
             {festivalName}
           </span>
         )}

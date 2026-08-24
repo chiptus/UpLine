@@ -24,7 +24,7 @@ export function SetNoteItem({
             variant="outline"
             size="sm"
             onClick={handleDelete}
-            className="border-red-400/50 text-destructive hover:bg-red-400 hover:text-foreground"
+            className="border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground"
             disabled={deleteNoteMutation.isPending}
           >
             <Trash2Icon className="h-4 w-4" />

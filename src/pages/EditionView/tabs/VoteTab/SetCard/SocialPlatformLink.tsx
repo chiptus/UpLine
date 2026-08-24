@@ -26,7 +26,7 @@ export function SocialPlatformLink({
       asChild
       variant="secondary"
       size="sm"
-      className={`p-1 ${buttonSize} bg-surface-active hover:bg-white/30 backdrop-blur-sm border-0 ${platformInfo.color}`}
+      className={`p-1 ${buttonSize} bg-surface-active hover:bg-foreground/30 backdrop-blur-sm border-0 ${platformInfo.color}`}
       title={`Open ${artistName} in ${platformInfo.platform}`}
     >
       <a href={url} target="_blank" rel="noopener noreferrer">

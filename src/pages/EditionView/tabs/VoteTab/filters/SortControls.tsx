@@ -77,7 +77,7 @@ export function SortControls({ sort, onSortChange }: SortControlsProps) {
             className="p-1 hover:bg-surface-raised rounded transition-colors hidden sm:block"
             title="Click for sorting help"
           >
-            <HelpCircle className="h-4 w-4 text-subtle-foreground hover:text-purple-200" />
+            <HelpCircle className="h-4 w-4 text-subtle-foreground hover:text-muted-foreground" />
           </button>
         </PopoverTrigger>
         <PopoverContent className="bg-popover border text-foreground w-80">

@@ -43,7 +43,7 @@ export function FestivalModeToggle({ onModeChange }: FestivalModeToggleProps) {
           className={
             isFestivalMode
               ? "bg-orange-600 hover:bg-orange-700 text-foreground border-orange-600"
-              : "border-purple-400 text-accent hover:bg-purple-400 hover:text-foreground"
+              : "border-ring text-ring hover:bg-ring hover:text-foreground"
           }
         >
           {isFestivalMode ? (

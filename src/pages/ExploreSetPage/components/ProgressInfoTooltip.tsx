@@ -31,7 +31,7 @@ export function ProgressInfoTooltip({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="bg-gray-900 border-gray-700 text-foreground px-3 py-2 rounded-sm shadow-md"
+        className="bg-popover border border-border text-popover-foreground px-3 py-2 rounded-sm shadow-md"
         side="bottom"
         align="end"
       >
@@ -54,7 +54,7 @@ export function ProgressInfoTooltip({
               </span>
               <span>{nonExplorableCount}</span>
             </div>
-            <div className="border-t border-gray-700 pt-2 mt-2">
+            <div className="border-t border-border pt-2 mt-2">
               <div className="flex justify-between">
                 <span className="text-subtle-foreground mr-1">Current:</span>
                 <span>{current}</span>

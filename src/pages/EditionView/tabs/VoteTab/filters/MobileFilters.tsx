@@ -54,11 +54,11 @@ export function MobileFilters({
             value={state.stages.length === 1 ? state.stages[0] : "all"}
             onValueChange={handleStageSelect}
           >
-            <SelectTrigger className="w-full bg-surface-raised border text-foreground">
+            <SelectTrigger className="w-full bg-surface-raised border text-popover-foreground">
               <SelectValue placeholder="All Stages" />
             </SelectTrigger>
             <SelectContent className="bg-popover border">
-              <SelectItem value="all" className="text-foreground">
+              <SelectItem value="all" className="text-popover-foreground">
                 All Stages
               </SelectItem>
               {stagesLoading ? (
@@ -74,7 +74,7 @@ export function MobileFilters({
                   <SelectItem
                     key={stage.id}
                     value={stage.id}
-                    className="text-foreground"
+                    className="text-popover-foreground"
                   >
                     {stage.name}
                   </SelectItem>
@@ -94,18 +94,18 @@ export function MobileFilters({
           value={state.genres.length === 1 ? state.genres[0] : "all"}
           onValueChange={handleGenreSelect}
         >
-          <SelectTrigger className="w-full bg-surface-raised border text-foreground">
+          <SelectTrigger className="w-full bg-surface-raised border text-popover-foreground">
             <SelectValue placeholder="All Genres" />
           </SelectTrigger>
           <SelectContent className="bg-popover border">
-            <SelectItem value="all" className="text-foreground">
+            <SelectItem value="all" className="text-popover-foreground">
               All Genres
             </SelectItem>
             {genres.map((genre) => (
               <SelectItem
                 key={genre.id}
                 value={genre.id}
-                className="text-foreground"
+                className="text-popover-foreground"
               >
                 {genre.name}
               </SelectItem>
@@ -125,20 +125,20 @@ export function MobileFilters({
             onStateChange({ minRating: parseInt(value) })
           }
         >
-          <SelectTrigger className="w-full bg-surface-raised border text-foreground">
+          <SelectTrigger className="w-full bg-surface-raised border text-popover-foreground">
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="bg-popover border">
-            <SelectItem value="0" className="text-foreground">
+            <SelectItem value="0" className="text-popover-foreground">
               Any Rating
             </SelectItem>
-            <SelectItem value="1" className="text-foreground">
+            <SelectItem value="1" className="text-popover-foreground">
               1+ Rating
             </SelectItem>
-            <SelectItem value="2" className="text-foreground">
+            <SelectItem value="2" className="text-popover-foreground">
               2+ Rating
             </SelectItem>
-            <SelectItem value="3" className="text-foreground">
+            <SelectItem value="3" className="text-popover-foreground">
               3+ Rating
             </SelectItem>
           </SelectContent>

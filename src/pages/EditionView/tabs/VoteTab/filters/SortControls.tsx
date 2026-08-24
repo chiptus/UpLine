@@ -43,7 +43,7 @@ export function SortControls({ sort, onSortChange }: SortControlsProps) {
     <div className="flex items-center gap-2">
       <SortAsc className="h-4 w-4 text-subtle-foreground hidden sm:block" />
       <Select value={sort} onValueChange={onSortChange}>
-        <SelectTrigger className="w-10 sm:w-44 bg-surface-raised border text-foreground">
+        <SelectTrigger className="w-10 sm:w-44 bg-surface-raised border text-popover-foreground">
           <div className="hidden sm:block">
             <SelectValue />
           </div>
@@ -58,7 +58,7 @@ export function SortControls({ sort, onSortChange }: SortControlsProps) {
               <SelectItem
                 key={option.value}
                 value={option.value}
-                className="text-foreground"
+                className="text-popover-foreground"
               >
                 <div className="flex items-center gap-2">
                   <Icon className="h-4 w-4" />
@@ -80,7 +80,7 @@ export function SortControls({ sort, onSortChange }: SortControlsProps) {
             <HelpCircle className="h-4 w-4 text-subtle-foreground hover:text-muted-foreground" />
           </button>
         </PopoverTrigger>
-        <PopoverContent className="bg-popover border text-foreground w-80">
+        <PopoverContent className="bg-popover border text-popover-foreground w-80">
           <div className="space-y-3">
             <h3 className="font-semibold text-muted-foreground mb-2">
               Sort Options Explained
@@ -93,7 +93,7 @@ export function SortControls({ sort, onSortChange }: SortControlsProps) {
                   <strong className="text-subtle-foreground">
                     Name (A-Z):
                   </strong>
-                  <p className="text-foreground/80">
+                  <p className="text-popover-foreground/80">
                     Sort artists alphabetically from A to Z
                   </p>
                 </div>
@@ -105,7 +105,7 @@ export function SortControls({ sort, onSortChange }: SortControlsProps) {
                   <strong className="text-subtle-foreground">
                     Name (Z-A):
                   </strong>
-                  <p className="text-foreground/80">
+                  <p className="text-popover-foreground/80">
                     Sort artists alphabetically from Z to A
                   </p>
                 </div>
@@ -117,7 +117,7 @@ export function SortControls({ sort, onSortChange }: SortControlsProps) {
                   <strong className="text-subtle-foreground">
                     Highest Rated:
                   </strong>
-                  <p className="text-foreground/80">
+                  <p className="text-popover-foreground/80">
                     Sort by weighted average rating based on votes (Must go = 2
                     points, Interested = 1 point, Won't go = -1 point)
                   </p>
@@ -130,7 +130,7 @@ export function SortControls({ sort, onSortChange }: SortControlsProps) {
                   <strong className="text-subtle-foreground">
                     Most Popular:
                   </strong>
-                  <p className="text-foreground/80">
+                  <p className="text-popover-foreground/80">
                     Sort by weighted popularity score (Must go = 2 points,
                     Interested = 1 point)
                   </p>
@@ -141,7 +141,7 @@ export function SortControls({ sort, onSortChange }: SortControlsProps) {
                 <Calendar className="h-4 w-4 text-subtle-foreground" />
                 <div>
                   <strong className="text-subtle-foreground">By Date:</strong>
-                  <p className="text-foreground/80">
+                  <p className="text-popover-foreground/80">
                     Sort by estimated performance date (earliest performances
                     first)
                   </p>

@@ -18,12 +18,12 @@ export function CookieConsentBanner() {
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
             <div className="flex-1">
               <h3 className="font-semibold text-lg mb-2">Cookie Consent</h3>
-              <p className="text-sm text-muted-foreground mb-3">
+              <p className="text-sm text-paper-muted-foreground mb-3">
                 We use essential cookies to make our app work properly and
                 remember your preferences like sidebar state. We respect your
                 privacy and don't use any tracking or analytics cookies.
               </p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-paper-muted-foreground">
                 By clicking "Accept", you agree to our use of essential cookies.
                 Learn more in our{" "}
                 <a href="/privacy" className="underline hover:text-primary">

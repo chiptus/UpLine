@@ -20,27 +20,29 @@ export function TimeFilterSelect({
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
-        <Clock className="h-3 w-3 text-purple-300" />
-        <label className="text-sm font-medium text-purple-200">Time</label>
+        <Clock className="h-3 w-3 text-subtle-foreground" />
+        <label className="text-sm font-medium text-muted-foreground">
+          Time
+        </label>
       </div>
       <Select value={selectedTime} onValueChange={onTimeChange}>
         <SelectTrigger
           data-testid="time-filter-trigger"
-          className="bg-white/10 border-purple-400/30 text-purple-100"
+          className="bg-surface-raised border-border text-popover-foreground"
         >
           <SelectValue />
         </SelectTrigger>
-        <SelectContent className="bg-gray-800 border-purple-400/30">
-          <SelectItem value="all" className="text-purple-100">
+        <SelectContent className="bg-popover border-border">
+          <SelectItem value="all" className="text-popover-foreground">
             All Day
           </SelectItem>
-          <SelectItem value="morning" className="text-purple-100">
+          <SelectItem value="morning" className="text-popover-foreground">
             Morning (6-12)
           </SelectItem>
-          <SelectItem value="afternoon" className="text-purple-100">
+          <SelectItem value="afternoon" className="text-popover-foreground">
             Afternoon (12-18)
           </SelectItem>
-          <SelectItem value="evening" className="text-purple-100">
+          <SelectItem value="evening" className="text-popover-foreground">
             Evening (18-24)
           </SelectItem>
         </SelectContent>

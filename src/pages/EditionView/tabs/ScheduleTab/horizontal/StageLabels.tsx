@@ -10,7 +10,7 @@ export function StageLabels({ stages }: StageLabelsProps) {
       {stages.map((stage) => (
         <div key={stage.name} className="h-12 flex items-center">
           <div
-            className="text-sm font-medium text-white px-2 py-1 rounded"
+            className="text-sm font-medium text-foreground px-2 py-1 rounded"
             style={{
               backgroundColor: stage.color || DEFAULT_STAGE_COLOR,
             }}

@@ -27,14 +27,14 @@ export function ScheduleNavigationItem({
         className: cn(
           `flex gap-2 items-center justify-center  py-2 md:py-3 rounded-lg
            flex-1 md:min-w-[100px] transition-all duration-200 active:scale-95
-           bg-purple-600 text-white shadow-lg`,
+           bg-accent text-accent-foreground shadow-lg`,
         ),
       }}
       inactiveProps={{
         className: cn(
           `flex gap-2 items-center justify-center  py-2 md:py-3 rounded-lg
            flex-1 md:min-w-[100px] transition-all duration-200 active:scale-95
-           text-purple-200 hover:text-white hover:bg-white/10`,
+           text-muted-foreground hover:text-foreground hover:bg-surface-raised`,
         ),
       }}
     >

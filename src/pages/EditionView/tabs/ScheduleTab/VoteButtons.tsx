@@ -99,9 +99,9 @@ function VoteButton({
   return (
     <button
       className={cn(
-        `flex items-center gap-1 cursor-pointer hover:text-purple-300`,
+        `flex items-center gap-1 cursor-pointer hover:text-subtle-foreground`,
         isSelected
-          ? `${config.iconColor} hover:text-purple-300`
+          ? `${config.iconColor} hover:text-subtle-foreground`
           : `${config.descColor} `,
       )}
       type="button"

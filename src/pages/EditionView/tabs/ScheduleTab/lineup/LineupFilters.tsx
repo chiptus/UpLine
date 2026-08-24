@@ -54,8 +54,8 @@ export function LineupFilters({ tab }: LineupFiltersProps) {
           }
           className={
             hasActiveFilters
-              ? "flex items-center gap-2 bg-purple-600/50 text-purple-100 hover:bg-purple-600/60"
-              : "flex items-center gap-2 text-purple-300 hover:bg-purple-400/10 hover:text-purple-100"
+              ? "flex items-center gap-2 bg-accent-soft text-foreground hover:bg-accent/60"
+              : "flex items-center gap-2 text-subtle-foreground hover:bg-accent-soft hover:text-foreground"
           }
         >
           <Filter className="h-4 w-4" />
@@ -64,7 +64,7 @@ export function LineupFilters({ tab }: LineupFiltersProps) {
             <Badge
               variant="secondary"
               data-testid="schedule-filters-badge"
-              className="bg-purple-800/50 text-purple-100"
+              className="bg-accent-soft text-foreground"
             >
               {activeFilterCount}
             </Badge>
@@ -74,11 +74,11 @@ export function LineupFilters({ tab }: LineupFiltersProps) {
       <SheetContent
         side="bottom"
         data-testid="schedule-filter-sheet"
-        className="bg-gray-900 border-purple-400/30 max-h-[85vh] overflow-y-auto"
+        className="bg-popover border-border max-h-[85vh] overflow-y-auto"
       >
         <SheetHeader>
-          <SheetTitle className="text-purple-100">Filter schedule</SheetTitle>
-          <SheetDescription className="text-purple-300">
+          <SheetTitle className="text-foreground">Filter schedule</SheetTitle>
+          <SheetDescription className="text-subtle-foreground">
             {canShowStage
               ? "Narrow the schedule by day and stage."
               : "Narrow the schedule by day."}
@@ -107,13 +107,13 @@ export function LineupFilters({ tab }: LineupFiltersProps) {
               variant="ghost"
               onClick={clearFilters}
               data-testid="schedule-filters-clear"
-              className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
+              className="text-destructive hover:text-red-300 hover:bg-destructive/10"
             >
               Clear all
             </Button>
           )}
           <SheetClose asChild>
-            <Button type="button" className="bg-purple-600 hover:bg-purple-700">
+            <Button type="button" className="bg-accent hover:bg-accent-hover">
               Done
             </Button>
           </SheetClose>

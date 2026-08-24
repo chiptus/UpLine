@@ -69,7 +69,7 @@ export function TimelineOverview({
   return (
     <div
       data-testid="timeline-overview"
-      className="mb-4 rounded-lg border border-purple-400/20 bg-gray-900/95 p-3 backdrop-blur-md"
+      className="mb-4 rounded-lg border border-border bg-popover p-3 backdrop-blur-md"
     >
       <div
         ref={mapRef}
@@ -83,11 +83,11 @@ export function TimelineOverview({
           return (
             <div
               key={boundary.date}
-              className="pointer-events-none absolute inset-y-0 border-l border-purple-400/40"
+              className="pointer-events-none absolute inset-y-0 border-l border-strong"
               style={{ left: `${boundary.leftPercent}%` }}
             >
               {parts && (
-                <span className="absolute left-1 top-0 text-[9px] font-medium uppercase leading-none tracking-wide text-purple-300">
+                <span className="absolute left-1 top-0 text-[9px] font-medium uppercase leading-none tracking-wide text-subtle-foreground">
                   {parts.weekday} {parts.dayOfMonth}
                 </span>
               )}

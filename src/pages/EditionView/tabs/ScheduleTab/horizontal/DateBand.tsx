@@ -35,7 +35,7 @@ export function DateBand({
         return (
           <div
             key={`date-bg-${index}`}
-            className="absolute top-0 h-full bg-purple-900/60 border border-purple-400/30"
+            className="absolute top-0 h-full bg-purple-900/60 border border-border"
             style={{
               left: `${dateChange.position}px`,
               width: `${width}px`,
@@ -45,7 +45,7 @@ export function DateBand({
       })}
 
       <div
-        className="absolute top-0 z-10 flex h-full items-center px-3 text-sm font-medium text-purple-100 whitespace-nowrap"
+        className="absolute top-0 z-10 flex h-full items-center px-3 text-sm font-medium text-foreground whitespace-nowrap"
         style={{
           left: `${currentDate.position + currentDateStickyLeft}px`,
           opacity: currentDateOpacity,
@@ -56,7 +56,7 @@ export function DateBand({
 
       {geometry.shouldShowUpcoming && nextDate && (
         <div
-          className="absolute top-0 z-10 flex h-full items-center px-3 text-sm font-medium text-purple-50 whitespace-nowrap"
+          className="absolute top-0 z-10 flex h-full items-center px-3 text-sm font-medium text-foreground whitespace-nowrap"
           style={{
             left: `${nextDate.position}px`,
             opacity: geometry.nextDateOpacity,

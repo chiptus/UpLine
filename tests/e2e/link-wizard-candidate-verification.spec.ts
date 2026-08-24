@@ -1,41 +1,13 @@
 import { test, expect, type Page } from "@playwright/test";
 import { submitOtpSignIn } from "../utils/login";
 import { TEST_CONFIG } from "../config/test-env";
+import {
+  createLinkWizardTestArtist,
+  deleteLinkWizardTestArtist,
+  type LinkWizardTestArtist,
+} from "../utils/linkWizardArtist";
 
-// Seeded via supabase/seed.sql: festival "test", edition "2025" ("Boom Festival 2025").
-// Kiara Scuro is missing only her Spotify link there, so her step renders a
-// single (Spotify) candidates panel.
 const LINK_WIZARD_PATH = "/admin/festivals/test/editions/2025/links";
-const KIARA_SET_DESCRIPTION = "Rising star in dark techno";
-const KIARA_ARTIST_ID = "a3333333-3333-3333-3333-333333333333";
-
-// The happy-path test really saves Kiara's spotify_url and image_url (no
-// mock on the artists PATCH), which would make her step stop rendering a
-// Spotify panel (and inherit the candidate's image) for any test that runs
-// after it. Restore her seeded state so both tests stay independent of run
-// order. Uses raw fetch, matching this suite's existing convention for
-// service-role cleanup (see tests/utils/groups.ts) rather than adding a new
-// supabase-js client just for this file.
-test.afterEach(async () => {
-  const response = await fetch(
-    `${TEST_CONFIG.SUPABASE_URL}/rest/v1/artists?id=eq.${KIARA_ARTIST_ID}`,
-    {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: TEST_CONFIG.SUPABASE_SERVICE_ROLE_KEY,
-        Authorization: `Bearer ${TEST_CONFIG.SUPABASE_SERVICE_ROLE_KEY}`,
-        Prefer: "return=minimal",
-      },
-      body: JSON.stringify({ spotify_url: null, image_url: null }),
-    },
-  );
-  if (!response.ok) {
-    throw new Error(
-      `Failed to reset Kiara's seeded state: ${response.status} ${await response.text()}`,
-    );
-  }
-});
 
 // Deliberately NOT in descending-follower order — the app's own sort is
 // what's under test, so the mocked API response must not already be sorted
@@ -88,21 +60,29 @@ test.describe(
   "Link Wizard: candidate verification flow",
   { tag: "@smoke" },
   () => {
-    // Both tests below act on the same seeded artist (Kiara Scuro) and the
-    // happy-path test mutates + the afterEach resets her row, so they must
-    // not run concurrently in separate workers under fullyParallel.
-    test.describe.configure({ mode: "serial" });
+    // Each test gets its own dedicated seeded artist + set (rather than
+    // sharing one fixed seeded row), so tests never race each other across
+    // parallel workers or browser projects — no shared mutable state.
+    let testArtist: LinkWizardTestArtist;
 
     test.beforeEach(async ({ page }) => {
+      testArtist = await createLinkWizardTestArtist();
+
       await signInAsAdmin(page);
-      await mockSearchArtistLinks(page, { "Kiara Scuro": MOCK_CANDIDATES });
+      await mockSearchArtistLinks(page, {
+        [testArtist.artistName]: MOCK_CANDIDATES,
+      });
 
       await page.goto(LINK_WIZARD_PATH);
       await expect(
         page.getByRole("heading", { name: /link wizard/i }),
       ).toBeVisible({ timeout: 15000 });
 
-      await selectArtistByName(page, "Kiara Scuro");
+      await selectArtistByName(page, testArtist.artistName);
+    });
+
+    test.afterEach(async () => {
+      await deleteLinkWizardTestArtist(testArtist);
     });
 
     test("completes the full happy-path flow: set info → sort → link-out → show more → select → save", async ({
@@ -115,24 +95,29 @@ test.describe(
       test.setTimeout(60000);
 
       // 1. Set-info panel shows the artist's actual set details, including
-      // the formatted time range and the (seed-driven) co-performers state.
+      // the formatted time range and the (fixture-driven) co-performers state.
       const setInfoPanel = page.getByRole("region", {
-        name: /Kiara Scuro - Festival Set/i,
+        name: new RegExp(`${testArtist.artistName} - Festival Set`, "i"),
       });
       await expect(setInfoPanel).toBeVisible();
       await expect(
-        setInfoPanel.getByRole("heading", { name: "Kiara Scuro", exact: true }),
+        setInfoPanel.getByRole("heading", {
+          name: testArtist.artistName,
+          exact: true,
+        }),
       ).toBeVisible();
       await expect(setInfoPanel.getByText("Club Stage")).toBeVisible();
-      await expect(setInfoPanel.getByText(KIARA_SET_DESCRIPTION)).toBeVisible();
+      await expect(
+        setInfoPanel.getByText(testArtist.setDescription),
+      ).toBeVisible();
       // Rendered in the browser's local timezone (no explicit TZ passed to
       // formatTimeOnly), so assert the shape rather than an exact value.
       await expect(
         setInfoPanel.getByText(/\d{2}:\d{2} - \d{2}:\d{2}/),
       ).toBeVisible();
-      // Kiara's seeded set has exactly one set_artists row (herself), so the
-      // co-performers section renders and, once she's filtered out, shows
-      // this empty state.
+      // The fixture's set has exactly one set_artists row (the artist
+      // itself), so the co-performers section renders and, once it's
+      // filtered out, shows this empty state.
       await expect(
         setInfoPanel.getByText("No other co-performers"),
       ).toBeVisible();
@@ -194,7 +179,7 @@ test.describe(
             if (
               response.request().method() !== "PATCH" ||
               !response.url().includes("/rest/v1/artists") ||
-              !response.url().includes(KIARA_ARTIST_ID)
+              !response.url().includes(testArtist.artistId)
             ) {
               return false;
             }

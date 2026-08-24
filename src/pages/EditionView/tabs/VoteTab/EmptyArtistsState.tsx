@@ -14,7 +14,7 @@ export function EmptyArtistsState() {
         <CardHeader>
           <div className="flex justify-center mb-4">
             <div className="relative">
-              <Music className="h-16 w-16 text-accent" />
+              <Music className="h-16 w-16 text-accent-soft-foreground" />
               <Sparkles className="h-6 w-6 text-notice absolute -top-1 -right-1" />
             </div>
           </div>
@@ -28,15 +28,15 @@ export function EmptyArtistsState() {
         <CardContent>
           <div className="space-y-4">
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
-              <Users className="h-4 w-4 text-accent" />
+              <Users className="h-4 w-4 text-accent-soft-foreground" />
               <span>Connect with fellow festival-goers</span>
             </div>
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
-              <Music className="h-4 w-4 text-accent" />
+              <Music className="h-4 w-4 text-accent-soft-foreground" />
               <span>Discover new electronic artists</span>
             </div>
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
-              <Sparkles className="h-4 w-4 text-accent" />
+              <Sparkles className="h-4 w-4 text-accent-soft-foreground" />
               <span>Vote for your favorites</span>
             </div>
           </div>

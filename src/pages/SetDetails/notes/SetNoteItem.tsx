@@ -3,6 +3,7 @@ import { confirm } from "@/hooks/use-confirm";
 import { SetNote } from "@/api/artist-notes/types";
 import { useDeleteNoteMutation } from "@/api/artist-notes/useDeleteNoteMutation";
 import { Trash2Icon } from "lucide-react";
+import { formatDateOnly } from "@/lib/timeUtils";
 
 export function SetNoteItem({
   isOwn,
@@ -34,8 +35,8 @@ export function SetNoteItem({
       <div className="text-foreground whitespace-pre-wrap break-words mb-2">
         {note.note_content}
       </div>
-      <div className="text-xs text-accent">
-        {new Date(note.updated_at).toLocaleDateString()}
+      <div className="text-xs text-accent-soft-foreground">
+        {formatDateOnly(note.updated_at)}
       </div>
     </div>
   );

@@ -66,8 +66,8 @@
     --popover: 265 60% 15.7%; /* #241040 */
     --popover-foreground: 270 100% 98.4%;
 
-    --primary: 262.9 59.8% 55.9%; /* #7c4bd2 vivid purple */
-    --primary-foreground: 270 100% 98.4%;
+    --primary: 75.8 89.9% 61%; /* #c6f542 neon lime, matches --accent */
+    --primary-foreground: 76.7 100% 7.1%; /* #1a2400 */
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -181,7 +181,7 @@
     --card: 0 0% 100%;
     --card-foreground: 225 13.3% 11.8%;
 
-    --primary: 225 13.3% 11.8%;
+    --primary: 82.6 100% 23.9%; /* #4c7a00 olive-green, matches --accent */
     --primary-foreground: 0 0% 100%;
 
     --muted-foreground: 222.4 10.6% 31.6%; /* #484d59 */

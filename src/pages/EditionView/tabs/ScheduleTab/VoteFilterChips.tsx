@@ -43,7 +43,7 @@ export function VoteFilterChips({ tab }: VoteFilterChipsProps) {
             className={cn(
               "h-8 w-8",
               isSelected
-                ? `${config.buttonSelected} text-foreground`
+                ? config.buttonSelected
                 : `${config.iconColor} hover:bg-surface-raised`,
             )}
           >

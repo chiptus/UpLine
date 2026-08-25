@@ -43,7 +43,7 @@ export function UserMenu({
           variant="ghost"
           size={isMobile ? "sm" : "default"}
           aria-label="User menu"
-          className="flex items-center gap-2 rounded-full hover:bg-purple-600/10 transition-colors"
+          className="flex items-center gap-2 rounded-full transition-colors"
         >
           <UserAvatar
             username={profile?.username}
@@ -56,34 +56,24 @@ export function UserMenu({
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent
-        align="end"
-        className="w-56 bg-gray-800 border-purple-400/20 text-white"
-        sideOffset={8}
-      >
+      <DropdownMenuContent align="end" className="w-56" sideOffset={8}>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none text-white">
-              {displayName}
+            <p className="text-sm font-medium leading-none">{displayName}</p>
+            <p className="text-xs leading-none text-muted-foreground">
+              {user.email}
             </p>
-            <p className="text-xs leading-none text-purple-300">{user.email}</p>
           </div>
         </DropdownMenuLabel>
 
-        <DropdownMenuSeparator className="bg-purple-400/20" />
+        <DropdownMenuSeparator />
 
-        <DropdownMenuItem
-          className="text-white hover:bg-purple-600 focus:bg-purple-600 cursor-pointer"
-          disabled
-        >
+        <DropdownMenuItem className="cursor-pointer" disabled>
           <UserIcon className="mr-2 h-4 w-4" />
           <span>Profile</span>
         </DropdownMenuItem>
 
-        <DropdownMenuItem
-          asChild
-          className="text-white hover:bg-purple-600 focus:bg-purple-600 cursor-pointer"
-        >
+        <DropdownMenuItem asChild className="cursor-pointer">
           <Link to="/settings">
             <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>
@@ -92,12 +82,9 @@ export function UserMenu({
 
         {isAdmin && (
           <>
-            <DropdownMenuSeparator className="bg-purple-400/20" />
+            <DropdownMenuSeparator />
 
-            <DropdownMenuItem
-              asChild
-              className="text-white hover:bg-purple-600 focus:bg-purple-600 cursor-pointer"
-            >
+            <DropdownMenuItem asChild className="cursor-pointer">
               <Link to="/admin">
                 <Settings className="h-4 w-4 mr-2" />
                 Admin Dashboard
@@ -106,11 +93,11 @@ export function UserMenu({
           </>
         )}
 
-        <DropdownMenuSeparator className="bg-purple-400/20" />
+        <DropdownMenuSeparator />
 
         <DropdownMenuItem
           onClick={onSignOut}
-          className="text-red-400 hover:bg-red-600 hover:text-white focus:bg-red-600 focus:text-white cursor-pointer"
+          className="text-destructive focus:bg-destructive focus:text-destructive-foreground cursor-pointer"
         >
           <LogOut className="mr-2 h-4 w-4" />
           <span>Sign out</span>

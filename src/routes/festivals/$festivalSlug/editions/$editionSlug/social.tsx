@@ -24,7 +24,7 @@ function SocialTab() {
   if (!facebook_url && !instagram_url) {
     return (
       <>
-        <div className="text-center text-purple-300 py-12">
+        <div className="text-center text-muted-foreground py-12">
           <p>Social feeds not available yet.</p>
         </div>
       </>
@@ -35,20 +35,24 @@ function SocialTab() {
     <>
       <div className="space-y-8">
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-white mb-4">Follow Us</h2>
+          <h2 className="text-xl font-semibold text-foreground mb-4">
+            Follow Us
+          </h2>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-2">
           {/* Facebook Embed */}
           {facebook_url && (
-            <div className="bg-white/5 rounded-lg p-6">
+            <div className="bg-surface rounded-lg p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">Facebook</h3>
+                <h3 className="text-lg font-semibold text-foreground">
+                  Facebook
+                </h3>
                 <a
                   href={facebook_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-purple-300 hover:text-white transition-colors"
+                  className="flex items-center gap-2 text-muted-foreground hover:text-accent transition-colors"
                 >
                   <span className="text-sm">View on Facebook</span>
                   <ExternalLinkIcon className="h-4 w-4" />

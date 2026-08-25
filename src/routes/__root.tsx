@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-router";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Toaster } from "@/components/ui/toaster";
+import { Button } from "@/components/ui/button";
 import { ConfirmDialogHost } from "@/components/ConfirmDialogHost";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CookieConsentBanner } from "@/components/layout/legal/CookieConsentBanner";
@@ -110,7 +111,7 @@ function RootContent() {
   if (isValidating) {
     return (
       <div className="app-view min-h-screen bg-ground flex items-center justify-center">
-        <div className="text-white text-xl">Validating invite...</div>
+        <div className="text-foreground text-xl">Validating invite...</div>
       </div>
     );
   }
@@ -127,15 +128,12 @@ function RootContent() {
   if (inviteValidation && !inviteValidation.is_valid) {
     return (
       <div className="app-view min-h-screen bg-ground flex items-center justify-center p-4">
-        <div className="text-center text-white">
+        <div className="text-center text-foreground">
           <h1 className="text-2xl font-bold mb-4">Invalid Invite</h1>
           <p className="mb-4">This invite link is no longer valid.</p>
-          <button
-            onClick={() => (window.location.href = "/")}
-            className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded"
-          >
+          <Button onClick={() => (window.location.href = "/")}>
             Continue to App
-          </button>
+          </Button>
         </div>
       </div>
     );

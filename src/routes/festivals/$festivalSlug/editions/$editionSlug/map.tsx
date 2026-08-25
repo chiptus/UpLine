@@ -21,7 +21,7 @@ function MapTab() {
   if (!festivalInfo?.map_image_url) {
     return (
       <>
-        <div className="text-center text-purple-300 py-12">
+        <div className="text-center text-muted-foreground py-12">
           <p>Festival map not available yet.</p>
         </div>
       </>
@@ -32,12 +32,12 @@ function MapTab() {
     <>
       <div className="space-y-6">
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-white mb-4">
+          <h2 className="text-xl font-semibold text-foreground mb-4">
             Festival Map
           </h2>
         </div>
 
-        <div className="bg-white/5 rounded-lg p-4">
+        <div className="bg-surface rounded-lg p-4">
           <img
             src={festivalInfo.map_image_url}
             alt="Festival Map"

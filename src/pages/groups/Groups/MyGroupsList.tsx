@@ -15,18 +15,18 @@ export function MyGroupsList({
   showMembershipBadges?: boolean;
 }) {
   if (loading) {
-    return <div className="text-center text-white">Loading groups...</div>;
+    return <div className="text-center text-foreground">Loading groups...</div>;
   }
 
   if (groups.length === 0) {
     return (
-      <Card className="bg-white/10 border-purple-400/30">
+      <Card className="bg-surface border-border">
         <CardContent className="text-center py-12">
-          <Users className="h-12 w-12 mx-auto mb-4 text-purple-300" />
-          <h3 className="text-xl font-semibold text-white mb-2">
+          <Users className="h-12 w-12 mx-auto mb-4 text-accent" />
+          <h3 className="text-xl font-semibold text-foreground mb-2">
             No groups yet
           </h3>
-          <p className="text-purple-200 mb-4">
+          <p className="text-muted-foreground mb-4">
             Create your first group to start sharing votes with friends
           </p>
         </CardContent>

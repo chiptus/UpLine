@@ -104,7 +104,7 @@ function GroupsContent({ user }: { user: User }) {
 
         <Suspense
           fallback={
-            <div className="text-center text-white">Loading groups...</div>
+            <div className="text-center text-foreground">Loading groups...</div>
           }
         >
           <GroupsList

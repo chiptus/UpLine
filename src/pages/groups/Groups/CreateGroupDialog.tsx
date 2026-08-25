@@ -95,7 +95,9 @@ export function CreateGroupDialog({
               })}
             />
             {errors.name && (
-              <p className="text-red-400 text-sm mt-1">{errors.name.message}</p>
+              <p className="text-destructive text-sm mt-1">
+                {errors.name.message}
+              </p>
             )}
           </div>
 

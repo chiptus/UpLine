@@ -45,26 +45,25 @@ export function AddMemberForm({ groupId }: AddMemberFormProps) {
   }
 
   return (
-    <Card className="bg-white/10 border-purple-400/30">
+    <Card className="bg-surface border-border">
       <CardHeader>
-        <CardTitle className="flex items-center space-x-2 text-white">
+        <CardTitle className="flex items-center space-x-2 text-foreground">
           <UserPlus className="h-5 w-5" />
           <span>Add Member</span>
         </CardTitle>
-        <CardDescription className="text-purple-200">
+        <CardDescription className="text-muted-foreground">
           Invite someone to join this group by username or email
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmitInvite)} className="space-y-4">
           <div>
-            <Label htmlFor="usernameOrEmail" className="text-white">
+            <Label htmlFor="usernameOrEmail" className="text-foreground">
               Username or Email
             </Label>
             <Input
               id="usernameOrEmail"
               placeholder="Enter username or email address"
-              className="bg-white/10 border-purple-400/30 text-white placeholder:text-purple-300"
               {...register("usernameOrEmail", {
                 required: "Username or email is required",
                 minLength: {
@@ -74,7 +73,7 @@ export function AddMemberForm({ groupId }: AddMemberFormProps) {
               })}
             />
             {errors.usernameOrEmail && (
-              <p className="text-red-400 text-sm mt-1">
+              <p className="text-destructive text-sm mt-1">
                 {errors.usernameOrEmail.message}
               </p>
             )}
@@ -82,7 +81,7 @@ export function AddMemberForm({ groupId }: AddMemberFormProps) {
           <Button
             type="submit"
             disabled={isSubmitting || inviteToGroupMutation.isPending}
-            className="w-full bg-purple-600 hover:bg-purple-700"
+            className="w-full"
           >
             <UserPlus className="h-4 w-4 mr-2" />
             {isSubmitting || inviteToGroupMutation.isPending

@@ -9,6 +9,7 @@ import { festivalInfoQuery } from "@/api/festival-info/useFestivalInfo";
 import { customLinksQuery } from "@/api/custom-links/useCustomLinks";
 import { pageMeta } from "@/lib/pageHead";
 import { SupabaseNotFoundError } from "@/lib/supabaseErrors";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/festivals/$festivalSlug")({
   onError: (error) => {
@@ -41,18 +42,15 @@ export const Route = createFileRoute("/festivals/$festivalSlug")({
 function FestivalNotFound() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="text-center text-white">
+      <div className="text-center text-foreground">
         <h1 className="text-2xl font-bold mb-4">Festival not found</h1>
-        <p className="mb-6 text-purple-200">
+        <p className="mb-6 text-muted-foreground">
           We couldn&apos;t find that festival. It may have been removed or the
           link may be incorrect.
         </p>
-        <Link
-          to="/"
-          className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded inline-block"
-        >
-          Back to festivals
-        </Link>
+        <Button asChild>
+          <Link to="/">Back to festivals</Link>
+        </Button>
       </div>
     </div>
   );

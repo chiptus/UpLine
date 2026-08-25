@@ -4,11 +4,6 @@
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
 
-/*
- * Festival v2 identity fonts, self-hosted (docs/design/edition-identity-spec.md).
- * Variable woff2 files (Space Grotesk 300–700, Unbounded 200–900) cover all
- * shipped weights.
- */
 @font-face {
   font-family: "Space Grotesk";
   font-style: normal;
@@ -170,7 +165,6 @@
     --app-button-hover: 195 85% 40%;
   }
 
-  /* Festival v2 — light theme: same skeleton, soft-border light graft */
   :root[data-theme="light"] {
     --background: 60 23.1% 97.5%; /* #fafaf7 */
     --foreground: 225 13.3% 11.8%; /* #1a1c22 */

@@ -6,9 +6,9 @@ test.describe("Navigation", { tag: "@smoke" }, () => {
 
     // Test navigation to different pages if they exist
     const navigationLinks = [
-      { name: /artists/i, path: "/" },
-      { name: /schedule/i, path: "/schedule" },
-      { name: /groups/i, path: "/groups" },
+      { name: /^artists$/i, path: "/" },
+      { name: /^schedule$/i, path: "/schedule" },
+      { name: /^groups$/i, path: "/groups" },
     ];
 
     for (const link of navigationLinks) {

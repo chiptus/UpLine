@@ -14,6 +14,7 @@ import { AppUpdatePrompt } from "@/components/layout/AppUpdatePrompt";
 import { AppFooter } from "@/components/layout/AppFooter";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { ActiveScopeProvider } from "@/contexts/ActiveScopeContext";
 import { useInviteFlow } from "@/components/invite/useInviteFlow";
@@ -66,20 +67,22 @@ function RootComponent() {
   return (
     <>
       <HeadContent />
-      <TooltipProvider>
-        <Toaster />
-        <ConfirmDialogHost />
-        <AppUpdatePrompt />
-        <CookieConsentBanner />
-        <AuthProvider>
-          <ActiveScopeProvider>
-            <RootContent />
-          </ActiveScopeProvider>
-        </AuthProvider>
-        <OfflineIndicator />
-        <SpeedInsights />
-        {import.meta.env.DEV && <TanStackRouterDevtools />}
-      </TooltipProvider>
+      <ThemeProvider>
+        <TooltipProvider>
+          <Toaster />
+          <ConfirmDialogHost />
+          <AppUpdatePrompt />
+          <CookieConsentBanner />
+          <AuthProvider>
+            <ActiveScopeProvider>
+              <RootContent />
+            </ActiveScopeProvider>
+          </AuthProvider>
+          <OfflineIndicator />
+          <SpeedInsights />
+          {import.meta.env.DEV && <TanStackRouterDevtools />}
+        </TooltipProvider>
+      </ThemeProvider>
     </>
   );
 }

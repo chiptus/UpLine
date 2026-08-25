@@ -15,6 +15,7 @@ import { getEffectiveFestivalPhase } from "@/lib/festivalPhase";
 import { getDefaultTab } from "@/pages/EditionView/TabNavigation/defaultTab";
 import { tabRoutes } from "@/pages/EditionView/TabNavigation/tabRoutes";
 import { pageMeta } from "@/lib/pageHead";
+import { Button } from "@/components/ui/button";
 import { SupabaseNotFoundError } from "@/lib/supabaseErrors";
 
 export const Route = createFileRoute(
@@ -113,13 +114,14 @@ function EditionNotFound() {
           We couldn&apos;t find that festival edition. It may have been removed
           or the link may be incorrect.
         </p>
-        <Link
-          to="/festivals/$festivalSlug"
-          params={{ festivalSlug }}
-          className="bg-accent text-accent-foreground hover:bg-accent/90 px-4 py-2 rounded inline-block"
+        <Button
+          asChild
+          className="bg-accent text-accent-foreground hover:bg-accent/90"
         >
-          Back to festival
-        </Link>
+          <Link to="/festivals/$festivalSlug" params={{ festivalSlug }}>
+            Back to festival
+          </Link>
+        </Button>
       </div>
     </div>
   );

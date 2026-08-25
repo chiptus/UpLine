@@ -48,7 +48,10 @@ function FestivalNotFound() {
           We couldn&apos;t find that festival. It may have been removed or the
           link may be incorrect.
         </p>
-        <Button asChild>
+        <Button
+          asChild
+          className="bg-accent text-accent-foreground hover:bg-accent/90"
+        >
           <Link to="/">Back to festivals</Link>
         </Button>
       </div>

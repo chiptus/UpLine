@@ -42,9 +42,7 @@ export function VoteFilterChips({ tab }: VoteFilterChipsProps) {
             onClick={() => handleToggle(voteType)}
             className={cn(
               "h-8 w-8",
-              isSelected
-                ? config.buttonSelected
-                : `${config.iconColor} hover:bg-surface-raised`,
+              isSelected ? config.buttonSelected : config.chipUnselected,
             )}
           >
             <Icon className="h-4 w-4" />

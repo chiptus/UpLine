@@ -17,6 +17,8 @@ export const VOTE_CONFIG = {
       "border border-vote-must bg-[hsl(var(--vote-must)/0.28)] text-vote-must hover:bg-[hsl(var(--vote-must)/0.34)]",
     buttonUnselected:
       "border-vote-must-foreground text-vote-must-foreground hover:bg-vote-must-soft hover:text-vote-must hover:border-vote-must",
+    chipUnselected:
+      "text-vote-must hover:bg-vote-must-soft hover:text-vote-must",
     spinnerColor: "border-vote-must-foreground",
     description: "Artists you absolutely can't miss (+2 points)",
   },
@@ -33,6 +35,8 @@ export const VOTE_CONFIG = {
       "border border-vote-interested bg-[hsl(var(--vote-interested)/0.28)] text-vote-interested hover:bg-[hsl(var(--vote-interested)/0.34)]",
     buttonUnselected:
       "border-vote-interested-foreground text-vote-interested-foreground hover:bg-vote-interested-soft hover:text-vote-interested hover:border-vote-interested",
+    chipUnselected:
+      "text-vote-interested hover:bg-vote-interested-soft hover:text-vote-interested",
     spinnerColor: "border-vote-interested-foreground",
     description: "Artists you'd like to see if there's time (+1 point)",
   },
@@ -49,6 +53,8 @@ export const VOTE_CONFIG = {
       "border border-vote-skip bg-[hsl(var(--vote-skip)/0.28)] text-vote-skip hover:bg-[hsl(var(--vote-skip)/0.34)]",
     buttonUnselected:
       "border-vote-skip-foreground text-vote-skip-foreground hover:bg-vote-skip-soft hover:text-vote-skip hover:border-vote-skip",
+    chipUnselected:
+      "text-vote-skip hover:bg-vote-skip-soft hover:text-vote-skip",
     spinnerColor: "border-vote-skip-foreground",
     description: "Artists you'd prefer to skip (-1 point)",
   },
@@ -65,6 +71,7 @@ export type VoteConfig = {
   circleColor: string;
   buttonSelected: string;
   buttonUnselected: string;
+  chipUnselected: string;
   spinnerColor: string;
   description: string;
 };

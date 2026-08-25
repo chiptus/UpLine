@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   test:
-    if: "!contains(github.event.pull_request.labels.*.name, 'full-e2e')"
+    if: "github.event_name != 'pull_request' || !contains(github.event.pull_request.labels.*.name, 'full-e2e')"
     uses: ./.github/workflows/e2e-run.yml
     with:
       test-args: "--project=chromium --retries=2 --grep @smoke"
@@ -22,7 +22,7 @@ jobs:
 
   report:
     needs: test
-    if: always() && !contains(github.event.pull_request.labels.*.name, 'full-e2e')
+    if: always() && (github.event_name != 'pull_request' || !contains(github.event.pull_request.labels.*.name, 'full-e2e'))
     uses: ./.github/workflows/e2e-report.yml
     with:
       artifact-pattern: smoke-blob-report

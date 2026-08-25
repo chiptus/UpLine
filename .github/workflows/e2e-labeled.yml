@@ -2,7 +2,11 @@ name: Full Test Suite (Labeled PR)
 
 on:
   pull_request:
-    types: [labeled, synchronize]
+    types: [labeled, unlabeled, synchronize]
+
+concurrency:
+  group: "full-e2e-${{ github.event.pull_request.number }}-${{ ((github.event.action != 'labeled' && github.event.action != 'unlabeled') || github.event.label.name == 'full-e2e') && 'main' || github.run_id }}"
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -11,7 +15,7 @@ permissions:
 
 jobs:
   test:
-    if: contains(github.event.pull_request.labels.*.name, 'full-e2e')
+    if: "((github.event.action != 'labeled' && github.event.action != 'unlabeled') || github.event.label.name == 'full-e2e') && contains(github.event.pull_request.labels.*.name, 'full-e2e')"
     strategy:
       fail-fast: false
       matrix:
@@ -24,12 +28,12 @@ jobs:
 
   report:
     needs: test
-    if: always() && contains(github.event.pull_request.labels.*.name, 'full-e2e')
+    if: "always() && needs.test.result != 'cancelled' && ((github.event.action != 'labeled' && github.event.action != 'unlabeled') || github.event.label.name == 'full-e2e') && contains(github.event.pull_request.labels.*.name, 'full-e2e')"
     uses: ./.github/workflows/e2e-report.yml
     with:
       artifact-pattern: blob-report-*
       post-pr-comment: true
 
   integration-test:
-    if: contains(github.event.pull_request.labels.*.name, 'full-e2e')
+    if: "((github.event.action != 'labeled' && github.event.action != 'unlabeled') || github.event.label.name == 'full-e2e') && contains(github.event.pull_request.labels.*.name, 'full-e2e')"
     uses: ./.github/workflows/integration-run.yml

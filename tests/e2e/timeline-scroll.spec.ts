@@ -98,6 +98,34 @@ test.describe(
       expect(historyLengthAfterScroll).toBe(historyLengthBeforeScroll);
     });
 
+    test("the debounced scrollTo write does not reset the page's vertical scroll", async ({
+      page,
+    }) => {
+      const scrollContainer = await openTimeline(page);
+
+      // Make the page itself vertically scrollable and scroll it down, so a
+      // regression (TanStack Router's default reset-scroll-to-top on
+      // navigation) would be observable.
+      await page.evaluate(() => {
+        const spacer = document.createElement("div");
+        spacer.style.height = "3000px";
+        document.body.appendChild(spacer);
+        window.scrollTo(0, 500);
+      });
+
+      const scrollYBefore = await page.evaluate(() => window.scrollY);
+      expect(scrollYBefore).toBeGreaterThan(0);
+
+      await scrollContainer.evaluate((el) => {
+        el.scrollLeft = el.scrollLeft + 400;
+      });
+      await waitForScrollToToSettle(page);
+      await expect(page).toHaveURL(/scrollTo=/);
+
+      const scrollYAfter = await page.evaluate(() => window.scrollY);
+      expect(scrollYAfter).toBe(scrollYBefore);
+    });
+
     test("opening a URL with scrollTo centers the viewport on that moment", async ({
       page,
     }) => {

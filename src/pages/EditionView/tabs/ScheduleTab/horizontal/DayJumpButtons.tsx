@@ -28,7 +28,7 @@ export function DayJumpButtons({
   }, [activeDay]);
 
   return (
-    <>
+    <div className="inline-flex shrink-0 items-stretch overflow-hidden rounded-full border border-accent/60 bg-surface">
       {days.map((day, index) => {
         const isActive = day.date === activeDay;
         const parts = getFestivalDayParts(day.date);
@@ -37,10 +37,15 @@ export function DayJumpButtons({
 
         return (
           <Fragment key={day.date}>
-            {breakBefore && (
+            {index > 0 && (
               <span
                 aria-hidden
-                className="mx-1 w-px shrink-0 self-stretch bg-border"
+                className={cn(
+                  "self-stretch border-l",
+                  breakBefore
+                    ? "border-solid border-accent/60"
+                    : "border-dashed border-foreground/20",
+                )}
               />
             )}
             <button
@@ -50,31 +55,25 @@ export function DayJumpButtons({
               ref={isActive ? activeButtonRef : undefined}
               onClick={() => onJumpToDay(getDayJumpMoment(day, timezone))}
               className={cn(
-                "shrink-0 rounded-full border px-3 py-1 text-center transition-colors",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                "flex min-h-9 shrink-0 items-center whitespace-nowrap px-3.5 text-[13px] transition-colors",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
                 isActive
-                  ? "border-transparent bg-accent text-accent-foreground"
-                  : "border-border bg-surface text-muted-foreground hover:bg-surface-active hover:text-foreground",
+                  ? "bg-accent font-bold text-accent-foreground"
+                  : "font-medium text-muted-foreground hover:bg-surface-active hover:text-foreground",
               )}
             >
               {parts ? (
                 <>
-                  <span className="block font-display text-[10px] font-medium uppercase tracking-[0.14em]">
-                    {parts.weekday}
-                  </span>
-                  <span className="block text-base font-semibold leading-none tabular-nums">
-                    {parts.dayOfMonth}
-                  </span>
+                  {parts.weekday}
+                  <span className="ml-1 tabular-nums">{parts.dayOfMonth}</span>
                 </>
               ) : (
-                <span className="block text-sm font-medium">
-                  {day.displayDate}
-                </span>
+                day.displayDate
               )}
             </button>
           </Fragment>
         );
       })}
-    </>
+    </div>
   );
 }

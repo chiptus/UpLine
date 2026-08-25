@@ -43,7 +43,7 @@ export function UserActions({
           <Button
             onClick={() => showAuthDialog()}
             size={isMobile ? "sm" : "default"}
-            className="bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-full px-6"
+            className="bg-accent text-accent-foreground hover:bg-accent/90 font-medium rounded-full px-6"
           >
             <LogIn className="h-4 w-4" />
             <span className={isMobile ? "ml-1" : "ml-2"}>

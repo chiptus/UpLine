@@ -46,7 +46,7 @@ export function SetCardHeader({ stageId, timeStart }: SetCardHeaderProps) {
           </Badge>
         )}
         {timeLabel && (
-          <div className="flex items-center text-sm text-gray-300">
+          <div className="flex items-center text-sm text-muted-foreground">
             <Clock className="h-4 w-4 mr-1" />
             {timeLabel}
           </div>

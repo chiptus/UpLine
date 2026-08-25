@@ -57,7 +57,7 @@ export function CookieConsentBanner() {
               <Button
                 size="sm"
                 onClick={acceptAll}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto bg-accent text-accent-foreground hover:bg-accent/90"
               >
                 Accept All
               </Button>

@@ -22,18 +22,15 @@ export function PrimaryArtistDisplay({
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center">
-            <Users className="h-8 w-8 text-foreground" />
+          <div className="w-full h-full bg-accent-soft flex items-center justify-center">
+            <Users className="h-8 w-8 text-accent-soft-foreground" />
           </div>
         )}
       </div>
       <h3 className="text-xl font-semibold">{artist.name}</h3>
       {artist.description && (
-        <div className="text-sm text-gray-300 line-clamp-2">
-          <MarkdownText
-            content={artist.description}
-            className="prose-sm prose-invert"
-          />
+        <div className="text-sm text-muted-foreground line-clamp-2">
+          <MarkdownText content={artist.description} className="prose-sm" />
         </div>
       )}
 

@@ -2,7 +2,11 @@ name: Full Test Suite (Labeled PR)
 
 on:
   pull_request:
-    types: [labeled, synchronize]
+    types: [labeled, unlabeled, synchronize]
+
+concurrency:
+  group: full-e2e-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 permissions:
   contents: read

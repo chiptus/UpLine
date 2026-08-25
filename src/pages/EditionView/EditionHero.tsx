@@ -1,6 +1,5 @@
 import { Music } from "lucide-react";
 import { useFestivalPhase } from "@/hooks/useFestivalPhase";
-import { HeroLineup } from "./HeroLineup";
 
 interface EditionHeroProps {
   title: string;
@@ -30,7 +29,6 @@ export function EditionHero({
       <h1 className="text-2xl md:text-4xl font-bold text-foreground tracking-tight">
         {title}
       </h1>
-      <HeroLineup />
       <LiveIndicator />
     </div>
   );

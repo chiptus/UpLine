@@ -1,8 +1,13 @@
 import { Badge } from "@/components/ui/badge";
 import { FlaskConical } from "lucide-react";
 
+const PROD_SUPABASE_PROJECT_REF = "qssmazlqrmxiudxckxvi";
+
 export function StagingEnvironmentBadge() {
-  if (import.meta.env.MODE !== "staging") return null;
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ?? "";
+  const isProd = supabaseUrl.includes(PROD_SUPABASE_PROJECT_REF);
+
+  if (isProd) return null;
 
   return (
     <Badge

@@ -60,8 +60,8 @@
     --background: 266.9 74.4% 7.6%; /* #120522 */
     --foreground: 270 100% 98.4%; /* #fbf7ff */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 265 60% 15.7%; /* #241040 — matches --popover */
+    --card-foreground: 270 100% 98.4%;
 
     --popover: 265 60% 15.7%; /* #241040 */
     --popover-foreground: 270 100% 98.4%;
@@ -79,20 +79,6 @@
     --surface: 0 0% 100% / 0.06;
     --surface-raised: 0 0% 100% / 0.1;
     --surface-active: 0 0% 100% / 0.16;
-
-    /*
-     * Background/text/border roles for light (white) chrome surfaces: dialogs, toasts,
-     * admin tables. Distinct from the --surface/-raised/-active overlay tokens above,
-     * which are translucent fills on the dark ground, not opaque page backgrounds.
-     * TODO(#359): these are hardcoded, not theme-aware. Once light/dark theming lands
-     * (data-theme), fold these into --background/--foreground/--muted-foreground/
-     * --border instead so these surfaces follow the theme, and remove this token family.
-     */
-    --paper-background: 0 0% 100%; /* white */
-    --paper-foreground: 221 39% 11%; /* gray-900 */
-    --paper-muted-foreground: 220 9% 46%; /* gray-500 */
-    --paper-border: 216 12% 84%; /* gray-300 */
-    --paper-ring: 218 11% 65%; /* gray-400 */
 
     --accent: 75.8 89.9% 61%; /* #c6f542 neon lime */
     --accent-foreground: 76.7 100% 7.1%; /* #1a2400 */
@@ -191,6 +177,9 @@
 
     --popover: 0 0% 100%;
     --popover-foreground: 225 13.3% 11.8%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 225 13.3% 11.8%;
 
     --muted-foreground: 222.4 10.6% 31.6%; /* #484d59 */
     --subtle-foreground: 221.1 8.4% 44.1%; /* #676d7a */

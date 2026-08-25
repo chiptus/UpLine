@@ -96,7 +96,7 @@ export function GenresCell({ value, onSave }: GenresCellProps) {
           ))}
         </div>
       ) : (
-        <span className="text-paper-muted-foreground italic">
+        <span className="text-muted-foreground italic">
           Click to add genres...
         </span>
       )}

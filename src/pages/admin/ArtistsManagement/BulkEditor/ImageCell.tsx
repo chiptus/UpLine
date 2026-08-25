@@ -26,9 +26,7 @@ export function ImageCell({
       }}
     />
   ) : (
-    <span className="text-paper-muted-foreground italic text-xs">
-      add image...
-    </span>
+    <span className="text-muted-foreground italic text-xs">add image...</span>
   );
 
   return (

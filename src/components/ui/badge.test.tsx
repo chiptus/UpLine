@@ -31,7 +31,7 @@ describe("Badge", () => {
   it("renders with outline variant", () => {
     const { container } = render(<Badge variant="outline">Outline</Badge>);
     const badge = container.querySelector("div");
-    expect(badge).toHaveClass("text-paper-foreground", "border-paper-border");
+    expect(badge).toHaveClass("text-popover-foreground", "border-border");
   });
 
   it("applies custom className", () => {

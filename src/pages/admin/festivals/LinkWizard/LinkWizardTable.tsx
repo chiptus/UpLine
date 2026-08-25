@@ -48,7 +48,7 @@ export function LinkWizardTable({
             <TableRow>
               <TableCell
                 colSpan={2}
-                className="text-center text-paper-muted-foreground"
+                className="text-center text-muted-foreground"
               >
                 No artists missing links for this edition.
               </TableCell>

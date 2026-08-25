@@ -66,8 +66,8 @@
     --popover: 265 60% 15.7%; /* #241040 */
     --popover-foreground: 270 100% 98.4%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 262.9 59.8% 55.9%; /* #7c4bd2 vivid purple */
+    --primary-foreground: 270 100% 98.4%;
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -180,6 +180,9 @@
 
     --card: 0 0% 100%;
     --card-foreground: 225 13.3% 11.8%;
+
+    --primary: 225 13.3% 11.8%;
+    --primary-foreground: 0 0% 100%;
 
     --muted-foreground: 222.4 10.6% 31.6%; /* #484d59 */
     --subtle-foreground: 221.1 8.4% 44.1%; /* #676d7a */

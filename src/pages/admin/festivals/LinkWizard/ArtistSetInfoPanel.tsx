@@ -14,7 +14,7 @@ export function ArtistSetInfoPanel({ artist }: ArtistSetInfoPanelProps) {
   }
 
   return (
-    <Card className="bg-slate-50">
+    <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-base">
           {artist.name} - Festival Set{sets.length !== 1 ? "s" : ""}

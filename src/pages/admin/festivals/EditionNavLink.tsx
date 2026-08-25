@@ -22,9 +22,9 @@ export function EditionNavLink({
       from={EDITION_ROOT}
       to={to}
       params={{ festivalSlug, editionSlug }}
-      className="flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors text-foreground font-medium"
+      className="flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-colors font-medium"
       activeProps={{ className: "bg-accent text-accent-foreground" }}
-      inactiveProps={{ className: "hover:bg-surface-raised" }}
+      inactiveProps={{ className: "text-foreground hover:bg-surface-raised" }}
     >
       {icon}
       {label}

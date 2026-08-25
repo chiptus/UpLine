@@ -47,18 +47,15 @@ export function ActiveGroupSwitcher({
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="bg-gray-800 border-purple-400/30">
+      <DropdownMenuContent>
         <ScopeMenuBody
           groups={groups}
           pinned={pinned}
           current={current}
           onSelect={selectScope}
         />
-        <DropdownMenuSeparator className="bg-purple-400/30" />
-        <DropdownMenuItem
-          asChild
-          className="text-purple-100 hover:bg-purple-600/30"
-        >
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
           <Link to="/groups">
             <Settings className="h-4 w-4 mr-2" />
             Manage groups

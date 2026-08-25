@@ -5,9 +5,12 @@ export function RouteLoadingFallback() {
     <div
       role="status"
       aria-live="polite"
-      className="min-h-screen bg-app-gradient flex items-center justify-center"
+      className="min-h-screen flex items-center justify-center"
     >
-      <Loader2 className="h-8 w-8 animate-spin text-white" aria-hidden="true" />
+      <Loader2
+        className="h-8 w-8 animate-spin text-foreground"
+        aria-hidden="true"
+      />
       <span className="sr-only">Loading…</span>
     </div>
   );

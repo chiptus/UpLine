@@ -57,7 +57,7 @@ function ScheduleTabNow() {
 
   if (!rows.length) {
     return (
-      <div className="text-center text-purple-300 py-12">
+      <div className="text-center text-muted-foreground py-12">
         <p>Nothing on right now — see the timeline for the full schedule.</p>
       </div>
     );
@@ -85,7 +85,7 @@ interface NowStageRowProps {
 
 function NowStageRow({ stage, classification, timezone }: NowStageRowProps) {
   return (
-    <div className="bg-white/10 backdrop-blur-md border border-purple-400/30 rounded-lg p-4 space-y-2">
+    <div className="bg-surface-raised backdrop-blur-md border border-border rounded-lg p-4 space-y-2">
       <StageBadge
         stageName={stage.name}
         stageColor={stage.color ?? undefined}
@@ -120,18 +120,18 @@ function SetLine({ set, timezone, live = false }: SetLineProps) {
   return (
     <div className="flex items-center gap-2 text-sm">
       {live ? (
-        <span className="h-2 w-2 shrink-0 rounded-full bg-red-500 animate-pulse" />
+        <span className="h-2 w-2 shrink-0 rounded-full bg-live animate-pulse" />
       ) : (
-        <span className="shrink-0 text-purple-300">Next:</span>
+        <span className="shrink-0 text-subtle-foreground">Next:</span>
       )}
       <Link
         to="/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug"
         params={{ festivalSlug, editionSlug, setSlug: set.slug }}
-        className="text-white font-medium hover:text-purple-300 transition-colors truncate"
+        className="text-foreground font-medium hover:text-accent transition-colors truncate"
       >
         {set.name}
       </Link>
-      <span className="ml-auto shrink-0 text-purple-200">{time}</span>
+      <span className="ml-auto shrink-0 text-muted-foreground">{time}</span>
     </div>
   );
 }

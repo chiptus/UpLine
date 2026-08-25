@@ -50,7 +50,7 @@ function GroupDetail() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-app-gradient flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Sign in required</CardTitle>
@@ -84,38 +84,29 @@ function GroupDetailContent({ user }: { user: User }) {
   const isCreator = isGroupCreator(group.created_by, user.id);
 
   return (
-    <div className="min-h-screen bg-app-gradient">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <TopBar showBackButton backLabel="Back to Groups" />
 
         <div className="mb-8">
           <div className="flex items-center space-x-4 mb-2">
-            <h2 className="text-4xl font-bold text-white">{group.name}</h2>
+            <h2 className="text-4xl font-bold text-foreground">{group.name}</h2>
             {isCreator && (
-              <div className="flex items-center space-x-1 bg-purple-600/50 text-purple-100 px-2 py-1 rounded text-sm">
+              <div className="flex items-center space-x-1 bg-accent-soft text-accent-soft-foreground px-2 py-1 rounded text-sm">
                 <Crown className="h-3 w-3" />
                 <span>Creator</span>
               </div>
             )}
           </div>
           {group.description && (
-            <p className="text-purple-200 text-lg">{group.description}</p>
+            <p className="text-muted-foreground text-lg">{group.description}</p>
           )}
         </div>
 
         <Tabs defaultValue="members" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-white/10">
-            <TabsTrigger
-              value="members"
-              className="text-white data-[state=active]:bg-purple-600"
-            >
-              Members
-            </TabsTrigger>
-            <TabsTrigger
-              value="invites"
-              className="text-white data-[state=active]:bg-purple-600"
-              disabled={!isCreator}
-            >
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="members">Members</TabsTrigger>
+            <TabsTrigger value="invites" disabled={!isCreator}>
               Invite Links
             </TabsTrigger>
           </TabsList>
@@ -124,15 +115,15 @@ function GroupDetailContent({ user }: { user: User }) {
             {/* Member Invitation Form - Only show for creators */}
             {isCreator && <AddMemberForm groupId={group.id} />}
 
-            <Card className="bg-white/10 border-purple-400/30">
+            <Card className="bg-surface border-border">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="flex items-center space-x-2 text-white">
+                    <CardTitle className="flex items-center space-x-2 text-foreground">
                       <Users className="h-5 w-5" />
                       <span>Group Members ({members.length})</span>
                     </CardTitle>
-                    <CardDescription className="text-purple-200">
+                    <CardDescription className="text-muted-foreground">
                       {isCreator
                         ? "Manage your group members"
                         : "View group members"}
@@ -153,30 +144,30 @@ function GroupDetailContent({ user }: { user: User }) {
                     return (
                       <div
                         key={member.id}
-                        className="flex items-center justify-between p-3 bg-white/5 rounded-lg"
+                        className="flex items-center justify-between p-3 bg-surface-raised rounded-lg"
                       >
                         <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white font-medium">
+                          <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center text-accent-foreground font-medium">
                             {profile?.username?.[0]?.toUpperCase() ||
                               profile?.email?.[0]?.toUpperCase() ||
                               "?"}
                           </div>
                           <div>
                             <div className="flex items-center space-x-2">
-                              <span className="text-white font-medium">
+                              <span className="text-foreground font-medium">
                                 {profile?.username ||
                                   profile?.email ||
                                   "Unknown User"}
                                 {isCurrentUser && " (You)"}
                               </span>
                               {isMemberCreator && (
-                                <div className="flex items-center space-x-1 bg-purple-600/50 text-purple-100 px-2 py-1 rounded text-xs">
+                                <div className="flex items-center space-x-1 bg-accent-soft text-accent-soft-foreground px-2 py-1 rounded text-xs">
                                   <Crown className="h-3 w-3" />
                                   <span>Creator</span>
                                 </div>
                               )}
                             </div>
-                            <p className="text-sm text-purple-200">
+                            <p className="text-sm text-muted-foreground">
                               Joined{" "}
                               {new Date(member.joined_at).toLocaleDateString()}
                             </p>
@@ -203,7 +194,7 @@ function GroupDetailContent({ user }: { user: User }) {
                   })}
 
                   {members.length === 0 && (
-                    <div className="text-center py-8 text-purple-200">
+                    <div className="text-center py-8 text-muted-foreground">
                       No members found
                     </div>
                   )}

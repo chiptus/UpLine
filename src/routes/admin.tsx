@@ -76,7 +76,7 @@ function AdminLayout() {
 
   if (isLoadingPermissions || authLoading || isLoadingSuperAdmin) {
     return (
-      <div className="min-h-screen bg-app-gradient flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-foreground text-xl">Loading...</div>
       </div>
     );
@@ -85,7 +85,7 @@ function AdminLayout() {
   if (!canEdit) return null;
 
   return (
-    <div className="min-h-screen bg-app-gradient">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <TopBar showBackButton backLabel="Back to app" />
 

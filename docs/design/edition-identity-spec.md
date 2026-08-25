@@ -12,8 +12,8 @@ One skeleton, two color themes. **Dark is the default**: a violet poster ground 
 
 ## Theme mechanics (CSS contract)
 
-- Token values are CSS variables on `:root` (#367). Dark values are the default; light values apply under an explicit `data-edition-theme="light"` attribute on the document root.
-- Both themes ship. How the theme is chosen (system preference vs in-app toggle) and persisted is a rollout decision — [#322](https://github.com/chiptus/UpLine/issues/322)'s territory. The CSS contract above is what it plugs into.
+- Token values are CSS variables on `:root` (#367). Dark values are the default; light values apply under an explicit `data-theme="light"` attribute on the document root.
+- Both themes ship. The theme is chosen via the header toggle (light / dark / system, defaulting to system) and persisted in `localStorage` under the `theme` key; an inline bootstrap script in `index.html` applies the stored choice before hydration to avoid a flash. Remaining rollout polish is [#322](https://github.com/chiptus/UpLine/issues/322)'s territory.
 - Values are stored as HSL channels to match the existing shadcn `hsl(var(--…))` plumbing; hex given here for legibility. Opaque roles are plain triples (`H S% L%`); the inherently translucent roles (`surface*`, `accent-soft`, `border*`, `*-soft`) carry their alpha inside the variable (`H S% L% / A`) — see the vocabulary's ground rules for why those roles must not take Tailwind `/NN` modifiers.
 
 ## Palette
@@ -109,7 +109,7 @@ Same in both themes.
 
 1. Token values above land in `src/index.css` under `:root`, replacing the roles named in `edition-color-vocabulary.md`'s "absorbs today" mapping (~350 occurrences / 60 files per the #319 audit).
 2. `tailwind.config.ts` gains the new role names (`surface*`, `subtle-foreground`, `border-strong`, `accent-soft`, `live*`, `notice*`, `vote-*`).
-3. Font families wired once at the edition-view root; display styling via the heading rules above.
+3. Font families wired once at the app-view root; display styling via the heading rules above.
 4. The prototype directory `src/pages/EditionView/prototype/` and its wiring are deleted once the real implementation lands.
 
 How this is sliced into PRs (tokenize-then-flip vs surface-by-surface, and #230's fate) is [#322](https://github.com/chiptus/UpLine/issues/322).

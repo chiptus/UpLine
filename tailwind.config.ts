@@ -19,6 +19,10 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['"Space Grotesk"', '"Segoe UI"', "system-ui", "sans-serif"],
+        display: ["Unbounded", '"Arial Black"', "system-ui", "sans-serif"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -30,13 +34,6 @@ export default {
           DEFAULT: "hsl(var(--surface))",
           raised: "hsl(var(--surface-raised))",
           active: "hsl(var(--surface-active))",
-        },
-        paper: {
-          background: "hsl(var(--paper-background))",
-          foreground: "hsl(var(--paper-foreground))",
-          "muted-foreground": "hsl(var(--paper-muted-foreground))",
-          border: "hsl(var(--paper-border))",
-          ring: "hsl(var(--paper-ring))",
         },
         live: {
           DEFAULT: "hsl(var(--live))",

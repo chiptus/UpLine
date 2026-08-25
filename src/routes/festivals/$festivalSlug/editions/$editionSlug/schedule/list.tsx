@@ -158,7 +158,7 @@ function ListSchedule() {
 
   if (setsLoading) {
     return (
-      <div className="text-center text-purple-300 py-12">
+      <div className="text-center text-muted-foreground py-12">
         <p>Loading schedule...</p>
       </div>
     );
@@ -170,7 +170,7 @@ function ListSchedule() {
 
   if (!dayGroups.length) {
     return (
-      <div className="text-center text-purple-300 py-12">
+      <div className="text-center text-muted-foreground py-12">
         <p>No scheduled sets found.</p>
         <div className="mt-4 flex justify-center">
           <ScheduleFilterSheet tab="list" />

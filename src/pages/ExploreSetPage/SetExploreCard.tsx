@@ -45,7 +45,7 @@ export function SetExploreCard({
       onClick={onTap}
       transition={{ duration: 0.2 }}
     >
-      <Card className="h-full w-full overflow-hidden bg-gradient-to-b from-gray-900 to-black border-gray-800 shadow-2xl">
+      <Card className="h-full w-full overflow-hidden bg-popover text-popover-foreground border-border shadow-2xl">
         {/* Background Image */}
         <div className="relative h-full">
           {primaryArtist?.image_url && (
@@ -58,7 +58,7 @@ export function SetExploreCard({
                 }`}
                 onLoad={() => setImageLoaded(true)}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-popover via-popover/70 to-transparent" />
             </>
           )}
 

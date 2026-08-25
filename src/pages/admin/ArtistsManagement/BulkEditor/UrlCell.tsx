@@ -96,7 +96,7 @@ export function UrlCell({ value, placeholder, onSave }: UrlCellProps) {
       title="Click to edit"
     >
       {displayValue || (
-        <span className="text-paper-muted-foreground italic">
+        <span className="text-muted-foreground italic">
           {placeholder || "Click to add..."}
         </span>
       )}

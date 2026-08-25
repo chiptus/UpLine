@@ -1,6 +1,6 @@
 export function LoadingInfo() {
   return (
-    <div className="text-center text-purple-300 py-12">
+    <div className="text-center text-muted-foreground py-12">
       <p>Loading festival information...</p>
     </div>
   );

@@ -32,7 +32,7 @@ export const TitleSection = forwardRef<HTMLDivElement, TitleSectionProps>(
           ) : (
             <>
               <Music className="h-6 md:h-8 w-6 md:w-8 text-purple-400 animate-pulse" />
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white tracking-tight">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground tracking-tight">
                 {title}
               </h2>
               <Heart className="h-6 md:h-8 w-6 md:w-8 text-pink-400 animate-pulse" />

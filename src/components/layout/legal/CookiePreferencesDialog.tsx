@@ -76,14 +76,14 @@ export function CookiePreferencesDialog({
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Cookie Preferences</DialogTitle>
-          <DialogDescription className="text-paper-muted-foreground">
+          <DialogDescription className="text-muted-foreground">
             Manage your cookie settings and privacy preferences. You can control
             which types of cookies are stored on your device.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
-          <p className="text-sm text-paper-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Manage your cookie preferences below. You can change these settings
             at any time.
           </p>
@@ -96,7 +96,7 @@ export function CookiePreferencesDialog({
               >
                 <div className="flex-1 space-y-2">
                   <h4 className="font-medium">{category.title}</h4>
-                  <p className="text-sm text-paper-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     {category.description}
                   </p>
                 </div>

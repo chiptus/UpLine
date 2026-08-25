@@ -15,6 +15,7 @@ import { getEffectiveFestivalPhase } from "@/lib/festivalPhase";
 import { getDefaultTab } from "@/pages/EditionView/TabNavigation/defaultTab";
 import { tabRoutes } from "@/pages/EditionView/TabNavigation/tabRoutes";
 import { pageMeta } from "@/lib/pageHead";
+import { Button } from "@/components/ui/button";
 import { SupabaseNotFoundError } from "@/lib/supabaseErrors";
 
 export const Route = createFileRoute(
@@ -82,7 +83,7 @@ function EditionLayout() {
   const { festival, edition } = Route.useRouteContext();
 
   return (
-    <div className="min-h-screen bg-app-gradient">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-4 md:py-8 pb-20 md:pb-8">
         <EditionHeader
           title={`${festival.name} - ${edition.name}`}
@@ -106,20 +107,21 @@ function EditionNotFound() {
   const { festivalSlug } = Route.useParams();
 
   return (
-    <div className="min-h-screen bg-app-gradient flex items-center justify-center p-4">
-      <div className="text-center text-white">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="text-center text-foreground">
         <h1 className="text-2xl font-bold mb-4">Edition not found</h1>
-        <p className="mb-6 text-purple-200">
+        <p className="mb-6 text-muted-foreground">
           We couldn&apos;t find that festival edition. It may have been removed
           or the link may be incorrect.
         </p>
-        <Link
-          to="/festivals/$festivalSlug"
-          params={{ festivalSlug }}
-          className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded inline-block"
+        <Button
+          asChild
+          className="bg-accent text-accent-foreground hover:bg-accent/90"
         >
-          Back to festival
-        </Link>
+          <Link to="/festivals/$festivalSlug" params={{ festivalSlug }}>
+            Back to festival
+          </Link>
+        </Button>
       </div>
     </div>
   );

@@ -18,10 +18,10 @@ export function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-app-gradient">
+    <div className="min-h-screen">
       <TopBar showBackButton backLabel="Back" />
       <div className="container mx-auto max-w-2xl space-y-8 px-4 py-8">
-        <h1 className="text-2xl font-bold text-white">Settings</h1>
+        <h1 className="text-2xl font-bold text-foreground">Settings</h1>
         <Suspense fallback={<SettingsContentSkeleton />}>
           <SettingsContent userId={user.id} />
         </Suspense>
@@ -37,7 +37,7 @@ function SettingsContent({ userId }: { userId: string }) {
   return (
     <div className="space-y-8">
       {!hasGroups && (
-        <p className="text-sm text-purple-200">
+        <p className="text-sm text-muted-foreground">
           <Link to="/groups" className="underline">
             Create or join a group
           </Link>{" "}
@@ -53,8 +53,8 @@ function SettingsContent({ userId }: { userId: string }) {
 function SettingsContentSkeleton() {
   return (
     <div className="space-y-8 animate-pulse">
-      <div className="h-24 rounded-md bg-purple-400/10" />
-      <div className="h-24 rounded-md bg-purple-400/10" />
+      <div className="h-24 rounded-md bg-surface" />
+      <div className="h-24 rounded-md bg-surface" />
     </div>
   );
 }

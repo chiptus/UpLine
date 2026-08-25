@@ -46,8 +46,8 @@ export function VotingActions({
           variant="outline"
           className={`h-16 w-16 rounded-full transition-all duration-100 ${
             isLeftDrag
-              ? `bg-vote-skip border-vote-skip text-foreground shadow-lg`
-              : "border-vote-skip hover:bg-vote-skip hover:border-vote-skip text-vote-skip hover:text-foreground"
+              ? `bg-[hsl(var(--vote-skip)/0.28)] border-vote-skip text-vote-skip shadow-lg`
+              : "border-vote-skip hover:bg-vote-skip-soft text-vote-skip"
           }`}
           onClick={() => onVote(wontGoConfig.value)}
         >
@@ -78,7 +78,7 @@ export function VotingActions({
         <Button
           size="lg"
           variant="outline"
-          className="h-16 w-16 rounded-full border-vote-must hover:bg-vote-must hover:border-vote-must text-vote-must hover:text-foreground"
+          className="h-16 w-16 rounded-full border-vote-must hover:bg-vote-must-soft text-vote-must"
           onClick={() => onVote(mustGoConfig.value)}
         >
           <MustGoIcon className="h-6 w-6" />
@@ -100,8 +100,8 @@ export function VotingActions({
           variant="outline"
           className={`h-16 w-16 rounded-full transition-all duration-100 ${
             isRightDrag
-              ? `bg-vote-interested border-vote-interested text-foreground shadow-lg`
-              : "border-vote-interested hover:bg-vote-interested hover:border-vote-interested text-vote-interested hover:text-foreground"
+              ? `bg-[hsl(var(--vote-interested)/0.28)] border-vote-interested text-vote-interested shadow-lg`
+              : "border-vote-interested hover:bg-vote-interested-soft text-vote-interested"
           }`}
           onClick={() => onVote(interestedConfig.value)}
         >

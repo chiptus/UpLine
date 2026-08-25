@@ -29,7 +29,7 @@ export function SoundCloudBadge({
   }
 
   return (
-    <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gray-600/20 border border-gray-500/30 text-subtle-foreground text-xs">
+    <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-surface border border-border text-subtle-foreground text-xs">
       <svg
         className="w-3 h-3"
         viewBox="0 0 24 24"

@@ -32,16 +32,16 @@ export function GroupCard({
       params={{ groupSlug: group.slug }}
       className="block"
     >
-      <Card className="bg-white/10 border-purple-400/30">
+      <Card className="bg-surface border-border hover:bg-surface-active transition-colors">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div>
-              <CardTitle className="flex items-center space-x-2 text-white">
+              <CardTitle className="flex items-center space-x-2 text-foreground">
                 <span>{group.name}</span>
                 {group.is_creator && (
                   <Badge
                     variant="secondary"
-                    className="text-xs bg-purple-600/50 text-purple-100"
+                    className="text-xs bg-accent-soft text-accent-soft-foreground"
                   >
                     <Crown className="h-3 w-3 mr-1" />
                     Creator
@@ -52,8 +52,8 @@ export function GroupCard({
                     variant={group.is_member ? "default" : "outline"}
                     className={
                       group.is_member
-                        ? "text-xs bg-green-600/50 text-green-100 border-green-400/30"
-                        : "text-xs bg-transparent text-gray-300 border-gray-400/30"
+                        ? "text-xs bg-live/15 text-live-foreground border-live/40"
+                        : "text-xs bg-transparent text-muted-foreground border-border"
                     }
                   >
                     {group.is_member ? "Member" : "Not Member"}
@@ -61,7 +61,7 @@ export function GroupCard({
                 )}
               </CardTitle>
               {group.description && (
-                <CardDescription className="mt-1 text-purple-200">
+                <CardDescription className="mt-1 text-muted-foreground">
                   {group.description}
                 </CardDescription>
               )}
@@ -88,7 +88,6 @@ export function GroupCard({
                     e.stopPropagation();
                     handleLeaveGroupRequest();
                   }}
-                  className="bg-white/10 border-purple-400/30 text-white hover:bg-white/20"
                 >
                   Leave
                 </Button>
@@ -98,7 +97,7 @@ export function GroupCard({
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 text-sm text-purple-200">
+            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
               <Users className="h-4 w-4" />
               <span>{group.member_count} members</span>
             </div>

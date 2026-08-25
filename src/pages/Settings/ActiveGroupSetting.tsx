@@ -17,8 +17,8 @@ export function ActiveGroupSetting({
 
   return (
     <div>
-      <h2 className="text-sm font-semibold text-white">Active group</h2>
-      <p className="mb-3 text-xs text-purple-300">
+      <h2 className="text-sm font-semibold text-foreground">Active group</h2>
+      <p className="mb-3 text-xs text-subtle-foreground">
         Which of your groups is yours by default, whenever your scope is set to
         a group.
       </p>

@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-router";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Toaster } from "@/components/ui/toaster";
+import { Button } from "@/components/ui/button";
 import { ConfirmDialogHost } from "@/components/ConfirmDialogHost";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CookieConsentBanner } from "@/components/layout/legal/CookieConsentBanner";
@@ -14,6 +15,7 @@ import { AppUpdatePrompt } from "@/components/layout/AppUpdatePrompt";
 import { AppFooter } from "@/components/layout/AppFooter";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { ActiveScopeProvider } from "@/contexts/ActiveScopeContext";
 import { useInviteFlow } from "@/components/invite/useInviteFlow";
@@ -66,20 +68,22 @@ function RootComponent() {
   return (
     <>
       <HeadContent />
-      <TooltipProvider>
-        <Toaster />
-        <ConfirmDialogHost />
-        <AppUpdatePrompt />
-        <CookieConsentBanner />
-        <AuthProvider>
-          <ActiveScopeProvider>
-            <RootContent />
-          </ActiveScopeProvider>
-        </AuthProvider>
-        <OfflineIndicator />
-        <SpeedInsights />
-        {import.meta.env.DEV && <TanStackRouterDevtools />}
-      </TooltipProvider>
+      <ThemeProvider>
+        <TooltipProvider>
+          <Toaster />
+          <ConfirmDialogHost />
+          <AppUpdatePrompt />
+          <CookieConsentBanner />
+          <AuthProvider>
+            <ActiveScopeProvider>
+              <RootContent />
+            </ActiveScopeProvider>
+          </AuthProvider>
+          <OfflineIndicator />
+          <SpeedInsights />
+          {import.meta.env.DEV && <TanStackRouterDevtools />}
+        </TooltipProvider>
+      </ThemeProvider>
     </>
   );
 }
@@ -106,8 +110,8 @@ function RootContent() {
 
   if (isValidating) {
     return (
-      <div className="min-h-screen bg-app-gradient flex items-center justify-center">
-        <div className="text-white text-xl">Validating invite...</div>
+      <div className="app-view min-h-screen bg-ground flex items-center justify-center">
+        <div className="text-foreground text-xl">Validating invite...</div>
       </div>
     );
   }
@@ -123,23 +127,20 @@ function RootContent() {
 
   if (inviteValidation && !inviteValidation.is_valid) {
     return (
-      <div className="min-h-screen bg-app-gradient flex items-center justify-center p-4">
-        <div className="text-center text-white">
+      <div className="app-view min-h-screen bg-ground flex items-center justify-center p-4">
+        <div className="text-center text-foreground">
           <h1 className="text-2xl font-bold mb-4">Invalid Invite</h1>
           <p className="mb-4">This invite link is no longer valid.</p>
-          <button
-            onClick={() => (window.location.href = "/")}
-            className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded"
-          >
+          <Button onClick={() => (window.location.href = "/")}>
             Continue to App
-          </button>
+          </Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="app-view min-h-screen bg-ground flex flex-col">
       <div className="flex-1">
         <Outlet />
       </div>

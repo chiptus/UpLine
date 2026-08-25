@@ -65,7 +65,7 @@ function ExploreSetPage() {
     totalSets - totalExplorableSets + currentIndex + 1;
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-purple-900 to-black">
+    <div className="relative min-h-screen">
       <ExplorePageHeader
         editionName={edition.name}
         currentIndex={currentIndexInAllSets}

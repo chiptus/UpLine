@@ -26,8 +26,8 @@ export function ActiveScopeSetting({
 
   return (
     <div>
-      <h2 className="text-sm font-semibold text-white">Active scope</h2>
-      <p className="mb-3 text-xs text-purple-300">
+      <h2 className="text-sm font-semibold text-foreground">Active scope</h2>
+      <p className="mb-3 text-xs text-subtle-foreground">
         Your default steady-state view. The header switcher can override this
         temporarily, but it always reverts back here on a fresh visit.
       </p>

@@ -79,7 +79,7 @@ export function TextCell({
       title="Click to edit"
     >
       {value || (
-        <span className="text-paper-muted-foreground italic">
+        <span className="text-muted-foreground italic">
           {placeholder || "Click to add..."}
         </span>
       )}

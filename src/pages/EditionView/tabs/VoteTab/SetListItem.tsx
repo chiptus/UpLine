@@ -40,7 +40,7 @@ export function SetListItem() {
             </div>
           </div>
 
-          <SetDescription className="text-purple-200 text-sm line-clamp-2 mb-2" />
+          <SetDescription className="text-muted-foreground text-sm line-clamp-2 mb-2" />
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">

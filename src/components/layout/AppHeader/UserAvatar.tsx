@@ -26,7 +26,7 @@ export function UserAvatar({ username, email, size = "md" }: UserAvatarProps) {
   return (
     <Avatar className={sizeClasses[size]}>
       <AvatarImage src="" alt={username || email || "User"} />
-      <AvatarFallback className="bg-purple-600 text-white font-medium">
+      <AvatarFallback className="bg-accent text-accent-foreground font-medium">
         {getInitials()}
       </AvatarFallback>
     </Avatar>

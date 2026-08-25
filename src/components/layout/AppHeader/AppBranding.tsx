@@ -23,15 +23,17 @@ export function AppBranding({ isMobile }: AppBrandingProps) {
     <div className="flex items-center gap-4 flex-1">
       <Link to="/">
         <div className="flex items-center gap-3">
-          <Music className="h-6 w-6 text-purple-400" />
-          <h1 className="text-xl md:text-2xl font-bold text-white">UpLine</h1>
+          <Music className="h-6 w-6 text-accent" />
+          <h1 className="text-xl md:text-2xl font-bold text-foreground">
+            UpLine
+          </h1>
         </div>
       </Link>
 
       {/* User Greeting - Desktop Only */}
       {user && !isMobile && (
-        <div className="flex items-center gap-3 pl-4 border-l border-purple-400/20">
-          <span className="text-purple-200 text-sm">
+        <div className="flex items-center gap-3 pl-4 border-l border-border">
+          <span className="text-muted-foreground text-sm">
             {getGreeting()}, {displayName}! 🎶
           </span>
         </div>

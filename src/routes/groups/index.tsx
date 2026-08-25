@@ -79,7 +79,7 @@ function GroupsContent({ user }: { user: User }) {
   }
 
   return (
-    <div className="min-h-screen bg-app-gradient">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <GroupsHeader onCreate={() => setCreateDialogOpen(true)} />
 
@@ -104,7 +104,7 @@ function GroupsContent({ user }: { user: User }) {
 
         <Suspense
           fallback={
-            <div className="text-center text-white">Loading groups...</div>
+            <div className="text-center text-foreground">Loading groups...</div>
           }
         >
           <GroupsList

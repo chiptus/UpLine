@@ -8,14 +8,17 @@ export const VOTE_CONFIG = {
     value: 2,
     label: "Must Go",
     icon: Star,
-    bgColor: "bg-orange-50 dark:bg-vote-must-soft",
+    bgColor: "bg-vote-must-soft",
     iconColor: "text-vote-must",
-    textColor: "text-orange-900 dark:text-vote-must-foreground",
-    descColor: "text-vote-must dark:text-vote-must-foreground",
+    textColor: "text-vote-must-foreground",
+    descColor: "text-vote-must-foreground",
     circleColor: "bg-vote-must",
-    buttonSelected: "bg-vote-must hover:bg-orange-700",
+    buttonSelected:
+      "border border-vote-must bg-[hsl(var(--vote-must)/0.28)] text-vote-must hover:bg-[hsl(var(--vote-must)/0.34)]",
     buttonUnselected:
-      "border-vote-must-foreground text-vote-must-foreground hover:bg-vote-must-foreground hover:text-white",
+      "border-vote-must-foreground text-vote-must-foreground hover:bg-vote-must-soft hover:text-vote-must hover:border-vote-must",
+    chipUnselected:
+      "text-vote-must hover:bg-vote-must-soft hover:text-vote-must",
     spinnerColor: "border-vote-must-foreground",
     description: "Artists you absolutely can't miss (+2 points)",
   },
@@ -23,14 +26,17 @@ export const VOTE_CONFIG = {
     value: 1,
     label: "Interested",
     icon: Heart,
-    bgColor: "bg-blue-50 dark:bg-vote-interested-soft",
+    bgColor: "bg-vote-interested-soft",
     iconColor: "text-vote-interested",
-    textColor: "text-blue-900 dark:text-vote-interested-foreground",
-    descColor: "text-vote-interested dark:text-vote-interested-foreground",
+    textColor: "text-vote-interested-foreground",
+    descColor: "text-vote-interested-foreground",
     circleColor: "bg-vote-interested",
-    buttonSelected: "bg-vote-interested hover:bg-blue-700",
+    buttonSelected:
+      "border border-vote-interested bg-[hsl(var(--vote-interested)/0.28)] text-vote-interested hover:bg-[hsl(var(--vote-interested)/0.34)]",
     buttonUnselected:
-      "border-vote-interested-foreground text-vote-interested-foreground hover:bg-vote-interested-foreground hover:text-white",
+      "border-vote-interested-foreground text-vote-interested-foreground hover:bg-vote-interested-soft hover:text-vote-interested hover:border-vote-interested",
+    chipUnselected:
+      "text-vote-interested hover:bg-vote-interested-soft hover:text-vote-interested",
     spinnerColor: "border-vote-interested-foreground",
     description: "Artists you'd like to see if there's time (+1 point)",
   },
@@ -38,14 +44,17 @@ export const VOTE_CONFIG = {
     value: -1,
     label: "Won't Go",
     icon: X,
-    bgColor: "bg-gray-50 dark:bg-vote-skip-soft",
+    bgColor: "bg-vote-skip-soft",
     iconColor: "text-vote-skip",
-    textColor: "text-gray-900 dark:text-vote-skip-foreground",
-    descColor: "text-vote-skip dark:text-vote-skip-foreground",
+    textColor: "text-vote-skip-foreground",
+    descColor: "text-vote-skip-foreground",
     circleColor: "bg-vote-skip",
-    buttonSelected: "bg-vote-skip hover:bg-gray-700",
+    buttonSelected:
+      "border border-vote-skip bg-[hsl(var(--vote-skip)/0.28)] text-vote-skip hover:bg-[hsl(var(--vote-skip)/0.34)]",
     buttonUnselected:
-      "border-vote-skip-foreground text-vote-skip-foreground hover:bg-vote-skip-foreground hover:text-white",
+      "border-vote-skip-foreground text-vote-skip-foreground hover:bg-vote-skip-soft hover:text-vote-skip hover:border-vote-skip",
+    chipUnselected:
+      "text-vote-skip hover:bg-vote-skip-soft hover:text-vote-skip",
     spinnerColor: "border-vote-skip-foreground",
     description: "Artists you'd prefer to skip (-1 point)",
   },
@@ -62,6 +71,7 @@ export type VoteConfig = {
   circleColor: string;
   buttonSelected: string;
   buttonUnselected: string;
+  chipUnselected: string;
   spinnerColor: string;
   description: string;
 };

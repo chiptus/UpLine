@@ -61,7 +61,7 @@ export function SetMetadata() {
           </div>
         )}
         {dayOnlyFormatted && (
-          <div className="flex items-center gap-1 text-sm text-purple-200">
+          <div className="flex items-center gap-1 text-sm text-muted-foreground">
             <Clock className="h-3 w-3" />
             <span>{dayOnlyFormatted}</span>
           </div>

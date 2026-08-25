@@ -16,6 +16,7 @@ import { Link } from "@tanstack/react-router";
 import { FestivalEdition } from "@/api/editions/types";
 import { TopBar } from "@/components/layout/TopBar";
 import { pageMeta } from "@/lib/pageHead";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/festivals/$festivalSlug/")({
   component: EditionSelection,
@@ -50,31 +51,27 @@ function EditionSelection() {
 
   if (availableEditions.length === 0) {
     return (
-      <div className="min-h-screen bg-app-gradient">
+      <div className="min-h-screen">
         <div className="container mx-auto px-4 py-8">
           <TopBar showBackButton backLabel="Back to Festivals" />
-          <h1 className="text-4xl font-bold text-white text-center mb-8">
+          <h1 className="text-4xl font-bold text-foreground text-center mb-8">
             {festival.name}
           </h1>
 
           <div className="flex items-center justify-center mt-16">
-            <Card className="w-full max-w-md bg-white/10 border-purple-400/30">
+            <Card className="w-full max-w-md bg-surface border-border">
               <CardHeader className="text-center">
-                <Calendar className="h-16 w-16 mx-auto text-purple-400 mb-4" />
-                <CardTitle className="text-white">
+                <Calendar className="h-16 w-16 mx-auto text-accent mb-4" />
+                <CardTitle className="text-foreground">
                   No Editions Available
                 </CardTitle>
-                <CardDescription className="text-purple-200">
+                <CardDescription className="text-muted-foreground">
                   There are currently no editions of {festival.name} open for
                   voting.
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button
-                  variant="outline"
-                  asChild
-                  className="w-full border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white"
-                >
+                <Button variant="outline" asChild className="w-full">
                   <Link to="/">
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Back to Festivals
@@ -111,7 +108,7 @@ function EditionSelection() {
   }
 
   return (
-    <div className="min-h-screen bg-app-gradient">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <AppHeader
           showBackButton
@@ -129,29 +126,32 @@ function EditionSelection() {
 
             return (
               <Link key={edition.id} to={linkPath} className="block">
-                <Card className="bg-white/10 border-purple-400/30 hover:bg-white/15 transition-all duration-300 cursor-pointer group">
+                <Card className="bg-surface border-border hover:bg-surface-active transition-all duration-300 cursor-pointer group">
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <CardTitle className="text-white text-xl mb-2 group-hover:text-purple-200 transition-colors">
+                        <CardTitle className="text-foreground text-xl mb-2 group-hover:text-accent transition-colors">
                           {edition.name}
                         </CardTitle>
-                        <CardDescription className="text-purple-200 text-sm">
+                        <CardDescription className="text-muted-foreground text-sm">
                           {edition.year}
                         </CardDescription>
                         {edition.description && (
-                          <CardDescription className="text-purple-200 text-sm mt-2">
+                          <CardDescription className="text-muted-foreground text-sm mt-2">
                             {edition.description}
                           </CardDescription>
                         )}
                       </div>
                       <Badge
                         variant="secondary"
-                        className={`
-                        ${editionStatus.color === "green" ? "bg-green-600/50 text-green-100 border-green-500/50" : ""}
-                        ${editionStatus.color === "blue" ? "bg-blue-600/50 text-blue-100 border-blue-500/50" : ""}
-                        ${editionStatus.color === "gray" ? "bg-gray-600/50 text-gray-100 border-gray-500/50" : ""}
-                      `}
+                        className={cn(
+                          editionStatus.color === "green" &&
+                            "bg-live/15 text-live-foreground border-live/40",
+                          editionStatus.color === "blue" &&
+                            "bg-vote-interested-soft text-vote-interested-foreground border-vote-interested/40",
+                          editionStatus.color === "gray" &&
+                            "bg-vote-skip-soft text-vote-skip-foreground border-vote-skip/40",
+                        )}
                       >
                         {editionStatus.label}
                       </Badge>
@@ -159,7 +159,7 @@ function EditionSelection() {
                   </CardHeader>
 
                   <CardContent className="space-y-4">
-                    <div className="space-y-2 text-sm text-purple-200">
+                    <div className="space-y-2 text-sm text-muted-foreground">
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4" />
                         <span>
@@ -179,7 +179,7 @@ function EditionSelection() {
                     <div className="flex flex-wrap gap-2">
                       <Badge
                         variant="secondary"
-                        className="bg-purple-600/50 text-purple-100 border-purple-500/50"
+                        className="bg-accent-soft text-accent-soft-foreground border-accent/40"
                       >
                         <Users className="h-3 w-3 mr-1" />
                         Community Voting
@@ -188,7 +188,7 @@ function EditionSelection() {
                       {edition.is_active && (
                         <Badge
                           variant="secondary"
-                          className="bg-orange-600/50 text-orange-100 border-orange-500/50"
+                          className="bg-vote-must-soft text-vote-must-foreground border-vote-must/40"
                         >
                           <Clock className="h-3 w-3 mr-1" />
                           Active
@@ -196,10 +196,7 @@ function EditionSelection() {
                       )}
                     </div>
 
-                    <Button
-                      asChild
-                      className="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white border-purple-600"
-                    >
+                    <Button asChild className="w-full mt-4">
                       <span>Select Edition</span>
                     </Button>
                   </CardContent>
@@ -210,7 +207,7 @@ function EditionSelection() {
         </div>
 
         <div className="mt-16 text-center">
-          <p className="text-purple-200 text-sm">
+          <p className="text-muted-foreground text-sm">
             Vote on your favorite artists and collaborate with your community
           </p>
         </div>

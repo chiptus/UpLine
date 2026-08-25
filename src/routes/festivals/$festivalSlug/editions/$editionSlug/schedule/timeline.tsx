@@ -108,7 +108,7 @@ function TimelineContent() {
 
   if (setsLoading) {
     return (
-      <div className="text-center text-purple-300 py-12">
+      <div className="text-center text-muted-foreground py-12">
         <p>Loading horizontal timeline...</p>
       </div>
     );
@@ -116,7 +116,7 @@ function TimelineContent() {
 
   if (!timelineData) {
     return (
-      <div className="text-center text-purple-300 py-12">
+      <div className="text-center text-muted-foreground py-12">
         <p>Festival dates not available yet.</p>
       </div>
     );

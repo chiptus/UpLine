@@ -72,7 +72,9 @@ export function DesktopFilters({
 
       {/* Genre Filter */}
       <div>
-        <h4 className="text-sm font-medium text-purple-200 mb-2">Genres</h4>
+        <h4 className="text-sm font-medium text-muted-foreground mb-2">
+          Genres
+        </h4>
         <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
           {genres.map((genre) => (
             <Button
@@ -82,8 +84,8 @@ export function DesktopFilters({
               onClick={() => handleGenreToggle(genre.id)}
               className={
                 state.genres.includes(genre.id)
-                  ? "bg-purple-600 hover:bg-purple-700"
-                  : "border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white"
+                  ? "bg-accent text-accent-foreground hover:bg-accent-hover"
+                  : "border-ring text-ring hover:bg-ring hover:text-foreground"
               }
             >
               {genre.name}
@@ -94,7 +96,7 @@ export function DesktopFilters({
 
       {/* Rating Filter */}
       <div>
-        <h4 className="text-sm font-medium text-purple-200 mb-2">
+        <h4 className="text-sm font-medium text-muted-foreground mb-2">
           Minimum Rating
         </h4>
         <div className="flex gap-2">
@@ -106,8 +108,8 @@ export function DesktopFilters({
               onClick={() => onStateChange({ minRating: rating })}
               className={
                 state.minRating === rating
-                  ? "bg-purple-600 hover:bg-purple-700"
-                  : "border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white"
+                  ? "bg-accent text-accent-foreground hover:bg-accent-hover"
+                  : "border-ring text-ring hover:bg-ring hover:text-foreground"
               }
             >
               {rating === 0 ? "Any" : `${rating}+`}

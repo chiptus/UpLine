@@ -15,8 +15,8 @@ export function FilterHeader({
   return (
     <div className="flex items-center justify-between mb-4">
       <div className="flex items-center gap-2">
-        <Filter className="h-4 w-4 text-purple-300" />
-        <span className="text-purple-100 font-medium">{title}</span>
+        <Filter className="h-4 w-4 text-muted-foreground" />
+        <span className="text-foreground font-medium">{title}</span>
       </div>
       {hasActiveFilters && (
         <Button

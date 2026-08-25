@@ -34,7 +34,7 @@ export function ScopeMenuBody({
         isActive={isActive(pinned)}
         onSelect={onSelect}
       />
-      <DropdownMenuSeparator className="bg-purple-400/30" />
+      <DropdownMenuSeparator />
       {otherGroups.map((group) => {
         const scope: PinnedScope = { kind: "group", groupId: group.id };
         return (
@@ -49,7 +49,7 @@ export function ScopeMenuBody({
         );
       })}
       {otherGroups.length > 0 && otherScopeKinds.length > 0 && (
-        <DropdownMenuSeparator className="bg-purple-400/30" />
+        <DropdownMenuSeparator />
       )}
       {otherScopeKinds.map((kind) => {
         const scope: PinnedScope = { kind };
@@ -93,8 +93,8 @@ function ScopeMenuRow({
     <DropdownMenuItem
       onClick={() => onSelect(scope)}
       className={cn(
-        "flex items-center gap-2 text-purple-100 hover:bg-purple-600/30",
-        isActive && "bg-purple-600/20",
+        "flex items-center gap-2",
+        isActive && "bg-accent-soft text-accent-soft-foreground",
       )}
     >
       <Icon className="h-4 w-4" />

@@ -39,14 +39,14 @@ export function FilterToggle({
         onClick={onToggle}
         className={`flex items-center gap-2 ${
           isExpanded
-            ? "bg-purple-600/50 text-purple-100 hover:bg-purple-600/60"
-            : "text-purple-300 hover:text-purple-100"
+            ? "bg-surface-active text-foreground hover:bg-surface-active"
+            : "text-muted-foreground hover:text-foreground"
         }`}
       >
         {hasActiveFilters && (
           <Badge
             variant="secondary"
-            className="bg-purple-800/50 text-purple-100 ml-1"
+            className="bg-accent-soft text-accent-soft-foreground ml-1"
           >
             {activeFilterCount}
           </Badge>
@@ -54,9 +54,9 @@ export function FilterToggle({
         <Filter className="h-4 w-4" />
         <span className="hidden md:inline">{label}</span>
         {isExpanded ? (
-          <ChevronUp className="h-4 w-4 text-purple-300" />
+          <ChevronUp className="h-4 w-4" />
         ) : (
-          <ChevronDown className="h-4 w-4 text-purple-300" />
+          <ChevronDown className="h-4 w-4" />
         )}
       </Button>
     </div>

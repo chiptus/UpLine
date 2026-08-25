@@ -9,10 +9,10 @@ export function InfoText({ infoText }: InfoTextProps) {
   const alignmentClasses = infoText ? getTextAlignmentClasses(infoText) : "";
 
   return (
-    <div className="bg-white/5 rounded-lg p-6">
+    <div className="bg-surface rounded-lg p-6">
       <MarkdownText
         content={infoText || ""}
-        className={`prose-sm prose-invert text-purple-100 ${alignmentClasses}`}
+        className={`prose-sm dark:prose-invert text-foreground ${alignmentClasses}`}
       />
     </div>
   );

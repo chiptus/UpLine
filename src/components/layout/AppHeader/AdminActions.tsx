@@ -34,24 +34,18 @@ export function AdminActions({
           <Button
             variant="outline"
             size="sm"
-            className="border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white"
+            className="border-ring text-ring hover:bg-ring hover:text-foreground"
           >
             <Menu className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent
-          align="end"
-          className="bg-gray-800 border-purple-400/20 text-white"
-        >
-          <DropdownMenuLabel className="text-purple-300">
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel className="text-muted-foreground">
             Admin Actions
           </DropdownMenuLabel>
-          <DropdownMenuSeparator className="bg-purple-400/20" />
+          <DropdownMenuSeparator />
 
-          <DropdownMenuItem
-            asChild
-            className="text-white hover:bg-purple-600 focus:bg-purple-600 cursor-pointer"
-          >
+          <DropdownMenuItem asChild className="cursor-pointer">
             <Link to="/admin">
               <Settings className="h-4 w-4 mr-2" />
               Admin Dashboard

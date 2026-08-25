@@ -172,7 +172,7 @@
 
   /* Festival v2 — light theme: same skeleton, soft-border light graft */
   :root[data-theme="light"] {
-    --background: 60 23.1% 97.5%; /* #fafaf7 */
+    --background: 70 16.7% 94.7%; /* #f2f3ef — warm olive-tinted ground so white cards float */
     --foreground: 225 13.3% 11.8%; /* #1a1c22 */
 
     --popover: 0 0% 100%;
@@ -188,8 +188,8 @@
     --subtle-foreground: 221.1 8.4% 44.1%; /* #676d7a */
 
     --surface: 0 0% 100%;
-    --surface-raised: 0 0% 100%;
-    --surface-active: 75 13.3% 94.1%; /* #f1f2ee */
+    --surface-raised: 75 13.3% 94.1%; /* #f1f2ee — visible hover step on white */
+    --surface-active: 76.4 12.9% 89.6%; /* #e4e7de */
 
     --accent: 82.6 100% 23.9%; /* #4c7a00 olive-green */
     --accent-foreground: 0 0% 100%;

@@ -11,7 +11,7 @@ import { ConfirmDialogHost } from "@/components/ConfirmDialogHost";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CookieConsentBanner } from "@/components/layout/legal/CookieConsentBanner";
 import { OfflineIndicator } from "@/components/ui/OfflineIndicator";
-import { EnvironmentBadge } from "@/components/ui/EnvironmentBadge";
+import { StagingEnvironmentBadge } from "@/components/ui/StagingEnvironmentBadge";
 import { AppUpdatePrompt } from "@/components/layout/AppUpdatePrompt";
 import { AppFooter } from "@/components/layout/AppFooter";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
@@ -81,7 +81,7 @@ function RootComponent() {
             </ActiveScopeProvider>
           </AuthProvider>
           <OfflineIndicator />
-          <EnvironmentBadge />
+          <StagingEnvironmentBadge />
           <SpeedInsights />
           {import.meta.env.DEV && <TanStackRouterDevtools />}
         </TooltipProvider>

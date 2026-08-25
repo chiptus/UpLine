@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { FlaskConical } from "lucide-react";
 
-export function EnvironmentBadge() {
+export function StagingEnvironmentBadge() {
   if (import.meta.env.MODE !== "staging") return null;
 
   return (

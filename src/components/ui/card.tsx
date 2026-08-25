@@ -4,17 +4,33 @@ import { cn } from "@/lib/utils";
 
 // Card owns the id and hands it down, so any CardTitle rendered inside can
 // self-label the section via aria-labelledby without an explicit id prop.
-const CardTitleIdContext = React.createContext<string | undefined>(undefined);
+// The labelledby is only applied once a CardTitle actually registers itself —
+// otherwise every plain Card (most of them have no title) becomes an unnamed
+// "region" landmark, which is noise for screen readers and for role queries.
+const CardTitleIdContext = React.createContext<{
+  titleId: string;
+  registerTitle: (present: boolean) => void;
+} | null>(null);
 
 const Card = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
   ({ className, ...props }, ref) => {
     const titleId = React.useId();
+    const [hasTitle, setHasTitle] = React.useState(false);
+
+    const registerTitle = React.useCallback((present: boolean) => {
+      setHasTitle(present);
+    }, []);
+
+    const contextValue = React.useMemo(
+      () => ({ titleId, registerTitle }),
+      [titleId, registerTitle],
+    );
 
     return (
-      <CardTitleIdContext.Provider value={titleId}>
+      <CardTitleIdContext.Provider value={contextValue}>
         <section
           ref={ref}
-          aria-labelledby={titleId}
+          aria-labelledby={hasTitle ? titleId : undefined}
           className={cn(
             "rounded-lg border bg-card text-card-foreground shadow-sm",
             className,
@@ -43,8 +59,14 @@ const CardTitle = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLHeadingElement>
 >(({ className, id: idProp, ...props }, ref) => {
-  const contextId = React.useContext(CardTitleIdContext);
-  const id = idProp ?? contextId;
+  const context = React.useContext(CardTitleIdContext);
+  const id = idProp ?? context?.titleId;
+
+  React.useLayoutEffect(() => {
+    if (idProp || !context) return;
+    context.registerTitle(true);
+    return () => context.registerTitle(false);
+  }, [idProp, context]);
 
   return (
     <h3

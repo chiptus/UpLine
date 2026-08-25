@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 
 type SyncResponse = {
   message: string;
@@ -21,21 +21,22 @@ async function syncSoundCloudData(): Promise<SyncResponse> {
 }
 
 export function useSyncSoundCloudDataMutation() {
+  const { toast } = useToast();
+
   return useMutation({
     mutationFn: syncSoundCloudData,
     onSuccess: (data) => {
-      toast.success(
-        `SoundCloud sync started! Processing ${data.artistsToProcess} artists.`,
-        {
-          description:
-            "The sync is running in the background. Check back in a few minutes.",
-          duration: 5000,
-        },
-      );
+      toast({
+        title: `SoundCloud sync started! Processing ${data.artistsToProcess} artists.`,
+        description:
+          "The sync is running in the background. Check back in a few minutes.",
+      });
     },
     onError: (error) => {
-      toast.error("Failed to start SoundCloud sync", {
+      toast({
+        title: "Failed to start SoundCloud sync",
         description: error.message,
+        variant: "destructive",
       });
     },
   });

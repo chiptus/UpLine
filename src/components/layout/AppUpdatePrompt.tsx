@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useRegisterSW } from "virtual:pwa-register/react";
-import { toast } from "@/components/ui/sonner";
+import { toast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 
 const UPDATE_CHECK_INTERVAL_MS = 60_000;
 
@@ -38,18 +39,27 @@ export function AppUpdatePrompt() {
       </span>
     );
 
-    const toastId = toast("New version available", {
-      description: "Refresh to load it.",
+    const { dismiss } = toast({
+      title: "New version available",
+      description: (
+        <span className="flex items-center gap-2">
+          {liveDot}
+          Refresh to load it.
+        </span>
+      ),
       duration: Infinity,
-      icon: liveDot,
-      action: {
-        label: "Refresh",
-        onClick: () => updateServiceWorkerRef.current(true),
-      },
+      action: (
+        <ToastAction
+          altText="Refresh"
+          onClick={() => updateServiceWorkerRef.current(true)}
+        >
+          Refresh
+        </ToastAction>
+      ),
     });
 
     return () => {
-      toast.dismiss(toastId);
+      dismiss();
     };
   }, [needRefresh]);
 

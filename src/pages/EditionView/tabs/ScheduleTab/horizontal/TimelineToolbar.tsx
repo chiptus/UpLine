@@ -63,7 +63,7 @@ export function TimelineToolbar({
       role="toolbar"
       aria-label="Timeline navigation"
       className={cn(
-        "sticky z-40 mb-4 flex items-end gap-1 rounded-lg border border-border bg-popover px-2 pb-2.5 pt-2 backdrop-blur-md",
+        "sticky z-40 mb-4 flex items-center gap-1 rounded-lg border border-border bg-popover px-2 py-2 backdrop-blur-md",
         STICKY_TOP_BELOW_TOP_BAR_CLASS,
       )}
     >
@@ -71,7 +71,7 @@ export function TimelineToolbar({
         ref={dayRowRef}
         role="radiogroup"
         aria-label="Jump to day"
-        className="flex min-w-0 flex-1 items-end gap-1 overflow-x-auto overflow-y-hidden"
+        className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto overflow-y-hidden"
         style={{ maskImage, WebkitMaskImage: maskImage }}
       >
         <DayJumpButtons

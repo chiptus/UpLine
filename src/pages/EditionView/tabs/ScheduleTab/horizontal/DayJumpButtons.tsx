@@ -50,19 +50,19 @@ export function DayJumpButtons({
               ref={isActive ? activeButtonRef : undefined}
               onClick={() => onJumpToDay(getDayJumpMoment(day, timezone))}
               className={cn(
-                "group relative shrink-0 rounded-md px-3 pb-1 pt-1.5 text-center transition-colors",
+                "shrink-0 rounded-full border px-3 py-1 text-center transition-colors",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 isActive
-                  ? "text-foreground"
-                  : "text-muted-foreground/60 hover:text-foreground",
+                  ? "border-transparent bg-accent text-accent-foreground"
+                  : "border-border bg-surface text-muted-foreground hover:bg-surface-active hover:text-foreground",
               )}
             >
               {parts ? (
                 <>
-                  <span className="block text-[10px] font-medium uppercase tracking-[0.14em]">
+                  <span className="block font-display text-[10px] font-medium uppercase tracking-[0.14em]">
                     {parts.weekday}
                   </span>
-                  <span className="block text-lg font-semibold leading-none tabular-nums">
+                  <span className="block text-base font-semibold leading-none tabular-nums">
                     {parts.dayOfMonth}
                   </span>
                 </>
@@ -71,15 +71,6 @@ export function DayJumpButtons({
                   {day.displayDate}
                 </span>
               )}
-              <span
-                aria-hidden
-                className={cn(
-                  "absolute inset-x-2 -bottom-1.5 h-0.5 rounded-full transition-colors",
-                  isActive
-                    ? "bg-accent"
-                    : "bg-transparent group-hover:bg-border",
-                )}
-              />
             </button>
           </Fragment>
         );

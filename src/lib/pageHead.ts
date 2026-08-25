@@ -1,3 +1,5 @@
+import { isStagingEnv } from "@/lib/environment";
+
 const DEFAULT_TITLE = "UpLine";
 const TITLE_SEPARATOR = " - ";
 
@@ -36,7 +38,7 @@ function getEnvironmentPrefix(): string | undefined {
     return "DEV";
   }
 
-  if (!hostname.includes("getupline.com")) {
+  if (isStagingEnv()) {
     return "STAG";
   }
 

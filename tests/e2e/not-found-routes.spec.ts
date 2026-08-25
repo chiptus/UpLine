@@ -13,7 +13,7 @@ test.describe("Invalid festival/edition slugs", { tag: "@smoke" }, () => {
     ).toBeVisible();
 
     await page.getByRole("link", { name: "Back to festival" }).click();
-    await expect(page).toHaveURL(/\/festivals\/test\/?(\?.*)?$/);
+    await expect(page).toHaveURL(/\/festivals\/test(\/.*)?$/);
   });
 
   test("shows festival-specific not found UI for an invalid festival slug", async ({

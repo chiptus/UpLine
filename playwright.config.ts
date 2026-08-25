@@ -62,6 +62,10 @@ export default defineConfig({
     video: "retain-on-failure",
 
     storageState: consentedStorageState,
+
+    /* page.route() misses Service-Worker-mediated requests outside Chromium:
+     * https://playwright.dev/docs/service-workers */
+    serviceWorkers: "block",
   },
 
   /* Configure projects for major browsers */

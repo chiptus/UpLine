@@ -62,6 +62,10 @@ export default defineConfig({
     video: "retain-on-failure",
 
     storageState: consentedStorageState,
+
+    /* page.route() misses Service-Worker-mediated requests outside Chromium:
+     * https://playwright.dev/docs/service-workers */
+    serviceWorkers: "block",
   },
 
   /* Configure projects for major browsers */
@@ -80,13 +84,7 @@ export default defineConfig({
 
     {
       name: "webkit",
-      // WebKit can't intercept requests that pass through an active Service
-      // Worker (page.route() silently misses them, unlike Chromium's
-      // CDP-based interception) — the app's PWA service worker was letting
-      // mocked API calls (e.g. search-artist-links) fall through to the real
-      // network. Blocking service workers for this project keeps route()
-      // mocks reliable.
-      use: { ...devices["Desktop Safari"], serviceWorkers: "block" },
+      use: { ...devices["Desktop Safari"] },
       testIgnore: COOKIE_CONSENT_SPEC,
     },
 
@@ -98,9 +96,7 @@ export default defineConfig({
     },
     {
       name: "Mobile Safari",
-      // Also WebKit-engine-based — see the "webkit" project above for why
-      // service workers must be blocked for page.route() mocks to work.
-      use: { ...devices["iPhone 12"], serviceWorkers: "block" },
+      use: { ...devices["iPhone 12"] },
       testIgnore: COOKIE_CONSENT_SPEC,
     },
 

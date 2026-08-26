@@ -2,23 +2,23 @@ import { Badge } from "@/components/ui/badge";
 import { Clock } from "lucide-react";
 import { StageBadgeById } from "@/components/StageBadgeById";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
+import { formatTimeOnly } from "@/lib/timeUtils";
 
 interface SetCardHeaderProps {
   stageId?: string | undefined;
   timeStart: string | null;
+  use24Hour?: boolean;
 }
 
-export function SetCardHeader({ stageId, timeStart }: SetCardHeaderProps) {
+export function SetCardHeader({
+  stageId,
+  timeStart,
+  use24Hour = true,
+}: SetCardHeaderProps) {
   const { canShowStage, canShowDay, canShowTime } = useScheduleReveal();
 
   function formatTime(dateString: string | null) {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return date.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
+    return formatTimeOnly(dateString, null, use24Hour) ?? "";
   }
 
   function formatDate(dateString: string | null) {

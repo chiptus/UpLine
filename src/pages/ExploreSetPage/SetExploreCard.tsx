@@ -3,7 +3,6 @@ import { Card } from "@/components/ui/card";
 import { motion, PanInfo } from "framer-motion";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useProfileQuery } from "@/api/auth/useProfile";
 import { SetCardHeader } from "./SetExploreCard/SetCardHeader";
 import { PrimaryArtistDisplay } from "./SetExploreCard/PrimaryArtistDisplay";
 import { SupportingArtists } from "./SetExploreCard/SupportingArtists";
@@ -29,8 +28,7 @@ export function SetExploreCard({
 }: SetExploreCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const { user } = useAuth();
-  const { data: profile } = useProfileQuery(user?.id);
+  const { profile } = useAuth();
   const use24Hour = profile?.use_24_hour ?? true;
 
   // Get primary artist (first artist) for main display

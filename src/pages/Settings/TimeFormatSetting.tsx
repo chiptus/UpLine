@@ -18,8 +18,7 @@ export function TimeFormatSetting({
         How set times are displayed on the Explore page.
       </p>
       <div className="flex items-center gap-2">
-        <Label
-          htmlFor="use-24-hour"
+        <span
           className={
             use24Hour
               ? "text-sm text-subtle-foreground"
@@ -27,11 +26,12 @@ export function TimeFormatSetting({
           }
         >
           12-hour
-        </Label>
+        </span>
         <Switch
           id="use-24-hour"
           checked={use24Hour}
           onCheckedChange={setUse24Hour}
+          aria-label="Use 24-hour time format"
         />
         <Label
           htmlFor="use-24-hour"

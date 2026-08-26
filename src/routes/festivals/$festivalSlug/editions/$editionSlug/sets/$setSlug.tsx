@@ -20,6 +20,10 @@ import {
 } from "@/lib/searchSchemas";
 import { artistNotesQuery } from "@/api/artist-notes/useArtistNotes";
 import { genresQuery } from "@/api/genres/useGenres";
+import {
+  PrototypeNonMusicDetail,
+  usePrototypeVariant,
+} from "@/pages/SetDetails/prototype-nonmusic/PrototypeNonMusicDetail";
 
 export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug",
@@ -63,6 +67,9 @@ function SetDetails() {
   const isMultiArtistSet = currentSet.artists.length > 1;
   const primaryArtist = currentSet.artists[0];
 
+  // PROTOTYPE (wayfinder #396): ?variant=A|B|C previews non-music set layouts
+  const prototypeVariant = usePrototypeVariant();
+
   return (
     <>
       <div className="min-h-screen">
@@ -75,7 +82,14 @@ function SetDetails() {
           </TopBar>
 
           {/* Set Header */}
-          {isMultiArtistSet ? (
+          {prototypeVariant ? (
+            <PrototypeNonMusicDetail
+              set={currentSet}
+              netVoteScore={netVoteScore}
+              use24Hour={urlState.use24Hour}
+              variant={prototypeVariant}
+            />
+          ) : isMultiArtistSet ? (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
               {/* Mixed Image for Multi-Artist Sets */}
               <MixedArtistImage

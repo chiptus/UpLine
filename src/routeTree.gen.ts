@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as PrototypeSetFormRouteImport } from './routes/prototype-set-form'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AdminAdminsRouteImport } from './routes/admin/admins'
@@ -62,6 +63,11 @@ const CookiesRoute = CookiesRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrototypeSetFormRoute = PrototypeSetFormRouteImport.update({
+  id: '/prototype-set-form',
+  path: '/prototype-set-form',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -240,6 +246,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/cookies': typeof CookiesRoute
   '/privacy': typeof PrivacyRoute
+  '/prototype-set-form': typeof PrototypeSetFormRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
   '/admin/admins': typeof AdminAdminsRoute
@@ -276,6 +283,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRouteWithChildren
   '/cookies': typeof CookiesRoute
   '/privacy': typeof PrivacyRoute
+  '/prototype-set-form': typeof PrototypeSetFormRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
   '/admin/admins': typeof AdminAdminsRoute
@@ -311,6 +319,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/cookies': typeof CookiesRoute
   '/privacy': typeof PrivacyRoute
+  '/prototype-set-form': typeof PrototypeSetFormRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
   '/admin/admins': typeof AdminAdminsRoute
@@ -349,6 +358,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/cookies'
     | '/privacy'
+    | '/prototype-set-form'
     | '/settings'
     | '/terms'
     | '/admin/admins'
@@ -385,6 +395,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/cookies'
     | '/privacy'
+    | '/prototype-set-form'
     | '/settings'
     | '/terms'
     | '/admin/admins'
@@ -419,6 +430,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/cookies'
     | '/privacy'
+    | '/prototype-set-form'
     | '/settings'
     | '/terms'
     | '/admin/admins'
@@ -456,6 +468,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   CookiesRoute: typeof CookiesRoute
   PrivacyRoute: typeof PrivacyRoute
+  PrototypeSetFormRoute: typeof PrototypeSetFormRoute
   SettingsRoute: typeof SettingsRoute
   TermsRoute: typeof TermsRoute
   FestivalsFestivalSlugRoute: typeof FestivalsFestivalSlugRouteWithChildren
@@ -491,6 +504,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prototype-set-form': {
+      id: '/prototype-set-form'
+      path: '/prototype-set-form'
+      fullPath: '/prototype-set-form'
+      preLoaderRoute: typeof PrototypeSetFormRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -878,6 +898,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   CookiesRoute: CookiesRoute,
   PrivacyRoute: PrivacyRoute,
+  PrototypeSetFormRoute: PrototypeSetFormRoute,
   SettingsRoute: SettingsRoute,
   TermsRoute: TermsRoute,
   FestivalsFestivalSlugRoute: FestivalsFestivalSlugRouteWithChildren,

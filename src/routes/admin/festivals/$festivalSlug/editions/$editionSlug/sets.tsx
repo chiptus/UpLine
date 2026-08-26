@@ -11,6 +11,11 @@ import { useDeleteSetMutation } from "@/api/sets/useDeleteSet";
 import { useFestivalEditionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 import { SetFormDialog } from "@/pages/admin/festivals/SetFormDialog";
+// PROTOTYPE (wayfinder #399) — remove after decision
+import {
+  SetFormDialogPrototype,
+  usePrototypeVariant,
+} from "@/pages/admin/festivals/SetFormDialogPrototype";
 import { SetsTable } from "@/pages/admin/festivals/SetsTable";
 import { pageMeta } from "@/lib/pageHead";
 
@@ -41,6 +46,7 @@ function FestivalSets() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSet, setEditingSet] = useState<FestivalSet | null>(null);
   const deleteSetMutation = useDeleteSetMutation();
+  const prototypeVariant = usePrototypeVariant();
 
   const isLoading = editionQuery.isLoading || setsQuery.isLoading;
 
@@ -110,13 +116,22 @@ function FestivalSets() {
         />
       </CardContent>
 
-      <SetFormDialog
-        isOpen={isDialogOpen}
-        onClose={handleCloseDialog}
-        editingSet={editingSet}
-        editionId={editionQuery.data.id}
-        timezone={festival.timezone}
-      />
+      {prototypeVariant ? (
+        <SetFormDialogPrototype
+          variant={prototypeVariant}
+          isOpen={isDialogOpen}
+          onClose={handleCloseDialog}
+          editingSet={editingSet}
+        />
+      ) : (
+        <SetFormDialog
+          isOpen={isDialogOpen}
+          onClose={handleCloseDialog}
+          editingSet={editingSet}
+          editionId={editionQuery.data.id}
+          timezone={festival.timezone}
+        />
+      )}
     </Card>
   );
 }

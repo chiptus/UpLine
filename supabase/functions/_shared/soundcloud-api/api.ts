@@ -130,7 +130,7 @@ export async function getSoundCloudArtistByUrl(
 
     console.log(`[getSoundCloudArtistByUrl] Fetching artist: ${artistUrl}`);
 
-    const endpoint = `/resolve?url=${encodeURIComponent(artistUrl)}&client_id=${encodeURIComponent(Deno.env.get("SOUNDCLOUD_CLIENT_ID") || "")}`;
+    const endpoint = `/resolve?url=${encodeURIComponent(artistUrl)}`;
     const response = await fetchSoundCloudAPI(
       endpoint,
       accessToken,

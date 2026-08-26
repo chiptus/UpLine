@@ -12,4 +12,4 @@ The issue explicitly scoped this to "locally," and the workflow it serves — on
 ## Consequences
 
 - Skipped/saved state does not survive clearing browser data, and is invisible to a second Core Team member linking the same edition — if that turns out to matter in practice, revisit as a server-side table.
-- The Link Wizard header exposes a popover to view and restore skipped/saved artists (decision 8 in `docs/handoffs/link-wizard-376.md`) since there's no admin page to manage this state otherwise.
+- The Link Wizard header exposes a popover to view and restore skipped/saved artists (see issue #410) since there's no admin page to manage this state otherwise.

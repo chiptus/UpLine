@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as PrototypeLinkWizardTypesRouteImport } from './routes/prototype-link-wizard-types'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -53,6 +54,12 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrototypeLinkWizardTypesRoute =
+  PrototypeLinkWizardTypesRouteImport.update({
+    id: '/prototype-link-wizard-types',
+    path: '/prototype-link-wizard-types',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
@@ -233,6 +240,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/cookies': typeof CookiesRoute
   '/privacy': typeof PrivacyRoute
+  '/prototype-link-wizard-types': typeof PrototypeLinkWizardTypesRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
   '/admin/admins': typeof AdminAdminsRoute
@@ -268,6 +276,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRouteWithChildren
   '/cookies': typeof CookiesRoute
   '/privacy': typeof PrivacyRoute
+  '/prototype-link-wizard-types': typeof PrototypeLinkWizardTypesRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
   '/admin/admins': typeof AdminAdminsRoute
@@ -302,6 +311,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/cookies': typeof CookiesRoute
   '/privacy': typeof PrivacyRoute
+  '/prototype-link-wizard-types': typeof PrototypeLinkWizardTypesRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
   '/admin/admins': typeof AdminAdminsRoute
@@ -339,6 +349,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/cookies'
     | '/privacy'
+    | '/prototype-link-wizard-types'
     | '/settings'
     | '/terms'
     | '/admin/admins'
@@ -374,6 +385,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/cookies'
     | '/privacy'
+    | '/prototype-link-wizard-types'
     | '/settings'
     | '/terms'
     | '/admin/admins'
@@ -407,6 +419,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/cookies'
     | '/privacy'
+    | '/prototype-link-wizard-types'
     | '/settings'
     | '/terms'
     | '/admin/admins'
@@ -443,6 +456,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   CookiesRoute: typeof CookiesRoute
   PrivacyRoute: typeof PrivacyRoute
+  PrototypeLinkWizardTypesRoute: typeof PrototypeLinkWizardTypesRoute
   SettingsRoute: typeof SettingsRoute
   TermsRoute: typeof TermsRoute
   FestivalsFestivalSlugRoute: typeof FestivalsFestivalSlugRouteWithChildren
@@ -464,6 +478,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prototype-link-wizard-types': {
+      id: '/prototype-link-wizard-types'
+      path: '/prototype-link-wizard-types'
+      fullPath: '/prototype-link-wizard-types'
+      preLoaderRoute: typeof PrototypeLinkWizardTypesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -855,6 +876,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   CookiesRoute: CookiesRoute,
   PrivacyRoute: PrivacyRoute,
+  PrototypeLinkWizardTypesRoute: PrototypeLinkWizardTypesRoute,
   SettingsRoute: SettingsRoute,
   TermsRoute: TermsRoute,
   FestivalsFestivalSlugRoute: FestivalsFestivalSlugRouteWithChildren,

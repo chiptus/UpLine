@@ -715,7 +715,6 @@ const VARIANTS = {
 type VariantKey = keyof typeof VARIANTS;
 
 function readVariant(): VariantKey | null {
-  if (import.meta.env.PROD) return null;
   const v = new URLSearchParams(window.location.search).get("variant");
   return v && v in VARIANTS ? (v as VariantKey) : null;
 }

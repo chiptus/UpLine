@@ -5,7 +5,7 @@ import { profileKeys } from "@/api/auth/types";
 import type { Database } from "@/integrations/supabase/types";
 
 type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
-type ScopeColumn = "active_group_id" | "active_scope";
+type ProfileFieldColumn = "active_group_id" | "active_scope" | "use_24_hour";
 
 export function useProfileFieldMutation() {
   const queryClient = useQueryClient();
@@ -14,8 +14,8 @@ export function useProfileFieldMutation() {
   return useMutation({
     mutationFn: async (variables: {
       userId: string;
-      column: ScopeColumn;
-      value: ProfileUpdate[ScopeColumn];
+      column: ProfileFieldColumn;
+      value: ProfileUpdate[ProfileFieldColumn];
       errorMessage: string;
     }) => {
       const { error } = await supabase

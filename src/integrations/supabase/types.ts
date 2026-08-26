@@ -528,6 +528,7 @@ export type Database = {
           created_at: string;
           email: string | null;
           id: string;
+          use_24_hour: boolean;
           username: string | null;
         };
         Insert: {
@@ -537,6 +538,7 @@ export type Database = {
           created_at?: string;
           email?: string | null;
           id: string;
+          use_24_hour?: boolean;
           username?: string | null;
         };
         Update: {
@@ -546,6 +548,7 @@ export type Database = {
           created_at?: string;
           email?: string | null;
           id?: string;
+          use_24_hour?: boolean;
           username?: string | null;
         };
         Relationships: [

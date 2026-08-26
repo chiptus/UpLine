@@ -4,9 +4,11 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { TopBar } from "@/components/layout/TopBar";
 import { useAuth } from "@/contexts/AuthContext";
 import { userGroupsQuery } from "@/api/groups/useUserGroups";
+import { profileQuery } from "@/api/auth/useProfile";
 import { SignInRequired } from "@/pages/groups/Groups/SignInRequired";
 import { ActiveGroupSetting } from "./ActiveGroupSetting";
 import { ActiveScopeSetting } from "./ActiveScopeSetting";
+import { TimeFormatSetting } from "./TimeFormatSetting";
 
 export function SettingsPage() {
   const { user } = useAuth();
@@ -32,6 +34,7 @@ export function SettingsPage() {
 
 function SettingsContent({ userId }: { userId: string }) {
   const { data: groups } = useSuspenseQuery(userGroupsQuery(userId));
+  const { data: profile } = useSuspenseQuery(profileQuery(userId));
   const hasGroups = groups.length > 0;
 
   return (
@@ -46,6 +49,7 @@ function SettingsContent({ userId }: { userId: string }) {
       )}
       {hasGroups && <ActiveGroupSetting userId={userId} groups={groups} />}
       <ActiveScopeSetting userId={userId} hasGroups={hasGroups} />
+      <TimeFormatSetting userId={userId} use24Hour={profile.use_24_hour} />
     </div>
   );
 }

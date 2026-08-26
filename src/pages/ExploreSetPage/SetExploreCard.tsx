@@ -2,7 +2,7 @@ import { FestivalSet } from "@/api/sets/types";
 import { Card } from "@/components/ui/card";
 import { motion, PanInfo } from "framer-motion";
 import { useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useTimeFormat } from "@/hooks/useTimeFormat";
 import { SetCardHeader } from "./SetExploreCard/SetCardHeader";
 import { PrimaryArtistDisplay } from "./SetExploreCard/PrimaryArtistDisplay";
 import { SupportingArtists } from "./SetExploreCard/SupportingArtists";
@@ -28,8 +28,7 @@ export function SetExploreCard({
 }: SetExploreCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const { profile } = useAuth();
-  const use24Hour = profile?.use_24_hour ?? true;
+  const use24Hour = useTimeFormat();
 
   // Get primary artist (first artist) for main display
   const primaryArtist = set.artists[0];

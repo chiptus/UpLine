@@ -1,7 +1,7 @@
 import { Clock } from "lucide-react";
 import { formatInTimeZone } from "date-fns-tz";
 import { formatTimeOnly } from "@/lib/timeUtils";
-import { useAuth } from "@/contexts/AuthContext";
+import { useTimeFormat } from "@/hooks/useTimeFormat";
 import { useMemo } from "react";
 
 interface TimeDisplayProps {
@@ -39,8 +39,7 @@ export function TimeDisplay({
   endTime,
   timezone,
 }: TimeDisplayProps) {
-  const { profile } = useAuth();
-  const use24Hour = profile?.use_24_hour ?? true;
+  const use24Hour = useTimeFormat();
   const useCompact = useMemo(() => {
     const duration = (endTime.getTime() - startTime.getTime()) / (1000 * 60);
     return duration <= 60;

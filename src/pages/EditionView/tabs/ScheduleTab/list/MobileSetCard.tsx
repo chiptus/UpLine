@@ -3,7 +3,7 @@ import { Link, useParams } from "@tanstack/react-router";
 import { Clock } from "lucide-react";
 import { differenceInMinutes } from "date-fns";
 import { formatTimeOnly } from "@/lib/timeUtils";
-import { useAuth } from "@/contexts/AuthContext";
+import { useTimeFormat } from "@/hooks/useTimeFormat";
 import { VoteButtons } from "../VoteButtons";
 import { StageBadge } from "@/components/StageBadge";
 import type { ScheduleSet } from "@/hooks/useScheduleData";
@@ -17,8 +17,7 @@ export function MobileSetCard({ set, timezone }: MobileSetCardProps) {
   const { festivalSlug, editionSlug } = useParams({
     from: "/festivals/$festivalSlug/editions/$editionSlug",
   });
-  const { profile } = useAuth();
-  const use24Hour = profile?.use_24_hour ?? true;
+  const use24Hour = useTimeFormat();
   const duration =
     set.startTime && set.endTime
       ? differenceInMinutes(set.endTime, set.startTime)

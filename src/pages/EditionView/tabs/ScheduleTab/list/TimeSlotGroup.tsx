@@ -1,6 +1,6 @@
 import { Clock } from "lucide-react";
 import { formatTimeOnly } from "@/lib/timeUtils";
-import { useAuth } from "@/contexts/AuthContext";
+import { useTimeFormat } from "@/hooks/useTimeFormat";
 import { MobileSetCard } from "./MobileSetCard";
 import { cn } from "@/lib/utils";
 import type { ScheduleSet } from "@/hooks/useScheduleData";
@@ -19,8 +19,7 @@ interface TimeSlotGroupProps {
 }
 
 export function TimeSlotGroup({ timeSlot, timezone }: TimeSlotGroupProps) {
-  const { profile } = useAuth();
-  const use24Hour = profile?.use_24_hour ?? true;
+  const use24Hour = useTimeFormat();
 
   return (
     <div className="relative">

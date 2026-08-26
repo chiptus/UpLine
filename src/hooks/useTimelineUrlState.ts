@@ -1,14 +1,28 @@
-import { useCallback } from "react";
-import { useSearch, useNavigate } from "@tanstack/react-router";
+import { useCallback, useMemo } from "react";
+import {
+  useSearch,
+  useNavigate,
+  useRouteContext,
+} from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import type { TimelineSearch } from "@/lib/searchSchemas";
 import type { VoteType } from "@/lib/voteConfig";
+import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
+import {
+  resolveStageIdsFromSlugs,
+  resolveStageSlugsFromIds,
+} from "@/lib/stageSlugs";
 
 export type TimeFilter = TimelineSearch["time"];
 
 export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
   const route =
     `/festivals/$festivalSlug/editions/$editionSlug/schedule/${tab}` as const;
-  const state = useSearch({
+  const { edition } = useRouteContext({
+    from: "/festivals/$festivalSlug/editions/$editionSlug",
+  });
+  const { data: stages = [] } = useQuery(stagesByEditionQuery(edition.id));
+  const search = useSearch({
     from: route,
     select: (search) => ({
       day: search.day,
@@ -17,6 +31,13 @@ export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
       votes: search.votes,
     }),
   });
+  const state = useMemo(
+    () => ({
+      ...search,
+      stages: resolveStageIdsFromSlugs(search.stages, stages),
+    }),
+    [search, stages],
+  );
   const navigate = useNavigate({ from: route });
 
   const updateDay = useCallback(
@@ -42,14 +63,17 @@ export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
   );
 
   const updateStages = useCallback(
-    (stages: string[]) => {
+    (stageIds: string[]) => {
       navigate({
         to: ".",
-        search: (prev) => ({ ...prev, stages }),
+        search: (prev) => ({
+          ...prev,
+          stages: resolveStageSlugsFromIds(stageIds, stages),
+        }),
         replace: true,
       });
     },
-    [navigate],
+    [navigate, stages],
   );
 
   const updateVotes = useCallback(

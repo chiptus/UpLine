@@ -1,6 +1,10 @@
+import { useState } from "react";
 import type { UseFormReturn } from "react-hook-form";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle, Download } from "lucide-react";
 import {
   FormControl,
   FormField,
@@ -9,21 +13,30 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import type { LinkStepData } from "./LinkWizardStep";
+import {
+  validateProviderUrl,
+  extractProviderIdFromUrl,
+} from "@/lib/validateProviderUrl";
+import { useFetchArtistByUrlMutation } from "@/api/artistSearch/useFetchArtistByUrlMutation";
+import { mergeCandidateSelection } from "@/api/artistSearch/mergeCandidateSelection";
 
 const URL_FIELDS: {
   fieldName: "providerUrl.spotify" | "providerUrl.soundcloud";
   label: string;
   placeholder: string;
+  provider: "spotify" | "soundcloud";
 }[] = [
   {
     fieldName: "providerUrl.spotify",
     label: "Spotify URL",
     placeholder: "https://open.spotify.com/artist/...",
+    provider: "spotify",
   },
   {
     fieldName: "providerUrl.soundcloud",
     label: "SoundCloud URL",
     placeholder: "https://soundcloud.com/...",
+    provider: "soundcloud",
   },
 ];
 
@@ -34,35 +47,181 @@ interface StagedFieldsPreviewProps {
 export function StagedFieldsPreview({ form }: StagedFieldsPreviewProps) {
   const imageUrl = form.watch("image_url");
   const description = form.watch("description");
+  const fetchMutation = useFetchArtistByUrlMutation();
+  const [fetchErrors, setFetchErrors] = useState<Record<string, string>>({});
+
+  function handleFetchFromUrl(
+    fieldName: "providerUrl.spotify" | "providerUrl.soundcloud",
+    provider: "spotify" | "soundcloud",
+  ) {
+    const url = form.getValues(fieldName);
+
+    setFetchErrors(
+      (prev) => ({ ...prev, [fieldName]: "" }) as Record<string, string>,
+    );
+
+    if (!url) {
+      setFetchErrors(
+        (prev) =>
+          ({ ...prev, [fieldName]: "Please enter a URL" }) as Record<
+            string,
+            string
+          >,
+      );
+      return;
+    }
+
+    if (!validateProviderUrl(provider, url)) {
+      setFetchErrors(
+        (prev) =>
+          ({ ...prev, [fieldName]: `Invalid ${provider} URL` }) as Record<
+            string,
+            string
+          >,
+      );
+      return;
+    }
+
+    const artistId = extractProviderIdFromUrl(provider, url);
+    if (!artistId) {
+      setFetchErrors(
+        (prev) =>
+          ({ ...prev, [fieldName]: `Invalid ${provider} URL` }) as Record<
+            string,
+            string
+          >,
+      );
+      return;
+    }
+
+    const params =
+      provider === "spotify"
+        ? { provider: "spotify" as const, artistId }
+        : { provider: "soundcloud" as const, artistUrl: artistId };
+
+    fetchMutation.mutate(params, {
+      onSuccess: (response) => {
+        const result = response.results[0];
+
+        if (result?.error) {
+          setFetchErrors(
+            (prev) =>
+              ({
+                ...prev,
+                [fieldName]: result.error || "Unknown error",
+              }) as Record<string, string>,
+          );
+          return;
+        }
+
+        if (!result?.candidates || result.candidates.length === 0) {
+          setFetchErrors(
+            (prev) =>
+              ({ ...prev, [fieldName]: "Artist not found" }) as Record<
+                string,
+                string
+              >,
+          );
+          return;
+        }
+
+        const candidate = result.candidates[0];
+        const update = mergeCandidateSelection(
+          candidate,
+          provider,
+          ["image", "description"],
+          {
+            image_url: form.getValues("image_url"),
+            description: form.getValues("description"),
+          },
+        );
+
+        if (update.image_url !== undefined) {
+          form.setValue("image_url", update.image_url, { shouldDirty: true });
+        }
+        if (update.description !== undefined) {
+          form.setValue("description", update.description, {
+            shouldDirty: true,
+          });
+        }
+      },
+      onError: (error) => {
+        setFetchErrors(
+          (prev) =>
+            ({
+              ...prev,
+              [fieldName]: error.message || "Failed to fetch artist",
+            }) as Record<string, string>,
+        );
+      },
+    });
+  }
 
   return (
     <div className="space-y-3 rounded-lg border p-3">
       <p className="text-sm font-medium">Staged</p>
 
-      {URL_FIELDS.map(({ fieldName, label, placeholder }) => (
-        <FormField
-          key={fieldName}
-          control={form.control}
-          name={fieldName}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{label}</FormLabel>
-              <FormControl>
-                <Input
-                  type="url"
-                  placeholder={placeholder}
-                  value={field.value || ""}
-                  onChange={field.onChange}
-                  onBlur={field.onBlur}
-                  name={field.name}
-                  ref={field.ref}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      ))}
+      {URL_FIELDS.map(({ fieldName, label, placeholder, provider }) => {
+        const error = fetchErrors[fieldName];
+        const isLoading = fetchMutation.isPending;
+
+        return (
+          <div key={fieldName} className="space-y-1">
+            <FormField
+              control={form.control}
+              name={fieldName}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{label}</FormLabel>
+                  <div className="flex gap-2">
+                    <FormControl>
+                      <Input
+                        type="url"
+                        placeholder={placeholder}
+                        value={field.value || ""}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          setFetchErrors((prev) => ({
+                            ...prev,
+                            [fieldName]: "",
+                          }));
+                        }}
+                        onBlur={field.onBlur}
+                        name={field.name}
+                        ref={field.ref}
+                      />
+                    </FormControl>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleFetchFromUrl(fieldName, provider)}
+                      disabled={
+                        !form.getValues(fieldName) ||
+                        isLoading ||
+                        !validateProviderUrl(
+                          provider,
+                          form.getValues(fieldName) || "",
+                        )
+                      }
+                      title="Fetch artist metadata from URL"
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {error && (
+              <Alert variant="destructive" className="py-2">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="text-xs">{error}</AlertDescription>
+              </Alert>
+            )}
+          </div>
+        );
+      })}
 
       {(imageUrl || description !== undefined) && (
         <div className="flex items-start gap-3 text-sm">

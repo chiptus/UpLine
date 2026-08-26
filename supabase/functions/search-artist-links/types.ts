@@ -1,8 +1,10 @@
 export type Provider = "soundcloud" | "spotify";
 
 export interface SearchRequest {
-  artistNames: string[];
+  artistNames?: string[];
   provider?: Provider;
+  artistId?: string;
+  artistUrl?: string;
 }
 
 export interface Candidate {

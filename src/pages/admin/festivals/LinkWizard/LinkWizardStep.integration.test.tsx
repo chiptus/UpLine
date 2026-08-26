@@ -116,4 +116,116 @@ describe("LinkWizardStep save flow", () => {
     expect(error).toBeNull();
     expect(data?.spotify_url).toBe("https://open.spotify.com/artist/candidate");
   });
+
+  it("fetches artist metadata from pasted Spotify URL", async () => {
+    const userId = await signInAsTestUser();
+    await grantAdminRole(userId);
+
+    const artistId = await createArtist({
+      spotify_url: null,
+      soundcloud_url: null,
+    });
+    const artist = await loadArtistWithSets(artistId);
+
+    vi.mock("@/api/artistSearch/useFetchArtistByUrlMutation", () => ({
+      useFetchArtistByUrlMutation: () => ({
+        mutate: (
+          params: { provider: string; artistId?: string },
+          callbacks: { onSuccess: (data: unknown) => void },
+        ) => {
+          if (params.provider === "spotify" && params.artistId) {
+            callbacks.onSuccess({
+              results: [
+                {
+                  artistName: "",
+                  provider: "spotify",
+                  candidates: [
+                    {
+                      name: "Fetched Artist",
+                      url: "https://open.spotify.com/artist/fetched123",
+                      imageUrl: "https://example.com/image.jpg",
+                      description: "A fetched artist description",
+                      followers: 1000,
+                      genres: ["Electronic"],
+                    },
+                  ],
+                },
+              ],
+            });
+          }
+        },
+        isPending: false,
+      }),
+    }));
+
+    const onNext = vi.fn();
+
+    renderWithQueryClient(
+      <LinkWizardStep
+        artist={artist}
+        position={1}
+        total={1}
+        artists={[artist]}
+        onPrev={vi.fn()}
+        onNext={onNext}
+      />,
+    );
+
+    const spotifyUrlInput = screen.getByDisplayValue("");
+    fireEvent.change(spotifyUrlInput, {
+      target: { value: "https://open.spotify.com/artist/fetched123" },
+    });
+
+    const downloadButtons = screen.getAllByRole("button", { name: "" });
+    const fetchButton = downloadButtons.find(
+      (btn) => btn.querySelector("svg") && btn.innerHTML.includes("Download"),
+    );
+    if (fetchButton) fireEvent.click(fetchButton);
+
+    await waitFor(() => {
+      expect(
+        screen.getByDisplayValue("https://example.com/image.jpg"),
+      ).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /save & next/i }));
+
+    await waitFor(() => expect(onNext).toHaveBeenCalled());
+  });
+
+  it("shows error when pasted Spotify URL is invalid", async () => {
+    const userId = await signInAsTestUser();
+    await grantAdminRole(userId);
+
+    const artistId = await createArtist({
+      spotify_url: null,
+      soundcloud_url: null,
+    });
+    const artist = await loadArtistWithSets(artistId);
+
+    const onNext = vi.fn();
+
+    renderWithQueryClient(
+      <LinkWizardStep
+        artist={artist}
+        position={1}
+        total={1}
+        artists={[artist]}
+        onPrev={vi.fn()}
+        onNext={onNext}
+      />,
+    );
+
+    const spotifyUrlInput = screen.getByDisplayValue("");
+    fireEvent.change(spotifyUrlInput, {
+      target: { value: "https://spotify.com/artist/invalid" },
+    });
+
+    const downloadButtons = screen.getAllByRole("button", { name: "" });
+    const fetchButton = downloadButtons.find(
+      (btn) => btn.querySelector("svg") && btn.innerHTML.includes("Download"),
+    );
+
+    expect(fetchButton).toBeDisabled();
+  });
 });

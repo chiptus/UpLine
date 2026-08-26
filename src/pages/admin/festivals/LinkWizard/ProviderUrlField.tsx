@@ -58,6 +58,10 @@ export function ProviderUrlField({
       { provider, url },
       {
         onSuccess: (response) => {
+          if (form.getValues(fieldName) !== url) {
+            return;
+          }
+
           if (response.error) {
             form.setError(fieldName, {
               type: "manual",
@@ -77,6 +81,10 @@ export function ProviderUrlField({
           setFetchedCandidate(response.candidate);
         },
         onError: (error) => {
+          if (form.getValues(fieldName) !== url) {
+            return;
+          }
+
           form.setError(fieldName, {
             type: "manual",
             message: error.message || "Failed to fetch artist",

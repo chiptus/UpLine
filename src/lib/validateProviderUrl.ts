@@ -3,10 +3,13 @@ type Provider = "spotify" | "soundcloud";
 function validateSpotifyUrl(trimmedUrl: string): boolean {
   try {
     const parsed = new URL(trimmedUrl);
-    if (parsed.hostname !== "open.spotify.com") {
+    if (
+      parsed.protocol !== "https:" ||
+      parsed.hostname !== "open.spotify.com"
+    ) {
       return false;
     }
-    return parsed.pathname.startsWith("/artist/");
+    return /^\/artist\/[^/]+\/?$/.test(parsed.pathname);
   } catch {
     return false;
   }
@@ -15,15 +18,13 @@ function validateSpotifyUrl(trimmedUrl: string): boolean {
 function validateSoundcloudUrl(trimmedUrl: string): boolean {
   try {
     const parsed = new URL(trimmedUrl);
-    if (!parsed.hostname.endsWith("soundcloud.com")) {
+    if (
+      parsed.protocol !== "https:" ||
+      !parsed.hostname.endsWith("soundcloud.com")
+    ) {
       return false;
     }
-    const path = parsed.pathname;
-    if (path === "/" || path.endsWith("/")) {
-      return false;
-    }
-    const pathSegments = path.split("/").filter(Boolean);
-    return pathSegments.length === 1;
+    return /^\/[^/]+$/.test(parsed.pathname);
   } catch {
     return false;
   }

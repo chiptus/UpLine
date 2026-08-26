@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { buildCorsHeaders } from "../_shared/cors.ts";
+import { requireCanEditArtists } from "../_shared/auth.ts";
 import {
   extractSpotifyArtistId,
   getSpotifyArtistById,
@@ -8,10 +9,38 @@ import {
 import { getSoundCloudArtistByUrl } from "../_shared/soundcloud-api/api.ts";
 import type { ProviderFetchOutcome } from "../_shared/types.ts";
 
-const FetchArtistByUrlRequestSchema = z.object({
-  provider: z.enum(["spotify", "soundcloud"]),
-  url: z.string(),
-});
+function isValidSoundCloudUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return (
+      parsed.protocol === "https:" &&
+      parsed.hostname.endsWith("soundcloud.com") &&
+      /^\/[^/]+$/.test(parsed.pathname)
+    );
+  } catch {
+    return false;
+  }
+}
+
+const FetchArtistByUrlRequestSchema = z
+  .object({
+    provider: z.enum(["spotify", "soundcloud"]),
+    url: z.string(),
+  })
+  .superRefine((value, ctx) => {
+    const isValidUrl =
+      value.provider === "spotify"
+        ? extractSpotifyArtistId(value.url) !== null
+        : isValidSoundCloudUrl(value.url);
+
+    if (!isValidUrl) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["url"],
+        message: `Invalid ${value.provider} artist URL`,
+      });
+    }
+  });
 
 serve(async (req) => {
   const corsHeaders = buildCorsHeaders(req);
@@ -23,6 +52,14 @@ serve(async (req) => {
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), {
       status: 405,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const auth = await requireCanEditArtists(req);
+  if (auth.errorResponse) {
+    return new Response(auth.errorResponse.body, {
+      status: auth.errorResponse.status,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }

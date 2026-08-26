@@ -6,10 +6,13 @@ import type { ProviderFetchOutcome } from "../types.ts";
 export function extractSpotifyArtistId(url: string): string | null {
   try {
     const parsed = new URL(url);
-    if (parsed.hostname !== "open.spotify.com") {
+    if (
+      parsed.protocol !== "https:" ||
+      parsed.hostname !== "open.spotify.com"
+    ) {
       return null;
     }
-    const match = parsed.pathname.match(/\/artist\/([a-zA-Z0-9]+)/);
+    const match = parsed.pathname.match(/^\/artist\/([a-zA-Z0-9]+)\/?$/);
     return match ? match[1] : null;
   } catch {
     return null;

@@ -6,11 +6,9 @@ import { SetListItem } from "./SetListItem";
 
 export function SetsPanel({
   sets,
-  use24Hour,
   onLockSort,
 }: {
   sets: Array<FestivalSet>;
-  use24Hour: boolean;
   onLockSort: () => void;
 }) {
   if (sets.length === 0) {
@@ -20,12 +18,7 @@ export function SetsPanel({
   return (
     <div className="space-y-4" data-testid="artists-list">
       {sets.map((set) => (
-        <FestivalSetProvider
-          key={set.id}
-          set={set}
-          onLockSort={onLockSort}
-          use24Hour={use24Hour}
-        >
+        <FestivalSetProvider key={set.id} set={set} onLockSort={onLockSort}>
           <SetListItem />
         </FestivalSetProvider>
       ))}

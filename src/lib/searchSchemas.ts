@@ -20,6 +20,9 @@ export const filterSortSearchSchema = z.object({
   use24Hour: z.boolean().catch(true),
   invite: z.string().optional(),
   sortLocked: z.boolean().catch(false),
+  // PROTOTYPE (issue #400): set-type filter + variant switcher, remove after decision
+  types: z.array(z.string()).catch([]),
+  variant: z.string().optional(),
 });
 
 export type FilterSortSearch = z.infer<typeof filterSortSearchSchema>;

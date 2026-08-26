@@ -10,6 +10,12 @@ import { FilterToggle } from "@/components/filters/FilterToggle";
 import { FilterContainer } from "@/components/filters/FilterContainer";
 import { RefreshButton } from "./RefreshButton";
 import type { BinaryVoteScope } from "@/lib/voteScope";
+// PROTOTYPE (issue #400) imports — remove with the prototype
+import {
+  TypeFilterVariantA,
+  TypeFilterVariantC,
+} from "./prototypeSetTypeFilter";
+import { PrototypeSwitcher } from "@/components/PrototypeSwitcher";
 
 interface VotePerspectiveProps {
   scope: BinaryVoteScope;
@@ -56,11 +62,20 @@ export function FilterSortControls({
   }
 
   const hasActiveFilters =
-    state.stages.length > 0 || state.genres.length > 0 || state.minRating > 0;
+    state.stages.length > 0 ||
+    state.genres.length > 0 ||
+    state.minRating > 0 ||
+    state.types.length > 0;
   const activeFilterCount =
-    state.stages.length + state.genres.length + (state.minRating > 0 ? 1 : 0);
+    state.stages.length +
+    state.genres.length +
+    (state.minRating > 0 ? 1 : 0) +
+    state.types.length;
 
   const Filters = isMobile ? MobileFilters : DesktopFilters;
+
+  // PROTOTYPE (issue #400): variant switch for the set-type filter placement
+  const variant = state.variant ?? "A";
 
   return (
     <div className="space-y-4">
@@ -73,6 +88,9 @@ export function FilterSortControls({
           )}
 
           <div className="ml-auto" />
+          {variant === "C" && (
+            <TypeFilterVariantC state={state} onStateChange={onStateChange} />
+          )}
           {votePerspective && (
             <VotePerspectiveToggle
               scope={votePerspective.scope}
@@ -90,6 +108,12 @@ export function FilterSortControls({
         </div>
       </FilterContainer>
 
+      {variant === "A" && (
+        <FilterContainer>
+          <TypeFilterVariantA state={state} onStateChange={onStateChange} />
+        </FilterContainer>
+      )}
+
       {isFiltersExpanded && (
         <FilterContainer>
           <Filters
@@ -100,6 +124,16 @@ export function FilterSortControls({
           />
         </FilterContainer>
       )}
+
+      <PrototypeSwitcher
+        variants={[
+          { key: "A", name: "Chip row" },
+          { key: "B", name: "Filter section" },
+          { key: "C", name: "Top-bar icons" },
+        ]}
+        current={variant}
+        onChange={(v) => onStateChange({ variant: v })}
+      />
     </div>
   );
 }

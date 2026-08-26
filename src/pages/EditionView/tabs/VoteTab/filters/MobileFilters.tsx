@@ -8,6 +8,8 @@ import {
 import type { FilterSortState } from "@/hooks/useUrlState";
 import { useStagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
+// PROTOTYPE (issue #400)
+import { TypeFilterVariantB } from "./prototypeSetTypeFilter";
 
 interface MobileFiltersProps {
   state: FilterSortState;
@@ -44,6 +46,11 @@ export function MobileFilters({
 
   return (
     <div className="space-y-4">
+      {/* PROTOTYPE (issue #400): Type filter as a plain filter section */}
+      {(state.variant ?? "A") === "B" && (
+        <TypeFilterVariantB state={state} onStateChange={onStateChange} />
+      )}
+
       {/* Stage Filter Select */}
       {canShowStage && (
         <div>

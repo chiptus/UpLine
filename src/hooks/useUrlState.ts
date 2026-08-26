@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import {
   useNavigate,
   useSearch,
@@ -18,16 +18,13 @@ export function useUrlState() {
     from: "/festivals/$festivalSlug/editions/$editionSlug",
   });
   const { resolveIds, resolveSlugs } = useStageSlugResolver(edition.id);
-  const search = useSearch({
+  const state = useSearch({
     from: "/festivals/$festivalSlug/editions/$editionSlug/sets",
-  });
-  const state = useMemo(
-    () => ({
+    select: (search) => ({
       ...search,
       stagesIds: resolveIds(search.stages),
     }),
-    [search, resolveIds],
-  );
+  });
   const navigate = useNavigate({
     from: "/festivals/$festivalSlug/editions/$editionSlug/sets",
   });

@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import {
   useSearch,
   useNavigate,
@@ -17,22 +17,15 @@ export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
     from: route,
   });
   const { resolveIds, resolveSlugs } = useStageSlugResolver(edition.id);
-  const search = useSearch({
+  const state = useSearch({
     from: route,
     select: (search) => ({
       day: search.day,
       time: search.time,
-      stages: search.stages,
+      stagesIds: resolveIds(search.stages),
       votes: search.votes,
     }),
   });
-  const state = useMemo(
-    () => ({
-      ...search,
-      stages: resolveIds(search.stages),
-    }),
-    [search, resolveIds],
-  );
   const navigate = useNavigate({ from: route });
 
   const updateDay = useCallback(
@@ -93,7 +86,7 @@ export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
   return {
     day: state.day,
     time: state.time,
-    stagesIds: state.stages,
+    stagesIds: state.stagesIds,
     votes: state.votes,
     updateDay,
     updateTime,

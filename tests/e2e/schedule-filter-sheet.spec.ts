@@ -4,7 +4,7 @@ import { test, expect } from "@playwright/test";
 // three festival days (Jul 12-14, 2025), stages "Main Stage" and "Club Stage".
 const TIMELINE_PATH = "/festivals/test/editions/2025/schedule/timeline";
 const LIST_PATH = "/festivals/test/editions/2025/schedule/list";
-const MAIN_STAGE_ID = "11111111-1111-1111-1111-11111111111a";
+const MAIN_STAGE_SLUG = "main-stage";
 
 async function openSheet(
   page: import("@playwright/test").Page,
@@ -103,7 +103,7 @@ test.describe("Schedule filter sheet", { tag: "@smoke" }, () => {
     page,
   }) => {
     await page.goto(
-      `${TIMELINE_PATH}?day=2025-07-12&stages=${encodeURIComponent(JSON.stringify([MAIN_STAGE_ID]))}`,
+      `${TIMELINE_PATH}?day=2025-07-12&stages=${encodeURIComponent(JSON.stringify([MAIN_STAGE_SLUG]))}`,
     );
 
     await expect(page.getByTestId("schedule-filters-badge")).toHaveText("2");

@@ -13,6 +13,7 @@ export const timelineViewSchema = z.enum(["horizontal", "list"]);
 
 export const filterSortSearchSchema = z.object({
   sort: sortOptionSchema.catch("popularity-desc"),
+  /** Stage slugs (not ids) — resolved to ids internally by useUrlState. */
   stages: z.array(z.string()).catch([]),
   genres: z.array(z.string()).catch([]),
   minRating: z.coerce.number().catch(0),
@@ -37,6 +38,7 @@ export const filterSortSearchDefaults = {
 export const timelineSearchSchema = z.object({
   day: z.string().catch("all"),
   time: z.enum(["all", "morning", "afternoon", "evening"]).catch("all"),
+  /** Stage slugs (not ids) — resolved to ids internally by useTimelineUrlState. */
   stages: z.array(z.string()).catch([]),
   /** Unknown entries are dropped individually, not the whole array. */
   votes: z

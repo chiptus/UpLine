@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { LinkWizardStep } from "./LinkWizardStep";
 import type { ArtistWithSets } from "@/api/artists/useArtistsMissingLinksByEdition";
 import {
@@ -115,5 +116,138 @@ describe("LinkWizardStep save flow", () => {
 
     expect(error).toBeNull();
     expect(data?.spotify_url).toBe("https://open.spotify.com/artist/candidate");
+  });
+
+  it("stages the fetched candidate for the user to select fields from", async () => {
+    const user = userEvent.setup();
+    const userId = await signInAsTestUser();
+    await grantAdminRole(userId);
+
+    const artistId = await createArtist({
+      spotify_url: null,
+      soundcloud_url: null,
+    });
+    const artist = await loadArtistWithSets(artistId);
+
+    vi.mock("@/api/artistSearch/useFetchArtistByUrlMutation", () => ({
+      useFetchArtistByUrlMutation: () => ({
+        mutate: (
+          params: { provider: string; url: string },
+          callbacks: { onSuccess: (data: unknown) => void },
+        ) => {
+          if (params.provider === "spotify" && params.url) {
+            callbacks.onSuccess({
+              candidate: {
+                name: "Fetched Artist",
+                url: "https://open.spotify.com/artist/fetched123",
+                imageUrl: "https://example.com/image.jpg",
+                description: "A fetched artist description",
+                followers: 1000,
+                genres: ["Electronic"],
+              },
+            });
+          }
+        },
+        isPending: false,
+      }),
+    }));
+
+    const onNext = vi.fn();
+
+    renderWithQueryClient(
+      <LinkWizardStep
+        artist={artist}
+        position={1}
+        total={1}
+        artists={[artist]}
+        onPrev={vi.fn()}
+        onNext={onNext}
+      />,
+    );
+
+    const spotifyUrlInput = screen.getByRole("textbox", {
+      name: /spotify url/i,
+    });
+    await user.type(
+      spotifyUrlInput,
+      "https://open.spotify.com/artist/fetched123",
+    );
+
+    const fetchButton = screen.getByRole("button", {
+      name: /fetch spotify artist metadata from url/i,
+    });
+    await user.click(fetchButton);
+
+    const fetchedCandidateCard = await screen.findByRole("listitem", {
+      name: "Fetched Artist",
+    });
+
+    // Fetching only stages the candidate; nothing should be applied yet.
+    expect(
+      screen.queryByDisplayValue("https://example.com/image.jpg"),
+    ).not.toBeInTheDocument();
+
+    await user.click(
+      within(fetchedCandidateCard).getByRole("button", {
+        name: /select all/i,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByDisplayValue("https://example.com/image.jpg"),
+      ).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole("button", { name: /save & next/i }));
+
+    await waitFor(() => expect(onNext).toHaveBeenCalled());
+
+    const { data, error } = await testSupabase
+      .from("artists")
+      .select("spotify_url")
+      .eq("id", artistId)
+      .single();
+
+    expect(error).toBeNull();
+    expect(data?.spotify_url).toBe(
+      "https://open.spotify.com/artist/fetched123",
+    );
+  });
+
+  it("shows error when pasted Spotify URL is invalid", async () => {
+    const user = userEvent.setup();
+    const userId = await signInAsTestUser();
+    await grantAdminRole(userId);
+
+    const artistId = await createArtist({
+      spotify_url: null,
+      soundcloud_url: null,
+    });
+    const artist = await loadArtistWithSets(artistId);
+
+    const onNext = vi.fn();
+
+    renderWithQueryClient(
+      <LinkWizardStep
+        artist={artist}
+        position={1}
+        total={1}
+        artists={[artist]}
+        onPrev={vi.fn()}
+        onNext={onNext}
+      />,
+    );
+
+    const spotifyUrlInput = screen.getByRole("textbox", {
+      name: /spotify url/i,
+    });
+    await user.type(spotifyUrlInput, "https://spotify.com/artist/invalid");
+
+    const fetchButton = screen.getByRole("button", {
+      name: /fetch spotify artist metadata from url/i,
+    });
+
+    await waitFor(() => expect(fetchButton).toBeDisabled());
   });
 });

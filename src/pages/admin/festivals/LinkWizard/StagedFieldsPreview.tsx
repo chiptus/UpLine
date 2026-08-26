@@ -1,37 +1,49 @@
 import type { UseFormReturn } from "react-hook-form";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import type { LinkStepData } from "./LinkWizardStep";
+import type { Candidate, Provider } from "@/api/artistSearch/types";
+import type { SelectableField } from "@/api/artistSearch/mergeCandidateSelection";
+import { ProviderUrlField } from "./ProviderUrlField";
 
 const URL_FIELDS: {
   fieldName: "providerUrl.spotify" | "providerUrl.soundcloud";
   label: string;
   placeholder: string;
+  provider: Provider;
 }[] = [
   {
     fieldName: "providerUrl.spotify",
     label: "Spotify URL",
     placeholder: "https://open.spotify.com/artist/...",
+    provider: "spotify",
   },
   {
     fieldName: "providerUrl.soundcloud",
     label: "SoundCloud URL",
     placeholder: "https://soundcloud.com/...",
+    provider: "soundcloud",
   },
 ];
 
 interface StagedFieldsPreviewProps {
   form: UseFormReturn<LinkStepData>;
+  onSelectCandidate: (
+    candidate: Candidate,
+    provider: Provider,
+    fields: SelectableField[],
+  ) => void;
 }
 
-export function StagedFieldsPreview({ form }: StagedFieldsPreviewProps) {
+export function StagedFieldsPreview({
+  form,
+  onSelectCandidate,
+}: StagedFieldsPreviewProps) {
   const imageUrl = form.watch("image_url");
   const description = form.watch("description");
 
@@ -39,28 +51,15 @@ export function StagedFieldsPreview({ form }: StagedFieldsPreviewProps) {
     <div className="space-y-3 rounded-lg border p-3">
       <p className="text-sm font-medium">Staged</p>
 
-      {URL_FIELDS.map(({ fieldName, label, placeholder }) => (
-        <FormField
+      {URL_FIELDS.map(({ fieldName, label, placeholder, provider }) => (
+        <ProviderUrlField
           key={fieldName}
-          control={form.control}
-          name={fieldName}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{label}</FormLabel>
-              <FormControl>
-                <Input
-                  type="url"
-                  placeholder={placeholder}
-                  value={field.value || ""}
-                  onChange={field.onChange}
-                  onBlur={field.onBlur}
-                  name={field.name}
-                  ref={field.ref}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          form={form}
+          fieldName={fieldName}
+          label={label}
+          placeholder={placeholder}
+          provider={provider}
+          onSelectCandidate={onSelectCandidate}
         />
       ))}
 

@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Loader2, LinkIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useArtistsMissingLinksByEditionQuery } from "@/api/artists/useArtistsMissingLinksByEdition";
+import {
+  useArtistsMissingLinksByEditionQuery,
+  type ArtistWithSets,
+} from "@/api/artists/useArtistsMissingLinksByEdition";
 import { usePrefetchNextBatchLinks } from "@/api/artistSearch/usePrefetchNextBatchLinks";
-import type { AdminArtistsPageSize } from "@/pages/admin/ArtistsManagement/searchSchema";
-import type { Artist } from "@/api/artists/types";
+import { LinkWizardQueue } from "./LinkWizardQueue";
 import { LinkWizardStep } from "./LinkWizardStep";
-import { LinkWizardTable } from "./LinkWizardTable";
 
 interface LinkWizardProps {
   editionId: string;
@@ -17,10 +18,17 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
   const [currentArtistId, setCurrentArtistId] = useState<string | undefined>(
     undefined,
   );
-  const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState<AdminArtistsPageSize>(10);
 
-  usePrefetchNextBatchLinks(artistsQuery.data ?? [], currentArtistId);
+  const artists = artistsQuery.data ?? [];
+  const currentIndex = currentArtistId
+    ? Math.max(
+        0,
+        artists.findIndex((artist) => artist.id === currentArtistId),
+      )
+    : 0;
+  const currentArtist = artists[Math.min(currentIndex, artists.length - 1)];
+
+  usePrefetchNextBatchLinks(artists, currentArtist?.id);
 
   if (artistsQuery.isLoading) {
     return (
@@ -33,28 +41,13 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
     );
   }
 
-  const artists = artistsQuery.data ?? [];
-  const currentIndex = currentArtistId
-    ? Math.max(
-        0,
-        artists.findIndex((artist) => artist.id === currentArtistId),
-      )
-    : 0;
-  const currentArtist = artists[Math.min(currentIndex, artists.length - 1)];
-  const pageCount = Math.max(1, Math.ceil(artists.length / pageSize));
-  const clampedPage = Math.min(page, pageCount - 1);
-
-  function goTo(index: number) {
-    const clamped = Math.max(0, Math.min(index, artists.length - 1));
-    setCurrentArtistId(artists[clamped]?.id);
-  }
-
-  function handleSelectArtist(artist: Artist) {
-    setCurrentArtistId(artist.id);
-  }
-
   return (
-    <div className="space-y-6">
+    <div className="grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)] gap-6 items-start">
+      <LinkWizardQueue
+        artists={artists}
+        currentArtistId={currentArtist?.id}
+        onSelectArtist={handleSelectArtist}
+      />
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -82,26 +75,15 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
           )}
         </CardContent>
       </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Remaining Artists</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <LinkWizardTable
-            artists={artists}
-            currentArtistId={currentArtist?.id}
-            page={clampedPage}
-            pageSize={pageSize}
-            onPageChange={setPage}
-            onPageSizeChange={(size) => {
-              setPageSize(size);
-              setPage(0);
-            }}
-            onSelectArtist={handleSelectArtist}
-          />
-        </CardContent>
-      </Card>
     </div>
   );
+
+  function goTo(index: number) {
+    const clamped = Math.max(0, Math.min(index, artists.length - 1));
+    setCurrentArtistId(artists[clamped]?.id);
+  }
+
+  function handleSelectArtist(artist: ArtistWithSets) {
+    setCurrentArtistId(artist.id);
+  }
 }

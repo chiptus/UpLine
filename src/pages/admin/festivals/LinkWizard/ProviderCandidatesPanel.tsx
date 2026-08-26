@@ -38,13 +38,18 @@ export function ProviderCandidatesPanel({
   const [customSearchQuery, setCustomSearchQuery] = useState("");
 
   function handleSearchClick() {
-    setShowCustomSearch(!showCustomSearch);
+    if (showCustomSearch) {
+      setShowCustomSearch(false);
+      setCustomSearchQuery("");
+    } else {
+      setShowCustomSearch(true);
+      setCustomSearchQuery(artistName);
+    }
   }
 
   function handleCustomSearch() {
     if (customSearchQuery.trim()) {
       search(customSearchQuery);
-      setCustomSearchQuery("");
     }
   }
 
@@ -60,7 +65,7 @@ export function ProviderCandidatesPanel({
           disabled={isLoading}
         >
           <RotateCcw className="h-3 w-3 mr-1" />
-          Search Again
+          Custom search
         </Button>
       </div>
 

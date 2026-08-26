@@ -1,13 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { Artist } from "@/api/artists/types";
 import type { ArtistWithSets } from "@/api/artists/useArtistsMissingLinksByEdition";
 import { cn } from "@/lib/utils";
 
 interface LinkWizardQueueProps {
   artists: ArtistWithSets[];
   currentArtistId: string | undefined;
-  onSelectArtist: (artist: Artist) => void;
+  onSelectArtist: (artist: ArtistWithSets) => void;
 }
 
 export function LinkWizardQueue({
@@ -33,10 +32,11 @@ export function LinkWizardQueue({
                 <button
                   type="button"
                   onClick={() => onSelectArtist(artist)}
+                  aria-current={artist.id === currentArtistId}
                   className={cn(
-                    "w-full text-left px-4 py-2 hover:bg-accent/40 flex items-center justify-between gap-2",
+                    "w-full text-left px-4 py-2 hover:bg-accent/40 flex items-center justify-between gap-2 border-l-2 border-transparent",
                     artist.id === currentArtistId &&
-                      "bg-accent/20 border-l-2 border-primary",
+                      "bg-accent/20 border-primary",
                   )}
                 >
                   <span className="truncate text-sm">{artist.name}</span>
@@ -44,12 +44,16 @@ export function LinkWizardQueue({
                     {!artist.spotify_url && (
                       <span
                         className="h-2 w-2 rounded-full bg-green-500"
+                        role="img"
+                        aria-label="Missing Spotify link"
                         title="Missing Spotify"
                       />
                     )}
                     {!artist.soundcloud_url && (
                       <span
                         className="h-2 w-2 rounded-full bg-orange-500"
+                        role="img"
+                        aria-label="Missing SoundCloud link"
                         title="Missing SoundCloud"
                       />
                     )}

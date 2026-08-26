@@ -1,6 +1,8 @@
 # Handoff: Link Wizard Enhancements (Issue #376)
 
-## Focus for next session
+> **Superseded for Q13.** The layout question below is now settled and implemented — see `docs/handoffs/link-wizard-376-layout-decision.md` and ADR-0006. This document's "Focus for next session" and "Still open" sections describe a past state; decisions 1–9 below are still the current source of truth for the rest of the work (see issue #405 and its sub-issues #407–#411).
+
+## Focus for next session (historical — see note above)
 
 Run the `prototype` skill to settle the one open structural question (Q13 below: desktop layout with artist list moved to the left side), then continue/finish the `grilling` design session and move into `domain-modeling` if needed. This is a **continuation of an in-progress `/grill-with-docs 376` session** — the grilling interview is functionally done (all decisions settled except the prototype), do not restart it from scratch.
 

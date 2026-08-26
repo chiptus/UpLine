@@ -1,6 +1,6 @@
 # Handoff: Link Wizard Enhancements (Issue #376)
 
-> **Superseded for Q13.** The layout question below is now settled and implemented — see `docs/handoffs/link-wizard-376-layout-decision.md` and ADR-0006. This document's "Focus for next session" and "Still open" sections describe a past state; decisions 1–9 below are still the current source of truth for the rest of the work (see issue #405 and its sub-issues #407–#411).
+> **Superseded for Q13.** The layout question below is now settled and implemented — see ADR-0006. This document's "Focus for next session" and "Still open" sections describe a past state; decisions 1–9 below are still the current source of truth for the rest of the work (see issue #405 and its sub-issues #407–#411).
 
 ## Focus for next session (historical — see note above)
 

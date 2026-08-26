@@ -2,7 +2,7 @@ import { getSoundCloudAccessToken } from "../_shared/soundcloud-api/auth.ts";
 import { fetchSoundCloudAPI } from "../_shared/soundcloud-api/api.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { SoundCloudUserSchema } from "../_shared/soundcloud-api/schemas.ts";
-import { normalizeSoundCloudSearchResult } from "./normalize.ts";
+import { normalizeSoundCloudSearchResult } from "../_shared/normalize.ts";
 import type { ProviderSearchOutcome } from "./types.ts";
 
 // /users returns a bare array; with linked_partitioning SoundCloud wraps

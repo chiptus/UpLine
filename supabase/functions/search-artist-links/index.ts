@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { buildCorsHeaders } from "../_shared/cors.ts";
+import { requireCanEditArtists } from "../_shared/auth.ts";
 import { searchSoundCloud } from "./soundcloud-adapter.ts";
 import { searchSpotify } from "./spotify-adapter.ts";
 import type {
@@ -34,6 +35,14 @@ serve(async (req) => {
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), {
       status: 405,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const auth = await requireCanEditArtists(req);
+  if (auth.errorResponse) {
+    return new Response(auth.errorResponse.body, {
+      status: auth.errorResponse.status,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }

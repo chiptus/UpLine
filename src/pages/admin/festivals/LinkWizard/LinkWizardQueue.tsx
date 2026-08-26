@@ -1,42 +1,109 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 import type { ArtistWithSets } from "@/api/artists/useArtistsMissingLinksByEdition";
 import { cn } from "@/lib/utils";
+import { LinkWizardStageFilterButtons } from "./LinkWizardStageFilterButtons";
+import { LinkWizardFilterSheet } from "./LinkWizardFilterSheet";
+
+const MOBILE_PREVIEW_COUNT = 4;
 
 interface LinkWizardQueueProps {
   artists: ArtistWithSets[];
   currentArtistId: string | undefined;
   onSelectArtist: (artist: ArtistWithSets) => void;
+  selectedStages: string[];
+  onStageToggle: (stageId: string) => void;
+  isPreviewMode?: boolean;
+  onViewAll?: () => void;
 }
 
 export function LinkWizardQueue({
   artists,
   currentArtistId,
   onSelectArtist,
+  selectedStages,
+  onStageToggle,
+  isPreviewMode = false,
+  onViewAll,
 }: LinkWizardQueueProps) {
+  const displayedArtists = isPreviewMode
+    ? artists.slice(0, MOBILE_PREVIEW_COUNT)
+    : artists;
+  const hasMoreArtists = isPreviewMode && artists.length > MOBILE_PREVIEW_COUNT;
+
   return (
     <Card className="lg:sticky lg:top-4 order-last lg:order-first">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base">Queue ({artists.length})</CardTitle>
+      <CardHeader className="pb-3 space-y-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base">Queue ({artists.length})</CardTitle>
+        </div>
+        <div className="hidden lg:block">
+          <LinkWizardStageFilterButtons
+            selectedStages={selectedStages}
+            onStageToggle={onStageToggle}
+          />
+        </div>
+        <div className="lg:hidden">
+          <LinkWizardFilterSheet
+            selectedStages={selectedStages}
+            onStageToggle={onStageToggle}
+          />
+        </div>
       </CardHeader>
       <CardContent className="p-0">
-        <ScrollArea className="h-[70vh]">
-          <ul className="pb-2">
-            {artists.length === 0 && (
-              <li className="px-4 py-3 text-sm text-muted-foreground">
-                No artists missing links.
-              </li>
+        {isPreviewMode ? (
+          <div>
+            <ul className="pb-2">
+              {displayedArtists.length === 0 && (
+                <li className="px-4 py-3 text-sm text-muted-foreground">
+                  No artists matching filter.
+                </li>
+              )}
+              {displayedArtists.map((artist) => (
+                <LinkWizardQueueItem
+                  key={artist.id}
+                  artist={artist}
+                  isCurrent={artist.id === currentArtistId}
+                  onSelect={onSelectArtist}
+                />
+              ))}
+            </ul>
+            {hasMoreArtists && (
+              <div className="px-4 py-2 border-t">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="w-full text-xs text-accent hover:text-accent hover:bg-accent-soft"
+                  onClick={onViewAll}
+                >
+                  View all ({artists.length - MOBILE_PREVIEW_COUNT} more)
+                </Button>
+              </div>
             )}
-            {artists.map((artist) => (
-              <LinkWizardQueueItem
-                key={artist.id}
-                artist={artist}
-                isCurrent={artist.id === currentArtistId}
-                onSelect={onSelectArtist}
-              />
-            ))}
-          </ul>
-        </ScrollArea>
+          </div>
+        ) : (
+          <ScrollArea className="h-[70vh]">
+            <ul className="pb-2">
+              {displayedArtists.length === 0 && (
+                <li className="px-4 py-3 text-sm text-muted-foreground">
+                  {artists.length === 0
+                    ? "No artists missing links."
+                    : "No artists matching filter."}
+                </li>
+              )}
+              {displayedArtists.map((artist) => (
+                <LinkWizardQueueItem
+                  key={artist.id}
+                  artist={artist}
+                  isCurrent={artist.id === currentArtistId}
+                  onSelect={onSelectArtist}
+                />
+              ))}
+            </ul>
+          </ScrollArea>
+        )}
       </CardContent>
     </Card>
   );

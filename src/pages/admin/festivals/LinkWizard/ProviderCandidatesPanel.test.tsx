@@ -1,9 +1,19 @@
+import { Suspense } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, screen } from "@testing-library/react";
-import { renderWithQueryClient } from "@/test/integration/harness";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ProviderCandidatesPanel } from "./ProviderCandidatesPanel";
 import type { UseQueryResult } from "@tanstack/react-query";
 import type { SearchResponse } from "@/api/artistSearch/types";
+
+function renderWithQueryClient(element: React.ReactElement) {
+  const queryClient = new QueryClient();
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <Suspense fallback={null}>{element}</Suspense>
+    </QueryClientProvider>,
+  );
+}
 
 const mockQueryResult: UseQueryResult<SearchResponse> = {
   data: { results: [] },
@@ -91,7 +101,7 @@ describe("ProviderCandidatesPanel", () => {
     expect(input.value).toBe("Modified Name");
   });
 
-  it("clears search input when button is clicked again", () => {
+  it("clears search input when button is clicked again and re-fills with artist name on re-open", () => {
     renderWithQueryClient(
       <ProviderCandidatesPanel
         provider="spotify"
@@ -105,13 +115,23 @@ describe("ProviderCandidatesPanel", () => {
     const button = screen.getByRole("button", { name: /custom search/i });
 
     fireEvent.click(button);
-    expect(
-      screen.getByRole("textbox", { name: /search spotify/i }),
-    ).toBeInTheDocument();
+    let input = screen.getByRole("textbox", {
+      name: /search spotify/i,
+    }) as HTMLInputElement;
+    expect(input.value).toBe("Test Artist");
+
+    fireEvent.change(input, { target: { value: "Modified Name" } });
+    expect(input.value).toBe("Modified Name");
 
     fireEvent.click(button);
     expect(
       screen.queryByRole("textbox", { name: /search spotify/i }),
     ).not.toBeInTheDocument();
+
+    fireEvent.click(button);
+    input = screen.getByRole("textbox", {
+      name: /search spotify/i,
+    }) as HTMLInputElement;
+    expect(input.value).toBe("Test Artist");
   });
 });

@@ -1,18 +1,40 @@
 import { useState } from "react";
-import { Loader2, LinkIcon } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { useArtistsMissingLinksByEditionQuery } from "@/api/artists/useArtistsMissingLinksByEdition";
 import { usePrefetchNextBatchLinks } from "@/api/artistSearch/usePrefetchNextBatchLinks";
 import type { AdminArtistsPageSize } from "@/pages/admin/ArtistsManagement/searchSchema";
 import type { Artist } from "@/api/artists/types";
-import { LinkWizardStep } from "./LinkWizardStep";
-import { LinkWizardTable } from "./LinkWizardTable";
+import { PrototypeSwitcher } from "@/components/PrototypeSwitcher";
+import {
+  VariantStacked,
+  VariantLeftRail,
+  VariantSplitTable,
+  type LayoutVariantProps,
+} from "./LinkWizardLayoutPrototypes";
+
+// PROTOTYPE (issue #376 Q13): layout variants switchable via ?variant=.
+// Once a layout wins, inline it here and delete LinkWizardLayoutPrototypes.tsx
+// and the PrototypeSwitcher usage.
+export type LinkWizardLayoutVariant = "a" | "b" | "c";
+
+const PROTOTYPE_VARIANTS = [
+  { key: "a", name: "Stacked (current)" },
+  { key: "b", name: "Left rail" },
+  { key: "c", name: "Split table" },
+];
 
 interface LinkWizardProps {
   editionId: string;
+  variant: LinkWizardLayoutVariant;
+  onVariantChange: (variant: LinkWizardLayoutVariant) => void;
 }
 
-export function LinkWizard({ editionId }: LinkWizardProps) {
+export function LinkWizard({
+  editionId,
+  variant,
+  onVariantChange,
+}: LinkWizardProps) {
   const artistsQuery = useArtistsMissingLinksByEditionQuery(editionId);
   const [currentArtistId, setCurrentArtistId] = useState<string | undefined>(
     undefined,
@@ -44,6 +66,32 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
   const pageCount = Math.max(1, Math.ceil(artists.length / pageSize));
   const clampedPage = Math.min(page, pageCount - 1);
 
+  const variantProps: LayoutVariantProps = {
+    artists,
+    currentArtist,
+    currentIndex,
+    page: clampedPage,
+    pageSize,
+    onPageChange: setPage,
+    onPageSizeChange: handlePageSizeChange,
+    onSelectArtist: handleSelectArtist,
+    onPrev: () => goTo(currentIndex - 1),
+    onNext: () => goTo(currentIndex + 1),
+  };
+
+  return (
+    <>
+      {variant === "a" && <VariantStacked {...variantProps} />}
+      {variant === "b" && <VariantLeftRail {...variantProps} />}
+      {variant === "c" && <VariantSplitTable {...variantProps} />}
+      <PrototypeSwitcher
+        variants={PROTOTYPE_VARIANTS}
+        current={variant}
+        onChange={(key) => onVariantChange(key as LinkWizardLayoutVariant)}
+      />
+    </>
+  );
+
   function goTo(index: number) {
     const clamped = Math.max(0, Math.min(index, artists.length - 1));
     setCurrentArtistId(artists[clamped]?.id);
@@ -53,55 +101,8 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
     setCurrentArtistId(artist.id);
   }
 
-  return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <LinkIcon className="h-5 w-5" />
-            Link Wizard{currentArtist && ` - ${currentArtist.name}`}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {artists.length === 0 ? (
-            <p className="text-muted-foreground">
-              All artists in this edition have both links set.
-            </p>
-          ) : (
-            currentArtist && (
-              <LinkWizardStep
-                key={currentArtist.id}
-                artist={currentArtist}
-                position={currentIndex + 1}
-                total={artists.length}
-                artists={artists}
-                onPrev={() => goTo(currentIndex - 1)}
-                onNext={() => goTo(currentIndex + 1)}
-              />
-            )
-          )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Remaining Artists</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <LinkWizardTable
-            artists={artists}
-            currentArtistId={currentArtist?.id}
-            page={clampedPage}
-            pageSize={pageSize}
-            onPageChange={setPage}
-            onPageSizeChange={(size) => {
-              setPageSize(size);
-              setPage(0);
-            }}
-            onSelectArtist={handleSelectArtist}
-          />
-        </CardContent>
-      </Card>
-    </div>
-  );
+  function handlePageSizeChange(size: AdminArtistsPageSize) {
+    setPageSize(size);
+    setPage(0);
+  }
 }

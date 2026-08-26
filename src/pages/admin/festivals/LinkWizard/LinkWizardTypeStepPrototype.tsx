@@ -273,6 +273,62 @@ function StepNav({
   );
 }
 
+// Mirrors main's ArtistSetCard (set-info panel from #352): border-accent card
+// with name, stage, time, co-performers — here with an optional embedded
+// type picker when the set is untyped.
+function SetContextCard({
+  set,
+  currentArtistId,
+  artists,
+  pendingType,
+  onPickType,
+}: {
+  set: MockSet;
+  currentArtistId?: string;
+  artists: MockArtist[];
+  pendingType?: SetType | null;
+  onPickType?: (t: SetType) => void;
+}) {
+  const coPerformers = set.artistIds
+    .filter((id) => id !== currentArtistId)
+    .map((id) => artists.find((a) => a.id === id)?.name)
+    .filter(Boolean);
+  const untyped = set.setType === null;
+  return (
+    <div className="border-l-2 border-primary pl-4 py-2 space-y-2">
+      <div>
+        <h4 className="font-semibold text-sm">{set.name}</h4>
+        <p className="text-xs text-muted-foreground">Stage: {set.stage}</p>
+      </div>
+      <div className="text-xs text-muted-foreground">{set.time}</div>
+      {coPerformers.length > 0 && (
+        <p className="text-xs text-muted-foreground">
+          With: {coPerformers.join(", ")}
+        </p>
+      )}
+      {untyped && onPickType ? (
+        <div className="rounded-lg border border-dashed p-2 space-y-1.5">
+          <p className="text-xs font-medium flex items-center gap-1">
+            <Tag className="h-3.5 w-3.5" />
+            This set has no type yet
+          </p>
+          <TypePicker
+            size="sm"
+            value={pendingType ?? null}
+            onPick={onPickType}
+          />
+        </div>
+      ) : (
+        !untyped && (
+          <Badge variant="outline" className="text-xs">
+            {SET_TYPES.find((t) => t.value === set.setType)?.label}
+          </Badge>
+        )
+      )}
+    </div>
+  );
+}
+
 function AllDone({ children }: { children: string }) {
   return (
     <p className="flex items-center gap-2 text-muted-foreground py-6 justify-center">
@@ -372,39 +428,44 @@ function VariantA({ data }: { data: MockData }) {
                       onSpotify={setSpotify}
                       onSoundcloud={setSoundcloud}
                     />
-                    {item.untypedSets.map((set) => (
-                      <div
-                        key={set.id}
-                        className="rounded-lg border p-3 space-y-2"
-                      >
-                        <p className="text-sm font-medium flex items-center gap-1.5">
-                          <Tag className="h-4 w-4" />
-                          &ldquo;{set.name}&rdquo; ({set.stage}, {set.time}) has
-                          no type yet
-                        </p>
-                        <TypePicker
-                          value={pendingTypes[set.id] ?? null}
-                          onPick={(t) =>
-                            setPendingTypes((p) => ({ ...p, [set.id]: t }))
-                          }
-                        />
-                      </div>
-                    ))}
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base">
+                          {item.artist.name} - Festival Set
+                          {data.setsOfArtist(item.artist.id).length !== 1
+                            ? "s"
+                            : ""}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {data.setsOfArtist(item.artist.id).map((set) => (
+                          <SetContextCard
+                            key={set.id}
+                            set={set}
+                            currentArtistId={item.artist.id}
+                            artists={data.artists}
+                            pendingType={pendingTypes[set.id] ?? null}
+                            onPickType={(t) =>
+                              setPendingTypes((p) => ({ ...p, [set.id]: t }))
+                            }
+                          />
+                        ))}
+                      </CardContent>
+                    </Card>
                   </>
                 ) : (
                   <>
-                    <Badge variant="secondary">Set · missing type</Badge>
-                    <div className="rounded-lg border p-3 space-y-2">
-                      <p className="text-sm text-muted-foreground">
-                        {item.set.stage} · {item.set.time} · no linked artists
-                      </p>
-                      <TypePicker
-                        value={pendingTypes[item.set.id] ?? null}
-                        onPick={(t) =>
-                          setPendingTypes((p) => ({ ...p, [item.set.id]: t }))
-                        }
-                      />
-                    </div>
+                    <Badge variant="secondary">
+                      Set · missing type · no linked artists
+                    </Badge>
+                    <SetContextCard
+                      set={item.set}
+                      artists={data.artists}
+                      pendingType={pendingTypes[item.set.id] ?? null}
+                      onPickType={(t) =>
+                        setPendingTypes((p) => ({ ...p, [item.set.id]: t }))
+                      }
+                    />
                   </>
                 )}
                 <StepNav

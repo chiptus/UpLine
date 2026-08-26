@@ -127,7 +127,10 @@ export function LinkWizardStep({
             />
           )}
 
-          <StagedFieldsPreview form={form} />
+          <StagedFieldsPreview
+            form={form}
+            onSelectCandidate={handleCandidateSelect}
+          />
 
           <div className="flex items-center justify-between gap-2 pt-2">
             <Button

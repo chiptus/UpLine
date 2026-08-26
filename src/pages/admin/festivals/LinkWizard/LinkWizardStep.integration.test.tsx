@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { LinkWizardStep } from "./LinkWizardStep";
 import type { ArtistWithSets } from "@/api/artists/useArtistsMissingLinksByEdition";
@@ -118,7 +118,7 @@ describe("LinkWizardStep save flow", () => {
     expect(data?.spotify_url).toBe("https://open.spotify.com/artist/candidate");
   });
 
-  it("fetches artist metadata from pasted Spotify URL", async () => {
+  it("stages the fetched candidate for the user to select fields from", async () => {
     const user = userEvent.setup();
     const userId = await signInAsTestUser();
     await grantAdminRole(userId);
@@ -178,6 +178,21 @@ describe("LinkWizardStep save flow", () => {
     });
     await user.click(fetchButton);
 
+    const fetchedCandidateCard = await screen.findByRole("listitem", {
+      name: "Fetched Artist",
+    });
+
+    // Fetching only stages the candidate; nothing should be applied yet.
+    expect(
+      screen.queryByDisplayValue("https://example.com/image.jpg"),
+    ).not.toBeInTheDocument();
+
+    await user.click(
+      within(fetchedCandidateCard).getByRole("button", {
+        name: /select all/i,
+      }),
+    );
+
     await waitFor(() => {
       expect(
         screen.getByDisplayValue("https://example.com/image.jpg"),
@@ -187,6 +202,17 @@ describe("LinkWizardStep save flow", () => {
     await user.click(screen.getByRole("button", { name: /save & next/i }));
 
     await waitFor(() => expect(onNext).toHaveBeenCalled());
+
+    const { data, error } = await testSupabase
+      .from("artists")
+      .select("spotify_url")
+      .eq("id", artistId)
+      .single();
+
+    expect(error).toBeNull();
+    expect(data?.spotify_url).toBe(
+      "https://open.spotify.com/artist/fetched123",
+    );
   });
 
   it("shows error when pasted Spotify URL is invalid", async () => {

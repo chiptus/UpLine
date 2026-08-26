@@ -14,13 +14,15 @@ import {
 } from "@/components/ui/form";
 import type { LinkStepData } from "./LinkWizardStep";
 import { useFetchArtistByUrlMutation } from "@/api/artistSearch/useFetchArtistByUrlMutation";
-import { mergeCandidateSelection } from "@/api/artistSearch/mergeCandidateSelection";
+import type { Candidate, Provider } from "@/api/artistSearch/types";
+import type { SelectableField } from "@/api/artistSearch/mergeCandidateSelection";
+import { CandidateCard } from "./CandidateCard";
 
 const URL_FIELDS: {
   fieldName: "providerUrl.spotify" | "providerUrl.soundcloud";
   label: string;
   placeholder: string;
-  provider: "spotify" | "soundcloud";
+  provider: Provider;
 }[] = [
   {
     fieldName: "providerUrl.spotify",
@@ -38,17 +40,28 @@ const URL_FIELDS: {
 
 interface StagedFieldsPreviewProps {
   form: UseFormReturn<LinkStepData>;
+  onSelectCandidate: (
+    candidate: Candidate,
+    provider: Provider,
+    fields: SelectableField[],
+  ) => void;
 }
 
-export function StagedFieldsPreview({ form }: StagedFieldsPreviewProps) {
+export function StagedFieldsPreview({
+  form,
+  onSelectCandidate,
+}: StagedFieldsPreviewProps) {
   const imageUrl = form.watch("image_url");
   const description = form.watch("description");
   const fetchMutation = useFetchArtistByUrlMutation();
   const [fetchErrors, setFetchErrors] = useState<Record<string, string>>({});
+  const [fetchedCandidates, setFetchedCandidates] = useState<
+    Record<string, Candidate>
+  >({});
 
   function handleFetchFromUrl(
     fieldName: "providerUrl.spotify" | "providerUrl.soundcloud",
-    provider: "spotify" | "soundcloud",
+    provider: Provider,
   ) {
     const url = form.getValues(fieldName);
     if (!url) {
@@ -58,6 +71,10 @@ export function StagedFieldsPreview({ form }: StagedFieldsPreviewProps) {
     setFetchErrors(
       (prev) => ({ ...prev, [fieldName]: "" }) as Record<string, string>,
     );
+    setFetchedCandidates((prev) => {
+      const { [fieldName]: _removed, ...rest } = prev;
+      return rest;
+    });
 
     fetchMutation.mutate(
       { provider, url },
@@ -85,25 +102,10 @@ export function StagedFieldsPreview({ form }: StagedFieldsPreviewProps) {
             return;
           }
 
-          const candidate = response.candidate;
-          const update = mergeCandidateSelection(
-            candidate,
-            provider,
-            ["image", "description"],
-            {
-              image_url: form.getValues("image_url"),
-              description: form.getValues("description"),
-            },
-          );
-
-          if (update.image_url !== undefined) {
-            form.setValue("image_url", update.image_url, { shouldDirty: true });
-          }
-          if (update.description !== undefined) {
-            form.setValue("description", update.description, {
-              shouldDirty: true,
-            });
-          }
+          setFetchedCandidates((prev) => ({
+            ...prev,
+            [fieldName]: response.candidate as Candidate,
+          }));
         },
         onError: (error) => {
           setFetchErrors(
@@ -124,6 +126,7 @@ export function StagedFieldsPreview({ form }: StagedFieldsPreviewProps) {
 
       {URL_FIELDS.map(({ fieldName, label, placeholder, provider }) => {
         const error = fetchErrors[fieldName];
+        const fetchedCandidate = fetchedCandidates[fieldName];
         const isLoading = fetchMutation.isPending;
 
         return (
@@ -146,6 +149,10 @@ export function StagedFieldsPreview({ form }: StagedFieldsPreviewProps) {
                             ...prev,
                             [fieldName]: "",
                           }));
+                          setFetchedCandidates((prev) => {
+                            const { [fieldName]: _removed, ...rest } = prev;
+                            return rest;
+                          });
                         }}
                         onBlur={field.onBlur}
                         name={field.name}
@@ -177,6 +184,20 @@ export function StagedFieldsPreview({ form }: StagedFieldsPreviewProps) {
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription className="text-xs">{error}</AlertDescription>
               </Alert>
+            )}
+            {fetchedCandidate && (
+              <div className="max-w-xs">
+                <CandidateCard
+                  candidate={fetchedCandidate}
+                  onSelect={(candidate, fields) => {
+                    onSelectCandidate(candidate, provider, fields);
+                    setFetchedCandidates((prev) => {
+                      const { [fieldName]: _removed, ...rest } = prev;
+                      return rest;
+                    });
+                  }}
+                />
+              </div>
             )}
           </div>
         );

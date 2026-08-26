@@ -28,42 +28,62 @@ export function LinkWizardQueue({
               </li>
             )}
             {artists.map((artist) => (
-              <li key={artist.id}>
-                <button
-                  type="button"
-                  onClick={() => onSelectArtist(artist)}
-                  aria-current={artist.id === currentArtistId}
-                  className={cn(
-                    "w-full text-left px-4 py-2 hover:bg-accent/40 flex items-center justify-between gap-2 border-l-2 border-transparent",
-                    artist.id === currentArtistId &&
-                      "bg-accent/20 border-primary",
-                  )}
-                >
-                  <span className="truncate text-sm">{artist.name}</span>
-                  <span className="flex gap-1 shrink-0">
-                    {!artist.spotify_url && (
-                      <span
-                        className="h-2 w-2 rounded-full bg-green-500"
-                        role="img"
-                        aria-label="Missing Spotify link"
-                        title="Missing Spotify"
-                      />
-                    )}
-                    {!artist.soundcloud_url && (
-                      <span
-                        className="h-2 w-2 rounded-full bg-orange-500"
-                        role="img"
-                        aria-label="Missing SoundCloud link"
-                        title="Missing SoundCloud"
-                      />
-                    )}
-                  </span>
-                </button>
-              </li>
+              <LinkWizardQueueItem
+                key={artist.id}
+                artist={artist}
+                isCurrent={artist.id === currentArtistId}
+                onSelect={onSelectArtist}
+              />
             ))}
           </ul>
         </ScrollArea>
       </CardContent>
     </Card>
+  );
+}
+
+interface LinkWizardQueueItemProps {
+  artist: ArtistWithSets;
+  isCurrent: boolean;
+  onSelect: (artist: ArtistWithSets) => void;
+}
+
+function LinkWizardQueueItem({
+  artist,
+  isCurrent,
+  onSelect,
+}: LinkWizardQueueItemProps) {
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={() => onSelect(artist)}
+        aria-current={isCurrent}
+        className={cn(
+          "w-full text-left px-4 py-2 hover:bg-accent/40 flex items-center justify-between gap-2 border-l-2 border-transparent",
+          isCurrent && "bg-accent/20 border-primary",
+        )}
+      >
+        <span className="truncate text-sm">{artist.name}</span>
+        <span className="flex gap-1 shrink-0">
+          {!artist.spotify_url && (
+            <span
+              className="h-2 w-2 rounded-full bg-green-500"
+              role="img"
+              aria-label="Missing Spotify link"
+              title="Missing Spotify"
+            />
+          )}
+          {!artist.soundcloud_url && (
+            <span
+              className="h-2 w-2 rounded-full bg-orange-500"
+              role="img"
+              aria-label="Missing SoundCloud link"
+              title="Missing SoundCloud"
+            />
+          )}
+        </span>
+      </button>
+    </li>
   );
 }

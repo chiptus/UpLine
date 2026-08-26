@@ -14,7 +14,7 @@ export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
   const route =
     `/festivals/$festivalSlug/editions/$editionSlug/schedule/${tab}` as const;
   const { edition } = useRouteContext({
-    from: "/festivals/$festivalSlug/editions/$editionSlug",
+    from: route,
   });
   const { resolveIds, resolveSlugs } = useStageSlugResolver(edition.id);
   const search = useSearch({

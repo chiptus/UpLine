@@ -1,5 +1,5 @@
 // PROTOTYPE — throwaway, answers: "should the desktop Remaining Artists list move to the left?" (issue #376)
-// Not wired into any route. Not for production use.
+// Wired into the /links route for dev builds only (see links.tsx). Not for production use.
 import { useEffect, useState } from "react";
 import { Loader2, LinkIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,11 +31,12 @@ export function LinkWizardPrototypeLayout({ editionId }: LinkWizardProps) {
   );
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState<AdminArtistsPageSize>(10);
-  const [variant, setVariant] = useState<Variant>(
-    () =>
-      (new URLSearchParams(window.location.search).get("variant") as Variant) ||
-      "A",
-  );
+  const [variant, setVariant] = useState<Variant>(() => {
+    const fromUrl = new URLSearchParams(window.location.search).get("variant");
+    return (VARIANTS as readonly string[]).includes(fromUrl ?? "")
+      ? (fromUrl as Variant)
+      : "A";
+  });
 
   usePrefetchNextBatchLinks(artistsQuery.data ?? [], currentArtistId);
 
@@ -48,16 +49,17 @@ export function LinkWizardPrototypeLayout({ editionId }: LinkWizardProps) {
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [variant]);
+  }, []);
 
   function cycle(dir: 1 | -1) {
-    const idx = VARIANTS.indexOf(variant);
-    const next = VARIANTS[(idx + dir + VARIANTS.length) % VARIANTS.length];
-    setVariant(next);
-    const url = new URL(window.location.href);
-    url.searchParams.set("variant", next);
-    window.history.replaceState(null, "", url);
+    setVariant((current) => {
+      const idx = VARIANTS.indexOf(current);
+      const next = VARIANTS[(idx + dir + VARIANTS.length) % VARIANTS.length];
+      const url = new URL(window.location.href);
+      url.searchParams.set("variant", next);
+      window.history.replaceState(null, "", url);
+      return next;
+    });
   }
 
   if (artistsQuery.isLoading) {

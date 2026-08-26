@@ -8,8 +8,10 @@ import {
 import { usePrefetchNextBatchLinks } from "@/api/artistSearch/usePrefetchNextBatchLinks";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { filterArtistsByStage } from "@/lib/filterArtistsByStage";
+import { useLinkWizardSkipped } from "@/hooks/useLinkWizardSkipped";
 import { LinkWizardQueue } from "./LinkWizardQueue";
 import { LinkWizardStep } from "./LinkWizardStep";
+import { SkippedArtistsPopover } from "./SkippedArtistsPopover";
 
 interface LinkWizardProps {
   editionId: string;
@@ -23,9 +25,16 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
   );
   const [selectedStages, setSelectedStages] = useState<string[]>([]);
   const [showFullQueue, setShowFullQueue] = useState(false);
+  const skippedHook = useLinkWizardSkipped(editionId);
 
   const allArtists = artistsQuery.data ?? [];
-  const filteredArtists = filterArtistsByStage(allArtists, selectedStages);
+  const unskippedArtists = allArtists.filter(
+    (artist) => !skippedHook.isSkipped(artist.id),
+  );
+  const filteredArtists = filterArtistsByStage(
+    unskippedArtists,
+    selectedStages,
+  );
 
   const currentIndex = currentArtistId
     ? Math.max(
@@ -65,10 +74,18 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
       </div>
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <LinkIcon className="h-5 w-5" />
-            Link Wizard{currentArtist && ` - ${currentArtist.name}`}
-          </CardTitle>
+          <div className="flex items-center justify-between gap-2">
+            <CardTitle className="flex items-center gap-2">
+              <LinkIcon className="h-5 w-5" />
+              Link Wizard{currentArtist && ` - ${currentArtist.name}`}
+            </CardTitle>
+            <SkippedArtistsPopover
+              skippedArtists={skippedHook.getSkippedArtists()}
+              artists={allArtists}
+              onRestore={skippedHook.restore}
+              onClearAll={skippedHook.clearAll}
+            />
+          </div>
         </CardHeader>
         <CardContent>
           {filteredArtists.length === 0 ? (
@@ -86,7 +103,14 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
                 total={filteredArtists.length}
                 artists={filteredArtists}
                 onPrev={() => goTo(currentIndex - 1)}
-                onNext={() => goTo(currentIndex + 1)}
+                onNext={() => {
+                  skippedHook.markSkipped(currentArtist.id);
+                  goTo(currentIndex + 1);
+                }}
+                onSaveSuccess={() => {
+                  skippedHook.markSaved(currentArtist.id);
+                  goTo(currentIndex + 1);
+                }}
               />
             )
           )}

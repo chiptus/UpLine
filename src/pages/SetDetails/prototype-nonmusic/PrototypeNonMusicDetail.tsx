@@ -70,11 +70,12 @@ const TYPE_META: Record<
   },
 };
 
-const VARIANTS = ["A", "B", "C"] as const;
+const VARIANTS = ["A", "B", "C", "D"] as const;
 const VARIANT_NAMES: Record<string, string> = {
   A: "Tile hero (mirrors current layout)",
   B: "Full-width, no image",
   C: "Type banner",
+  D: "C banner + A tile (artist-image aware)",
 };
 
 interface PrototypeNonMusicDetailProps {
@@ -106,9 +107,13 @@ export function PrototypeNonMusicDetail({
     canShowDay && !canShowTime
       ? formatDayOnly(set.time_start, festival.timezone)
       : null;
+  // Variant D keeps the real artists (unless ?noartist=1) so the tile can
+  // demonstrate the artist-image fallback chain; A/B/C always strip them.
+  const noArtist =
+    new URLSearchParams(window.location.search).get("noartist") === "1";
   const stubSet: PrototypeSet = {
     ...set,
-    artists: [],
+    artists: variant === "D" && !noArtist ? set.artists : [],
     set_type: "workshop",
     external_url: "https://example.com/workshop-info",
     name: set.name,
@@ -130,6 +135,7 @@ export function PrototypeNonMusicDetail({
       {variant === "A" && <VariantTileHero {...shared} />}
       {variant === "B" && <VariantFullWidth {...shared} />}
       {variant === "C" && <VariantBanner {...shared} />}
+      {variant === "D" && <VariantBannerTile {...shared} />}
       <PrototypeSwitcher current={variant} />
     </>
   );
@@ -406,6 +412,90 @@ function VariantBanner({
             <SetVotingButtons set={set} />
           </CardContent>
         </Card>
+      </div>
+    </div>
+  );
+}
+
+// Variant D — C's banner on top, A's square tile below-left. The tile shows
+// the first artist's image when one exists, falling back to the type
+// placeholder for artist-less (or image-less) sets.
+function VariantBannerTile({
+  set,
+  netVoteScore,
+  timeRangeFormatted,
+  dayOnlyFormatted,
+  canShowStage,
+}: VariantProps) {
+  const meta = TYPE_META[set.set_type ?? "other"];
+  const artistImage = set.artists.find((a) => a.image_url)?.image_url;
+  return (
+    <div className="mb-8 space-y-6">
+      <div
+        className={cn(
+          "rounded-lg bg-gradient-to-r p-8 flex items-center gap-6 border",
+          meta.gradient,
+        )}
+      >
+        <meta.Icon className="h-16 w-16 shrink-0 text-foreground/60" />
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xs uppercase tracking-widest text-foreground/70">
+              {meta.label}
+            </span>
+            <ScoreBadge score={netVoteScore} />
+          </div>
+          <h1 className="text-3xl font-bold text-foreground truncate">
+            {set.name}
+          </h1>
+          <ScheduleRow
+            set={set}
+            canShowStage={canShowStage}
+            timeRangeFormatted={timeRangeFormatted}
+            dayOnlyFormatted={dayOnlyFormatted}
+            className="mt-2"
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {artistImage ? (
+          <img
+            src={artistImage}
+            alt={set.artists[0]?.name ?? set.name}
+            className="aspect-square w-full rounded-lg object-cover"
+          />
+        ) : (
+          <SetTypePlaceholderTile
+            type={set.set_type}
+            className="aspect-square"
+          />
+        )}
+        <div className="lg:col-span-2 space-y-6">
+          <Card className="bg-surface-raised backdrop-blur-md border">
+            <CardHeader>
+              <CardTitle className="text-lg">About</CardTitle>
+              {set.description && (
+                <CardDescription className="text-muted-foreground leading-relaxed">
+                  <MarkdownText
+                    content={set.description}
+                    className="prose-sm prose-invert"
+                  />
+                </CardDescription>
+              )}
+            </CardHeader>
+            <CardContent>
+              <ExternalLinkButton url={set.external_url} />
+            </CardContent>
+          </Card>
+          <Card className="bg-surface-raised backdrop-blur-md border">
+            <CardHeader>
+              <CardTitle className="text-lg">Your vote</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <SetVotingButtons set={set} />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

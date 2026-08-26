@@ -128,4 +128,28 @@ describe("ProviderCandidatesPanel", () => {
     input = screen.getByRole("textbox", { name: /search spotify/i });
     expect(input).toHaveValue("Test Artist");
   });
+
+  it("keeps the search value in the input after clicking Search", async () => {
+    const user = userEvent.setup();
+    render(
+      <TestProviderCandidatesPanel
+        provider="spotify"
+        label="Spotify"
+        artistName="Test Artist"
+        batchQueryResult={mockQueryResult}
+        onSelectCandidate={vi.fn()}
+      />,
+    );
+
+    const button = screen.getByRole("button", { name: /custom search/i });
+    await user.click(button);
+
+    const input = screen.getByRole("textbox", { name: /search spotify/i });
+    await user.clear(input);
+    await user.type(input, "Modified Name");
+
+    await user.click(screen.getByRole("button", { name: /^search$/i }));
+
+    expect(input).toHaveValue("Modified Name");
+  });
 });

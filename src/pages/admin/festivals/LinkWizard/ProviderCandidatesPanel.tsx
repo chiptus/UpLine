@@ -50,7 +50,6 @@ export function ProviderCandidatesPanel({
   function handleCustomSearch() {
     if (customSearchQuery.trim()) {
       search(customSearchQuery);
-      setCustomSearchQuery("");
     }
   }
 

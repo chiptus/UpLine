@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, fireEvent, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { withTestQuery } from "@/test/withTestQuery";
 import { withSuspense } from "@/test/withSuspense";
 import { ProviderCandidatesPanel } from "./ProviderCandidatesPanel";
@@ -35,7 +36,8 @@ describe("ProviderCandidatesPanel", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows search input when button is clicked", () => {
+  it("shows search input when button is clicked", async () => {
+    const user = userEvent.setup();
     render(
       <TestProviderCandidatesPanel
         provider="spotify"
@@ -47,14 +49,15 @@ describe("ProviderCandidatesPanel", () => {
     );
 
     const button = screen.getByRole("button", { name: /custom search/i });
-    fireEvent.click(button);
+    await user.click(button);
 
     expect(
       screen.getByRole("textbox", { name: /search spotify/i }),
     ).toBeInTheDocument();
   });
 
-  it("pre-fills search input with artist name when opened", () => {
+  it("pre-fills search input with artist name when opened", async () => {
+    const user = userEvent.setup();
     render(
       <TestProviderCandidatesPanel
         provider="spotify"
@@ -66,15 +69,14 @@ describe("ProviderCandidatesPanel", () => {
     );
 
     const button = screen.getByRole("button", { name: /custom search/i });
-    fireEvent.click(button);
+    await user.click(button);
 
-    const input = screen.getByRole("textbox", {
-      name: /search spotify/i,
-    }) as HTMLInputElement;
-    expect(input.value).toBe("Test Artist");
+    const input = screen.getByRole("textbox", { name: /search spotify/i });
+    expect(input).toHaveValue("Test Artist");
   });
 
-  it("allows editing the pre-filled search value", () => {
+  it("allows editing the pre-filled search value", async () => {
+    const user = userEvent.setup();
     render(
       <TestProviderCandidatesPanel
         provider="spotify"
@@ -86,17 +88,17 @@ describe("ProviderCandidatesPanel", () => {
     );
 
     const button = screen.getByRole("button", { name: /custom search/i });
-    fireEvent.click(button);
+    await user.click(button);
 
-    const input = screen.getByRole("textbox", {
-      name: /search spotify/i,
-    }) as HTMLInputElement;
-    fireEvent.change(input, { target: { value: "Modified Name" } });
+    const input = screen.getByRole("textbox", { name: /search spotify/i });
+    await user.clear(input);
+    await user.type(input, "Modified Name");
 
-    expect(input.value).toBe("Modified Name");
+    expect(input).toHaveValue("Modified Name");
   });
 
-  it("clears search input when button is clicked again and re-fills with artist name on re-open", () => {
+  it("clears search input when button is clicked again and re-fills with artist name on re-open", async () => {
+    const user = userEvent.setup();
     render(
       <TestProviderCandidatesPanel
         provider="spotify"
@@ -109,24 +111,21 @@ describe("ProviderCandidatesPanel", () => {
 
     const button = screen.getByRole("button", { name: /custom search/i });
 
-    fireEvent.click(button);
-    let input = screen.getByRole("textbox", {
-      name: /search spotify/i,
-    }) as HTMLInputElement;
-    expect(input.value).toBe("Test Artist");
+    await user.click(button);
+    let input = screen.getByRole("textbox", { name: /search spotify/i });
+    expect(input).toHaveValue("Test Artist");
 
-    fireEvent.change(input, { target: { value: "Modified Name" } });
-    expect(input.value).toBe("Modified Name");
+    await user.clear(input);
+    await user.type(input, "Modified Name");
+    expect(input).toHaveValue("Modified Name");
 
-    fireEvent.click(button);
+    await user.click(button);
     expect(
       screen.queryByRole("textbox", { name: /search spotify/i }),
     ).not.toBeInTheDocument();
 
-    fireEvent.click(button);
-    input = screen.getByRole("textbox", {
-      name: /search spotify/i,
-    }) as HTMLInputElement;
-    expect(input.value).toBe("Test Artist");
+    await user.click(button);
+    input = screen.getByRole("textbox", { name: /search spotify/i });
+    expect(input).toHaveValue("Test Artist");
   });
 });

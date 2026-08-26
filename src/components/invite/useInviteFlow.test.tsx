@@ -2,7 +2,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
 import { Fragment } from "react";
 import type { User } from "@supabase/supabase-js";
-import { createTestQueryClient, withTestQuery } from "@/test/withTestQuery";
+import { withTestQuery } from "@/test/withTestQuery";
 import { useInviteFlow } from "./useInviteFlow";
 import { supabase } from "@/integrations/supabase/client";
 import type { InviteValidation } from "@/types/invites";
@@ -62,9 +62,8 @@ function renderFlow(initialProps: {
   token: string | undefined;
   user: User | null;
 }) {
-  const queryClient = createTestQueryClient();
-  const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
-  const wrapper = withTestQuery(Fragment, queryClient);
+  const wrapper = withTestQuery(Fragment);
+  const invalidateSpy = vi.spyOn(wrapper.queryClient, "invalidateQueries");
 
   const view = renderHook(
     (props: { token: string | undefined; user: User | null }) =>

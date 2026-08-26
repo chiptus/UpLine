@@ -26,7 +26,7 @@ export function useProviderCandidates(
 
   const isLoading = batchQueryResult.isLoading || customResult.isLoading;
 
-  const { candidates, error } = resolveProviderResult({
+  const { candidates, error, rateLimitRetryAfter } = resolveProviderResult({
     provider,
     artistName,
     customSearch,
@@ -42,7 +42,9 @@ export function useProviderCandidates(
     setCustomSearch(query);
   }
 
-  return { candidates, error, isLoading, search };
+  const displayError = buildErrorMessage(error, rateLimitRetryAfter);
+
+  return { candidates, error: displayError, isLoading, search };
 }
 
 interface ResolveProviderResultArgs {
@@ -62,6 +64,7 @@ function resolveProviderResult({
 }: ResolveProviderResultArgs): {
   candidates: Candidate[];
   error?: string | undefined;
+  rateLimitRetryAfter?: number | undefined;
 } {
   const providerLabel = PROVIDER_LABELS[provider];
 
@@ -75,7 +78,11 @@ function resolveProviderResult({
     const result = customResult.data?.results.find(
       (r) => r.provider === provider,
     );
-    return { candidates: result?.candidates ?? [], error: result?.error };
+    return {
+      candidates: result?.candidates ?? [],
+      error: result?.error,
+      rateLimitRetryAfter: result?.rateLimitRetryAfter,
+    };
   }
 
   if (batchQueryResult.isError) {
@@ -88,5 +95,24 @@ function resolveProviderResult({
   const result = batchQueryResult.data?.results.find(
     (r) => r.artistName === artistName && r.provider === provider,
   );
-  return { candidates: result?.candidates ?? [], error: result?.error };
+  return {
+    candidates: result?.candidates ?? [],
+    error: result?.error,
+    rateLimitRetryAfter: result?.rateLimitRetryAfter,
+  };
+}
+
+function buildErrorMessage(
+  error?: string,
+  retryAfterSeconds?: number,
+): string | undefined {
+  if (!error) {
+    return undefined;
+  }
+
+  if (error.includes("rate limited") && retryAfterSeconds) {
+    return `Rate limited. Try again in ${retryAfterSeconds} second${retryAfterSeconds > 1 ? "s" : ""}.`;
+  }
+
+  return error;
 }

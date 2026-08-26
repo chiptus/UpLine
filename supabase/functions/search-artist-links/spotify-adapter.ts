@@ -1,6 +1,7 @@
 import { getSpotifyAccessToken } from "../_shared/spotify-api/auth.ts";
 import { SpotifySearchResponseSchema } from "../_shared/spotify-api/schemas.ts";
 import { normalizeSpotifySearchResult } from "../_shared/normalize.ts";
+import { fetchWithRetry } from "../_shared/retry-utils.ts";
 import type { ProviderSearchOutcome } from "./types.ts";
 
 export async function searchSpotify(
@@ -17,33 +18,42 @@ export async function searchSpotify(
       const query = encodeURIComponent(artistName);
       const endpoint = `https://api.spotify.com/v1/search?type=artist&q=${query}&limit=10`;
 
-      const response = await fetch(endpoint, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const result = await fetchWithRetry(
+        () =>
+          fetch(endpoint, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+          }),
+        async (response) => response.json(),
+        { maxRetries: 2 },
+      );
 
-      if (!response.ok) {
-        const errorText = await response
-          .text()
-          .catch(() => "Unable to read error response");
-        console.error(
-          `[searchSpotify] Error searching for artist ${artistName}:`,
-          {
-            status: response.status,
-            statusText: response.statusText,
-            body: errorText,
-          },
-        );
-        results.set(artistName, {
-          candidates: [],
-          error: `Spotify search failed (${response.status})`,
-        });
+      if (!result.success) {
+        if (result.type === "rate-limit") {
+          console.error(
+            `[searchSpotify] Rate limited for artist ${artistName}, retry after ${result.retryAfterSeconds}s`,
+          );
+          results.set(artistName, {
+            candidates: [],
+            error: `Spotify rate limited`,
+            rateLimitRetryAfter: result.retryAfterSeconds,
+          });
+        } else {
+          console.error(
+            `[searchSpotify] Error searching for artist ${artistName}:`,
+            result.error,
+          );
+          results.set(artistName, {
+            candidates: [],
+            error: "Spotify search failed",
+          });
+        }
         continue;
       }
 
-      const rawData = await response.json();
+      const rawData = result.data;
 
       const parseResponse = SpotifySearchResponseSchema.safeParse(rawData);
       if (!parseResponse.success) {

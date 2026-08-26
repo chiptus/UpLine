@@ -10,6 +10,7 @@ export interface Candidate {
 export interface ProviderSearchOutcome {
   candidates: Candidate[];
   error?: string;
+  rateLimitRetryAfter?: number;
 }
 
 export interface ProviderFetchOutcome {

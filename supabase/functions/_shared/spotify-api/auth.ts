@@ -1,4 +1,5 @@
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import { fetchWithRetry } from "../retry-utils.ts";
 
 const SpotifyTokenResponseSchema = z.object({
   access_token: z.string(),
@@ -29,62 +30,54 @@ export async function getSpotifyAccessToken(): Promise<string> {
   console.log("[getSpotifyAccessToken] Requesting access token...");
 
   const tokenUrl = "https://accounts.spotify.com/api/token";
-  try {
-    const response = await fetch(tokenUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: `Basic ${btoa(`${clientId}:${clientSecret}`)}`,
-      },
-      body: "grant_type=client_credentials",
-    });
+  const result = await fetchWithRetry(
+    () =>
+      fetch(tokenUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: `Basic ${btoa(`${clientId}:${clientSecret}`)}`,
+        },
+        body: "grant_type=client_credentials",
+      }),
+    async (response) => response.json(),
+    { maxRetries: 2 },
+  );
 
-    console.log(
-      `[getSpotifyAccessToken] Token response status: ${response.status} ${response.statusText}`,
-    );
-
-    if (!response.ok) {
-      const errorBody = await response
-        .text()
-        .catch(() => "Unable to read error response");
-      console.error("[getSpotifyAccessToken] Failed to get access token:", {
-        status: response.status,
-        statusText: response.statusText,
-        body: errorBody,
-      });
-      throw new Error(
-        `Failed to get Spotify access token: ${response.statusText}`,
-      );
-    }
-
-    const rawData = await response.json();
-
-    try {
-      const tokenData = SpotifyTokenResponseSchema.parse(rawData);
-      console.log(
-        "[getSpotifyAccessToken] Successfully obtained and validated access token",
-      );
-      const token = tokenData.access_token;
-      const expiresIn = tokenData.expires_in ?? 3600; // Default to 1 hour if not provided
-      const expiresAt = Date.now() + expiresIn * 1000;
-
-      cachedToken = { token, expiresAt };
-      return token;
-    } catch (validationError) {
-      console.error("[getSpotifyAccessToken] Invalid token response format:", {
-        error: validationError,
-        rawData:
-          JSON.stringify({ ...rawData, access_token: "[REDACTED]" }).slice(
-            0,
-            200,
-          ) + "...",
-      });
-      throw new Error("Invalid access token response from Spotify");
-    }
-  } catch (error) {
+  if (!result.success) {
     console.error("[getSpotifyAccessToken] Error obtaining access token:", {
-      error,
+      error: result.error,
     });
-    throw error;
+    if (result.type === "rate-limit") {
+      throw new Error(
+        `Failed to get Spotify access token: rate limited (retry after ${result.retryAfterSeconds}s)`,
+      );
+    }
+    throw new Error("Failed to get Spotify access token");
+  }
+
+  const rawData = result.data;
+
+  try {
+    const tokenData = SpotifyTokenResponseSchema.parse(rawData);
+    console.log(
+      "[getSpotifyAccessToken] Successfully obtained and validated access token",
+    );
+    const token = tokenData.access_token;
+    const expiresIn = tokenData.expires_in ?? 3600; // Default to 1 hour if not provided
+    const expiresAt = Date.now() + expiresIn * 1000;
+
+    cachedToken = { token, expiresAt };
+    return token;
+  } catch (validationError) {
+    console.error("[getSpotifyAccessToken] Invalid token response format:", {
+      error: validationError,
+      rawData:
+        JSON.stringify({ ...rawData, access_token: "[REDACTED]" }).slice(
+          0,
+          200,
+        ) + "...",
+    });
+    throw new Error("Invalid access token response from Spotify");
   }
 }

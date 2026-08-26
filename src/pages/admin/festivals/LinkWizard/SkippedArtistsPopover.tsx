@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 import type { ArtistSkipRecord } from "@/hooks/useLinkWizardSkipped";
 
 interface SkippedArtistsPopoverProps {
@@ -90,7 +91,7 @@ function SkippedArtistItem({
       <div className="flex-1 min-w-0">
         <p className="text-sm truncate">{artistName}</p>
         <span
-          className={`inline-flex text-xs px-2 py-0.5 rounded ${statusBadge}`}
+          className={cn("inline-flex text-xs px-2 py-0.5 rounded", statusBadge)}
         >
           {record.status === "skipped" ? "Skipped" : "Saved"}
         </span>

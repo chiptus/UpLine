@@ -1,7 +1,7 @@
 import { getSpotifyAccessToken } from "./auth.ts";
 import { SpotifyArtistSchema } from "./schemas.ts";
 import { normalizeSpotifySearchResult } from "../normalize.ts";
-import type { ProviderSearchOutcome } from "../types.ts";
+import type { ProviderFetchOutcome } from "../types.ts";
 
 export function extractSpotifyArtistId(url: string): string | null {
   try {
@@ -18,7 +18,7 @@ export function extractSpotifyArtistId(url: string): string | null {
 
 export async function getSpotifyArtistById(
   artistId: string,
-): Promise<ProviderSearchOutcome> {
+): Promise<ProviderFetchOutcome> {
   try {
     const accessToken = await getSpotifyAccessToken();
 
@@ -48,13 +48,13 @@ export async function getSpotifyArtistById(
 
       if (response.status === 404) {
         return {
-          candidates: [],
+          candidate: null,
           error: "Artist not found on Spotify",
         };
       }
 
       return {
-        candidates: [],
+        candidate: null,
         error: `Spotify lookup failed (${response.status})`,
       };
     }
@@ -70,7 +70,7 @@ export async function getSpotifyArtistById(
         },
       );
       return {
-        candidates: [],
+        candidate: null,
         error: "Spotify returned data in an unexpected format",
       };
     }
@@ -79,14 +79,14 @@ export async function getSpotifyArtistById(
     const candidate = normalizeSpotifySearchResult(artist);
 
     console.log(`[getSpotifyArtistById] Found artist: ${artist.name}`);
-    return { candidates: [candidate] };
+    return { candidate };
   } catch (error) {
     console.error(
       `[getSpotifyArtistById] Error fetching artist ${artistId}:`,
       error,
     );
     return {
-      candidates: [],
+      candidate: null,
       error: error instanceof Error ? error.message : "Spotify lookup failed",
     };
   }

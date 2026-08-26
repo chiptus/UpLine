@@ -11,3 +11,8 @@ export interface ProviderSearchOutcome {
   candidates: Candidate[];
   error?: string;
 }
+
+export interface ProviderFetchOutcome {
+  candidate: Candidate | null;
+  error?: string;
+}

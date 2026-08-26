@@ -6,17 +6,12 @@ import {
   getSpotifyArtistById,
 } from "../_shared/spotify-api/api.ts";
 import { getSoundCloudArtistByUrl } from "../_shared/soundcloud-api/api.ts";
-import type { Candidate, ProviderSearchOutcome } from "../_shared/types.ts";
+import type { ProviderFetchOutcome } from "../_shared/types.ts";
 
 const FetchArtistByUrlRequestSchema = z.object({
   provider: z.enum(["spotify", "soundcloud"]),
   url: z.string(),
 });
-
-interface FetchArtistByUrlResponse {
-  candidate: Candidate | null;
-  error?: string;
-}
 
 serve(async (req) => {
   const corsHeaders = buildCorsHeaders(req);
@@ -51,12 +46,12 @@ serve(async (req) => {
 
     const { provider, url } = parsed.data;
 
-    let outcome: ProviderSearchOutcome;
+    let outcome: ProviderFetchOutcome;
 
     if (provider === "spotify") {
       const artistId = extractSpotifyArtistId(url);
       if (!artistId) {
-        outcome = { candidates: [], error: "Invalid Spotify artist URL" };
+        outcome = { candidate: null, error: "Invalid Spotify artist URL" };
       } else {
         console.log(
           `[fetch-artist-by-url] Fetching Spotify artist by ID: ${artistId}`,
@@ -70,12 +65,7 @@ serve(async (req) => {
       outcome = await getSoundCloudArtistByUrl(url);
     }
 
-    const response: FetchArtistByUrlResponse = {
-      candidate: outcome.candidates[0] ?? null,
-      ...(outcome.error && { error: outcome.error }),
-    };
-
-    return new Response(JSON.stringify(response), {
+    return new Response(JSON.stringify(outcome), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

@@ -6,7 +6,7 @@ import {
 } from "./schemas.ts";
 import { getSoundCloudAccessToken } from "./auth.ts";
 import { normalizeSoundCloudSearchResult } from "../normalize.ts";
-import type { ProviderSearchOutcome } from "../types.ts";
+import type { ProviderFetchOutcome } from "../types.ts";
 
 export async function fetchSoundCloudAPI<T>(
   endpoint: string,
@@ -124,7 +124,7 @@ export async function fetchSoundCloudAPI<T>(
 
 export async function getSoundCloudArtistByUrl(
   artistUrl: string,
-): Promise<ProviderSearchOutcome> {
+): Promise<ProviderFetchOutcome> {
   try {
     const accessToken = await getSoundCloudAccessToken();
 
@@ -141,19 +141,19 @@ export async function getSoundCloudArtistByUrl(
     console.log(
       `[getSoundCloudArtistByUrl] Found artist: ${response.display_name || response.username}`,
     );
-    return { candidates: [candidate] };
+    return { candidate };
   } catch (error) {
     console.error(`[getSoundCloudArtistByUrl] Error fetching artist:`, error);
 
     if (error instanceof SoundCloudAPIError) {
       return {
-        candidates: [],
+        candidate: null,
         error: error.message,
       };
     }
 
     return {
-      candidates: [],
+      candidate: null,
       error:
         error instanceof Error ? error.message : "SoundCloud lookup failed",
     };

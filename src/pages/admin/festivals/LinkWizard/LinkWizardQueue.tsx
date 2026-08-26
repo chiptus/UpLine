@@ -57,7 +57,9 @@ export function LinkWizardQueue({
             <ul className="pb-2">
               {displayedArtists.length === 0 && (
                 <li className="px-4 py-3 text-sm text-muted-foreground">
-                  No artists matching filter.
+                  {artists.length === 0
+                    ? "No artists missing links."
+                    : "No artists matching filter."}
                 </li>
               )}
               {displayedArtists.map((artist) => (

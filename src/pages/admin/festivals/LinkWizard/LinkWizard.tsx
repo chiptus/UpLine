@@ -6,6 +6,7 @@ import {
   type ArtistWithSets,
 } from "@/api/artists/useArtistsMissingLinksByEdition";
 import { usePrefetchNextBatchLinks } from "@/api/artistSearch/usePrefetchNextBatchLinks";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { filterArtistsByStage } from "@/lib/filterArtistsByStage";
 import { LinkWizardQueue } from "./LinkWizardQueue";
 import { LinkWizardStep } from "./LinkWizardStep";
@@ -15,6 +16,7 @@ interface LinkWizardProps {
 }
 
 export function LinkWizard({ editionId }: LinkWizardProps) {
+  const isMobile = useIsMobile();
   const artistsQuery = useArtistsMissingLinksByEditionQuery(editionId);
   const [currentArtistId, setCurrentArtistId] = useState<string | undefined>(
     undefined,
@@ -62,7 +64,7 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
           onSelectArtist={handleSelectArtist}
           selectedStages={selectedStages}
           onStageToggle={handleStageToggle}
-          isPreviewMode={!showFullQueue}
+          isPreviewMode={isMobile && !showFullQueue}
           onViewAll={() => setShowFullQueue(true)}
         />
       </div>

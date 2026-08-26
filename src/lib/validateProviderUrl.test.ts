@@ -92,6 +92,21 @@ describe("validateProviderUrl", () => {
       ).toBe(false);
     });
 
+    it("rejects SoundCloud track/nested URLs", () => {
+      expect(
+        validateProviderUrl(
+          "soundcloud",
+          "https://soundcloud.com/artist-name/track-title",
+        ),
+      ).toBe(false);
+      expect(
+        validateProviderUrl(
+          "soundcloud",
+          "https://soundcloud.com/artist-name/sets/playlist-name",
+        ),
+      ).toBe(false);
+    });
+
     it("rejects empty and whitespace SoundCloud URLs", () => {
       expect(validateProviderUrl("soundcloud", "")).toBe(false);
       expect(validateProviderUrl("soundcloud", "   ")).toBe(false);

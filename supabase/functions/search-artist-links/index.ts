@@ -24,7 +24,7 @@ const searchByProvider: Record<
 
 const SearchRequestSchema = z.object({
   artistNames: z.array(z.string()).min(1).optional(),
-  provider: z.enum(["soundcloud", "spotify"]),
+  provider: z.enum(["soundcloud", "spotify"]).optional(),
   artistId: z.string().optional(),
   artistUrl: z.string().optional(),
 });

@@ -25,7 +25,12 @@ export function validateProviderUrl(provider: Provider, url: string): boolean {
       if (!parsed.hostname.endsWith("soundcloud.com")) {
         return false;
       }
-      return !parsed.pathname.endsWith("/");
+      const path = parsed.pathname;
+      if (path === "/" || path.endsWith("/")) {
+        return false;
+      }
+      const pathSegments = path.split("/").filter(Boolean);
+      return pathSegments.length === 1;
     } catch {
       return false;
     }

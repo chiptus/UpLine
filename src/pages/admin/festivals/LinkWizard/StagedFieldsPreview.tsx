@@ -205,6 +205,7 @@ export function StagedFieldsPreview({ form }: StagedFieldsPreviewProps) {
                         )
                       }
                       title="Fetch artist metadata from URL"
+                      aria-label={`Fetch ${provider} artist metadata from URL`}
                     >
                       <Download className="h-4 w-4" />
                     </Button>

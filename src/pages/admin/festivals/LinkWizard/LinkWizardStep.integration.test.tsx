@@ -171,16 +171,17 @@ describe("LinkWizardStep save flow", () => {
       />,
     );
 
-    const spotifyUrlInput = screen.getByDisplayValue("");
+    const spotifyUrlInput = screen.getByPlaceholderText(
+      "https://open.spotify.com/artist/...",
+    );
     fireEvent.change(spotifyUrlInput, {
       target: { value: "https://open.spotify.com/artist/fetched123" },
     });
 
-    const downloadButtons = screen.getAllByRole("button", { name: "" });
-    const fetchButton = downloadButtons.find(
-      (btn) => btn.querySelector("svg") && btn.innerHTML.includes("Download"),
-    );
-    if (fetchButton) fireEvent.click(fetchButton);
+    const fetchButton = screen.getByRole("button", {
+      name: /fetch spotify artist metadata from url/i,
+    });
+    fireEvent.click(fetchButton);
 
     await waitFor(() => {
       expect(
@@ -216,15 +217,16 @@ describe("LinkWizardStep save flow", () => {
       />,
     );
 
-    const spotifyUrlInput = screen.getByDisplayValue("");
+    const spotifyUrlInput = screen.getByPlaceholderText(
+      "https://open.spotify.com/artist/...",
+    );
     fireEvent.change(spotifyUrlInput, {
       target: { value: "https://spotify.com/artist/invalid" },
     });
 
-    const downloadButtons = screen.getAllByRole("button", { name: "" });
-    const fetchButton = downloadButtons.find(
-      (btn) => btn.querySelector("svg") && btn.innerHTML.includes("Download"),
-    );
+    const fetchButton = screen.getByRole("button", {
+      name: /fetch spotify artist metadata from url/i,
+    });
 
     expect(fetchButton).toBeDisabled();
   });

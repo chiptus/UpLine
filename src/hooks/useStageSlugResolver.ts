@@ -21,5 +21,5 @@ export function useStageSlugResolver(editionId: string) {
     (ids: string[]) => resolveStageSlugsFromIds(ids, stages),
     [stages],
   );
-  return { stages, resolveIds, resolveSlugs };
+  return { resolveIds, resolveSlugs };
 }

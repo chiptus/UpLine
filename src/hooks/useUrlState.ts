@@ -4,13 +4,8 @@ import {
   useSearch,
   useRouteContext,
 } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { type FilterSortSearch } from "@/lib/searchSchemas";
-import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
-import {
-  resolveStageIdsFromSlugs,
-  resolveStageSlugsFromIds,
-} from "@/lib/stageSlugs";
+import { useStageSlugResolver } from "@/hooks/useStageSlugResolver";
 
 export type FilterSortState = Omit<FilterSortSearch, "stages"> & {
   stages: string[];
@@ -22,16 +17,16 @@ export function useUrlState() {
   const { edition } = useRouteContext({
     from: "/festivals/$festivalSlug/editions/$editionSlug",
   });
-  const { data: stages = [] } = useQuery(stagesByEditionQuery(edition.id));
+  const { resolveIds, resolveSlugs } = useStageSlugResolver(edition.id);
   const search = useSearch({
     from: "/festivals/$festivalSlug/editions/$editionSlug/sets",
   });
   const state = useMemo(
     () => ({
       ...search,
-      stages: resolveStageIdsFromSlugs(search.stages, stages),
+      stages: resolveIds(search.stages),
     }),
-    [search, stages],
+    [search, resolveIds],
   );
   const navigate = useNavigate({
     from: "/festivals/$festivalSlug/editions/$editionSlug/sets",
@@ -45,14 +40,12 @@ export function useUrlState() {
         search: (prev) => ({
           ...prev,
           ...rest,
-          ...(updatedStageIds
-            ? { stages: resolveStageSlugsFromIds(updatedStageIds, stages) }
-            : {}),
+          ...(updatedStageIds ? { stages: resolveSlugs(updatedStageIds) } : {}),
         }),
         replace: true,
       });
     },
-    [navigate, stages],
+    [navigate, resolveSlugs],
   );
 
   const clearFilters = useCallback(() => {

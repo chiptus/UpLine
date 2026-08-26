@@ -4,14 +4,9 @@ import {
   useNavigate,
   useRouteContext,
 } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import type { TimelineSearch } from "@/lib/searchSchemas";
 import type { VoteType } from "@/lib/voteConfig";
-import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
-import {
-  resolveStageIdsFromSlugs,
-  resolveStageSlugsFromIds,
-} from "@/lib/stageSlugs";
+import { useStageSlugResolver } from "@/hooks/useStageSlugResolver";
 
 export type TimeFilter = TimelineSearch["time"];
 
@@ -21,7 +16,7 @@ export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
   const { edition } = useRouteContext({
     from: "/festivals/$festivalSlug/editions/$editionSlug",
   });
-  const { data: stages = [] } = useQuery(stagesByEditionQuery(edition.id));
+  const { resolveIds, resolveSlugs } = useStageSlugResolver(edition.id);
   const search = useSearch({
     from: route,
     select: (search) => ({
@@ -34,9 +29,9 @@ export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
   const state = useMemo(
     () => ({
       ...search,
-      stages: resolveStageIdsFromSlugs(search.stages, stages),
+      stages: resolveIds(search.stages),
     }),
-    [search, stages],
+    [search, resolveIds],
   );
   const navigate = useNavigate({ from: route });
 
@@ -68,12 +63,12 @@ export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
         to: ".",
         search: (prev) => ({
           ...prev,
-          stages: resolveStageSlugsFromIds(stageIds, stages),
+          stages: resolveSlugs(stageIds),
         }),
         replace: true,
       });
     },
-    [navigate, stages],
+    [navigate, resolveSlugs],
   );
 
   const updateVotes = useCallback(

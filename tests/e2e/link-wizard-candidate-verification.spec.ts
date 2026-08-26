@@ -125,7 +125,9 @@ test.describe(
       await expect(page.getByText("Spotify Candidates")).toBeVisible();
       await failOnCandidatesError(page);
 
-      const candidateCards = page.getByRole("listitem");
+      const candidateCards = page
+        .getByRole("list", { name: "Spotify Candidates" })
+        .getByRole("listitem");
       await expect(candidateCards.first()).toBeVisible({ timeout: 15000 });
       await expect(candidateCards).toHaveCount(3);
       await expect(candidateCards.nth(0)).toContainText("Test Artist Pro");
@@ -203,6 +205,7 @@ test.describe(
       await expect(spotifyUrlInput).toHaveValue("");
 
       const candidateCard = page
+        .getByRole("list", { name: "Spotify Candidates" })
         .getByRole("listitem")
         .filter({ hasText: "Test Artist Pro" });
       await expect(candidateCard).toBeVisible({ timeout: 15000 });
@@ -293,7 +296,7 @@ async function failOnCandidatesError(page: Page) {
 
 async function selectArtistByName(page: Page, name: string) {
   await page
-    .getByRole("row")
+    .getByRole("listitem")
     .filter({ hasText: name })
     .getByRole("button", { name })
     .click();

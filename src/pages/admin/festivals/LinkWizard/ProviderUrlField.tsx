@@ -133,10 +133,9 @@ export function ProviderUrlField({
         <div className="max-w-xs">
           <CandidateCard
             candidate={fetchedCandidate}
-            onSelect={(candidate, fields) => {
-              onSelectCandidate(candidate, provider, fields);
-              setFetchedCandidate(null);
-            }}
+            onSelect={(candidate, fields) =>
+              onSelectCandidate(candidate, provider, fields)
+            }
           />
         </div>
       )}

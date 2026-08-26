@@ -1,8 +1,8 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import type { ReactNode } from "react";
+import { Fragment } from "react";
 import type { User } from "@supabase/supabase-js";
+import { createTestQueryClient, withTestQuery } from "@/test/withTestQuery";
 import { useInviteFlow } from "./useInviteFlow";
 import { supabase } from "@/integrations/supabase/client";
 import type { InviteValidation } from "@/types/invites";
@@ -62,27 +62,14 @@ function renderFlow(initialProps: {
   token: string | undefined;
   user: User | null;
 }) {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  });
+  const queryClient = createTestQueryClient();
   const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
+  const wrapper = withTestQuery(Fragment, queryClient);
 
   const view = renderHook(
     (props: { token: string | undefined; user: User | null }) =>
       useInviteFlow(props.token, props.user),
-    {
-      initialProps,
-      wrapper: function Wrapper({ children }: { children: ReactNode }) {
-        return (
-          <QueryClientProvider client={queryClient}>
-            {children}
-          </QueryClientProvider>
-        );
-      },
-    },
+    { initialProps, wrapper },
   );
 
   return { ...view, invalidateSpy };

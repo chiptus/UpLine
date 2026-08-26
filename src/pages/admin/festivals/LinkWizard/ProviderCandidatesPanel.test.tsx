@@ -1,19 +1,14 @@
-import { Suspense } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { render, fireEvent, screen } from "@testing-library/react";
+import { withTestQuery } from "@/test/withTestQuery";
+import { withSuspense } from "@/test/withSuspense";
 import { ProviderCandidatesPanel } from "./ProviderCandidatesPanel";
 import type { UseQueryResult } from "@tanstack/react-query";
 import type { SearchResponse } from "@/api/artistSearch/types";
 
-function renderWithQueryClient(element: React.ReactElement) {
-  const queryClient = new QueryClient();
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <Suspense fallback={null}>{element}</Suspense>
-    </QueryClientProvider>,
-  );
-}
+const TestProviderCandidatesPanel = withSuspense(
+  withTestQuery(ProviderCandidatesPanel),
+);
 
 const mockQueryResult: UseQueryResult<SearchResponse> = {
   data: { results: [] },
@@ -25,8 +20,8 @@ const mockQueryResult: UseQueryResult<SearchResponse> = {
 
 describe("ProviderCandidatesPanel", () => {
   it('displays button labeled "Custom search"', () => {
-    renderWithQueryClient(
-      <ProviderCandidatesPanel
+    render(
+      <TestProviderCandidatesPanel
         provider="spotify"
         label="Spotify"
         artistName="Test Artist"
@@ -41,8 +36,8 @@ describe("ProviderCandidatesPanel", () => {
   });
 
   it("shows search input when button is clicked", () => {
-    renderWithQueryClient(
-      <ProviderCandidatesPanel
+    render(
+      <TestProviderCandidatesPanel
         provider="spotify"
         label="Spotify"
         artistName="Test Artist"
@@ -60,8 +55,8 @@ describe("ProviderCandidatesPanel", () => {
   });
 
   it("pre-fills search input with artist name when opened", () => {
-    renderWithQueryClient(
-      <ProviderCandidatesPanel
+    render(
+      <TestProviderCandidatesPanel
         provider="spotify"
         label="Spotify"
         artistName="Test Artist"
@@ -80,8 +75,8 @@ describe("ProviderCandidatesPanel", () => {
   });
 
   it("allows editing the pre-filled search value", () => {
-    renderWithQueryClient(
-      <ProviderCandidatesPanel
+    render(
+      <TestProviderCandidatesPanel
         provider="spotify"
         label="Spotify"
         artistName="Test Artist"
@@ -102,8 +97,8 @@ describe("ProviderCandidatesPanel", () => {
   });
 
   it("clears search input when button is clicked again and re-fills with artist name on re-open", () => {
-    renderWithQueryClient(
-      <ProviderCandidatesPanel
+    render(
+      <TestProviderCandidatesPanel
         provider="spotify"
         label="Spotify"
         artistName="Test Artist"

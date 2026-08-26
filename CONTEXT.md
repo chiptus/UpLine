@@ -68,6 +68,22 @@ _Avoid_: Group filter, vote filter
 Admin users who curate editions, manage the lineup, and import the schedule.
 _Avoid_: Staff, organizers, moderators
 
+**Link Wizard**:
+The Core Team admin flow for filling in an artist's Spotify and SoundCloud links, one artist at a time, with metadata search assisting each step. See ADR-0006, ADR-0007.
+_Avoid_: Link editor, artist linking
+
+**Provider**:
+A music service the Link Wizard fetches artist metadata from: Spotify or SoundCloud. An artist has at most one link per provider.
+_Avoid_: Source, platform
+
+**Link Wizard queue**:
+The ordered list of artists in an edition still missing at least one provider link, worked through one at a time in the Link Wizard. Skipped and saved-this-session artists are locally excluded from it (see Skipped/saved). See ADR-0007.
+_Avoid_: Remaining artists, artist list, table
+
+**Skipped/saved (Link Wizard)**:
+A per-browser record of which artists a Core Team member has skipped or saved in the Link Wizard, keyed by (edition, artist) in `localStorage`. Excludes those artists from the Link Wizard queue on future visits until restored. Not synced across devices or team members. See ADR-0007.
+_Avoid_: Dismissed, hidden, completed
+
 ### Publish states
 
 An edition has two independent publish states.

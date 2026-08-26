@@ -58,7 +58,7 @@ function ListSchedule() {
   const {
     day: selectedDay,
     time: selectedTime,
-    stages: selectedStages,
+    stagesIds: selectedStages,
     votes: selectedVotes,
   } = useTimelineUrlState("list");
 

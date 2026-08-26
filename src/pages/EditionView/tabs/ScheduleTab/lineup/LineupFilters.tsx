@@ -25,18 +25,18 @@ interface LineupFiltersProps {
 export function LineupFilters({ tab }: LineupFiltersProps) {
   const [open, setOpen] = useState(false);
   const { canShowStage } = useScheduleReveal();
-  const { day, stages, updateDay, updateStages, clearFilters } =
+  const { day, stagesIds, updateDay, updateStages, clearFilters } =
     useTimelineUrlState(tab);
 
   function handleStageToggle(stageId: string) {
-    const newStages = stages.includes(stageId)
-      ? stages.filter((id) => id !== stageId)
-      : [...stages, stageId];
+    const newStages = stagesIds.includes(stageId)
+      ? stagesIds.filter((id) => id !== stageId)
+      : [...stagesIds, stageId];
     updateStages(newStages);
   }
 
   const activeFilterCount =
-    (day !== "all" ? 1 : 0) + (canShowStage ? stages.length : 0);
+    (day !== "all" ? 1 : 0) + (canShowStage ? stagesIds.length : 0);
   const hasActiveFilters = activeFilterCount > 0;
 
   return (
@@ -94,7 +94,7 @@ export function LineupFilters({ tab }: LineupFiltersProps) {
           <DayFilterSelect selectedDay={day} onDayChange={updateDay} />
           {canShowStage && (
             <StageFilterButtons
-              selectedStages={stages}
+              selectedStages={stagesIds}
               onStageToggle={handleStageToggle}
             />
           )}

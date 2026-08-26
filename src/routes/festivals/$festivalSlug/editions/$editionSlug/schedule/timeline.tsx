@@ -58,7 +58,7 @@ function TimelineContent() {
   const {
     day: selectedDay,
     time: selectedTime,
-    stages: selectedStages,
+    stagesIds: selectedStages,
     votes: selectedVotes,
   } = useTimelineUrlState("timeline");
 

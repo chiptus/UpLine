@@ -95,6 +95,14 @@ const INITIAL_SETS: MockSet[] = [
     setType: null,
     artistIds: ["a5"],
   },
+  {
+    id: "s7",
+    name: "Ecstatic Dance Journey",
+    stage: "Beach",
+    time: "Sun 19:00",
+    setType: null,
+    artistIds: ["a5"],
+  },
 ];
 
 const INITIAL_ARTISTS: MockArtist[] = [
@@ -306,7 +314,7 @@ function SetContextCard({
           With: {coPerformers.join(", ")}
         </p>
       )}
-      {untyped && onPickType ? (
+      {untyped && onPickType && (
         <div className="rounded-lg border border-dashed p-2 space-y-1.5">
           <p className="text-xs font-medium flex items-center gap-1">
             <Tag className="h-3.5 w-3.5" />
@@ -318,13 +326,70 @@ function SetContextCard({
             onPick={onPickType}
           />
         </div>
-      ) : (
-        !untyped && (
-          <Badge variant="outline" className="text-xs">
-            {SET_TYPES.find((t) => t.value === set.setType)?.label}
-          </Badge>
-        )
       )}
+      {untyped && !onPickType && (
+        <Badge variant="outline" className="text-xs border-dashed">
+          <Tag className="h-3 w-3 mr-1" />
+          No type yet
+        </Badge>
+      )}
+      {!untyped && (
+        <Badge variant="outline" className="text-xs">
+          {SET_TYPES.find((t) => t.value === set.setType)?.label}
+        </Badge>
+      )}
+    </div>
+  );
+}
+
+// The editable "no type" block: one picker per untyped set, plus a "set all"
+// row when there's more than one.
+function UntypedSetsBlock({
+  untypedSets,
+  pendingTypes,
+  onPick,
+  onPickAll,
+}: {
+  untypedSets: MockSet[];
+  pendingTypes: Record<string, SetType>;
+  onPick: (setId: string, t: SetType) => void;
+  onPickAll?: (t: SetType) => void;
+}) {
+  const allSame =
+    untypedSets.length > 1 &&
+    untypedSets.every(
+      (s) => pendingTypes[s.id] === pendingTypes[untypedSets[0].id],
+    )
+      ? (pendingTypes[untypedSets[0].id] ?? null)
+      : null;
+  return (
+    <div className="rounded-lg border border-dashed p-3 space-y-3">
+      <p className="text-sm font-medium flex items-center gap-1.5">
+        <Tag className="h-4 w-4" />
+        {untypedSets.length === 1
+          ? "This set has no type yet"
+          : `${untypedSets.length} sets have no type yet`}
+      </p>
+      {untypedSets.length > 1 && onPickAll && (
+        <div className="space-y-1 border-b pb-3">
+          <p className="text-xs text-muted-foreground">Set all to:</p>
+          <TypePicker size="sm" value={allSame} onPick={onPickAll} />
+        </div>
+      )}
+      {untypedSets.map((set) => (
+        <div key={set.id} className="space-y-1">
+          {untypedSets.length > 1 && (
+            <p className="text-xs text-muted-foreground">
+              {set.name} · {set.stage} · {set.time}
+            </p>
+          )}
+          <TypePicker
+            size="sm"
+            value={pendingTypes[set.id] ?? null}
+            onPick={(t) => onPick(set.id, t)}
+          />
+        </div>
+      ))}
     </div>
   );
 }
@@ -421,13 +486,6 @@ function VariantA({ data }: { data: MockData }) {
                 {item.kind === "artist" ? (
                   <>
                     <Badge variant="secondary">Artist · missing links</Badge>
-                    <MockLinkFields
-                      artist={item.artist}
-                      spotify={spotify}
-                      soundcloud={soundcloud}
-                      onSpotify={setSpotify}
-                      onSoundcloud={setSoundcloud}
-                    />
                     <Card>
                       <CardHeader className="pb-3">
                         <CardTitle className="text-base">
@@ -444,26 +502,46 @@ function VariantA({ data }: { data: MockData }) {
                             set={set}
                             currentArtistId={item.artist.id}
                             artists={data.artists}
-                            pendingType={pendingTypes[set.id] ?? null}
-                            onPickType={(t) =>
-                              setPendingTypes((p) => ({ ...p, [set.id]: t }))
-                            }
                           />
                         ))}
                       </CardContent>
                     </Card>
+                    {item.untypedSets.length > 0 && (
+                      <UntypedSetsBlock
+                        untypedSets={item.untypedSets}
+                        pendingTypes={pendingTypes}
+                        onPick={(setId, t) =>
+                          setPendingTypes((p) => ({ ...p, [setId]: t }))
+                        }
+                        onPickAll={(t) =>
+                          setPendingTypes((p) => ({
+                            ...p,
+                            ...Object.fromEntries(
+                              item.untypedSets.map((s) => [s.id, t]),
+                            ),
+                          }))
+                        }
+                      />
+                    )}
+                    <MockLinkFields
+                      artist={item.artist}
+                      spotify={spotify}
+                      soundcloud={soundcloud}
+                      onSpotify={setSpotify}
+                      onSoundcloud={setSoundcloud}
+                    />
                   </>
                 ) : (
                   <>
                     <Badge variant="secondary">
                       Set · missing type · no linked artists
                     </Badge>
-                    <SetContextCard
-                      set={item.set}
-                      artists={data.artists}
-                      pendingType={pendingTypes[item.set.id] ?? null}
-                      onPickType={(t) =>
-                        setPendingTypes((p) => ({ ...p, [item.set.id]: t }))
+                    <SetContextCard set={item.set} artists={data.artists} />
+                    <UntypedSetsBlock
+                      untypedSets={[item.set]}
+                      pendingTypes={pendingTypes}
+                      onPick={(setId, t) =>
+                        setPendingTypes((p) => ({ ...p, [setId]: t }))
                       }
                     />
                   </>

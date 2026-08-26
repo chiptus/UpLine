@@ -7,7 +7,7 @@ Run the `prototype` skill to settle the one open structural question (Q13 below:
 ## Source
 
 - GitHub issue: https://github.com/chiptus/UpLine/issues/376 ("Link Wizard enhancements", label `priority:high`)
-- Repo: `chiptus/UpLine`, working dir `/home/user/UpLine`
+- Repo: `chiptus/UpLine` (repo root)
 - Target branch: `claude/link-wizard-enhancements-uhez0n`
 
 ## Issue scope (verbatim asks)

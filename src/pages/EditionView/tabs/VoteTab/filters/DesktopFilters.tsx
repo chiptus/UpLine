@@ -21,10 +21,10 @@ export function DesktopFilters({
     useStagesByEditionQuery(editionId);
 
   function handleStageToggle(stageId: string) {
-    const newStages = state.stages.includes(stageId)
-      ? state.stages.filter((s) => s !== stageId)
-      : [...state.stages, stageId];
-    onStateChange({ stages: newStages });
+    const newStages = state.stagesIds.includes(stageId)
+      ? state.stagesIds.filter((s) => s !== stageId)
+      : [...state.stagesIds, stageId];
+    onStateChange({ stagesIds: newStages });
   }
 
   function handleGenreToggle(genreId: string) {
@@ -52,12 +52,12 @@ export function DesktopFilters({
                 <Button
                   key={stage.id}
                   variant={
-                    state.stages.includes(stage.id) ? "default" : "outline"
+                    state.stagesIds.includes(stage.id) ? "default" : "outline"
                   }
                   size="sm"
                   onClick={() => handleStageToggle(stage.id)}
                   className={
-                    state.stages.includes(stage.id)
+                    state.stagesIds.includes(stage.id)
                       ? "bg-accent text-accent-foreground hover:bg-accent-hover"
                       : "border-ring text-ring hover:bg-ring hover:text-foreground"
                   }

@@ -54,8 +54,8 @@ export function useSetFiltering(
         }
 
         // Stage filter - use set's stage_id directly
-        if (filterSortState.stages.length > 0 && set.stage_id) {
-          if (!filterSortState.stages.includes(set.stage_id)) return false;
+        if (filterSortState.stagesIds.length > 0 && set.stage_id) {
+          if (!filterSortState.stagesIds.includes(set.stage_id)) return false;
         }
 
         // Genre filter - check all artists' genres

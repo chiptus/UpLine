@@ -56,9 +56,13 @@ export function FilterSortControls({
   }
 
   const hasActiveFilters =
-    state.stages.length > 0 || state.genres.length > 0 || state.minRating > 0;
+    state.stagesIds.length > 0 ||
+    state.genres.length > 0 ||
+    state.minRating > 0;
   const activeFilterCount =
-    state.stages.length + state.genres.length + (state.minRating > 0 ? 1 : 0);
+    state.stagesIds.length +
+    state.genres.length +
+    (state.minRating > 0 ? 1 : 0);
 
   const Filters = isMobile ? MobileFilters : DesktopFilters;
 

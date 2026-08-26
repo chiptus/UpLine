@@ -93,7 +93,7 @@ export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
   return {
     day: state.day,
     time: state.time,
-    stages: state.stages,
+    stagesIds: state.stages,
     votes: state.votes,
     updateDay,
     updateTime,

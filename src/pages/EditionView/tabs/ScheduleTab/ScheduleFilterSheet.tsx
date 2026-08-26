@@ -34,7 +34,7 @@ export function ScheduleFilterSheet({ tab }: ScheduleFilterSheetProps) {
   const {
     day,
     time,
-    stages,
+    stagesIds,
     votes,
     updateDay,
     updateTime,
@@ -45,7 +45,7 @@ export function ScheduleFilterSheet({ tab }: ScheduleFilterSheetProps) {
   const activeFilterCount =
     (day !== "all" ? 1 : 0) +
     (time !== "all" ? 1 : 0) +
-    stages.length +
+    stagesIds.length +
     (user ? votes.length : 0);
   const hasActiveFilters = activeFilterCount > 0;
 
@@ -97,7 +97,7 @@ export function ScheduleFilterSheet({ tab }: ScheduleFilterSheetProps) {
           <DayFilterSelect selectedDay={day} onDayChange={updateDay} />
           <TimeFilterSelect selectedTime={time} onTimeChange={updateTime} />
           <StageFilterButtons
-            selectedStages={stages}
+            selectedStages={stagesIds}
             onStageToggle={handleStageToggle}
           />
         </div>
@@ -134,9 +134,9 @@ export function ScheduleFilterSheet({ tab }: ScheduleFilterSheetProps) {
   );
 
   function handleStageToggle(stageId: string) {
-    const newStages = stages.includes(stageId)
-      ? stages.filter((id) => id !== stageId)
-      : [...stages, stageId];
+    const newStages = stagesIds.includes(stageId)
+      ? stagesIds.filter((id) => id !== stageId)
+      : [...stagesIds, stageId];
     updateStages(newStages);
   }
 }

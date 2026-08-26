@@ -1,11 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { buildCorsHeaders } from "../_shared/cors.ts";
-import {
-  searchSoundCloud,
-  getSoundCloudArtistByUrl,
-} from "./soundcloud-adapter.ts";
-import { searchSpotify, getSpotifyArtistById } from "./spotify-adapter.ts";
+import { searchSoundCloud } from "./soundcloud-adapter.ts";
+import { searchSpotify } from "./spotify-adapter.ts";
 import type {
   Provider,
   ProviderSearchOutcome,
@@ -23,10 +20,8 @@ const searchByProvider: Record<
 };
 
 const SearchRequestSchema = z.object({
-  artistNames: z.array(z.string()).min(1).optional(),
+  artistNames: z.array(z.string()).min(1),
   provider: z.enum(["soundcloud", "spotify"]).optional(),
-  artistId: z.string().optional(),
-  artistUrl: z.string().optional(),
 });
 
 serve(async (req) => {
@@ -61,134 +56,49 @@ serve(async (req) => {
     }
 
     const request: SearchRequest = parsed.data;
+    const providers: Provider[] = request.provider
+      ? [request.provider]
+      : ["soundcloud", "spotify"];
+
     const results: SearchResult[] = [];
 
-    if (request.artistId || request.artistUrl) {
-      console.log("[search-artist-links] URL/ID-based lookup mode");
-
-      if (!request.provider) {
-        return new Response(
-          JSON.stringify({
-            error: "Invalid request",
-            details: ["provider is required for URL/ID-based lookup"],
-          }),
-          {
-            status: 400,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          },
-        );
-      }
+    for (const provider of providers) {
+      console.log(`[search-artist-links] Searching ${provider}...`);
 
       try {
-        let outcome: ProviderSearchOutcome;
+        const outcomeMap = await searchByProvider[provider](
+          request.artistNames,
+        );
 
-        if (request.provider === "spotify" && request.artistId) {
-          console.log(
-            `[search-artist-links] Fetching Spotify artist by ID: ${request.artistId}`,
-          );
-          outcome = await getSpotifyArtistById(request.artistId);
-        } else if (request.provider === "soundcloud" && request.artistUrl) {
-          console.log(
-            `[search-artist-links] Fetching SoundCloud artist by URL: ${request.artistUrl}`,
-          );
-          outcome = await getSoundCloudArtistByUrl(request.artistUrl);
-        } else {
-          return new Response(
-            JSON.stringify({
-              error: "Invalid request",
-              details: [
-                `${request.provider} lookup requires ${request.provider === "spotify" ? "artistId" : "artistUrl"}`,
-              ],
-            }),
-            {
-              status: 400,
-              headers: { ...corsHeaders, "Content-Type": "application/json" },
-            },
-          );
+        for (const artistName of request.artistNames) {
+          const outcome = outcomeMap.get(artistName) ?? { candidates: [] };
+          results.push({
+            artistName,
+            provider,
+            candidates: outcome.candidates,
+            ...(outcome.error && { error: outcome.error }),
+          });
         }
-
-        results.push({
-          artistName: "",
-          provider: request.provider,
-          candidates: outcome.candidates,
-          ...(outcome.error && { error: outcome.error }),
-        });
       } catch (providerError) {
         console.error(
-          `[search-artist-links] Provider ${request.provider} lookup failed:`,
+          `[search-artist-links] Provider ${provider} failed:`,
           providerError,
         );
 
         const message =
           providerError instanceof Error
             ? providerError.message
-            : `${request.provider} lookup failed`;
+            : `${provider} search failed`;
 
-        results.push({
-          artistName: "",
-          provider: request.provider,
-          candidates: [],
-          error: message,
-        });
-      }
-    } else if (request.artistNames && request.artistNames.length > 0) {
-      console.log("[search-artist-links] Name-based search mode");
-
-      const providers: Provider[] = request.provider
-        ? [request.provider]
-        : ["soundcloud", "spotify"];
-
-      for (const provider of providers) {
-        console.log(`[search-artist-links] Searching ${provider}...`);
-
-        try {
-          const outcomeMap = await searchByProvider[provider](
-            request.artistNames,
-          );
-
-          for (const artistName of request.artistNames) {
-            const outcome = outcomeMap.get(artistName) ?? { candidates: [] };
-            results.push({
-              artistName,
-              provider,
-              candidates: outcome.candidates,
-              ...(outcome.error && { error: outcome.error }),
-            });
-          }
-        } catch (providerError) {
-          console.error(
-            `[search-artist-links] Provider ${provider} failed:`,
-            providerError,
-          );
-
-          const message =
-            providerError instanceof Error
-              ? providerError.message
-              : `${provider} search failed`;
-
-          for (const artistName of request.artistNames) {
-            results.push({
-              artistName,
-              provider,
-              candidates: [],
-              error: message,
-            });
-          }
+        for (const artistName of request.artistNames) {
+          results.push({
+            artistName,
+            provider,
+            candidates: [],
+            error: message,
+          });
         }
       }
-    } else {
-      return new Response(
-        JSON.stringify({
-          error: "Invalid request",
-          details: [
-            "Either artistNames or (artistId/artistUrl) must be provided",
-          ],
-        }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
     }
 
     const response: SearchResponse = { results };

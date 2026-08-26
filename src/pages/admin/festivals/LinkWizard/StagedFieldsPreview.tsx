@@ -13,7 +13,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import type { LinkStepData } from "./LinkWizardStep";
-import { extractProviderIdFromUrl } from "@/lib/validateProviderUrl";
 import { useFetchArtistByUrlMutation } from "@/api/artistSearch/useFetchArtistByUrlMutation";
 import { mergeCandidateSelection } from "@/api/artistSearch/mergeCandidateSelection";
 
@@ -52,77 +51,71 @@ export function StagedFieldsPreview({ form }: StagedFieldsPreviewProps) {
     provider: "spotify" | "soundcloud",
   ) {
     const url = form.getValues(fieldName);
+    if (!url) {
+      return;
+    }
 
     setFetchErrors(
       (prev) => ({ ...prev, [fieldName]: "" }) as Record<string, string>,
     );
 
-    const artistId = extractProviderIdFromUrl(provider, url || "");
-    if (!artistId) {
-      return;
-    }
+    fetchMutation.mutate(
+      { provider, url },
+      {
+        onSuccess: (response) => {
+          if (response.error) {
+            setFetchErrors(
+              (prev) =>
+                ({
+                  ...prev,
+                  [fieldName]: response.error || "Unknown error",
+                }) as Record<string, string>,
+            );
+            return;
+          }
 
-    const params =
-      provider === "spotify"
-        ? { provider: "spotify" as const, artistId }
-        : { provider: "soundcloud" as const, artistUrl: artistId };
+          if (!response.candidate) {
+            setFetchErrors(
+              (prev) =>
+                ({ ...prev, [fieldName]: "Artist not found" }) as Record<
+                  string,
+                  string
+                >,
+            );
+            return;
+          }
 
-    fetchMutation.mutate(params, {
-      onSuccess: (response) => {
-        const result = response.results[0];
+          const candidate = response.candidate;
+          const update = mergeCandidateSelection(
+            candidate,
+            provider,
+            ["image", "description"],
+            {
+              image_url: form.getValues("image_url"),
+              description: form.getValues("description"),
+            },
+          );
 
-        if (result?.error) {
+          if (update.image_url !== undefined) {
+            form.setValue("image_url", update.image_url, { shouldDirty: true });
+          }
+          if (update.description !== undefined) {
+            form.setValue("description", update.description, {
+              shouldDirty: true,
+            });
+          }
+        },
+        onError: (error) => {
           setFetchErrors(
             (prev) =>
               ({
                 ...prev,
-                [fieldName]: result.error || "Unknown error",
+                [fieldName]: error.message || "Failed to fetch artist",
               }) as Record<string, string>,
           );
-          return;
-        }
-
-        if (!result?.candidates || result.candidates.length === 0) {
-          setFetchErrors(
-            (prev) =>
-              ({ ...prev, [fieldName]: "Artist not found" }) as Record<
-                string,
-                string
-              >,
-          );
-          return;
-        }
-
-        const candidate = result.candidates[0];
-        const update = mergeCandidateSelection(
-          candidate,
-          provider,
-          ["image", "description"],
-          {
-            image_url: form.getValues("image_url"),
-            description: form.getValues("description"),
-          },
-        );
-
-        if (update.image_url !== undefined) {
-          form.setValue("image_url", update.image_url, { shouldDirty: true });
-        }
-        if (update.description !== undefined) {
-          form.setValue("description", update.description, {
-            shouldDirty: true,
-          });
-        }
+        },
       },
-      onError: (error) => {
-        setFetchErrors(
-          (prev) =>
-            ({
-              ...prev,
-              [fieldName]: error.message || "Failed to fetch artist",
-            }) as Record<string, string>,
-        );
-      },
-    });
+    );
   }
 
   return (

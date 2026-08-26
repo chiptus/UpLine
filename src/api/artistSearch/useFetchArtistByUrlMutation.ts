@@ -1,30 +1,27 @@
 import { useMutation } from "@tanstack/react-query";
+import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  searchResponseSchema,
-  type SearchResponse,
-  type Provider,
-} from "./types";
+import { candidateSchema, type Provider } from "./types";
+
+const fetchArtistByUrlResponseSchema = z.object({
+  candidate: candidateSchema.nullable(),
+  error: z.string().optional(),
+});
+type FetchArtistByUrlResponse = z.infer<typeof fetchArtistByUrlResponseSchema>;
 
 interface FetchArtistByUrlParams {
   provider: Provider;
-  artistId?: string;
-  artistUrl?: string;
+  url: string;
 }
 
 async function fetchArtistByUrl({
   provider,
-  artistId,
-  artistUrl,
-}: FetchArtistByUrlParams): Promise<SearchResponse> {
+  url,
+}: FetchArtistByUrlParams): Promise<FetchArtistByUrlResponse> {
   const { data, error } = await supabase.functions.invoke(
-    "search-artist-links",
+    "fetch-artist-by-url",
     {
-      body: {
-        provider,
-        ...(artistId && { artistId }),
-        ...(artistUrl && { artistUrl }),
-      },
+      body: { provider, url },
     },
   );
 
@@ -33,7 +30,7 @@ async function fetchArtistByUrl({
     throw new Error("Failed to fetch artist");
   }
 
-  return searchResponseSchema.parse(data);
+  return fetchArtistByUrlResponseSchema.parse(data);
 }
 
 export function useFetchArtistByUrlMutation() {

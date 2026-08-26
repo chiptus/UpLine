@@ -1,5 +1,5 @@
-import type { SoundCloudUser } from "../_shared/soundcloud-api/schemas.ts";
-import type { SpotifyArtist } from "../_shared/spotify-api/schemas.ts";
+import type { SoundCloudUser } from "./soundcloud-api/schemas.ts";
+import type { SpotifyArtist } from "./spotify-api/schemas.ts";
 import type { Candidate } from "./types.ts";
 
 function stripTrackingParams(url: string): string {

@@ -42,29 +42,3 @@ export function validateProviderUrl(provider: Provider, url: string): boolean {
 
   return providerUrlValidators[provider](url.trim());
 }
-
-export function extractProviderIdFromUrl(
-  provider: Provider,
-  url: string,
-): string | null {
-  if (!validateProviderUrl(provider, url)) {
-    return null;
-  }
-
-  try {
-    const parsed = new URL(url);
-
-    if (provider === "spotify") {
-      const match = parsed.pathname.match(/\/artist\/([a-zA-Z0-9]+)/);
-      return match ? match[1] : null;
-    }
-
-    if (provider === "soundcloud") {
-      return parsed.href;
-    }
-
-    return null;
-  } catch {
-    return null;
-  }
-}

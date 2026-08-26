@@ -1,24 +1,12 @@
+import type { Candidate, ProviderSearchOutcome } from "../_shared/types.ts";
+
+export type { Candidate, ProviderSearchOutcome };
+
 export type Provider = "soundcloud" | "spotify";
 
 export interface SearchRequest {
-  artistNames?: string[];
+  artistNames: string[];
   provider?: Provider;
-  artistId?: string;
-  artistUrl?: string;
-}
-
-export interface Candidate {
-  name: string;
-  url: string;
-  imageUrl: string | null;
-  description: string | null;
-  followers: number | null;
-  genres: string[];
-}
-
-export interface ProviderSearchOutcome {
-  candidates: Candidate[];
-  error?: string;
 }
 
 export interface SearchResult {

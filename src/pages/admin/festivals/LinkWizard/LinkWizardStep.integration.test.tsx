@@ -132,27 +132,19 @@ describe("LinkWizardStep save flow", () => {
     vi.mock("@/api/artistSearch/useFetchArtistByUrlMutation", () => ({
       useFetchArtistByUrlMutation: () => ({
         mutate: (
-          params: { provider: string; artistId?: string },
+          params: { provider: string; url: string },
           callbacks: { onSuccess: (data: unknown) => void },
         ) => {
-          if (params.provider === "spotify" && params.artistId) {
+          if (params.provider === "spotify" && params.url) {
             callbacks.onSuccess({
-              results: [
-                {
-                  artistName: "",
-                  provider: "spotify",
-                  candidates: [
-                    {
-                      name: "Fetched Artist",
-                      url: "https://open.spotify.com/artist/fetched123",
-                      imageUrl: "https://example.com/image.jpg",
-                      description: "A fetched artist description",
-                      followers: 1000,
-                      genres: ["Electronic"],
-                    },
-                  ],
-                },
-              ],
+              candidate: {
+                name: "Fetched Artist",
+                url: "https://open.spotify.com/artist/fetched123",
+                imageUrl: "https://example.com/image.jpg",
+                description: "A fetched artist description",
+                followers: 1000,
+                genres: ["Electronic"],
+              },
             });
           }
         },

@@ -1,8 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  validateProviderUrl,
-  extractProviderIdFromUrl,
-} from "./validateProviderUrl";
+import { validateProviderUrl } from "./validateProviderUrl";
 
 describe("validateProviderUrl", () => {
   describe("Spotify URLs", () => {
@@ -115,53 +112,5 @@ describe("validateProviderUrl", () => {
     it("rejects invalid URLs", () => {
       expect(validateProviderUrl("soundcloud", "not a url")).toBe(false);
     });
-  });
-});
-
-describe("extractProviderIdFromUrl", () => {
-  it("extracts Spotify artist ID", () => {
-    expect(
-      extractProviderIdFromUrl(
-        "spotify",
-        "https://open.spotify.com/artist/abc123",
-      ),
-    ).toBe("abc123");
-    expect(
-      extractProviderIdFromUrl(
-        "spotify",
-        "https://open.spotify.com/artist/xyz789",
-      ),
-    ).toBe("xyz789");
-  });
-
-  it("extracts Spotify artist ID with query parameters", () => {
-    expect(
-      extractProviderIdFromUrl(
-        "spotify",
-        "https://open.spotify.com/artist/abc123?utm_source=test",
-      ),
-    ).toBe("abc123");
-  });
-
-  it("returns SoundCloud URL as-is", () => {
-    expect(
-      extractProviderIdFromUrl(
-        "soundcloud",
-        "https://soundcloud.com/artist-name",
-      ),
-    ).toBe("https://soundcloud.com/artist-name");
-  });
-
-  it("returns null for invalid URLs", () => {
-    expect(
-      extractProviderIdFromUrl("spotify", "https://spotify.com/artist/abc123"),
-    ).toBeNull();
-    expect(
-      extractProviderIdFromUrl(
-        "spotify",
-        "https://open.spotify.com/track/abc123",
-      ),
-    ).toBeNull();
-    expect(extractProviderIdFromUrl("spotify", "invalid url")).toBeNull();
   });
 });

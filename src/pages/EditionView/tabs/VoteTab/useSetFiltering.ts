@@ -2,6 +2,8 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import type { FilterSortState } from "@/hooks/useUrlState";
 import { FestivalSet } from "@/api/sets/types";
 import { resolveVotesForScope, type VoteScope } from "@/lib/voteScope";
+// PROTOTYPE (issue #400)
+import { fakeSetType } from "./filters/prototypeSetTypeFilter";
 
 export function useSetFiltering(
   sets: FestivalSet[],
@@ -50,6 +52,14 @@ export function useSetFiltering(
       .filter((set) => {
         // Filter out sets without artists for voting tab
         if (!set.artists || set.artists.length === 0) {
+          return false;
+        }
+
+        // PROTOTYPE (issue #400): type filter over a fake per-set type
+        if (
+          filterSortState.types.length > 0 &&
+          !filterSortState.types.includes(fakeSetType(set.id))
+        ) {
           return false;
         }
 

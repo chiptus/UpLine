@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { profileKeys } from "@/api/auth/types";
+import { Profile, profileKeys } from "@/api/auth/types";
 import type { Database } from "@/integrations/supabase/types";
 
 type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
@@ -27,12 +27,32 @@ export function useProfileFieldMutation() {
         throw new Error(variables.errorMessage);
       }
     },
+    onMutate: async (variables) => {
+      const queryKey = profileKeys.detail(variables.userId);
+      await queryClient.cancelQueries({ queryKey });
+
+      const previousProfile = queryClient.getQueryData<Profile>(queryKey);
+      if (previousProfile) {
+        queryClient.setQueryData<Profile>(queryKey, {
+          ...previousProfile,
+          [variables.column]: variables.value,
+        });
+      }
+
+      return { previousProfile };
+    },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: profileKeys.detail(variables.userId),
       });
     },
-    onError: (error, variables) => {
+    onError: (error, variables, context) => {
+      if (context?.previousProfile) {
+        queryClient.setQueryData(
+          profileKeys.detail(variables.userId),
+          context.previousProfile,
+        );
+      }
       toast({
         title: "Error",
         description: error?.message || variables.errorMessage,

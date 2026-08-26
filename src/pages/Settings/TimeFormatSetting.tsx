@@ -1,3 +1,4 @@
+import { Loader2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useProfileFieldMutation } from "@/api/groups/useProfileFieldMutation";
@@ -31,6 +32,7 @@ export function TimeFormatSetting({
           id="use-24-hour"
           checked={use24Hour}
           onCheckedChange={setUse24Hour}
+          disabled={mutation.isPending}
           aria-label="Use 24-hour time format"
         />
         <Label
@@ -43,6 +45,9 @@ export function TimeFormatSetting({
         >
           24-hour
         </Label>
+        {mutation.isPending && (
+          <Loader2 className="h-4 w-4 animate-spin text-subtle-foreground" />
+        )}
       </div>
     </div>
   );

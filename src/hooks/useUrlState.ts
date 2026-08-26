@@ -12,7 +12,9 @@ import {
   resolveStageSlugsFromIds,
 } from "@/lib/stageSlugs";
 
-export type FilterSortState = FilterSortSearch;
+export type FilterSortState = Omit<FilterSortSearch, "stages"> & {
+  stages: string[];
+};
 export type SortOption = FilterSortSearch["sort"];
 export type TimelineView = FilterSortSearch["timelineView"];
 
@@ -36,7 +38,7 @@ export function useUrlState() {
   });
 
   const updateUrlState = useCallback(
-    (updates: Partial<FilterSortSearch>) => {
+    (updates: Partial<FilterSortState>) => {
       const { stages: updatedStageIds, ...rest } = updates;
       navigate({
         to: ".",

@@ -44,12 +44,14 @@ export async function fetchWithRetry<T>(
           const retryAfterSeconds = parseRetryAfter(retryAfter);
 
           if (attempt < maxRetries) {
+            const exponentialDelay = initialDelayMs * Math.pow(2, attempt);
+            const retryAfterMs = retryAfterSeconds * 1000;
             const delay = Math.min(
-              initialDelayMs * Math.pow(2, attempt),
+              Math.max(exponentialDelay, retryAfterMs),
               maxDelayMs,
             );
             console.log(
-              `[fetchWithRetry] Received 429, retrying after ${delay}ms (attempt ${attempt + 1}/${maxRetries})`,
+              `[fetchWithRetry] Received 429, retrying after ${delay}ms (Retry-After: ${retryAfterSeconds}s, attempt ${attempt + 1}/${maxRetries})`,
             );
             await sleep(delay);
             continue;

@@ -106,11 +106,7 @@ function buildErrorMessage(
   error?: string,
   retryAfterSeconds?: number,
 ): string | undefined {
-  if (!error) {
-    return undefined;
-  }
-
-  if (error.includes("rate limited") && retryAfterSeconds) {
+  if (retryAfterSeconds) {
     return `Rate limited. Try again in ${retryAfterSeconds} second${retryAfterSeconds > 1 ? "s" : ""}.`;
   }
 

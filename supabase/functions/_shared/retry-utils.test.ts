@@ -226,3 +226,89 @@ Deno.test(
     }
   },
 );
+
+Deno.test(
+  "fetchWithRetry respects Retry-After header in delay",
+  async function fetchWithRetryRespectRetryAfter() {
+    let attemptCount = 0;
+    const attemptTimes: number[] = [];
+
+    async function mockFetch() {
+      attemptCount++;
+      attemptTimes.push(Date.now());
+      if (attemptCount === 1) {
+        return new Response(null, {
+          status: 429,
+          headers: { "Retry-After": "2" },
+        });
+      }
+      return new Response(JSON.stringify({ data: "success" }), {
+        status: 200,
+      });
+    }
+
+    async function mockParse(response: Response) {
+      return response.json() as Promise<{ data: string }>;
+    }
+
+    const result = await fetchWithRetry(mockFetch, mockParse, {
+      maxRetries: 2,
+      initialDelayMs: 100,
+      maxDelayMs: 5000,
+    });
+
+    assertEquals(result.success, true);
+    assertEquals(attemptCount, 2);
+    assertEquals(attemptTimes.length, 2);
+
+    const delayMs = attemptTimes[1] - attemptTimes[0];
+    const retryAfterMs = 2000;
+
+    assertEquals(
+      delayMs >= retryAfterMs - 50,
+      true,
+      `Delay ${delayMs}ms should be at least Retry-After ${retryAfterMs}ms (with 50ms tolerance)`,
+    );
+  },
+);
+
+Deno.test(
+  "fetchWithRetry caps delay at maxDelayMs even with large Retry-After",
+  async function fetchWithRetryCapAtMax() {
+    let attemptCount = 0;
+
+    function mockFetch() {
+      attemptCount++;
+      return Promise.resolve(
+        new Response(null, {
+          status: 429,
+          headers: { "Retry-After": "3600" },
+        }),
+      );
+    }
+
+    async function mockParse(_response: Response) {
+      return { data: "should not reach here" };
+    }
+
+    const startTime = Date.now();
+    const result = await fetchWithRetry(mockFetch, mockParse, {
+      maxRetries: 1,
+      initialDelayMs: 100,
+      maxDelayMs: 200,
+    });
+
+    const elapsedMs = Date.now() - startTime;
+
+    assertEquals(result.success, false);
+    if (!result.success && result.type === "rate-limit") {
+      assertEquals(result.retryAfterSeconds, 3600);
+    }
+
+    assertEquals(
+      elapsedMs <= 400,
+      true,
+      `Total time ${elapsedMs}ms should be capped around maxDelayMs 200ms (with buffer)`,
+    );
+  },
+);

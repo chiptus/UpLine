@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { LinkWizardStep } from "./LinkWizardStep";
 import type { ArtistWithSets } from "@/api/artists/useArtistsMissingLinksByEdition";
 import {
@@ -118,6 +119,7 @@ describe("LinkWizardStep save flow", () => {
   });
 
   it("fetches artist metadata from pasted Spotify URL", async () => {
+    const user = userEvent.setup();
     const userId = await signInAsTestUser();
     await grantAdminRole(userId);
 
@@ -171,17 +173,18 @@ describe("LinkWizardStep save flow", () => {
       />,
     );
 
-    const spotifyUrlInput = screen.getByPlaceholderText(
-      "https://open.spotify.com/artist/...",
-    );
-    fireEvent.change(spotifyUrlInput, {
-      target: { value: "https://open.spotify.com/artist/fetched123" },
+    const spotifyUrlInput = screen.getByRole("textbox", {
+      name: /spotify url/i,
     });
+    await user.type(
+      spotifyUrlInput,
+      "https://open.spotify.com/artist/fetched123",
+    );
 
     const fetchButton = screen.getByRole("button", {
       name: /fetch spotify artist metadata from url/i,
     });
-    fireEvent.click(fetchButton);
+    await user.click(fetchButton);
 
     await waitFor(() => {
       expect(
@@ -189,12 +192,13 @@ describe("LinkWizardStep save flow", () => {
       ).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole("button", { name: /save & next/i }));
+    await user.click(screen.getByRole("button", { name: /save & next/i }));
 
     await waitFor(() => expect(onNext).toHaveBeenCalled());
   });
 
   it("shows error when pasted Spotify URL is invalid", async () => {
+    const user = userEvent.setup();
     const userId = await signInAsTestUser();
     await grantAdminRole(userId);
 
@@ -217,17 +221,15 @@ describe("LinkWizardStep save flow", () => {
       />,
     );
 
-    const spotifyUrlInput = screen.getByPlaceholderText(
-      "https://open.spotify.com/artist/...",
-    );
-    fireEvent.change(spotifyUrlInput, {
-      target: { value: "https://spotify.com/artist/invalid" },
+    const spotifyUrlInput = screen.getByRole("textbox", {
+      name: /spotify url/i,
     });
+    await user.type(spotifyUrlInput, "https://spotify.com/artist/invalid");
 
     const fetchButton = screen.getByRole("button", {
       name: /fetch spotify artist metadata from url/i,
     });
 
-    expect(fetchButton).toBeDisabled();
+    await waitFor(() => expect(fetchButton).toBeDisabled());
   });
 });

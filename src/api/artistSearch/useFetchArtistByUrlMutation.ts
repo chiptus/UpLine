@@ -6,11 +6,17 @@ import {
   type Provider,
 } from "./types";
 
-async function fetchArtistByUrl(
-  provider: Provider,
-  artistId?: string,
-  artistUrl?: string,
-): Promise<SearchResponse> {
+interface FetchArtistByUrlParams {
+  provider: Provider;
+  artistId?: string;
+  artistUrl?: string;
+}
+
+async function fetchArtistByUrl({
+  provider,
+  artistId,
+  artistUrl,
+}: FetchArtistByUrlParams): Promise<SearchResponse> {
   const { data, error } = await supabase.functions.invoke(
     "search-artist-links",
     {
@@ -32,14 +38,6 @@ async function fetchArtistByUrl(
 
 export function useFetchArtistByUrlMutation() {
   return useMutation({
-    mutationFn: ({
-      provider,
-      artistId,
-      artistUrl,
-    }: {
-      provider: Provider;
-      artistId?: string;
-      artistUrl?: string;
-    }) => fetchArtistByUrl(provider, artistId, artistUrl),
+    mutationFn: fetchArtistByUrl,
   });
 }

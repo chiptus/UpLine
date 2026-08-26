@@ -13,10 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import type { LinkStepData } from "./LinkWizardStep";
-import {
-  validateProviderUrl,
-  extractProviderIdFromUrl,
-} from "@/lib/validateProviderUrl";
+import { extractProviderIdFromUrl } from "@/lib/validateProviderUrl";
 import { useFetchArtistByUrlMutation } from "@/api/artistSearch/useFetchArtistByUrlMutation";
 import { mergeCandidateSelection } from "@/api/artistSearch/mergeCandidateSelection";
 
@@ -60,37 +57,8 @@ export function StagedFieldsPreview({ form }: StagedFieldsPreviewProps) {
       (prev) => ({ ...prev, [fieldName]: "" }) as Record<string, string>,
     );
 
-    if (!url) {
-      setFetchErrors(
-        (prev) =>
-          ({ ...prev, [fieldName]: "Please enter a URL" }) as Record<
-            string,
-            string
-          >,
-      );
-      return;
-    }
-
-    if (!validateProviderUrl(provider, url)) {
-      setFetchErrors(
-        (prev) =>
-          ({ ...prev, [fieldName]: `Invalid ${provider} URL` }) as Record<
-            string,
-            string
-          >,
-      );
-      return;
-    }
-
-    const artistId = extractProviderIdFromUrl(provider, url);
+    const artistId = extractProviderIdFromUrl(provider, url || "");
     if (!artistId) {
-      setFetchErrors(
-        (prev) =>
-          ({ ...prev, [fieldName]: `Invalid ${provider} URL` }) as Record<
-            string,
-            string
-          >,
-      );
       return;
     }
 
@@ -199,10 +167,7 @@ export function StagedFieldsPreview({ form }: StagedFieldsPreviewProps) {
                       disabled={
                         !form.getValues(fieldName) ||
                         isLoading ||
-                        !validateProviderUrl(
-                          provider,
-                          form.getValues(fieldName) || "",
-                        )
+                        !!form.formState.errors.providerUrl?.[provider]
                       }
                       title="Fetch artist metadata from URL"
                       aria-label={`Fetch ${provider} artist metadata from URL`}

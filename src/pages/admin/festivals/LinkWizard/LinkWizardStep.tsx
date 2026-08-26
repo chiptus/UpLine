@@ -19,6 +19,7 @@ import { ProviderCandidatesPanel } from "./ProviderCandidatesPanel";
 import { StagedFieldsPreview } from "./StagedFieldsPreview";
 import { ArtistSetInfoPanel } from "./ArtistSetInfoPanel";
 import { useArtistBatchQuery } from "./useArtistBatchQuery";
+import { validateProviderUrl } from "@/lib/validateProviderUrl";
 
 const optionalUrlSchema = z
   .string()
@@ -27,10 +28,30 @@ const optionalUrlSchema = z
   .or(z.literal(""));
 
 const linkStepSchema = z.object({
-  providerUrl: z.object({
-    spotify: optionalUrlSchema,
-    soundcloud: optionalUrlSchema,
-  }),
+  providerUrl: z
+    .object({
+      spotify: optionalUrlSchema,
+      soundcloud: optionalUrlSchema,
+    })
+    .superRefine((value, ctx) => {
+      if (value.spotify && !validateProviderUrl("spotify", value.spotify)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["spotify"],
+          message: "Invalid spotify URL",
+        });
+      }
+      if (
+        value.soundcloud &&
+        !validateProviderUrl("soundcloud", value.soundcloud)
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["soundcloud"],
+          message: "Invalid soundcloud URL",
+        });
+      }
+    }),
   image_url: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
 });
@@ -59,6 +80,7 @@ export function LinkWizardStep({
 
   const form = useForm<LinkStepData>({
     resolver: zodResolver(linkStepSchema),
+    mode: "onChange",
     defaultValues: {
       providerUrl: {
         spotify: artist.spotify_url ?? "",

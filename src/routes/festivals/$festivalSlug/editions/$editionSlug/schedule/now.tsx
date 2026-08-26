@@ -6,6 +6,7 @@ import {
   useParams,
 } from "@tanstack/react-router";
 import { StageBadge } from "@/components/StageBadge";
+import { useAuth } from "@/contexts/AuthContext";
 import { setsByEditionQuery } from "@/api/sets/useSetsByEdition";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useNow } from "@/hooks/useNow";
@@ -112,10 +113,12 @@ function SetLine({ set, timezone, live = false }: SetLineProps) {
   const { festivalSlug, editionSlug } = useParams({
     from: "/festivals/$festivalSlug/editions/$editionSlug",
   });
+  const { profile } = useAuth();
+  const use24Hour = profile?.use_24_hour ?? true;
 
   const time = live
-    ? `until ${formatTimeOnly(set.time_end, null, true, timezone)}`
-    : `at ${formatTimeOnly(set.time_start, null, true, timezone)}`;
+    ? `until ${formatTimeOnly(set.time_end, null, use24Hour, timezone)}`
+    : `at ${formatTimeOnly(set.time_start, null, use24Hour, timezone)}`;
 
   return (
     <div className="flex items-center gap-2 text-sm">

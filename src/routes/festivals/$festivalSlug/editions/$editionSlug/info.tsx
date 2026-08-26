@@ -8,6 +8,7 @@ import { CustomLinks } from "@/pages/EditionView/tabs/InfoTab/CustomLinks";
 import { NoInfo } from "@/pages/EditionView/tabs/InfoTab/NoInfo";
 import { SocialLinkItem } from "@/pages/EditionView/tabs/InfoTab/SocialLinkItem";
 import { customLinksQuery } from "@/api/custom-links/useCustomLinks";
+import { FestivalTimeHint } from "@/components/FestivalTimeHint";
 
 export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug/info",
@@ -35,6 +36,8 @@ function InfoTab() {
     <>
       <div className="space-y-8">
         <EditionTitle name={edition?.name} />
+
+        <FestivalTimeHint timezone={festival.timezone} />
 
         {festivalInfo?.info_text && (
           <InfoText infoText={festivalInfo.info_text} />

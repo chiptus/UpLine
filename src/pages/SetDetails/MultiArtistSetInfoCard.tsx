@@ -16,7 +16,6 @@ import { StagePin } from "@/components/StagePin";
 import { MarkdownText } from "@/components/ui/markdown-text";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 import { useRouteContext } from "@tanstack/react-router";
-import { FestivalTimeHint } from "@/components/FestivalTimeHint";
 
 interface MultiArtistSetInfoCardProps {
   set: FestivalSet;
@@ -112,9 +111,6 @@ export function MultiArtistSetInfoCard({
                     <Clock className="h-4 w-4" />
                     <span className="text-sm">{dayOnlyFormatted}</span>
                   </div>
-                )}
-                {(timeRangeFormatted || dayOnlyFormatted) && (
-                  <FestivalTimeHint timezone={festival.timezone} />
                 )}
               </div>
             </div>

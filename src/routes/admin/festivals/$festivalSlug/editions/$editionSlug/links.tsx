@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { LinkWizard } from "@/pages/admin/festivals/LinkWizard/LinkWizard";
+// PROTOTYPE — temporary, answers issue #376's layout question.
+// Revert to `import { LinkWizard } from "@/pages/admin/festivals/LinkWizard/LinkWizard";` after the decision is made.
+import { LinkWizardPrototypeLayout } from "@/pages/admin/festivals/LinkWizard/LinkWizard.prototype-layout";
 
 export const Route = createFileRoute(
   "/admin/festivals/$festivalSlug/editions/$editionSlug/links",
@@ -9,5 +11,6 @@ export const Route = createFileRoute(
 
 function FestivalLinks() {
   const { edition } = Route.useRouteContext();
-  return <LinkWizard editionId={edition.id} />;
+  // Swap to <LinkWizard /> once the layout prototype decision is captured.
+  return <LinkWizardPrototypeLayout editionId={edition.id} />;
 }

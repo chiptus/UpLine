@@ -4,29 +4,31 @@ import { supabase } from "@/integrations/supabase/client";
 import { setsKeys } from "./types";
 
 // Mutation function
-async function addArtistToSet(variables: {
+async function removeArtistsFromSet(variables: {
   setId: string;
-  artistId: string;
+  artistIds: string[];
 }): Promise<void> {
-  const { setId, artistId } = variables;
+  const { setId, artistIds } = variables;
 
   const { error } = await supabase
     .from("set_artists")
-    .insert({ set_id: setId, artist_id: artistId });
+    .delete()
+    .eq("set_id", setId)
+    .in("artist_id", artistIds);
 
   if (error) {
-    console.error("Error adding artist to set:", error);
-    throw new Error("Failed to add artist to set");
+    console.error("Error removing artists from set:", error);
+    throw new Error("Failed to remove artists from set");
   }
 }
 
 // Hook
-export function useAddArtistToSetMutation() {
+export function useRemoveArtistsFromSetMutation() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: addArtistToSet,
+    mutationFn: removeArtistsFromSet,
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: setsKeys.all,
@@ -36,13 +38,13 @@ export function useAddArtistToSetMutation() {
       });
       toast({
         title: "Success",
-        description: "Artist added to set successfully",
+        description: "Artists removed from set successfully",
       });
     },
     onError: (error) => {
       toast({
         title: "Error",
-        description: error?.message || "Failed to add artist to set",
+        description: error?.message || "Failed to remove artists from set",
         variant: "destructive",
       });
     },

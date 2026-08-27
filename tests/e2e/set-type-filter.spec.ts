@@ -16,7 +16,8 @@ test.describe("Set type filter", { tag: "@smoke" }, () => {
 
     await expect(items).toHaveCount(1);
     await expect(items.first()).toContainText("Morning Yoga Workshop");
-    await expect(page).toHaveURL(/types=/);
+    // TanStack Router JSON-serializes array search params: types=["workshop"]
+    await expect(page).toHaveURL(/types=%5B%22workshop%22%5D/);
     // The active type selection counts toward the filter badge
     await expect(
       page.getByRole("button", { name: /Filters/ }).getByText("1"),

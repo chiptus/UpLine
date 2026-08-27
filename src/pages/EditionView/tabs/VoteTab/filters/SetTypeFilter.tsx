@@ -2,24 +2,25 @@ import { Button } from "@/components/ui/button";
 import { SET_TYPES, type SetType } from "@/api/sets/types";
 import { setTypeLabels } from "@/lib/setTypeLabels";
 import { cn } from "@/lib/utils";
-import type { FilterSortState } from "@/hooks/useUrlState";
 
 interface SetTypeFilterProps {
-  state: FilterSortState;
-  onStateChange: (updates: Partial<FilterSortState>) => void;
+  types: SetType[];
+  onChange: (types: SetType[]) => void;
 }
 
-export function SetTypeFilter({ state, onStateChange }: SetTypeFilterProps) {
+export function SetTypeFilter({ types, onChange }: SetTypeFilterProps) {
   return (
     <div>
       <h4 className="text-sm font-medium text-muted-foreground mb-2">Type</h4>
       <div className="flex flex-wrap gap-2">
         {SET_TYPES.map((type) => {
           const { label, icon: Icon } = setTypeLabels[type];
-          const active = state.types.includes(type);
+          const active = types.includes(type);
           return (
             <Button
               key={type}
+              type="button"
+              aria-pressed={active}
               variant={active ? "default" : "outline"}
               size="sm"
               onClick={() => handleTypeToggle(type)}
@@ -40,9 +41,8 @@ export function SetTypeFilter({ state, onStateChange }: SetTypeFilterProps) {
   );
 
   function handleTypeToggle(type: SetType) {
-    const types = state.types.includes(type)
-      ? state.types.filter((t) => t !== type)
-      : [...state.types, type];
-    onStateChange({ types });
+    onChange(
+      types.includes(type) ? types.filter((t) => t !== type) : [...types, type],
+    );
   }
 }

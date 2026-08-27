@@ -37,7 +37,10 @@ export function DesktopFilters({
 
   return (
     <div className="space-y-4">
-      <SetTypeFilter state={state} onStateChange={onStateChange} />
+      <SetTypeFilter
+        types={state.types}
+        onChange={(types) => onStateChange({ types })}
+      />
 
       {/* Stage Filter */}
       {canShowStage && (

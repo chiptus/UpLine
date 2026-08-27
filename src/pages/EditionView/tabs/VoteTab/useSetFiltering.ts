@@ -48,8 +48,10 @@ export function useSetFiltering(
         }),
       }))
       .filter((set) => {
-        // Filter out sets without artists for voting tab
-        if (!set.artists || set.artists.length === 0) {
+        // Filter out artist-less sets unless they carry a non-music type
+        // (workshops, performances, ... are votable without artists)
+        const isNonMusicSet = set.set_type !== null && set.set_type !== "music";
+        if ((!set.artists || set.artists.length === 0) && !isNonMusicSet) {
           return false;
         }
 
@@ -165,6 +167,7 @@ export function useSetFiltering(
 
 // Get max soundcloud followers for a set
 function getMaxSoundcloudFollowers(set: FestivalSet): number {
+  if (set.artists.length === 0) return 0;
   return Math.max(
     ...set.artists.map((artist) => artist.soundcloud_followers || 0),
   );

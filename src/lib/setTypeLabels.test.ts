@@ -21,6 +21,12 @@ describe("setTypeLabels", () => {
     }
   });
 
+  it("gives every type a gradient for banner and placeholder tiles", () => {
+    for (const type of SET_TYPES) {
+      expect(setTypeLabels[type].gradient).toMatch(/^from-.+ to-.+$/);
+    }
+  });
+
   it("falls back to the other treatment for null", () => {
     expect(getSetTypeLabel(null)).toBe(setTypeLabels.other);
   });

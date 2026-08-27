@@ -15,7 +15,7 @@ async function fetchSetBySlug({
       `
       *,
       stages (name),
-      set_artists!inner (
+      set_artists (
         artists (
           *,
           artist_music_genres (music_genre_id)

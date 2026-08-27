@@ -1,5 +1,6 @@
 import { Link, useParams } from "@tanstack/react-router";
 import { ArtistImageLoader } from "@/components/ArtistImageLoader";
+import { SetTypePlaceholder } from "@/components/SetTypePlaceholder";
 import { useFestivalSet } from "../FestivalSetContext";
 import { MixedArtistImage } from "@/pages/SetDetails/MixedArtistImage";
 
@@ -34,6 +35,12 @@ export function SetImage({ className = "", size = "lg" }: SetImageProps) {
           artists={set.artists}
           setName={set.name}
           className={containerClass}
+        />
+      ) : set.artists.length === 0 ? (
+        <SetTypePlaceholder
+          setType={set.set_type}
+          className={containerClass}
+          iconClassName={size === "lg" ? "h-24 w-24" : "h-6 w-6"}
         />
       ) : (
         <ArtistImageLoader

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const SKIPPED_KEY = "link-wizard-skipped";
 const SKIPPED_VERSION = "1.0";
@@ -17,43 +17,30 @@ export interface LinkWizardSkippedState {
   };
 }
 
+function readEditionState(editionId: string): LinkWizardSkippedState[string] {
+  const savedData = localStorage.getItem(SKIPPED_KEY);
+  if (savedData) {
+    try {
+      const parsed = JSON.parse(savedData) as LinkWizardSkippedState;
+      const editionData = parsed[editionId];
+      if (editionData && editionData.version === SKIPPED_VERSION) {
+        return editionData;
+      }
+    } catch {
+      // Malformed JSON, fall back to empty record
+    }
+  }
+  return {
+    records: {},
+    version: SKIPPED_VERSION,
+    timestamp: Date.now(),
+  };
+}
+
 export function useLinkWizardSkipped(editionId: string) {
   const [skippedState, setSkippedState] = useState<
-    LinkWizardSkippedState[string] | null
-  >(null);
-
-  useEffect(() => {
-    const savedData = localStorage.getItem(SKIPPED_KEY);
-    if (savedData) {
-      try {
-        const parsed = JSON.parse(savedData) as LinkWizardSkippedState;
-        const editionData = parsed[editionId];
-        if (editionData && editionData.version === SKIPPED_VERSION) {
-          setSkippedState(editionData);
-        } else {
-          // Version mismatch or no data for this edition, start fresh
-          setSkippedState({
-            records: {},
-            version: SKIPPED_VERSION,
-            timestamp: Date.now(),
-          });
-        }
-      } catch {
-        // Malformed JSON, fall back to empty record
-        setSkippedState({
-          records: {},
-          version: SKIPPED_VERSION,
-          timestamp: Date.now(),
-        });
-      }
-    } else {
-      setSkippedState({
-        records: {},
-        version: SKIPPED_VERSION,
-        timestamp: Date.now(),
-      });
-    }
-  }, [editionId]);
+    LinkWizardSkippedState[string]
+  >(() => readEditionState(editionId));
 
   function saveState(newState: LinkWizardSkippedState[string]) {
     setSkippedState(newState);
@@ -72,7 +59,6 @@ export function useLinkWizardSkipped(editionId: string) {
   }
 
   function markSkipped(artistId: string) {
-    if (!skippedState) return;
     const newState = {
       ...skippedState,
       records: {
@@ -89,7 +75,6 @@ export function useLinkWizardSkipped(editionId: string) {
   }
 
   function markSaved(artistId: string) {
-    if (!skippedState) return;
     const newState = {
       ...skippedState,
       records: {
@@ -106,7 +91,6 @@ export function useLinkWizardSkipped(editionId: string) {
   }
 
   function restore(artistId: string) {
-    if (!skippedState) return;
     const newRecords = { ...skippedState.records };
     delete newRecords[artistId];
     const newState = {
@@ -127,17 +111,14 @@ export function useLinkWizardSkipped(editionId: string) {
   }
 
   function getSkippedArtistIds(): string[] {
-    if (!skippedState) return [];
     return Object.keys(skippedState.records);
   }
 
   function getSkippedArtists(): ArtistSkipRecord[] {
-    if (!skippedState) return [];
     return Object.values(skippedState.records);
   }
 
   function isSkipped(artistId: string): boolean {
-    if (!skippedState) return false;
     return artistId in skippedState.records;
   }
 

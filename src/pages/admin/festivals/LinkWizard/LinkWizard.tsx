@@ -100,11 +100,11 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
                 onPrev={() => goTo(currentIndex - 1)}
                 onNext={() => {
                   skippedHook.markSkipped(currentArtist.id);
-                  goTo(currentIndex + 1);
+                  goTo(nextIndexAfterRemoval());
                 }}
                 onSaveSuccess={() => {
                   skippedHook.markSaved(currentArtist.id);
-                  goTo(currentIndex + 1);
+                  goTo(nextIndexAfterRemoval());
                 }}
               />
             )
@@ -117,6 +117,11 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
   function goTo(index: number) {
     const clamped = Math.max(0, Math.min(index, filteredArtists.length - 1));
     setCurrentArtistId(filteredArtists[clamped]?.id);
+  }
+
+  function nextIndexAfterRemoval() {
+    const isLast = currentIndex >= filteredArtists.length - 1;
+    return isLast ? currentIndex - 1 : currentIndex + 1;
   }
 
   function handleSelectArtist(artist: ArtistWithSets) {

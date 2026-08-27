@@ -10,13 +10,19 @@ const nullableTimestamp = z
   .nullish()
   .transform((v) => v || null);
 
+// An explicit empty artistSlugs array is a valid roster: artist-less sets
+// (workshops, performances) carry no artists by design.
 const setPayloadSchema = z.object({
   name: z.string().min(1),
+  setType: z
+    .enum(["music", "workshop", "performance", "other"])
+    .nullish()
+    .transform((v) => v ?? null),
   description: z.string().nullish(),
   stageName: z.string().nullish(),
   timeStart: nullableTimestamp,
   timeEnd: nullableTimestamp,
-  artistSlugs: z.array(z.string().min(1)).min(1),
+  artistSlugs: z.array(z.string().min(1)),
 });
 
 const commitRequestSchema = z.object({

@@ -129,6 +129,7 @@ function makeSet(
     id,
     name: id,
     description: null,
+    set_type: null,
     stage_id: stageId,
     time_start: timeStart,
     time_end: null,

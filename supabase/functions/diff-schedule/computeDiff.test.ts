@@ -256,9 +256,120 @@ function makeSet(
     id,
     name,
     description: null,
+    set_type: null,
     stage_id: stageId,
     time_start: timeStart,
     time_end: null,
     set_artists: artists.map((a) => ({ artist_id: a.id, artists: a })),
   };
 }
+
+Deno.test(
+  "row setType lands in the payload; absent setType becomes null",
+  () => {
+    const result = computeDiff(
+      [{ artists: ["Carl Cox"], setType: "music" }, { artists: ["Peggy Gou"] }],
+      [],
+      [],
+      [makeArtist("Carl Cox"), makeArtist("Peggy Gou")],
+      "UTC",
+    );
+    assertEquals(result.cleanOperations.setsToCreate[0].setType, "music");
+    assertEquals(result.cleanOperations.setsToCreate[1].setType, null);
+  },
+);
+
+Deno.test("artist-less row creates a set with an empty roster", () => {
+  const result = computeDiff(
+    [{ artists: [], setName: "Morning Yoga", setType: "workshop" }],
+    [],
+    [],
+    [],
+    "UTC",
+  );
+  assertEquals(result.cleanOperations.setsToCreate.length, 1);
+  assertEquals(result.cleanOperations.setsToCreate[0].name, "Morning Yoga");
+  assertEquals(result.cleanOperations.setsToCreate[0].artistSlugs, []);
+  assertEquals(result.cleanOperations.setsToCreate[0].setType, "workshop");
+  assertEquals(result.summary.newArtists, 0);
+});
+
+Deno.test("artist-less row matches an existing 0-artist set by name", () => {
+  const set = makeSet("set-yoga", "Morning Yoga", []);
+  const result = computeDiff(
+    [{ artists: [], setName: "morning yoga" }],
+    [],
+    [set],
+    [],
+    "UTC",
+  );
+  assertEquals(result.cleanOperations.setsToUpdate.length, 1);
+  assertEquals(result.cleanOperations.setsToUpdate[0].id, "set-yoga");
+  assertEquals(result.cleanOperations.setsToCreate.length, 0);
+  assertEquals(result.conflicts.orphanedSets.length, 0);
+});
+
+Deno.test(
+  "artist-less row does not match a same-name set that has artists",
+  () => {
+    const artist = makeArtist("Carl Cox");
+    const set = makeSet("set-cox", "Morning Yoga", [artist]);
+    const result = computeDiff(
+      [{ artists: [], setName: "Morning Yoga" }],
+      [],
+      [set],
+      [artist],
+      "UTC",
+    );
+    assertEquals(result.cleanOperations.setsToCreate.length, 1);
+    assertEquals(result.cleanOperations.setsToUpdate.length, 0);
+    assertEquals(result.conflicts.orphanedSets.length, 1);
+  },
+);
+
+Deno.test("roster row does not match a 0-artist set", () => {
+  const artist = makeArtist("Carl Cox");
+  const set = makeSet("set-empty", "Carl Cox", []);
+  const result = computeDiff(
+    [{ artists: ["Carl Cox"] }],
+    [],
+    [set],
+    [artist],
+    "UTC",
+  );
+  assertEquals(result.cleanOperations.setsToCreate.length, 1);
+  assertEquals(result.cleanOperations.setsToUpdate.length, 0);
+  assertEquals(result.conflicts.orphanedSets.length, 1);
+});
+
+Deno.test("same-name artist-less candidates disambiguated by stage", () => {
+  const stage1 = makeStage("s1", "Stage One");
+  const stage2 = makeStage("s2", "Stage Two");
+  const set1 = makeSet("set-a", "Fire Show", [], "s1");
+  const set2 = makeSet("set-b", "Fire Show", [], "s2");
+  const result = computeDiff(
+    [{ artists: [], setName: "Fire Show", stage: "Stage Two" }],
+    [stage1, stage2],
+    [set1, set2],
+    [],
+    "UTC",
+  );
+  assertEquals(result.cleanOperations.setsToUpdate.length, 1);
+  assertEquals(result.cleanOperations.setsToUpdate[0].id, "set-b");
+  assertEquals(result.conflicts.orphanedSets.length, 1);
+  assertEquals(result.conflicts.orphanedSets[0].id, "set-a");
+});
+
+Deno.test("same-name artist-less candidates disambiguated by date", () => {
+  const set1 = makeSet("set-a", "Fire Show", [], null, "2026-07-11T20:00:00Z");
+  const set2 = makeSet("set-b", "Fire Show", [], null, "2026-07-12T20:00:00Z");
+  const result = computeDiff(
+    [{ artists: [], setName: "Fire Show", date: "2026-07-12" }],
+    [],
+    [set1, set2],
+    [],
+    "UTC",
+  );
+  assertEquals(result.cleanOperations.setsToUpdate.length, 1);
+  assertEquals(result.cleanOperations.setsToUpdate[0].id, "set-b");
+});

@@ -1,4 +1,5 @@
 import Papa from "papaparse";
+import { asSetType } from "@/api/sets/types";
 import { type CsvRow } from "./types";
 
 export function parseScheduleCsv(csvContent: string): CsvRow[] {
@@ -30,7 +31,7 @@ export function parseScheduleCsv(csvContent: string): CsvRow[] {
       const endTime = row["end time"]?.trim() || undefined;
       const description = row.description?.trim() || undefined;
 
-      const csvRow: CsvRow = { artists };
+      const csvRow: CsvRow = { artists, setType: parseSetType(row.type) };
       if (setName !== undefined) csvRow.setName = setName;
       if (stage !== undefined) csvRow.stage = stage;
       if (date !== undefined) csvRow.date = date;
@@ -40,7 +41,7 @@ export function parseScheduleCsv(csvContent: string): CsvRow[] {
 
       return csvRow;
     })
-    .filter((row) => row.artists.length > 0);
+    .filter((row) => row.artists.length > 0 || row.setName !== undefined);
 
   for (const row of rows) {
     for (const artist of row.artists) {
@@ -50,6 +51,11 @@ export function parseScheduleCsv(csvContent: string): CsvRow[] {
         );
       }
     }
+    if (row.artists.length === 0 && !hasSluggableChars(row.setName ?? "")) {
+      throw new Error(
+        `Set name "${row.setName}" has no letters or digits and can't be imported.`,
+      );
+    }
     if (row.stage && !hasSluggableChars(row.stage)) {
       throw new Error(
         `Stage name "${row.stage}" has no letters or digits and can't be imported.`,
@@ -58,6 +64,18 @@ export function parseScheduleCsv(csvContent: string): CsvRow[] {
   }
 
   return rows;
+}
+
+function parseSetType(raw: string | undefined): CsvRow["setType"] {
+  const value = raw?.trim().toLowerCase();
+  if (!value) return null;
+  const setType = asSetType(value);
+  if (setType === null) {
+    throw new Error(
+      `Invalid type "${raw?.trim()}" — use music, workshop, performance or other, or leave it blank.`,
+    );
+  }
+  return setType;
 }
 
 // A name with no [a-z0-9] slugifies to an empty string, which downstream

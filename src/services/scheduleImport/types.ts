@@ -1,7 +1,9 @@
 import { z } from "zod";
+import type { SetType } from "@/api/sets/types";
 
 export type CsvRow = {
   artists: string[];
+  setType: SetType | null;
   setName?: string;
   stage?: string;
   date?: string;
@@ -12,6 +14,7 @@ export type CsvRow = {
 
 export const setPayloadSchema = z.object({
   name: z.string(),
+  setType: z.string().nullable(),
   description: z.string().nullable(),
   stageName: z.string().nullable(),
   timeStart: z.string().nullable(),

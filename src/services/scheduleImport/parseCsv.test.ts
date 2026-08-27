@@ -11,6 +11,7 @@ describe("parseScheduleCsv", () => {
     expect(parseScheduleCsv(csv)).toEqual([
       {
         artists: ["Carl Cox"],
+        setType: null,
         setName: "Carl Cox Live",
         stage: "Main Stage",
         date: "2026-07-11",
@@ -31,6 +32,7 @@ describe("parseScheduleCsv", () => {
     expect(parseScheduleCsv(csv)).toEqual([
       {
         artists: ["DJ Tennis"],
+        setType: null,
         setName: undefined,
         stage: undefined,
         date: "2026-07-12",
@@ -64,6 +66,56 @@ describe("parseScheduleCsv", () => {
       "\n",
     );
     expect(parseScheduleCsv(csv)[0].artists).toEqual(["Carl Cox", "Peggy Gou"]);
+  });
+
+  it("parses a valid type value", () => {
+    const csv = ["Artists,Type", "Carl Cox,workshop"].join("\n");
+    expect(parseScheduleCsv(csv)[0].setType).toBe("workshop");
+  });
+
+  it("normalizes type casing and whitespace", () => {
+    const csv = ["Artists,Type", "Carl Cox,  Workshop "].join("\n");
+    expect(parseScheduleCsv(csv)[0].setType).toBe("workshop");
+  });
+
+  it("parses a blank type as null", () => {
+    const csv = ["Artists,Type", "Carl Cox,"].join("\n");
+    expect(parseScheduleCsv(csv)[0].setType).toBeNull();
+  });
+
+  it("parses a missing type column as null", () => {
+    const csv = ["Artists,Stage", "Carl Cox,Main"].join("\n");
+    expect(parseScheduleCsv(csv)[0].setType).toBeNull();
+  });
+
+  it("throws on an invalid type value", () => {
+    const csv = ["Artists,Type", "Carl Cox,concert"].join("\n");
+    expect(() => parseScheduleCsv(csv)).toThrow(/Invalid type "concert"/);
+  });
+
+  it("keeps artist-less rows that have a set name", () => {
+    const csv = [
+      "Artists,Set Name,Type",
+      ",Morning Yoga,workshop",
+      "Carl Cox,,",
+    ].join("\n");
+    const rows = parseScheduleCsv(csv);
+    expect(rows).toHaveLength(2);
+    expect(rows[0].artists).toEqual([]);
+    expect(rows[0].setName).toBe("Morning Yoga");
+    expect(rows[0].setType).toBe("workshop");
+  });
+
+  it("still skips rows with neither artists nor a set name", () => {
+    const csv = ["Artists,Set Name,Stage", "Carl Cox,,Main", ",,Side"].join(
+      "\n",
+    );
+    expect(parseScheduleCsv(csv)).toHaveLength(1);
+  });
+
+  it("throws when an artist-less row's set name has no letters or digits", () => {
+    const csv = ["Artists,Set Name", ",???"].join("\n");
+    expect(() => parseScheduleCsv(csv)).toThrow(/no letters or digits/);
   });
 
   it("throws when an artist name has no letters or digits", () => {

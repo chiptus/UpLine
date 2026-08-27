@@ -12,6 +12,7 @@ export type DbIndexes = {
   stageById: Map<string, DbStage>;
   existingArtistSlugs: Set<string>;
   setsByArtistKey: Map<string, DbSet[]>;
+  artistlessSetsByNameLower: Map<string, DbSet[]>;
 };
 
 export function buildIndexes(
@@ -19,8 +20,19 @@ export function buildIndexes(
   dbSets: DbSet[],
   dbArtists: DbArtist[],
 ): DbIndexes {
+  // Artist-less sets are matched by name (+ date/stage) instead of by roster,
+  // so they get their own index and stay out of the artist-key one — a roster
+  // row must never match a 0-artist set and vice versa.
   const setsByArtistKey = new Map<string, DbSet[]>();
+  const artistlessSetsByNameLower = new Map<string, DbSet[]>();
   for (const set of dbSets) {
+    if (set.set_artists.length === 0) {
+      const key = set.name.trim().toLowerCase();
+      const bucket = artistlessSetsByNameLower.get(key) ?? [];
+      bucket.push(set);
+      artistlessSetsByNameLower.set(key, bucket);
+      continue;
+    }
     const slugs = set.set_artists.map((sa) => sa.artists.slug);
     const key = artistKey(slugs);
     const bucket = setsByArtistKey.get(key) ?? [];
@@ -32,6 +44,7 @@ export function buildIndexes(
     stageById: new Map(dbStages.map((s) => [s.id, s])),
     existingArtistSlugs: new Set(dbArtists.map((a) => a.slug)),
     setsByArtistKey,
+    artistlessSetsByNameLower,
   };
 }
 

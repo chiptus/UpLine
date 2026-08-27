@@ -38,8 +38,12 @@ export function computeDiff(
 
     const { timeStart, timeEnd } = computeTimes(row, timezone);
 
+    const name = row.setName?.trim() || row.artists.join(" b2b ");
+
     const candidates =
-      indexes.setsByArtistKey.get(artistKey(artistSlugs)) ?? [];
+      row.artists.length === 0
+        ? (indexes.artistlessSetsByNameLower.get(name.toLowerCase()) ?? [])
+        : (indexes.setsByArtistKey.get(artistKey(artistSlugs)) ?? []);
     const matched = findMatchingSet(
       candidates,
       resolvedStage.id,
@@ -49,7 +53,8 @@ export function computeDiff(
     );
 
     const payload: SetPayload = {
-      name: row.setName?.trim() || row.artists.join(" b2b "),
+      name,
+      setType: row.setType ?? null,
       description: row.description ?? null,
       stageName: resolvedStage.name,
       timeStart,

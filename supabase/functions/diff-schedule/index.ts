@@ -26,24 +26,32 @@ function dedupeArtists(names: string[]): string[] {
   });
 }
 
-const csvRowSchema = z.object({
-  artists: z.array(z.string().trim().min(1)).min(1).transform(dedupeArtists),
-  setName: z.string().optional(),
-  stage: z.string().optional(),
-  date: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "date must be YYYY-MM-DD")
-    .optional(),
-  startTime: z
-    .string()
-    .regex(/^\d{2}:\d{2}$/, "startTime must be HH:MM")
-    .optional(),
-  endTime: z
-    .string()
-    .regex(/^\d{2}:\d{2}$/, "endTime must be HH:MM")
-    .optional(),
-  description: z.string().optional(),
-});
+const csvRowSchema = z
+  .object({
+    artists: z.array(z.string().trim().min(1)).transform(dedupeArtists),
+    setType: z
+      .enum(["music", "workshop", "performance", "other"])
+      .nullish()
+      .transform((v) => v ?? null),
+    setName: z.string().optional(),
+    stage: z.string().optional(),
+    date: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, "date must be YYYY-MM-DD")
+      .optional(),
+    startTime: z
+      .string()
+      .regex(/^\d{2}:\d{2}$/, "startTime must be HH:MM")
+      .optional(),
+    endTime: z
+      .string()
+      .regex(/^\d{2}:\d{2}$/, "endTime must be HH:MM")
+      .optional(),
+    description: z.string().optional(),
+  })
+  .refine((row) => row.artists.length > 0 || row.setName?.trim(), {
+    message: "A row without artists must have a set name",
+  });
 
 const diffRequestSchema = z.object({
   festivalEditionId: z.string().uuid(),
@@ -96,7 +104,7 @@ serve(async (req) => {
       db
         .from("sets")
         .select(
-          "id, name, description, stage_id, time_start, time_end, set_artists(artist_id, artists(id, name, slug))",
+          "id, name, description, stage_id, time_start, time_end, set_type, set_artists(artist_id, artists(id, name, slug))",
         )
         .eq("festival_edition_id", festivalEditionId)
         .eq("archived", false)

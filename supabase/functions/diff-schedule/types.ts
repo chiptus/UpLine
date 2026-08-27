@@ -1,7 +1,11 @@
 import type { Database } from "../_shared/database.types.ts";
 
+export const SET_TYPES = ["music", "workshop", "performance", "other"] as const;
+export type SetType = (typeof SET_TYPES)[number];
+
 export type CsvRow = {
   artists: string[];
+  setType?: SetType | null;
   setName?: string;
   stage?: string;
   date?: string;
@@ -21,13 +25,20 @@ export type DbStage = Pick<StageRow, "id" | "name">;
 export type DbArtist = Pick<ArtistRow, "id" | "name" | "slug">;
 export type DbSet = Pick<
   SetRow,
-  "id" | "name" | "description" | "stage_id" | "time_start" | "time_end"
+  | "id"
+  | "name"
+  | "description"
+  | "stage_id"
+  | "time_start"
+  | "time_end"
+  | "set_type"
 > & {
   set_artists: { artist_id: string; artists: DbArtist }[];
 };
 
 export type SetPayload = {
   name: string;
+  setType: string | null;
   description: string | null;
   stageName: string | null;
   timeStart: string | null;

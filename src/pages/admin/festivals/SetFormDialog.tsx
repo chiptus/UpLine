@@ -1,9 +1,9 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useArtistsQuery } from "@/api/artists/useArtists";
-import { FestivalSet } from "@/api/sets/types";
+import { FestivalSet, SET_TYPES, SetType } from "@/api/sets/types";
 import { useCreateSetMutation } from "@/api/sets/useCreateSet";
 import { useUpdateSetMutation } from "@/api/sets/useUpdateSet";
 import { useAddArtistToSetMutation } from "@/api/sets/useAddArtistToSet";
@@ -25,6 +25,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { setTypeLabels } from "@/lib/setTypeLabels";
+import { generateSetName } from "@/lib/generateSetName";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
@@ -35,18 +44,30 @@ import {
 } from "@/lib/timeUtils";
 import { StageSelector } from "./StageSelector";
 
-// Form validation schema
-const setFormSchema = z.object({
-  name: z.string().min(1, "Set name is required"),
-  description: z.string().optional(),
-  stage_id: z.string().optional(),
-  time_start: z.string().optional(),
-  time_end: z.string().optional(),
-  estimated_date: z.string().optional(),
-  artist_ids: z.array(z.string()).optional(),
-});
+// Form validation schema. New sets must pick a type; editing a legacy
+// untyped set doesn't force a choice.
+export function buildSetFormSchema(requireType: boolean) {
+  return z.object({
+    set_type: z
+      .enum(SET_TYPES)
+      .nullable()
+      .refine((value) => !requireType || value !== null, {
+        message: "Type is required",
+      }),
+    name: z.string().min(1, "Set name is required"),
+    description: z.string().optional(),
+    external_url: z
+      .union([z.literal(""), z.string().url("Enter a valid URL")])
+      .optional(),
+    stage_id: z.string().optional(),
+    time_start: z.string().optional(),
+    time_end: z.string().optional(),
+    estimated_date: z.string().optional(),
+    artist_ids: z.array(z.string()).optional(),
+  });
+}
 
-type SetFormData = z.infer<typeof setFormSchema>;
+type SetFormData = z.infer<ReturnType<typeof buildSetFormSchema>>;
 
 interface SetFormDialogProps {
   isOpen: boolean;
@@ -77,12 +98,18 @@ export function SetFormDialog({
   const addArtistToSetMutation = useAddArtistToSetMutation();
   const removeArtistFromSetMutation = useRemoveArtistFromSetMutation();
 
-  // Form setup
+  // Form setup — type is only required when creating a new set
+  const setFormSchema = useMemo(
+    () => buildSetFormSchema(!editingSet),
+    [editingSet],
+  );
   const form = useForm<SetFormData>({
     resolver: zodResolver(setFormSchema),
     defaultValues: {
+      set_type: null,
       name: "",
       description: "",
+      external_url: "",
       stage_id: "none",
       time_start: "",
       time_end: "",
@@ -90,6 +117,9 @@ export function SetFormDialog({
       artist_ids: [],
     },
   });
+
+  const setType = form.watch("set_type");
+  const isMusic = setType === "music";
 
   // Reset form when dialog opens/closes or editingSet changes
   useEffect(() => {
@@ -99,8 +129,10 @@ export function SetFormDialog({
 
       if (editingSet) {
         form.reset({
+          set_type: editingSet.set_type,
           name: editingSet.name,
           description: editingSet.description || "",
+          external_url: editingSet.external_url || "",
           stage_id: editingSet.stage_id || "none",
           time_start: toDatetimeLocalInTimeZone(editingSet.time_start, tz),
           time_end: toDatetimeLocalInTimeZone(editingSet.time_end, tz),
@@ -111,8 +143,10 @@ export function SetFormDialog({
         setHasManuallyEditedName(true);
       } else {
         form.reset({
+          set_type: null,
           name: "",
           description: "",
+          external_url: "",
           stage_id: "none",
           time_start: "",
           time_end: "",
@@ -123,25 +157,13 @@ export function SetFormDialog({
     }
   }, [isOpen, editingSet, form, tz]);
 
-  // Generate set name from selected artists
-  const generateSetName = useCallback(
-    (artistIds: string[]): string => {
-      if (artistIds.length === 0) return "";
-
-      const selectedArtists = artists.filter((artist) =>
-        artistIds.includes(artist.id),
-      );
-      const artistNames = selectedArtists.map((artist) => artist.name);
-
-      if (artistNames.length === 1) {
-        return artistNames[0];
-      } else if (artistNames.length === 2) {
-        return `${artistNames[0]} vs ${artistNames[1]}`;
-      } else if (artistNames.length > 2) {
-        return `${artistNames[0]} + ${artistNames.length - 1} more`;
-      }
-
-      return "";
+  // Generate set name from selected artists (music sets only)
+  const generateNameFromArtistIds = useCallback(
+    (artistIds: string[], type: SetType | null): string => {
+      const artistNames = artists
+        .filter((artist) => artistIds.includes(artist.id))
+        .map((artist) => artist.name);
+      return generateSetName(artistNames, type);
     },
     [artists],
   );
@@ -152,8 +174,10 @@ export function SetFormDialog({
     }
 
     const submitData = {
+      set_type: data.set_type ?? null,
       name: data.name,
       description: data.description || null,
+      external_url: data.external_url || null,
       festival_edition_id: editionId,
       stage_id:
         data.stage_id && data.stage_id !== "none" ? data.stage_id : null,
@@ -223,13 +247,50 @@ export function SetFormDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Artist Selection - First Step */}
+            <FormField
+              control={form.control}
+              name="set_type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Type{" "}
+                    {!editingSet && <span className="text-destructive">*</span>}
+                  </FormLabel>
+                  <Select
+                    value={field.value ?? undefined}
+                    onValueChange={(value) => field.onChange(value as SetType)}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a type..." />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {SET_TYPES.map((type) => {
+                        const { label, icon: Icon } = setTypeLabels[type];
+                        return (
+                          <SelectItem key={type} value={type}>
+                            <span className="flex items-center gap-2">
+                              <Icon className="h-4 w-4" /> {label}
+                            </span>
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="artist_ids"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Artists in Set</FormLabel>
+                  <FormLabel>
+                    {isMusic ? "Artists in Set" : "Artists (optional)"}
+                  </FormLabel>
                   <FormControl>
                     <ArtistMultiSelect
                       artists={artists.map((a) => ({ id: a.id, name: a.name }))}
@@ -238,13 +299,22 @@ export function SetFormDialog({
                         field.onChange(artistIds);
                         // Auto-generate name if user hasn't manually edited it
                         if (!hasManuallyEditedName) {
-                          const generatedName = generateSetName(artistIds);
-                          form.setValue("name", generatedName, {
-                            shouldValidate: true,
-                          });
+                          const generatedName = generateNameFromArtistIds(
+                            artistIds,
+                            form.getValues("set_type"),
+                          );
+                          if (generatedName) {
+                            form.setValue("name", generatedName, {
+                              shouldValidate: true,
+                            });
+                          }
                         }
                       }}
-                      placeholder="Select artists for this set..."
+                      placeholder={
+                        isMusic
+                          ? "Select artists for this set..."
+                          : "Link facilitators/performers if they exist as artists..."
+                      }
                     />
                   </FormControl>
                   <FormMessage />
@@ -270,7 +340,7 @@ export function SetFormDialog({
                       }}
                     />
                   </FormControl>
-                  {!hasManuallyEditedName && (
+                  {!hasManuallyEditedName && isMusic && (
                     <p className="text-xs text-muted-foreground">
                       Name will be auto-generated from selected artists
                     </p>
@@ -302,6 +372,24 @@ export function SetFormDialog({
                     <Textarea
                       placeholder="Set description..."
                       rows={2}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="external_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>External URL</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="url"
+                      placeholder="https://example.com/workshop-signup"
                       {...field}
                     />
                   </FormControl>

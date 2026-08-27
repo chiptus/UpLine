@@ -1,5 +1,5 @@
 import { useCreateSetMutation } from "@/api/sets/useCreateSet";
-import { useAddArtistToSetMutation } from "@/api/sets/useAddArtistToSet";
+import { useAddArtistsToSetMutation } from "@/api/sets/useAddArtistsToSet";
 import { SetFormData } from "./setFormSchema";
 import { toSetPayload } from "./toSetPayload";
 
@@ -17,10 +17,10 @@ export function useCreateSetSubmit({
   onComplete,
 }: UseCreateSetSubmitOptions) {
   const createSetMutation = useCreateSetMutation();
-  const addArtistToSetMutation = useAddArtistToSetMutation();
+  const addArtistsToSetMutation = useAddArtistsToSetMutation();
 
   const isPending =
-    createSetMutation.isPending || addArtistToSetMutation.isPending;
+    createSetMutation.isPending || addArtistsToSetMutation.isPending;
 
   return { submit, isPending };
 
@@ -32,22 +32,22 @@ export function useCreateSetSubmit({
     createSetMutation.mutate(
       { ...toSetPayload(data, editionId, timezone), created_by: userId },
       {
-        onSuccess: (newSet) => addArtistsAndComplete(data, newSet.id),
+        onSuccess: (newSet) => addArtists(data, newSet.id),
       },
     );
   }
 
-  async function addArtistsAndComplete(data: SetFormData, setId: string) {
-    try {
-      for (const artistId of data.artist_ids || []) {
-        await addArtistToSetMutation.mutateAsync({ setId, artistId });
-      }
-    } catch {
-      // The mutation hooks already toast the failure; keep the dialog open
-      // so the user can retry the artist sync.
+  function addArtists(data: SetFormData, setId: string) {
+    const artistIds = data.artist_ids || [];
+    if (artistIds.length === 0) {
+      onComplete();
       return;
     }
 
-    onComplete();
+    // On failure the mutation hook toasts; keep the dialog open for retry.
+    addArtistsToSetMutation.mutate(
+      { setId, artistIds },
+      { onSuccess: onComplete },
+    );
   }
 }

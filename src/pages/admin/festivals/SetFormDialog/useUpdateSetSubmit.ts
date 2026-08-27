@@ -1,7 +1,7 @@
 import { FestivalSet } from "@/api/sets/types";
 import { useUpdateSetMutation } from "@/api/sets/useUpdateSet";
-import { useAddArtistToSetMutation } from "@/api/sets/useAddArtistToSet";
-import { useRemoveArtistFromSetMutation } from "@/api/sets/useRemoveArtistFromSet";
+import { useAddArtistsToSetMutation } from "@/api/sets/useAddArtistsToSet";
+import { useRemoveArtistsFromSetMutation } from "@/api/sets/useRemoveArtistsFromSet";
 import { SetFormData } from "./setFormSchema";
 import { toSetPayload } from "./toSetPayload";
 
@@ -19,13 +19,13 @@ export function useUpdateSetSubmit({
   onComplete,
 }: UseUpdateSetSubmitOptions) {
   const updateSetMutation = useUpdateSetMutation();
-  const addArtistToSetMutation = useAddArtistToSetMutation();
-  const removeArtistFromSetMutation = useRemoveArtistFromSetMutation();
+  const addArtistsToSetMutation = useAddArtistsToSetMutation();
+  const removeArtistsFromSetMutation = useRemoveArtistsFromSetMutation();
 
   const isPending =
     updateSetMutation.isPending ||
-    addArtistToSetMutation.isPending ||
-    removeArtistFromSetMutation.isPending;
+    addArtistsToSetMutation.isPending ||
+    removeArtistsFromSetMutation.isPending;
 
   return { submit, isPending };
 
@@ -50,11 +50,17 @@ export function useUpdateSetSubmit({
     );
 
     try {
-      for (const artistId of artistsToRemove) {
-        await removeArtistFromSetMutation.mutateAsync({ setId, artistId });
+      if (artistsToRemove.length > 0) {
+        await removeArtistsFromSetMutation.mutateAsync({
+          setId,
+          artistIds: artistsToRemove,
+        });
       }
-      for (const artistId of artistsToAdd) {
-        await addArtistToSetMutation.mutateAsync({ setId, artistId });
+      if (artistsToAdd.length > 0) {
+        await addArtistsToSetMutation.mutateAsync({
+          setId,
+          artistIds: artistsToAdd,
+        });
       }
     } catch {
       // The mutation hooks already toast the failure; keep the dialog open

@@ -8,6 +8,7 @@ import {
 import { usePrefetchNextBatchLinks } from "@/api/artistSearch/usePrefetchNextBatchLinks";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { filterArtistsByStage } from "@/lib/filterArtistsByStage";
+import { useLinkWizardSkipped } from "@/hooks/useLinkWizardSkipped";
 import { LinkWizardQueue } from "./LinkWizardQueue";
 import { LinkWizardStep } from "./LinkWizardStep";
 
@@ -23,9 +24,16 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
   );
   const [selectedStages, setSelectedStages] = useState<string[]>([]);
   const [showFullQueue, setShowFullQueue] = useState(false);
+  const skippedHook = useLinkWizardSkipped(editionId);
 
   const allArtists = artistsQuery.data ?? [];
-  const filteredArtists = filterArtistsByStage(allArtists, selectedStages);
+  const unskippedArtists = allArtists.filter(
+    (artist) => !skippedHook.isSkipped(artist.id),
+  );
+  const filteredArtists = filterArtistsByStage(
+    unskippedArtists,
+    selectedStages,
+  );
 
   const currentIndex = currentArtistId
     ? Math.max(
@@ -61,6 +69,10 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
           onClearStages={() => setSelectedStages([])}
           isPreviewMode={isMobile && !showFullQueue}
           onViewAll={() => setShowFullQueue(true)}
+          skippedArtists={skippedHook.getSkippedArtists()}
+          allArtists={allArtists}
+          onRestoreSkipped={skippedHook.restore}
+          onClearAllSkipped={skippedHook.clearAll}
         />
       </div>
       <Card>
@@ -86,7 +98,14 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
                 total={filteredArtists.length}
                 artists={filteredArtists}
                 onPrev={() => goTo(currentIndex - 1)}
-                onNext={() => goTo(currentIndex + 1)}
+                onNext={() => {
+                  skippedHook.markSkipped(currentArtist.id);
+                  goTo(nextIndexAfterRemoval());
+                }}
+                onSaveSuccess={() => {
+                  skippedHook.markSaved(currentArtist.id);
+                  goTo(nextIndexAfterRemoval());
+                }}
               />
             )
           )}
@@ -98,6 +117,11 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
   function goTo(index: number) {
     const clamped = Math.max(0, Math.min(index, filteredArtists.length - 1));
     setCurrentArtistId(filteredArtists[clamped]?.id);
+  }
+
+  function nextIndexAfterRemoval() {
+    const isLast = currentIndex >= filteredArtists.length - 1;
+    return isLast ? currentIndex - 1 : currentIndex + 1;
   }
 
   function handleSelectArtist(artist: ArtistWithSets) {

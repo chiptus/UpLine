@@ -2,9 +2,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import type { ArtistWithSets } from "@/api/artists/useArtistsMissingLinksByEdition";
+import type { ArtistSkipRecord } from "@/hooks/useLinkWizardSkipped";
 import { cn } from "@/lib/utils";
 import { LinkWizardStageFilterDropdown } from "./LinkWizardStageFilterDropdown";
 import { LinkWizardFilterSheet } from "./LinkWizardFilterSheet";
+import { SkippedArtistsPopover } from "./SkippedArtistsPopover";
 
 const MOBILE_PREVIEW_COUNT = 4;
 
@@ -17,6 +19,10 @@ interface LinkWizardQueueProps {
   onClearStages: () => void;
   isPreviewMode?: boolean;
   onViewAll?: () => void;
+  skippedArtists: ArtistSkipRecord[];
+  allArtists: Array<{ id: string; name: string }>;
+  onRestoreSkipped: (artistId: string) => void;
+  onClearAllSkipped: () => void;
 }
 
 export function LinkWizardQueue({
@@ -28,6 +34,10 @@ export function LinkWizardQueue({
   onClearStages,
   isPreviewMode = false,
   onViewAll,
+  skippedArtists,
+  allArtists,
+  onRestoreSkipped,
+  onClearAllSkipped,
 }: LinkWizardQueueProps) {
   const displayedArtists = isPreviewMode
     ? artists.slice(0, MOBILE_PREVIEW_COUNT)
@@ -57,8 +67,14 @@ export function LinkWizardQueue({
   return (
     <Card>
       <CardHeader className="pb-3 space-y-3">
-        <div className="flex items-center justify-between gap-2">
-          <CardTitle className="text-base">Queue ({artists.length})</CardTitle>
+        <CardTitle className="text-base">Queue ({artists.length})</CardTitle>
+        <div className="flex items-center gap-2 flex-wrap">
+          <SkippedArtistsPopover
+            skippedArtists={skippedArtists}
+            artists={allArtists}
+            onRestore={onRestoreSkipped}
+            onClearAll={onClearAllSkipped}
+          />
           <div className="hidden lg:block">
             <LinkWizardStageFilterDropdown
               selectedStages={selectedStages}

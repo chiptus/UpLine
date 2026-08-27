@@ -65,6 +65,7 @@ interface LinkWizardStepProps {
   artists: Artist[];
   onPrev: () => void;
   onNext: () => void;
+  onSaveSuccess?: () => void;
 }
 
 export function LinkWizardStep({
@@ -74,6 +75,7 @@ export function LinkWizardStep({
   artists,
   onPrev,
   onNext,
+  onSaveSuccess,
 }: LinkWizardStepProps) {
   const updateArtistMutation = useUpdateArtistMutation();
   const batchQueryResult = useArtistBatchQuery(artist, artists);
@@ -210,7 +212,15 @@ export function LinkWizardStep({
 
     updateArtistMutation.mutate(
       { id: artist.id, updates },
-      { onSuccess: onNext },
+      {
+        onSuccess: () => {
+          if (onSaveSuccess) {
+            onSaveSuccess();
+          } else {
+            onNext();
+          }
+        },
+      },
     );
   }
 }

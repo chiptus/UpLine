@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useArtistsQuery } from "@/api/artists/useArtists";
-import { FestivalSet } from "@/api/sets/types";
+import { FestivalSet, isNonMusicSetType } from "@/api/sets/types";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Dialog,
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { toDatetimeLocalInTimeZone } from "@/lib/timeUtils";
-import { setFormSchema, SetFormData } from "./setFormSchema";
+import { makeSetFormSchema, SetFormData } from "./setFormSchema";
 import { useUpdateSetSubmit } from "./useUpdateSetSubmit";
 import { SetFormFields } from "./SetFormFields";
 import { SetFormFooter } from "./SetFormFooter";
@@ -42,10 +42,12 @@ export function EditSetDialog({
   });
 
   const form = useForm<SetFormData>({
-    resolver: zodResolver(setFormSchema),
+    resolver: zodResolver(makeSetFormSchema(false)),
     defaultValues: {
+      set_type: set.set_type,
       name: set.name,
       description: set.description || "",
+      external_url: set.external_url || "",
       stage_id: set.stage_id || "none",
       time_start: toDatetimeLocalInTimeZone(set.time_start, tz),
       time_end: toDatetimeLocalInTimeZone(set.time_end, tz),
@@ -53,6 +55,8 @@ export function EditSetDialog({
       artist_ids: set.artists?.map((a) => a.id) || [],
     },
   });
+
+  const isNonMusicSet = isNonMusicSetType(form.watch("set_type"));
 
   return (
     <Dialog open onOpenChange={onClose}>
@@ -70,6 +74,7 @@ export function EditSetDialog({
               artists={artists.map((a) => ({ id: a.id, name: a.name }))}
               editionId={editionId}
               timezone={tz}
+              isNonMusicSet={isNonMusicSet}
             />
 
             <SetFormFooter

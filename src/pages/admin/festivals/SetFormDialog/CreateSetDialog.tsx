@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useArtistsQuery } from "@/api/artists/useArtists";
+import { isNonMusicSetType, type SetType } from "@/api/sets/types";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Dialog,
@@ -12,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import {
-  setFormSchema,
+  makeSetFormSchema,
   SetFormData,
   setFormDefaultValues,
 } from "./setFormSchema";
@@ -46,9 +47,11 @@ export function CreateSetDialog({
   });
 
   const form = useForm<SetFormData>({
-    resolver: zodResolver(setFormSchema),
+    resolver: zodResolver(makeSetFormSchema(true)),
     defaultValues: setFormDefaultValues,
   });
+
+  const isNonMusicSet = isNonMusicSetType(form.watch("set_type"));
 
   return (
     <Dialog open onOpenChange={onClose}>
@@ -56,8 +59,8 @@ export function CreateSetDialog({
         <DialogHeader>
           <DialogTitle>Create New Set</DialogTitle>
           <DialogDescription>
-            Create a new set by first selecting artists, then configuring
-            details and scheduling.
+            Create a new set by picking its type, then configuring details and
+            scheduling.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -67,6 +70,9 @@ export function CreateSetDialog({
               artists={artists.map((a) => ({ id: a.id, name: a.name }))}
               editionId={editionId}
               timezone={tz}
+              typeRequired
+              isNonMusicSet={isNonMusicSet}
+              onTypeChange={handleTypeChange}
               hasManuallyEditedName={hasManuallyEditedName}
               onManualNameEdit={() => setHasManuallyEditedName(true)}
               onArtistsChange={handleArtistsChange}
@@ -84,11 +90,23 @@ export function CreateSetDialog({
     </Dialog>
   );
 
+  function handleTypeChange(setType: SetType) {
+    if (hasManuallyEditedName) return;
+    form.setValue(
+      "name",
+      generateSetName(setType, artists, form.getValues("artist_ids") || []),
+      { shouldValidate: true },
+    );
+  }
+
+  // Auto-generate name from artists; music sets only
   function handleArtistsChange(artistIds: string[]) {
-    // Auto-generate name if user hasn't manually edited it
-    if (!hasManuallyEditedName) {
-      const generatedName = generateSetName(artists, artistIds);
-      form.setValue("name", generatedName, { shouldValidate: true });
-    }
+    if (hasManuallyEditedName) return;
+    if (form.getValues("set_type") !== "music") return;
+    form.setValue(
+      "name",
+      generateSetName(form.getValues("set_type"), artists, artistIds),
+      { shouldValidate: true },
+    );
   }
 }

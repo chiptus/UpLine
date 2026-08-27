@@ -17,5 +17,7 @@ export function toSetPayload(
     time_end: data.time_end
       ? convertLocalTimeToUTC(data.time_end, timezone)
       : null,
+    set_type: data.set_type ?? null,
+    external_url: data.external_url || null,
   };
 }

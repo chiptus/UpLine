@@ -6,6 +6,8 @@ import {
   type ArtistWithSets,
 } from "@/api/artists/useArtistsMissingLinksByEdition";
 import { usePrefetchNextBatchLinks } from "@/api/artistSearch/usePrefetchNextBatchLinks";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { filterArtistsByStage } from "@/lib/filterArtistsByStage";
 import { LinkWizardQueue } from "./LinkWizardQueue";
 import { LinkWizardStep } from "./LinkWizardStep";
 
@@ -14,21 +16,27 @@ interface LinkWizardProps {
 }
 
 export function LinkWizard({ editionId }: LinkWizardProps) {
+  const isMobile = useIsMobile();
   const artistsQuery = useArtistsMissingLinksByEditionQuery(editionId);
   const [currentArtistId, setCurrentArtistId] = useState<string | undefined>(
     undefined,
   );
+  const [selectedStages, setSelectedStages] = useState<string[]>([]);
+  const [showFullQueue, setShowFullQueue] = useState(false);
 
-  const artists = artistsQuery.data ?? [];
+  const allArtists = artistsQuery.data ?? [];
+  const filteredArtists = filterArtistsByStage(allArtists, selectedStages);
+
   const currentIndex = currentArtistId
     ? Math.max(
         0,
-        artists.findIndex((artist) => artist.id === currentArtistId),
+        filteredArtists.findIndex((artist) => artist.id === currentArtistId),
       )
     : 0;
-  const currentArtist = artists[Math.min(currentIndex, artists.length - 1)];
+  const currentArtist =
+    filteredArtists[Math.min(currentIndex, filteredArtists.length - 1)];
 
-  usePrefetchNextBatchLinks(artists, currentArtist?.id);
+  usePrefetchNextBatchLinks(filteredArtists, currentArtist?.id);
 
   if (artistsQuery.isLoading) {
     return (
@@ -42,12 +50,19 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)] gap-6 items-start">
-      <LinkWizardQueue
-        artists={artists}
-        currentArtistId={currentArtist?.id}
-        onSelectArtist={handleSelectArtist}
-      />
+    <div className="space-y-6 lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-6 lg:items-start">
+      <div className="lg:sticky lg:top-4">
+        <LinkWizardQueue
+          artists={filteredArtists}
+          currentArtistId={currentArtist?.id}
+          onSelectArtist={handleSelectArtist}
+          selectedStages={selectedStages}
+          onStageToggle={handleStageToggle}
+          onClearStages={() => setSelectedStages([])}
+          isPreviewMode={isMobile && !showFullQueue}
+          onViewAll={() => setShowFullQueue(true)}
+        />
+      </div>
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -56,9 +71,11 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {artists.length === 0 ? (
+          {filteredArtists.length === 0 ? (
             <p className="text-muted-foreground">
-              All artists in this edition have both links set.
+              {selectedStages.length > 0
+                ? "No artists missing links on selected stages."
+                : "All artists in this edition have both links set."}
             </p>
           ) : (
             currentArtist && (
@@ -66,8 +83,8 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
                 key={currentArtist.id}
                 artist={currentArtist}
                 position={currentIndex + 1}
-                total={artists.length}
-                artists={artists}
+                total={filteredArtists.length}
+                artists={filteredArtists}
                 onPrev={() => goTo(currentIndex - 1)}
                 onNext={() => goTo(currentIndex + 1)}
               />
@@ -79,11 +96,19 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
   );
 
   function goTo(index: number) {
-    const clamped = Math.max(0, Math.min(index, artists.length - 1));
-    setCurrentArtistId(artists[clamped]?.id);
+    const clamped = Math.max(0, Math.min(index, filteredArtists.length - 1));
+    setCurrentArtistId(filteredArtists[clamped]?.id);
   }
 
   function handleSelectArtist(artist: ArtistWithSets) {
     setCurrentArtistId(artist.id);
+  }
+
+  function handleStageToggle(stageId: string) {
+    setSelectedStages((prev) =>
+      prev.includes(stageId)
+        ? prev.filter((id) => id !== stageId)
+        : [...prev, stageId],
+    );
   }
 }

@@ -7,11 +7,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { ArtistMultiSelect } from "../SetsManagement/ArtistMultiSelect";
+import { NamedArtist } from "./generateSetName";
 import { SetFormData } from "./setFormSchema";
 
 interface ArtistSelectionFieldProps {
   control: Control<SetFormData>;
-  artists: Array<{ id: string; name: string }>;
+  artists: NamedArtist[];
   onArtistsChange: (artistIds: string[]) => void;
 }
 

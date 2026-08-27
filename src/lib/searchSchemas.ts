@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { VOTES_TYPES, type VoteType } from "@/lib/voteConfig";
+import { SET_TYPES, type SetType } from "@/api/sets/types";
 
 export const sortOptionSchema = z.enum([
   "name-asc",
@@ -21,6 +22,17 @@ export const filterSortSearchSchema = z.object({
   use24Hour: z.boolean().catch(true),
   invite: z.string().optional(),
   sortLocked: z.boolean().catch(false),
+  /** Set-type filter values; unknown entries are dropped individually. */
+  types: z
+    .array(z.string())
+    .catch([])
+    .transform((types) => [
+      ...new Set(
+        types.filter((t): t is SetType =>
+          (SET_TYPES as readonly string[]).includes(t),
+        ),
+      ),
+    ]),
 });
 
 export type FilterSortSearch = z.infer<typeof filterSortSearchSchema>;
@@ -33,6 +45,7 @@ export const filterSortSearchDefaults = {
   timelineView: "list",
   use24Hour: true,
   sortLocked: false,
+  types: [],
 } satisfies Partial<FilterSortSearch>;
 
 export const timelineSearchSchema = z.object({

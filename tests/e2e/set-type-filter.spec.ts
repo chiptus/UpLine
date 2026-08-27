@@ -17,6 +17,10 @@ test.describe("Set type filter", { tag: "@smoke" }, () => {
     await expect(items).toHaveCount(1);
     await expect(items.first()).toContainText("Morning Yoga Workshop");
     await expect(page).toHaveURL(/types=/);
+    // The active type selection counts toward the filter badge
+    await expect(
+      page.getByRole("button", { name: /Filters/ }).getByText("1"),
+    ).toBeVisible();
 
     // Deselecting restores the full list
     await page.getByRole("button", { name: "Workshop" }).click();

@@ -1,8 +1,5 @@
 import { Drama, Hammer, Music, Sparkles, type LucideIcon } from "lucide-react";
-
-export const SET_TYPES = ["music", "workshop", "performance", "other"] as const;
-
-export type SetType = (typeof SET_TYPES)[number];
+import type { SetType } from "@/api/sets/types";
 
 export interface SetTypeLabel {
   label: string;

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { Music, Hammer, Drama, Sparkles } from "lucide-react";
-import { SET_TYPES, getSetTypeLabel, setTypeLabels } from "./setTypeLabels";
+import { SET_TYPES } from "@/api/sets/types";
+import { getSetTypeLabel, setTypeLabels } from "./setTypeLabels";
 
 describe("setTypeLabels", () => {
   it("covers every set type", () => {

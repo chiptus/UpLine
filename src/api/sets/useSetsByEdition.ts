@@ -1,6 +1,6 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { FestivalSet, setsKeys } from "./types";
+import { FestivalSet, asSetType, setsKeys } from "./types";
 
 // Business logic function
 async function fetchSetsByEdition(editionId: string): Promise<FestivalSet[]> {
@@ -39,6 +39,7 @@ async function fetchSetsByEdition(editionId: string): Promise<FestivalSet[]> {
           }))
           .filter(Boolean) || [],
       stage_name: set.stages?.name || null,
+      set_type: asSetType(set.set_type),
       set_artists: undefined, // Remove junction data from final response
       stages: undefined, // Remove junction data from final response
     })) || [];

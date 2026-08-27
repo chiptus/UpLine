@@ -3,7 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { generateSlug } from "@/lib/slug";
-import { setsKeys } from "./types";
+import { SetType, setsKeys } from "./types";
 
 type SetUpdate = Database["public"]["Tables"]["sets"]["Update"];
 
@@ -17,13 +17,17 @@ export type UpdateSetInput = Partial<
     | "time_start"
     | "time_end"
     | "archived"
-    | "set_type"
     | "external_url"
   >
->;
+> & {
+  set_type?: SetType | null;
+};
 
 // Mutation function
-async function updateSet(variables: { id: string; updates: UpdateSetInput }) {
+export async function updateSet(variables: {
+  id: string;
+  updates: UpdateSetInput;
+}) {
   const { id, updates } = variables;
 
   const updateData: SetUpdate = {};

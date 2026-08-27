@@ -146,7 +146,7 @@ export function SetFormDialog({
     [artists],
   );
 
-  async function onSubmit(data: SetFormData) {
+  function onSubmit(data: SetFormData) {
     if (!user) {
       return; // Should not happen if user is authenticated
     }
@@ -163,24 +163,24 @@ export function SetFormDialog({
       time_end: data.time_end ? convertLocalTimeToUTC(data.time_end, tz) : null,
     };
 
-    let setId: string;
     if (editingSet) {
-      const updatedSet = await updateSetMutation.mutateAsync({
-        id: editingSet.id,
-        updates: submitData,
-      });
-      setId = updatedSet.id;
+      updateSetMutation.mutate(
+        { id: editingSet.id, updates: submitData },
+        {
+          onSuccess: (updatedSet) => syncArtistsAndClose(data, updatedSet.id),
+        },
+      );
     } else {
-      const newSet = await createSetMutation.mutateAsync({
-        ...submitData,
-        set_type: null,
-        external_url: null,
-        created_by: user.id,
-      });
-      setId = newSet.id;
+      createSetMutation.mutate(
+        { ...submitData, created_by: user.id },
+        {
+          onSuccess: (newSet) => syncArtistsAndClose(data, newSet.id),
+        },
+      );
     }
+  }
 
-    // Update artist associations
+  async function syncArtistsAndClose(data: SetFormData, setId: string) {
     const selectedArtistIds = data.artist_ids || [];
     const existingArtistIds = editingSet?.artists?.map((a) => a.id) || [];
 

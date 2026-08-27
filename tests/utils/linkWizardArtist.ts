@@ -89,6 +89,63 @@ export async function createLinkWizardTestArtist(): Promise<LinkWizardTestArtist
   return { artistId: artist.id, setId: set.id, artistName, setDescription };
 }
 
+export interface UntypedSetFixture {
+  setId: string;
+  setName: string;
+}
+
+// Creates an artist-less set with no set_type, which the link wizard's mixed
+// queue surfaces as a standalone type-backfill step. Unique per call so
+// parallel workers/browser projects never race on shared rows.
+export async function createUntypedSetFixture(): Promise<UntypedSetFixture> {
+  const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const setName = `E2E Untyped Set ${suffix}`;
+
+  const { data: set, error } = await adminClient
+    .from("sets")
+    .insert({
+      name: setName,
+      slug: `e2e-untyped-set-${suffix}`,
+      festival_edition_id: TEST_EDITION_ID,
+      stage_id: CLUB_STAGE_ID,
+      time_start: "2025-07-12T10:00:00+00:00",
+      time_end: "2025-07-12T11:00:00+00:00",
+      description: "Artist-less set seeded for type-backfill e2e coverage",
+      created_by: SEEDED_USER_ID,
+    })
+    .select("id")
+    .single();
+  if (error) {
+    throw new Error(`Failed to create untyped set fixture: ${error.message}`);
+  }
+
+  return { setId: set.id, setName };
+}
+
+export async function getSetType(setId: string): Promise<string | null> {
+  const { data, error } = await adminClient
+    .from("sets")
+    .select("set_type")
+    .eq("id", setId)
+    .single();
+  if (error) {
+    throw new Error(`Failed to read set_type: ${error.message}`);
+  }
+  return data.set_type;
+}
+
+export async function deleteUntypedSetFixture(
+  fixture: UntypedSetFixture,
+): Promise<void> {
+  const { error } = await adminClient
+    .from("sets")
+    .delete()
+    .eq("id", fixture.setId);
+  if (error) {
+    throw new Error(`Failed to delete untyped set fixture: ${error.message}`);
+  }
+}
+
 // Deleting the artist cascades to set_artists but not to the set row itself
 // (no FK from sets to artists), so both are deleted explicitly.
 export async function deleteLinkWizardTestArtist(

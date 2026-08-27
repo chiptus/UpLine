@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -15,9 +16,12 @@ import {
   type SelectableField,
 } from "@/api/artistSearch/mergeCandidateSelection";
 import type { Provider, Candidate } from "@/api/artistSearch/types";
+import { useBackfillSetTypesMutation } from "@/api/sets/useBackfillSetTypes";
+import type { SetType } from "@/api/sets/types";
 import { ProviderCandidatesPanel } from "./ProviderCandidatesPanel";
 import { StagedFieldsPreview } from "./StagedFieldsPreview";
 import { ArtistSetInfoPanel } from "./ArtistSetInfoPanel";
+import { UntypedSetsBlock } from "./UntypedSetsBlock";
 import { useArtistBatchQuery } from "./useArtistBatchQuery";
 import { validateProviderUrl } from "@/lib/validateProviderUrl";
 
@@ -78,7 +82,11 @@ export function LinkWizardStep({
   onSaveSuccess,
 }: LinkWizardStepProps) {
   const updateArtistMutation = useUpdateArtistMutation();
+  const backfillMutation = useBackfillSetTypesMutation();
   const batchQueryResult = useArtistBatchQuery(artist, artists);
+
+  const untypedSets = artist.sets.filter((set) => set.set_type === null);
+  const [pendingTypes, setPendingTypes] = useState<Record<string, SetType>>({});
 
   const form = useForm<LinkStepData>({
     resolver: zodResolver(linkStepSchema),
@@ -102,6 +110,16 @@ export function LinkWizardStep({
       </div>
 
       <ArtistSetInfoPanel artist={artist} />
+
+      {untypedSets.length > 0 && (
+        <UntypedSetsBlock
+          untypedSets={untypedSets}
+          pendingTypes={pendingTypes}
+          onPick={(setId, setType) =>
+            setPendingTypes((prev) => ({ ...prev, [setId]: setType }))
+          }
+        />
+      )}
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -198,6 +216,14 @@ export function LinkWizardStep({
   }
 
   function onSubmit(data: LinkStepData) {
+    const typeUpdates = Object.entries(pendingTypes).map(([id, set_type]) => ({
+      id,
+      set_type,
+    }));
+    if (typeUpdates.length > 0) {
+      backfillMutation.mutate({ updates: typeUpdates });
+    }
+
     const updates: UpdateArtistUpdates = {
       spotify_url: data.providerUrl.spotify || null,
       soundcloud_url: data.providerUrl.soundcloud || null,

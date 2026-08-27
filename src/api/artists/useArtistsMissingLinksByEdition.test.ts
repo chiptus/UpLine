@@ -36,6 +36,7 @@ function makeSet(
     time_start: null,
     time_end: null,
     stage_id: null,
+    set_type: null,
     stages: null,
     set_artists: null,
     ...overrides,

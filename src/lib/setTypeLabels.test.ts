@@ -27,6 +27,12 @@ describe("setTypeLabels", () => {
     }
   });
 
+  it("gives every type a tint for schedule blocks", () => {
+    for (const type of SET_TYPES) {
+      expect(setTypeLabels[type].tint).toMatch(/^from-.+ to-.+$/);
+    }
+  });
+
   it("falls back to the other treatment for null", () => {
     expect(getSetTypeLabel(null)).toBe(setTypeLabels.other);
   });

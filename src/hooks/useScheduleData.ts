@@ -4,7 +4,7 @@ import {
   getFestivalDayKey,
   getFestivalDayLabel,
 } from "@/lib/timeUtils";
-import type { FestivalSet } from "@/api/sets/types";
+import type { FestivalSet, SetType } from "@/api/sets/types";
 import type { Stage } from "@/api/stages/types";
 import { sortStagesByOrder } from "@/lib/stageUtils";
 
@@ -40,6 +40,7 @@ export interface ScheduleArtist {
 // Schedule Set type for the new system
 export interface ScheduleSet extends ScheduleArtist {
   artists: ScheduleArtist[];
+  setType: SetType | null;
 }
 
 type EnhancedSet = ScheduleSet & { dayKey: string };
@@ -92,6 +93,7 @@ export function useScheduleData({
             timezone,
           ),
           dayKey,
+          setType: set.set_type,
           artists: (set.artists || []).map((artist) => ({
             id: artist.id,
             name: artist.name,

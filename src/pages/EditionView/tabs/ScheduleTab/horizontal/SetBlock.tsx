@@ -1,4 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { isNonMusicSetType } from "@/api/sets/types";
+import { getSetTypeLabel } from "@/lib/setTypeLabels";
+import { cn } from "@/lib/utils";
 import type { ScheduleSet } from "@/hooks/useScheduleData";
 import { SetHeader } from "./SetHeader";
 import { TimeDisplay } from "./TimeDisplay";
@@ -10,8 +13,18 @@ interface SetBlockProps {
 }
 
 export function SetBlock({ set, timezone }: SetBlockProps) {
+  const isNonMusicSet = isNonMusicSetType(set.setType);
+
   return (
-    <Card className="bg-surface-raised backdrop-blur-md border-border hover:border-strong transition-colors">
+    <Card
+      className={cn(
+        "bg-surface-raised backdrop-blur-md border-border hover:border-strong transition-colors",
+        isNonMusicSet && [
+          "bg-gradient-to-br",
+          getSetTypeLabel(set.setType).tint,
+        ],
+      )}
+    >
       <CardContent className="p-3">
         <SetHeader set={set} />
 

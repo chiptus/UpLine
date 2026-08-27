@@ -34,7 +34,7 @@ describe("calculateOverviewSetBlocks", () => {
 
   it("skips sets without a computed horizontalPosition", () => {
     const sets: HorizontalTimelineSet[] = [
-      { id: "set-1", name: "set-1", artists: [] },
+      { id: "set-1", name: "set-1", artists: [], setType: null },
       buildSet("set-2", 0, 100),
     ];
 
@@ -198,6 +198,7 @@ function buildSet(
     id,
     name: id,
     artists: [],
+    setType: null,
     horizontalPosition: { left, width },
   };
 }

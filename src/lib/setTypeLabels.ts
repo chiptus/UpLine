@@ -13,25 +13,25 @@ export const setTypeLabels: Record<SetType, SetTypeLabel> = {
     label: "Music",
     icon: Music,
     color: "text-accent",
-    gradient: "from-indigo-500/40 to-purple-500/20",
+    gradient: "from-accent/30 to-accent/5",
   },
   workshop: {
     label: "Workshop",
     icon: Hammer,
-    color: "text-amber-500",
-    gradient: "from-amber-500/40 to-orange-500/20",
+    color: "text-notice",
+    gradient: "from-notice/30 to-notice/5",
   },
   performance: {
     label: "Performance",
     icon: Drama,
-    color: "text-purple-500",
-    gradient: "from-rose-500/40 to-pink-500/20",
+    color: "text-live",
+    gradient: "from-live/30 to-live/5",
   },
   other: {
     label: "Other",
     icon: Sparkles,
     color: "text-muted-foreground",
-    gradient: "from-slate-500/40 to-slate-400/20",
+    gradient: "from-surface-active to-surface",
   },
 };
 

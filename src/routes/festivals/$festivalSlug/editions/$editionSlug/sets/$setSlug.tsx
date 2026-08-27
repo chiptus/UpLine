@@ -5,7 +5,7 @@ import { ArtistImageCard } from "@/pages/SetDetails/SetImageCard";
 import { MixedArtistImage } from "@/pages/SetDetails/MixedArtistImage";
 import { SetInfoCard } from "@/pages/SetDetails/SetInfoCard";
 import { MultiArtistSetInfoCard } from "@/pages/SetDetails/MultiArtistSetInfoCard";
-import { NonMusicSetDetail } from "@/pages/SetDetails/NonMusicSetDetail";
+import { NonMusicSetDetail } from "@/pages/SetDetails/NonMusicSetDetail/NonMusicSetDetail";
 import { SetGroupVoting } from "@/pages/SetDetails/SetGroupVoting";
 import { SetNotes } from "@/pages/SetDetails/SetNotes";
 import { useUrlState } from "@/hooks/useUrlState";

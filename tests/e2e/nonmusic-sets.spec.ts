@@ -35,13 +35,21 @@ test.describe("Non-music and artist-less sets", { tag: "@smoke" }, () => {
     await expect(page.getByRole("link", { name: /more info/i })).toHaveCount(0);
   });
 
-  test("shows the typed 0-artist set in the vote list", async ({ page }) => {
+  test("shows artist-less sets in the vote list", async ({ page }) => {
     await page.goto(EDITION_SETS_PATH);
 
     const workshopItem = page
       .getByTestId("artist-item")
       .filter({ hasText: "Morning Yoga Workshop" });
     await expect(workshopItem).toBeVisible();
-    await expect(workshopItem.getByText("Workshop")).toBeVisible();
+    await expect(
+      workshopItem.getByText("Workshop", { exact: true }),
+    ).toBeVisible();
+
+    await expect(
+      page
+        .getByTestId("artist-item")
+        .filter({ hasText: "Mystery Closing Ritual" }),
+    ).toBeVisible();
   });
 });

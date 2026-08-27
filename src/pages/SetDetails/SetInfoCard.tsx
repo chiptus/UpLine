@@ -55,7 +55,7 @@ export function SetInfoCard({
                 {set.name}
               </CardTitle>
               <div className="flex flex-wrap gap-2 mb-4">
-                {artist?.artist_music_genres?.map((genre) => (
+                {artist.artist_music_genres?.map((genre) => (
                   <GenreBadge
                     key={genre.music_genre_id}
                     genreId={genre.music_genre_id}
@@ -94,10 +94,10 @@ export function SetInfoCard({
               </div>
             </div>
           </div>
-          {(set.description || artist?.description) && (
+          {(set.description || artist.description) && (
             <CardDescription className="text-muted-foreground text-lg leading-relaxed">
               <MarkdownText
-                content={set.description || artist?.description || ""}
+                content={set.description || artist.description || ""}
                 className="prose-sm prose-invert"
               />
             </CardDescription>
@@ -107,9 +107,9 @@ export function SetInfoCard({
           <SetVotingButtons set={set} />
 
           {/* External Links */}
-          {(artist?.spotify_url || artist?.soundcloud_url) && (
+          {(artist.spotify_url || artist.soundcloud_url) && (
             <div className="flex flex-wrap gap-4">
-              {artist?.spotify_url && (
+              {artist.spotify_url && (
                 <Button asChild className="bg-green-600 hover:bg-green-700">
                   <a
                     href={artist.spotify_url}
@@ -122,7 +122,7 @@ export function SetInfoCard({
                   </a>
                 </Button>
               )}
-              {artist?.soundcloud_url && (
+              {artist.soundcloud_url && (
                 <Button asChild className="bg-orange-600 hover:bg-orange-700">
                   <a
                     href={artist.soundcloud_url}

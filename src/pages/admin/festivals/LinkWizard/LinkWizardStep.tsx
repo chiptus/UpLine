@@ -214,8 +214,11 @@ export function LinkWizardStep({
       { id: artist.id, updates },
       {
         onSuccess: () => {
-          onSaveSuccess?.();
-          onNext();
+          if (onSaveSuccess) {
+            onSaveSuccess();
+          } else {
+            onNext();
+          }
         },
       },
     );

@@ -47,6 +47,8 @@ export function SkippedArtistsPopover({
                 size="sm"
                 onClick={onClearAll}
                 className="text-destructive hover:text-destructive"
+                aria-label="Clear all skipped and saved artists"
+                title="Clear all"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -100,6 +102,7 @@ function SkippedArtistItem({
         variant="ghost"
         size="sm"
         onClick={() => onRestore(record.artistId)}
+        aria-label={`Restore ${artistName} to queue`}
         title="Restore to queue"
       >
         <RotateCcw className="h-4 w-4" />

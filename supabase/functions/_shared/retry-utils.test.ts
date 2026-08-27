@@ -275,10 +275,10 @@ Deno.test(
 Deno.test(
   "fetchWithRetry caps delay at maxDelayMs even with large Retry-After",
   async function fetchWithRetryCapAtMax() {
-    let attemptCount = 0;
+    let _attemptCount = 0;
 
     function mockFetch() {
-      attemptCount++;
+      _attemptCount++;
       return Promise.resolve(
         new Response(null, {
           status: 429,

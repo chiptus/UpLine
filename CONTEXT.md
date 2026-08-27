@@ -29,8 +29,12 @@ Which stage of its lifecycle an **edition** is in. An ordered, derived concept (
 _Avoid_: Status, state, stage (stage = a venue), stored phase
 
 **Set**:
-A single scheduled performance within an edition, with one or more artists, a stage, and a start/end time.
-_Avoid_: Show, gig, slot, performance
+A single scheduled happening within an edition, with a stage, a start/end time, and zero or more artists. Not every set is music: see **Set type**.
+_Avoid_: Show, gig, slot, performance (a performance is a _type_ of set, not a synonym for one)
+
+**Set type**:
+What kind of happening a **set** is: music, workshop, performance, or other. `null` on a set means it predates typing and awaits backfill — never "chose not to say". Voting is identical across types.
+_Avoid_: Category, kind
 
 **Stage**:
 A named venue/space within an edition where sets take place.

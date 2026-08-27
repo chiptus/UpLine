@@ -580,9 +580,11 @@ export type Database = {
           created_at: string;
           created_by: string;
           description: string | null;
+          external_url: string | null;
           festival_edition_id: string;
           id: string;
           name: string;
+          set_type: string | null;
           slug: string;
           stage_id: string | null;
           time_end: string | null;
@@ -594,9 +596,11 @@ export type Database = {
           created_at?: string;
           created_by: string;
           description?: string | null;
+          external_url?: string | null;
           festival_edition_id: string;
           id?: string;
           name: string;
+          set_type?: string | null;
           slug: string;
           stage_id?: string | null;
           time_end?: string | null;
@@ -608,9 +612,11 @@ export type Database = {
           created_at?: string;
           created_by?: string;
           description?: string | null;
+          external_url?: string | null;
           festival_edition_id?: string;
           id?: string;
           name?: string;
+          set_type?: string | null;
           slug?: string;
           stage_id?: string | null;
           time_end?: string | null;

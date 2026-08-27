@@ -146,7 +146,7 @@ export function SetFormDialog({
     [artists],
   );
 
-  async function onSubmit(data: SetFormData) {
+  function onSubmit(data: SetFormData) {
     if (!user) {
       return; // Should not happen if user is authenticated
     }
@@ -163,42 +163,45 @@ export function SetFormDialog({
       time_end: data.time_end ? convertLocalTimeToUTC(data.time_end, tz) : null,
     };
 
-    let setId: string;
     if (editingSet) {
-      const updatedSet = await updateSetMutation.mutateAsync({
-        id: editingSet.id,
-        updates: submitData,
-      });
-      setId = updatedSet.id;
+      updateSetMutation.mutate(
+        { id: editingSet.id, updates: submitData },
+        {
+          onSuccess: (updatedSet) => syncArtistsAndClose(data, updatedSet.id),
+        },
+      );
     } else {
-      const newSet = await createSetMutation.mutateAsync({
-        ...submitData,
-        created_by: user.id,
-      });
-      setId = newSet.id;
+      createSetMutation.mutate(
+        { ...submitData, created_by: user.id },
+        {
+          onSuccess: (newSet) => syncArtistsAndClose(data, newSet.id),
+        },
+      );
     }
+  }
 
-    // Update artist associations
+  async function syncArtistsAndClose(data: SetFormData, setId: string) {
     const selectedArtistIds = data.artist_ids || [];
     const existingArtistIds = editingSet?.artists?.map((a) => a.id) || [];
 
-    // Remove artists that are no longer selected
     const artistsToRemove = existingArtistIds.filter(
       (id) => !selectedArtistIds.includes(id),
     );
-    for (const artistId of artistsToRemove) {
-      await removeArtistFromSetMutation.mutateAsync({
-        setId: editingSet!.id,
-        artistId,
-      });
-    }
-
-    // Add newly selected artists
     const artistsToAdd = selectedArtistIds.filter(
       (id) => !existingArtistIds.includes(id),
     );
-    for (const artistId of artistsToAdd) {
-      await addArtistToSetMutation.mutateAsync({ setId, artistId });
+
+    try {
+      for (const artistId of artistsToRemove) {
+        await removeArtistFromSetMutation.mutateAsync({ setId, artistId });
+      }
+      for (const artistId of artistsToAdd) {
+        await addArtistToSetMutation.mutateAsync({ setId, artistId });
+      }
+    } catch {
+      // The mutation hooks already toast the failure; keep the dialog open
+      // so the user can retry the artist sync.
+      return;
     }
 
     form.reset();

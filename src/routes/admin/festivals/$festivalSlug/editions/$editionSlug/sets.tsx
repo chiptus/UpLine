@@ -10,7 +10,7 @@ import { useSetsByEditionQuery } from "@/api/sets/useSetsByEdition";
 import { useDeleteSetMutation } from "@/api/sets/useDeleteSet";
 import { useFestivalEditionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
-import { SetFormDialog } from "@/pages/admin/festivals/SetFormDialog";
+import { SetFormDialog } from "@/pages/admin/festivals/SetFormDialog/SetFormDialog";
 import { SetsTable } from "@/pages/admin/festivals/SetsTable";
 import { pageMeta } from "@/lib/pageHead";
 

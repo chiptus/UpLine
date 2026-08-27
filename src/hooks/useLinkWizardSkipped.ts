@@ -1,35 +1,33 @@
-import { useState } from "react";
+import { z } from "zod";
+import { useLocalStorageState } from "./useLocalStorageState";
 
 const SKIPPED_KEY = "link-wizard-skipped";
 const SKIPPED_VERSION = "1.0";
 
-export interface ArtistSkipRecord {
-  artistId: string;
-  status: "skipped" | "saved";
-  timestamp: number;
-}
+const artistSkipRecordSchema = z.object({
+  artistId: z.string(),
+  status: z.enum(["skipped", "saved"]),
+  timestamp: z.number(),
+});
 
-export interface LinkWizardSkippedState {
-  [editionId: string]: {
-    records: Record<string, ArtistSkipRecord>;
-    version: string;
-    timestamp: number;
-  };
-}
+const editionSkippedStateSchema = z.object({
+  records: z.record(z.string(), artistSkipRecordSchema),
+  version: z.string(),
+  timestamp: z.number(),
+});
 
-function readEditionState(editionId: string): LinkWizardSkippedState[string] {
-  const savedData = localStorage.getItem(SKIPPED_KEY);
-  if (savedData) {
-    try {
-      const parsed = JSON.parse(savedData) as LinkWizardSkippedState;
-      const editionData = parsed[editionId];
-      if (editionData && editionData.version === SKIPPED_VERSION) {
-        return editionData;
-      }
-    } catch {
-      // Malformed JSON, fall back to empty record
-    }
-  }
+const linkWizardSkippedStateSchema = z.record(
+  z.string(),
+  editionSkippedStateSchema,
+);
+
+export type ArtistSkipRecord = z.infer<typeof artistSkipRecordSchema>;
+type EditionSkippedState = z.infer<typeof editionSkippedStateSchema>;
+export type LinkWizardSkippedState = z.infer<
+  typeof linkWizardSkippedStateSchema
+>;
+
+function emptyEditionState(): EditionSkippedState {
   return {
     records: {},
     version: SKIPPED_VERSION,
@@ -38,28 +36,24 @@ function readEditionState(editionId: string): LinkWizardSkippedState[string] {
 }
 
 export function useLinkWizardSkipped(editionId: string) {
-  const [skippedState, setSkippedState] = useState<
-    LinkWizardSkippedState[string]
-  >(() => readEditionState(editionId));
+  const [allState, setAllState] = useLocalStorageState(
+    SKIPPED_KEY,
+    linkWizardSkippedStateSchema,
+    {},
+  );
 
-  function saveState(newState: LinkWizardSkippedState[string]) {
-    setSkippedState(newState);
-    const savedData = localStorage.getItem(SKIPPED_KEY);
-    let allData: LinkWizardSkippedState = {};
-    if (savedData) {
-      try {
-        allData = JSON.parse(savedData);
-      } catch {
-        // Malformed data, start fresh
-        allData = {};
-      }
-    }
-    allData[editionId] = newState;
-    localStorage.setItem(SKIPPED_KEY, JSON.stringify(allData));
+  const editionData = allState[editionId];
+  const skippedState: EditionSkippedState =
+    editionData && editionData.version === SKIPPED_VERSION
+      ? editionData
+      : emptyEditionState();
+
+  function saveState(newState: EditionSkippedState) {
+    setAllState({ ...allState, [editionId]: newState });
   }
 
   function markSkipped(artistId: string) {
-    const newState = {
+    saveState({
       ...skippedState,
       records: {
         ...skippedState.records,
@@ -70,12 +64,11 @@ export function useLinkWizardSkipped(editionId: string) {
         },
       },
       timestamp: Date.now(),
-    };
-    saveState(newState);
+    });
   }
 
   function markSaved(artistId: string) {
-    const newState = {
+    saveState({
       ...skippedState,
       records: {
         ...skippedState.records,
@@ -86,28 +79,21 @@ export function useLinkWizardSkipped(editionId: string) {
         },
       },
       timestamp: Date.now(),
-    };
-    saveState(newState);
+    });
   }
 
   function restore(artistId: string) {
     const newRecords = { ...skippedState.records };
     delete newRecords[artistId];
-    const newState = {
+    saveState({
       ...skippedState,
       records: newRecords,
       timestamp: Date.now(),
-    };
-    saveState(newState);
+    });
   }
 
   function clearAll() {
-    const newState = {
-      records: {},
-      version: SKIPPED_VERSION,
-      timestamp: Date.now(),
-    };
-    saveState(newState);
+    saveState(emptyEditionState());
   }
 
   function getSkippedArtistIds(): string[] {

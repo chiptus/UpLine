@@ -11,7 +11,6 @@ import { filterArtistsByStage } from "@/lib/filterArtistsByStage";
 import { useLinkWizardSkipped } from "@/hooks/useLinkWizardSkipped";
 import { LinkWizardQueue } from "./LinkWizardQueue";
 import { LinkWizardStep } from "./LinkWizardStep";
-import { SkippedArtistsPopover } from "./SkippedArtistsPopover";
 
 interface LinkWizardProps {
   editionId: string;
@@ -70,22 +69,18 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
           onClearStages={() => setSelectedStages([])}
           isPreviewMode={isMobile && !showFullQueue}
           onViewAll={() => setShowFullQueue(true)}
+          skippedArtists={skippedHook.getSkippedArtists()}
+          allArtists={allArtists}
+          onRestoreSkipped={skippedHook.restore}
+          onClearAllSkipped={skippedHook.clearAll}
         />
       </div>
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between gap-2">
-            <CardTitle className="flex items-center gap-2">
-              <LinkIcon className="h-5 w-5" />
-              Link Wizard{currentArtist && ` - ${currentArtist.name}`}
-            </CardTitle>
-            <SkippedArtistsPopover
-              skippedArtists={skippedHook.getSkippedArtists()}
-              artists={allArtists}
-              onRestore={skippedHook.restore}
-              onClearAll={skippedHook.clearAll}
-            />
-          </div>
+          <CardTitle className="flex items-center gap-2">
+            <LinkIcon className="h-5 w-5" />
+            Link Wizard{currentArtist && ` - ${currentArtist.name}`}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {filteredArtists.length === 0 ? (

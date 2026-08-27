@@ -36,7 +36,7 @@ export const setTypeLabels: Record<SetType, SetTypeLabel> = {
     icon: Sparkles,
     color: "text-muted-foreground",
     gradient: "from-surface-active to-surface",
-    tint: "from-surface-active to-transparent",
+    tint: "from-foreground/10 to-foreground/5",
   },
 };
 

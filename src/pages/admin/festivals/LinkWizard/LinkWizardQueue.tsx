@@ -67,29 +67,27 @@ export function LinkWizardQueue({
   return (
     <Card>
       <CardHeader className="pb-3 space-y-3">
-        <div className="flex items-center justify-between gap-2">
-          <CardTitle className="text-base">Queue ({artists.length})</CardTitle>
-          <div className="flex items-center gap-2">
-            <SkippedArtistsPopover
-              skippedArtists={skippedArtists}
-              artists={allArtists}
-              onRestore={onRestoreSkipped}
-              onClearAll={onClearAllSkipped}
+        <CardTitle className="text-base">Queue ({artists.length})</CardTitle>
+        <div className="flex items-center gap-2 flex-wrap">
+          <SkippedArtistsPopover
+            skippedArtists={skippedArtists}
+            artists={allArtists}
+            onRestore={onRestoreSkipped}
+            onClearAll={onClearAllSkipped}
+          />
+          <div className="hidden lg:block">
+            <LinkWizardStageFilterDropdown
+              selectedStages={selectedStages}
+              onStageToggle={onStageToggle}
+              onClearStages={onClearStages}
             />
-            <div className="hidden lg:block">
-              <LinkWizardStageFilterDropdown
-                selectedStages={selectedStages}
-                onStageToggle={onStageToggle}
-                onClearStages={onClearStages}
-              />
-            </div>
-            <div className="lg:hidden">
-              <LinkWizardFilterSheet
-                selectedStages={selectedStages}
-                onStageToggle={onStageToggle}
-                onClearStages={onClearStages}
-              />
-            </div>
+          </div>
+          <div className="lg:hidden">
+            <LinkWizardFilterSheet
+              selectedStages={selectedStages}
+              onStageToggle={onStageToggle}
+              onClearStages={onClearStages}
+            />
           </div>
         </div>
       </CardHeader>

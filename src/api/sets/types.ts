@@ -9,6 +9,12 @@ export function asSetType(value: string | null): SetType | null {
   return SET_TYPES.includes(value as SetType) ? (value as SetType) : null;
 }
 
+export function isNonMusicSetType(
+  setType: SetType | null,
+): setType is Exclude<SetType, "music"> {
+  return setType !== null && setType !== "music";
+}
+
 export type FestivalSet = Omit<
   Database["public"]["Tables"]["sets"]["Row"],
   "set_type"

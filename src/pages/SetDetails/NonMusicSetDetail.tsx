@@ -110,33 +110,35 @@ export function NonMusicSetDetail({
         )}
 
         <div className="lg:col-span-2 space-y-6">
-          <Card className="bg-surface-raised backdrop-blur-md border">
-            <CardHeader>
-              <CardTitle className="text-lg">About</CardTitle>
-              {set.description && (
-                <CardDescription className="text-muted-foreground leading-relaxed">
-                  <MarkdownText
-                    content={set.description}
-                    className="prose-sm prose-invert"
-                  />
-                </CardDescription>
-              )}
-            </CardHeader>
-            <CardContent>
+          {(set.description || set.external_url) && (
+            <Card className="bg-surface-raised backdrop-blur-md border">
+              <CardHeader>
+                <CardTitle className="text-lg">About</CardTitle>
+                {set.description && (
+                  <CardDescription className="text-muted-foreground leading-relaxed">
+                    <MarkdownText
+                      content={set.description}
+                      className="prose-sm prose-invert"
+                    />
+                  </CardDescription>
+                )}
+              </CardHeader>
               {set.external_url && (
-                <Button asChild variant="outline">
-                  <a
-                    href={set.external_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    More info
-                    <ExternalLink className="h-4 w-4 ml-2" />
-                  </a>
-                </Button>
+                <CardContent>
+                  <Button asChild variant="outline">
+                    <a
+                      href={set.external_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      More info
+                      <ExternalLink className="h-4 w-4 ml-2" />
+                    </a>
+                  </Button>
+                </CardContent>
               )}
-            </CardContent>
-          </Card>
+            </Card>
+          )}
 
           <Card className="bg-surface-raised backdrop-blur-md border">
             <CardHeader>

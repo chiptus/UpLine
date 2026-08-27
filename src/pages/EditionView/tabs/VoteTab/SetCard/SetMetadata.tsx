@@ -2,6 +2,7 @@ import { Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { formatDayOnly, formatTimeRange } from "@/lib/timeUtils";
 import { getSetTypeLabel } from "@/lib/setTypeLabels";
+import { isNonMusicSetType } from "@/api/sets/types";
 import { GenreBadge } from "@/components/GenreBadge";
 import { StageBadgeById } from "@/components/StageBadgeById";
 import { useFestivalSet } from "../FestivalSetContext";
@@ -38,7 +39,7 @@ export function SetMetadata() {
       ? formatDayOnly(set.time_start, festival.timezone)
       : null;
 
-  const isNonMusicSet = set.set_type !== null && set.set_type !== "music";
+  const isNonMusicSet = isNonMusicSetType(set.set_type);
   const typeLabel = getSetTypeLabel(set.set_type);
 
   return (

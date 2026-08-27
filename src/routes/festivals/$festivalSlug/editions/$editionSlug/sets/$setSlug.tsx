@@ -10,6 +10,7 @@ import { SetGroupVoting } from "@/pages/SetDetails/SetGroupVoting";
 import { SetNotes } from "@/pages/SetDetails/SetNotes";
 import { useUrlState } from "@/hooks/useUrlState";
 import { setBySlugQuery } from "@/api/sets/useSetBySlug";
+import { isNonMusicSetType } from "@/api/sets/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { useVoteCount } from "@/hooks/useVoteCount";
 import { pageMeta } from "@/lib/pageHead";
@@ -61,8 +62,7 @@ function SetDetails() {
 
   const netVoteScore = 2 * getVoteCount(2) + getVoteCount(1) - getVoteCount(-1);
 
-  const isNonMusicSet =
-    currentSet.set_type !== null && currentSet.set_type !== "music";
+  const isNonMusicSet = isNonMusicSetType(currentSet.set_type);
   const isArtistlessSet = currentSet.artists.length === 0;
   const isMultiArtistSet = currentSet.artists.length > 1;
   const primaryArtist = currentSet.artists[0];

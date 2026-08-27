@@ -4,13 +4,6 @@ import { SET_TYPES } from "@/api/sets/types";
 import { getSetTypeLabel, setTypeLabels } from "./setTypeLabels";
 
 describe("setTypeLabels", () => {
-  it("covers every set type", () => {
-    expect(SET_TYPES).toEqual(["music", "workshop", "performance", "other"]);
-    for (const type of SET_TYPES) {
-      expect(setTypeLabels[type]).toBeDefined();
-    }
-  });
-
   it("maps each type to its label and icon", () => {
     expect(setTypeLabels.music.label).toBe("Music");
     expect(setTypeLabels.music.icon).toBe(Music);

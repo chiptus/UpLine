@@ -272,6 +272,13 @@ INSERT INTO public.set_artists (set_id, artist_id, role, created_at) VALUES
   ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', 'aaaaaaab-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'performer', now()),
   ('aaaaaaaf-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'aaaaaccc-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'performer', now());
 
+-- Artist-less non-music fixtures (tests/e2e/nonmusic-sets.spec.ts):
+-- a typed workshop with an external link, and an untyped legacy set —
+-- both have zero set_artists rows on purpose.
+INSERT INTO public.sets (id, name, slug, festival_edition_id, stage_id, time_start, time_end, description, set_type, external_url, created_by, created_at, updated_at) VALUES
+  ('31111111-1111-1111-1111-111111111111', 'Morning Yoga Workshop', 'morning-yoga-workshop', 'e1111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-11111111111a', '2025-07-13 09:00:00+00', '2025-07-13 10:30:00+00', 'Start the day with a gentle vinyasa flow. All levels welcome.', 'workshop', 'https://example.com/yoga-signup', '11111111-1111-1111-1111-111111111111', now(), now()),
+  ('32222222-2222-2222-2222-222222222222', 'Mystery Closing Ritual', 'mystery-closing-ritual', 'e1111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-11111111111a', '2025-07-14 02:30:00+00', '2025-07-14 03:30:00+00', 'A surprise ceremony to close the festival.', NULL, NULL, '11111111-1111-1111-1111-111111111111', now(), now());
+
 -- Insert sample artist notes
 INSERT INTO public.artist_notes (user_id, artist_id, note_content, created_at) VALUES 
   ('11111111-1111-1111-1111-111111111111', 'a1111111-1111-1111-1111-111111111111', 'Absolutely incredible live performer! Her set at Fabric was life-changing.', now()),

@@ -48,11 +48,6 @@ export function useSetFiltering(
         }),
       }))
       .filter((set) => {
-        // Filter out sets without artists for voting tab
-        if (!set.artists || set.artists.length === 0) {
-          return false;
-        }
-
         // Stage filter - use set's stage_id directly
         if (filterSortState.stagesIds.length > 0 && set.stage_id) {
           if (!filterSortState.stagesIds.includes(set.stage_id)) return false;
@@ -165,6 +160,7 @@ export function useSetFiltering(
 
 // Get max soundcloud followers for a set
 function getMaxSoundcloudFollowers(set: FestivalSet): number {
+  if (set.artists.length === 0) return 0;
   return Math.max(
     ...set.artists.map((artist) => artist.soundcloud_followers || 0),
   );

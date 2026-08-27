@@ -36,11 +36,11 @@ export default {
           active: "hsl(var(--surface-active))",
         },
         live: {
-          DEFAULT: "hsl(var(--live))",
+          DEFAULT: "hsl(var(--live) / <alpha-value>)",
           foreground: "hsl(var(--live-foreground))",
         },
         notice: {
-          DEFAULT: "hsl(var(--notice))",
+          DEFAULT: "hsl(var(--notice) / <alpha-value>)",
           foreground: "hsl(var(--notice-foreground))",
         },
         vote: {

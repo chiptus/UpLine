@@ -5,10 +5,12 @@ import { ArtistImageCard } from "@/pages/SetDetails/SetImageCard";
 import { MixedArtistImage } from "@/pages/SetDetails/MixedArtistImage";
 import { SetInfoCard } from "@/pages/SetDetails/SetInfoCard";
 import { MultiArtistSetInfoCard } from "@/pages/SetDetails/MultiArtistSetInfoCard";
+import { NonMusicSetDetail } from "@/pages/SetDetails/NonMusicSetDetail/NonMusicSetDetail";
 import { SetGroupVoting } from "@/pages/SetDetails/SetGroupVoting";
 import { SetNotes } from "@/pages/SetDetails/SetNotes";
 import { useUrlState } from "@/hooks/useUrlState";
 import { setBySlugQuery } from "@/api/sets/useSetBySlug";
+import { isNonMusicSetType } from "@/api/sets/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { useVoteCount } from "@/hooks/useVoteCount";
 import { pageMeta } from "@/lib/pageHead";
@@ -60,6 +62,8 @@ function SetDetails() {
 
   const netVoteScore = 2 * getVoteCount(2) + getVoteCount(1) - getVoteCount(-1);
 
+  const isNonMusicSet = isNonMusicSetType(currentSet.set_type);
+  const isArtistlessSet = currentSet.artists.length === 0;
   const isMultiArtistSet = currentSet.artists.length > 1;
   const primaryArtist = currentSet.artists[0];
 
@@ -75,7 +79,13 @@ function SetDetails() {
           </TopBar>
 
           {/* Set Header */}
-          {isMultiArtistSet ? (
+          {isNonMusicSet || isArtistlessSet ? (
+            <NonMusicSetDetail
+              set={currentSet}
+              netVoteScore={netVoteScore}
+              use24Hour={urlState.use24Hour}
+            />
+          ) : isMultiArtistSet ? (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
               {/* Mixed Image for Multi-Artist Sets */}
               <MixedArtistImage

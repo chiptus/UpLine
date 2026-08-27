@@ -5,13 +5,34 @@ export interface SetTypeLabel {
   label: string;
   icon: LucideIcon;
   color: string;
+  gradient: string;
 }
 
 export const setTypeLabels: Record<SetType, SetTypeLabel> = {
-  music: { label: "Music", icon: Music, color: "text-accent" },
-  workshop: { label: "Workshop", icon: Hammer, color: "text-amber-500" },
-  performance: { label: "Performance", icon: Drama, color: "text-purple-500" },
-  other: { label: "Other", icon: Sparkles, color: "text-muted-foreground" },
+  music: {
+    label: "Music",
+    icon: Music,
+    color: "text-accent",
+    gradient: "from-accent/30 to-accent/5",
+  },
+  workshop: {
+    label: "Workshop",
+    icon: Hammer,
+    color: "text-notice",
+    gradient: "from-notice/30 to-notice/5",
+  },
+  performance: {
+    label: "Performance",
+    icon: Drama,
+    color: "text-live",
+    gradient: "from-live/30 to-live/5",
+  },
+  other: {
+    label: "Other",
+    icon: Sparkles,
+    color: "text-muted-foreground",
+    gradient: "from-surface-active to-surface",
+  },
 };
 
 export function getSetTypeLabel(setType: string | null): SetTypeLabel {

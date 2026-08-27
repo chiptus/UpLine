@@ -3,6 +3,10 @@
 // Run with: deno test --allow-env search-artist-links.integration.test.ts
 
 import { assertEquals, assertExists } from "jsr:@std/assert@1";
+import { resetSpotifyTokenCacheForTests } from "../_shared/spotify-api/auth.ts";
+
+Deno.env.set("SPOTIFY_CLIENT_ID", "test-client-id");
+Deno.env.set("SPOTIFY_CLIENT_SECRET", "test-client-secret");
 
 let mockFetchCallCount = 0;
 let mockFetchResponses: Array<{
@@ -15,6 +19,7 @@ async function setupMockFetch(
 ) {
   mockFetchCallCount = 0;
   mockFetchResponses = responses;
+  resetSpotifyTokenCacheForTests();
 
   const originalFetch = globalThis.fetch;
 

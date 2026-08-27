@@ -12,6 +12,10 @@ let cachedToken: {
   expiresAt: number;
 } | null = null;
 
+export function resetSpotifyTokenCacheForTests(): void {
+  cachedToken = null;
+}
+
 export async function getSpotifyAccessToken(): Promise<string> {
   const clientId = Deno.env.get("SPOTIFY_CLIENT_ID");
   const clientSecret = Deno.env.get("SPOTIFY_CLIENT_SECRET");

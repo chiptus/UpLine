@@ -65,7 +65,11 @@ export function CreateSetDialog({
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(submit)} className="space-y-4">
+          <form
+            noValidate
+            onSubmit={form.handleSubmit(submit)}
+            className="space-y-4"
+          >
             <SetFormFields
               control={form.control}
               artists={artists.map((a) => ({ id: a.id, name: a.name }))}

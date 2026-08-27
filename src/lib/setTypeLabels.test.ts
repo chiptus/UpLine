@@ -32,6 +32,11 @@ describe("setTypeLabels", () => {
     expect(getSetTypeLabel(null)).toBe(setTypeLabels.other);
   });
 
+  it("falls back to the other treatment for unknown values, including prototype keys", () => {
+    expect(getSetTypeLabel("talk")).toBe(setTypeLabels.other);
+    expect(getSetTypeLabel("toString")).toBe(setTypeLabels.other);
+  });
+
   it("resolves known types by value", () => {
     expect(getSetTypeLabel("workshop")).toBe(setTypeLabels.workshop);
   });

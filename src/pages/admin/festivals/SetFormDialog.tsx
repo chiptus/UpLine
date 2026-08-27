@@ -184,23 +184,24 @@ export function SetFormDialog({
     const selectedArtistIds = data.artist_ids || [];
     const existingArtistIds = editingSet?.artists?.map((a) => a.id) || [];
 
-    // Remove artists that are no longer selected
     const artistsToRemove = existingArtistIds.filter(
       (id) => !selectedArtistIds.includes(id),
     );
-    for (const artistId of artistsToRemove) {
-      await removeArtistFromSetMutation.mutateAsync({
-        setId: editingSet!.id,
-        artistId,
-      });
-    }
-
-    // Add newly selected artists
     const artistsToAdd = selectedArtistIds.filter(
       (id) => !existingArtistIds.includes(id),
     );
-    for (const artistId of artistsToAdd) {
-      await addArtistToSetMutation.mutateAsync({ setId, artistId });
+
+    try {
+      for (const artistId of artistsToRemove) {
+        await removeArtistFromSetMutation.mutateAsync({ setId, artistId });
+      }
+      for (const artistId of artistsToAdd) {
+        await addArtistToSetMutation.mutateAsync({ setId, artistId });
+      }
+    } catch {
+      // The mutation hooks already toast the failure; keep the dialog open
+      // so the user can retry the artist sync.
+      return;
     }
 
     form.reset();

@@ -1,5 +1,5 @@
 import { Drama, Hammer, Music, Sparkles, type LucideIcon } from "lucide-react";
-import type { SetType } from "@/api/sets/types";
+import { asSetType, type SetType } from "@/api/sets/types";
 
 export interface SetTypeLabel {
   label: string;
@@ -15,8 +15,5 @@ export const setTypeLabels: Record<SetType, SetTypeLabel> = {
 };
 
 export function getSetTypeLabel(setType: string | null): SetTypeLabel {
-  if (setType && setType in setTypeLabels) {
-    return setTypeLabels[setType as SetType];
-  }
-  return setTypeLabels.other;
+  return setTypeLabels[asSetType(setType) ?? "other"];
 }

@@ -3,7 +3,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import type { ArtistWithSets } from "@/api/artists/useArtistsMissingLinksByEdition";
 import { cn } from "@/lib/utils";
-import { LinkWizardStageFilterButtons } from "./LinkWizardStageFilterButtons";
+import { LinkWizardStageFilterDropdown } from "./LinkWizardStageFilterDropdown";
 import { LinkWizardFilterSheet } from "./LinkWizardFilterSheet";
 
 const MOBILE_PREVIEW_COUNT = 4;
@@ -57,21 +57,22 @@ export function LinkWizardQueue({
   return (
     <Card>
       <CardHeader className="pb-3 space-y-3">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <CardTitle className="text-base">Queue ({artists.length})</CardTitle>
-        </div>
-        <div className="hidden lg:block">
-          <LinkWizardStageFilterButtons
-            selectedStages={selectedStages}
-            onStageToggle={onStageToggle}
-          />
-        </div>
-        <div className="lg:hidden">
-          <LinkWizardFilterSheet
-            selectedStages={selectedStages}
-            onStageToggle={onStageToggle}
-            onClearStages={onClearStages}
-          />
+          <div className="hidden lg:block">
+            <LinkWizardStageFilterDropdown
+              selectedStages={selectedStages}
+              onStageToggle={onStageToggle}
+              onClearStages={onClearStages}
+            />
+          </div>
+          <div className="lg:hidden">
+            <LinkWizardFilterSheet
+              selectedStages={selectedStages}
+              onStageToggle={onStageToggle}
+              onClearStages={onClearStages}
+            />
+          </div>
         </div>
       </CardHeader>
       <CardContent className="p-0">

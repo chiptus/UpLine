@@ -13,12 +13,14 @@ import { SetFormData } from "./setFormSchema";
 interface ArtistSelectionFieldProps {
   control: Control<SetFormData>;
   artists: NamedArtist[];
+  isNonMusicSet?: boolean;
   onArtistsChange?: ((artistIds: string[]) => void) | undefined;
 }
 
 export function ArtistSelectionField({
   control,
   artists,
+  isNonMusicSet = false,
   onArtistsChange,
 }: ArtistSelectionFieldProps) {
   return (
@@ -27,7 +29,9 @@ export function ArtistSelectionField({
       name="artist_ids"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Artists in Set</FormLabel>
+          <FormLabel>
+            {isNonMusicSet ? "Artists (optional)" : "Artists in Set"}
+          </FormLabel>
           <FormControl>
             <ArtistMultiSelect
               artists={artists}
@@ -36,7 +40,11 @@ export function ArtistSelectionField({
                 field.onChange(artistIds);
                 onArtistsChange?.(artistIds);
               }}
-              placeholder="Select artists for this set..."
+              placeholder={
+                isNonMusicSet
+                  ? "Link facilitators/performers if they exist as artists..."
+                  : "Select artists for this set..."
+              }
             />
           </FormControl>
           <FormMessage />

@@ -12,12 +12,14 @@ import { SetFormData } from "./setFormSchema";
 interface SetNameFieldProps {
   control: Control<SetFormData>;
   hasManuallyEditedName: boolean;
+  isNonMusicSet?: boolean;
   onManualEdit?: (() => void) | undefined;
 }
 
 export function SetNameField({
   control,
   hasManuallyEditedName,
+  isNonMusicSet = false,
   onManualEdit,
 }: SetNameFieldProps) {
   return (
@@ -37,7 +39,7 @@ export function SetNameField({
               }}
             />
           </FormControl>
-          {!hasManuallyEditedName && (
+          {!hasManuallyEditedName && !isNonMusicSet && (
             <p className="text-xs text-muted-foreground">
               Name will be auto-generated from selected artists
             </p>

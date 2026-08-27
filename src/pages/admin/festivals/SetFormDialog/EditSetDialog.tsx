@@ -1,7 +1,7 @@
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useArtistsQuery } from "@/api/artists/useArtists";
-import { FestivalSet } from "@/api/sets/types";
+import { FestivalSet, isNonMusicSetType } from "@/api/sets/types";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Dialog,
@@ -44,8 +44,10 @@ export function EditSetDialog({
   const form = useForm<SetFormData>({
     resolver: zodResolver(setFormSchema),
     defaultValues: {
+      set_type: set.set_type,
       name: set.name,
       description: set.description || "",
+      external_url: set.external_url || "",
       stage_id: set.stage_id || "none",
       time_start: toDatetimeLocalInTimeZone(set.time_start, tz),
       time_end: toDatetimeLocalInTimeZone(set.time_end, tz),
@@ -54,9 +56,12 @@ export function EditSetDialog({
     },
   });
 
+  const setType = useWatch({ control: form.control, name: "set_type" });
+  const isNonMusicSet = isNonMusicSetType(setType);
+
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Set</DialogTitle>
           <DialogDescription>
@@ -64,12 +69,17 @@ export function EditSetDialog({
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(submit)} className="space-y-4">
+          <form
+            noValidate
+            onSubmit={form.handleSubmit(submit)}
+            className="space-y-4"
+          >
             <SetFormFields
               control={form.control}
               artists={artists.map((a) => ({ id: a.id, name: a.name }))}
               editionId={editionId}
               timezone={tz}
+              isNonMusicSet={isNonMusicSet}
             />
 
             <SetFormFooter

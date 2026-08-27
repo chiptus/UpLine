@@ -173,6 +173,8 @@ export function SetFormDialog({
     } else {
       const newSet = await createSetMutation.mutateAsync({
         ...submitData,
+        set_type: null,
+        external_url: null,
         created_by: user.id,
       });
       setId = newSet.id;

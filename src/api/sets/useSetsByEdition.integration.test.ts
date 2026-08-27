@@ -32,4 +32,65 @@ describe("setsByEditionQuery", () => {
       ).toEqual([artistId]);
     },
   );
+
+  it("round-trips set_type and external_url for a typed set", async () => {
+    const editionId = await createScratchFestivalEdition();
+    const setId = await createSet({
+      festival_edition_id: editionId,
+      set_type: "workshop",
+      external_url: "https://example.com/workshop",
+    });
+
+    const { result } = renderHook(
+      () => useQuery(setsByEditionQuery(editionId)),
+      {
+        wrapper: createQueryWrapper(),
+      },
+    );
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    const set = result.current.data?.find((s) => s.id === setId);
+    expect(set?.set_type).toBe("workshop");
+    expect(set?.external_url).toBe("https://example.com/workshop");
+  });
+
+  it("keeps set_type and external_url null for an untyped legacy set", async () => {
+    const editionId = await createScratchFestivalEdition();
+    const setId = await createSet({ festival_edition_id: editionId });
+
+    const { result } = renderHook(
+      () => useQuery(setsByEditionQuery(editionId)),
+      {
+        wrapper: createQueryWrapper(),
+      },
+    );
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    const set = result.current.data?.find((s) => s.id === setId);
+    expect(set?.set_type).toBeNull();
+    expect(set?.external_url).toBeNull();
+  });
+
+  it("round-trips an external link on an otherwise untyped set", async () => {
+    const editionId = await createScratchFestivalEdition();
+    const setId = await createSet({
+      festival_edition_id: editionId,
+      external_url: "https://example.com/details",
+    });
+
+    const { result } = renderHook(
+      () => useQuery(setsByEditionQuery(editionId)),
+      {
+        wrapper: createQueryWrapper(),
+      },
+    );
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    const set = result.current.data?.find((s) => s.id === setId);
+    expect(set?.set_type).toBeNull();
+    expect(set?.external_url).toBe("https://example.com/details");
+  });
 });

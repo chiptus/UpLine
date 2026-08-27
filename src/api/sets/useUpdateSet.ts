@@ -17,6 +17,8 @@ export type UpdateSetInput = Partial<
     | "time_start"
     | "time_end"
     | "archived"
+    | "set_type"
+    | "external_url"
   >
 >;
 
@@ -46,6 +48,12 @@ async function updateSet(variables: { id: string; updates: UpdateSetInput }) {
   }
   if (updates.archived !== undefined) {
     updateData.archived = updates.archived;
+  }
+  if (updates.set_type !== undefined) {
+    updateData.set_type = updates.set_type;
+  }
+  if (updates.external_url !== undefined) {
+    updateData.external_url = updates.external_url;
   }
 
   const { data, error } = await supabase

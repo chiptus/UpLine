@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import {
-  makeSetFormSchema,
+  setFormSchema,
   SetFormData,
   setFormDefaultValues,
 } from "./setFormSchema";
@@ -47,7 +47,7 @@ export function CreateSetDialog({
   });
 
   const form = useForm<SetFormData>({
-    resolver: zodResolver(makeSetFormSchema(true)),
+    resolver: zodResolver(setFormSchema),
     defaultValues: setFormDefaultValues,
   });
 
@@ -71,7 +71,6 @@ export function CreateSetDialog({
               artists={artists.map((a) => ({ id: a.id, name: a.name }))}
               editionId={editionId}
               timezone={tz}
-              typeRequired
               isNonMusicSet={isNonMusicSet}
               onTypeChange={handleTypeChange}
               hasManuallyEditedName={hasManuallyEditedName}

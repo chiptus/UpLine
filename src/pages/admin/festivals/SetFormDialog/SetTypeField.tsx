@@ -19,15 +19,10 @@ import { SetFormData } from "./setFormSchema";
 
 interface SetTypeFieldProps {
   control: Control<SetFormData>;
-  required: boolean;
   onTypeChange?: ((setType: SetType) => void) | undefined;
 }
 
-export function SetTypeField({
-  control,
-  required,
-  onTypeChange,
-}: SetTypeFieldProps) {
+export function SetTypeField({ control, onTypeChange }: SetTypeFieldProps) {
   return (
     <FormField
       control={control}
@@ -35,7 +30,7 @@ export function SetTypeField({
       render={({ field }) => (
         <FormItem>
           <FormLabel>
-            Type {required && <span className="text-destructive">*</span>}
+            Type <span className="text-destructive">*</span>
           </FormLabel>
           <Select
             value={field.value ?? ""}

@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { toDatetimeLocalInTimeZone } from "@/lib/timeUtils";
-import { makeSetFormSchema, SetFormData } from "./setFormSchema";
+import { setFormSchema, SetFormData } from "./setFormSchema";
 import { useUpdateSetSubmit } from "./useUpdateSetSubmit";
 import { SetFormFields } from "./SetFormFields";
 import { SetFormFooter } from "./SetFormFooter";
@@ -42,7 +42,7 @@ export function EditSetDialog({
   });
 
   const form = useForm<SetFormData>({
-    resolver: zodResolver(makeSetFormSchema(false)),
+    resolver: zodResolver(setFormSchema),
     defaultValues: {
       set_type: set.set_type,
       name: set.name,

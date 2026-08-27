@@ -22,7 +22,6 @@ interface SetFormFieldsProps {
   artists: NamedArtist[];
   editionId: string;
   timezone: string;
-  typeRequired?: boolean;
   isNonMusicSet?: boolean;
   onTypeChange?: (setType: SetType) => void;
   hasManuallyEditedName?: boolean;
@@ -35,7 +34,6 @@ export function SetFormFields({
   artists,
   editionId,
   timezone,
-  typeRequired = false,
   isNonMusicSet = false,
   onTypeChange,
   hasManuallyEditedName = true,
@@ -44,11 +42,7 @@ export function SetFormFields({
 }: SetFormFieldsProps) {
   return (
     <>
-      <SetTypeField
-        control={control}
-        required={typeRequired}
-        onTypeChange={onTypeChange}
-      />
+      <SetTypeField control={control} onTypeChange={onTypeChange} />
 
       <ArtistSelectionField
         control={control}
@@ -97,7 +91,11 @@ export function SetFormFields({
           <FormItem>
             <FormLabel>External URL</FormLabel>
             <FormControl>
-              <Input placeholder="https://example.com/sign-up" {...field} />
+              <Input
+                type="url"
+                placeholder="https://example.com/sign-up"
+                {...field}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

@@ -42,8 +42,12 @@ test.describe("Non-music and artist-less sets", { tag: "@smoke" }, () => {
       .getByTestId("artist-item")
       .filter({ hasText: "Morning Yoga Workshop" });
     await expect(workshopItem).toBeVisible();
+    // The card renders mobile + desktop layouts (one hidden), so the badge
+    // exists twice — filter to the visible one
     await expect(
-      workshopItem.getByText("Workshop", { exact: true }),
+      workshopItem
+        .getByText("Workshop", { exact: true })
+        .filter({ visible: true }),
     ).toBeVisible();
 
     await expect(

@@ -279,6 +279,20 @@ Deno.test(
   },
 );
 
+Deno.test("update payload carries the matched set's stored type", () => {
+  const artist = makeArtist("Carl Cox");
+  const set = { ...makeSet("set-1", "Carl Cox", [artist]), set_type: "music" };
+  const result = computeDiff(
+    [{ artists: ["Carl Cox"], setType: "workshop" }],
+    [],
+    [set],
+    [artist],
+    "UTC",
+  );
+  assertEquals(result.cleanOperations.setsToUpdate[0].previousSetType, "music");
+  assertEquals(result.cleanOperations.setsToUpdate[0].setType, "workshop");
+});
+
 Deno.test("artist-less row creates a set with an empty roster", () => {
   const result = computeDiff(
     [{ artists: [], setName: "Morning Yoga", setType: "workshop" }],

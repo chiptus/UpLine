@@ -1,7 +1,6 @@
 import type { Database } from "../_shared/database.types.ts";
 
-export const SET_TYPES = ["music", "workshop", "performance", "other"] as const;
-export type SetType = (typeof SET_TYPES)[number];
+import type { SetType } from "../_shared/setTypes.ts";
 
 export type CsvRow = {
   artists: string[];
@@ -59,7 +58,10 @@ export type DiffResult = {
     artistsToCreate: { name: string; slug: string }[];
     stagesToCreate: { name: string }[];
     setsToCreate: SetPayload[];
-    setsToUpdate: ({ id: string } & SetPayload)[];
+    setsToUpdate: ({
+      id: string;
+      previousSetType: string | null;
+    } & SetPayload)[];
   };
   conflicts: {
     stageNameMismatches: {

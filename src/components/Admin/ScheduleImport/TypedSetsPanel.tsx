@@ -1,15 +1,14 @@
-import { Tags } from "lucide-react";
+import { ArrowRight, Tags } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import type { SetType } from "@/api/sets/types";
 import { getSetTypeLabel } from "@/lib/setTypeLabels";
-import {
-  type DiffResult,
-  type SetPayload,
-} from "@/services/scheduleImport/types";
+import { type DiffResult } from "@/services/scheduleImport/types";
 
 type TypedSet = {
   key: string;
   name: string;
-  setType: string;
+  setType: SetType;
+  previousSetType: string | null;
   operation: "create" | "update";
 };
 
@@ -41,6 +40,12 @@ export function TypedSetsPanel({ diff }: Props) {
           >
             <p className="text-sm font-medium truncate">{set.name}</p>
             <div className="flex items-center gap-2 ml-4 shrink-0">
+              {isTypeChange(set) && (
+                <>
+                  <SetTypeChip setType={set.previousSetType} />
+                  <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                </>
+              )}
               <SetTypeChip setType={set.setType} />
               <span className="text-xs text-muted-foreground w-12 text-right">
                 {set.operation === "create" ? "new" : "update"}
@@ -53,7 +58,13 @@ export function TypedSetsPanel({ diff }: Props) {
   );
 }
 
-function SetTypeChip({ setType }: { setType: string }) {
+// A stored type differing from the incoming one is the change worth
+// verifying; a set that was still untyped just gets its first type.
+function isTypeChange(set: TypedSet): boolean {
+  return set.previousSetType !== null && set.previousSetType !== set.setType;
+}
+
+function SetTypeChip({ setType }: { setType: string | null }) {
   const typeLabel = getSetTypeLabel(setType);
   return (
     <Badge variant="secondary" className="gap-1 shrink-0">
@@ -64,21 +75,27 @@ function SetTypeChip({ setType }: { setType: string }) {
 }
 
 function collectTypedSets(diff: DiffResult): TypedSet[] {
-  function typed(
-    sets: SetPayload[],
-    operation: TypedSet["operation"],
-  ): TypedSet[] {
-    return sets
-      .filter((s) => s.setType !== null)
-      .map((s, i) => ({
-        key: `${operation}-${i}-${s.name}`,
+  const creates = diff.cleanOperations.setsToCreate
+    .filter((s) => s.setType !== null)
+    .map(
+      (s, i): TypedSet => ({
+        key: `create-${i}-${s.name}`,
         name: s.name,
-        setType: s.setType as string,
-        operation,
-      }));
-  }
-  return [
-    ...typed(diff.cleanOperations.setsToCreate, "create"),
-    ...typed(diff.cleanOperations.setsToUpdate, "update"),
-  ];
+        setType: s.setType as SetType,
+        previousSetType: null,
+        operation: "create",
+      }),
+    );
+  const updates = diff.cleanOperations.setsToUpdate
+    .filter((s) => s.setType !== null)
+    .map(
+      (s): TypedSet => ({
+        key: `update-${s.id}`,
+        name: s.name,
+        setType: s.setType as SetType,
+        previousSetType: s.previousSetType,
+        operation: "update",
+      }),
+    );
+  return [...creates, ...updates];
 }

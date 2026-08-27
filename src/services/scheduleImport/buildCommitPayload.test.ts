@@ -126,6 +126,7 @@ describe("buildCommitPayload", () => {
             id: "set-1",
             name: "Fire Show",
             setType: null,
+            previousSetType: "performance",
             description: null,
             stageName: null,
             timeStart: null,

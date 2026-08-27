@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { requireAdmin } from "../_shared/auth.ts";
 import { buildCorsHeaders } from "../_shared/cors.ts";
+import { SET_TYPES } from "../_shared/setTypes.ts";
 
 // timeStart/timeEnd arrive as ISO strings or null. Coerce "" (and undefined)
 // to null so the RPC's ::timestamptz cast doesn't choke on an empty string.
@@ -15,7 +16,7 @@ const nullableTimestamp = z
 const setPayloadSchema = z.object({
   name: z.string().min(1),
   setType: z
-    .enum(["music", "workshop", "performance", "other"])
+    .enum(SET_TYPES)
     .nullish()
     .transform((v) => v ?? null),
   description: z.string().nullish(),

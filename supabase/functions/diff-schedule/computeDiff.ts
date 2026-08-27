@@ -64,7 +64,13 @@ export function computeDiff(
 
     if (matched) {
       state.matchedSetIds.add(matched.id);
-      state.setsToUpdate.push({ id: matched.id, ...payload });
+      // previousSetType lets the diff review render stored → incoming type
+      // chips; the commit path ignores it.
+      state.setsToUpdate.push({
+        id: matched.id,
+        previousSetType: matched.set_type,
+        ...payload,
+      });
     } else {
       state.setsToCreate.push(payload);
     }
@@ -108,7 +114,7 @@ type DiffState = {
   stagesToCreate: { name: string }[];
   stageNameMismatches: DiffResult["conflicts"]["stageNameMismatches"];
   setsToCreate: SetPayload[];
-  setsToUpdate: ({ id: string } & SetPayload)[];
+  setsToUpdate: DiffResult["cleanOperations"]["setsToUpdate"];
 };
 
 function createState(): DiffState {

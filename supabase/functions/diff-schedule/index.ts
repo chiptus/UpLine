@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { requireAdmin } from "../_shared/auth.ts";
 import { buildCorsHeaders } from "../_shared/cors.ts";
+import { SET_TYPES } from "../_shared/setTypes.ts";
 import { computeDiff } from "./computeDiff.ts";
 
 function isValidTimezone(tz: string): boolean {
@@ -30,7 +31,7 @@ const csvRowSchema = z
   .object({
     artists: z.array(z.string().trim().min(1)).transform(dedupeArtists),
     setType: z
-      .enum(["music", "workshop", "performance", "other"])
+      .enum(SET_TYPES)
       .nullish()
       .transform((v) => v ?? null),
     setName: z.string().optional(),

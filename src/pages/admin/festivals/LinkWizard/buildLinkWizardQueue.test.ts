@@ -35,8 +35,14 @@ function makeArtist(overrides: {
 }
 
 describe("buildLinkWizardQueue", () => {
-  it("returns artist items followed by uncovered untyped set items", () => {
-    const artistSet = makeSet({ id: "set-a", name: "Artist Set" });
+  it("returns artist items followed by artist-less untyped set items", () => {
+    const artistSet = makeSet({
+      id: "set-a",
+      name: "Artist Set",
+      co_performers: [
+        { artist_id: "artist-1", artist_name: "Artist 1", role: null },
+      ],
+    });
     const artist = makeArtist({ id: "artist-1", sets: [artistSet] });
     const orphanSet = makeSet({ id: "set-b", name: "Morning Yoga" });
 
@@ -47,17 +53,7 @@ describe("buildLinkWizardQueue", () => {
     expect(queue[1]).toMatchObject({ kind: "set", id: "set-b" });
   });
 
-  it("does not emit a set item for an untyped set covered by a queued artist", () => {
-    const sharedSet = makeSet({ id: "set-shared" });
-    const artist = makeArtist({ id: "artist-1", sets: [sharedSet] });
-
-    const queue = buildLinkWizardQueue([artist], [sharedSet]);
-
-    expect(queue).toHaveLength(1);
-    expect(queue[0].kind).toBe("artist");
-  });
-
-  it("emits a set item for an untyped set whose artists are not in the queue", () => {
+  it("never emits a set item for an untyped set that has artists, queued or not", () => {
     const setOfLinkedArtist = makeSet({
       id: "set-x",
       co_performers: [
@@ -67,22 +63,7 @@ describe("buildLinkWizardQueue", () => {
 
     const queue = buildLinkWizardQueue([], [setOfLinkedArtist]);
 
-    expect(queue).toHaveLength(1);
-    expect(queue[0]).toMatchObject({ kind: "set", id: "set-x" });
-  });
-
-  it("ignores an artist's typed sets when computing coverage", () => {
-    const typedSet = makeSet({ id: "set-typed", set_type: "music" });
-    const untypedSet = makeSet({ id: "set-untyped" });
-    const artist = makeArtist({
-      id: "artist-1",
-      sets: [typedSet, untypedSet],
-    });
-
-    const queue = buildLinkWizardQueue([artist], [untypedSet]);
-
-    expect(queue).toHaveLength(1);
-    expect(queue[0].kind).toBe("artist");
+    expect(queue).toHaveLength(0);
   });
 
   it("returns an empty queue when there are no artists and no untyped sets", () => {

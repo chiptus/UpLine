@@ -8,8 +8,9 @@ export type LinkWizardQueueItem =
   | { kind: "set"; id: string; set: ArtistSetWithCoPerformers };
 
 // Mixed queue (variant A from the #422 prototype): artists missing links come
-// first, then the untyped sets no queued artist's step already covers — the
-// artist-less ones, plus sets whose artists all have their links already.
+// first, then the artist-less untyped sets as standalone steps. Untyped sets
+// WITH artists are only handled on their artist's step — deliberately static,
+// so skipping an artist never makes a new set item appear.
 export function buildLinkWizardQueue(
   artists: ArtistWithSets[],
   untypedSets: ArtistSetWithCoPerformers[],
@@ -21,14 +22,8 @@ export function buildLinkWizardQueue(
     artist,
   }));
 
-  const coveredSetIds = new Set(
-    artists.flatMap((artist) =>
-      artist.sets.filter((set) => set.set_type === null).map((set) => set.id),
-    ),
-  );
-
   const setItems: LinkWizardQueueItem[] = untypedSets
-    .filter((set) => !coveredSetIds.has(set.id))
+    .filter((set) => set.co_performers.length === 0)
     .filter(
       (set) =>
         selectedStageIds.length === 0 ||

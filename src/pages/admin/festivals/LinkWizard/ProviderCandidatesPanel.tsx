@@ -106,6 +106,7 @@ export function ProviderCandidatesPanel({
       <CandidateCards
         candidates={candidates}
         isLoading={isLoading}
+        label={label}
         onSelectCandidate={onSelectCandidate}
       />
     </div>

@@ -8,12 +8,14 @@ import { CandidateCard } from "./CandidateCard";
 interface CandidateCardsProps {
   candidates: Candidate[];
   isLoading: boolean;
+  label: string;
   onSelectCandidate: (candidate: Candidate, fields: SelectableField[]) => void;
 }
 
 export function CandidateCards({
   candidates,
   isLoading,
+  label,
   onSelectCandidate,
 }: CandidateCardsProps) {
   const [showMore, setShowMore] = useState(false);
@@ -44,7 +46,11 @@ export function CandidateCards({
 
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3" role="list">
+      <div
+        className="grid grid-cols-1 md:grid-cols-3 gap-3"
+        role="list"
+        aria-label={label}
+      >
         {displayedCandidates.map((candidate) => (
           <CandidateCard
             key={candidate.url}

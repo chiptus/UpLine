@@ -26,8 +26,7 @@ export function SetTypeBackfillStep({
   onSaveSuccess,
 }: SetTypeBackfillStepProps) {
   const backfillMutation = useBackfillSetTypesMutation();
-  const [pendingTypes, setPendingTypes] = useState<Record<string, SetType>>({});
-  const pendingType = pendingTypes[set.id];
+  const [pendingType, setPendingType] = useState<SetType | null>(null);
 
   return (
     <div className="space-y-4">
@@ -48,10 +47,8 @@ export function SetTypeBackfillStep({
 
       <UntypedSetsBlock
         untypedSets={[set]}
-        pendingTypes={pendingTypes}
-        onPick={(setId, setType) =>
-          setPendingTypes((prev) => ({ ...prev, [setId]: setType }))
-        }
+        pendingTypes={pendingType ? { [set.id]: pendingType } : {}}
+        onPick={(_setId, setType) => setPendingType(setType)}
       />
 
       <div className="flex items-center justify-between gap-2 pt-2">

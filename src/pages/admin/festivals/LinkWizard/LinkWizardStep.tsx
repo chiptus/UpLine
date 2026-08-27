@@ -87,6 +87,7 @@ export function LinkWizardStep({
 
   const untypedSets = artist.sets.filter((set) => set.set_type === null);
   const [pendingTypes, setPendingTypes] = useState<Record<string, SetType>>({});
+  const isSaving = updateArtistMutation.isPending || backfillMutation.isPending;
 
   const form = useForm<LinkStepData>({
     resolver: zodResolver(linkStepSchema),
@@ -157,7 +158,7 @@ export function LinkWizardStep({
               type="button"
               variant="outline"
               onClick={onPrev}
-              disabled={position <= 1 || updateArtistMutation.isPending}
+              disabled={position <= 1 || isSaving}
             >
               <ChevronLeft className="h-4 w-4 mr-1" />
               Previous
@@ -168,13 +169,13 @@ export function LinkWizardStep({
                 type="button"
                 variant="ghost"
                 onClick={onNext}
-                disabled={updateArtistMutation.isPending}
+                disabled={isSaving}
               >
                 Skip
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
-              <Button type="submit" disabled={updateArtistMutation.isPending}>
-                {updateArtistMutation.isPending ? "Saving..." : "Save & Next"}
+              <Button type="submit" disabled={isSaving}>
+                {isSaving ? "Saving..." : "Save & Next"}
               </Button>
             </div>
           </div>
@@ -215,15 +216,25 @@ export function LinkWizardStep({
     }
   }
 
+  // The picked types must persist before the step advances — the artist save
+  // alone drives advancement, so a fire-and-forget backfill would silently
+  // drop the picks when it fails.
   function onSubmit(data: LinkStepData) {
     const typeUpdates = Object.entries(pendingTypes).map(([id, set_type]) => ({
       id,
       set_type,
     }));
     if (typeUpdates.length > 0) {
-      backfillMutation.mutate({ updates: typeUpdates });
+      backfillMutation.mutate(
+        { updates: typeUpdates },
+        { onSuccess: () => saveArtist(data) },
+      );
+    } else {
+      saveArtist(data);
     }
+  }
 
+  function saveArtist(data: LinkStepData) {
     const updates: UpdateArtistUpdates = {
       spotify_url: data.providerUrl.spotify || null,
       soundcloud_url: data.providerUrl.soundcloud || null,

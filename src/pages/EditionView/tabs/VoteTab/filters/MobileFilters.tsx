@@ -8,6 +8,7 @@ import {
 import type { FilterSortState } from "@/hooks/useUrlState";
 import { useStagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
+import { SetTypeFilter } from "./SetTypeFilter";
 
 interface MobileFiltersProps {
   state: FilterSortState;
@@ -44,6 +45,11 @@ export function MobileFilters({
 
   return (
     <div className="space-y-4">
+      <SetTypeFilter
+        types={state.types}
+        onChange={(types) => onStateChange({ types })}
+      />
+
       {/* Stage Filter Select */}
       {canShowStage && (
         <div>

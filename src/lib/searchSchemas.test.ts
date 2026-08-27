@@ -1,42 +1,36 @@
-import { describe, expect, it } from "vitest";
-import { timelineSearchSchema } from "./searchSchemas";
+import { describe, it, expect } from "vitest";
+import {
+  filterSortSearchSchema,
+  filterSortSearchDefaults,
+} from "./searchSchemas";
 
-describe("timelineSearchSchema", () => {
-  describe("votes (my-vote chips)", () => {
-    it("keeps valid vote types", () => {
-      const parsed = timelineSearchSchema.parse({
-        votes: ["mustGo", "interested", "wontGo"],
-      });
-
-      expect(parsed.votes).toEqual(["mustGo", "interested", "wontGo"]);
+describe("filterSortSearchSchema types", () => {
+  it("drops unknown values and de-dupes", () => {
+    const result = filterSortSearchSchema.parse({
+      ...filterSortSearchDefaults,
+      types: ["workshop", "bogus", "workshop"],
     });
+    expect(result.types).toEqual(["workshop"]);
+  });
 
-    it("drops only the invalid entries, keeping valid ones", () => {
-      const parsed = timelineSearchSchema.parse({
-        votes: ["mustGo", "bogus"],
-      });
-
-      expect(parsed.votes).toEqual(["mustGo"]);
+  it("keeps all known set types", () => {
+    const result = filterSortSearchSchema.parse({
+      ...filterSortSearchDefaults,
+      types: ["music", "workshop", "performance", "other"],
     });
+    expect(result.types).toEqual(["music", "workshop", "performance", "other"]);
+  });
 
-    it("de-duplicates repeated entries", () => {
-      const parsed = timelineSearchSchema.parse({
-        votes: ["mustGo", "mustGo", "interested"],
-      });
-
-      expect(parsed.votes).toEqual(["mustGo", "interested"]);
+  it("falls back to an empty array for non-array input", () => {
+    const result = filterSortSearchSchema.parse({
+      ...filterSortSearchDefaults,
+      types: "workshop",
     });
+    expect(result.types).toEqual([]);
+  });
 
-    it("falls back to an empty selection when votes is not an array", () => {
-      const parsed = timelineSearchSchema.parse({ votes: "junk" });
-
-      expect(parsed.votes).toEqual([]);
-    });
-
-    it("defaults to an empty selection when votes is absent", () => {
-      const parsed = timelineSearchSchema.parse({});
-
-      expect(parsed.votes).toEqual([]);
-    });
+  it("defaults to an empty array when missing", () => {
+    const result = filterSortSearchSchema.parse(filterSortSearchDefaults);
+    expect(result.types).toEqual([]);
   });
 });

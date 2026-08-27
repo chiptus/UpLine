@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import type { FilterSortState } from "@/hooks/useUrlState";
 import { FestivalSet } from "@/api/sets/types";
 import { resolveVotesForScope, type VoteScope } from "@/lib/voteScope";
+import { matchesSetTypeFilter } from "@/lib/setTypeFilter";
 
 export function useSetFiltering(
   sets: FestivalSet[],
@@ -48,6 +49,10 @@ export function useSetFiltering(
         }),
       }))
       .filter((set) => {
+        if (!matchesSetTypeFilter(set.set_type, filterSortState.types)) {
+          return false;
+        }
+
         // Stage filter - use set's stage_id directly
         if (filterSortState.stagesIds.length > 0 && set.stage_id) {
           if (!filterSortState.stagesIds.includes(set.stage_id)) return false;

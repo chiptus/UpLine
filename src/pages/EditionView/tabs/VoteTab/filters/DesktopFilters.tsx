@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import type { FilterSortState } from "@/hooks/useUrlState";
 import { useStagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
+import { SetTypeFilter } from "./SetTypeFilter";
 
 interface DesktopFiltersProps {
   state: FilterSortState;
@@ -36,6 +37,11 @@ export function DesktopFilters({
 
   return (
     <div className="space-y-4">
+      <SetTypeFilter
+        types={state.types}
+        onChange={(types) => onStateChange({ types })}
+      />
+
       {/* Stage Filter */}
       {canShowStage && (
         <div>

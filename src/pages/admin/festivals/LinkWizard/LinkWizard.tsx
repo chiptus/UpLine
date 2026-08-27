@@ -1,26 +1,50 @@
 import { useState } from "react";
 import { Loader2, LinkIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useArtistsMissingLinksByEditionQuery } from "@/api/artists/useArtistsMissingLinksByEdition";
+import {
+  useArtistsMissingLinksByEditionQuery,
+  type ArtistWithSets,
+} from "@/api/artists/useArtistsMissingLinksByEdition";
 import { usePrefetchNextBatchLinks } from "@/api/artistSearch/usePrefetchNextBatchLinks";
-import type { AdminArtistsPageSize } from "@/pages/admin/ArtistsManagement/searchSchema";
-import type { Artist } from "@/api/artists/types";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { filterArtistsByStage } from "@/lib/filterArtistsByStage";
+import { useLinkWizardSkipped } from "@/hooks/useLinkWizardSkipped";
+import { LinkWizardQueue } from "./LinkWizardQueue";
 import { LinkWizardStep } from "./LinkWizardStep";
-import { LinkWizardTable } from "./LinkWizardTable";
 
 interface LinkWizardProps {
   editionId: string;
 }
 
 export function LinkWizard({ editionId }: LinkWizardProps) {
+  const isMobile = useIsMobile();
   const artistsQuery = useArtistsMissingLinksByEditionQuery(editionId);
   const [currentArtistId, setCurrentArtistId] = useState<string | undefined>(
     undefined,
   );
-  const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState<AdminArtistsPageSize>(10);
+  const [selectedStages, setSelectedStages] = useState<string[]>([]);
+  const [showFullQueue, setShowFullQueue] = useState(false);
+  const skippedHook = useLinkWizardSkipped(editionId);
 
-  usePrefetchNextBatchLinks(artistsQuery.data ?? [], currentArtistId);
+  const allArtists = artistsQuery.data ?? [];
+  const unskippedArtists = allArtists.filter(
+    (artist) => !skippedHook.isSkipped(artist.id),
+  );
+  const filteredArtists = filterArtistsByStage(
+    unskippedArtists,
+    selectedStages,
+  );
+
+  const currentIndex = currentArtistId
+    ? Math.max(
+        0,
+        filteredArtists.findIndex((artist) => artist.id === currentArtistId),
+      )
+    : 0;
+  const currentArtist =
+    filteredArtists[Math.min(currentIndex, filteredArtists.length - 1)];
+
+  usePrefetchNextBatchLinks(filteredArtists, currentArtist?.id);
 
   if (artistsQuery.isLoading) {
     return (
@@ -33,28 +57,24 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
     );
   }
 
-  const artists = artistsQuery.data ?? [];
-  const currentIndex = currentArtistId
-    ? Math.max(
-        0,
-        artists.findIndex((artist) => artist.id === currentArtistId),
-      )
-    : 0;
-  const currentArtist = artists[Math.min(currentIndex, artists.length - 1)];
-  const pageCount = Math.max(1, Math.ceil(artists.length / pageSize));
-  const clampedPage = Math.min(page, pageCount - 1);
-
-  function goTo(index: number) {
-    const clamped = Math.max(0, Math.min(index, artists.length - 1));
-    setCurrentArtistId(artists[clamped]?.id);
-  }
-
-  function handleSelectArtist(artist: Artist) {
-    setCurrentArtistId(artist.id);
-  }
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-6 lg:items-start">
+      <div className="lg:sticky lg:top-4">
+        <LinkWizardQueue
+          artists={filteredArtists}
+          currentArtistId={currentArtist?.id}
+          onSelectArtist={handleSelectArtist}
+          selectedStages={selectedStages}
+          onStageToggle={handleStageToggle}
+          onClearStages={() => setSelectedStages([])}
+          isPreviewMode={isMobile && !showFullQueue}
+          onViewAll={() => setShowFullQueue(true)}
+          skippedArtists={skippedHook.getSkippedArtists()}
+          allArtists={allArtists}
+          onRestoreSkipped={skippedHook.restore}
+          onClearAllSkipped={skippedHook.clearAll}
+        />
+      </div>
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -63,9 +83,11 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {artists.length === 0 ? (
+          {filteredArtists.length === 0 ? (
             <p className="text-muted-foreground">
-              All artists in this edition have both links set.
+              {selectedStages.length > 0
+                ? "No artists missing links on selected stages."
+                : "All artists in this edition have both links set."}
             </p>
           ) : (
             currentArtist && (
@@ -73,35 +95,44 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
                 key={currentArtist.id}
                 artist={currentArtist}
                 position={currentIndex + 1}
-                total={artists.length}
-                artists={artists}
+                total={filteredArtists.length}
+                artists={filteredArtists}
                 onPrev={() => goTo(currentIndex - 1)}
-                onNext={() => goTo(currentIndex + 1)}
+                onNext={() => {
+                  skippedHook.markSkipped(currentArtist.id);
+                  goTo(nextIndexAfterRemoval());
+                }}
+                onSaveSuccess={() => {
+                  skippedHook.markSaved(currentArtist.id);
+                  goTo(nextIndexAfterRemoval());
+                }}
               />
             )
           )}
         </CardContent>
       </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Remaining Artists</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <LinkWizardTable
-            artists={artists}
-            currentArtistId={currentArtist?.id}
-            page={clampedPage}
-            pageSize={pageSize}
-            onPageChange={setPage}
-            onPageSizeChange={(size) => {
-              setPageSize(size);
-              setPage(0);
-            }}
-            onSelectArtist={handleSelectArtist}
-          />
-        </CardContent>
-      </Card>
     </div>
   );
+
+  function goTo(index: number) {
+    const clamped = Math.max(0, Math.min(index, filteredArtists.length - 1));
+    setCurrentArtistId(filteredArtists[clamped]?.id);
+  }
+
+  function nextIndexAfterRemoval() {
+    const isLast = currentIndex >= filteredArtists.length - 1;
+    return isLast ? currentIndex - 1 : currentIndex + 1;
+  }
+
+  function handleSelectArtist(artist: ArtistWithSets) {
+    setCurrentArtistId(artist.id);
+  }
+
+  function handleStageToggle(stageId: string) {
+    setSelectedStages((prev) =>
+      prev.includes(stageId)
+        ? prev.filter((id) => id !== stageId)
+        : [...prev, stageId],
+    );
+  }
 }

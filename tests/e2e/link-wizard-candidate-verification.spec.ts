@@ -14,7 +14,7 @@ const LINK_WIZARD_PATH = "/admin/festivals/test/editions/2025/links";
 const MOCK_CANDIDATES = [
   {
     name: "Test Artist Indie",
-    url: "https://spotify.com/artist/test-indie",
+    url: "https://open.spotify.com/artist/test-indie",
     imageUrl: "https://example.com/image-indie.jpg",
     description: "Independent artist focused on experimental sounds",
     followers: 50000,
@@ -22,7 +22,7 @@ const MOCK_CANDIDATES = [
   },
   {
     name: "Test Artist Pro",
-    url: "https://spotify.com/artist/test-pro",
+    url: "https://open.spotify.com/artist/test-pro",
     imageUrl: "https://example.com/image-pro.jpg",
     description: "Professional artist with extensive touring history",
     followers: 500000,
@@ -30,7 +30,7 @@ const MOCK_CANDIDATES = [
   },
   {
     name: "Test Artist Micro",
-    url: "https://spotify.com/artist/test-micro",
+    url: "https://open.spotify.com/artist/test-micro",
     imageUrl: null,
     description: null,
     followers: 5000,
@@ -38,7 +38,7 @@ const MOCK_CANDIDATES = [
   },
   {
     name: "Test Artist Rising",
-    url: "https://spotify.com/artist/test-rising",
+    url: "https://open.spotify.com/artist/test-rising",
     imageUrl: "https://example.com/image-rising.jpg",
     description:
       "Rising talent known for innovative production techniques and live performances",
@@ -47,7 +47,7 @@ const MOCK_CANDIDATES = [
   },
   {
     name: "Test Artist Niche",
-    url: "https://spotify.com/artist/test-niche",
+    url: "https://open.spotify.com/artist/test-niche",
     imageUrl: "https://example.com/image-niche.jpg",
     description: null,
     followers: 25000,
@@ -125,7 +125,9 @@ test.describe(
       await expect(page.getByText("Spotify Candidates")).toBeVisible();
       await failOnCandidatesError(page);
 
-      const candidateCards = page.getByRole("listitem");
+      const candidateCards = page
+        .getByRole("list", { name: "Spotify Candidates" })
+        .getByRole("listitem");
       await expect(candidateCards.first()).toBeVisible({ timeout: 15000 });
       await expect(candidateCards).toHaveCount(3);
       await expect(candidateCards.nth(0)).toContainText("Test Artist Pro");
@@ -163,7 +165,7 @@ test.describe(
         .getByRole("button", { name: "Select all" })
         .click();
       await expect(spotifyUrlInput).toHaveValue(
-        "https://spotify.com/artist/test-rising",
+        "https://open.spotify.com/artist/test-rising",
       );
 
       // 6. Save completes the mutation and moves past this artist. The
@@ -203,6 +205,7 @@ test.describe(
       await expect(spotifyUrlInput).toHaveValue("");
 
       const candidateCard = page
+        .getByRole("list", { name: "Spotify Candidates" })
         .getByRole("listitem")
         .filter({ hasText: "Test Artist Pro" });
       await expect(candidateCard).toBeVisible({ timeout: 15000 });
@@ -293,7 +296,7 @@ async function failOnCandidatesError(page: Page) {
 
 async function selectArtistByName(page: Page, name: string) {
   await page
-    .getByRole("row")
+    .getByRole("listitem")
     .filter({ hasText: name })
     .getByRole("button", { name })
     .click();

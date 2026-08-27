@@ -1,6 +1,7 @@
 import { Clock } from "lucide-react";
 import { formatInTimeZone } from "date-fns-tz";
 import { formatTimeOnly } from "@/lib/timeUtils";
+import { useTimeFormat } from "@/hooks/useTimeFormat";
 import { useMemo } from "react";
 
 interface TimeDisplayProps {
@@ -12,20 +13,23 @@ interface TimeDisplayProps {
 function formatCompactTime(
   startTime: Date,
   endTime: Date,
+  use24Hour: boolean,
   timezone: string,
 ): string {
-  const startHour = formatInTimeZone(startTime, timezone, "H");
-  const endHour = formatInTimeZone(endTime, timezone, "H");
+  const hourFormat = use24Hour ? "H" : "h a";
+  const hourMinuteFormat = use24Hour ? "H:mm" : "h:mm a";
 
   const startMinutes = Number(formatInTimeZone(startTime, timezone, "m"));
   const endMinutes = Number(formatInTimeZone(endTime, timezone, "m"));
 
   const startStr =
     startMinutes === 0
-      ? startHour
-      : formatInTimeZone(startTime, timezone, "H:mm");
+      ? formatInTimeZone(startTime, timezone, hourFormat)
+      : formatInTimeZone(startTime, timezone, hourMinuteFormat);
   const endStr =
-    endMinutes === 0 ? endHour : formatInTimeZone(endTime, timezone, "H:mm");
+    endMinutes === 0
+      ? formatInTimeZone(endTime, timezone, hourFormat)
+      : formatInTimeZone(endTime, timezone, hourMinuteFormat);
 
   return `${startStr}-${endStr}`;
 }
@@ -35,6 +39,7 @@ export function TimeDisplay({
   endTime,
   timezone,
 }: TimeDisplayProps) {
+  const use24Hour = useTimeFormat();
   const useCompact = useMemo(() => {
     const duration = (endTime.getTime() - startTime.getTime()) / (1000 * 60);
     return duration <= 60;
@@ -45,11 +50,11 @@ export function TimeDisplay({
       <Clock className="h-3 w-3 flex-shrink-0" />
       <span className="text-xs whitespace-nowrap overflow-hidden text-ellipsis">
         {useCompact
-          ? formatCompactTime(startTime, endTime, timezone)
+          ? formatCompactTime(startTime, endTime, use24Hour, timezone)
           : formatTimeOnly(
               startTime.toISOString(),
               endTime.toISOString(),
-              true,
+              use24Hour,
               timezone,
             )}
       </span>

@@ -19,6 +19,7 @@ import { ProviderCandidatesPanel } from "./ProviderCandidatesPanel";
 import { StagedFieldsPreview } from "./StagedFieldsPreview";
 import { ArtistSetInfoPanel } from "./ArtistSetInfoPanel";
 import { useArtistBatchQuery } from "./useArtistBatchQuery";
+import { validateProviderUrl } from "@/lib/validateProviderUrl";
 
 const optionalUrlSchema = z
   .string()
@@ -27,10 +28,30 @@ const optionalUrlSchema = z
   .or(z.literal(""));
 
 const linkStepSchema = z.object({
-  providerUrl: z.object({
-    spotify: optionalUrlSchema,
-    soundcloud: optionalUrlSchema,
-  }),
+  providerUrl: z
+    .object({
+      spotify: optionalUrlSchema,
+      soundcloud: optionalUrlSchema,
+    })
+    .superRefine((value, ctx) => {
+      if (value.spotify && !validateProviderUrl("spotify", value.spotify)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["spotify"],
+          message: "Invalid spotify URL",
+        });
+      }
+      if (
+        value.soundcloud &&
+        !validateProviderUrl("soundcloud", value.soundcloud)
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["soundcloud"],
+          message: "Invalid soundcloud URL",
+        });
+      }
+    }),
   image_url: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
 });
@@ -44,6 +65,7 @@ interface LinkWizardStepProps {
   artists: Artist[];
   onPrev: () => void;
   onNext: () => void;
+  onSaveSuccess?: () => void;
 }
 
 export function LinkWizardStep({
@@ -53,12 +75,14 @@ export function LinkWizardStep({
   artists,
   onPrev,
   onNext,
+  onSaveSuccess,
 }: LinkWizardStepProps) {
   const updateArtistMutation = useUpdateArtistMutation();
   const batchQueryResult = useArtistBatchQuery(artist, artists);
 
   const form = useForm<LinkStepData>({
     resolver: zodResolver(linkStepSchema),
+    mode: "onChange",
     defaultValues: {
       providerUrl: {
         spotify: artist.spotify_url ?? "",
@@ -105,7 +129,10 @@ export function LinkWizardStep({
             />
           )}
 
-          <StagedFieldsPreview form={form} />
+          <StagedFieldsPreview
+            form={form}
+            onSelectCandidate={handleCandidateSelect}
+          />
 
           <div className="flex items-center justify-between gap-2 pt-2">
             <Button
@@ -185,7 +212,15 @@ export function LinkWizardStep({
 
     updateArtistMutation.mutate(
       { id: artist.id, updates },
-      { onSuccess: onNext },
+      {
+        onSuccess: () => {
+          if (onSaveSuccess) {
+            onSaveSuccess();
+          } else {
+            onNext();
+          }
+        },
+      },
     );
   }
 }

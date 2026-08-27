@@ -1,5 +1,6 @@
 import { formatInTimeZone } from "date-fns-tz";
 import { timeToOffset } from "@/lib/timelineCalculator";
+import { useTimeFormat } from "@/hooks/useTimeFormat";
 
 interface HourMarkersProps {
   timeSlots: Date[];
@@ -7,6 +8,9 @@ interface HourMarkersProps {
 }
 
 export function HourMarkers({ timeSlots, timezone }: HourMarkersProps) {
+  const use24Hour = useTimeFormat();
+  const hourFormat = use24Hour ? "HH:mm" : "h a";
+
   return (
     <div className="hour-markers relative h-10">
       {timeSlots.map((timeSlot, index) => {
@@ -30,7 +34,7 @@ export function HourMarkers({ timeSlots, timezone }: HourMarkersProps) {
             }}
           >
             <div className="text-sm font-medium text-subtle-foreground whitespace-nowrap">
-              {formatInTimeZone(timeSlot, timezone, "HH:mm")}
+              {formatInTimeZone(timeSlot, timezone, hourFormat)}
             </div>
             <div className="w-px h-4 bg-border" />
           </div>

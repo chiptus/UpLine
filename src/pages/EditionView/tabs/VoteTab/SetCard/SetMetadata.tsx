@@ -5,9 +5,11 @@ import { StageBadgeById } from "@/components/StageBadgeById";
 import { useFestivalSet } from "../FestivalSetContext";
 import { useRouteContext } from "@tanstack/react-router";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
+import { useTimeFormat } from "@/hooks/useTimeFormat";
 
 export function SetMetadata() {
-  const { set, use24Hour } = useFestivalSet();
+  const { set } = useFestivalSet();
+  const use24Hour = useTimeFormat();
   const { festival } = useRouteContext({
     from: "/festivals/$festivalSlug/editions/$editionSlug",
   });
@@ -65,11 +67,6 @@ export function SetMetadata() {
             <Clock className="h-3 w-3" />
             <span>{dayOnlyFormatted}</span>
           </div>
-        )}
-        {(timeRangeFormatted || dayOnlyFormatted) && (
-          <span className="text-xs text-muted-foreground/60">
-            {festival.timezone}
-          </span>
         )}
       </div>
     </div>

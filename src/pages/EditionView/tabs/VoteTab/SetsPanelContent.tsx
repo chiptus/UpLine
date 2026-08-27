@@ -29,7 +29,6 @@ export function SetsPanelContent({
   return (
     <SetsPanel
       sets={filteredAndSortedSets}
-      use24Hour={urlState.use24Hour}
       onLockSort={() => lockCurrentOrder(updateUrlState)}
     />
   );

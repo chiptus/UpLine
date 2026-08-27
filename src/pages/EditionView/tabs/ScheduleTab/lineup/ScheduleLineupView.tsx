@@ -38,7 +38,8 @@ function ScheduleLineupContent({ tab }: ScheduleLineupViewProps) {
     stages,
     timezone: festival.timezone,
   });
-  const { day: selectedDay, stages: selectedStages } = useTimelineUrlState(tab);
+  const { day: selectedDay, stagesIds: selectedStages } =
+    useTimelineUrlState(tab);
 
   const filteredScheduleDays = useMemo(() => {
     return scheduleDays

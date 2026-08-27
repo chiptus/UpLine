@@ -11,6 +11,7 @@ interface UseSetFormSubmitOptions {
   editionId: string;
   timezone: string;
   userId: string | undefined;
+  onComplete: () => void;
 }
 
 export function useSetFormSubmit({
@@ -18,6 +19,7 @@ export function useSetFormSubmit({
   editionId,
   timezone,
   userId,
+  onComplete,
 }: UseSetFormSubmitOptions) {
   const createSetMutation = useCreateSetMutation();
   const updateSetMutation = useUpdateSetMutation();
@@ -32,7 +34,7 @@ export function useSetFormSubmit({
 
   return { submit, isPending };
 
-  async function submit(data: SetFormData) {
+  function submit(data: SetFormData) {
     if (!userId) {
       return;
     }
@@ -51,39 +53,48 @@ export function useSetFormSubmit({
         : null,
     };
 
-    let setId: string;
     if (editingSet) {
-      const updatedSet = await updateSetMutation.mutateAsync({
-        id: editingSet.id,
-        updates: submitData,
-      });
-      setId = updatedSet.id;
+      updateSetMutation.mutate(
+        { id: editingSet.id, updates: submitData },
+        {
+          onSuccess: (updatedSet) =>
+            syncArtistsAndComplete(data, updatedSet.id),
+        },
+      );
     } else {
-      const newSet = await createSetMutation.mutateAsync({
-        ...submitData,
-        created_by: userId,
-      });
-      setId = newSet.id;
+      createSetMutation.mutate(
+        { ...submitData, created_by: userId },
+        {
+          onSuccess: (newSet) => syncArtistsAndComplete(data, newSet.id),
+        },
+      );
     }
+  }
 
+  async function syncArtistsAndComplete(data: SetFormData, setId: string) {
     const selectedArtistIds = data.artist_ids || [];
     const existingArtistIds = editingSet?.artists?.map((a) => a.id) || [];
 
     const artistsToRemove = existingArtistIds.filter(
       (id) => !selectedArtistIds.includes(id),
     );
-    for (const artistId of artistsToRemove) {
-      await removeArtistFromSetMutation.mutateAsync({
-        setId: editingSet!.id,
-        artistId,
-      });
-    }
-
     const artistsToAdd = selectedArtistIds.filter(
       (id) => !existingArtistIds.includes(id),
     );
-    for (const artistId of artistsToAdd) {
-      await addArtistToSetMutation.mutateAsync({ setId, artistId });
+
+    try {
+      for (const artistId of artistsToRemove) {
+        await removeArtistFromSetMutation.mutateAsync({ setId, artistId });
+      }
+      for (const artistId of artistsToAdd) {
+        await addArtistToSetMutation.mutateAsync({ setId, artistId });
+      }
+    } catch {
+      // The mutation hooks already toast the failure; keep the dialog open
+      // so the user can retry the artist sync.
+      return;
     }
+
+    onComplete();
   }
 }

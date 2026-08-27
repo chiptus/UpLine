@@ -1,6 +1,6 @@
 import { getSpotifyAccessToken } from "../_shared/spotify-api/auth.ts";
 import { SpotifySearchResponseSchema } from "../_shared/spotify-api/schemas.ts";
-import { normalizeSpotifySearchResult } from "./normalize.ts";
+import { normalizeSpotifySearchResult } from "../_shared/normalize.ts";
 import type { ProviderSearchOutcome } from "./types.ts";
 
 export async function searchSpotify(

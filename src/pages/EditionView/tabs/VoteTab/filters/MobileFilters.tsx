@@ -28,9 +28,9 @@ export function MobileFilters({
 
   function handleStageSelect(value: string) {
     if (value === "all") {
-      onStateChange({ stages: [] });
+      onStateChange({ stagesIds: [] });
     } else {
-      onStateChange({ stages: [value] });
+      onStateChange({ stagesIds: [value] });
     }
   }
 
@@ -51,7 +51,7 @@ export function MobileFilters({
             Stage
           </h4>
           <Select
-            value={state.stages.length === 1 ? state.stages[0] : "all"}
+            value={state.stagesIds.length === 1 ? state.stagesIds[0] : "all"}
             onValueChange={handleStageSelect}
           >
             <SelectTrigger className="w-full bg-surface-raised border-border text-popover-foreground">

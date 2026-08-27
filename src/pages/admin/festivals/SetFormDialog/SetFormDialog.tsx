@@ -66,6 +66,7 @@ export function SetFormDialog({
     editionId,
     timezone: tz,
     userId: user?.id,
+    onComplete: handleSubmitComplete,
   });
 
   const form = useForm<SetFormData>({
@@ -110,7 +111,7 @@ export function SetFormDialog({
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(submit)} className="space-y-4">
             <ArtistSelectionField
               control={form.control}
               artists={artists.map((a) => ({ id: a.id, name: a.name }))}
@@ -175,11 +176,7 @@ export function SetFormDialog({
     }
   }
 
-  async function onSubmit(data: SetFormData) {
-    if (!user) {
-      return;
-    }
-    await submit(data);
+  function handleSubmitComplete() {
     form.reset();
     onClose();
   }

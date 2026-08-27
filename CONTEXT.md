@@ -29,8 +29,12 @@ Which stage of its lifecycle an **edition** is in. An ordered, derived concept (
 _Avoid_: Status, state, stage (stage = a venue), stored phase
 
 **Set**:
-A single scheduled performance within an edition, with one or more artists, a stage, and a start/end time.
-_Avoid_: Show, gig, slot, performance
+A single scheduled happening within an edition, with a stage, a start/end time, and zero or more artists. Not every set is music: see **Set type**.
+_Avoid_: Show, gig, slot, performance (a performance is a _type_ of set, not a synonym for one)
+
+**Set type**:
+What kind of happening a **set** is: music, workshop, performance, or other. `null` on a set means it predates typing and awaits backfill — never "chose not to say". Voting is identical across types.
+_Avoid_: Category, kind
 
 **Stage**:
 A named venue/space within an edition where sets take place.
@@ -67,6 +71,22 @@ _Avoid_: Group filter, vote filter
 **Core Team**:
 Admin users who curate editions, manage the lineup, and import the schedule.
 _Avoid_: Staff, organizers, moderators
+
+**Link Wizard**:
+The Core Team admin flow for filling in an artist's Spotify and SoundCloud links, one artist at a time, with metadata search assisting each step. See ADR-0006, ADR-0007.
+_Avoid_: Link editor, artist linking
+
+**Provider**:
+A music service the Link Wizard fetches artist metadata from: Spotify or SoundCloud. An artist has at most one link per provider.
+_Avoid_: Source, platform
+
+**Link Wizard queue**:
+The ordered list of artists in an edition still missing at least one provider link, worked through one at a time in the Link Wizard. Skipped and saved-this-session artists are locally excluded from it (see Skipped/saved). See ADR-0007.
+_Avoid_: Remaining artists, artist list, table
+
+**Skipped/saved (Link Wizard)**:
+A per-browser record of which artists a Core Team member has skipped or saved in the Link Wizard, keyed by (edition, artist) in `localStorage`. Excludes those artists from the Link Wizard queue on future visits until restored. Not synced across devices or team members. See ADR-0007.
+_Avoid_: Dismissed, hidden, completed
 
 ### Publish states
 

@@ -1,7 +1,19 @@
 import type { Database } from "@/integrations/supabase/types";
 import type { Artist } from "@/api/artists/types";
 
-export type FestivalSet = Database["public"]["Tables"]["sets"]["Row"] & {
+export const SET_TYPES = ["music", "workshop", "performance", "other"] as const;
+
+export type SetType = (typeof SET_TYPES)[number];
+
+export function asSetType(value: string | null): SetType | null {
+  return SET_TYPES.includes(value as SetType) ? (value as SetType) : null;
+}
+
+export type FestivalSet = Omit<
+  Database["public"]["Tables"]["sets"]["Row"],
+  "set_type"
+> & {
+  set_type: SetType | null;
   artists: Artist[];
   votes: { vote_type: number; user_id: string }[];
   stage_name?: string | null;

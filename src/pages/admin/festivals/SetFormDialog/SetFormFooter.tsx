@@ -2,14 +2,14 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
 interface SetFormFooterProps {
-  isEditing: boolean;
+  submitLabel: string;
   disabled: boolean;
   isPending: boolean;
   onCancel: () => void;
 }
 
 export function SetFormFooter({
-  isEditing,
+  submitLabel,
   disabled,
   isPending,
   onCancel,
@@ -26,7 +26,7 @@ export function SetFormFooter({
       </Button>
       <Button type="submit" disabled={disabled}>
         {isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-        {isEditing ? "Update" : "Create"}
+        {submitLabel}
       </Button>
     </div>
   );

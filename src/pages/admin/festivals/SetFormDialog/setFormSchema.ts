@@ -11,3 +11,13 @@ export const setFormSchema = z.object({
 });
 
 export type SetFormData = z.infer<typeof setFormSchema>;
+
+export const setFormDefaultValues: SetFormData = {
+  name: "",
+  description: "",
+  stage_id: "none",
+  time_start: "",
+  time_end: "",
+  estimated_date: "",
+  artist_ids: [],
+};

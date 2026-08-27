@@ -10,7 +10,8 @@ import { useSetsByEditionQuery } from "@/api/sets/useSetsByEdition";
 import { useDeleteSetMutation } from "@/api/sets/useDeleteSet";
 import { useFestivalEditionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
-import { SetFormDialog } from "@/pages/admin/festivals/SetFormDialog/SetFormDialog";
+import { CreateSetDialog } from "@/pages/admin/festivals/SetFormDialog/CreateSetDialog";
+import { EditSetDialog } from "@/pages/admin/festivals/SetFormDialog/EditSetDialog";
 import { SetsTable } from "@/pages/admin/festivals/SetsTable";
 import { pageMeta } from "@/lib/pageHead";
 
@@ -110,13 +111,22 @@ function FestivalSets() {
         />
       </CardContent>
 
-      <SetFormDialog
-        isOpen={isDialogOpen}
-        onClose={handleCloseDialog}
-        editingSet={editingSet}
-        editionId={editionQuery.data.id}
-        timezone={festival.timezone}
-      />
+      {isDialogOpen &&
+        (editingSet ? (
+          <EditSetDialog
+            key={editingSet.id}
+            set={editingSet}
+            onClose={handleCloseDialog}
+            editionId={editionQuery.data.id}
+            timezone={festival.timezone}
+          />
+        ) : (
+          <CreateSetDialog
+            onClose={handleCloseDialog}
+            editionId={editionQuery.data.id}
+            timezone={festival.timezone}
+          />
+        ))}
     </Card>
   );
 }

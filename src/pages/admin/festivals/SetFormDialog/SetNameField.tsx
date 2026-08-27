@@ -12,7 +12,7 @@ import { SetFormData } from "./setFormSchema";
 interface SetNameFieldProps {
   control: Control<SetFormData>;
   hasManuallyEditedName: boolean;
-  onManualEdit: () => void;
+  onManualEdit?: (() => void) | undefined;
 }
 
 export function SetNameField({
@@ -33,7 +33,7 @@ export function SetNameField({
               {...field}
               onChange={(e) => {
                 field.onChange(e);
-                onManualEdit();
+                onManualEdit?.();
               }}
             />
           </FormControl>

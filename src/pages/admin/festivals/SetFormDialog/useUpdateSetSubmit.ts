@@ -1,33 +1,28 @@
 import { FestivalSet } from "@/api/sets/types";
-import { useCreateSetMutation } from "@/api/sets/useCreateSet";
 import { useUpdateSetMutation } from "@/api/sets/useUpdateSet";
 import { useAddArtistToSetMutation } from "@/api/sets/useAddArtistToSet";
 import { useRemoveArtistFromSetMutation } from "@/api/sets/useRemoveArtistFromSet";
-import { convertLocalTimeToUTC } from "@/lib/timeUtils";
 import { SetFormData } from "./setFormSchema";
+import { toSetPayload } from "./toSetPayload";
 
-interface UseSetFormSubmitOptions {
-  editingSet: FestivalSet | null;
+interface UseUpdateSetSubmitOptions {
+  set: FestivalSet;
   editionId: string;
   timezone: string;
-  userId: string | undefined;
   onComplete: () => void;
 }
 
-export function useSetFormSubmit({
-  editingSet,
+export function useUpdateSetSubmit({
+  set,
   editionId,
   timezone,
-  userId,
   onComplete,
-}: UseSetFormSubmitOptions) {
-  const createSetMutation = useCreateSetMutation();
+}: UseUpdateSetSubmitOptions) {
   const updateSetMutation = useUpdateSetMutation();
   const addArtistToSetMutation = useAddArtistToSetMutation();
   const removeArtistFromSetMutation = useRemoveArtistFromSetMutation();
 
   const isPending =
-    createSetMutation.isPending ||
     updateSetMutation.isPending ||
     addArtistToSetMutation.isPending ||
     removeArtistFromSetMutation.isPending;
@@ -35,45 +30,17 @@ export function useSetFormSubmit({
   return { submit, isPending };
 
   function submit(data: SetFormData) {
-    if (!userId) {
-      return;
-    }
-
-    const submitData = {
-      name: data.name,
-      description: data.description || null,
-      festival_edition_id: editionId,
-      stage_id:
-        data.stage_id && data.stage_id !== "none" ? data.stage_id : null,
-      time_start: data.time_start
-        ? convertLocalTimeToUTC(data.time_start, timezone)
-        : null,
-      time_end: data.time_end
-        ? convertLocalTimeToUTC(data.time_end, timezone)
-        : null,
-    };
-
-    if (editingSet) {
-      updateSetMutation.mutate(
-        { id: editingSet.id, updates: submitData },
-        {
-          onSuccess: (updatedSet) =>
-            syncArtistsAndComplete(data, updatedSet.id),
-        },
-      );
-    } else {
-      createSetMutation.mutate(
-        { ...submitData, created_by: userId },
-        {
-          onSuccess: (newSet) => syncArtistsAndComplete(data, newSet.id),
-        },
-      );
-    }
+    updateSetMutation.mutate(
+      { id: set.id, updates: toSetPayload(data, editionId, timezone) },
+      {
+        onSuccess: (updatedSet) => syncArtistsAndComplete(data, updatedSet.id),
+      },
+    );
   }
 
   async function syncArtistsAndComplete(data: SetFormData, setId: string) {
     const selectedArtistIds = data.artist_ids || [];
-    const existingArtistIds = editingSet?.artists?.map((a) => a.id) || [];
+    const existingArtistIds = set.artists?.map((a) => a.id) || [];
 
     const artistsToRemove = existingArtistIds.filter(
       (id) => !selectedArtistIds.includes(id),

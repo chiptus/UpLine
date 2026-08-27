@@ -13,7 +13,7 @@ import { SetFormData } from "./setFormSchema";
 interface ArtistSelectionFieldProps {
   control: Control<SetFormData>;
   artists: NamedArtist[];
-  onArtistsChange: (artistIds: string[]) => void;
+  onArtistsChange?: ((artistIds: string[]) => void) | undefined;
 }
 
 export function ArtistSelectionField({
@@ -34,7 +34,7 @@ export function ArtistSelectionField({
               value={field.value || []}
               onValueChange={(artistIds) => {
                 field.onChange(artistIds);
-                onArtistsChange(artistIds);
+                onArtistsChange?.(artistIds);
               }}
               placeholder="Select artists for this set..."
             />

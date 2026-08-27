@@ -38,7 +38,9 @@ export function useUpdateSetSubmit({
     );
   }
 
-  async function syncArtistsAndComplete(data: SetFormData, setId: string) {
+  // On failure the mutation hooks toast and onComplete is never reached,
+  // keeping the dialog open so the user can retry the artist sync.
+  function syncArtistsAndComplete(data: SetFormData, setId: string) {
     const selectedArtistIds = data.artist_ids || [];
     const existingArtistIds = set.artists?.map((a) => a.id) || [];
 
@@ -49,25 +51,28 @@ export function useUpdateSetSubmit({
       (id) => !existingArtistIds.includes(id),
     );
 
-    try {
-      if (artistsToRemove.length > 0) {
-        await removeArtistsFromSetMutation.mutateAsync({
-          setId,
-          artistIds: artistsToRemove,
-        });
+    removeArtists();
+
+    function removeArtists() {
+      if (artistsToRemove.length === 0) {
+        addArtists();
+        return;
       }
-      if (artistsToAdd.length > 0) {
-        await addArtistsToSetMutation.mutateAsync({
-          setId,
-          artistIds: artistsToAdd,
-        });
-      }
-    } catch {
-      // The mutation hooks already toast the failure; keep the dialog open
-      // so the user can retry the artist sync.
-      return;
+      removeArtistsFromSetMutation.mutate(
+        { setId, artistIds: artistsToRemove },
+        { onSuccess: addArtists },
+      );
     }
 
-    onComplete();
+    function addArtists() {
+      if (artistsToAdd.length === 0) {
+        onComplete();
+        return;
+      }
+      addArtistsToSetMutation.mutate(
+        { setId, artistIds: artistsToAdd },
+        { onSuccess: onComplete },
+      );
+    }
   }
 }

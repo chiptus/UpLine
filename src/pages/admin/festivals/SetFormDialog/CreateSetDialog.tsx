@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useArtistsQuery } from "@/api/artists/useArtists";
 import { isNonMusicSetType, type SetType } from "@/api/sets/types";
@@ -51,7 +51,8 @@ export function CreateSetDialog({
     defaultValues: setFormDefaultValues,
   });
 
-  const isNonMusicSet = isNonMusicSetType(form.watch("set_type"));
+  const setType = useWatch({ control: form.control, name: "set_type" });
+  const isNonMusicSet = isNonMusicSetType(setType);
 
   return (
     <Dialog open onOpenChange={onClose}>

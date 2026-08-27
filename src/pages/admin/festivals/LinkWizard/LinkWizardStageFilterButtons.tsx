@@ -3,6 +3,7 @@ import { MapPin } from "lucide-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
+import { cn } from "@/lib/utils";
 
 interface LinkWizardStageFilterButtonsProps {
   selectedStages: string[];
@@ -37,11 +38,12 @@ export function LinkWizardStageFilterButtons({
               size="sm"
               onClick={() => onStageToggle(stage.id)}
               aria-pressed={isSelected}
-              className={
+              className={cn(
+                "text-xs",
                 isSelected
-                  ? "bg-accent hover:bg-accent-hover text-xs"
-                  : "bg-surface border-strong text-subtle-foreground hover:border-subtle-foreground hover:bg-accent-soft hover:text-foreground text-xs"
-              }
+                  ? "bg-accent hover:bg-accent-hover"
+                  : "bg-surface border-strong text-subtle-foreground hover:border-subtle-foreground hover:bg-accent-soft hover:text-foreground",
+              )}
             >
               {stage.name}
             </Button>

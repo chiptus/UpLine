@@ -12,16 +12,19 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
 import { LinkWizardStageFilterButtons } from "./LinkWizardStageFilterButtons";
 
 interface LinkWizardFilterSheetProps {
   selectedStages: string[];
   onStageToggle: (stageId: string) => void;
+  onClearStages: () => void;
 }
 
 export function LinkWizardFilterSheet({
   selectedStages,
   onStageToggle,
+  onClearStages,
 }: LinkWizardFilterSheetProps) {
   const [open, setOpen] = useState(false);
 
@@ -39,11 +42,12 @@ export function LinkWizardFilterSheet({
               ? `Filters (${selectedStages.length} active)`
               : "Filters"
           }
-          className={
+          className={cn(
+            "flex items-center gap-2",
             hasActiveFilters
-              ? "flex items-center gap-2 bg-accent-soft text-foreground hover:bg-accent/60"
-              : "flex items-center gap-2 text-subtle-foreground hover:bg-accent-soft hover:text-foreground"
-          }
+              ? "bg-accent-soft text-foreground hover:bg-accent/60"
+              : "text-subtle-foreground hover:bg-accent-soft hover:text-foreground",
+          )}
         >
           <Filter className="h-4 w-4" />
           <span className="hidden md:inline">Filters</span>
@@ -71,7 +75,7 @@ export function LinkWizardFilterSheet({
         <div className="mt-4">
           <LinkWizardStageFilterButtons
             selectedStages={selectedStages}
-            onStageToggle={handleStageToggle}
+            onStageToggle={onStageToggle}
           />
         </div>
 
@@ -80,7 +84,7 @@ export function LinkWizardFilterSheet({
             <Button
               type="button"
               variant="ghost"
-              onClick={clearFilters}
+              onClick={onClearStages}
               className="text-destructive hover:text-red-300 hover:bg-destructive/10"
             >
               Clear all
@@ -95,14 +99,4 @@ export function LinkWizardFilterSheet({
       </SheetContent>
     </Sheet>
   );
-
-  function handleStageToggle(stageId: string) {
-    onStageToggle(stageId);
-  }
-
-  function clearFilters() {
-    selectedStages.forEach((stageId) => {
-      onStageToggle(stageId);
-    });
-  }
 }

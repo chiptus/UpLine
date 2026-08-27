@@ -51,19 +51,14 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
 
   return (
     <div className="space-y-6 lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-6 lg:items-start">
-      <div
-        className={
-          showFullQueue
-            ? "lg:sticky lg:top-4 order-first"
-            : "lg:sticky lg:top-4 order-last lg:order-first"
-        }
-      >
+      <div className="lg:sticky lg:top-4">
         <LinkWizardQueue
           artists={filteredArtists}
           currentArtistId={currentArtist?.id}
           onSelectArtist={handleSelectArtist}
           selectedStages={selectedStages}
           onStageToggle={handleStageToggle}
+          onClearStages={() => setSelectedStages([])}
           isPreviewMode={isMobile && !showFullQueue}
           onViewAll={() => setShowFullQueue(true)}
         />

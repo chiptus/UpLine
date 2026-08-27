@@ -14,6 +14,7 @@ interface LinkWizardQueueProps {
   onSelectArtist: (artist: ArtistWithSets) => void;
   selectedStages: string[];
   onStageToggle: (stageId: string) => void;
+  onClearStages: () => void;
   isPreviewMode?: boolean;
   onViewAll?: () => void;
 }
@@ -24,6 +25,7 @@ export function LinkWizardQueue({
   onSelectArtist,
   selectedStages,
   onStageToggle,
+  onClearStages,
   isPreviewMode = false,
   onViewAll,
 }: LinkWizardQueueProps) {
@@ -32,8 +34,28 @@ export function LinkWizardQueue({
     : artists;
   const hasMoreArtists = isPreviewMode && artists.length > MOBILE_PREVIEW_COUNT;
 
+  const list = (
+    <ul className="pb-2">
+      {displayedArtists.length === 0 && (
+        <li className="px-4 py-3 text-sm text-muted-foreground">
+          {artists.length === 0
+            ? "No artists missing links."
+            : "No artists matching filter."}
+        </li>
+      )}
+      {displayedArtists.map((artist) => (
+        <LinkWizardQueueItem
+          key={artist.id}
+          artist={artist}
+          isCurrent={artist.id === currentArtistId}
+          onSelect={onSelectArtist}
+        />
+      ))}
+    </ul>
+  );
+
   return (
-    <Card className="lg:sticky lg:top-4 order-last lg:order-first">
+    <Card>
       <CardHeader className="pb-3 space-y-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base">Queue ({artists.length})</CardTitle>
@@ -48,29 +70,14 @@ export function LinkWizardQueue({
           <LinkWizardFilterSheet
             selectedStages={selectedStages}
             onStageToggle={onStageToggle}
+            onClearStages={onClearStages}
           />
         </div>
       </CardHeader>
       <CardContent className="p-0">
         {isPreviewMode ? (
           <div>
-            <ul className="pb-2">
-              {displayedArtists.length === 0 && (
-                <li className="px-4 py-3 text-sm text-muted-foreground">
-                  {artists.length === 0
-                    ? "No artists missing links."
-                    : "No artists matching filter."}
-                </li>
-              )}
-              {displayedArtists.map((artist) => (
-                <LinkWizardQueueItem
-                  key={artist.id}
-                  artist={artist}
-                  isCurrent={artist.id === currentArtistId}
-                  onSelect={onSelectArtist}
-                />
-              ))}
-            </ul>
+            {list}
             {hasMoreArtists && (
               <div className="px-4 py-2 border-t">
                 <Button
@@ -86,25 +93,7 @@ export function LinkWizardQueue({
             )}
           </div>
         ) : (
-          <ScrollArea className="h-[70vh]">
-            <ul className="pb-2">
-              {displayedArtists.length === 0 && (
-                <li className="px-4 py-3 text-sm text-muted-foreground">
-                  {artists.length === 0
-                    ? "No artists missing links."
-                    : "No artists matching filter."}
-                </li>
-              )}
-              {displayedArtists.map((artist) => (
-                <LinkWizardQueueItem
-                  key={artist.id}
-                  artist={artist}
-                  isCurrent={artist.id === currentArtistId}
-                  onSelect={onSelectArtist}
-                />
-              ))}
-            </ul>
-          </ScrollArea>
+          <ScrollArea className="h-[70vh]">{list}</ScrollArea>
         )}
       </CardContent>
     </Card>

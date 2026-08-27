@@ -89,6 +89,19 @@ describe("filterArtistsByStage", () => {
     expect(result[0].id).toBe("1");
   });
 
+  it("excludes artists with no set assignment at all", () => {
+    const artists = [
+      mockArtist("1", "Artist 1", [{ stage_id: "stage-a" }]),
+      mockArtist("2", "Artist 2", []),
+    ];
+
+    const result = filterArtistsByStage(artists, ["stage-a"]);
+
+    expect(() => filterArtistsByStage(artists, ["stage-a"])).not.toThrow();
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe("1");
+  });
+
   it("includes artists with multiple sets when any set matches", () => {
     const artists = [
       mockArtist("1", "Artist 1", [

@@ -45,14 +45,20 @@ export async function getSpotifyAccessToken(): Promise<string> {
   );
 
   if (!result.success) {
-    console.error("[getSpotifyAccessToken] Error obtaining access token:", {
-      error: result.error,
-    });
     if (result.type === "rate-limit") {
+      console.error(
+        "[getSpotifyAccessToken] Rate limited obtaining access token",
+        {
+          retryAfterSeconds: result.retryAfterSeconds,
+        },
+      );
       throw new Error(
         `Failed to get Spotify access token: rate limited (retry after ${result.retryAfterSeconds}s)`,
       );
     }
+    console.error("[getSpotifyAccessToken] Error obtaining access token:", {
+      error: result.error,
+    });
     throw new Error("Failed to get Spotify access token");
   }
 

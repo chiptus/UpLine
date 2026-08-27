@@ -40,6 +40,15 @@ export async function searchSpotify(
             error: `Spotify rate limited`,
             rateLimitRetryAfter: result.retryAfterSeconds,
           });
+          for (const remaining of artistNames) {
+            if (remaining === artistName || results.has(remaining)) continue;
+            results.set(remaining, {
+              candidates: [],
+              error: `Spotify rate limited`,
+              rateLimitRetryAfter: result.retryAfterSeconds,
+            });
+          }
+          break;
         } else {
           console.error(
             `[searchSpotify] Error searching for artist ${artistName}:`,

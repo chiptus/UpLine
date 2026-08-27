@@ -1,4 +1,5 @@
 import { assertEquals, assertExists } from "jsr:@std/assert@1";
+import { FakeTime } from "jsr:@std/testing@1/time";
 import { fetchWithRetry } from "./retry-utils.ts";
 
 Deno.test(
@@ -179,6 +180,7 @@ Deno.test(
 Deno.test(
   "fetchWithRetry respects maxRetries option",
   async function fetchWithRetryMaxRetries() {
+    using time = new FakeTime();
     let attemptCount = 0;
 
     function mockFetch() {
@@ -195,10 +197,12 @@ Deno.test(
       return { data: "should not reach here" };
     }
 
-    const result = await fetchWithRetry(mockFetch, mockParse, {
+    const resultPromise = fetchWithRetry(mockFetch, mockParse, {
       maxRetries: 1,
       initialDelayMs: 10,
     });
+    await time.tickAsync(1000);
+    const result = await resultPromise;
 
     assertEquals(result.success, false);
     assertEquals(attemptCount, 2);
@@ -230,6 +234,7 @@ Deno.test(
 Deno.test(
   "fetchWithRetry respects Retry-After header in delay",
   async function fetchWithRetryRespectRetryAfter() {
+    using time = new FakeTime();
     let attemptCount = 0;
     const attemptTimes: number[] = [];
 
@@ -251,11 +256,13 @@ Deno.test(
       return response.json() as Promise<{ data: string }>;
     }
 
-    const result = await fetchWithRetry(mockFetch, mockParse, {
+    const resultPromise = fetchWithRetry(mockFetch, mockParse, {
       maxRetries: 2,
       initialDelayMs: 100,
       maxDelayMs: 5000,
     });
+    await time.tickAsync(2000);
+    const result = await resultPromise;
 
     assertEquals(result.success, true);
     assertEquals(attemptCount, 2);

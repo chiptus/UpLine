@@ -599,6 +599,7 @@ function makeSet(overrides: Partial<ScheduleSet> = {}): ScheduleSet {
     id: "set-1",
     name: "A set",
     artists: [],
+    setType: null,
     votes: [],
     startTime: new Date("2024-07-15T10:00:00Z"),
     ...overrides,

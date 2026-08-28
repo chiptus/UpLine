@@ -6,6 +6,9 @@ import { formatTimeOnly } from "@/lib/timeUtils";
 import { useTimeFormat } from "@/hooks/useTimeFormat";
 import { VoteButtons } from "../VoteButtons";
 import { StageBadge } from "@/components/StageBadge";
+import { isNonMusicSetType } from "@/api/sets/types";
+import { SetTypeIcon } from "@/components/SetTypeIcon";
+import { cn } from "@/lib/utils";
 import type { ScheduleSet } from "@/hooks/useScheduleData";
 
 interface MobileSetCardProps {
@@ -18,6 +21,7 @@ export function MobileSetCard({ set, timezone }: MobileSetCardProps) {
     from: "/festivals/$festivalSlug/editions/$editionSlug",
   });
   const use24Hour = useTimeFormat();
+  const isNonMusicSet = isNonMusicSetType(set.setType);
   const duration =
     set.startTime && set.endTime
       ? differenceInMinutes(set.endTime, set.startTime)
@@ -27,11 +31,15 @@ export function MobileSetCard({ set, timezone }: MobileSetCardProps) {
     <Card className="bg-surface-raised backdrop-blur-md border-border hover:border-strong transition-colors">
       <CardContent className="p-4">
         {/* Artist name */}
-        <div className="mb-3">
+        <div className={cn("mb-3", isNonMusicSet && "flex items-center gap-2")}>
+          <SetTypeIcon setType={set.setType} className="h-4 w-4" />
           <Link
             to="/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug"
             params={{ festivalSlug, editionSlug, setSlug: set.slug ?? "" }}
-            className="text-foreground font-semibold hover:text-subtle-foreground transition-colors block text-lg"
+            className={cn(
+              "text-foreground font-semibold hover:text-subtle-foreground transition-colors block text-lg",
+              isNonMusicSet && "min-w-0",
+            )}
           >
             {set.name}
           </Link>

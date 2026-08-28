@@ -1,3 +1,4 @@
+import { asSetType } from "../_shared/setTypes.ts";
 import { artistKey } from "./helpers.ts";
 import {
   buildIndexes,
@@ -68,7 +69,7 @@ export function computeDiff(
       // chips; the commit path ignores it.
       state.setsToUpdate.push({
         id: matched.id,
-        previousSetType: matched.set_type,
+        previousSetType: asSetType(matched.set_type),
         ...payload,
       });
     } else {

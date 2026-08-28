@@ -41,7 +41,7 @@ export const diffResultSchema = z.object({
         id: z.string(),
         // The matched set's stored type, so the review can render
         // stored → incoming chips. Not written on commit.
-        previousSetType: z.string().nullable(),
+        previousSetType: z.enum(SET_TYPES).nullable(),
       }),
     ),
   }),

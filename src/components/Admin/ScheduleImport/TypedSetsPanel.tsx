@@ -1,6 +1,7 @@
 import { ArrowRight, Tags } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { SetType } from "@/api/sets/types";
+import { cn } from "@/lib/utils";
 import { getSetTypeLabel } from "@/lib/setTypeLabels";
 import { type DiffResult } from "@/services/scheduleImport/types";
 
@@ -8,7 +9,7 @@ type TypedSet = {
   key: string;
   name: string;
   setType: SetType;
-  previousSetType: string | null;
+  previousSetType: SetType | null;
   operation: "create" | "update";
 };
 
@@ -64,12 +65,12 @@ function isTypeChange(set: TypedSet): boolean {
   return set.previousSetType !== null && set.previousSetType !== set.setType;
 }
 
-function SetTypeChip({ setType }: { setType: string | null }) {
-  const typeLabel = getSetTypeLabel(setType);
+function SetTypeChip({ setType }: { setType: SetType | null }) {
+  const { icon: Icon, label, color } = getSetTypeLabel(setType);
   return (
     <Badge variant="secondary" className="gap-1 shrink-0">
-      <typeLabel.icon className={`h-3 w-3 ${typeLabel.color}`} />
-      {typeLabel.label}
+      <Icon className={cn("h-3 w-3", color)} />
+      {label}
     </Badge>
   );
 }

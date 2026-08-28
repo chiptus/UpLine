@@ -374,6 +374,43 @@ Deno.test("same-name artist-less candidates disambiguated by stage", () => {
   assertEquals(result.conflicts.orphanedSets[0].id, "set-a");
 });
 
+Deno.test(
+  "same name and stage on different dates disambiguated by date",
+  () => {
+    const stage = makeStage("s1", "Workshop Tent");
+    const set1 = makeSet(
+      "set-a",
+      "Fire Show",
+      [],
+      "s1",
+      "2026-07-11T20:00:00Z",
+    );
+    const set2 = makeSet(
+      "set-b",
+      "Fire Show",
+      [],
+      "s1",
+      "2026-07-12T20:00:00Z",
+    );
+    const result = computeDiff(
+      [
+        {
+          artists: [],
+          setName: "Fire Show",
+          stage: "Workshop Tent",
+          date: "2026-07-12",
+        },
+      ],
+      [stage],
+      [set1, set2],
+      [],
+      "UTC",
+    );
+    assertEquals(result.cleanOperations.setsToUpdate.length, 1);
+    assertEquals(result.cleanOperations.setsToUpdate[0].id, "set-b");
+  },
+);
+
 Deno.test("same-name artist-less candidates disambiguated by date", () => {
   const set1 = makeSet("set-a", "Fire Show", [], null, "2026-07-11T20:00:00Z");
   const set2 = makeSet("set-b", "Fire Show", [], null, "2026-07-12T20:00:00Z");

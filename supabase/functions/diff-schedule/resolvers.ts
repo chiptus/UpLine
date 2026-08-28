@@ -120,6 +120,10 @@ export function computeTimes(
   return { timeStart, timeEnd };
 }
 
+// Narrow by every supplied discriminator in turn: a stage match alone must
+// not win over a candidate that also matches the date. A discriminator that
+// matches nothing is skipped rather than emptying the pool, so a partially
+// matching CSV row still falls back to the closest candidate.
 export function findMatchingSet(
   candidates: DbSet[],
   resolvedStageId: string | null,
@@ -127,21 +131,21 @@ export function findMatchingSet(
   timezone: string,
   alreadyMatched: Set<string>,
 ): DbSet | null {
-  const available = candidates.filter((s) => !alreadyMatched.has(s.id));
-  if (available.length <= 1) return available[0] ?? null;
+  let pool = candidates.filter((s) => !alreadyMatched.has(s.id));
+  if (pool.length <= 1) return pool[0] ?? null;
 
   if (resolvedStageId) {
-    const byStage = available.find((s) => s.stage_id === resolvedStageId);
-    if (byStage) return byStage;
+    const byStage = pool.filter((s) => s.stage_id === resolvedStageId);
+    if (byStage.length > 0) pool = byStage;
   }
   if (date) {
-    const byDate = available.find(
+    const byDate = pool.filter(
       (s) =>
         s.time_start != null && utcToLocalDate(s.time_start, timezone) === date,
     );
-    if (byDate) return byDate;
+    if (byDate.length > 0) pool = byDate;
   }
-  return available[0];
+  return pool[0];
 }
 
 function strip(s: string): string {

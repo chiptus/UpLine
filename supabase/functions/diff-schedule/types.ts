@@ -37,7 +37,7 @@ export type DbSet = Pick<
 
 export type SetPayload = {
   name: string;
-  setType: string | null;
+  setType: SetType | null;
   description: string | null;
   stageName: string | null;
   timeStart: string | null;
@@ -60,7 +60,7 @@ export type DiffResult = {
     setsToCreate: SetPayload[];
     setsToUpdate: ({
       id: string;
-      previousSetType: string | null;
+      previousSetType: SetType | null;
     } & SetPayload)[];
   };
   conflicts: {

@@ -88,6 +88,13 @@ describe("parseScheduleCsv", () => {
     expect(parseScheduleCsv(csv)[0].setType).toBeNull();
   });
 
+  it("ignores an invalid type on a row that is skipped anyway", () => {
+    const csv = ["Artists,Set Name,Type", "Carl Cox,,music", ",,concert"].join(
+      "\n",
+    );
+    expect(parseScheduleCsv(csv)).toHaveLength(1);
+  });
+
   it("throws on an invalid type value", () => {
     const csv = ["Artists,Type", "Carl Cox,concert"].join("\n");
     expect(() => parseScheduleCsv(csv)).toThrow(/Invalid type "concert"/);

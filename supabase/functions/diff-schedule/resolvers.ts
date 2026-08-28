@@ -120,10 +120,9 @@ export function computeTimes(
   return { timeStart, timeEnd };
 }
 
-// Narrow by every supplied discriminator in turn: a stage match alone must
-// not win over a candidate that also matches the date. A discriminator that
-// matches nothing is skipped rather than emptying the pool, so a partially
-// matching CSV row still falls back to the closest candidate.
+// Roster-based matching is fuzzy: the roster already identifies the set, so
+// a stage or date difference is just an update, and discriminators only
+// disambiguate between several candidate sets.
 export function findMatchingSet(
   candidates: DbSet[],
   resolvedStageId: string | null,
@@ -131,7 +130,48 @@ export function findMatchingSet(
   timezone: string,
   alreadyMatched: Set<string>,
 ): DbSet | null {
-  let pool = candidates.filter((s) => !alreadyMatched.has(s.id));
+  const pool = candidates.filter((s) => !alreadyMatched.has(s.id));
+  return narrowByDiscriminators(pool, resolvedStageId, date, timezone);
+}
+
+// Artist-less sets are identified only by name, so a supplied stage or date
+// must actually hold: a candidate whose stored stage or date contradicts the
+// CSV row is excluded outright (the row becomes a create), while candidates
+// with no stored stage/time still match — otherwise re-importing a time-less
+// row would duplicate it on every run.
+export function findMatchingArtistlessSet(
+  candidates: DbSet[],
+  resolvedStageId: string | null,
+  date: string | undefined,
+  timezone: string,
+  alreadyMatched: Set<string>,
+): DbSet | null {
+  const pool = candidates.filter((s) => {
+    if (alreadyMatched.has(s.id)) return false;
+    if (resolvedStageId && s.stage_id != null && s.stage_id !== resolvedStageId)
+      return false;
+    if (
+      date &&
+      s.time_start != null &&
+      utcToLocalDate(s.time_start, timezone) !== date
+    )
+      return false;
+    return true;
+  });
+  return narrowByDiscriminators(pool, resolvedStageId, date, timezone);
+}
+
+// Narrow by every supplied discriminator in turn: a stage match alone must
+// not win over a candidate that also matches the date. A discriminator that
+// matches nothing is skipped rather than emptying the pool, so a partially
+// matching CSV row still falls back to the closest candidate.
+function narrowByDiscriminators(
+  candidates: DbSet[],
+  resolvedStageId: string | null,
+  date: string | undefined,
+  timezone: string,
+): DbSet | null {
+  let pool = candidates;
   if (pool.length <= 1) return pool[0] ?? null;
 
   if (resolvedStageId) {

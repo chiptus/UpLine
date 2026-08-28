@@ -3,6 +3,7 @@ import { artistKey } from "./helpers.ts";
 import {
   buildIndexes,
   computeTimes,
+  findMatchingArtistlessSet,
   findMatchingSet,
   resolveArtists,
   resolveStage,
@@ -41,17 +42,22 @@ export function computeDiff(
 
     const name = row.setName?.trim() || row.artists.join(" b2b ");
 
-    const candidates =
+    const matched =
       row.artists.length === 0
-        ? (indexes.artistlessSetsByNameLower.get(name.toLowerCase()) ?? [])
-        : (indexes.setsByArtistKey.get(artistKey(artistSlugs)) ?? []);
-    const matched = findMatchingSet(
-      candidates,
-      resolvedStage.id,
-      row.date,
-      timezone,
-      state.matchedSetIds,
-    );
+        ? findMatchingArtistlessSet(
+            indexes.artistlessSetsByNameLower.get(name.toLowerCase()) ?? [],
+            resolvedStage.id,
+            row.date,
+            timezone,
+            state.matchedSetIds,
+          )
+        : findMatchingSet(
+            indexes.setsByArtistKey.get(artistKey(artistSlugs)) ?? [],
+            resolvedStage.id,
+            row.date,
+            timezone,
+            state.matchedSetIds,
+          );
 
     const payload: SetPayload = {
       name,

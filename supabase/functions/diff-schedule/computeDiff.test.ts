@@ -424,3 +424,70 @@ Deno.test("same-name artist-less candidates disambiguated by date", () => {
   assertEquals(result.cleanOperations.setsToUpdate.length, 1);
   assertEquals(result.cleanOperations.setsToUpdate[0].id, "set-b");
 });
+
+Deno.test(
+  "artist-less row on a different date creates instead of updating",
+  () => {
+    const set = makeSet("set-a", "Fire Show", [], null, "2026-07-11T20:00:00Z");
+    const result = computeDiff(
+      [{ artists: [], setName: "Fire Show", date: "2026-07-12" }],
+      [],
+      [set],
+      [],
+      "UTC",
+    );
+    assertEquals(result.cleanOperations.setsToUpdate.length, 0);
+    assertEquals(result.cleanOperations.setsToCreate.length, 1);
+    assertEquals(result.conflicts.orphanedSets.length, 1);
+    assertEquals(result.conflicts.orphanedSets[0].id, "set-a");
+  },
+);
+
+Deno.test(
+  "artist-less row on a different stage creates instead of updating",
+  () => {
+    const stage1 = makeStage("s1", "Stage One");
+    const stage2 = makeStage("s2", "Stage Two");
+    const set = makeSet("set-a", "Fire Show", [], "s1");
+    const result = computeDiff(
+      [{ artists: [], setName: "Fire Show", stage: "Stage Two" }],
+      [stage1, stage2],
+      [set],
+      [],
+      "UTC",
+    );
+    assertEquals(result.cleanOperations.setsToUpdate.length, 0);
+    assertEquals(result.cleanOperations.setsToCreate.length, 1);
+    assertEquals(result.conflicts.orphanedSets.length, 1);
+  },
+);
+
+Deno.test(
+  "artist-less row with a date still matches a stored set without a time",
+  () => {
+    const set = makeSet("set-a", "Fire Show", []);
+    const result = computeDiff(
+      [{ artists: [], setName: "Fire Show", date: "2026-07-12" }],
+      [],
+      [set],
+      [],
+      "UTC",
+    );
+    assertEquals(result.cleanOperations.setsToUpdate.length, 1);
+    assertEquals(result.cleanOperations.setsToUpdate[0].id, "set-a");
+  },
+);
+
+Deno.test("dated artist-less candidate preferred over an undated one", () => {
+  const set1 = makeSet("set-a", "Fire Show", []);
+  const set2 = makeSet("set-b", "Fire Show", [], null, "2026-07-12T20:00:00Z");
+  const result = computeDiff(
+    [{ artists: [], setName: "Fire Show", date: "2026-07-12" }],
+    [],
+    [set1, set2],
+    [],
+    "UTC",
+  );
+  assertEquals(result.cleanOperations.setsToUpdate.length, 1);
+  assertEquals(result.cleanOperations.setsToUpdate[0].id, "set-b");
+});

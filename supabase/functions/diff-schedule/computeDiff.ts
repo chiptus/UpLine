@@ -106,7 +106,7 @@ export function computeDiff(
   };
 }
 
-/** Everything computeDiff accumulates while walking the CSV rows. */
+// Everything computeDiff accumulates while walking the CSV rows.
 type DiffState = {
   matchedSetIds: Set<string>;
   seenNewArtistSlugs: Set<string>;
@@ -133,6 +133,7 @@ function createState(): DiffState {
   };
 }
 
+// Registers any artists not yet seen across the import as new.
 function collectNewArtists(
   state: DiffState,
   newArtists: { name: string; slug: string }[],
@@ -145,10 +146,8 @@ function collectNewArtists(
   }
 }
 
-/**
- * Records a stage resolution into state and returns the id/name to use for
- * the row's set payload.
- */
+// Records a stage resolution into state and returns the id/name to use for
+// the row's set payload.
 function applyStageResolution(
   state: DiffState,
   stage: StageResolution,

@@ -86,19 +86,15 @@ function parseSetType(raw: string | undefined): CsvRow["setType"] {
   return setType;
 }
 
-/**
- * A name with no [a-z0-9] slugifies to an empty string, which downstream
- * breaks slug-based lookups and the slug unique constraints. Reject it here
- * with a clear message instead of failing opaquely at commit time.
- */
+// A name with no [a-z0-9] slugifies to an empty string, which downstream
+// breaks slug-based lookups and the slug unique constraints. Reject it here
+// with a clear message instead of failing opaquely at commit time.
 function hasSluggableChars(value: string): boolean {
   return /[a-z0-9]/i.test(value);
 }
 
-/**
- * A B2B cell like "Carl Cox | Carl Cox" must not list the same artist twice:
- * duplicates change the diff's roster key and send duplicate slugs downstream.
- */
+// A B2B cell like "Carl Cox | Carl Cox" must not list the same artist twice:
+// duplicates change the diff's roster key and send duplicate slugs downstream.
 function dedupeArtists(names: string[]): string[] {
   const seen = new Set<string>();
   return names.filter((name) => {

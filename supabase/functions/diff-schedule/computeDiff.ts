@@ -42,20 +42,17 @@ export function computeDiff(
 
     const name = row.setName?.trim() || row.artists.join(" b2b ");
 
+    const matchContext = { stage, date: row.date, timezone };
     const matched =
       row.artists.length === 0
         ? findMatchingArtistlessSet(
             indexes.artistlessSetsByNameLower.get(name.toLowerCase()) ?? [],
-            stage,
-            row.date,
-            timezone,
+            matchContext,
             state.matchedSetIds,
           )
         : findMatchingSet(
             indexes.setsByArtistKey.get(artistKey(artistSlugs)) ?? [],
-            resolvedStage.id,
-            row.date,
-            timezone,
+            matchContext,
             state.matchedSetIds,
           );
 

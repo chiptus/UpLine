@@ -120,18 +120,24 @@ export function computeTimes(
   return { timeStart, timeEnd };
 }
 
+// The CSV row's discriminators, as both matching functions consume them.
+export type MatchContext = {
+  stage: StageResolution;
+  date: string | undefined;
+  timezone: string;
+};
+
 // Roster-based matching is fuzzy: the roster already identifies the set, so
 // a stage or date difference is just an update, and discriminators only
 // disambiguate between several candidate sets.
 export function findMatchingSet(
   candidates: DbSet[],
-  resolvedStageId: string | null,
-  date: string | undefined,
-  timezone: string,
+  context: MatchContext,
   alreadyMatched: Set<string>,
 ): DbSet | null {
+  const stageId = context.stage.kind === "exact" ? context.stage.id : null;
   const pool = candidates.filter((s) => !alreadyMatched.has(s.id));
-  return narrowByDiscriminators(pool, resolvedStageId, date, timezone);
+  return narrowByDiscriminators(pool, stageId, context);
 }
 
 // Artist-less sets are identified only by name, so a supplied stage or date
@@ -141,26 +147,24 @@ export function findMatchingSet(
 // row would duplicate it on every run.
 export function findMatchingArtistlessSet(
   candidates: DbSet[],
-  stage: StageResolution,
-  date: string | undefined,
-  timezone: string,
+  context: MatchContext,
   alreadyMatched: Set<string>,
 ): DbSet | null {
-  const stageSupplied = stage.kind !== "none";
-  const stageId = provisionalStageId(stage);
+  const stageSupplied = context.stage.kind !== "none";
+  const stageId = provisionalStageId(context.stage);
   const pool = candidates.filter((s) => {
     if (alreadyMatched.has(s.id)) return false;
     if (stageSupplied && s.stage_id != null && s.stage_id !== stageId)
       return false;
     if (
-      date &&
+      context.date &&
       s.time_start != null &&
-      utcToLocalDate(s.time_start, timezone) !== date
+      utcToLocalDate(s.time_start, context.timezone) !== context.date
     )
       return false;
     return true;
   });
-  return narrowByDiscriminators(pool, stageId, date, timezone);
+  return narrowByDiscriminators(pool, stageId, context);
 }
 
 // A mismatched stage hasn't been mapped by the user yet, so its closest DB
@@ -184,8 +188,7 @@ function provisionalStageId(stage: StageResolution): string | null {
 function narrowByDiscriminators(
   candidates: DbSet[],
   resolvedStageId: string | null,
-  date: string | undefined,
-  timezone: string,
+  { date, timezone }: MatchContext,
 ): DbSet | null {
   let pool = candidates;
   if (pool.length <= 1) return pool[0] ?? null;

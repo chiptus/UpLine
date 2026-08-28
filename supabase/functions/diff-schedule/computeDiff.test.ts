@@ -479,6 +479,70 @@ Deno.test(
 );
 
 Deno.test(
+  "same-roster sets on one stage across dates matched by the row's date",
+  () => {
+    const artist = makeArtist("Carl Cox");
+    const stage = makeStage("s1", "Stage One");
+    const set1 = makeSet(
+      "set-a",
+      "Carl Cox",
+      [artist],
+      "s1",
+      "2026-07-11T20:00:00Z",
+    );
+    const set2 = makeSet(
+      "set-b",
+      "Carl Cox",
+      [artist],
+      "s1",
+      "2026-07-12T20:00:00Z",
+    );
+    const result = computeDiff(
+      [{ artists: ["Carl Cox"], stage: "Stage One", date: "2026-07-12" }],
+      [stage],
+      [set1, set2],
+      [artist],
+      "UTC",
+    );
+    assertEquals(result.cleanOperations.setsToUpdate.length, 1);
+    assertEquals(result.cleanOperations.setsToUpdate[0].id, "set-b");
+  },
+);
+
+Deno.test(
+  "roster row's stage matching nothing falls back to date narrowing",
+  () => {
+    const artist = makeArtist("Carl Cox");
+    const stage1 = makeStage("s1", "Stage One");
+    const stage2 = makeStage("s2", "Stage Two");
+    const stage3 = makeStage("s3", "Stage Three");
+    const set1 = makeSet(
+      "set-a",
+      "Carl Cox",
+      [artist],
+      "s1",
+      "2026-07-11T20:00:00Z",
+    );
+    const set2 = makeSet(
+      "set-b",
+      "Carl Cox",
+      [artist],
+      "s2",
+      "2026-07-12T20:00:00Z",
+    );
+    const result = computeDiff(
+      [{ artists: ["Carl Cox"], stage: "Stage Three", date: "2026-07-12" }],
+      [stage1, stage2, stage3],
+      [set1, set2],
+      [artist],
+      "UTC",
+    );
+    assertEquals(result.cleanOperations.setsToUpdate.length, 1);
+    assertEquals(result.cleanOperations.setsToUpdate[0].id, "set-b");
+  },
+);
+
+Deno.test(
   "artist-less row at a new stage creates instead of updating a staged set",
   () => {
     const stage = makeStage("s1", "Stage One");

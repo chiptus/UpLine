@@ -179,6 +179,14 @@ function MissingLinkDots({ artist }: { artist: ArtistWithSets }) {
           title="Missing SoundCloud"
         />
       )}
+      {artist.sets.some((set) => set.set_type === null) && (
+        <span
+          className="h-2 w-2 rounded-full bg-purple-500"
+          role="img"
+          aria-label="Missing set type"
+          title="Missing set type"
+        />
+      )}
     </span>
   );
 }

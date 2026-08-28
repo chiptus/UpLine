@@ -46,7 +46,7 @@ export function computeDiff(
       row.artists.length === 0
         ? findMatchingArtistlessSet(
             indexes.artistlessSetsByNameLower.get(name.toLowerCase()) ?? [],
-            resolvedStage.id,
+            stage,
             row.date,
             timezone,
             state.matchedSetIds,

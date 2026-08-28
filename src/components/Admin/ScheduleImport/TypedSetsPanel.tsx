@@ -76,27 +76,32 @@ function SetTypeChip({ setType }: { setType: SetType | null }) {
 }
 
 function collectTypedSets(diff: DiffResult): TypedSet[] {
-  const creates = diff.cleanOperations.setsToCreate
-    .filter((s) => s.setType !== null)
-    .map(
-      (s, i): TypedSet => ({
-        key: `create-${i}-${s.name}`,
-        name: s.name,
-        setType: s.setType as SetType,
-        previousSetType: null,
-        operation: "create",
-      }),
-    );
-  const updates = diff.cleanOperations.setsToUpdate
-    .filter((s) => s.setType !== null)
-    .map(
-      (s): TypedSet => ({
-        key: `update-${s.id}`,
-        name: s.name,
-        setType: s.setType as SetType,
-        previousSetType: s.previousSetType,
-        operation: "update",
-      }),
-    );
+  const creates = diff.cleanOperations.setsToCreate.flatMap(
+    (s, i): TypedSet[] =>
+      s.setType === null
+        ? []
+        : [
+            {
+              key: `create-${i}-${s.name}`,
+              name: s.name,
+              setType: s.setType,
+              previousSetType: null,
+              operation: "create",
+            },
+          ],
+  );
+  const updates = diff.cleanOperations.setsToUpdate.flatMap((s): TypedSet[] =>
+    s.setType === null
+      ? []
+      : [
+          {
+            key: `update-${s.id}`,
+            name: s.name,
+            setType: s.setType,
+            previousSetType: s.previousSetType,
+            operation: "update",
+          },
+        ],
+  );
   return [...creates, ...updates];
 }

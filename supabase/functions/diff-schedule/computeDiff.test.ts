@@ -478,6 +478,77 @@ Deno.test(
   },
 );
 
+Deno.test(
+  "artist-less row at a new stage creates instead of updating a staged set",
+  () => {
+    const stage = makeStage("s1", "Stage One");
+    const set = makeSet("set-a", "Fire Show", [], "s1");
+    const result = computeDiff(
+      [{ artists: [], setName: "Fire Show", stage: "Secret Forest" }],
+      [stage],
+      [set],
+      [],
+      "UTC",
+    );
+    assertEquals(result.cleanOperations.setsToUpdate.length, 0);
+    assertEquals(result.cleanOperations.setsToCreate.length, 1);
+    assertEquals(result.conflicts.orphanedSets.length, 1);
+  },
+);
+
+Deno.test(
+  "artist-less row at a new stage still matches a stage-less stored set",
+  () => {
+    const set = makeSet("set-a", "Fire Show", []);
+    const result = computeDiff(
+      [{ artists: [], setName: "Fire Show", stage: "Secret Forest" }],
+      [],
+      [set],
+      [],
+      "UTC",
+    );
+    assertEquals(result.cleanOperations.setsToUpdate.length, 1);
+    assertEquals(result.cleanOperations.setsToUpdate[0].id, "set-a");
+  },
+);
+
+Deno.test(
+  "mismatched stage matches artist-less sets via its closest stage",
+  () => {
+    const stage1 = makeStage("s1", "Main Stage");
+    const stage2 = makeStage("s2", "Side");
+    const set1 = makeSet("set-a", "Fire Show", [], "s2");
+    const set2 = makeSet("set-b", "Fire Show", [], "s1");
+    const result = computeDiff(
+      [{ artists: [], setName: "Fire Show", stage: "Mainstage" }],
+      [stage1, stage2],
+      [set1, set2],
+      [],
+      "UTC",
+    );
+    assertEquals(result.cleanOperations.setsToUpdate.length, 1);
+    assertEquals(result.cleanOperations.setsToUpdate[0].id, "set-b");
+  },
+);
+
+Deno.test(
+  "mismatched stage excludes an artist-less set at a different stage",
+  () => {
+    const stage1 = makeStage("s1", "Main Stage");
+    const stage2 = makeStage("s2", "Side");
+    const set = makeSet("set-a", "Fire Show", [], "s2");
+    const result = computeDiff(
+      [{ artists: [], setName: "Fire Show", stage: "Mainstage" }],
+      [stage1, stage2],
+      [set],
+      [],
+      "UTC",
+    );
+    assertEquals(result.cleanOperations.setsToUpdate.length, 0);
+    assertEquals(result.cleanOperations.setsToCreate.length, 1);
+  },
+);
+
 Deno.test("dated artist-less candidate preferred over an undated one", () => {
   const set1 = makeSet("set-a", "Fire Show", []);
   const set2 = makeSet("set-b", "Fire Show", [], null, "2026-07-12T20:00:00Z");

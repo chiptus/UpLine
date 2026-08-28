@@ -141,14 +141,16 @@ export function findMatchingSet(
 // row would duplicate it on every run.
 export function findMatchingArtistlessSet(
   candidates: DbSet[],
-  resolvedStageId: string | null,
+  stage: StageResolution,
   date: string | undefined,
   timezone: string,
   alreadyMatched: Set<string>,
 ): DbSet | null {
+  const stageSupplied = stage.kind !== "none";
+  const stageId = provisionalStageId(stage);
   const pool = candidates.filter((s) => {
     if (alreadyMatched.has(s.id)) return false;
-    if (resolvedStageId && s.stage_id != null && s.stage_id !== resolvedStageId)
+    if (stageSupplied && s.stage_id != null && s.stage_id !== stageId)
       return false;
     if (
       date &&
@@ -158,7 +160,21 @@ export function findMatchingArtistlessSet(
       return false;
     return true;
   });
-  return narrowByDiscriminators(pool, resolvedStageId, date, timezone);
+  return narrowByDiscriminators(pool, stageId, date, timezone);
+}
+
+// A mismatched stage hasn't been mapped by the user yet, so its closest DB
+// stage stands in provisionally; a new stage matches no stored stage at all,
+// so every staged candidate contradicts it.
+function provisionalStageId(stage: StageResolution): string | null {
+  switch (stage.kind) {
+    case "exact":
+      return stage.id;
+    case "mismatch":
+      return stage.closest.id;
+    default:
+      return null;
+  }
 }
 
 // Narrow by every supplied discriminator in turn: a stage match alone must

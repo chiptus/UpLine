@@ -129,9 +129,10 @@ export type MatchContext = {
 };
 
 /**
- * Roster-based matching is fuzzy: the roster already identifies the set, so
- * a stage or date difference is just an update, and discriminators only
- * disambiguate between several candidate sets.
+ * Picks which existing set a roster row refers to, or null when the row is
+ * new. The roster is the identity, so a stage/date/name difference never
+ * rejects a match (it's just an update) — those fields only break ties
+ * between sets sharing the same roster.
  */
 export function findMatchingSet(
   candidates: DbSet[],
@@ -144,11 +145,12 @@ export function findMatchingSet(
 }
 
 /**
- * Artist-less sets are identified only by name, so a supplied stage or date
- * must actually hold: a candidate whose stored stage or date contradicts the
- * CSV row is excluded outright (the row becomes a create), while candidates
- * with no stored stage/time still match — otherwise re-importing a time-less
- * row would duplicate it on every run.
+ * Picks which existing 0-artist set an artist-less row refers to, or null
+ * when the row is new. The name is the only identity, so a supplied stage
+ * or date must actually hold: a candidate whose stored value contradicts
+ * the row is excluded (the row becomes a create), while candidates with no
+ * stored stage/time still match — otherwise re-importing a time-less row
+ * would duplicate it on every run.
  */
 export function findMatchingArtistlessSet(
   candidates: DbSet[],
@@ -173,11 +175,11 @@ export function findMatchingArtistlessSet(
 }
 
 /**
- * A mismatched stage hasn't been mapped by the user yet, so its closest DB
- * stage stands in provisionally; a new stage matches no stored stage at all,
- * so every staged candidate contradicts it. Known limitation (#447): if the
- * user later maps the mismatch to a different stage, the set was already
- * chosen with the closest-match guess and the commit only rewrites stageName.
+ * The stage id to compare candidates against before the user has resolved
+ * the row's stage: a mismatch stands in with its closest DB stage, a
+ * new/absent stage pins no stage. Known limitation (#447): if the user
+ * later maps a mismatch to a different stage, the set was already chosen
+ * with this guess and the commit only rewrites stageName.
  */
 function provisionalStageId(stage: StageResolution): string | null {
   switch (stage.kind) {
@@ -191,10 +193,10 @@ function provisionalStageId(stage: StageResolution): string | null {
 }
 
 /**
- * Narrow by every supplied discriminator in turn: a stage match alone must
- * not win over a candidate that also matches the date. A discriminator that
- * matches nothing is skipped rather than emptying the pool, so a partially
- * matching CSV row still falls back to the closest candidate.
+ * Picks the one candidate the row's discriminators point at, trusting
+ * stage over date over set name (the most volatile column). A discriminator
+ * no candidate satisfies is skipped rather than emptying the pool, so a
+ * partially matching CSV row still falls back to the closest candidate.
  */
 function narrowByDiscriminators(
   candidates: DbSet[],
@@ -215,8 +217,6 @@ function narrowByDiscriminators(
     );
     if (byDate.length > 0) pool = byDate;
   }
-  // Set name is the last resort: it only decides between candidates that
-  // stage and date could not tell apart (names are the most volatile column).
   if (name && pool.length > 1) {
     const nameLower = name.trim().toLowerCase();
     const byName = pool.filter(

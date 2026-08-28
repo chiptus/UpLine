@@ -28,4 +28,4 @@ for all three.
 - A fuzzy-matched CSV stage provisionally stands in for its closest DB stage
   during matching, before the user resolves the mismatch — wrong-set selection
   is possible if they map it elsewhere (#447, with an ignored marker test in
-  `computeDiff.test.ts`).
+  `computeDiff.artistless.test.ts`).

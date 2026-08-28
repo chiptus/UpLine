@@ -59,8 +59,10 @@ export function TypedSetsPanel({ diff }: Props) {
   );
 }
 
-// A stored type differing from the incoming one is the change worth
-// verifying; a set that was still untyped just gets its first type.
+/**
+ * A stored type differing from the incoming one is the change worth
+ * verifying; a set that was still untyped just gets its first type.
+ */
 function isTypeChange(set: TypedSet): boolean {
   return set.previousSetType !== null && set.previousSetType !== set.setType;
 }

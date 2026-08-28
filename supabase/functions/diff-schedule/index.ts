@@ -4,6 +4,7 @@ import { requireAdmin } from "../_shared/auth.ts";
 import { buildCorsHeaders } from "../_shared/cors.ts";
 import { SET_TYPES } from "../_shared/setTypes.ts";
 import { computeDiff } from "./computeDiff.ts";
+import { fetchAllRows } from "./fetchAllRows.ts";
 
 function isValidTimezone(tz: string): boolean {
   try {
@@ -96,35 +97,39 @@ serve(async (req) => {
 
     const db = auth.adminClient;
 
-    const [stagesRes, setsRes, artistsRes] = await Promise.all([
-      db
-        .from("stages")
-        .select("id, name")
-        .eq("festival_edition_id", festivalEditionId)
-        .eq("archived", false),
-      db
-        .from("sets")
-        .select(
-          "id, name, description, stage_id, time_start, time_end, set_type, set_artists(artist_id, artists(id, name, slug))",
-        )
-        .eq("festival_edition_id", festivalEditionId)
-        .eq("archived", false)
-        .order("time_start", { nullsFirst: false })
-        .order("id"),
-      db.from("artists").select("id, name, slug").eq("archived", false),
+    const [dbStages, dbSets, dbArtists] = await Promise.all([
+      fetchAllRows((from, to) =>
+        db
+          .from("stages")
+          .select("id, name")
+          .eq("festival_edition_id", festivalEditionId)
+          .eq("archived", false)
+          .order("id")
+          .range(from, to),
+      ),
+      fetchAllRows((from, to) =>
+        db
+          .from("sets")
+          .select(
+            "id, name, description, stage_id, time_start, time_end, set_type, set_artists(artist_id, artists(id, name, slug))",
+          )
+          .eq("festival_edition_id", festivalEditionId)
+          .eq("archived", false)
+          .order("time_start", { nullsFirst: false })
+          .order("id")
+          .range(from, to),
+      ),
+      fetchAllRows((from, to) =>
+        db
+          .from("artists")
+          .select("id, name, slug")
+          .eq("archived", false)
+          .order("id")
+          .range(from, to),
+      ),
     ]);
 
-    if (stagesRes.error) throw stagesRes.error;
-    if (setsRes.error) throw setsRes.error;
-    if (artistsRes.error) throw artistsRes.error;
-
-    const result = computeDiff(
-      rows,
-      stagesRes.data ?? [],
-      setsRes.data ?? [],
-      artistsRes.data ?? [],
-      timezone,
-    );
+    const result = computeDiff(rows, dbStages, dbSets, dbArtists, timezone);
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

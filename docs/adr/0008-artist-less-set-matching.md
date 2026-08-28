@@ -9,6 +9,15 @@ a stored stage or date that contradicts the row excludes the candidate, and no
 survivor means a create. The alternative (one fuzzy rule for both) silently
 updated the wrong set whenever a name like "Fire Show" recurred across days.
 
+Settled in design review (2026-08-28) alongside three boundary decisions: a
+roster _change_ is a new identity (a solo set gaining a B2B partner creates a
+new set and orphans the old one — votes do not carry over); renaming an
+artist-less set must happen in the app, since a CSV rename reads as
+create-new + orphan-old; and the artist-less/roster boundary is hard in both
+directions (crediting a performer to a formerly artist-less set, or removing
+the last artist, changes identity). The orphan review step is the safety net
+for all three.
+
 ## Consequences
 
 - The two index spaces never cross: a roster row cannot match a 0-artist set,

@@ -65,6 +65,17 @@ issue #447).
 The two index spaces never cross: a roster row can't match a 0-artist set and
 vice versa. Within one import, each DB set is matched at most once.
 
+Boundary consequences (all deliberate, see ADR-0008): a roster _change_ is a
+new identity — "Carl Cox" becoming "Carl Cox | Peggy Gou" creates a new set
+and orphans the solo one, votes don't carry; renaming an artist-less set must
+happen in the app, not the CSV (a CSV rename is create + orphan); crediting a
+performer to a formerly artist-less set (or removing the last artist) also
+changes identity. The orphan review is the safety net in every case.
+
+A CSV import is a **full snapshot** of the schedule, never a partial add: any
+DB set absent from the CSV is surfaced as an orphan and you choose archive or
+keep, one by one.
+
 ## Type semantics
 
 - `Type` blank or column absent → `null`; invalid value → parse error.

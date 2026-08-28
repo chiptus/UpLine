@@ -61,7 +61,10 @@ export function DiffReviewStep({
       <CardContent className="space-y-6">
         <DiffSummaryBanner diff={diff} />
 
-        <TypedSetsPanel diff={diff} />
+        <TypedSetsPanel
+          setsToCreate={diff.cleanOperations.setsToCreate}
+          setsToUpdate={diff.cleanOperations.setsToUpdate}
+        />
 
         <StageMismatchResolver
           mismatches={diff.conflicts.stageNameMismatches}

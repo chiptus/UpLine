@@ -13,10 +13,13 @@ type TypedSet = {
   operation: "create" | "update";
 };
 
-type Props = { diff: DiffResult };
+type Props = {
+  setsToCreate: DiffResult["cleanOperations"]["setsToCreate"];
+  setsToUpdate: DiffResult["cleanOperations"]["setsToUpdate"];
+};
 
-export function TypedSetsPanel({ diff }: Props) {
-  const typedSets = collectTypedSets(diff);
+export function TypedSetsPanel({ setsToCreate, setsToUpdate }: Props) {
+  const typedSets = collectTypedSets(setsToCreate, setsToUpdate);
   if (typedSets.length === 0) return null;
 
   return (
@@ -77,22 +80,24 @@ function SetTypeChip({ setType }: { setType: SetType | null }) {
   );
 }
 
-function collectTypedSets(diff: DiffResult): TypedSet[] {
-  const creates = diff.cleanOperations.setsToCreate.flatMap(
-    (s, i): TypedSet[] =>
-      s.setType === null
-        ? []
-        : [
-            {
-              key: `create-${i}-${s.name}`,
-              name: s.name,
-              setType: s.setType,
-              previousSetType: null,
-              operation: "create",
-            },
-          ],
+function collectTypedSets(
+  setsToCreate: Props["setsToCreate"],
+  setsToUpdate: Props["setsToUpdate"],
+): TypedSet[] {
+  const creates = setsToCreate.flatMap((s, i): TypedSet[] =>
+    s.setType === null
+      ? []
+      : [
+          {
+            key: `create-${i}-${s.name}`,
+            name: s.name,
+            setType: s.setType,
+            previousSetType: null,
+            operation: "create",
+          },
+        ],
   );
-  const updates = diff.cleanOperations.setsToUpdate.flatMap((s): TypedSet[] =>
+  const updates = setsToUpdate.flatMap((s): TypedSet[] =>
     s.setType === null
       ? []
       : [

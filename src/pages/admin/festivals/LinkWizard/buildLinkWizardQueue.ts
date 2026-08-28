@@ -7,7 +7,7 @@ export type LinkWizardQueueItem =
   | { kind: "artist"; id: string; artist: ArtistWithSets }
   | { kind: "set"; id: string; set: ArtistSetWithCoPerformers };
 
-// Mixed queue (variant A from the #422 prototype): artists missing links come
+// Mixed queue: artists missing links come
 // first, then the artist-less untyped sets as standalone steps. Untyped sets
 // WITH artists are only handled on their artist's step — deliberately static,
 // so skipping an artist never makes a new set item appear.

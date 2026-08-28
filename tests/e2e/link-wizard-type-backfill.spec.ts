@@ -10,7 +10,7 @@ import {
 const LINK_WIZARD_PATH = "/admin/festivals/test/editions/2025/links";
 
 test.describe("Link Wizard: set-type backfill flow", { tag: "@smoke" }, () => {
-  let fixture: UntypedSetFixture;
+  let fixture: UntypedSetFixture | undefined;
 
   test.beforeEach(async ({ page }) => {
     fixture = await createUntypedSetFixture();
@@ -23,7 +23,10 @@ test.describe("Link Wizard: set-type backfill flow", { tag: "@smoke" }, () => {
   });
 
   test.afterEach(async () => {
-    await deleteUntypedSetFixture(fixture);
+    if (fixture) {
+      await deleteUntypedSetFixture(fixture);
+      fixture = undefined;
+    }
   });
 
   test("backfills a type through the wizard: select set → pick type → save → drops out of queue", async ({
@@ -31,26 +34,27 @@ test.describe("Link Wizard: set-type backfill flow", { tag: "@smoke" }, () => {
   }) => {
     test.setTimeout(60000);
 
+    if (!fixture) throw new Error("fixture was not created in beforeEach");
+    const { setName, setId } = fixture;
+
     // The artist-less untyped set appears in the mixed queue as its own item.
-    const queueRow = page
-      .getByRole("listitem")
-      .filter({ hasText: fixture.setName });
+    const queueRow = page.getByRole("listitem").filter({ hasText: setName });
     await expect(queueRow).toBeVisible({ timeout: 15000 });
 
-    await queueRow.getByRole("button", { name: fixture.setName }).click();
+    await queueRow.getByRole("button", { name: setName }).click();
     await expect(
       page.getByRole("heading", {
-        name: new RegExp(`link wizard.*${fixture.setName}`, "i"),
+        name: new RegExp(`link wizard.*${setName}`, "i"),
       }),
     ).toBeVisible();
 
     // Read-only set details render above the type picker.
     const detailsPanel = page.getByRole("region", {
-      name: new RegExp(`${fixture.setName} - Set Details`, "i"),
+      name: new RegExp(`${setName} - Set Details`, "i"),
     });
     await expect(detailsPanel).toBeVisible();
     await expect(
-      detailsPanel.getByRole("heading", { name: fixture.setName, exact: true }),
+      detailsPanel.getByRole("heading", { name: setName, exact: true }),
     ).toBeVisible();
     await expect(detailsPanel.getByText("Stage: Club Stage")).toBeVisible();
     await expect(page.getByText("This set has no type yet")).toBeVisible();
@@ -60,7 +64,7 @@ test.describe("Link Wizard: set-type backfill flow", { tag: "@smoke" }, () => {
     await expect(saveButton).toBeDisabled();
 
     const typePicker = page.getByRole("group", {
-      name: `Type for ${fixture.setName}`,
+      name: `Type for ${setName}`,
     });
     await typePicker.getByRole("button", { name: "Workshop" }).click();
     await expect(
@@ -74,7 +78,7 @@ test.describe("Link Wizard: set-type backfill flow", { tag: "@smoke" }, () => {
           if (
             response.request().method() !== "PATCH" ||
             !response.url().includes("/rest/v1/sets") ||
-            !response.url().includes(fixture.setId)
+            !response.url().includes(setId)
           ) {
             return false;
           }
@@ -87,7 +91,7 @@ test.describe("Link Wizard: set-type backfill flow", { tag: "@smoke" }, () => {
     ]);
     expect(patchResponse.ok()).toBe(true);
 
-    expect(await getSetType(fixture.setId)).toBe("workshop");
+    expect(await getSetType(setId)).toBe("workshop");
 
     // Once typed, the set drops out of the queue.
     await expect(queueRow).toHaveCount(0, { timeout: 15000 });

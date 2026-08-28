@@ -3,7 +3,7 @@ import type { ArtistSetWithCoPerformers } from "@/api/artists/useArtistsMissingL
 
 interface SetCoPerformersProps {
   coPerformers: ArtistSetWithCoPerformers["co_performers"];
-  currentArtistId: string;
+  currentArtistId?: string | undefined;
 }
 
 export function SetCoPerformers({

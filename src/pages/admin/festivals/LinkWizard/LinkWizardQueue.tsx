@@ -1,9 +1,11 @@
+import { Tag } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import type { ArtistWithSets } from "@/api/artists/useArtistsMissingLinksByEdition";
 import type { ArtistSkipRecord } from "@/hooks/useLinkWizardSkipped";
 import { cn } from "@/lib/utils";
+import type { LinkWizardQueueItem } from "./buildLinkWizardQueue";
 import { LinkWizardStageFilterDropdown } from "./LinkWizardStageFilterDropdown";
 import { LinkWizardFilterSheet } from "./LinkWizardFilterSheet";
 import { SkippedArtistsPopover } from "./SkippedArtistsPopover";
@@ -11,9 +13,9 @@ import { SkippedArtistsPopover } from "./SkippedArtistsPopover";
 const MOBILE_PREVIEW_COUNT = 4;
 
 interface LinkWizardQueueProps {
-  artists: ArtistWithSets[];
-  currentArtistId: string | undefined;
-  onSelectArtist: (artist: ArtistWithSets) => void;
+  items: LinkWizardQueueItem[];
+  currentItemId: string | undefined;
+  onSelectItem: (item: LinkWizardQueueItem) => void;
   selectedStages: string[];
   onStageToggle: (stageId: string) => void;
   onClearStages: () => void;
@@ -26,9 +28,9 @@ interface LinkWizardQueueProps {
 }
 
 export function LinkWizardQueue({
-  artists,
-  currentArtistId,
-  onSelectArtist,
+  items,
+  currentItemId,
+  onSelectItem,
   selectedStages,
   onStageToggle,
   onClearStages,
@@ -39,26 +41,26 @@ export function LinkWizardQueue({
   onRestoreSkipped,
   onClearAllSkipped,
 }: LinkWizardQueueProps) {
-  const displayedArtists = isPreviewMode
-    ? artists.slice(0, MOBILE_PREVIEW_COUNT)
-    : artists;
-  const hasMoreArtists = isPreviewMode && artists.length > MOBILE_PREVIEW_COUNT;
+  const displayedItems = isPreviewMode
+    ? items.slice(0, MOBILE_PREVIEW_COUNT)
+    : items;
+  const hasMoreItems = isPreviewMode && items.length > MOBILE_PREVIEW_COUNT;
 
   const list = (
     <ul className="pb-2">
-      {displayedArtists.length === 0 && (
+      {displayedItems.length === 0 && (
         <li className="px-4 py-3 text-sm text-muted-foreground">
-          {artists.length === 0
-            ? "No artists missing links."
-            : "No artists matching filter."}
+          {items.length === 0
+            ? "No artists missing links and no sets missing a type."
+            : "No items matching filter."}
         </li>
       )}
-      {displayedArtists.map((artist) => (
-        <LinkWizardQueueItem
-          key={artist.id}
-          artist={artist}
-          isCurrent={artist.id === currentArtistId}
-          onSelect={onSelectArtist}
+      {displayedItems.map((item) => (
+        <LinkWizardQueueRow
+          key={item.id}
+          item={item}
+          isCurrent={item.id === currentItemId}
+          onSelect={onSelectItem}
         />
       ))}
     </ul>
@@ -67,7 +69,7 @@ export function LinkWizardQueue({
   return (
     <Card>
       <CardHeader className="pb-3 space-y-3">
-        <CardTitle className="text-base">Queue ({artists.length})</CardTitle>
+        <CardTitle className="text-base">Queue ({items.length})</CardTitle>
         <div className="flex items-center gap-2 flex-wrap">
           <SkippedArtistsPopover
             skippedArtists={skippedArtists}
@@ -95,7 +97,7 @@ export function LinkWizardQueue({
         {isPreviewMode ? (
           <div>
             {list}
-            {hasMoreArtists && (
+            {hasMoreItems && (
               <div className="px-4 py-2 border-t">
                 <Button
                   type="button"
@@ -104,7 +106,7 @@ export function LinkWizardQueue({
                   className="w-full text-xs text-accent hover:text-accent hover:bg-accent-soft"
                   onClick={onViewAll}
                 >
-                  View all ({artists.length - MOBILE_PREVIEW_COUNT} more)
+                  View all ({items.length - MOBILE_PREVIEW_COUNT} more)
                 </Button>
               </div>
             )}
@@ -117,48 +119,74 @@ export function LinkWizardQueue({
   );
 }
 
-interface LinkWizardQueueItemProps {
-  artist: ArtistWithSets;
+interface LinkWizardQueueRowProps {
+  item: LinkWizardQueueItem;
   isCurrent: boolean;
-  onSelect: (artist: ArtistWithSets) => void;
+  onSelect: (item: LinkWizardQueueItem) => void;
 }
 
-function LinkWizardQueueItem({
-  artist,
+function LinkWizardQueueRow({
+  item,
   isCurrent,
   onSelect,
-}: LinkWizardQueueItemProps) {
+}: LinkWizardQueueRowProps) {
   return (
     <li>
       <button
         type="button"
-        onClick={() => onSelect(artist)}
+        onClick={() => onSelect(item)}
         aria-current={isCurrent}
         className={cn(
           "w-full text-left px-4 py-2 hover:bg-accent/40 flex items-center justify-between gap-2 border-l-2 border-transparent",
           isCurrent && "bg-accent/20 border-primary",
         )}
       >
-        <span className="truncate text-sm">{artist.name}</span>
-        <span className="flex gap-1 shrink-0">
-          {!artist.spotify_url && (
-            <span
-              className="h-2 w-2 rounded-full bg-green-500"
-              role="img"
-              aria-label="Missing Spotify link"
-              title="Missing Spotify"
-            />
-          )}
-          {!artist.soundcloud_url && (
-            <span
-              className="h-2 w-2 rounded-full bg-orange-500"
-              role="img"
-              aria-label="Missing SoundCloud link"
-              title="Missing SoundCloud"
-            />
-          )}
+        <span className="truncate text-sm">
+          {item.kind === "artist" ? item.artist.name : item.set.name}
         </span>
+        {item.kind === "artist" ? (
+          <MissingLinkDots artist={item.artist} />
+        ) : (
+          <span
+            className="flex items-center gap-1 shrink-0 text-xs text-muted-foreground"
+            title="Missing set type"
+          >
+            <Tag className="h-3 w-3" aria-label="Missing set type" role="img" />
+            set
+          </span>
+        )}
       </button>
     </li>
+  );
+}
+
+function MissingLinkDots({ artist }: { artist: ArtistWithSets }) {
+  return (
+    <span className="flex gap-1 shrink-0">
+      {!artist.spotify_url && (
+        <span
+          className="h-2 w-2 rounded-full bg-green-500"
+          role="img"
+          aria-label="Missing Spotify link"
+          title="Missing Spotify"
+        />
+      )}
+      {!artist.soundcloud_url && (
+        <span
+          className="h-2 w-2 rounded-full bg-orange-500"
+          role="img"
+          aria-label="Missing SoundCloud link"
+          title="Missing SoundCloud"
+        />
+      )}
+      {artist.sets.some((set) => set.set_type === null) && (
+        <span
+          className="h-2 w-2 rounded-full bg-purple-500"
+          role="img"
+          aria-label="Missing set type"
+          title="Missing set type"
+        />
+      )}
+    </span>
   );
 }

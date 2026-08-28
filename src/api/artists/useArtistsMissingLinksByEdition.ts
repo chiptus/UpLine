@@ -9,6 +9,7 @@ export interface SetWithArtists {
   time_start: string | null;
   time_end: string | null;
   stage_id: string | null;
+  set_type: string | null;
   stages: { name: string } | null;
   set_artists:
     | { artist_id: string; role: string | null; artists: Artist | null }[]
@@ -23,6 +24,7 @@ export interface ArtistSetWithCoPerformers {
   time_end: string | null;
   stage_id: string | null;
   stage_name: string | null;
+  set_type: string | null;
   co_performers: Array<{
     artist_id: string;
     artist_name: string;
@@ -56,20 +58,35 @@ export function selectArtistSetsById(
 ): ArtistSetWithCoPerformers[] {
   return sets
     .filter((set) => set.set_artists?.some((sa) => sa.artist_id === artistId))
-    .map((set) => ({
-      id: set.id,
-      name: set.name,
-      description: set.description,
-      time_start: set.time_start,
-      time_end: set.time_end,
-      stage_id: set.stage_id,
-      stage_name: set.stages?.name ?? null,
-      co_performers: (set.set_artists ?? []).map((sa) => ({
-        artist_id: sa.artist_id,
-        artist_name: sa.artists?.name || "Unknown Artist",
-        role: sa.role,
-      })),
-    }));
+    .map(toArtistSetWithCoPerformers);
+}
+
+function toArtistSetWithCoPerformers(
+  set: SetWithArtists,
+): ArtistSetWithCoPerformers {
+  return {
+    id: set.id,
+    name: set.name,
+    description: set.description,
+    time_start: set.time_start,
+    time_end: set.time_end,
+    stage_id: set.stage_id,
+    stage_name: set.stages?.name ?? null,
+    set_type: set.set_type,
+    co_performers: (set.set_artists ?? []).map((sa) => ({
+      artist_id: sa.artist_id,
+      artist_name: sa.artists?.name || "Unknown Artist",
+      role: sa.role,
+    })),
+  };
+}
+
+export function selectUntypedSets(
+  sets: SetWithArtists[],
+): ArtistSetWithCoPerformers[] {
+  return sets
+    .filter((set) => set.set_type === null)
+    .map(toArtistSetWithCoPerformers);
 }
 
 async function fetchSetsWithArtistsByEdition(
@@ -85,6 +102,7 @@ async function fetchSetsWithArtistsByEdition(
       time_start,
       time_end,
       stage_id,
+      set_type,
       stages (name),
       set_artists (
         artist_id,
@@ -121,5 +139,13 @@ export function useArtistsMissingLinksByEditionQuery(
     ...setsWithArtistsByEditionQuery(editionId!),
     enabled: !!editionId,
     select: selectArtistsMissingLinks,
+  });
+}
+
+export function useUntypedSetsByEditionQuery(editionId: string | undefined) {
+  return useQuery({
+    ...setsWithArtistsByEditionQuery(editionId!),
+    enabled: !!editionId,
+    select: selectUntypedSets,
   });
 }

@@ -32,6 +32,7 @@ function mockArtist(
       time_end: null,
       stage_id: s.stage_id,
       stage_name: s.stage_id ? `Stage ${s.stage_id}` : null,
+      set_type: null,
       co_performers: [],
     })),
   };

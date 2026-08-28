@@ -4,7 +4,7 @@ import { SetCoPerformers } from "./SetCoPerformers";
 
 interface ArtistSetCardProps {
   set: ArtistSetWithCoPerformers;
-  currentArtistId: string;
+  currentArtistId?: string;
 }
 
 export function ArtistSetCard({ set, currentArtistId }: ArtistSetCardProps) {

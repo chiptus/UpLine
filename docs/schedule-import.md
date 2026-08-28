@@ -48,7 +48,8 @@ two modes, chosen by whether the row has artists (see ADR-0008):
 and sets are keyed by their sorted artist slugs, so "Carl Cox" finds the Carl
 Cox set no matter how the name is spelled. Stage and date are only
 _tie-breakers_ when several sets share a roster (narrow by stage, then by date
-within the stage matches; a tie-breaker matching nothing is skipped rather than
+within the stage matches, then by set name as a last resort — names are the
+most volatile column; a tie-breaker matching nothing is skipped rather than
 emptying the pool). A roster row whose stage or date changed still matches —
 that's an update, not a new set.
 
@@ -81,7 +82,8 @@ keep, one by one.
 - `Type` blank or column absent → `null`; invalid value → parse error.
 - On commit, an explicit type overwrites the stored one; `null` preserves it
   (`COALESCE` in the RPC). Consequence: an import can never clear a type back
-  to `null`.
+  to `null` — clearing (if ever needed) is an in-app action, deliberately not
+  a CSV sentinel value.
 
 ## Adding a new CSV column: the checklist
 

@@ -42,7 +42,7 @@ export function computeDiff(
 
     const name = row.setName?.trim() || row.artists.join(" b2b ");
 
-    const matchContext = { stage, date: row.date, timezone };
+    const matchContext = { stage, date: row.date, timezone, name };
     const matched =
       row.artists.length === 0
         ? findMatchingArtistlessSet(

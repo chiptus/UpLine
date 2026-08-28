@@ -91,6 +91,7 @@ function makeContext(
         : { kind: "exact", id: stageId, name: stageId },
     date,
     timezone: "UTC",
+    name: "",
   };
 }
 

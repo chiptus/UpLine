@@ -125,6 +125,7 @@ export type MatchContext = {
   stage: StageResolution;
   date: string | undefined;
   timezone: string;
+  name: string;
 };
 
 // Roster-based matching is fuzzy: the roster already identifies the set, so
@@ -190,7 +191,7 @@ function provisionalStageId(stage: StageResolution): string | null {
 function narrowByDiscriminators(
   candidates: DbSet[],
   resolvedStageId: string | null,
-  { date, timezone }: Pick<MatchContext, "date" | "timezone">,
+  { date, timezone, name }: Pick<MatchContext, "date" | "timezone" | "name">,
 ): DbSet | null {
   let pool = candidates;
   if (pool.length <= 1) return pool[0] ?? null;
@@ -205,6 +206,15 @@ function narrowByDiscriminators(
         s.time_start != null && utcToLocalDate(s.time_start, timezone) === date,
     );
     if (byDate.length > 0) pool = byDate;
+  }
+  // Set name is the last resort: it only decides between candidates that
+  // stage and date could not tell apart (names are the most volatile column).
+  if (name && pool.length > 1) {
+    const nameLower = name.trim().toLowerCase();
+    const byName = pool.filter(
+      (s) => s.name.trim().toLowerCase() === nameLower,
+    );
+    if (byName.length > 0) pool = byName;
   }
   return pool[0];
 }

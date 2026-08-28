@@ -236,6 +236,57 @@ Deno.test("multiple candidates disambiguated by stage", () => {
   assertEquals(result.conflicts.orphanedSets[0].id, "set-a");
 });
 
+Deno.test(
+  "same-roster candidates disambiguated by set name as last resort",
+  () => {
+    const artist = makeArtist("Carl Cox");
+    const set1 = makeSet("set-a", "Carl Cox Live", [artist]);
+    const set2 = makeSet("set-b", "Carl Cox DJ Set", [artist]);
+    const result = computeDiff(
+      [{ artists: ["Carl Cox"], setName: "Carl Cox DJ Set" }],
+      [],
+      [set1, set2],
+      [artist],
+      "UTC",
+    );
+    assertEquals(result.cleanOperations.setsToUpdate.length, 1);
+    assertEquals(result.cleanOperations.setsToUpdate[0].id, "set-b");
+  },
+);
+
+Deno.test("date narrowing beats a set-name match for roster rows", () => {
+  const artist = makeArtist("Carl Cox");
+  const set1 = makeSet(
+    "set-a",
+    "Carl Cox Live",
+    [artist],
+    null,
+    "2026-07-11T20:00:00Z",
+  );
+  const set2 = makeSet(
+    "set-b",
+    "Carl Cox Sunset",
+    [artist],
+    null,
+    "2026-07-12T20:00:00Z",
+  );
+  const result = computeDiff(
+    [
+      {
+        artists: ["Carl Cox"],
+        setName: "Carl Cox Live",
+        date: "2026-07-12",
+      },
+    ],
+    [],
+    [set1, set2],
+    [artist],
+    "UTC",
+  );
+  assertEquals(result.cleanOperations.setsToUpdate.length, 1);
+  assertEquals(result.cleanOperations.setsToUpdate[0].id, "set-b");
+});
+
 function makeArtist(name: string): DbArtist {
   const slug = name.toLowerCase().replace(/\s+/g, "-");
   return { id: `id-${slug}`, name, slug };

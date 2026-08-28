@@ -91,7 +91,7 @@ export function useLinkWizardQueue(
     items,
     artists,
     currentItem,
-    position: currentIndex + 1,
+    position: items.length === 0 ? 0 : currentIndex + 1,
     total: items.length,
     prev,
     skip,

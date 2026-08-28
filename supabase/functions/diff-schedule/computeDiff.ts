@@ -68,8 +68,6 @@ export function computeDiff(
 
     if (matched) {
       state.matchedSetIds.add(matched.id);
-      // previousSetType lets the diff review render stored → incoming type
-      // chips; the commit path ignores it.
       state.setsToUpdate.push({
         id: matched.id,
         previousSetType: asSetType(matched.set_type),

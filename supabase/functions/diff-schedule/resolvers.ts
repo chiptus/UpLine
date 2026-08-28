@@ -190,7 +190,7 @@ function provisionalStageId(stage: StageResolution): string | null {
 function narrowByDiscriminators(
   candidates: DbSet[],
   resolvedStageId: string | null,
-  { date, timezone }: MatchContext,
+  { date, timezone }: Pick<MatchContext, "date" | "timezone">,
 ): DbSet | null {
   let pool = candidates;
   if (pool.length <= 1) return pool[0] ?? null;

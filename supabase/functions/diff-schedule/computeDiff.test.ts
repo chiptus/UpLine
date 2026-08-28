@@ -576,6 +576,7 @@ Deno.test(
   },
 );
 
+// Pins the provisional closest-stage behavior; see #447 for its limit.
 Deno.test(
   "mismatched stage matches artist-less sets via its closest stage",
   () => {
@@ -594,6 +595,30 @@ Deno.test(
     assertEquals(result.cleanOperations.setsToUpdate[0].id, "set-b");
   },
 );
+
+// Executable marker for #447: un-ignore once artist-less matching honors the
+// user's stage-mismatch resolution instead of the closest-match guess pinned
+// above. Encodes the conservative outcome (don't pick between staged
+// candidates while the mismatch is unresolved); adjust it if #447 settles on
+// passing resolutions into the diff instead.
+Deno.test({
+  name: "unresolved stage mismatch defers artist-less set selection (#447)",
+  ignore: true,
+  fn() {
+    const stage1 = makeStage("s1", "Main Stage");
+    const stage2 = makeStage("s2", "Main Stage East");
+    const set1 = makeSet("set-a", "Fire Show", [], "s1");
+    const set2 = makeSet("set-b", "Fire Show", [], "s2");
+    const result = computeDiff(
+      [{ artists: [], setName: "Fire Show", stage: "Mainstage" }],
+      [stage1, stage2],
+      [set1, set2],
+      [],
+      "UTC",
+    );
+    assertEquals(result.cleanOperations.setsToUpdate.length, 0);
+  },
+});
 
 Deno.test(
   "mismatched stage excludes an artist-less set at a different stage",

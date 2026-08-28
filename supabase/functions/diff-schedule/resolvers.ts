@@ -169,7 +169,9 @@ export function findMatchingArtistlessSet(
 
 // A mismatched stage hasn't been mapped by the user yet, so its closest DB
 // stage stands in provisionally; a new stage matches no stored stage at all,
-// so every staged candidate contradicts it.
+// so every staged candidate contradicts it. Known limitation (#447): if the
+// user later maps the mismatch to a different stage, the set was already
+// chosen with the closest-match guess and the commit only rewrites stageName.
 function provisionalStageId(stage: StageResolution): string | null {
   switch (stage.kind) {
     case "exact":

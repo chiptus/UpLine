@@ -68,7 +68,7 @@ describe("TypedSetsPanel", () => {
     expect(screen.queryByText("Fire Show")).not.toBeInTheDocument();
   });
 
-  it("shows a first-time type as changing nothing", () => {
+  it("lists a first-time type as a change from no type", () => {
     render(
       <TypedSetsPanel
         setsToCreate={[]}
@@ -82,9 +82,10 @@ describe("TypedSetsPanel", () => {
         ]}
       />,
     );
-    expect(screen.getByText("Set types from the CSV")).toBeVisible();
-    expect(screen.getByText(/1 row carries a type/)).toBeVisible();
-    expect(screen.queryByText("Fire Show")).not.toBeInTheDocument();
+    expect(screen.getByText("1 set changing type")).toBeVisible();
+    expect(screen.getByText("Fire Show")).toBeVisible();
+    expect(screen.getByText("No type")).toBeVisible();
+    expect(screen.getByText("Performance")).toBeVisible();
   });
 });
 

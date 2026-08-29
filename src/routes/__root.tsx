@@ -31,7 +31,7 @@ import { pageMeta } from "@/lib/pageHead";
 import { useClearStaticTags } from "@/hooks/useClearStaticTags";
 
 const rootSearchSchema = z.object({
-  token: z.string().optional(),
+  invite: z.string().optional(),
 });
 
 interface RouterContext {
@@ -46,8 +46,8 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     meta: pageMeta({ description: "UpLine - Your Festival companion" }),
   }),
   beforeLoad: async ({ search, location }) => {
-    if (search.token && location.pathname !== "/invite") {
-      const { token: _token, ...restSearch } = location.search as Record<
+    if (search.invite && location.pathname !== "/invite") {
+      const { invite: _invite, ...restSearch } = location.search as Record<
         string,
         unknown
       >;
@@ -58,7 +58,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 
       throw redirect({
         to: "/invite",
-        search: { token: search.token, redirect: redirectTarget },
+        search: { token: search.invite, redirect: redirectTarget },
       });
     }
 

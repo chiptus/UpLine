@@ -16,7 +16,7 @@ export function useSignInWithOtpMutation() {
         email,
         options: {
           emailRedirectTo: inviteToken
-            ? `${window.location.origin}/?token=${inviteToken}`
+            ? `${window.location.origin}/?invite=${inviteToken}`
             : `${window.location.origin}/`,
           shouldCreateUser: true,
           data: {

@@ -64,7 +64,7 @@ export function InviteManagement({
   }
 
   async function copyInviteLink(token: string) {
-    const inviteUrl = `${window.location.origin}/?token=${token}`;
+    const inviteUrl = `${window.location.origin}/?invite=${token}`;
     try {
       await navigator.clipboard.writeText(inviteUrl);
       toast({

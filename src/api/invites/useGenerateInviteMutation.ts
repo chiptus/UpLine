@@ -45,7 +45,7 @@ async function generateInviteLink(
 
   // Return the full invite URL
   const baseUrl = window.location.origin;
-  return `${baseUrl}/?token=${token}`;
+  return `${baseUrl}/?invite=${token}`;
 }
 
 export function useGenerateInviteMutation(groupId: string) {

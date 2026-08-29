@@ -2,11 +2,10 @@ import {
   createRootRouteWithContext,
   HeadContent,
   Outlet,
-  useSearch,
+  redirect,
 } from "@tanstack/react-router";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Toaster } from "@/components/ui/toaster";
-import { Button } from "@/components/ui/button";
 import { ConfirmDialogHost } from "@/components/ConfirmDialogHost";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CookieConsentBanner } from "@/components/layout/legal/CookieConsentBanner";
@@ -19,8 +18,6 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { ActiveScopeProvider } from "@/contexts/ActiveScopeContext";
-import { useInviteFlow } from "@/components/invite/useInviteFlow";
-import { InviteLandingPage } from "@/components/invite/InviteLandingPage";
 import { OnboardingDialog } from "@/components/onboarding/OnboardingDialog";
 import { useProfileQuery } from "@/api/auth/useProfile";
 import { useMemo, useEffect } from "react";
@@ -48,7 +45,23 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({
     meta: pageMeta({ description: "UpLine - Your Festival companion" }),
   }),
-  beforeLoad: async () => {
+  beforeLoad: async ({ search, location }) => {
+    if (search.invite && location.pathname !== "/invite") {
+      const { invite: _invite, ...restSearch } = location.search as Record<
+        string,
+        unknown
+      >;
+      const remainingSearch = new URLSearchParams(
+        restSearch as Record<string, string>,
+      ).toString();
+      const redirectTarget = `${location.pathname}${remainingSearch ? `?${remainingSearch}` : ""}${location.hash}`;
+
+      throw redirect({
+        to: "/invite",
+        search: { token: search.invite, redirect: redirectTarget },
+      });
+    }
+
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -92,11 +105,6 @@ function RootComponent() {
 
 function RootContent() {
   const { user, loading: authLoading, needsOnboarding } = useAuth();
-  const search = useSearch({ from: "__root__" });
-  const { inviteValidation, isValidating, hasValidInvite } = useInviteFlow(
-    search.invite,
-    user,
-  );
 
   const { isLoading: profileLoading } = useProfileQuery(user?.id);
 
@@ -109,37 +117,6 @@ function RootContent() {
       window.location.href = getNonWwwRedirectUrl();
     }
   }, []);
-
-  if (isValidating) {
-    return (
-      <div className="app-view min-h-screen bg-ground flex items-center justify-center">
-        <div className="text-foreground text-xl">Validating invite...</div>
-      </div>
-    );
-  }
-
-  if (hasValidInvite && !user && inviteValidation && search.invite) {
-    return (
-      <InviteLandingPage
-        inviteValidation={inviteValidation}
-        inviteToken={search.invite}
-      />
-    );
-  }
-
-  if (inviteValidation && !inviteValidation.is_valid) {
-    return (
-      <div className="app-view min-h-screen bg-ground flex items-center justify-center p-4">
-        <div className="text-center text-foreground">
-          <h1 className="text-2xl font-bold mb-4">Invalid Invite</h1>
-          <p className="mb-4">This invite link is no longer valid.</p>
-          <Button onClick={() => (window.location.href = "/")}>
-            Continue to App
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="app-view min-h-screen bg-ground flex flex-col">

@@ -48,9 +48,7 @@ export function useUrlState() {
   const clearFilters = useCallback(() => {
     navigate({
       to: ".",
-      search: (prev) => ({
-        invite: prev.invite,
-      }),
+      search: {},
       replace: true,
     });
   }, [navigate]);

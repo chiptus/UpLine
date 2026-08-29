@@ -26,12 +26,12 @@ export const Route = createFileRoute("/festivals/$festivalSlug/")({
       prefix: match.context.festival?.name,
     }),
   }),
-  beforeLoad: async ({ params, context, search }) => {
+  beforeLoad: async ({ params, context }) => {
     const editions = await context.queryClient.ensureQueryData(
       editionsForFestivalQuery(context.festival.id),
     );
 
-    if (editions.length === 1 && !search.invite) {
+    if (editions.length === 1) {
       throw redirect({
         to: "/festivals/$festivalSlug/editions/$editionSlug",
         params: {

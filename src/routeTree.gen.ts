@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as CookiesRouteImport } from './routes/cookies'
+import { Route as InviteRouteImport } from './routes/invite'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as TermsRouteImport } from './routes/terms'
@@ -57,6 +58,11 @@ const AdminRoute = AdminRouteImport.update({
 const CookiesRoute = CookiesRouteImport.update({
   id: '/cookies',
   path: '/cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InviteRoute = InviteRouteImport.update({
+  id: '/invite',
+  path: '/invite',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -239,6 +245,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/cookies': typeof CookiesRoute
+  '/invite': typeof InviteRoute
   '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
@@ -275,6 +282,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/cookies': typeof CookiesRoute
+  '/invite': typeof InviteRoute
   '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
@@ -310,6 +318,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/cookies': typeof CookiesRoute
+  '/invite': typeof InviteRoute
   '/privacy': typeof PrivacyRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
@@ -348,6 +357,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/cookies'
+    | '/invite'
     | '/privacy'
     | '/settings'
     | '/terms'
@@ -384,6 +394,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/cookies'
+    | '/invite'
     | '/privacy'
     | '/settings'
     | '/terms'
@@ -418,6 +429,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/cookies'
+    | '/invite'
     | '/privacy'
     | '/settings'
     | '/terms'
@@ -455,6 +467,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   CookiesRoute: typeof CookiesRoute
+  InviteRoute: typeof InviteRoute
   PrivacyRoute: typeof PrivacyRoute
   SettingsRoute: typeof SettingsRoute
   TermsRoute: typeof TermsRoute
@@ -484,6 +497,13 @@ declare module '@tanstack/react-router' {
       path: '/cookies'
       fullPath: '/cookies'
       preLoaderRoute: typeof CookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invite': {
+      id: '/invite'
+      path: '/invite'
+      fullPath: '/invite'
+      preLoaderRoute: typeof InviteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -877,6 +897,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   CookiesRoute: CookiesRoute,
+  InviteRoute: InviteRoute,
   PrivacyRoute: PrivacyRoute,
   SettingsRoute: SettingsRoute,
   TermsRoute: TermsRoute,

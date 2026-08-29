@@ -159,6 +159,10 @@ Issues (and external PRs) are tracked in GitHub Issues for `chiptus/UpLine`, via
 
 Default vocabulary: `needs-triage` / `needs-info` / `ready-for-agent` / `ready-for-human` / `wontfix`. See `docs/agents/triage-labels.md`.
 
+### Autonomic issue pipeline
+
+Two Routines (triage sweep + fix worker) work the backlog into agent PRs. Playbook, firing algorithms, `agent:` labels, and the Routine prompts: `docs/agents/autonomic-issues.md`.
+
 ### Domain docs
 
 Single-context: `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.

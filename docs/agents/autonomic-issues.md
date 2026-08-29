@@ -21,7 +21,7 @@ In-flight state lives as labels **on issues**; an issue's label tells any fresh 
 
 1. **Release stale claims** (above).
 2. **Intake queue**: open issues labeled `needs-triage` plus open unlabeled issues — nothing else. Skip `wayfinder:*` tickets. `needs-info` issues are fully inert: after the reporter answers, the maintainer flips the label back to `needs-triage`. Empty queue → end silently.
-3. **Apply the rubric** (below) to each intake issue **through the `triage` skill** (invoke Skill `triage`): it carries the tracker mechanics — the AI-disclaimer prefix on every posted comment, the agent-brief format for `ready-for-agent` issues, the out-of-scope knowledge base. This doc's rubric and guardrails win wherever the two differ. Then end.
+3. **Apply the rubric** (below) to each intake issue **through the triage skill**: Read `.claude/skills/triage/SKILL.md` directly and follow it (it is not model-invocable, so the Skill tool won't list it). It carries the tracker mechanics — the AI-disclaimer prefix on every posted comment, the agent-brief format for `ready-for-agent` issues, the out-of-scope knowledge base. This doc's rubric and guardrails win wherever the two differ. Then end.
 
 ### The ready-for-agent bar — all four required
 
@@ -48,7 +48,7 @@ All four hold → label `ready-for-agent`. Missing (a)/(b) → `needs-info`. Mis
 2. **Cap check**: count `is:issue is:open label:agent:pr`; at or above 3 → end silently.
 3. **Pick one issue**: `ready-for-agent` issues, skipping any assigned to a human or with an open linked PR, ordered `priority:high` → unlabeled → `priority:low`, oldest first within each rank. None eligible → end silently.
 4. **Claim**: apply `agent:wip` and a claim comment (timestamp + branch name) before any work. Branch naming: `type-id/slug`, e.g. `fix-448/consolidate-set-types`.
-5. **Implement via the `implement` skill** (invoke Skill `implement` with the issue as the spec): TDD at the natural seams, regular typechecks, full suite at the end. Its steps run inside the quality gates (below).
+5. **Implement via the implement skill**: Read `.claude/skills/implement/SKILL.md` directly and follow it with the issue as the spec (it is not model-invocable, so the Skill tool won't list it) — TDD at the natural seams, regular typechecks, full suite at the end. Its steps run inside the quality gates (below).
 6. **Open the PR** following `.claude/skills/create-pr/SKILL.md` exactly, with `Closes #N` in the body. Swap the issue's `agent:wip` to `agent:pr`; label the PR `agent:pr`. One PR per firing — done.
 
 **Mid-run bail**: the picked issue turns out not agent-ready (spec gap, missing access, actually a design decision) → re-route it (`needs-info` with questions, or `ready-for-human`) with a comment on what you found, remove `agent:wip`, and pick the next eligible issue — still at most one PR per firing.

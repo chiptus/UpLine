@@ -44,7 +44,7 @@ All four hold → label `ready-for-agent`. Missing (a)/(b) → `needs-info`. Mis
 
 ## Fix firing
 
-1. **Repair before build**: list open PRs labeled `agent:pr`. If any is conflicted with main or CI-red on its current head, restoring it (merge main in, get CI green through the quality gates) **is** this firing's work — then end. PRs the maintainer has left review comments on are his: leave them untouched. Broken agent PRs always stay counted against the cap — unreviewed PRs are exactly the review debt the cap limits.
+1. **Repair before build**: list open issues labeled `agent:pr` and follow each to its open linked PR — issues are the source of truth; the PR-side label is display convenience and may be missing. If any such PR is conflicted with main or CI-red on its current head, restoring it (merge main in, get CI green through the quality gates) **is** this firing's work — then end. PRs the maintainer has left review comments on are his: leave them untouched. Broken agent PRs always stay counted against the cap — unreviewed PRs are exactly the review debt the cap limits.
 2. **Cap check**: count `is:issue is:open label:agent:pr`; at or above 3 → end silently.
 3. **Pick one issue**: `ready-for-agent` issues, skipping any assigned to a human or with an open linked PR, ordered `priority:high` → unlabeled → `priority:low`, oldest first within each rank. None eligible → end silently.
 4. **Claim**: apply `agent:wip` and a claim comment (timestamp + branch name) before any work. Branch naming: `type-id/slug`, e.g. `fix-448/consolidate-set-types`.
@@ -75,7 +75,7 @@ Otherwise the pipeline is deliberately permissive: migration files, workflow edi
 
 ## Notifications
 
-Both routines run with push notifications on. The platform sends a push only when a run finishes with something noteworthy — a PR opened, triage questions posted, a failed run's findings — so every no-op path above ends _silently_: state the no-op in one line and stop. Cap-full days never ping; the open PRs in the review queue are already the signal.
+Both routines run with push notifications on. The platform sends a push only when a run finishes with something noteworthy — a PR opened, triage questions posted, a failed run's findings — so every no-op path above ends _silently_: no GitHub writes (no comments, no labels), just a one-line note in the session transcript, then stop. Cap-full days never ping; the open PRs in the review queue are already the signal.
 
 ## Setup checklist (manual, one-time)
 

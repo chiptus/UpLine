@@ -80,7 +80,7 @@ Both routines run with push notifications on. The platform sends a push only whe
 ## Setup checklist (manual, one-time)
 
 1. Create the labels: `agent:wip`, `agent:pr`, `priority:high`, `priority:low` (triage vocabulary from `docs/agents/triage-labels.md` plus `bug`/`enhancement`/`chore` should already exist).
-2. Create the **triage** Routine: daily, cheap model, this repo only, Default (trusted-network) environment, no connectors beyond GitHub, push notifications on, prompt below.
+2. Create the **triage** Routine: daily, Sonnet (a test firing showed Haiku mis-triages — it judges from issue text alone instead of verifying premises in the codebase), this repo only, Default (trusted-network) environment, no connectors beyond GitHub, push notifications on, prompt below.
 3. Create the **fix** Routine: daily ~1h after triage, stronger model, same scoping, push notifications on, prompt below.
 4. Routine prompts stay short pointers — evolve the pipeline by editing this doc via PR, not the Routine form.
 

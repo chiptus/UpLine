@@ -21,7 +21,8 @@ In-flight state lives as labels **on issues**; an issue's label tells any fresh 
 
 1. **Release stale claims** (above).
 2. **Intake queue**: open issues labeled `needs-triage` plus open unlabeled issues — nothing else. Skip `wayfinder:*` tickets. `needs-info` issues are fully inert: after the reporter answers, the maintainer flips the label back to `needs-triage`. Empty queue → end silently.
-3. **Apply the rubric** (below) to each intake issue **through the triage skill**: Read `.claude/skills/triage/SKILL.md` directly and follow it (it is not model-invocable, so the Skill tool won't list it). It carries the tracker mechanics — the AI-disclaimer prefix on every posted comment, the agent-brief format for `ready-for-agent` issues, the out-of-scope knowledge base. This doc's rubric and guardrails win wherever the two differ. Then end.
+3. **Apply the rubric** (below) to each intake issue **through the triage skill**: Read `.claude/skills/triage/SKILL.md` directly and follow it (it is not model-invocable, so the Skill tool won't list it). It carries the tracker mechanics — the AI-disclaimer prefix on every posted comment, the agent-brief format for `ready-for-agent` issues, the out-of-scope knowledge base. This doc's rubric and guardrails win wherever the two differ.
+4. **Summary table**: end the session with a markdown table of the sweep — one row per issue looked at, `issue | verdict | one-line reason` (verdicts: the label applied, or "held" / "skipped" with why). This is transcript output only, not a GitHub write.
 
 ### The ready-for-agent bar — all four required
 

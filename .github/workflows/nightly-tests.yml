@@ -49,5 +49,5 @@ jobs:
           INTEGRATION_RESULT: ${{ needs.integration-test.result }}
         with:
           script: |
-            const script = require('./.github/scripts/notify-nightly-failure.js');
+            const script = require('./.github/scripts/notify-nightly-failure.cjs');
             await script({ github, context });

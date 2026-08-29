@@ -26,6 +26,7 @@ export function FilterToggle({
           variant="ghost"
           size="sm"
           onClick={onClearFilters}
+          aria-label="Clear filters"
           className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
         >
           <X className="h-3 w-3 mr-1" />
@@ -37,6 +38,7 @@ export function FilterToggle({
         variant="ghost"
         size="sm"
         onClick={onToggle}
+        aria-label={label}
         className={`flex items-center gap-2 ${
           isExpanded
             ? "bg-surface-active text-foreground hover:bg-surface-active"

@@ -41,6 +41,29 @@ vi.mock("@/api/artistSearch/useSearchArtistLinksQuery", () => ({
   }),
 }));
 
+vi.mock("@/api/artistSearch/useFetchArtistByUrlMutation", () => ({
+  useFetchArtistByUrlMutation: () => ({
+    mutate: (
+      params: { provider: string; url: string },
+      callbacks: { onSuccess: (data: unknown) => void },
+    ) => {
+      if (params.provider === "spotify" && params.url) {
+        callbacks.onSuccess({
+          candidate: {
+            name: "Fetched Artist",
+            url: "https://open.spotify.com/artist/fetched123",
+            imageUrl: "https://example.com/image.jpg",
+            description: "A fetched artist description",
+            followers: 1000,
+            genres: ["Electronic"],
+          },
+        });
+      }
+    },
+    isPending: false,
+  }),
+}));
+
 async function grantAdminRole(userId: string): Promise<void> {
   const { error } = await testSupabase.from("admin_roles").insert({
     user_id: userId,
@@ -129,29 +152,6 @@ describe("LinkWizardStep save flow", () => {
     });
     const artist = await loadArtistWithSets(artistId);
 
-    vi.mock("@/api/artistSearch/useFetchArtistByUrlMutation", () => ({
-      useFetchArtistByUrlMutation: () => ({
-        mutate: (
-          params: { provider: string; url: string },
-          callbacks: { onSuccess: (data: unknown) => void },
-        ) => {
-          if (params.provider === "spotify" && params.url) {
-            callbacks.onSuccess({
-              candidate: {
-                name: "Fetched Artist",
-                url: "https://open.spotify.com/artist/fetched123",
-                imageUrl: "https://example.com/image.jpg",
-                description: "A fetched artist description",
-                followers: 1000,
-                genres: ["Electronic"],
-              },
-            });
-          }
-        },
-        isPending: false,
-      }),
-    }));
-
     const onNext = vi.fn();
 
     renderWithQueryClient(
@@ -184,7 +184,7 @@ describe("LinkWizardStep save flow", () => {
 
     // Fetching only stages the candidate; nothing should be applied yet.
     expect(
-      screen.queryByDisplayValue("https://example.com/image.jpg"),
+      screen.queryByRole("img", { name: "Staged artist image" }),
     ).not.toBeInTheDocument();
 
     await user.click(
@@ -195,8 +195,8 @@ describe("LinkWizardStep save flow", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByDisplayValue("https://example.com/image.jpg"),
-      ).toBeInTheDocument();
+        screen.getByRole("img", { name: "Staged artist image" }),
+      ).toHaveAttribute("src", "https://example.com/image.jpg");
     });
 
     await user.click(screen.getByRole("button", { name: /save & next/i }));

@@ -5,6 +5,8 @@ const ADMIN_SETS_PATH = "/admin/festivals/test/editions/2025/sets";
 
 test.describe("Admin set form: set types", { tag: "@smoke" }, () => {
   test("creates a workshop with no artists via the form", async ({ page }) => {
+    const setName = `Breathwork Circle ${Date.now()}`;
+
     await signInAsAdmin(page);
     await page.goto(ADMIN_SETS_PATH);
 
@@ -12,7 +14,7 @@ test.describe("Admin set form: set types", { tag: "@smoke" }, () => {
     const dialog = page.getByRole("dialog");
 
     // Submitting without a type is rejected
-    await dialog.getByLabel("Set Name").fill("Breathwork Circle");
+    await dialog.getByLabel("Set Name").fill(setName);
     await dialog.getByRole("button", { name: "Create" }).click();
     await expect(dialog.getByText("Type is required")).toBeVisible();
 
@@ -28,7 +30,7 @@ test.describe("Admin set form: set types", { tag: "@smoke" }, () => {
     await dialog.getByRole("button", { name: "Create" }).click();
 
     await expect(dialog).not.toBeVisible();
-    await expect(page.getByText("Breathwork Circle")).toBeVisible();
+    await expect(page.getByText(setName)).toBeVisible();
   });
 
   test("rejects an invalid external URL", async ({ page }) => {

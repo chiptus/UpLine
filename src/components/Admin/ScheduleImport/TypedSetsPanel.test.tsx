@@ -16,7 +16,7 @@ describe("TypedSetsPanel", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("lists only sets whose CSV row carries a type", () => {
+  it("lists only genuine type changes, with stored and incoming chips", () => {
     render(
       <TypedSetsPanel
         setsToCreate={[
@@ -28,39 +28,30 @@ describe("TypedSetsPanel", () => {
             ...makePayload("Fire Show"),
             setType: "performance",
             id: "set-1",
-            previousSetType: null,
+            previousSetType: "music",
           },
-        ]}
-      />,
-    );
-    expect(screen.getByText("2 sets with a type from the CSV")).toBeVisible();
-    expect(screen.getByText("Morning Yoga")).toBeVisible();
-    expect(screen.getByText("Fire Show")).toBeVisible();
-    expect(screen.queryByText("Carl Cox")).not.toBeInTheDocument();
-  });
-
-  it("shows stored and incoming chips when the type changes", () => {
-    render(
-      <TypedSetsPanel
-        setsToCreate={[]}
-        setsToUpdate={[
           {
-            ...makePayload("Fire Show"),
-            setType: "performance",
-            id: "set-1",
+            ...makePayload("Peggy Gou"),
+            setType: "music",
+            id: "set-2",
             previousSetType: "music",
           },
         ]}
       />,
     );
+    expect(screen.getByText("1 set changing type")).toBeVisible();
+    expect(screen.getByText("Fire Show")).toBeVisible();
     expect(screen.getByText("Music")).toBeVisible();
     expect(screen.getByText("Performance")).toBeVisible();
+    expect(screen.queryByText("Morning Yoga")).not.toBeInTheDocument();
+    expect(screen.queryByText("Peggy Gou")).not.toBeInTheDocument();
+    expect(screen.getByText(/2 more rows carry a type/)).toBeVisible();
   });
 
-  it("shows a single chip when the stored type is kept", () => {
+  it("summarizes typed rows that change nothing without listing them", () => {
     render(
       <TypedSetsPanel
-        setsToCreate={[]}
+        setsToCreate={[{ ...makePayload("Morning Yoga"), setType: "workshop" }]}
         setsToUpdate={[
           {
             ...makePayload("Fire Show"),
@@ -71,7 +62,29 @@ describe("TypedSetsPanel", () => {
         ]}
       />,
     );
-    expect(screen.getAllByText("Performance")).toHaveLength(1);
+    expect(screen.getByText("Set types from the CSV")).toBeVisible();
+    expect(screen.getByText(/2 rows carry a type/)).toBeVisible();
+    expect(screen.queryByText("Morning Yoga")).not.toBeInTheDocument();
+    expect(screen.queryByText("Fire Show")).not.toBeInTheDocument();
+  });
+
+  it("shows a first-time type as changing nothing", () => {
+    render(
+      <TypedSetsPanel
+        setsToCreate={[]}
+        setsToUpdate={[
+          {
+            ...makePayload("Fire Show"),
+            setType: "performance",
+            id: "set-1",
+            previousSetType: null,
+          },
+        ]}
+      />,
+    );
+    expect(screen.getByText("Set types from the CSV")).toBeVisible();
+    expect(screen.getByText(/1 row carries a type/)).toBeVisible();
+    expect(screen.queryByText("Fire Show")).not.toBeInTheDocument();
   });
 });
 

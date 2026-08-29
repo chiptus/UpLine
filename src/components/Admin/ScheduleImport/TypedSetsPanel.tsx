@@ -5,13 +5,7 @@ import { cn } from "@/lib/utils";
 import { getSetTypeLabel } from "@/lib/setTypeLabels";
 import { type DiffResult } from "@/services/scheduleImport/types";
 
-type TypedSet = {
-  key: string;
-  name: string;
-  setType: SetType;
-  previousSetType: SetType | null;
-  operation: "create" | "update";
-};
+type SetToUpdate = DiffResult["cleanOperations"]["setsToUpdate"][number];
 
 type Props = {
   setsToCreate: DiffResult["cleanOperations"]["setsToCreate"];
@@ -19,54 +13,56 @@ type Props = {
 };
 
 export function TypedSetsPanel({ setsToCreate, setsToUpdate }: Props) {
-  const typedSets = collectTypedSets(setsToCreate, setsToUpdate);
-  if (typedSets.length === 0) return null;
+  const typedCreateCount = setsToCreate.filter(
+    (s) => s.setType !== null,
+  ).length;
+  const typedUpdates = setsToUpdate.filter((s) => s.setType !== null);
+  const typeChanges = typedUpdates.filter(isTypeChange);
+  const keptCount = typedCreateCount + typedUpdates.length - typeChanges.length;
+
+  if (typedCreateCount + typedUpdates.length === 0) return null;
 
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2 text-sm font-medium">
         <Tags className="h-4 w-4 text-muted-foreground" />
-        {typedSets.length} set{typedSets.length !== 1 ? "s" : ""} with a type
-        from the CSV
+        {typeChanges.length > 0
+          ? `${typeChanges.length} set${typeChanges.length !== 1 ? "s" : ""} changing type`
+          : "Set types from the CSV"}
       </div>
 
       <p className="text-xs text-muted-foreground">
-        These rows carry a <code>Type</code> value that will be written on
-        commit. Rows with a blank type keep whatever type the matched set
-        already has.
+        {keptCount > 0 &&
+          `${keptCount} ${typeChanges.length > 0 ? "more " : ""}${keptCount !== 1 ? "rows carry" : "row carries"} a type that changes nothing (new sets, or updates matching the stored type). `}
+        Rows with a blank type keep whatever type the matched set already has.
       </p>
 
-      <div className="divide-y rounded-lg border">
-        {typedSets.map((set) => (
-          <div
-            key={set.key}
-            className="flex items-center justify-between px-4 py-2"
-          >
-            <p className="text-sm font-medium truncate">{set.name}</p>
-            <div className="flex items-center gap-2 ml-4 shrink-0">
-              {isTypeChange(set) && (
-                <>
-                  <SetTypeChip setType={set.previousSetType} />
-                  <ArrowRight className="h-3 w-3 text-muted-foreground" />
-                </>
-              )}
-              <SetTypeChip setType={set.setType} />
-              <span className="text-xs text-muted-foreground w-12 text-right">
-                {set.operation === "create" ? "new" : "update"}
-              </span>
+      {typeChanges.length > 0 && (
+        <div className="divide-y rounded-lg border">
+          {typeChanges.map((set) => (
+            <div
+              key={set.id}
+              className="flex items-center justify-between px-4 py-2"
+            >
+              <p className="text-sm font-medium truncate">{set.name}</p>
+              <div className="flex items-center gap-2 ml-4 shrink-0">
+                <SetTypeChip setType={set.previousSetType} />
+                <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                <SetTypeChip setType={set.setType} />
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
 /**
  * A stored type differing from the incoming one is the change worth
- * verifying; a set that was still untyped just gets its first type.
+ * verifying; new sets and first-time types just take the CSV value.
  */
-function isTypeChange(set: TypedSet): boolean {
+function isTypeChange(set: SetToUpdate): boolean {
   return set.previousSetType !== null && set.previousSetType !== set.setType;
 }
 
@@ -78,37 +74,4 @@ function SetTypeChip({ setType }: { setType: SetType | null }) {
       {label}
     </Badge>
   );
-}
-
-function collectTypedSets(
-  setsToCreate: Props["setsToCreate"],
-  setsToUpdate: Props["setsToUpdate"],
-): TypedSet[] {
-  const creates = setsToCreate.flatMap((s, i): TypedSet[] =>
-    s.setType === null
-      ? []
-      : [
-          {
-            key: `create-${i}-${s.name}`,
-            name: s.name,
-            setType: s.setType,
-            previousSetType: null,
-            operation: "create",
-          },
-        ],
-  );
-  const updates = setsToUpdate.flatMap((s): TypedSet[] =>
-    s.setType === null
-      ? []
-      : [
-          {
-            key: `update-${s.id}`,
-            name: s.name,
-            setType: s.setType,
-            previousSetType: s.previousSetType,
-            operation: "update",
-          },
-        ],
-  );
-  return [...creates, ...updates];
 }

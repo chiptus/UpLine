@@ -44,11 +44,7 @@ export function useAcceptInviteFlow(
 
   useEffect(() => {
     const isValid = inviteQuery.data?.is_valid === true;
-    if (
-      !userId ||
-      isValid !== true ||
-      attemptedTokenRef.current === inviteToken
-    ) {
+    if (!userId || !isValid || attemptedTokenRef.current === inviteToken) {
       return;
     }
     runAccept(userId);

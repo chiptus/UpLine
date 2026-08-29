@@ -34,6 +34,21 @@ export function useLinkWizardQueue(
     : 0;
   const currentItem = items[Math.min(currentIndex, items.length - 1)];
 
+  return {
+    items,
+    artists,
+    currentItem,
+    position: items.length === 0 ? 0 : currentIndex + 1,
+    total: items.length,
+    prev,
+    skip,
+    save,
+    selectItem,
+    selectedStages,
+    toggleStage,
+    clearStages,
+  };
+
   function goTo(index: number) {
     const clamped = Math.max(0, Math.min(index, items.length - 1));
     setCurrentItemId(items[clamped]?.id);
@@ -86,19 +101,4 @@ export function useLinkWizardQueue(
   function clearStages() {
     setSelectedStages([]);
   }
-
-  return {
-    items,
-    artists,
-    currentItem,
-    position: items.length === 0 ? 0 : currentIndex + 1,
-    total: items.length,
-    prev,
-    skip,
-    save,
-    selectItem,
-    selectedStages,
-    toggleStage,
-    clearStages,
-  };
 }

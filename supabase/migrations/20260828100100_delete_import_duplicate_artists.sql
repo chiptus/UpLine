@@ -13,7 +13,6 @@ WHERE dup.slug ~ '-[0-9]+$'
       AND base.id <> dup.id
   )
   AND NOT EXISTS (SELECT 1 FROM public.set_artists sa WHERE sa.artist_id = dup.id)
-  AND NOT EXISTS (SELECT 1 FROM public.votes v WHERE v.artist_id = dup.id)
   AND NOT EXISTS (SELECT 1 FROM public.artist_notes n WHERE n.artist_id = dup.id)
   AND NOT EXISTS (SELECT 1 FROM public.artist_knowledge k WHERE k.artist_id = dup.id)
   AND NOT EXISTS (SELECT 1 FROM public.artist_music_genres g WHERE g.artist_id = dup.id)

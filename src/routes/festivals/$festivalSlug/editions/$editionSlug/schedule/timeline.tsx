@@ -54,6 +54,7 @@ function TimelineContent() {
     sets: editionSets,
     stages,
     timezone: festival.timezone,
+    dayStartHour: festival.day_start_hour,
   });
   const {
     day: selectedDay,
@@ -126,6 +127,7 @@ function TimelineContent() {
     <TimelineContainer
       timelineData={timelineData}
       timezone={festival.timezone}
+      dayStartHour={festival.day_start_hour}
       scheduleDays={scheduleDays}
       selectedDay={selectedDay}
       scheduleWindow={scheduleWindow}

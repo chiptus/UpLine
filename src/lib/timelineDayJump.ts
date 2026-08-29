@@ -51,7 +51,11 @@ export function jumpToTimelineMoment(
  * jump on dead timeline at the far-left edge. Falls back to festival-timezone
  * midnight when the day has no sets.
  */
-export function getDayJumpMoment(day: ScheduleDay, timezone: string): Date {
+export function getDayJumpMoment(
+  day: ScheduleDay,
+  timezone: string,
+  dayStartHour: number = 0,
+): Date {
   const stageOpenings = day.stages
     .map((stage) =>
       stage.sets.reduce<Date | null>(
@@ -64,9 +68,10 @@ export function getDayJumpMoment(day: ScheduleDay, timezone: string): Date {
     )
     .filter((start): start is Date => start !== null);
 
+  const hour = String(dayStartHour).padStart(2, "0");
   return (
     mostCommonStart(stageOpenings) ??
-    fromZonedTime(`${day.date}T00:00:00`, timezone)
+    fromZonedTime(`${day.date}T${hour}:00:00`, timezone)
   );
 }
 

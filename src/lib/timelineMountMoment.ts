@@ -6,6 +6,7 @@ export interface TimelineMountMomentInput {
   scrollTo?: string | undefined;
   day: string;
   timezone: string;
+  dayStartHour: number;
   festivalStart: Date;
   scheduleWindow: ScheduleWindow | null;
   now: Date;
@@ -19,7 +20,7 @@ export function resolveTimelineMountMoment(
 ): Date {
   return (
     momentFromScrollTo(input.scrollTo) ??
-    momentFromDayFilter(input.day, input.timezone) ??
+    momentFromDayFilter(input.day, input.timezone, input.dayStartHour) ??
     momentFromNow(input.now, input.scheduleWindow) ??
     input.festivalStart
   );
@@ -46,10 +47,15 @@ function momentFromScrollTo(scrollTo: string | undefined): Date | null {
   return isValid(parsed) ? parsed : null;
 }
 
-function momentFromDayFilter(day: string, timezone: string): Date | null {
+function momentFromDayFilter(
+  day: string,
+  timezone: string,
+  dayStartHour: number,
+): Date | null {
   if (!day || day === "all") return null;
   try {
-    const dayStart = fromZonedTime(`${day}T00:00:00`, timezone);
+    const hour = String(dayStartHour).padStart(2, "0");
+    const dayStart = fromZonedTime(`${day}T${hour}:00:00`, timezone);
     return isValid(dayStart) ? dayStart : null;
   } catch {
     return null;

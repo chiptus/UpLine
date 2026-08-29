@@ -33,7 +33,11 @@ export function SetMetadata() {
 
   const dayOnlyFormatted =
     canShowDay && !canShowTime
-      ? formatDayOnly(set.time_start, festival.timezone)
+      ? formatDayOnly(
+          set.time_start,
+          festival.timezone,
+          festival.day_start_hour,
+        )
       : null;
 
   return (

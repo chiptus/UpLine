@@ -12,6 +12,7 @@ async function updateFestival(
     published?: boolean;
     logo_url?: string | null;
     timezone?: string;
+    day_start_hour?: number;
   }>,
 ) {
   const { data, error } = await supabase
@@ -42,6 +43,7 @@ export function useUpdateFestivalMutation() {
         published?: boolean;
         logo_url?: string | null;
         timezone?: string;
+        day_start_hour?: number;
       }>;
     }) => updateFestival(festivalId, festivalData),
     onSuccess: () => {

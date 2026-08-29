@@ -4,6 +4,7 @@ import {
   parseISO,
   isSameDay,
   differenceInCalendarDays,
+  subHours,
 } from "date-fns";
 import { formatInTimeZone, fromZonedTime, toZonedTime } from "date-fns-tz";
 
@@ -181,27 +182,34 @@ export function formatDateOnly(
 export function formatDayOnly(
   dateTime: string | null,
   timezone?: string,
+  dayStartHour: number = 0,
 ): string | null {
   if (!dateTime) return null;
   const date = parseISO(dateTime);
   if (!isValid(date)) return null;
+  const shifted = dayStartHour ? subHours(date, dayStartHour) : date;
   const dayFormat = "EEE, MMM d";
-  if (timezone) return formatInTimeZone(date, timezone, dayFormat);
-  return format(date, dayFormat);
+  if (timezone) return formatInTimeZone(shifted, timezone, dayFormat);
+  return format(shifted, dayFormat);
 }
 
 // The festival calendar day (yyyy-MM-dd) a UTC timestamp falls on, computed in
 // the festival's own timezone so a post-midnight set groups under the
-// festival's day rather than the viewer's.
+// festival's day rather than the viewer's. `dayStartHour` (0-23, the
+// festival's configured day-start cutoff) shifts the instant back by that
+// many hours first, so sets before the cutoff fold into the previous
+// festival day instead of splitting at exact midnight.
 export function getFestivalDayKey(
   dateTime: string | null,
   timezone?: string,
+  dayStartHour: number = 0,
 ): string | null {
   if (!dateTime) return null;
   const date = parseISO(dateTime);
   if (!isValid(date)) return null;
-  if (timezone) return formatInTimeZone(date, timezone, "yyyy-MM-dd");
-  return format(date, "yyyy-MM-dd");
+  const shifted = dayStartHour ? subHours(date, dayStartHour) : date;
+  if (timezone) return formatInTimeZone(shifted, timezone, "yyyy-MM-dd");
+  return format(shifted, "yyyy-MM-dd");
 }
 
 // Human-readable label for a day-key produced by getFestivalDayKey.

@@ -1,3 +1,4 @@
+import { subHours } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
 import { timeToOffset } from "@/lib/timelineCalculator";
 
@@ -15,18 +16,20 @@ export interface DateChange {
 export function computeDateChanges(
   timeSlots: Date[],
   timezone: string,
+  dayStartHour: number = 0,
 ): DateChange[] {
+  function festivalDate(date: Date): string {
+    const shifted = dayStartHour ? subHours(date, dayStartHour) : date;
+    return formatInTimeZone(shifted, timezone, "yyyy-MM-dd");
+  }
+
   return timeSlots.reduce((changes, timeSlot, index) => {
     if (index === 0) {
       changes.push({ date: timeSlot, position: 0 });
       return changes;
     }
-    const prevDate = formatInTimeZone(
-      timeSlots[index - 1],
-      timezone,
-      "yyyy-MM-dd",
-    );
-    const currentDate = formatInTimeZone(timeSlot, timezone, "yyyy-MM-dd");
+    const prevDate = festivalDate(timeSlots[index - 1]);
+    const currentDate = festivalDate(timeSlot);
     if (prevDate !== currentDate) {
       changes.push({
         date: timeSlot,

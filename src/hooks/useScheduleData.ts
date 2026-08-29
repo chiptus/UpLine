@@ -50,6 +50,7 @@ interface UseScheduleDataOptions {
   stages: Array<Stage> | undefined;
   use24Hour?: boolean;
   timezone?: string;
+  dayStartHour?: number;
 }
 
 export function useScheduleData({
@@ -57,6 +58,7 @@ export function useScheduleData({
   stages,
   use24Hour = false,
   timezone,
+  dayStartHour = 0,
 }: UseScheduleDataOptions) {
   const scheduleDays = useMemo(() => {
     if (!sets || !stages || !Array.isArray(sets) || sets.length === 0) {
@@ -69,7 +71,11 @@ export function useScheduleData({
     const performingSets = sets
       .filter((set) => set.time_start && set.stage_id)
       .flatMap((set) => {
-        const dayKey = getFestivalDayKey(set.time_start, timezone);
+        const dayKey = getFestivalDayKey(
+          set.time_start,
+          timezone,
+          dayStartHour,
+        );
         return dayKey ? [{ set, dayKey }] : [];
       });
 
@@ -164,7 +170,7 @@ export function useScheduleData({
       });
 
     return scheduleDays;
-  }, [sets, use24Hour, stages, timezone]);
+  }, [sets, use24Hour, stages, timezone, dayStartHour]);
 
   const allStages = useMemo(() => {
     const stageSet = new Set<string>();

@@ -20,6 +20,7 @@ import { useScrollLeft } from "./useScrollLeft";
 interface TimelineContainerProps {
   timelineData: TimelineData;
   timezone: string;
+  dayStartHour: number;
   scheduleDays: ScheduleDay[];
   selectedDay: string;
   scheduleWindow: ScheduleWindow | null;
@@ -29,6 +30,7 @@ interface TimelineContainerProps {
 export function TimelineContainer({
   timelineData,
   timezone,
+  dayStartHour,
   scheduleDays,
   selectedDay,
   scheduleWindow,
@@ -43,6 +45,7 @@ export function TimelineContainer({
     festivalStart: timelineData.festivalStart,
     scheduleWindow,
     timezone,
+    dayStartHour,
     now,
   });
 
@@ -50,6 +53,7 @@ export function TimelineContainer({
     scrollContainerRef,
     days: scheduleDays,
     timezone,
+    dayStartHour,
     festivalStart: timelineData.festivalStart,
   });
 
@@ -76,6 +80,7 @@ export function TimelineContainer({
         selectedDay={selectedDay}
         activeDay={activeDay}
         timezone={timezone}
+        dayStartHour={dayStartHour}
         onJumpToDay={(moment) => jumpTo(moment, "start")}
         isOverviewExpanded={isOverviewExpanded}
         onToggleOverview={() => setIsOverviewExpanded((prev) => !prev)}
@@ -87,6 +92,7 @@ export function TimelineContainer({
           timelineData={timelineData}
           scheduleDays={scheduleDays}
           timezone={timezone}
+          dayStartHour={dayStartHour}
           scrollContainerRef={scrollContainerRef}
           onJump={(moment) => jumpTo(moment, "center")}
         />
@@ -94,6 +100,7 @@ export function TimelineContainer({
       <TimeScaleContainer
         timelineData={timelineData}
         timezone={timezone}
+        dayStartHour={dayStartHour}
         scrollLeft={scrollLeft}
       />
 

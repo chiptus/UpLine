@@ -6,12 +6,14 @@ import { cn } from "@/lib/utils";
 interface TimeScaleContainerProps {
   timelineData: TimelineData;
   timezone: string;
+  dayStartHour: number;
   scrollLeft: number;
 }
 
 export function TimeScaleContainer({
   timelineData,
   timezone,
+  dayStartHour,
   scrollLeft,
 }: TimeScaleContainerProps) {
   return (
@@ -31,6 +33,7 @@ export function TimeScaleContainer({
           timeSlots={timelineData.timeSlots}
           totalWidth={timelineData.totalWidth}
           timezone={timezone}
+          dayStartHour={dayStartHour}
           scrollLeft={scrollLeft}
         />
       </div>

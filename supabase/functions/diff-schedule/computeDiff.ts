@@ -1,7 +1,9 @@
+import { asSetType } from "../_shared/setTypes.ts";
 import { artistKey } from "./helpers.ts";
 import {
   buildIndexes,
   computeTimes,
+  findMatchingArtistlessSet,
   findMatchingSet,
   resolveArtists,
   resolveStage,
@@ -38,18 +40,25 @@ export function computeDiff(
 
     const { timeStart, timeEnd } = computeTimes(row, timezone);
 
-    const candidates =
-      indexes.setsByArtistKey.get(artistKey(artistSlugs)) ?? [];
-    const matched = findMatchingSet(
-      candidates,
-      resolvedStage.id,
-      row.date,
-      timezone,
-      state.matchedSetIds,
-    );
+    const name = row.setName?.trim() || row.artists.join(" b2b ");
+
+    const matchContext = { stage, date: row.date, timezone, name };
+    const matched =
+      row.artists.length === 0
+        ? findMatchingArtistlessSet(
+            indexes.artistlessSetsByNameLower.get(name.toLowerCase()) ?? [],
+            matchContext,
+            state.matchedSetIds,
+          )
+        : findMatchingSet(
+            indexes.setsByArtistKey.get(artistKey(artistSlugs)) ?? [],
+            matchContext,
+            state.matchedSetIds,
+          );
 
     const payload: SetPayload = {
-      name: row.setName?.trim() || row.artists.join(" b2b "),
+      name,
+      setType: row.setType ?? null,
       description: row.description ?? null,
       stageName: resolvedStage.name,
       timeStart,
@@ -59,7 +68,11 @@ export function computeDiff(
 
     if (matched) {
       state.matchedSetIds.add(matched.id);
-      state.setsToUpdate.push({ id: matched.id, ...payload });
+      state.setsToUpdate.push({
+        id: matched.id,
+        previousSetType: asSetType(matched.set_type),
+        ...payload,
+      });
     } else {
       state.setsToCreate.push(payload);
     }
@@ -103,7 +116,7 @@ type DiffState = {
   stagesToCreate: { name: string }[];
   stageNameMismatches: DiffResult["conflicts"]["stageNameMismatches"];
   setsToCreate: SetPayload[];
-  setsToUpdate: ({ id: string } & SetPayload)[];
+  setsToUpdate: DiffResult["cleanOperations"]["setsToUpdate"];
 };
 
 function createState(): DiffState {

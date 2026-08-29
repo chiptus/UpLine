@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { requireAdmin } from "../_shared/auth.ts";
 import { buildCorsHeaders } from "../_shared/cors.ts";
+import { SET_TYPES } from "../_shared/setTypes.ts";
 
 // timeStart/timeEnd arrive as ISO strings or null. Coerce "" (and undefined)
 // to null so the RPC's ::timestamptz cast doesn't choke on an empty string.
@@ -10,13 +11,19 @@ const nullableTimestamp = z
   .nullish()
   .transform((v) => v || null);
 
+// An explicit empty artistSlugs array is a valid roster: artist-less sets
+// (workshops, performances) carry no artists by design.
 const setPayloadSchema = z.object({
   name: z.string().min(1),
+  setType: z
+    .enum(SET_TYPES)
+    .nullish()
+    .transform((v) => v ?? null),
   description: z.string().nullish(),
   stageName: z.string().nullish(),
   timeStart: nullableTimestamp,
   timeEnd: nullableTimestamp,
-  artistSlugs: z.array(z.string().min(1)).min(1),
+  artistSlugs: z.array(z.string().min(1)),
 });
 
 const commitRequestSchema = z.object({

@@ -3,6 +3,7 @@ import {
   buildIndexes,
   computeTimes,
   findMatchingSet,
+  type MatchContext,
   resolveArtists,
   resolveStage,
 } from "./resolvers.ts";
@@ -79,24 +80,36 @@ Deno.test("computeTimes returns nulls when date is missing", () => {
   });
 });
 
+function makeContext(
+  stageId: string | null = null,
+  date: string | undefined = undefined,
+): MatchContext {
+  return {
+    stage:
+      stageId === null
+        ? { kind: "none" }
+        : { kind: "exact", id: stageId, name: stageId },
+    date,
+    timezone: "UTC",
+    name: "",
+  };
+}
+
 Deno.test("findMatchingSet returns the only available candidate", () => {
   const set = makeSet("set-1", []);
-  assertEquals(findMatchingSet([set], null, undefined, "UTC", new Set()), set);
+  assertEquals(findMatchingSet([set], makeContext(), new Set()), set);
 });
 
 Deno.test("findMatchingSet skips already-matched candidates", () => {
   const set = makeSet("set-1", []);
-  assertEquals(
-    findMatchingSet([set], null, undefined, "UTC", new Set(["set-1"])),
-    null,
-  );
+  assertEquals(findMatchingSet([set], makeContext(), new Set(["set-1"])), null);
 });
 
 Deno.test("findMatchingSet disambiguates by stage id", () => {
   const a = makeSet("set-a", [], "s1");
   const b = makeSet("set-b", [], "s2");
   assertEquals(
-    findMatchingSet([a, b], "s2", undefined, "UTC", new Set())?.id,
+    findMatchingSet([a, b], makeContext("s2"), new Set())?.id,
     "set-b",
   );
 });
@@ -105,7 +118,7 @@ Deno.test("findMatchingSet disambiguates by date", () => {
   const a = makeSet("set-a", [], null, "2026-07-11T20:00:00.000Z");
   const b = makeSet("set-b", [], null, "2026-07-12T20:00:00.000Z");
   assertEquals(
-    findMatchingSet([a, b], null, "2026-07-12", "UTC", new Set())?.id,
+    findMatchingSet([a, b], makeContext(null, "2026-07-12"), new Set())?.id,
     "set-b",
   );
 });
@@ -129,6 +142,7 @@ function makeSet(
     id,
     name: id,
     description: null,
+    set_type: null,
     stage_id: stageId,
     time_start: timeStart,
     time_end: null,

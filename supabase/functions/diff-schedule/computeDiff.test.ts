@@ -1,6 +1,6 @@
 import { assertEquals } from "jsr:@std/assert@1";
 import { computeDiff } from "./computeDiff.ts";
-import type { DbArtist, DbSet, DbStage } from "./types.ts";
+import { makeArtist, makeSet, makeStage } from "./fixtures.ts";
 
 Deno.test("new artist in CSV creates artist", () => {
   const result = computeDiff(
@@ -236,29 +236,146 @@ Deno.test("multiple candidates disambiguated by stage", () => {
   assertEquals(result.conflicts.orphanedSets[0].id, "set-a");
 });
 
-function makeArtist(name: string): DbArtist {
-  const slug = name.toLowerCase().replace(/\s+/g, "-");
-  return { id: `id-${slug}`, name, slug };
-}
+Deno.test(
+  "same-roster candidates disambiguated by set name as last resort",
+  () => {
+    const artist = makeArtist("Carl Cox");
+    const set1 = makeSet("set-a", "Carl Cox Live", [artist]);
+    const set2 = makeSet("set-b", "Carl Cox DJ Set", [artist]);
+    const result = computeDiff(
+      [{ artists: ["Carl Cox"], setName: "Carl Cox DJ Set" }],
+      [],
+      [set1, set2],
+      [artist],
+      "UTC",
+    );
+    assertEquals(result.cleanOperations.setsToUpdate.length, 1);
+    assertEquals(result.cleanOperations.setsToUpdate[0].id, "set-b");
+  },
+);
 
-function makeStage(id: string, name: string): DbStage {
-  return { id, name };
-}
+Deno.test("date narrowing beats a set-name match for roster rows", () => {
+  const artist = makeArtist("Carl Cox");
+  const set1 = makeSet(
+    "set-a",
+    "Carl Cox Live",
+    [artist],
+    null,
+    "2026-07-11T20:00:00Z",
+  );
+  const set2 = makeSet(
+    "set-b",
+    "Carl Cox Sunset",
+    [artist],
+    null,
+    "2026-07-12T20:00:00Z",
+  );
+  const result = computeDiff(
+    [
+      {
+        artists: ["Carl Cox"],
+        setName: "Carl Cox Live",
+        date: "2026-07-12",
+      },
+    ],
+    [],
+    [set1, set2],
+    [artist],
+    "UTC",
+  );
+  assertEquals(result.cleanOperations.setsToUpdate.length, 1);
+  assertEquals(result.cleanOperations.setsToUpdate[0].id, "set-b");
+});
 
-function makeSet(
-  id: string,
-  name: string,
-  artists: DbArtist[],
-  stageId: string | null = null,
-  timeStart: string | null = null,
-): DbSet {
-  return {
-    id,
-    name,
-    description: null,
-    stage_id: stageId,
-    time_start: timeStart,
-    time_end: null,
-    set_artists: artists.map((a) => ({ artist_id: a.id, artists: a })),
-  };
-}
+Deno.test(
+  "same-roster sets on one stage across dates matched by the row's date",
+  () => {
+    const artist = makeArtist("Carl Cox");
+    const stage = makeStage("s1", "Stage One");
+    const set1 = makeSet(
+      "set-a",
+      "Carl Cox",
+      [artist],
+      "s1",
+      "2026-07-11T20:00:00Z",
+    );
+    const set2 = makeSet(
+      "set-b",
+      "Carl Cox",
+      [artist],
+      "s1",
+      "2026-07-12T20:00:00Z",
+    );
+    const result = computeDiff(
+      [{ artists: ["Carl Cox"], stage: "Stage One", date: "2026-07-12" }],
+      [stage],
+      [set1, set2],
+      [artist],
+      "UTC",
+    );
+    assertEquals(result.cleanOperations.setsToUpdate.length, 1);
+    assertEquals(result.cleanOperations.setsToUpdate[0].id, "set-b");
+  },
+);
+
+Deno.test(
+  "roster row's stage matching nothing falls back to date narrowing",
+  () => {
+    const artist = makeArtist("Carl Cox");
+    const stage1 = makeStage("s1", "Stage One");
+    const stage2 = makeStage("s2", "Stage Two");
+    const stage3 = makeStage("s3", "Stage Three");
+    const set1 = makeSet(
+      "set-a",
+      "Carl Cox",
+      [artist],
+      "s1",
+      "2026-07-11T20:00:00Z",
+    );
+    const set2 = makeSet(
+      "set-b",
+      "Carl Cox",
+      [artist],
+      "s2",
+      "2026-07-12T20:00:00Z",
+    );
+    const result = computeDiff(
+      [{ artists: ["Carl Cox"], stage: "Stage Three", date: "2026-07-12" }],
+      [stage1, stage2, stage3],
+      [set1, set2],
+      [artist],
+      "UTC",
+    );
+    assertEquals(result.cleanOperations.setsToUpdate.length, 1);
+    assertEquals(result.cleanOperations.setsToUpdate[0].id, "set-b");
+  },
+);
+
+Deno.test(
+  "row setType lands in the payload; absent setType becomes null",
+  () => {
+    const result = computeDiff(
+      [{ artists: ["Carl Cox"], setType: "music" }, { artists: ["Peggy Gou"] }],
+      [],
+      [],
+      [makeArtist("Carl Cox"), makeArtist("Peggy Gou")],
+      "UTC",
+    );
+    assertEquals(result.cleanOperations.setsToCreate[0].setType, "music");
+    assertEquals(result.cleanOperations.setsToCreate[1].setType, null);
+  },
+);
+
+Deno.test("update payload carries the matched set's stored type", () => {
+  const artist = makeArtist("Carl Cox");
+  const set = { ...makeSet("set-1", "Carl Cox", [artist]), set_type: "music" };
+  const result = computeDiff(
+    [{ artists: ["Carl Cox"], setType: "workshop" }],
+    [],
+    [set],
+    [artist],
+    "UTC",
+  );
+  assertEquals(result.cleanOperations.setsToUpdate[0].previousSetType, "music");
+  assertEquals(result.cleanOperations.setsToUpdate[0].setType, "workshop");
+});

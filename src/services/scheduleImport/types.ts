@@ -1,7 +1,9 @@
 import { z } from "zod";
+import { SET_TYPES, type SetType } from "@/api/sets/types";
 
 export type CsvRow = {
   artists: string[];
+  setType: SetType | null;
   setName?: string;
   stage?: string;
   date?: string;
@@ -12,6 +14,7 @@ export type CsvRow = {
 
 export const setPayloadSchema = z.object({
   name: z.string(),
+  setType: z.enum(SET_TYPES).nullable(),
   description: z.string().nullable(),
   stageName: z.string().nullable(),
   timeStart: z.string().nullable(),
@@ -33,7 +36,14 @@ export const diffResultSchema = z.object({
     artistsToCreate: z.array(z.object({ name: z.string(), slug: z.string() })),
     stagesToCreate: z.array(z.object({ name: z.string() })),
     setsToCreate: z.array(setPayloadSchema),
-    setsToUpdate: z.array(setPayloadSchema.extend({ id: z.string() })),
+    setsToUpdate: z.array(
+      setPayloadSchema.extend({
+        id: z.string(),
+        // The matched set's stored type, so the review can render
+        // stored → incoming chips. Not written on commit.
+        previousSetType: z.enum(SET_TYPES).nullable(),
+      }),
+    ),
   }),
   conflicts: z.object({
     stageNameMismatches: z.array(

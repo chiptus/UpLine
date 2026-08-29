@@ -33,8 +33,16 @@ A single scheduled happening within an edition, with a stage, a start/end time, 
 _Avoid_: Show, gig, slot, performance (a performance is a _type_ of set, not a synonym for one)
 
 **Set type**:
-What kind of happening a **set** is: music, workshop, performance, or other. `null` on a set means it predates typing and awaits backfill — never "chose not to say". Voting is identical across types.
+What kind of happening a **set** is: music, workshop, performance, or other. `null` on a set means it is not yet typed (it predates typing, or was imported without a type) and awaits backfill — never "chose not to say". Voting is identical across types.
 _Avoid_: Category, kind
+
+**Roster**:
+The artists on a single **set** — one, or several for a B2B. Per-set, where **lineup** is per-edition. A set's roster is its import identity: schedule re-imports match a roster set by its artists (order-insensitive), not by its name. See ADR-0008.
+_Avoid_: Lineup (that's the whole edition), billing
+
+**Artist-less set**:
+A **set** with an empty **roster** (e.g. a fire show or an unhosted workshop). Its import identity is its name plus date/stage, unlike a roster set, which is identified by its artists — so adding an artist to a set changes how re-imports match it. See ADR-0008.
+_Avoid_: Empty set, unassigned set
 
 **Stage**:
 A named venue/space within an edition where sets take place.

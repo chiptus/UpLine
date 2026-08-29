@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { requireAdmin } from "../_shared/auth.ts";
 import { buildCorsHeaders } from "../_shared/cors.ts";
+import { SET_TYPES } from "../_shared/setTypes.ts";
 import { computeDiff } from "./computeDiff.ts";
 
 function isValidTimezone(tz: string): boolean {
@@ -26,24 +27,32 @@ function dedupeArtists(names: string[]): string[] {
   });
 }
 
-const csvRowSchema = z.object({
-  artists: z.array(z.string().trim().min(1)).min(1).transform(dedupeArtists),
-  setName: z.string().optional(),
-  stage: z.string().optional(),
-  date: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "date must be YYYY-MM-DD")
-    .optional(),
-  startTime: z
-    .string()
-    .regex(/^\d{2}:\d{2}$/, "startTime must be HH:MM")
-    .optional(),
-  endTime: z
-    .string()
-    .regex(/^\d{2}:\d{2}$/, "endTime must be HH:MM")
-    .optional(),
-  description: z.string().optional(),
-});
+const csvRowSchema = z
+  .object({
+    artists: z.array(z.string().trim().min(1)).transform(dedupeArtists),
+    setType: z
+      .enum(SET_TYPES)
+      .nullish()
+      .transform((v) => v ?? null),
+    setName: z.string().optional(),
+    stage: z.string().optional(),
+    date: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, "date must be YYYY-MM-DD")
+      .optional(),
+    startTime: z
+      .string()
+      .regex(/^\d{2}:\d{2}$/, "startTime must be HH:MM")
+      .optional(),
+    endTime: z
+      .string()
+      .regex(/^\d{2}:\d{2}$/, "endTime must be HH:MM")
+      .optional(),
+    description: z.string().optional(),
+  })
+  .refine((row) => row.artists.length > 0 || row.setName?.trim(), {
+    message: "A row without artists must have a set name",
+  });
 
 const diffRequestSchema = z.object({
   festivalEditionId: z.string().uuid(),
@@ -96,7 +105,7 @@ serve(async (req) => {
       db
         .from("sets")
         .select(
-          "id, name, description, stage_id, time_start, time_end, set_artists(artist_id, artists(id, name, slug))",
+          "id, name, description, stage_id, time_start, time_end, set_type, set_artists(artist_id, artists(id, name, slug))",
         )
         .eq("festival_edition_id", festivalEditionId)
         .eq("archived", false)

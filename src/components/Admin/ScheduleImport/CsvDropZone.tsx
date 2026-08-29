@@ -50,9 +50,13 @@ export function CsvDropZone({ fileName, rowCount, onFileSelected }: Props) {
       <p className="text-xs text-muted-foreground">
         Required column: <code>Artists</code> (use <code>|</code> for B2B, e.g.{" "}
         <code>Carl Cox | Peggy Gou</code>). Optional: <code>Set Name</code>,{" "}
+        <code>Type</code> (music, workshop, performance or other),{" "}
         <code>Stage</code>, <code>Date</code> (YYYY-MM-DD),{" "}
         <code>Start Time</code> (HH:MM), <code>End Time</code> (HH:MM),{" "}
-        <code>Description</code>.
+        <code>Description</code>. Rows without artists are kept when they have a{" "}
+        <code>Set Name</code> (e.g. workshops). The CSV is treated as the
+        complete schedule: existing sets missing from it are flagged for
+        archiving in the review step.
       </p>
     </div>
   );

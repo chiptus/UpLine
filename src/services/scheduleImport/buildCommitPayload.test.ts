@@ -50,6 +50,7 @@ describe("buildCommitPayload", () => {
         setsToCreate: [
           {
             name: "Carl Cox",
+            setType: null,
             description: null,
             stageName: "Mainstage",
             timeStart: null,
@@ -88,6 +89,7 @@ describe("buildCommitPayload", () => {
         setsToCreate: [
           {
             name: "Carl Cox",
+            setType: null,
             description: null,
             stageName: "Main Stage",
             timeStart: null,
@@ -101,6 +103,44 @@ describe("buildCommitPayload", () => {
 
     const payload = buildCommitPayload(diff, {}, {});
     expect(payload.setsToCreate[0].stageName).toBe("Main Stage");
+  });
+
+  it("passes setType and empty rosters through for creates and updates", () => {
+    const diff = makeDiff({
+      cleanOperations: {
+        artistsToCreate: [],
+        stagesToCreate: [],
+        setsToCreate: [
+          {
+            name: "Morning Yoga",
+            setType: "workshop",
+            description: null,
+            stageName: null,
+            timeStart: null,
+            timeEnd: null,
+            artistSlugs: [],
+          },
+        ],
+        setsToUpdate: [
+          {
+            id: "set-1",
+            name: "Fire Show",
+            setType: null,
+            previousSetType: "performance",
+            description: null,
+            stageName: null,
+            timeStart: null,
+            timeEnd: null,
+            artistSlugs: [],
+          },
+        ],
+      },
+    });
+
+    const payload = buildCommitPayload(diff, {}, {});
+    expect(payload.setsToCreate[0].setType).toBe("workshop");
+    expect(payload.setsToCreate[0].artistSlugs).toEqual([]);
+    expect(payload.setsToUpdate[0].setType).toBeNull();
   });
 
   it("filters orphan archive ids based on resolutions", () => {

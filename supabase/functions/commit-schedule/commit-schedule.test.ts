@@ -251,6 +251,125 @@ Deno.test(
 );
 
 Deno.test(
+  "commit_schedule: creates an artist-less typed set with an empty roster",
+  async () => {
+    const db = adminClient();
+    const editionId = await getTestEditionId(db);
+    const userId = await getTestUserId(db);
+    const setName = `Morning Yoga ${Date.now()}`;
+
+    const { data, error } = await db.rpc("commit_schedule", {
+      p_festival_edition_id: editionId,
+      p_user_id: userId,
+      p_artists_to_create: [],
+      p_stages_to_create: [],
+      p_sets_to_create: [
+        {
+          name: setName,
+          setType: "workshop",
+          description: "Sun salutations",
+          stageName: null,
+          timeStart: null,
+          timeEnd: null,
+          artistSlugs: [],
+        },
+      ],
+      p_sets_to_update: [],
+      p_set_ids_to_archive: [],
+    });
+
+    assertEquals(error, null);
+    assertEquals(data.setsCreated, 1);
+
+    const { data: sets } = await db
+      .from("sets")
+      .select("id, set_type, set_artists(artist_id)")
+      .eq("festival_edition_id", editionId)
+      .eq("name", setName);
+
+    assertExists(sets?.[0]);
+    assertEquals(sets![0].set_type, "workshop");
+    assertEquals(sets![0].set_artists.length, 0);
+
+    // Cleanup
+    await db.from("sets").delete().eq("id", sets![0].id);
+  },
+);
+
+Deno.test(
+  "commit_schedule: explicit type overwrites, null type preserves",
+  async () => {
+    const db = adminClient();
+    const editionId = await getTestEditionId(db);
+    const userId = await getTestUserId(db);
+    const setName = `Type Roundtrip ${Date.now()}`;
+
+    const { data: set } = await db
+      .from("sets")
+      .insert({
+        festival_edition_id: editionId,
+        name: setName,
+        slug: `type-roundtrip-${Date.now()}`,
+        set_type: "performance",
+        created_by: userId,
+      })
+      .select("id")
+      .single();
+
+    const basePayload = {
+      id: set!.id,
+      name: setName,
+      description: null,
+      stageName: null,
+      timeStart: null,
+      timeEnd: null,
+      artistSlugs: [],
+    };
+
+    // Explicit type overwrites the stored one.
+    const { error: overwriteError } = await db.rpc("commit_schedule", {
+      p_festival_edition_id: editionId,
+      p_user_id: userId,
+      p_artists_to_create: [],
+      p_stages_to_create: [],
+      p_sets_to_create: [],
+      p_sets_to_update: [{ ...basePayload, setType: "workshop" }],
+      p_set_ids_to_archive: [],
+    });
+    assertEquals(overwriteError, null);
+
+    const { data: afterOverwrite } = await db
+      .from("sets")
+      .select("set_type")
+      .eq("id", set!.id)
+      .single();
+    assertEquals(afterOverwrite!.set_type, "workshop");
+
+    // Null type (blank CSV column) preserves the stored one.
+    const { error: preserveError } = await db.rpc("commit_schedule", {
+      p_festival_edition_id: editionId,
+      p_user_id: userId,
+      p_artists_to_create: [],
+      p_stages_to_create: [],
+      p_sets_to_create: [],
+      p_sets_to_update: [{ ...basePayload, setType: null }],
+      p_set_ids_to_archive: [],
+    });
+    assertEquals(preserveError, null);
+
+    const { data: afterPreserve } = await db
+      .from("sets")
+      .select("set_type")
+      .eq("id", set!.id)
+      .single();
+    assertEquals(afterPreserve!.set_type, "workshop");
+
+    // Cleanup
+    await db.from("sets").delete().eq("id", set!.id);
+  },
+);
+
+Deno.test(
   "commit_schedule: midnight-crossing times stored correctly",
   async () => {
     const db = adminClient();

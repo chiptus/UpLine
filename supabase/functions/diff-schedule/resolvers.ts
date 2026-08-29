@@ -12,6 +12,7 @@ export type DbIndexes = {
   stageById: Map<string, DbStage>;
   existingArtistSlugs: Set<string>;
   setsByArtistKey: Map<string, DbSet[]>;
+  artistlessSetsByNameLower: Map<string, DbSet[]>;
 };
 
 export function buildIndexes(
@@ -19,8 +20,19 @@ export function buildIndexes(
   dbSets: DbSet[],
   dbArtists: DbArtist[],
 ): DbIndexes {
+  // Artist-less sets are matched by name (+ date/stage) instead of by roster,
+  // so they get their own index and stay out of the artist-key one — a roster
+  // row must never match a 0-artist set and vice versa.
   const setsByArtistKey = new Map<string, DbSet[]>();
+  const artistlessSetsByNameLower = new Map<string, DbSet[]>();
   for (const set of dbSets) {
+    if (set.set_artists.length === 0) {
+      const key = set.name.trim().toLowerCase();
+      const bucket = artistlessSetsByNameLower.get(key) ?? [];
+      bucket.push(set);
+      artistlessSetsByNameLower.set(key, bucket);
+      continue;
+    }
     const slugs = set.set_artists.map((sa) => sa.artists.slug);
     const key = artistKey(slugs);
     const bucket = setsByArtistKey.get(key) ?? [];
@@ -32,6 +44,7 @@ export function buildIndexes(
     stageById: new Map(dbStages.map((s) => [s.id, s])),
     existingArtistSlugs: new Set(dbArtists.map((a) => a.slug)),
     setsByArtistKey,
+    artistlessSetsByNameLower,
   };
 }
 
@@ -107,28 +120,111 @@ export function computeTimes(
   return { timeStart, timeEnd };
 }
 
+/** The CSV row's discriminators, as both matching functions consume them. */
+export type MatchContext = {
+  stage: StageResolution;
+  date: string | undefined;
+  timezone: string;
+  name: string;
+};
+
+/**
+ * Picks which existing set a roster row refers to, or null when the row is
+ * new. The roster is the identity, so a stage/date/name difference never
+ * rejects a match (it's just an update) — those fields only break ties
+ * between sets sharing the same roster.
+ */
 export function findMatchingSet(
   candidates: DbSet[],
-  resolvedStageId: string | null,
-  date: string | undefined,
-  timezone: string,
+  context: MatchContext,
   alreadyMatched: Set<string>,
 ): DbSet | null {
-  const available = candidates.filter((s) => !alreadyMatched.has(s.id));
-  if (available.length <= 1) return available[0] ?? null;
+  const stageId = context.stage.kind === "exact" ? context.stage.id : null;
+  const pool = candidates.filter((s) => !alreadyMatched.has(s.id));
+  return narrowByDiscriminators(pool, stageId, context);
+}
+
+/**
+ * Picks which existing 0-artist set an artist-less row refers to, or null
+ * when the row is new. The name is the only identity, so a supplied stage
+ * or date must actually hold: a candidate whose stored value contradicts
+ * the row is excluded (the row becomes a create), while candidates with no
+ * stored stage/time still match — otherwise re-importing a time-less row
+ * would duplicate it on every run.
+ */
+export function findMatchingArtistlessSet(
+  candidates: DbSet[],
+  context: MatchContext,
+  alreadyMatched: Set<string>,
+): DbSet | null {
+  const stageSupplied = context.stage.kind !== "none";
+  const stageId = provisionalStageId(context.stage);
+  const pool = candidates.filter((s) => {
+    if (alreadyMatched.has(s.id)) return false;
+    if (stageSupplied && s.stage_id != null && s.stage_id !== stageId)
+      return false;
+    if (
+      context.date &&
+      s.time_start != null &&
+      utcToLocalDate(s.time_start, context.timezone) !== context.date
+    )
+      return false;
+    return true;
+  });
+  return narrowByDiscriminators(pool, stageId, context);
+}
+
+/**
+ * The stage id to compare candidates against before the user has resolved
+ * the row's stage: a mismatch stands in with its closest DB stage, a
+ * new/absent stage pins no stage. Known limitation (#447): if the user
+ * later maps a mismatch to a different stage, the set was already chosen
+ * with this guess and the commit only rewrites stageName.
+ */
+function provisionalStageId(stage: StageResolution): string | null {
+  switch (stage.kind) {
+    case "exact":
+      return stage.id;
+    case "mismatch":
+      return stage.closest.id;
+    default:
+      return null;
+  }
+}
+
+/**
+ * Picks the one candidate the row's discriminators point at, trusting
+ * stage over date over set name (the most volatile column). A discriminator
+ * no candidate satisfies is skipped rather than emptying the pool, so a
+ * partially matching CSV row still falls back to the closest candidate.
+ */
+function narrowByDiscriminators(
+  candidates: DbSet[],
+  resolvedStageId: string | null,
+  { date, timezone, name }: Pick<MatchContext, "date" | "timezone" | "name">,
+): DbSet | null {
+  let pool = candidates;
+  if (pool.length <= 1) return pool[0] ?? null;
 
   if (resolvedStageId) {
-    const byStage = available.find((s) => s.stage_id === resolvedStageId);
-    if (byStage) return byStage;
+    const byStage = pool.filter((s) => s.stage_id === resolvedStageId);
+    if (byStage.length > 0) pool = byStage;
   }
   if (date) {
-    const byDate = available.find(
+    const byDate = pool.filter(
       (s) =>
         s.time_start != null && utcToLocalDate(s.time_start, timezone) === date,
     );
-    if (byDate) return byDate;
+    if (byDate.length > 0) pool = byDate;
   }
-  return available[0];
+  if (name && pool.length > 1) {
+    const nameLower = name.trim().toLowerCase();
+    const byName = pool.filter(
+      (s) => s.name.trim().toLowerCase() === nameLower,
+    );
+    if (byName.length > 0) pool = byName;
+  }
+  return pool[0];
 }
 
 function strip(s: string): string {

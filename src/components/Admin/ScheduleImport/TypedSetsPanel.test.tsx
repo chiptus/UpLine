@@ -45,7 +45,9 @@ describe("TypedSetsPanel", () => {
     expect(screen.getByText("Performance")).toBeVisible();
     expect(screen.queryByText("Morning Yoga")).not.toBeInTheDocument();
     expect(screen.queryByText("Peggy Gou")).not.toBeInTheDocument();
-    expect(screen.getByText(/2 more rows carry a type/)).toBeVisible();
+    expect(
+      screen.getByText(/2 rows carry a type that changes nothing/),
+    ).toBeVisible();
   });
 
   it("summarizes typed rows that change nothing without listing them", () => {
@@ -68,7 +70,7 @@ describe("TypedSetsPanel", () => {
     expect(screen.queryByText("Fire Show")).not.toBeInTheDocument();
   });
 
-  it("shows a first-time type as changing nothing", () => {
+  it("counts a first-time type as a change, not a no-op", () => {
     render(
       <TypedSetsPanel
         setsToCreate={[]}
@@ -79,11 +81,20 @@ describe("TypedSetsPanel", () => {
             id: "set-1",
             previousSetType: null,
           },
+          {
+            ...makePayload("Sunrise Talk"),
+            setType: "other",
+            id: "set-2",
+            previousSetType: null,
+          },
         ]}
       />,
     );
     expect(screen.getByText("Set types from the CSV")).toBeVisible();
-    expect(screen.getByText(/1 row carries a type/)).toBeVisible();
+    expect(
+      screen.getByText(/2 existing sets get their first type from the CSV/),
+    ).toBeVisible();
+    expect(screen.queryByText(/changes nothing/)).not.toBeInTheDocument();
     expect(screen.queryByText("Fire Show")).not.toBeInTheDocument();
   });
 });

@@ -18,7 +18,14 @@ export function TypedSetsPanel({ setsToCreate, setsToUpdate }: Props) {
   ).length;
   const typedUpdates = setsToUpdate.filter((s) => s.setType !== null);
   const typeChanges = typedUpdates.filter(isTypeChange);
-  const keptCount = typedCreateCount + typedUpdates.length - typeChanges.length;
+  const firstTypeCount = typedUpdates.filter(
+    (s) => s.previousSetType === null,
+  ).length;
+  const noopCount =
+    typedCreateCount +
+    typedUpdates.length -
+    typeChanges.length -
+    firstTypeCount;
 
   if (typedCreateCount + typedUpdates.length === 0) return null;
 
@@ -32,8 +39,10 @@ export function TypedSetsPanel({ setsToCreate, setsToUpdate }: Props) {
       </div>
 
       <p className="text-xs text-muted-foreground">
-        {keptCount > 0 &&
-          `${keptCount} ${typeChanges.length > 0 ? "more " : ""}${keptCount !== 1 ? "rows carry" : "row carries"} a type that changes nothing (new sets, or updates matching the stored type). `}
+        {firstTypeCount > 0 &&
+          `${firstTypeCount} existing ${firstTypeCount !== 1 ? "sets get their" : "set gets its"} first type from the CSV. `}
+        {noopCount > 0 &&
+          `${noopCount} ${noopCount !== 1 ? "rows carry" : "row carries"} a type that changes nothing (new sets, or updates matching the stored type). `}
         Rows with a blank type keep whatever type the matched set already has.
       </p>
 
@@ -59,8 +68,8 @@ export function TypedSetsPanel({ setsToCreate, setsToUpdate }: Props) {
 }
 
 /**
- * A stored type differing from the incoming one is the change worth
- * verifying; new sets and first-time types just take the CSV value.
+ * A stored type overwritten by a different one is the change worth listing
+ * per set; first-time types (null stored) and new sets are only counted.
  */
 function isTypeChange(set: SetToUpdate): boolean {
   return set.previousSetType !== null && set.previousSetType !== set.setType;

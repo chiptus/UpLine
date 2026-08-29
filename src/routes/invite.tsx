@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 import { useInviteValidationQuery } from "@/api/invite-validation/useInviteValidationQuery";
 import { useAcceptInviteMutation } from "@/api/invite-validation/useAcceptInviteMutation";
 import { InviteLandingPage } from "@/components/invite/InviteLandingPage";
@@ -40,6 +41,7 @@ function InviteRoute() {
   const { invite: inviteToken, redirect } = Route.useSearch();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const inviteQuery = useInviteValidationQuery(inviteToken);
   const acceptMutation = useAcceptInviteMutation();
@@ -48,10 +50,17 @@ function InviteRoute() {
   const runAccept = useCallback(
     (userId: string) => {
       attemptedTokenRef.current = inviteToken;
+      const groupName = inviteQuery.data?.group_name;
       acceptMutation.mutate(
         { token: inviteToken, userId },
         {
-          onSuccess: () => {
+          onSuccess: (result) => {
+            toast({
+              title: result.alreadyMember ? "Already a member" : "Success",
+              description: result.alreadyMember
+                ? `You're already a member of ${groupName || "the group"}.`
+                : `Welcome to ${groupName || "the group"}!`,
+            });
             navigate({ to: redirect || "/", replace: true });
           },
           onError: (error) => {
@@ -61,7 +70,7 @@ function InviteRoute() {
         },
       );
     },
-    [inviteToken, acceptMutation, navigate, redirect],
+    [inviteToken, acceptMutation, navigate, redirect, toast, inviteQuery.data],
   );
 
   useEffect(() => {

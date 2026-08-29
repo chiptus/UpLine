@@ -48,7 +48,7 @@ All four hold → label `ready-for-agent`. Missing (a)/(b) → `needs-info`. Mis
 2. **Cap check**: count `is:issue is:open label:agent:pr`; at or above 3 → end silently.
 3. **Pick one issue**: `ready-for-agent` issues, skipping any assigned to a human or with an open linked PR, ordered `priority:high` → unlabeled → `priority:low`, oldest first within each rank. None eligible → end silently.
 4. **Claim**: apply `agent:wip` and a claim comment (timestamp + branch name) before any work. Branch naming: `type-id/slug`, e.g. `fix-448/consolidate-set-types`.
-5. **Implement via the implement skill**: Read `.claude/skills/implement/SKILL.md` directly and follow it with the issue as the spec (it is not model-invocable, so the Skill tool won't list it) — TDD at the natural seams, regular typechecks, full suite at the end. Its steps run inside the quality gates (below).
+5. **Implement via the implement skill**: Read `.claude/skills/implement/SKILL.md` directly and follow it, with the issue as the spec. Its steps run inside the quality gates (below).
 6. **Open the PR** following `.claude/skills/create-pr/SKILL.md` exactly, with `Closes #N` in the body. Swap the issue's `agent:wip` to `agent:pr`; label the PR `agent:pr`. One PR per firing — done.
 
 **Mid-run bail**: the picked issue turns out not agent-ready (spec gap, missing access, actually a design decision) → re-route it (`needs-info` with questions, or `ready-for-human`) with a comment on what you found, remove `agent:wip`, and pick the next eligible issue — still at most one PR per firing.
@@ -58,7 +58,7 @@ All four hold → label `ready-for-agent`. Missing (a)/(b) → `needs-info`. Mis
 ### Quality gates — all four, before flagging for review
 
 1. **Tests for the change**: every fix or feature lands with tests; a test-less PR is acceptable only for pure chores.
-2. **Local checks pass before every push**: `pnpm run lint` and `pnpm test`, plus the affected integration tests where the change touches them.
+2. **Local checks pass before every push**: the repo's lint and unit-test commands from CLAUDE.md, plus the affected integration tests where the change touches them.
 3. **CI green on the PR head**, with review-bot findings addressed.
 4. **Self code-review**: run the `code-review` skill (invoke Skill `code-review`) against the branch point — both axes, Standards and Spec-vs-issue — and fix its findings before calling the PR ready.
 

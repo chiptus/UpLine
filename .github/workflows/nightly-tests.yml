@@ -47,6 +47,7 @@ jobs:
         env:
           E2E_RESULT: ${{ needs.test.result }}
           INTEGRATION_RESULT: ${{ needs.integration-test.result }}
+          REPORT_RESULT: ${{ needs.report.result }}
         with:
           script: |
             const script = require('./.github/scripts/notify-nightly-failure.cjs');

@@ -1,23 +1,15 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
-import { useCallback, useEffect, useRef, type ReactNode } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { useEffect } from "react";
+import { Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
-import { useInviteValidationQuery } from "@/api/invite-validation/useInviteValidationQuery";
-import { useAcceptInviteMutation } from "@/api/invite-validation/useAcceptInviteMutation";
 import { InviteLandingPage } from "@/components/invite/InviteLandingPage";
+import { InviteStatusScreen } from "@/components/invite/InviteStatusScreen";
+import { InviteJoiningState } from "@/components/invite/InviteJoiningState";
+import { useAcceptInviteFlow } from "@/components/invite/useAcceptInviteFlow";
 
 const inviteSearchSchema = z.object({
-  invite: z.string(),
+  token: z.string(),
   redirect: z.string().optional(),
 });
 
@@ -38,59 +30,22 @@ function InviteSearchError() {
 }
 
 function InviteRoute() {
-  const { invite: inviteToken, redirect } = Route.useSearch();
+  const { token: inviteToken, redirect } = Route.useSearch();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
 
-  const inviteQuery = useInviteValidationQuery(inviteToken);
-  const acceptMutation = useAcceptInviteMutation();
-  const attemptedTokenRef = useRef<string | null>(null);
-
-  const runAccept = useCallback(
-    (userId: string) => {
-      attemptedTokenRef.current = inviteToken;
-      const groupName = inviteQuery.data?.group_name;
-      acceptMutation.mutate(
-        { token: inviteToken, userId },
-        {
-          onSuccess: (result) => {
-            toast({
-              title: result.alreadyMember ? "Already a member" : "Success",
-              description: result.alreadyMember
-                ? `You're already a member of ${groupName || "the group"}.`
-                : `Welcome to ${groupName || "the group"}!`,
-            });
-            navigate({ to: redirect || "/", replace: true });
-          },
-          onError: (error) => {
-            console.error("Failed to accept invite", error);
-            attemptedTokenRef.current = null;
-          },
-        },
-      );
-    },
-    [inviteToken, acceptMutation, navigate, redirect, toast, inviteQuery.data],
+  const { inviteQuery, acceptMutation, runAccept } = useAcceptInviteFlow(
+    inviteToken,
+    user?.id,
+    redirect,
   );
-
-  useEffect(() => {
-    const isValid = inviteQuery.data?.is_valid === true;
-    if (
-      !user ||
-      isValid !== true ||
-      attemptedTokenRef.current === inviteToken
-    ) {
-      return;
-    }
-    runAccept(user.id);
-  }, [user, inviteToken, inviteQuery.data, runAccept]);
 
   if (authLoading || inviteQuery.isLoading) {
     return (
-      <StatusScreen>
+      <InviteStatusScreen>
         <Loader2 className="h-10 w-10 mx-auto mb-4 text-purple-400 animate-spin" />
         <p className="text-white">Validating invite...</p>
-      </StatusScreen>
+      </InviteStatusScreen>
     );
   }
 
@@ -117,7 +72,7 @@ function InviteRoute() {
 
   if (user && (acceptMutation.isPending || acceptMutation.isError)) {
     return (
-      <JoiningState
+      <InviteJoiningState
         groupName={inviteQuery.data?.group_name}
         isPending={acceptMutation.isPending}
         error={acceptMutation.error}
@@ -140,57 +95,4 @@ function InviteRoute() {
   }
 
   return null;
-}
-
-interface JoiningStateProps {
-  groupName: string | undefined;
-  isPending: boolean;
-  error: Error | null;
-  onRetry: () => void;
-  onContinue: () => void;
-}
-
-function JoiningState({
-  groupName,
-  isPending,
-  error,
-  onRetry,
-  onContinue,
-}: JoiningStateProps) {
-  if (isPending) {
-    return (
-      <StatusScreen>
-        <Loader2 className="h-10 w-10 mx-auto mb-4 text-purple-400 animate-spin" />
-        <p className="text-white">Joining {groupName || "the group"}...</p>
-      </StatusScreen>
-    );
-  }
-
-  return (
-    <StatusScreen>
-      <Card className="max-w-md w-full mx-auto">
-        <CardHeader className="text-center">
-          <AlertCircle className="h-12 w-12 mx-auto mb-4 text-red-500" />
-          <CardTitle className="text-red-600">Couldn't join group</CardTitle>
-          <CardDescription>
-            {error?.message || "Something went wrong."}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-2">
-          <Button onClick={onRetry}>Try again</Button>
-          <Button variant="outline" onClick={onContinue}>
-            Continue to app
-          </Button>
-        </CardContent>
-      </Card>
-    </StatusScreen>
-  );
-}
-
-function StatusScreen({ children }: { children: ReactNode }) {
-  return (
-    <div className="min-h-screen bg-app-gradient flex items-center justify-center p-4">
-      <div className="text-center">{children}</div>
-    </div>
-  );
 }

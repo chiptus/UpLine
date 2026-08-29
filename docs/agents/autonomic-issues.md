@@ -39,7 +39,7 @@ All four hold → label `ready-for-agent`. Missing (a)/(b) → `needs-info`. Mis
 - **Oversized issues**: no hard size cap — flag "too big for one firing" with a proposed split as a comment, and optionally create the child sub-issues directly. Leave the parent open; the work becomes takeable only once split.
 - **`wontfix` / duplicates**: apply `wontfix` or `ready-for-human` directly, with a comment explaining why. A duplicate recommendation always names the surviving issue. Only the maintainer closes issues.
 - **Spec gaps**: issue bodies belong to their authors — write an inferred spec as a comment instead, and when that comment supplies the missing spec, label `ready-for-agent` in the same pass. Provenance stays clear.
-- **Category labels**: apply ordinary labels (`bug`, `enhancement`, `chore`) where obvious.
+- **Category labels**: apply ordinary labels (`bug`, `enhancement`, `refactor`, `chore`) where obvious.
 - **Priority is the maintainer's steering wheel**: `priority:high` and `priority:low` are maintainer-applied only — triage never sets them.
 
 ## Fix firing

@@ -3,6 +3,7 @@ module.exports = async ({ github, context }) => {
   if (process.env.E2E_RESULT === "failure") failedSuites.push("E2E");
   if (process.env.INTEGRATION_RESULT === "failure")
     failedSuites.push("integration");
+  if (process.env.REPORT_RESULT === "failure") failedSuites.push("report");
   const suiteText = failedSuites.length ? failedSuites.join(" + ") : "nightly";
 
   const title = `Nightly ${suiteText} suite failing`;

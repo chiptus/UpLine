@@ -68,7 +68,7 @@ export function StagedFieldsPreview({
           {imageUrl && (
             <img
               src={imageUrl}
-              alt=""
+              alt="Staged artist image"
               className="h-12 w-12 rounded object-cover"
             />
           )}

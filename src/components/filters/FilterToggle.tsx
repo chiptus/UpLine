@@ -29,7 +29,7 @@ export function FilterToggle({
           className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
         >
           <X className="h-3 w-3 mr-1" />
-          <span className="hidden sm:inline">Clear</span>
+          <span className="sr-only sm:not-sr-only">Clear</span>
         </Button>
       )}
 
@@ -52,7 +52,7 @@ export function FilterToggle({
           </Badge>
         )}
         <Filter className="h-4 w-4" />
-        <span className="hidden md:inline">{label}</span>
+        <span className="sr-only md:not-sr-only">{label}</span>
         {isExpanded ? (
           <ChevronUp className="h-4 w-4" />
         ) : (

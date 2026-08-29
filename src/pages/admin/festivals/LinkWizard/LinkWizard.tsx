@@ -23,8 +23,13 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
   const allArtists = artistsQuery.data ?? [];
   const untypedSets = untypedSetsQuery.data ?? [];
   const queue = useLinkWizardQueue(allArtists, untypedSets, skippedHook);
-  const { items, artists: filteredArtists, currentItem, position, total } =
-    queue;
+  const {
+    items,
+    artists: filteredArtists,
+    currentItem,
+    position,
+    total,
+  } = queue;
 
   usePrefetchNextBatchLinks(
     filteredArtists,

@@ -179,6 +179,13 @@ export function formatDateOnly(
   return format(date, dateFormat);
 }
 
+// Shifts an instant back by the festival's day-start cutoff hour, so
+// grouping/formatting that runs on the result treats a pre-cutoff instant
+// as still belonging to the previous festival day. A no-op at cutoff 0.
+function shiftForDayStart(date: Date, dayStartHour: number): Date {
+  return dayStartHour ? subHours(date, dayStartHour) : date;
+}
+
 export function formatDayOnly(
   dateTime: string | null,
   timezone?: string,
@@ -187,7 +194,7 @@ export function formatDayOnly(
   if (!dateTime) return null;
   const date = parseISO(dateTime);
   if (!isValid(date)) return null;
-  const shifted = dayStartHour ? subHours(date, dayStartHour) : date;
+  const shifted = shiftForDayStart(date, dayStartHour);
   const dayFormat = "EEE, MMM d";
   if (timezone) return formatInTimeZone(shifted, timezone, dayFormat);
   return format(shifted, dayFormat);
@@ -207,9 +214,23 @@ export function getFestivalDayKey(
   if (!dateTime) return null;
   const date = parseISO(dateTime);
   if (!isValid(date)) return null;
-  const shifted = dayStartHour ? subHours(date, dayStartHour) : date;
+  const shifted = shiftForDayStart(date, dayStartHour);
   if (timezone) return formatInTimeZone(shifted, timezone, "yyyy-MM-dd");
   return format(shifted, "yyyy-MM-dd");
+}
+
+// The UTC instant at which a given festival day-key begins, honoring the
+// festival's day-start cutoff hour (defaults to local midnight). The
+// counterpart to getFestivalDayKey: where that derives a day-key from an
+// instant, this derives the boundary instant from a day-key - used to
+// position day boundaries/jump targets on the horizontal timeline.
+export function festivalDayStart(
+  dayKey: string,
+  timezone: string,
+  dayStartHour: number = 0,
+): Date {
+  const hour = String(dayStartHour).padStart(2, "0");
+  return fromZonedTime(`${dayKey}T${hour}:00:00`, timezone);
 }
 
 // Human-readable label for a day-key produced by getFestivalDayKey.

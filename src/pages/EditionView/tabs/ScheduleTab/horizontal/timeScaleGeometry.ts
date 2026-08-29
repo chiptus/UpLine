@@ -1,6 +1,5 @@
-import { subHours } from "date-fns";
-import { formatInTimeZone } from "date-fns-tz";
 import { timeToOffset } from "@/lib/timelineCalculator";
+import { getFestivalDayKey } from "@/lib/timeUtils";
 
 export const DAY_GAP_PX = 5;
 
@@ -18,9 +17,8 @@ export function computeDateChanges(
   timezone: string,
   dayStartHour: number = 0,
 ): DateChange[] {
-  function festivalDate(date: Date): string {
-    const shifted = dayStartHour ? subHours(date, dayStartHour) : date;
-    return formatInTimeZone(shifted, timezone, "yyyy-MM-dd");
+  function festivalDate(date: Date): string | null {
+    return getFestivalDayKey(date.toISOString(), timezone, dayStartHour);
   }
 
   return timeSlots.reduce((changes, timeSlot, index) => {

@@ -1,5 +1,5 @@
 import { isValid, parseISO } from "date-fns";
-import { fromZonedTime } from "date-fns-tz";
+import { festivalDayStart } from "@/lib/timeUtils";
 import type { ScheduleWindow } from "@/lib/timelineCalculator";
 
 export interface TimelineMountMomentInput {
@@ -54,8 +54,7 @@ function momentFromDayFilter(
 ): Date | null {
   if (!day || day === "all") return null;
   try {
-    const hour = String(dayStartHour).padStart(2, "0");
-    const dayStart = fromZonedTime(`${day}T${hour}:00:00`, timezone);
+    const dayStart = festivalDayStart(day, timezone, dayStartHour);
     return isValid(dayStart) ? dayStart : null;
   } catch {
     return null;

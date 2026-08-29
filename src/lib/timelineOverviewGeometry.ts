@@ -1,5 +1,5 @@
-import { fromZonedTime } from "date-fns-tz";
 import { timeToOffset } from "./timelineCalculator";
+import { festivalDayStart } from "@/lib/timeUtils";
 import type { HorizontalTimelineSet } from "./timelineCalculator";
 
 /**
@@ -74,11 +74,9 @@ export function calculateDayBoundaries({
 }: CalculateDayBoundariesParams): OverviewDayBoundary[] {
   if (totalWidth <= 0) return [];
 
-  const hour = String(dayStartHour).padStart(2, "0");
-
   return days
     .map((day) => {
-      const dayStart = fromZonedTime(`${day.date}T${hour}:00:00`, timezone);
+      const dayStart = festivalDayStart(day.date, timezone, dayStartHour);
       const offset = timeToOffset(dayStart, festivalStart);
       return {
         date: day.date,

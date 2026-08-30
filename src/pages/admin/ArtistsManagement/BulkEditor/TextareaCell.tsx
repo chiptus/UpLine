@@ -67,7 +67,7 @@ export function TextareaCell({
 
   return (
     <div
-      className="cursor-pointer hover:bg-gray-50 p-1 rounded min-h-6 text-sm"
+      className="cursor-pointer hover:bg-surface-active p-1 rounded min-h-6 text-sm"
       onClick={handleEdit}
       title="Click to edit"
     >

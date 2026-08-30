@@ -111,6 +111,49 @@ describe("useExplorableSets", () => {
     expect(result.current.data.map((s) => s.id)).toEqual(["x"]);
   });
 
+  it("rebuilds the queue once when a user logs in mid-session", () => {
+    mockSetsQuery([makeSet("a"), makeSet("b"), makeSet("c")]);
+
+    const { result, rerender } = renderHook(
+      (props: {
+        userId: string | undefined;
+        userVotes: Record<string, number>;
+        votesReady: boolean;
+      }) =>
+        useExplorableSets({
+          editionId: "edition-1",
+          userId: props.userId,
+          userVotes: props.userVotes,
+          votesReady: props.votesReady,
+        }),
+      {
+        initialProps: {
+          userId: undefined as string | undefined,
+          userVotes: {},
+          votesReady: true,
+        },
+      },
+    );
+
+    // Browsing anonymously: nothing to exclude yet.
+    expect(result.current.data.map((s) => s.id).sort()).toEqual([
+      "a",
+      "b",
+      "c",
+    ]);
+
+    // User signs in (e.g. via the vote-triggered auth dialog); their votes
+    // haven't loaded yet.
+    rerender({ userId: "user-1", userVotes: {}, votesReady: false });
+
+    expect(result.current.isLoading).toBe(true);
+
+    // Their votes load, revealing "b" was already voted on in a past session.
+    rerender({ userId: "user-1", userVotes: { b: 2 }, votesReady: true });
+
+    expect(result.current.data.map((s) => s.id).sort()).toEqual(["a", "c"]);
+  });
+
   it("computes votedCount and nonExplorableCount live even though the queue is frozen", () => {
     mockSetsQuery([makeSet("a"), makeSet("b"), makeSet("c")]);
 

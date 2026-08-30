@@ -2,43 +2,61 @@ import { useSetsByEditionQuery } from "@/api/sets/useSetsByEdition";
 import { useEffect, useState } from "react";
 import type { FestivalSet } from "@/api/sets/types";
 
-type Queue = { editionId: string | undefined; sets: FestivalSet[] };
+const EMPTY_SETS: FestivalSet[] = [];
+
+type Queue = {
+  editionId: string | undefined;
+  userId: string | undefined;
+  sets: FestivalSet[];
+};
 
 export function useExplorableSets({
   editionId,
+  userId,
   userVotes,
   votesReady,
 }: {
   editionId?: string | undefined;
+  userId?: string | undefined;
   userVotes: Record<string, number>;
   votesReady: boolean;
 }) {
   const setsQuery = useSetsByEditionQuery(editionId);
-  const allSets = setsQuery.data || [];
+  const allSets = setsQuery.data ?? EMPTY_SETS;
 
   // The queue is locked in once loaded, using the votes as they stood at
   // that point. Voting on the current set during the session no longer
   // removes it (which used to shift `currentIndex` onto the next set,
-  // making a vote look like a skip) — only skipping does.
+  // making a vote look like a skip) — only skipping does. It's keyed on
+  // (editionId, userId) so signing in or out mid-session — which changes
+  // whose votes apply — forces exactly one rebuild.
   const [queue, setQueue] = useState<Queue | null>(null);
 
   useEffect(() => {
     if (allSets.length === 0 || !votesReady) return;
 
     setQueue((prev) => {
-      if (prev?.editionId === editionId) return prev;
+      if (
+        prev !== null &&
+        prev.editionId === editionId &&
+        prev.userId === userId
+      ) {
+        return prev;
+      }
 
       const validSets = allSets.filter(
         (set) => hasExplorableData(set) && !userVotes[set.id],
       );
-      return { editionId, sets: shuffle(validSets) };
+      return { editionId, userId, sets: shuffle(validSets) };
     });
     // userVotes is deliberately excluded: the queue should only be rebuilt
-    // when the edition or underlying set list changes, not on every vote.
+    // when the edition, user, or underlying set list changes, not on every
+    // vote cast during the session.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allSets, votesReady, editionId]);
+  }, [allSets, votesReady, editionId, userId]);
 
-  const queueIsCurrent = queue !== null && queue.editionId === editionId;
+  const queueIsCurrent =
+    queue !== null && queue.editionId === editionId && queue.userId === userId;
   const explorableSets = queueIsCurrent ? queue.sets : [];
 
   let votedCount = 0;

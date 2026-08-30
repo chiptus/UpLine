@@ -29,15 +29,17 @@ export const Route = createFileRoute(
 function ExploreSetPage() {
   const { edition } = Route.useRouteContext();
   const navigate = useNavigate();
-  const { user, showAuthDialog } = useAuth();
+  const { user, loading: authLoading, showAuthDialog } = useAuth();
   const voteMutation = useVoteMutation();
   const userVotesQuery = useUserVotesQuery(user?.id);
   const userVotes = userVotesQuery.data ?? {};
   const votesReady =
-    !user || userVotesQuery.isSuccess || userVotesQuery.isError;
+    !authLoading &&
+    (!user || userVotesQuery.isSuccess || userVotesQuery.isError);
 
   const explorableSetsQuery = useExplorableSets({
     editionId: edition?.id,
+    userId: user?.id,
     userVotes,
     votesReady,
   });

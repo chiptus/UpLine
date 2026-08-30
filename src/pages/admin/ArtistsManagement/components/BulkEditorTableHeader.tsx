@@ -32,39 +32,39 @@ export function BulkEditorTableHeader({
           />
         </TableHead>
         <TableHead
-          className="cursor-pointer hover:bg-gray-50 min-w-48"
+          className="cursor-pointer hover:bg-muted min-w-48"
           onClick={() => onSort("image_url")}
         >
           Image/Logo{getSortIndicator("image_url")}
         </TableHead>
         <TableHead
-          className="cursor-pointer hover:bg-gray-50 min-w-48"
+          className="cursor-pointer hover:bg-muted min-w-48"
           onClick={() => onSort("name")}
         >
           Name{getSortIndicator("name")}
         </TableHead>
         <TableHead
-          className="cursor-pointer hover:bg-gray-50 min-w-64"
+          className="cursor-pointer hover:bg-muted min-w-64"
           onClick={() => onSort("description")}
         >
           Description{getSortIndicator("description")}
         </TableHead>
         <TableHead className="min-w-32">Genres</TableHead>
         <TableHead
-          className="cursor-pointer hover:bg-gray-50 min-w-48"
+          className="cursor-pointer hover:bg-muted min-w-48"
           onClick={() => onSort("spotify_url")}
         >
           Spotify URL{getSortIndicator("spotify_url")}
         </TableHead>
         <TableHead
-          className="cursor-pointer hover:bg-gray-50 min-w-48"
+          className="cursor-pointer hover:bg-muted min-w-48"
           onClick={() => onSort("soundcloud_url")}
         >
           SoundCloud URL{getSortIndicator("soundcloud_url")}
         </TableHead>
 
         <TableHead
-          className="cursor-pointer hover:bg-gray-50"
+          className="cursor-pointer hover:bg-muted"
           onClick={() => onSort("created_at")}
         >
           Created{getSortIndicator("created_at")}

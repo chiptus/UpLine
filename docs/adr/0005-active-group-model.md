@@ -23,9 +23,9 @@ This is intentionally asymmetric, not symmetric: real Group picks are meant to s
 
 The header dropdown lists the pinned entry first (starred), then remaining Groups, then remaining of Everyone/Me — so reverting to the pin is always the first item in the list, one open + one click. There's deliberately no separate "back to default" affordance next to the trigger: it would just add a second way to do what the starred, always-first entry already does.
 
-## Unifies with the future Schedule-tab Vote Scope
+## Unifies with the Schedule-tab Vote Scope
 
-The three-way scope (`group` / `everyone` / `me`) is written to serve both the Artists tab's Vote Perspective (Everyone ↔ Group, no Me) and the not-yet-built Schedule tab's Vote Scope (Me ↔ Group, no Everyone — issue #125) from one seam, rather than each inventing its own resolution/auto-activation logic. Vote Perspective and Vote Scope remain independent, tab-local _toggles_ — a user's Everyone/Group choice on Artists and Me/Group choice on Schedule can still differ at once — but both read their default from the same shared `ActiveScopeContext`, and "Me" simply isn't meaningful to Vote Perspective's rating aggregation, so it's treated as Everyone there.
+The three-way scope (`group` / `everyone` / `me`) is written to serve both the Artists tab's Vote Perspective (Everyone ↔ Group, no Me) and the Schedule tab's Vote Scope (Me ↔ Group, no Everyone) from one seam, rather than each inventing its own resolution/auto-activation logic. Issue #125 originally spec'd Vote Perspective and Vote Scope as independent, tab-local toggles; #310 shipped a different design instead — both tabs read their scope from the same shared `ActiveScopeContext`, so there is one scope selector, not two independently-settable ones, and "Me" simply isn't meaningful to Vote Perspective's rating aggregation, so it's treated as Everyone there.
 
 ## Considered Options
 

@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-router";
 import type { TimelineSearch } from "@/lib/searchSchemas";
 import type { VoteType } from "@/lib/voteConfig";
+import type { SetType } from "@/api/sets/types";
 import { useStageSlugResolver } from "@/hooks/useStageSlugResolver";
 
 export type TimeFilter = TimelineSearch["time"];
@@ -24,6 +25,7 @@ export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
       time: search.time,
       stagesIds: resolveIds(search.stages),
       votes: search.votes,
+      types: search.types,
     }),
   });
   const navigate = useNavigate({ from: route });
@@ -75,6 +77,17 @@ export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
     [navigate],
   );
 
+  const updateTypes = useCallback(
+    (types: SetType[]) => {
+      navigate({
+        to: ".",
+        search: (prev) => ({ ...prev, types }),
+        replace: true,
+      });
+    },
+    [navigate],
+  );
+
   const clearFilters = useCallback(() => {
     navigate({
       to: ".",
@@ -88,10 +101,12 @@ export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
     time: state.time,
     stagesIds: state.stagesIds,
     votes: state.votes,
+    types: state.types,
     updateDay,
     updateTime,
     updateStages,
     updateVotes,
+    updateTypes,
     clearFilters,
   };
 }

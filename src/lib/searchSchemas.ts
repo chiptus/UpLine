@@ -64,6 +64,17 @@ export const timelineSearchSchema = z.object({
         ),
       ),
     ]),
+  /** Set-type filter values; unknown entries are dropped individually. */
+  types: z
+    .array(z.string())
+    .catch([])
+    .transform((types) => [
+      ...new Set(
+        types.filter((t): t is SetType =>
+          (SET_TYPES as readonly string[]).includes(t),
+        ),
+      ),
+    ]),
   /** Viewport-centered moment; only written once the user scrolls. */
   scrollTo: z.string().optional().catch(undefined),
 });
@@ -75,4 +86,5 @@ export const timelineSearchDefaults: TimelineSearch = {
   time: "all",
   stages: [],
   votes: [],
+  types: [],
 };

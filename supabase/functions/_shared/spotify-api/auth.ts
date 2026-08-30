@@ -24,10 +24,10 @@ function getCachedToken(): string | null {
   return null;
 }
 
-async function requestSpotifyToken(
+async function fetchTokenResponse(
   clientId: string,
   clientSecret: string,
-): Promise<{ token: string; expiresAt: number }> {
+): Promise<unknown> {
   console.log("[getSpotifyAccessToken] Requesting access token...");
 
   const tokenUrl = "https://accounts.spotify.com/api/token";
@@ -63,8 +63,13 @@ async function requestSpotifyToken(
     throw new Error("Failed to get Spotify access token");
   }
 
-  const rawData = result.data;
+  return result.data;
+}
 
+function parseTokenResponse(rawData: unknown): {
+  token: string;
+  expiresAt: number;
+} {
   try {
     const tokenData = SpotifyTokenResponseSchema.parse(rawData);
     console.log(
@@ -79,13 +84,21 @@ async function requestSpotifyToken(
     console.error("[getSpotifyAccessToken] Invalid token response format:", {
       error: validationError,
       rawData:
-        JSON.stringify({ ...rawData, access_token: "[REDACTED]" }).slice(
-          0,
-          200,
-        ) + "...",
+        JSON.stringify({
+          ...(rawData as object),
+          access_token: "[REDACTED]",
+        }).slice(0, 200) + "...",
     });
     throw new Error("Invalid access token response from Spotify");
   }
+}
+
+async function requestSpotifyToken(
+  clientId: string,
+  clientSecret: string,
+): Promise<{ token: string; expiresAt: number }> {
+  const rawData = await fetchTokenResponse(clientId, clientSecret);
+  return parseTokenResponse(rawData);
 }
 
 export async function getSpotifyAccessToken(): Promise<string> {

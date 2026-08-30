@@ -13,6 +13,7 @@ export interface OtherError {
   success: false;
   type: "other";
   error: unknown;
+  status?: number;
 }
 
 export type RequestResult<T> = RetryResult<T> | RateLimitError | OtherError;
@@ -83,6 +84,7 @@ export async function fetchWithRetry<T>(
           success: false,
           type: "other",
           error: new Error(`HTTP ${response.status}: ${response.statusText}`),
+          status: response.status,
         };
       }
 

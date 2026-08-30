@@ -14,6 +14,9 @@
 #      target's public tables, and restore the dump.
 #   3. Run scripts/anonymize.sql against the target to scrub remaining PII in
 #      the public schema.
+#   4. Backfill public.profiles for any auth.users left without one by the
+#      truncate/restore in step 2 (accounts that only exist on the target,
+#      e.g. a local dev/admin login, aren't in prod's dump).
 #
 # Required env vars (put them in scripts/.env.sync, which is gitignored):
 #   PROD_DB_URL      Postgres connection string for the prod project
@@ -161,6 +164,19 @@ SQL
 
 echo "Running anonymizer on public schema…"
 psql "$TARGET_URL" -v ON_ERROR_STOP=1 -f "$SCRIPT_DIR/anonymize.sql"
+
+echo "Restoring profiles for target-only accounts…"
+# The truncate above wiped public.profiles; prod's dump only restores rows
+# for accounts that exist in prod, so any account that was created directly
+# on this target (e.g. a local dev/admin login) loses its profile row here
+# and would fail votes_user_id_profiles_fkey until backfilled.
+psql "$TARGET_URL" -v ON_ERROR_STOP=1 <<'SQL'
+INSERT INTO public.profiles (id, username, email)
+SELECT u.id, NULL, u.email
+FROM auth.users u
+LEFT JOIN public.profiles p ON p.id = u.id
+WHERE p.id IS NULL;
+SQL
 
 if [[ -n "${ADMIN_EMAIL:-}" ]]; then
   echo "Granting super_admin to '$ADMIN_EMAIL'…"

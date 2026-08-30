@@ -16,12 +16,36 @@ export function resetSpotifyTokenCacheForTests(): void {
   cachedToken = null;
 }
 
+export async function getSpotifyAccessToken(): Promise<string> {
+  const clientId = Deno.env.get("SPOTIFY_CLIENT_ID");
+  const clientSecret = Deno.env.get("SPOTIFY_CLIENT_SECRET");
+  if (!clientId || !clientSecret) {
+    throw new Error("Spotify credentials are not configured");
+  }
+
+  const cached = getCachedToken();
+  if (cached) {
+    return cached;
+  }
+
+  cachedToken = await requestSpotifyToken(clientId, clientSecret);
+  return cachedToken.token;
+}
+
 function getCachedToken(): string | null {
   if (cachedToken && cachedToken.expiresAt > Date.now() + 60 * 1000) {
     console.log("[getSpotifyAccessToken] Using cached access token");
     return cachedToken.token;
   }
   return null;
+}
+
+async function requestSpotifyToken(
+  clientId: string,
+  clientSecret: string,
+): Promise<{ token: string; expiresAt: number }> {
+  const rawData = await fetchTokenResponse(clientId, clientSecret);
+  return parseTokenResponse(rawData);
 }
 
 async function fetchTokenResponse(
@@ -91,28 +115,4 @@ function parseTokenResponse(rawData: unknown): {
     });
     throw new Error("Invalid access token response from Spotify");
   }
-}
-
-async function requestSpotifyToken(
-  clientId: string,
-  clientSecret: string,
-): Promise<{ token: string; expiresAt: number }> {
-  const rawData = await fetchTokenResponse(clientId, clientSecret);
-  return parseTokenResponse(rawData);
-}
-
-export async function getSpotifyAccessToken(): Promise<string> {
-  const clientId = Deno.env.get("SPOTIFY_CLIENT_ID");
-  const clientSecret = Deno.env.get("SPOTIFY_CLIENT_SECRET");
-  if (!clientId || !clientSecret) {
-    throw new Error("Spotify credentials are not configured");
-  }
-
-  const cached = getCachedToken();
-  if (cached) {
-    return cached;
-  }
-
-  cachedToken = await requestSpotifyToken(clientId, clientSecret);
-  return cachedToken.token;
 }

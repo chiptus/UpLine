@@ -53,7 +53,7 @@ export function BulkMergeStrategySelector({
           (strategyType) => (
             <div
               key={strategyType}
-              className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-muted"
+              className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-surface-active"
             >
               <RadioGroupItem
                 value={strategyType}

@@ -9,12 +9,14 @@ interface VotingActionsProps {
     direction: "left" | "right" | null;
     intensity: number;
   };
+  currentVote?: number | undefined;
 }
 
 export function VotingActions({
   onVote,
   onSkip,
   dragFeedback,
+  currentVote,
 }: VotingActionsProps) {
   const wontGoConfig = VOTE_CONFIG.wontGo;
   const interestedConfig = VOTE_CONFIG.interested;
@@ -28,6 +30,10 @@ export function VotingActions({
   const isLeftDrag = dragFeedback?.direction === "left";
   const isRightDrag = dragFeedback?.direction === "right";
   const intensity = dragFeedback?.intensity || 0;
+
+  const isWontGoSelected = currentVote === wontGoConfig.value;
+  const isMustGoSelected = currentVote === mustGoConfig.value;
+  const isInterestedSelected = currentVote === interestedConfig.value;
 
   return (
     <div className="flex items-center justify-center space-x-6 px-4">
@@ -44,8 +50,10 @@ export function VotingActions({
         <Button
           size="lg"
           variant="outline"
+          aria-pressed={isWontGoSelected}
+          aria-label={wontGoConfig.label}
           className={`h-16 w-16 rounded-full transition-all duration-100 ${
-            isLeftDrag
+            isLeftDrag || isWontGoSelected
               ? `bg-[hsl(var(--vote-skip)/0.28)] border-vote-skip text-vote-skip shadow-lg`
               : "border-vote-skip hover:bg-vote-skip-soft text-vote-skip"
           }`}
@@ -78,7 +86,13 @@ export function VotingActions({
         <Button
           size="lg"
           variant="outline"
-          className="h-16 w-16 rounded-full border-vote-must hover:bg-vote-must-soft text-vote-must"
+          aria-pressed={isMustGoSelected}
+          aria-label={mustGoConfig.label}
+          className={`h-16 w-16 rounded-full transition-all duration-100 ${
+            isMustGoSelected
+              ? "bg-[hsl(var(--vote-must)/0.28)] border-vote-must text-vote-must shadow-lg"
+              : "border-vote-must hover:bg-vote-must-soft text-vote-must"
+          }`}
           onClick={() => onVote(mustGoConfig.value)}
         >
           <MustGoIcon className="h-6 w-6" />
@@ -98,8 +112,10 @@ export function VotingActions({
         <Button
           size="lg"
           variant="outline"
+          aria-pressed={isInterestedSelected}
+          aria-label={interestedConfig.label}
           className={`h-16 w-16 rounded-full transition-all duration-100 ${
-            isRightDrag
+            isRightDrag || isInterestedSelected
               ? `bg-[hsl(var(--vote-interested)/0.28)] border-vote-interested text-vote-interested shadow-lg`
               : "border-vote-interested hover:bg-vote-interested-soft text-vote-interested"
           }`}

@@ -1,55 +1,61 @@
 import { useSetsByEditionQuery } from "@/api/sets/useSetsByEdition";
-import { useMemo } from "react";
+import { useState } from "react";
+import type { FestivalSet } from "@/api/sets/types";
+
+const EMPTY_SETS: FestivalSet[] = [];
 
 export function useExplorableSets({
   editionId,
   userVotes,
+  votesReady,
 }: {
   editionId?: string | undefined;
   userVotes: Record<string, number>;
+  votesReady: boolean;
 }) {
   const setsQuery = useSetsByEditionQuery(editionId);
+  const allSets = setsQuery.data ?? EMPTY_SETS;
 
-  const stats = useMemo(() => {
-    const allSets = setsQuery.data || [];
-    const totalSets = allSets.length;
+  // Locked in once loaded; the caller remounts this hook (via a key on
+  // edition/user) whenever which votes apply should actually change.
+  const [queue, setQueue] = useState<FestivalSet[] | null>(null);
 
-    let votedCount = 0;
-    let nonExplorableCount = 0;
-    const validSets: typeof allSets = [];
+  if (queue === null && allSets.length > 0 && votesReady) {
+    const validSets = allSets.filter(
+      (set) => hasExplorableData(set) && !userVotes[set.id],
+    );
+    setQueue(shuffle(validSets));
+  }
 
-    for (const set of allSets) {
-      const hasValidData =
-        set.artists &&
-        set.artists.length > 0 &&
-        set.name &&
-        set.artists[0].soundcloud_url;
+  const explorableSets = queue ?? EMPTY_SETS;
 
-      if (userVotes[set.id]) {
-        votedCount++;
-      } else if (!hasValidData) {
-        nonExplorableCount++;
-      } else {
-        validSets.push(set);
-      }
+  let votedCount = 0;
+  let nonExplorableCount = 0;
+  for (const set of allSets) {
+    if (userVotes[set.id]) {
+      votedCount++;
+    } else if (!hasExplorableData(set)) {
+      nonExplorableCount++;
     }
-
-    return {
-      explorableSets: shuffle(validSets),
-      totalSets,
-      votedCount,
-      nonExplorableCount,
-    };
-  }, [setsQuery.data, userVotes]);
+  }
 
   return {
-    data: stats.explorableSets,
-    isLoading: setsQuery.isLoading,
+    data: explorableSets,
+    isLoading: setsQuery.isLoading || (allSets.length > 0 && queue === null),
     error: setsQuery.error,
-    totalSets: stats.totalSets,
-    votedCount: stats.votedCount,
-    nonExplorableCount: stats.nonExplorableCount,
+    totalSets: allSets.length,
+    votedCount,
+    nonExplorableCount,
   };
+}
+
+function hasExplorableData(set: FestivalSet): boolean {
+  return Boolean(
+    set.artists &&
+      set.artists.length > 0 &&
+      set.name &&
+      set.artists[0].soundcloud_url,
+  );
 }
 
 /**

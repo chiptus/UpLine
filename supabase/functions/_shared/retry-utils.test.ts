@@ -27,6 +27,7 @@ Deno.test(
 Deno.test(
   "fetchWithRetry returns rate-limit error on 429 after retries",
   async function fetchWithRetry429Exhausted() {
+    using time = new FakeTime();
     let attemptCount = 0;
 
     function mockFetch() {
@@ -43,11 +44,13 @@ Deno.test(
       return { data: "should not reach here" };
     }
 
-    const result = await fetchWithRetry(mockFetch, mockParse, {
+    const resultPromise = fetchWithRetry(mockFetch, mockParse, {
       maxRetries: 2,
       initialDelayMs: 10,
       maxDelayMs: 100,
     });
+    await time.tickAsync(1000);
+    const result = await resultPromise;
 
     assertEquals(result.success, false);
     if (!result.success && result.type === "rate-limit") {
@@ -282,10 +285,13 @@ Deno.test(
 Deno.test(
   "fetchWithRetry caps delay at maxDelayMs even with large Retry-After",
   async function fetchWithRetryCapAtMax() {
-    let _attemptCount = 0;
+    using time = new FakeTime();
+    let attemptCount = 0;
+    const attemptTimes: number[] = [];
 
     function mockFetch() {
-      _attemptCount++;
+      attemptCount++;
+      attemptTimes.push(Date.now());
       return Promise.resolve(
         new Response(null, {
           status: 429,
@@ -298,24 +304,24 @@ Deno.test(
       return { data: "should not reach here" };
     }
 
-    const startTime = Date.now();
-    const result = await fetchWithRetry(mockFetch, mockParse, {
+    const resultPromise = fetchWithRetry(mockFetch, mockParse, {
       maxRetries: 1,
       initialDelayMs: 100,
       maxDelayMs: 200,
     });
-
-    const elapsedMs = Date.now() - startTime;
+    await time.tickAsync(200);
+    const result = await resultPromise;
 
     assertEquals(result.success, false);
     if (!result.success && result.type === "rate-limit") {
       assertEquals(result.retryAfterSeconds, 3600);
     }
 
+    assertEquals(attemptCount, 2);
     assertEquals(
-      elapsedMs <= 400,
-      true,
-      `Total time ${elapsedMs}ms should be capped around maxDelayMs 200ms (with buffer)`,
+      attemptTimes[1] - attemptTimes[0],
+      200,
+      "Delay between attempts should be capped at maxDelayMs (200ms)",
     );
   },
 );

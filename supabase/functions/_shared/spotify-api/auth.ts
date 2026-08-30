@@ -1,5 +1,5 @@
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
-import { fetchWithRetry } from "../retry-utils.ts";
+import { fetchWithRetry, type RequestResult } from "../retry-utils.ts";
 
 const SpotifyTokenResponseSchema = z.object({
   access_token: z.string(),
@@ -70,24 +70,30 @@ async function fetchTokenResponse(
   );
 
   if (!result.success) {
-    if (result.type === "rate-limit") {
-      console.error(
-        "[getSpotifyAccessToken] Rate limited obtaining access token",
-        {
-          retryAfterSeconds: result.retryAfterSeconds,
-        },
-      );
-      throw new Error(
-        `Failed to get Spotify access token: rate limited (retry after ${result.retryAfterSeconds}s)`,
-      );
-    }
-    console.error("[getSpotifyAccessToken] Error obtaining access token:", {
-      error: result.error,
-    });
-    throw new Error("Failed to get Spotify access token");
+    handleFailedResult(result);
   }
 
   return result.data;
+}
+
+function handleFailedResult(
+  result: Extract<RequestResult<unknown>, { success: false }>,
+): never {
+  if (result.type === "rate-limit") {
+    console.error(
+      "[getSpotifyAccessToken] Rate limited obtaining access token",
+      {
+        retryAfterSeconds: result.retryAfterSeconds,
+      },
+    );
+    throw new Error(
+      `Failed to get Spotify access token: rate limited (retry after ${result.retryAfterSeconds}s)`,
+    );
+  }
+  console.error("[getSpotifyAccessToken] Error obtaining access token:", {
+    error: result.error,
+  });
+  throw new Error("Failed to get Spotify access token");
 }
 
 function parseTokenResponse(rawData: unknown): {

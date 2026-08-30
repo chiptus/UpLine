@@ -2,6 +2,8 @@ import { getFestivalHour } from "@/lib/timeUtils";
 import type { TimelineSearch } from "@/lib/searchSchemas";
 import { getVoteConfig, type VoteType } from "@/lib/voteConfig";
 import { resolveVotesForScope, type VoteScope } from "@/lib/voteScope";
+import { matchesSetTypeFilter } from "@/lib/setTypeFilter";
+import type { SetType } from "@/api/sets/types";
 import type {
   ScheduleDay,
   ScheduleSet,
@@ -17,6 +19,8 @@ export interface ScheduleFilterCriteria {
   time: ScheduleTimeFilter;
   stages: string[];
   voteTypes?: VoteType[];
+  /** Untyped (`null`) sets match under "other". */
+  setTypes?: SetType[];
   voteScope?: VoteScope;
   /** `undefined` (logged out) makes vote filtering inert, not exclusionary. */
   currentUserId?: string | undefined;
@@ -71,7 +75,7 @@ function matchesVoteTypes(
 }
 
 /**
- * Applies the day / time-of-day / stage / vote predicates shared by both
+ * Applies the day / time-of-day / stage / set-type / vote predicates shared by both
  * Schedule views. Non-matching days are kept with empty stages, not dropped.
  */
 export function filterScheduleDays(
@@ -94,6 +98,7 @@ export function filterScheduleDays(
         sets: stage.sets.filter(
           (set) =>
             matchesTimeOfDay(set, criteria.time, timezone) &&
+            matchesSetTypeFilter(set.setType, criteria.setTypes ?? []) &&
             matchesVoteTypes(
               set,
               criteria.voteTypes,

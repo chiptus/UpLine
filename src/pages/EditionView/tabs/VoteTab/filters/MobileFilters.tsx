@@ -8,7 +8,7 @@ import {
 import type { FilterSortState } from "@/hooks/useUrlState";
 import { useStagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
-import { SetTypeFilter } from "./SetTypeFilter";
+import { SetTypeFilter } from "@/components/SetTypeFilter";
 
 interface MobileFiltersProps {
   state: FilterSortState;

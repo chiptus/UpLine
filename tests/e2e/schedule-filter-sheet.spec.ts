@@ -32,7 +32,9 @@ test.describe("Schedule filter sheet", { tag: "@smoke" }, () => {
     await expect(sheet).toBeVisible();
     await expect(sheet.getByText("Filter schedule")).toBeVisible();
     await expect(
-      sheet.getByText("Narrow the schedule by day, time of day, and stage."),
+      sheet.getByText(
+        "Narrow the schedule by day, time of day, stage, and set type.",
+      ),
     ).toBeVisible();
   });
 

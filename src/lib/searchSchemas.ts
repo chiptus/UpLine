@@ -1,6 +1,20 @@
 import { z } from "zod";
-import { VOTES_TYPES, type VoteType } from "@/lib/voteConfig";
-import { SET_TYPES, type SetType } from "@/api/sets/types";
+import { VOTES_TYPES } from "@/lib/voteConfig";
+import { SET_TYPES } from "@/api/sets/types";
+
+/** Array param whose unknown entries are dropped individually, not the whole array. */
+function enumArrayParam<T extends string>(values: readonly T[]) {
+  return z
+    .array(z.string())
+    .catch([])
+    .transform((entries) => [
+      ...new Set(
+        entries.filter((entry): entry is T =>
+          (values as readonly string[]).includes(entry),
+        ),
+      ),
+    ]);
+}
 
 export const sortOptionSchema = z.enum([
   "name-asc",
@@ -22,17 +36,7 @@ export const filterSortSearchSchema = z.object({
   use24Hour: z.boolean().catch(true),
   invite: z.string().optional(),
   sortLocked: z.boolean().catch(false),
-  /** Set-type filter values; unknown entries are dropped individually. */
-  types: z
-    .array(z.string())
-    .catch([])
-    .transform((types) => [
-      ...new Set(
-        types.filter((t): t is SetType =>
-          (SET_TYPES as readonly string[]).includes(t),
-        ),
-      ),
-    ]),
+  types: enumArrayParam(SET_TYPES),
 });
 
 export type FilterSortSearch = z.infer<typeof filterSortSearchSchema>;
@@ -53,17 +57,8 @@ export const timelineSearchSchema = z.object({
   time: z.enum(["all", "morning", "afternoon", "evening"]).catch("all"),
   /** Stage slugs (not ids) — resolved to ids internally by useTimelineUrlState. */
   stages: z.array(z.string()).catch([]),
-  /** Unknown entries are dropped individually, not the whole array. */
-  votes: z
-    .array(z.string())
-    .catch([])
-    .transform((votes) => [
-      ...new Set(
-        votes.filter((vote): vote is VoteType =>
-          (VOTES_TYPES as readonly string[]).includes(vote),
-        ),
-      ),
-    ]),
+  votes: enumArrayParam(VOTES_TYPES),
+  types: enumArrayParam(SET_TYPES),
   /** Viewport-centered moment; only written once the user scrolls. */
   scrollTo: z.string().optional().catch(undefined),
 });
@@ -75,4 +70,5 @@ export const timelineSearchDefaults: TimelineSearch = {
   time: "all",
   stages: [],
   votes: [],
+  types: [],
 };

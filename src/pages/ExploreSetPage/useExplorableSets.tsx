@@ -1,5 +1,5 @@
 import { useSetsByEditionQuery } from "@/api/sets/useSetsByEdition";
-import { useRef } from "react";
+import { useState } from "react";
 import type { FestivalSet } from "@/api/sets/types";
 
 const EMPTY_SETS: FestivalSet[] = [];
@@ -18,16 +18,16 @@ export function useExplorableSets({
 
   // Locked in once loaded; the caller remounts this hook (via a key on
   // edition/user) whenever which votes apply should actually change.
-  const queueRef = useRef<FestivalSet[] | null>(null);
+  const [queue, setQueue] = useState<FestivalSet[] | null>(null);
 
-  if (queueRef.current === null && allSets.length > 0 && votesReady) {
+  if (queue === null && allSets.length > 0 && votesReady) {
     const validSets = allSets.filter(
       (set) => hasExplorableData(set) && !userVotes[set.id],
     );
-    queueRef.current = shuffle(validSets);
+    setQueue(shuffle(validSets));
   }
 
-  const explorableSets = queueRef.current ?? [];
+  const explorableSets = queue ?? [];
 
   let votedCount = 0;
   let nonExplorableCount = 0;
@@ -41,8 +41,7 @@ export function useExplorableSets({
 
   return {
     data: explorableSets,
-    isLoading:
-      setsQuery.isLoading || (allSets.length > 0 && queueRef.current === null),
+    isLoading: setsQuery.isLoading || (allSets.length > 0 && queue === null),
     error: setsQuery.error,
     totalSets: allSets.length,
     votedCount,

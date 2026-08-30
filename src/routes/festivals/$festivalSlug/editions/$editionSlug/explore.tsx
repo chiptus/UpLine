@@ -11,6 +11,7 @@ import { useState } from "react";
 import { useExplorableSets } from "@/pages/ExploreSetPage/useExplorableSets";
 import { pageMeta } from "@/lib/pageHead";
 import { VOTE_CONFIG } from "@/lib/voteConfig";
+import type { User } from "@supabase/supabase-js";
 
 export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug/explore",
@@ -26,20 +27,46 @@ export const Route = createFileRoute(
       : {},
 });
 
+type Edition = ReturnType<typeof Route.useRouteContext>["edition"];
+
 function ExploreSetPage() {
   const { edition } = Route.useRouteContext();
-  const navigate = useNavigate();
   const { user, loading: authLoading, showAuthDialog } = useAuth();
+
+  if (authLoading) {
+    return <LoadingState />;
+  }
+
+  // Remounting on edition/user change resets currentIndex and the explorable
+  // queue together, instead of tracking those identity changes internally.
+  return (
+    <ExploreSetPageContent
+      key={`${edition?.id ?? "none"}:${user?.id ?? "anon"}`}
+      edition={edition}
+      user={user}
+      showAuthDialog={showAuthDialog}
+    />
+  );
+}
+
+function ExploreSetPageContent({
+  edition,
+  user,
+  showAuthDialog,
+}: {
+  edition: Edition;
+  user: User | null;
+  showAuthDialog: (inviteToken?: string, groupName?: string) => void;
+}) {
+  const navigate = useNavigate();
   const voteMutation = useVoteMutation();
   const userVotesQuery = useUserVotesQuery(user?.id);
   const userVotes = userVotesQuery.data ?? {};
   const votesReady =
-    !authLoading &&
-    (!user || userVotesQuery.isSuccess || userVotesQuery.isError);
+    !user || userVotesQuery.isSuccess || userVotesQuery.isError;
 
   const explorableSetsQuery = useExplorableSets({
     editionId: edition?.id,
-    userId: user?.id,
     userVotes,
     votesReady,
   });

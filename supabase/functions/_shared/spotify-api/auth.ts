@@ -16,21 +16,18 @@ export function resetSpotifyTokenCacheForTests(): void {
   cachedToken = null;
 }
 
-export async function getSpotifyAccessToken(): Promise<string> {
-  const clientId = Deno.env.get("SPOTIFY_CLIENT_ID");
-  const clientSecret = Deno.env.get("SPOTIFY_CLIENT_SECRET");
-  if (!clientId || !clientSecret) {
-    throw new Error("Spotify credentials are not configured");
-  }
-
-  if (
-    cachedToken &&
-    cachedToken.expiresAt > Date.now() + 60 * 1000 // 1 minute buffer
-  ) {
+function getCachedToken(): string | null {
+  if (cachedToken && cachedToken.expiresAt > Date.now() + 60 * 1000) {
     console.log("[getSpotifyAccessToken] Using cached access token");
     return cachedToken.token;
   }
+  return null;
+}
 
+async function requestSpotifyToken(
+  clientId: string,
+  clientSecret: string,
+): Promise<{ token: string; expiresAt: number }> {
   console.log("[getSpotifyAccessToken] Requesting access token...");
 
   const tokenUrl = "https://accounts.spotify.com/api/token";
@@ -73,12 +70,11 @@ export async function getSpotifyAccessToken(): Promise<string> {
     console.log(
       "[getSpotifyAccessToken] Successfully obtained and validated access token",
     );
-    const token = tokenData.access_token;
     const expiresIn = tokenData.expires_in ?? 3600; // Default to 1 hour if not provided
-    const expiresAt = Date.now() + expiresIn * 1000;
-
-    cachedToken = { token, expiresAt };
-    return token;
+    return {
+      token: tokenData.access_token,
+      expiresAt: Date.now() + expiresIn * 1000,
+    };
   } catch (validationError) {
     console.error("[getSpotifyAccessToken] Invalid token response format:", {
       error: validationError,
@@ -90,4 +86,20 @@ export async function getSpotifyAccessToken(): Promise<string> {
     });
     throw new Error("Invalid access token response from Spotify");
   }
+}
+
+export async function getSpotifyAccessToken(): Promise<string> {
+  const clientId = Deno.env.get("SPOTIFY_CLIENT_ID");
+  const clientSecret = Deno.env.get("SPOTIFY_CLIENT_SECRET");
+  if (!clientId || !clientSecret) {
+    throw new Error("Spotify credentials are not configured");
+  }
+
+  const cached = getCachedToken();
+  if (cached) {
+    return cached;
+  }
+
+  cachedToken = await requestSpotifyToken(clientId, clientSecret);
+  return cachedToken.token;
 }

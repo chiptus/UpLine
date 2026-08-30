@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { VOTE_CONFIG } from "@/lib/voteConfig";
+import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
 interface VotingActionsProps {
@@ -52,11 +53,12 @@ export function VotingActions({
           variant="outline"
           aria-pressed={isWontGoSelected}
           aria-label={wontGoConfig.label}
-          className={`h-16 w-16 rounded-full transition-all duration-100 ${
+          className={cn(
+            "h-16 w-16 rounded-full transition-all duration-100",
             isLeftDrag || isWontGoSelected
-              ? `bg-[hsl(var(--vote-skip)/0.28)] border-vote-skip text-vote-skip shadow-lg`
-              : "border-vote-skip hover:bg-vote-skip-soft text-vote-skip"
-          }`}
+              ? "bg-[hsl(var(--vote-skip)/0.28)] border-vote-skip text-vote-skip shadow-lg"
+              : "border-vote-skip hover:bg-vote-skip-soft text-vote-skip",
+          )}
           onClick={() => onVote(wontGoConfig.value)}
         >
           <WontGoIcon className="h-6 w-6" />
@@ -88,11 +90,12 @@ export function VotingActions({
           variant="outline"
           aria-pressed={isMustGoSelected}
           aria-label={mustGoConfig.label}
-          className={`h-16 w-16 rounded-full transition-all duration-100 ${
+          className={cn(
+            "h-16 w-16 rounded-full transition-all duration-100",
             isMustGoSelected
               ? "bg-[hsl(var(--vote-must)/0.28)] border-vote-must text-vote-must shadow-lg"
-              : "border-vote-must hover:bg-vote-must-soft text-vote-must"
-          }`}
+              : "border-vote-must hover:bg-vote-must-soft text-vote-must",
+          )}
           onClick={() => onVote(mustGoConfig.value)}
         >
           <MustGoIcon className="h-6 w-6" />
@@ -114,11 +117,12 @@ export function VotingActions({
           variant="outline"
           aria-pressed={isInterestedSelected}
           aria-label={interestedConfig.label}
-          className={`h-16 w-16 rounded-full transition-all duration-100 ${
+          className={cn(
+            "h-16 w-16 rounded-full transition-all duration-100",
             isRightDrag || isInterestedSelected
-              ? `bg-[hsl(var(--vote-interested)/0.28)] border-vote-interested text-vote-interested shadow-lg`
-              : "border-vote-interested hover:bg-vote-interested-soft text-vote-interested"
-          }`}
+              ? "bg-[hsl(var(--vote-interested)/0.28)] border-vote-interested text-vote-interested shadow-lg"
+              : "border-vote-interested hover:bg-vote-interested-soft text-vote-interested",
+          )}
           onClick={() => onVote(interestedConfig.value)}
         >
           <InterestedIcon className="h-6 w-6" />

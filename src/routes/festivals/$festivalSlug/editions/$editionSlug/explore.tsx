@@ -103,7 +103,7 @@ function ExploreSetPage() {
   );
 
   function handleVote(voteType: number) {
-    if (!currentSet || isAnimating) return;
+    if (!currentSet || isAnimating || voteMutation.isPending) return;
 
     if (!user) {
       showAuthDialog();
@@ -128,22 +128,7 @@ function ExploreSetPage() {
       },
       {
         onSuccess: () => {
-          if (!isWontGo) return;
-
-          setDirection("left");
-
-          setTimeout(() => {
-            if (isLastSet) {
-              navigate({
-                from: "/festivals/$festivalSlug/editions/$editionSlug/explore",
-                to: "../sets",
-              });
-            } else {
-              setCurrentIndex((prev) => prev + 1);
-              setDirection(null);
-            }
-            setIsAnimating(false);
-          }, 300);
+          if (isWontGo) advanceToNextOrExit();
         },
         onError: (error) => {
           console.error("Failed to vote:", error);
@@ -172,8 +157,12 @@ function ExploreSetPage() {
     if (isAnimating) return;
 
     setIsAnimating(true);
-    setDirection("left");
     setSkippedCount((prev) => prev + 1);
+    advanceToNextOrExit();
+  }
+
+  function advanceToNextOrExit() {
+    setDirection("left");
     setTimeout(() => {
       if (isLastSet) {
         navigate({

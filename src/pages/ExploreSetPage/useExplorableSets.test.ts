@@ -10,22 +10,6 @@ vi.mock("@/api/sets/useSetsByEdition", () => ({
 
 const mockUseSetsByEditionQuery = vi.mocked(useSetsByEditionQuery);
 
-function makeSet(id: string): FestivalSet {
-  return {
-    id,
-    name: `Set ${id}`,
-    artists: [{ soundcloud_url: `https://soundcloud.com/${id}` }],
-  } as unknown as FestivalSet;
-}
-
-function mockSetsQuery(data: FestivalSet[] | undefined, isLoading = false) {
-  mockUseSetsByEditionQuery.mockReturnValue({
-    data,
-    isLoading,
-    error: null,
-  } as unknown as ReturnType<typeof useSetsByEditionQuery>);
-}
-
 describe("useExplorableSets", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -179,3 +163,19 @@ describe("useExplorableSets", () => {
     ]);
   });
 });
+
+function makeSet(id: string): FestivalSet {
+  return {
+    id,
+    name: `Set ${id}`,
+    artists: [{ soundcloud_url: `https://soundcloud.com/${id}` }],
+  } as unknown as FestivalSet;
+}
+
+function mockSetsQuery(data: FestivalSet[] | undefined, isLoading = false) {
+  mockUseSetsByEditionQuery.mockReturnValue({
+    data,
+    isLoading,
+    error: null,
+  } as unknown as ReturnType<typeof useSetsByEditionQuery>);
+}

@@ -24,12 +24,7 @@ export function useExplorableSets({
   const setsQuery = useSetsByEditionQuery(editionId);
   const allSets = setsQuery.data ?? EMPTY_SETS;
 
-  // The queue is locked in once loaded, using the votes as they stood at
-  // that point. Voting on the current set during the session no longer
-  // removes it (which used to shift `currentIndex` onto the next set,
-  // making a vote look like a skip) — only skipping does. It's keyed on
-  // (editionId, userId) so signing in or out mid-session — which changes
-  // whose votes apply — forces exactly one rebuild.
+  // Locked in once loaded; only rebuilt if the edition or signed-in user changes.
   const [queue, setQueue] = useState<Queue | null>(null);
 
   useEffect(() => {

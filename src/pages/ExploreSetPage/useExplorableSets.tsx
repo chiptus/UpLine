@@ -27,7 +27,7 @@ export function useExplorableSets({
     setQueue(shuffle(validSets));
   }
 
-  const explorableSets = queue ?? [];
+  const explorableSets = queue ?? EMPTY_SETS;
 
   let votedCount = 0;
   let nonExplorableCount = 0;

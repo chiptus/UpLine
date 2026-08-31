@@ -1,3 +1,5 @@
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import { fetchWithRetry, type RequestResult } from "../retry-utils.ts";
 import { getSpotifyAccessToken } from "./auth.ts";
 import { SpotifyArtistSchema } from "./schemas.ts";
 import { normalizeSpotifySearchResult } from "../normalize.ts";
@@ -19,6 +21,46 @@ export function extractSpotifyArtistId(url: string): string | null {
   }
 }
 
+export async function fetchSpotifyAPI<T>(
+  endpoint: string,
+  accessToken: string,
+  schema: z.ZodSchema<T>,
+): Promise<RequestResult<T>> {
+  const fullUrl = `https://api.spotify.com/v1${endpoint}`;
+  console.log(`[fetchSpotifyAPI] Making request to: ${fullUrl}`);
+
+  const result = await fetchWithRetry(
+    () =>
+      fetch(fullUrl, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }),
+    async (response) => response.json(),
+    { maxRetries: 2 },
+  );
+
+  if (!result.success) {
+    return result;
+  }
+
+  const parseResponse = schema.safeParse(result.data);
+  if (!parseResponse.success) {
+    console.error(`[fetchSpotifyAPI] Validation error for ${endpoint}:`, {
+      error: parseResponse.error,
+      rawData: JSON.stringify(result.data).slice(0, 200) + "...",
+    });
+    return {
+      success: false,
+      type: "other",
+      error: new Error("Spotify returned data in an unexpected format"),
+    };
+  }
+
+  return { success: true, data: parseResponse.data };
+}
+
 export async function getSpotifyArtistById(
   artistId: string,
 ): Promise<ProviderFetchOutcome> {
@@ -27,62 +69,20 @@ export async function getSpotifyArtistById(
 
     console.log(`[getSpotifyArtistById] Fetching artist: ${artistId}`);
 
-    const endpoint = `https://api.spotify.com/v1/artists/${encodeURIComponent(artistId)}`;
+    const endpoint = `/artists/${encodeURIComponent(artistId)}`;
+    const result = await fetchSpotifyAPI(
+      endpoint,
+      accessToken,
+      SpotifyArtistSchema,
+    );
 
-    const response = await fetch(endpoint, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response
-        .text()
-        .catch(() => "Unable to read error response");
-      console.error(
-        `[getSpotifyArtistById] Error fetching artist ${artistId}:`,
-        {
-          status: response.status,
-          statusText: response.statusText,
-          body: errorText,
-        },
-      );
-
-      if (response.status === 404) {
-        return {
-          candidate: null,
-          error: "Artist not found on Spotify",
-        };
-      }
-
-      return {
-        candidate: null,
-        error: `Spotify lookup failed (${response.status})`,
-      };
+    if (!result.success) {
+      return handleFetchFailure(artistId, result);
     }
 
-    const rawData = await response.json();
-    const parseResponse = SpotifyArtistSchema.safeParse(rawData);
-
-    if (!parseResponse.success) {
-      console.error(
-        `[getSpotifyArtistById] Validation error for artist ${artistId}:`,
-        {
-          error: parseResponse.error,
-        },
-      );
-      return {
-        candidate: null,
-        error: "Spotify returned data in an unexpected format",
-      };
-    }
-
-    const artist = parseResponse.data;
-    const candidate = normalizeSpotifySearchResult(artist);
-
+    const artist = result.data;
     console.log(`[getSpotifyArtistById] Found artist: ${artist.name}`);
-    return { candidate };
+    return { candidate: normalizeSpotifySearchResult(artist) };
   } catch (error) {
     console.error(
       `[getSpotifyArtistById] Error fetching artist ${artistId}:`,
@@ -93,4 +93,30 @@ export async function getSpotifyArtistById(
       error: error instanceof Error ? error.message : "Spotify lookup failed",
     };
   }
+}
+
+function handleFetchFailure(
+  artistId: string,
+  result: Extract<RequestResult<unknown>, { success: false }>,
+): ProviderFetchOutcome {
+  if (result.type === "rate-limit") {
+    console.error(
+      `[getSpotifyArtistById] Rate limited fetching artist ${artistId}, retry after ${result.retryAfterSeconds}s`,
+    );
+    return { candidate: null, error: "Spotify rate limited" };
+  }
+
+  console.error(
+    `[getSpotifyArtistById] Error fetching artist ${artistId}:`,
+    result.error,
+  );
+
+  if (result.status === 404) {
+    return { candidate: null, error: "Artist not found on Spotify" };
+  }
+
+  return {
+    candidate: null,
+    error: `Spotify lookup failed${result.status ? ` (${result.status})` : ""}`,
+  };
 }

@@ -18,6 +18,7 @@ export const searchResultSchema = z.object({
   provider: providerSchema,
   candidates: z.array(candidateSchema),
   error: z.string().optional(),
+  rateLimitRetryAfter: z.number().optional(),
 });
 export type SearchResult = z.infer<typeof searchResultSchema>;
 

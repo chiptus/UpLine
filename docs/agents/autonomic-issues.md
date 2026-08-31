@@ -6,10 +6,7 @@ The paste-ready Routine prompts are at the [bottom of this doc](#routine-prompts
 
 ## Shared state: the `agent:` labels
 
-In-flight state lives as labels **on issues**; an issue's label tells any fresh firing where it is in the pipeline.
-
-- `agent:wip` — an agent has claimed the issue this firing. Applied with a claim comment (timestamped, naming the branch) as the fix worker's first act after picking, before any work.
-- `agent:pr` — an agent PR for this issue is awaiting review. On opening the PR, swap the issue's `agent:wip` to `agent:pr` and label the PR itself `agent:pr` too. Merging the PR closes the issue via `Closes #N`, which drops it out of every count automatically.
+In-flight state lives as labels **on issues**; an issue's label tells any fresh firing where it is in the pipeline. Meaning and who applies each: `docs/agents/triage-labels.md`. Application mechanics (claim comment, PR swap) are in the Fix firing steps below. Merging a PR closes its issue via `Closes #N`, which drops it out of every count automatically.
 
 **The PR cap**: at run start the fix worker counts open issues labeled `agent:pr` (one search: `is:issue is:open label:agent:pr`). At or above **3**, the review queue is full — end silently. Counting issues rather than PRs stays correct even if a PR-side label is forgotten. Firings can overlap with no mutual exclusion, so this in-prompt count is the enforcement; a rare overshoot-by-one is accepted.
 
@@ -37,11 +34,11 @@ All four hold → label `ready-for-agent`. Missing (a)/(b) → `needs-info`. Mis
 
 - **`needs-info` questions**: 2–3 numbered questions in one comment, each answerable in one line and each stating why it blocks ("can't reproduce without…"), so the maintainer answers inline in a single reply.
 - **`ready-for-human` routes**: the work needs access the agent lacks (GitHub settings, Supabase dashboard, third-party consoles), or the deliverable is a maintainer decision rather than code. Security-sensitive code stays agent-eligible; size alone never routes to human.
-- **Oversized issues**: no hard size cap — flag "too big for one firing" with a proposed split as a comment, and optionally create the child sub-issues directly. Leave the parent open; the work becomes takeable only once split. Once every piece of the split work has its own sub-issue carrying a state label, the parent is an **epic**: apply the `epic` label (dropping any state role it had) and it drops out of future intake, staying open purely as a tracker until the maintainer closes it. Recognizing this needs no comment or maintainer confirmation, on first encounter or on a later sweep that finds the label still missing — `epic` only names a structural fact already visible in the sub-issue list, not a new verdict on the work.
+- **Oversized issues**: no hard size cap — flag "too big for one firing" with a proposed split as a comment, and optionally create the child sub-issues directly. Leave the parent open; the work becomes takeable only once split. Once every piece is its own sub-issue carrying a state label, the parent has become an `epic` (see `docs/agents/triage-labels.md`): apply the label directly, dropping any state role it had — no comment or maintainer confirmation needed, whether that's on first encounter or a later sweep that finds the label still missing.
 - **`wontfix` / duplicates**: apply `wontfix` or `ready-for-human` directly, with a comment explaining why. A duplicate recommendation always names the surviving issue. Only the maintainer closes issues.
 - **Spec gaps**: issue bodies belong to their authors — write an inferred spec as a comment instead, and when that comment supplies the missing spec, label `ready-for-agent` in the same pass. Provenance stays clear.
 - **Category labels**: apply ordinary labels (`bug`, `enhancement`, `refactor`, `chore`) where obvious.
-- **Priority is the maintainer's steering wheel**: `priority:high` and `priority:low` are maintainer-applied only — triage never sets them.
+- **Priority is the maintainer's steering wheel**: triage never sets `priority:high`/`priority:low` (see `docs/agents/triage-labels.md`).
 
 ## Fix firing
 
@@ -80,7 +77,7 @@ Both routines run with push notifications on. The platform sends a push only whe
 
 ## Setup checklist (manual, one-time)
 
-1. Create the labels: `agent:wip`, `agent:pr`, `epic`, `priority:high`, `priority:low` (triage vocabulary from `docs/agents/triage-labels.md` plus `bug`/`enhancement`/`chore` should already exist).
+1. Create the labels in `docs/agents/triage-labels.md`'s pipeline-labels table (`agent:wip`, `agent:pr`, `epic`, `priority:high`, `priority:low`) plus the five canonical triage-role labels — `bug`/`enhancement`/`chore` should already exist.
 2. Create the **triage** Routine: daily, Sonnet (a test firing showed Haiku mis-triages — it judges from issue text alone instead of verifying premises in the codebase), this repo only, Default (trusted-network) environment, no connectors beyond GitHub, push notifications on, prompt below.
 3. Create the **fix** Routine: daily ~1h after triage, stronger model, same scoping, push notifications on, prompt below.
 4. Routine prompts stay short pointers — evolve the pipeline by editing this doc via PR, not the Routine form.

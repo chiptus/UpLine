@@ -20,7 +20,7 @@ In-flight state lives as labels **on issues**; an issue's label tells any fresh 
 ## Triage firing
 
 1. **Release stale claims** (above).
-2. **Intake queue**: open issues labeled `needs-triage` plus open unlabeled issues — nothing else. Skip `wayfinder:*` tickets. `needs-info` issues are fully inert: after the reporter answers, the maintainer flips the label back to `needs-triage`. Empty queue → end silently.
+2. **Intake queue**: open issues labeled `needs-triage` plus open unlabeled issues — nothing else. Skip `wayfinder:*` and `epic` tickets. `needs-info` issues are fully inert: after the reporter answers, the maintainer flips the label back to `needs-triage`. Empty queue → end silently.
 3. **Apply the rubric** (below) to each intake issue **through the triage skill**: Read `.claude/skills/triage/SKILL.md` directly and follow it (it is not model-invocable, so the Skill tool won't list it). It carries the tracker mechanics — the AI-disclaimer prefix on every posted comment, the agent-brief format for `ready-for-agent` issues, the out-of-scope knowledge base. This doc's rubric and guardrails win wherever the two differ.
 4. **Summary table**: end the session with a markdown table of the sweep — one row per issue looked at, `issue | verdict | one-line reason` (verdicts: the label applied, or "held" / "skipped" with why). This is transcript output only, not a GitHub write.
 
@@ -37,7 +37,8 @@ All four hold → label `ready-for-agent`. Missing (a)/(b) → `needs-info`. Mis
 
 - **`needs-info` questions**: 2–3 numbered questions in one comment, each answerable in one line and each stating why it blocks ("can't reproduce without…"), so the maintainer answers inline in a single reply.
 - **`ready-for-human` routes**: the work needs access the agent lacks (GitHub settings, Supabase dashboard, third-party consoles), or the deliverable is a maintainer decision rather than code. Security-sensitive code stays agent-eligible; size alone never routes to human.
-- **Oversized issues**: no hard size cap — flag "too big for one firing" with a proposed split as a comment, and optionally create the child sub-issues directly. Leave the parent open; the work becomes takeable only once split.
+- **Oversized issues**: no hard size cap — flag "too big for one firing" with a proposed split as a comment, and optionally create the child sub-issues directly. Leave the parent open; the work becomes takeable only once split. Once every piece of the split work has its own sub-issue carrying a state label, apply `epic` to the parent (dropping any state role it had) and drop it out of future intake — it stays open purely as a tracker until the maintainer closes it.
+- **`epic` recognition**: an issue that reads as unlabeled/`needs-triage` but turns out, on inspection, to already be a fully-split tracking parent (sub-issues exist and each carries its own state label; the parent has no independent work left) just gets the `epic` label applied directly — no comment, no maintainer confirmation, since the label only describes a structural fact that's already visible in the sub-issue list, not a new verdict on the work.
 - **`wontfix` / duplicates**: apply `wontfix` or `ready-for-human` directly, with a comment explaining why. A duplicate recommendation always names the surviving issue. Only the maintainer closes issues.
 - **Spec gaps**: issue bodies belong to their authors — write an inferred spec as a comment instead, and when that comment supplies the missing spec, label `ready-for-agent` in the same pass. Provenance stays clear.
 - **Category labels**: apply ordinary labels (`bug`, `enhancement`, `refactor`, `chore`) where obvious.

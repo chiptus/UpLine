@@ -49,11 +49,7 @@ Deno.test(
       initialDelayMs: 10,
       maxDelayMs: 100,
     });
-    // Two retries means two sequential sleeps; each is only scheduled once
-    // the previous one's continuation has run, so tickAsync must be called
-    // once per sleep instead of a single large jump (a single big tick fires
-    // the first sleep but "now" jumps past where the second sleep, which is
-    // registered only afterward, ends up scheduled).
+    // Two retries need two ticks: a single big jump skips the second sleep, which is only registered after the first resolves.
     await time.tickAsync(200);
     await time.tickAsync(200);
     const result = await resultPromise;

@@ -36,6 +36,7 @@ export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
         to: ".",
         search: (prev) => ({ ...prev, day }),
         replace: true,
+        resetScroll: false,
       });
     },
     [navigate],
@@ -47,6 +48,7 @@ export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
         to: ".",
         search: (prev) => ({ ...prev, time }),
         replace: true,
+        resetScroll: false,
       });
     },
     [navigate],
@@ -61,6 +63,7 @@ export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
           stages: resolveSlugs(stageIds),
         }),
         replace: true,
+        resetScroll: false,
       });
     },
     [navigate, resolveSlugs],
@@ -72,6 +75,7 @@ export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
         to: ".",
         search: (prev) => ({ ...prev, votes }),
         replace: true,
+        resetScroll: false,
       });
     },
     [navigate],
@@ -83,6 +87,7 @@ export function useTimelineUrlState(tab: "timeline" | "list" = "timeline") {
         to: ".",
         search: (prev) => ({ ...prev, types }),
         replace: true,
+        resetScroll: false,
       });
     },
     [navigate],

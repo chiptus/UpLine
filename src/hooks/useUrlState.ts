@@ -40,6 +40,7 @@ export function useUrlState() {
           ...(updatedStageIds ? { stages: resolveSlugs(updatedStageIds) } : {}),
         }),
         replace: true,
+        resetScroll: false,
       });
     },
     [navigate, resolveSlugs],

@@ -120,9 +120,9 @@ src/
 - No barrel exports - always import directly from file path
 - Use `cn` for conditional class names instead of template literals
 
-#### Function Definitions After Return in React Components
+#### File Structure: implementation first, helpers after
 
-In this codebase, it is acceptable and preferred to define helper functions (such as event handlers) after the main component’s return statement. This style improves readability by keeping the primary component logic at the top and allowing additional details to be found below. JavaScript and TypeScript support function hoisting for function declarations, so this pattern is safe and intentional. Please do not flag this as a style issue in reviews.
+Order every file (components, tests, utils) with the primary logic first — the component body, the `describe`/`it` blocks, the main exported function — and put helper functions below it. This way opening a file immediately shows what it does; helpers are supporting detail, read on demand. Applies everywhere, not just React components. Use `function` declarations for these helpers (not `const` arrow functions) so they're hoisted and callable before their point of definition. Do not flag this as a style issue in review.
 
 ### Important Notes
 

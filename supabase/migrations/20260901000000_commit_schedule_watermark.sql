@@ -19,6 +19,12 @@
 -- archive same as create/update do via the update_sets_updated_at trigger
 -- and the sets.updated_at DEFAULT now()). Shared between diff-schedule and
 -- commit_schedule so the two sides can never drift out of format.
+--
+-- EXTRACT(EPOCH FROM ...) on a timestamptz is defined as seconds since the
+-- Unix epoch in UTC -- unlike a plain ::TEXT cast, it doesn't depend on the
+-- session's TimeZone GUC, so Analyse and Commit can't compute different
+-- strings for the same underlying value just because they ran with
+-- different session settings.
 CREATE OR REPLACE FUNCTION public.commit_schedule__compute_watermark(
   p_festival_edition_id UUID
 )
@@ -27,7 +33,7 @@ LANGUAGE sql
 STABLE
 SET search_path = public
 AS $$
-  SELECT COUNT(*) || ':' || COALESCE(MAX(updated_at)::TEXT, 'none')
+  SELECT COUNT(*) || ':' || COALESCE(EXTRACT(EPOCH FROM MAX(updated_at))::TEXT, 'none')
   FROM sets
   WHERE festival_edition_id = p_festival_edition_id;
 $$;

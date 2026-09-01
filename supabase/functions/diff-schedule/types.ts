@@ -45,11 +45,9 @@ export type SetPayload = {
   artistSlugs: string[];
 };
 
-export type DiffResult = {
-  // #42: opaque watermark over the edition's sets at Analyse time. Threaded
-  // back through commit-schedule unchanged so commit_schedule can detect a
-  // concurrent edit and abort instead of applying a stale plan.
-  watermark: string;
+// computeDiff is a pure function with no DB access, so it can't produce the
+// watermark itself — index.ts fetches that separately and merges it in.
+export type DiffPlan = {
   summary: {
     newArtists: number;
     newStages: number;
@@ -81,3 +79,8 @@ export type DiffResult = {
     }[];
   };
 };
+
+// #42: opaque watermark over the edition's sets at Analyse time. Threaded
+// back through commit-schedule unchanged so commit_schedule can detect a
+// concurrent edit and abort instead of applying a stale plan.
+export type DiffResult = DiffPlan & { watermark: string };

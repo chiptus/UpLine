@@ -3,6 +3,13 @@ import { buildCommitPayload } from "./buildCommitPayload";
 import { type DiffResult } from "./types";
 
 describe("buildCommitPayload", () => {
+  it("passes the diff's watermark through unchanged", () => {
+    const diff = makeDiff({ watermark: "7:2026-08-30T12:00:00+00:00" });
+
+    const payload = buildCommitPayload(diff, {}, {});
+    expect(payload.watermark).toBe("7:2026-08-30T12:00:00+00:00");
+  });
+
   it("passes through clean artistsToCreate/stagesToCreate untouched", () => {
     const diff = makeDiff({
       cleanOperations: {
@@ -167,6 +174,7 @@ describe("buildCommitPayload", () => {
 
 function makeDiff(overrides: Partial<DiffResult> = {}): DiffResult {
   return {
+    watermark: "3:2026-08-01T00:00:00+00:00",
     summary: {
       newArtists: 0,
       newStages: 0,

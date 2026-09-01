@@ -6,6 +6,7 @@ import {
   type DiffResult,
   type StageMismatchResolution,
   type OrphanResolution,
+  isEditionChangedError,
 } from "@/services/scheduleImport/types";
 import type { RevealLevel } from "@/lib/scheduleReveal";
 import { DiffSummaryBanner } from "./DiffSummaryBanner";
@@ -53,6 +54,8 @@ export function DiffReviewStep({
   const setsToArchive = Object.values(orphanResolutions).filter(
     (r) => r === "archive",
   ).length;
+  const editionChanged =
+    commitError != null && isEditionChangedError(commitError);
   return (
     <Card>
       <CardHeader>
@@ -90,8 +93,16 @@ export function DiffReviewStep({
         {commitError && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Import failed — no changes were saved.</AlertTitle>
-            <AlertDescription>{commitError}</AlertDescription>
+            <AlertTitle>
+              {editionChanged
+                ? "The schedule changed since this review"
+                : "Import failed — no changes were saved."}
+            </AlertTitle>
+            <AlertDescription>
+              {editionChanged
+                ? "Someone changed this edition's schedule after Analyse ran. Nothing was applied — click Start over to re-run Analyse against the latest data."
+                : commitError}
+            </AlertDescription>
           </Alert>
         )}
 
@@ -99,13 +110,16 @@ export function DiffReviewStep({
           <Button variant="outline" onClick={onReset} disabled={committing}>
             Start over
           </Button>
-          <Button onClick={onCommit} disabled={!canCommit || committing}>
+          <Button
+            onClick={onCommit}
+            disabled={!canCommit || committing || editionChanged}
+          >
             {committing ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Committing…
               </>
-            ) : commitError ? (
+            ) : commitError && !editionChanged ? (
               "Retry"
             ) : (
               "Commit to database"

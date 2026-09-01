@@ -24,6 +24,7 @@ export const setPayloadSchema = z.object({
 export type SetPayload = z.infer<typeof setPayloadSchema>;
 
 export const diffResultSchema = z.object({
+  watermark: z.string(),
   summary: z.object({
     newArtists: z.number(),
     newStages: z.number(),

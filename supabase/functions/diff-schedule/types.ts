@@ -46,6 +46,10 @@ export type SetPayload = {
 };
 
 export type DiffResult = {
+  // #42: opaque watermark over the edition's sets at Analyse time. Threaded
+  // back through commit-schedule unchanged so commit_schedule can detect a
+  // concurrent edit and abort instead of applying a stale plan.
+  watermark: string;
   summary: {
     newArtists: number;
     newStages: number;

@@ -453,7 +453,7 @@ Deno.test(
 
     // Simulate a concurrent edit landing after Analyse: create an unrelated
     // set, which changes the edition's watermark.
-    const { data: concurrentSet } = await db
+    const { data: concurrentSet, error: concurrentSetError } = await db
       .from("sets")
       .insert({
         festival_edition_id: editionId,
@@ -463,6 +463,8 @@ Deno.test(
       })
       .select("id")
       .single();
+    assertEquals(concurrentSetError, null);
+    assertExists(concurrentSet);
 
     const { data, error } = await db.rpc("commit_schedule", {
       p_festival_edition_id: editionId,

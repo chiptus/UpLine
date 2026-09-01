@@ -39,6 +39,20 @@ async function getTestUserId(
   return data.user_id;
 }
 
+// #42: commit_schedule now requires a watermark matching the edition's
+// current state. Fetch it fresh (via the same RPC diff-schedule uses)
+// right before each call so unrelated setup inserts above don't go stale.
+async function getWatermark(
+  db: ReturnType<typeof adminClient>,
+  editionId: string,
+): Promise<string> {
+  const { data, error } = await db.rpc("commit_schedule__compute_watermark", {
+    p_festival_edition_id: editionId,
+  });
+  assertEquals(error, null);
+  return data as string;
+}
+
 Deno.test("commit_schedule: creates new artist and set", async () => {
   const db = adminClient();
   const editionId = await getTestEditionId(db);
@@ -49,6 +63,7 @@ Deno.test("commit_schedule: creates new artist and set", async () => {
   const { data, error } = await db.rpc("commit_schedule", {
     p_festival_edition_id: editionId,
     p_user_id: userId,
+    p_watermark: await getWatermark(db, editionId),
     p_artists_to_create: [{ name: "Test Artist", slug }],
     p_stages_to_create: [],
     p_sets_to_create: [
@@ -112,6 +127,7 @@ Deno.test(
     const { data, error } = await db.rpc("commit_schedule", {
       p_festival_edition_id: editionId,
       p_user_id: userId,
+      p_watermark: await getWatermark(db, editionId),
       p_artists_to_create: [],
       p_stages_to_create: [],
       p_sets_to_create: [],
@@ -165,6 +181,7 @@ Deno.test("commit_schedule: archives orphaned sets", async () => {
   const { data, error } = await db.rpc("commit_schedule", {
     p_festival_edition_id: editionId,
     p_user_id: userId,
+    p_watermark: await getWatermark(db, editionId),
     p_artists_to_create: [],
     p_stages_to_create: [],
     p_sets_to_create: [],
@@ -202,6 +219,7 @@ Deno.test(
     const { data, error } = await db.rpc("commit_schedule", {
       p_festival_edition_id: editionId,
       p_user_id: userId,
+      p_watermark: await getWatermark(db, editionId),
       p_artists_to_create: [],
       p_stages_to_create: [],
       p_sets_to_create: [
@@ -261,6 +279,7 @@ Deno.test(
     const { data, error } = await db.rpc("commit_schedule", {
       p_festival_edition_id: editionId,
       p_user_id: userId,
+      p_watermark: await getWatermark(db, editionId),
       p_artists_to_create: [],
       p_stages_to_create: [],
       p_sets_to_create: [
@@ -330,6 +349,7 @@ Deno.test(
     const { error: overwriteError } = await db.rpc("commit_schedule", {
       p_festival_edition_id: editionId,
       p_user_id: userId,
+      p_watermark: await getWatermark(db, editionId),
       p_artists_to_create: [],
       p_stages_to_create: [],
       p_sets_to_create: [],
@@ -349,6 +369,7 @@ Deno.test(
     const { error: preserveError } = await db.rpc("commit_schedule", {
       p_festival_edition_id: editionId,
       p_user_id: userId,
+      p_watermark: await getWatermark(db, editionId),
       p_artists_to_create: [],
       p_stages_to_create: [],
       p_sets_to_create: [],
@@ -384,6 +405,7 @@ Deno.test(
     const { error } = await db.rpc("commit_schedule", {
       p_festival_edition_id: editionId,
       p_user_id: userId,
+      p_watermark: await getWatermark(db, editionId),
       p_artists_to_create: [],
       p_stages_to_create: [],
       p_sets_to_create: [
@@ -415,5 +437,72 @@ Deno.test(
     // Cleanup
     await db.from("sets").delete().eq("id", sets![0].id);
     await db.from("artists").delete().eq("slug", slug);
+  },
+);
+
+Deno.test(
+  "commit_schedule: aborts and applies nothing when the edition changed since the watermark was computed (#42)",
+  async () => {
+    const db = adminClient();
+    const editionId = await getTestEditionId(db);
+    const userId = await getTestUserId(db);
+    const slug = `test-stale-watermark-${Date.now()}`;
+    const setName = `Stale Watermark Set ${slug}`;
+
+    const staleWatermark = await getWatermark(db, editionId);
+
+    // Simulate a concurrent edit landing after Analyse: create an unrelated
+    // set, which changes the edition's watermark.
+    const { data: concurrentSet } = await db
+      .from("sets")
+      .insert({
+        festival_edition_id: editionId,
+        name: "Concurrent Edit",
+        slug: `concurrent-edit-${Date.now()}`,
+        created_by: userId,
+      })
+      .select("id")
+      .single();
+
+    const { data, error } = await db.rpc("commit_schedule", {
+      p_festival_edition_id: editionId,
+      p_user_id: userId,
+      p_watermark: staleWatermark,
+      p_artists_to_create: [{ name: "Stale Watermark Artist", slug }],
+      p_stages_to_create: [],
+      p_sets_to_create: [
+        {
+          name: setName,
+          description: null,
+          stageName: null,
+          timeStart: null,
+          timeEnd: null,
+          artistSlugs: [slug],
+        },
+      ],
+      p_sets_to_update: [],
+      p_set_ids_to_archive: [],
+    });
+
+    assertExists(error, "expected commit_schedule to reject a stale watermark");
+    assertEquals(data, null);
+
+    // Nothing from the rejected commit was applied — same transaction.
+    const { data: artist } = await db
+      .from("artists")
+      .select("id")
+      .eq("slug", slug)
+      .maybeSingle();
+    assertEquals(artist, null);
+
+    const { data: sets } = await db
+      .from("sets")
+      .select("id")
+      .eq("festival_edition_id", editionId)
+      .eq("name", setName);
+    assertEquals(sets?.length, 0);
+
+    // Cleanup
+    await db.from("sets").delete().eq("id", concurrentSet!.id);
   },
 );

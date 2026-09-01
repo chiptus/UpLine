@@ -1,10 +1,26 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { requireAdmin } from "../_shared/auth.ts";
 import { buildCorsHeaders } from "../_shared/cors.ts";
 import { SET_TYPES } from "../_shared/setTypes.ts";
 import { computeDiff } from "./computeDiff.ts";
 import { fetchAllRows } from "./fetchAllRows.ts";
+
+// #42: a watermark over the edition's sets, computed the same way (same SQL
+// function) commit_schedule recomputes at Commit time. Round-tripped through
+// the client unchanged so commit_schedule can abort if the edition changed
+// between Analyse and Commit.
+async function fetchWatermark(
+  db: SupabaseClient,
+  festivalEditionId: string,
+): Promise<string> {
+  const { data, error } = await db.rpc("commit_schedule__compute_watermark", {
+    p_festival_edition_id: festivalEditionId,
+  });
+  if (error) throw error;
+  return data as string;
+}
 
 function isValidTimezone(tz: string): boolean {
   try {
@@ -97,7 +113,7 @@ serve(async (req) => {
 
     const db = auth.adminClient;
 
-    const [dbStages, dbSets, dbArtists] = await Promise.all([
+    const [dbStages, dbSets, dbArtists, watermark] = await Promise.all([
       fetchAllRows((from, to) =>
         db
           .from("stages")
@@ -127,11 +143,12 @@ serve(async (req) => {
           .order("id")
           .range(from, to),
       ),
+      fetchWatermark(db, festivalEditionId),
     ]);
 
     const result = computeDiff(rows, dbStages, dbSets, dbArtists, timezone);
 
-    return new Response(JSON.stringify(result), {
+    return new Response(JSON.stringify({ ...result, watermark }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {

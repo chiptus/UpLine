@@ -61,8 +61,11 @@ BEGIN
   v_current_watermark := commit_schedule__compute_watermark(p_festival_edition_id);
 
   IF v_current_watermark IS DISTINCT FROM p_watermark THEN
+    -- 'edition_changed_since_analyse: ' is a stable prefix the client
+    -- matches on (src/services/scheduleImport/types.ts) to show a
+    -- dedicated message instead of a generic commit failure.
     RAISE EXCEPTION
-      'The schedule changed since this review was generated. Start over to re-run Analyse against the latest data -- nothing from this review was applied.';
+      'edition_changed_since_analyse: The schedule changed since this review was generated. Start over to re-run Analyse against the latest data -- nothing from this review was applied.';
   END IF;
 
   PERFORM commit_schedule__upsert_artists(p_artists_to_create, p_user_id);

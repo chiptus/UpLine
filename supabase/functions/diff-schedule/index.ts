@@ -113,7 +113,15 @@ serve(async (req) => {
 
     const db = auth.adminClient;
 
-    const [dbStages, dbSets, dbArtists, watermark] = await Promise.all([
+    // Captured before the sets read below (not alongside it in the
+    // Promise.all) so the watermark's snapshot can never be older than the
+    // sets the diff plan is built from — a concurrent edit landing between
+    // the two would then only cause a (safe) false abort at Commit, never a
+    // stale plan slipping through because the watermark looked newer than
+    // the data it's meant to certify.
+    const watermark = await fetchWatermark(db, festivalEditionId);
+
+    const [dbStages, dbSets, dbArtists] = await Promise.all([
       fetchAllRows((from, to) =>
         db
           .from("stages")
@@ -143,7 +151,6 @@ serve(async (req) => {
           .order("id")
           .range(from, to),
       ),
-      fetchWatermark(db, festivalEditionId),
     ]);
 
     const result = computeDiff(rows, dbStages, dbSets, dbArtists, timezone);

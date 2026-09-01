@@ -485,6 +485,11 @@ Deno.test(
     });
 
     assertExists(error, "expected commit_schedule to reject a stale watermark");
+    assertEquals(
+      error.message.startsWith("edition_changed_since_analyse:"),
+      true,
+      `expected the edition_changed_since_analyse marker, got: ${error.message}`,
+    );
     assertEquals(data, null);
 
     // Nothing from the rejected commit was applied — same transaction.

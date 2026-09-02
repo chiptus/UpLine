@@ -15,6 +15,7 @@ interface TimelineToolbarProps {
   selectedDay: string;
   activeDay: string | null;
   timezone: string;
+  dayStartHour: number;
   onJumpToDay: (moment: Date) => void;
   isOverviewExpanded: boolean;
   onToggleOverview: () => void;
@@ -34,6 +35,7 @@ export function TimelineToolbar({
   selectedDay,
   activeDay,
   timezone,
+  dayStartHour,
   onJumpToDay,
   isOverviewExpanded,
   onToggleOverview,
@@ -78,6 +80,7 @@ export function TimelineToolbar({
           days={visibleDays}
           activeDay={activeDay}
           timezone={timezone}
+          dayStartHour={dayStartHour}
           onJumpToDay={onJumpToDay}
         />
       </div>

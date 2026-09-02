@@ -11,6 +11,7 @@ interface UseActiveTimelineDayOptions {
   scrollContainerRef: RefObject<HTMLDivElement>;
   days: ScheduleDay[];
   timezone: string;
+  dayStartHour: number;
   festivalStart: Date;
 }
 
@@ -23,6 +24,7 @@ export function useActiveTimelineDay({
   scrollContainerRef,
   days,
   timezone,
+  dayStartHour,
   festivalStart,
 }: UseActiveTimelineDayOptions) {
   const [activeDate, setActiveDate] = useState<string | null>(
@@ -41,8 +43,10 @@ export function useActiveTimelineDay({
         date: day.date,
         offset: Math.max(
           0,
-          timeToOffset(getDayJumpMoment(day, timezone), festivalStart) -
-            DAY_JUMP_START_GUTTER_PX,
+          timeToOffset(
+            getDayJumpMoment(day, timezone, dayStartHour),
+            festivalStart,
+          ) - DAY_JUMP_START_GUTTER_PX,
         ),
       }))
       .sort((a, b) => a.offset - b.offset);
@@ -60,7 +64,7 @@ export function useActiveTimelineDay({
     updateActiveDay();
     container.addEventListener("scroll", updateActiveDay, { passive: true });
     return () => container.removeEventListener("scroll", updateActiveDay);
-  }, [scrollContainerRef, days, timezone, festivalStart]);
+  }, [scrollContainerRef, days, timezone, dayStartHour, festivalStart]);
 
   return activeDate;
 }

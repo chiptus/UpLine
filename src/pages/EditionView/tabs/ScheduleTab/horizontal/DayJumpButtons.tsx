@@ -8,6 +8,7 @@ interface DayJumpButtonsProps {
   days: ScheduleDay[];
   activeDay: string | null;
   timezone: string;
+  dayStartHour: number;
   onJumpToDay: (moment: Date) => void;
 }
 
@@ -15,6 +16,7 @@ export function DayJumpButtons({
   days,
   activeDay,
   timezone,
+  dayStartHour,
   onJumpToDay,
 }: DayJumpButtonsProps) {
   const activeButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -48,7 +50,9 @@ export function DayJumpButtons({
               role="radio"
               aria-checked={isActive}
               ref={isActive ? activeButtonRef : undefined}
-              onClick={() => onJumpToDay(getDayJumpMoment(day, timezone))}
+              onClick={() =>
+                onJumpToDay(getDayJumpMoment(day, timezone, dayStartHour))
+              }
               className={cn(
                 "group relative shrink-0 rounded-md px-3 pb-1 pt-1.5 text-center transition-colors",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",

@@ -45,8 +45,6 @@ export type SetPayload = {
   artistSlugs: string[];
 };
 
-// computeDiff is a pure function with no DB access, so it can't produce the
-// watermark itself — index.ts fetches that separately and merges it in.
 export type DiffPlan = {
   summary: {
     newArtists: number;

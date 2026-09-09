@@ -7,10 +7,6 @@ import { SET_TYPES } from "../_shared/setTypes.ts";
 import { computeDiff } from "./computeDiff.ts";
 import { fetchAllRows } from "./fetchAllRows.ts";
 
-// #42: a watermark over the edition's sets, computed the same way (same SQL
-// function) commit_schedule recomputes at Commit time. Round-tripped through
-// the client unchanged so commit_schedule can abort if the edition changed
-// between Analyse and Commit.
 async function fetchWatermark(
   db: SupabaseClient,
   festivalEditionId: string,
@@ -113,12 +109,7 @@ serve(async (req) => {
 
     const db = auth.adminClient;
 
-    // Captured before the sets read below (not alongside it in the
-    // Promise.all) so the watermark's snapshot can never be older than the
-    // sets the diff plan is built from — a concurrent edit landing between
-    // the two would then only cause a (safe) false abort at Commit, never a
-    // stale plan slipping through because the watermark looked newer than
-    // the data it's meant to certify.
+    // Captured before the sets read so it can never be older than the diff's data.
     const watermark = await fetchWatermark(db, festivalEditionId);
 
     const [dbStages, dbSets, dbArtists] = await Promise.all([

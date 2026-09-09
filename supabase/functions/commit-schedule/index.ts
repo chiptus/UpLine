@@ -28,9 +28,6 @@ const setPayloadSchema = z.object({
 
 const commitRequestSchema = z.object({
   festivalEditionId: z.string().uuid(),
-  // #42: the watermark diff-schedule returned at Analyse time, round-tripped
-  // unchanged. commit_schedule re-validates it against the edition's current
-  // state and aborts if they diverge.
   watermark: z.string().min(1),
   artistsToCreate: z
     .array(z.object({ name: z.string().min(1), slug: z.string().min(1) }))

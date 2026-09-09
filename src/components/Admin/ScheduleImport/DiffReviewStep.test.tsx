@@ -22,26 +22,6 @@ const emptyDiff: DiffResult = {
   conflicts: { stageNameMismatches: [], orphanedSets: [] },
 };
 
-function renderStep(commitError: string | null) {
-  render(
-    <DiffReviewStep
-      diff={emptyDiff}
-      timezone="UTC"
-      dbStages={[]}
-      stageMismatchResolutions={{}}
-      orphanResolutions={{}}
-      onStageMismatchChange={vi.fn()}
-      onOrphanChange={vi.fn()}
-      onCommit={vi.fn()}
-      onReset={vi.fn()}
-      committing={false}
-      commitError={commitError}
-      canCommit
-      currentRevealLevel="draft"
-    />,
-  );
-}
-
 describe("DiffReviewStep", () => {
   it("shows a dedicated message and disables the primary button when the edition changed", () => {
     renderStep(
@@ -69,3 +49,23 @@ describe("DiffReviewStep", () => {
     expect(screen.getByRole("button", { name: "Retry" })).toBeEnabled();
   });
 });
+
+function renderStep(commitError: string | null) {
+  render(
+    <DiffReviewStep
+      diff={emptyDiff}
+      timezone="UTC"
+      dbStages={[]}
+      stageMismatchResolutions={{}}
+      orphanResolutions={{}}
+      onStageMismatchChange={vi.fn()}
+      onOrphanChange={vi.fn()}
+      onCommit={vi.fn()}
+      onReset={vi.fn()}
+      committing={false}
+      commitError={commitError}
+      canCommit
+      currentRevealLevel="draft"
+    />,
+  );
+}

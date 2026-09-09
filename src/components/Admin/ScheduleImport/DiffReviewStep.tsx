@@ -1,5 +1,4 @@
-import { AlertCircle, Loader2 } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -14,6 +13,8 @@ import { TypedSetsPanel } from "./TypedSetsPanel";
 import { StageMismatchResolver } from "./StageMismatchResolver";
 import { OrphanedSetsPanel } from "./OrphanedSetsPanel";
 import { LiveCommitWarning } from "./LiveCommitWarning";
+import { EditionChangedAlert } from "./EditionChangedAlert";
+import { CommitFailedAlert } from "./CommitFailedAlert";
 
 type DbStage = { id: string; name: string };
 
@@ -90,21 +91,12 @@ export function DiffReviewStep({
           setsToArchive={setsToArchive}
         />
 
-        {commitError && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>
-              {editionChanged
-                ? "The schedule changed since this review"
-                : "Import failed — no changes were saved."}
-            </AlertTitle>
-            <AlertDescription>
-              {editionChanged
-                ? "Someone changed this edition's schedule after Analyse ran. Nothing was applied — click Start over to re-run Analyse against the latest data."
-                : commitError}
-            </AlertDescription>
-          </Alert>
-        )}
+        {commitError &&
+          (editionChanged ? (
+            <EditionChangedAlert />
+          ) : (
+            <CommitFailedAlert message={commitError} />
+          ))}
 
         <div className="flex gap-3">
           <Button variant="outline" onClick={onReset} disabled={committing}>

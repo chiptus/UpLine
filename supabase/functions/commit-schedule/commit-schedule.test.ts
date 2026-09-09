@@ -39,9 +39,7 @@ async function getTestUserId(
   return data.user_id;
 }
 
-// #42: commit_schedule now requires a watermark matching the edition's
-// current state. Fetch it fresh (via the same RPC diff-schedule uses)
-// right before each call so unrelated setup inserts above don't go stale.
+/** Fetches a fresh watermark for the edition, used right before each commit_schedule call so unrelated setup inserts above don't go stale. */
 async function getWatermark(
   db: ReturnType<typeof adminClient>,
   editionId: string,
@@ -50,6 +48,7 @@ async function getWatermark(
     p_festival_edition_id: editionId,
   });
   assertEquals(error, null);
+  assertExists(data, "commit_schedule__compute_watermark returned no data");
   return data as string;
 }
 

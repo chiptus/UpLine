@@ -7,6 +7,7 @@
 
 import { assertEquals, assertExists } from "jsr:@std/assert@1";
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import type { Database } from "../_shared/database.types.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
@@ -53,19 +54,19 @@ async function getWatermark(
   return data;
 }
 
-type CommitResult = {
-  setsCreated: number;
-  setsUpdated: number;
-  setsArchived: number;
-};
+const commitResultSchema = z.object({
+  setsCreated: z.number(),
+  setsUpdated: z.number(),
+  setsArchived: z.number(),
+});
 
-/** Calls commit_schedule and casts its JSONB return to the known result shape. */
+/** Calls commit_schedule and validates its JSONB return against the known result shape. */
 async function callCommitSchedule(
   db: ReturnType<typeof adminClient>,
   args: Database["public"]["Functions"]["commit_schedule"]["Args"],
 ) {
   const { data, error } = await db.rpc("commit_schedule", args);
-  return { data: data as CommitResult | null, error };
+  return { data: error ? null : commitResultSchema.parse(data), error };
 }
 
 Deno.test("commit_schedule: creates new artist and set", async () => {

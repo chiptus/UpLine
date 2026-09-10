@@ -53,6 +53,21 @@ async function getWatermark(
   return data;
 }
 
+type CommitResult = {
+  setsCreated: number;
+  setsUpdated: number;
+  setsArchived: number;
+};
+
+/** Calls commit_schedule and casts its JSONB return to the known result shape. */
+async function callCommitSchedule(
+  db: ReturnType<typeof adminClient>,
+  args: Database["public"]["Functions"]["commit_schedule"]["Args"],
+) {
+  const { data, error } = await db.rpc("commit_schedule", args);
+  return { data: data as CommitResult | null, error };
+}
+
 Deno.test("commit_schedule: creates new artist and set", async () => {
   const db = adminClient();
   const editionId = await getTestEditionId(db);
@@ -60,7 +75,7 @@ Deno.test("commit_schedule: creates new artist and set", async () => {
   const slug = `test-artist-${Date.now()}`;
   const setName = `Test Artist Set ${slug}`;
 
-  const { data, error } = await db.rpc("commit_schedule", {
+  const { data, error } = await callCommitSchedule(db, {
     p_festival_edition_id: editionId,
     p_user_id: userId,
     p_watermark: await getWatermark(db, editionId),
@@ -81,6 +96,7 @@ Deno.test("commit_schedule: creates new artist and set", async () => {
   });
 
   assertEquals(error, null);
+  assertExists(data, "commit_schedule returned no data");
   assertEquals(data.setsCreated, 1);
   assertEquals(data.setsUpdated, 0);
 
@@ -124,7 +140,7 @@ Deno.test(
       .from("set_artists")
       .insert({ set_id: set!.id, artist_id: artist!.id });
 
-    const { data, error } = await db.rpc("commit_schedule", {
+    const { data, error } = await callCommitSchedule(db, {
       p_festival_edition_id: editionId,
       p_user_id: userId,
       p_watermark: await getWatermark(db, editionId),
@@ -146,6 +162,7 @@ Deno.test(
     });
 
     assertEquals(error, null);
+    assertExists(data, "commit_schedule returned no data");
     assertEquals(data.setsUpdated, 1);
 
     const { data: updated } = await db
@@ -178,7 +195,7 @@ Deno.test("commit_schedule: archives orphaned sets", async () => {
     .select("id")
     .single();
 
-  const { data, error } = await db.rpc("commit_schedule", {
+  const { data, error } = await callCommitSchedule(db, {
     p_festival_edition_id: editionId,
     p_user_id: userId,
     p_watermark: await getWatermark(db, editionId),
@@ -190,6 +207,7 @@ Deno.test("commit_schedule: archives orphaned sets", async () => {
   });
 
   assertEquals(error, null);
+  assertExists(data, "commit_schedule returned no data");
   assertEquals(data.setsArchived, 1);
 
   const { data: archived } = await db
@@ -216,7 +234,7 @@ Deno.test(
       .from("artists")
       .insert({ name: "Dup Set Artist", slug: artistSlug, added_by: userId });
 
-    const { data, error } = await db.rpc("commit_schedule", {
+    const { data, error } = await callCommitSchedule(db, {
       p_festival_edition_id: editionId,
       p_user_id: userId,
       p_watermark: await getWatermark(db, editionId),
@@ -245,6 +263,7 @@ Deno.test(
     });
 
     assertEquals(error, null);
+    assertExists(data, "commit_schedule returned no data");
     assertEquals(data.setsCreated, 2);
 
     const { data: sets } = await db
@@ -276,7 +295,7 @@ Deno.test(
     const userId = await getTestUserId(db);
     const setName = `Morning Yoga ${Date.now()}`;
 
-    const { data, error } = await db.rpc("commit_schedule", {
+    const { data, error } = await callCommitSchedule(db, {
       p_festival_edition_id: editionId,
       p_user_id: userId,
       p_watermark: await getWatermark(db, editionId),
@@ -298,6 +317,7 @@ Deno.test(
     });
 
     assertEquals(error, null);
+    assertExists(data, "commit_schedule returned no data");
     assertEquals(data.setsCreated, 1);
 
     const { data: sets } = await db
@@ -346,7 +366,7 @@ Deno.test(
     };
 
     // Explicit type overwrites the stored one.
-    const { error: overwriteError } = await db.rpc("commit_schedule", {
+    const { error: overwriteError } = await callCommitSchedule(db, {
       p_festival_edition_id: editionId,
       p_user_id: userId,
       p_watermark: await getWatermark(db, editionId),
@@ -366,7 +386,7 @@ Deno.test(
     assertEquals(afterOverwrite!.set_type, "workshop");
 
     // Null type (blank CSV column) preserves the stored one.
-    const { error: preserveError } = await db.rpc("commit_schedule", {
+    const { error: preserveError } = await callCommitSchedule(db, {
       p_festival_edition_id: editionId,
       p_user_id: userId,
       p_watermark: await getWatermark(db, editionId),
@@ -402,7 +422,7 @@ Deno.test(
       .from("artists")
       .insert({ name: "Late Night DJ", slug, added_by: userId });
 
-    const { error } = await db.rpc("commit_schedule", {
+    const { error } = await callCommitSchedule(db, {
       p_festival_edition_id: editionId,
       p_user_id: userId,
       p_watermark: await getWatermark(db, editionId),
@@ -466,7 +486,7 @@ Deno.test(
     assertEquals(concurrentSetError, null);
     assertExists(concurrentSet);
 
-    const { data, error } = await db.rpc("commit_schedule", {
+    const { data, error } = await callCommitSchedule(db, {
       p_festival_edition_id: editionId,
       p_user_id: userId,
       p_watermark: staleWatermark,

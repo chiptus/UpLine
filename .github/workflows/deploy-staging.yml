@@ -108,6 +108,7 @@ jobs:
           REPO: ${{ github.repository }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           TARGET: staging
-          MIGRATE_RESULT: ${{ needs.migrate.result }}
+          MIGRATE_RESULT: ${{ needs.migrate.outputs.migrate_status || needs.migrate.result }}
           FUNCTIONS_RESULT: ${{ needs.functions.result }}
+          TYPES_RESULT: ${{ needs.migrate.outputs.types_status || 'skipped' }}
         run: .github/scripts/post-deploy-comment.sh

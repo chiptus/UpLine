@@ -4,18 +4,19 @@ import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { requireAdmin } from "../_shared/auth.ts";
 import { buildCorsHeaders } from "../_shared/cors.ts";
 import { SET_TYPES } from "../_shared/setTypes.ts";
+import type { Database } from "../_shared/database.types.ts";
 import { computeDiff } from "./computeDiff.ts";
 import { fetchAllRows } from "./fetchAllRows.ts";
 
 async function fetchWatermark(
-  db: SupabaseClient,
+  db: SupabaseClient<Database>,
   festivalEditionId: string,
 ): Promise<string> {
   const { data, error } = await db.rpc("commit_schedule__compute_watermark", {
     p_festival_edition_id: festivalEditionId,
   });
   if (error) throw error;
-  return data as string;
+  return data;
 }
 
 function isValidTimezone(tz: string): boolean {

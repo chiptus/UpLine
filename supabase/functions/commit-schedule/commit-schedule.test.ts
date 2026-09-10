@@ -7,12 +7,13 @@
 
 import { assertEquals, assertExists } from "jsr:@std/assert@1";
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import type { Database } from "../_shared/database.types.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 
 function adminClient() {
-  return createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+  return createClient<Database>(SUPABASE_URL, SERVICE_ROLE_KEY);
 }
 
 async function getTestEditionId(
@@ -49,7 +50,7 @@ async function getWatermark(
   });
   assertEquals(error, null);
   assertExists(data, "commit_schedule__compute_watermark returned no data");
-  return data as string;
+  return data;
 }
 
 Deno.test("commit_schedule: creates new artist and set", async () => {

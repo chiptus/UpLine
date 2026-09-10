@@ -9,6 +9,7 @@ on:
       - "supabase/functions/**"
       - ".github/workflows/deploy-staging.yml"
       - ".github/workflows/_db_migrate.yml"
+      - ".github/workflows/_regenerate_types.yml"
       - ".github/workflows/_deploy_edge_functions.yml"
   workflow_dispatch: {}
 
@@ -82,6 +83,14 @@ jobs:
       needs.resolve.outputs.migrations == 'true' &&
       (github.event_name != 'pull_request' || (needs.check-lock.result == 'success' && needs.check-lock.outputs.is_holder == 'true'))
     uses: ./.github/workflows/_db_migrate.yml
+    with:
+      target: staging
+    secrets: inherit
+
+  types:
+    needs: migrate
+    if: always() && needs.migrate.result == 'success'
+    uses: ./.github/workflows/_regenerate_types.yml
     permissions:
       contents: write
     with:
@@ -98,7 +107,7 @@ jobs:
 
   comment:
     name: Update PR comment
-    needs: [resolve, migrate, functions]
+    needs: [resolve, migrate, types, functions]
     if: always() && needs.resolve.result == 'success' && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
@@ -112,5 +121,5 @@ jobs:
           TARGET: staging
           MIGRATE_RESULT: ${{ needs.migrate.outputs.migrate_status || needs.migrate.result }}
           FUNCTIONS_RESULT: ${{ needs.functions.result }}
-          TYPES_RESULT: ${{ needs.migrate.outputs.types_status || 'skipped' }}
+          TYPES_RESULT: ${{ needs.types.outputs.types_status || needs.types.result || 'skipped' }}
         run: .github/scripts/post-deploy-comment.sh

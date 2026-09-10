@@ -7,6 +7,11 @@ export type Json =
   | Json[];
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5";
+  };
   graphql_public: {
     Tables: {
       [_ in never]: never;
@@ -256,7 +261,9 @@ export type Database = {
           is_active: boolean;
           location: string | null;
           name: string;
+          phase_override: Database["public"]["Enums"]["festival_phase"] | null;
           published: boolean | null;
+          schedule_reveal_level: Database["public"]["Enums"]["schedule_reveal_level"];
           slug: string;
           start_date: string | null;
           updated_at: string;
@@ -272,7 +279,9 @@ export type Database = {
           is_active?: boolean;
           location?: string | null;
           name: string;
+          phase_override?: Database["public"]["Enums"]["festival_phase"] | null;
           published?: boolean | null;
+          schedule_reveal_level?: Database["public"]["Enums"]["schedule_reveal_level"];
           slug: string;
           start_date?: string | null;
           updated_at?: string;
@@ -288,7 +297,9 @@ export type Database = {
           is_active?: boolean;
           location?: string | null;
           name?: string;
+          phase_override?: Database["public"]["Enums"]["festival_phase"] | null;
           published?: boolean | null;
+          schedule_reveal_level?: Database["public"]["Enums"]["schedule_reveal_level"];
           slug?: string;
           start_date?: string | null;
           updated_at?: string;
@@ -355,6 +366,7 @@ export type Database = {
           name: string;
           published: boolean | null;
           slug: string;
+          timezone: string;
           updated_at: string;
         };
         Insert: {
@@ -366,6 +378,7 @@ export type Database = {
           name: string;
           published?: boolean | null;
           slug: string;
+          timezone?: string;
           updated_at?: string;
         };
         Update: {
@@ -377,6 +390,7 @@ export type Database = {
           name?: string;
           published?: boolean | null;
           slug?: string;
+          timezone?: string;
           updated_at?: string;
         };
         Relationships: [];
@@ -513,25 +527,72 @@ export type Database = {
       };
       profiles: {
         Row: {
+          active_group_id: string | null;
+          active_scope: Database["public"]["Enums"]["active_scope"] | null;
           completed_onboarding: boolean | null;
           created_at: string;
           email: string | null;
           id: string;
+          use_24_hour: boolean;
           username: string | null;
         };
         Insert: {
+          active_group_id?: string | null;
+          active_scope?: Database["public"]["Enums"]["active_scope"] | null;
           completed_onboarding?: boolean | null;
           created_at?: string;
           email?: string | null;
           id: string;
+          use_24_hour?: boolean;
           username?: string | null;
         };
         Update: {
+          active_group_id?: string | null;
+          active_scope?: Database["public"]["Enums"]["active_scope"] | null;
           completed_onboarding?: boolean | null;
           created_at?: string;
           email?: string | null;
           id?: string;
+          use_24_hour?: boolean;
           username?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "profiles_active_group_id_fkey";
+            columns: ["active_group_id"];
+            isOneToOne: false;
+            referencedRelation: "groups";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      provider_tokens: {
+        Row: {
+          access_token: string | null;
+          expires_at: string | null;
+          lease_id: string | null;
+          lock_until: string | null;
+          provider: string;
+          refresh_token: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          access_token?: string | null;
+          expires_at?: string | null;
+          lease_id?: string | null;
+          lock_until?: string | null;
+          provider: string;
+          refresh_token?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          access_token?: string | null;
+          expires_at?: string | null;
+          lease_id?: string | null;
+          lock_until?: string | null;
+          provider?: string;
+          refresh_token?: string | null;
+          updated_at?: string;
         };
         Relationships: [];
       };
@@ -567,6 +628,41 @@ export type Database = {
           },
           {
             foreignKeyName: "set_artists_set_id_fkey";
+            columns: ["set_id"];
+            isOneToOne: false;
+            referencedRelation: "sets";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      set_ratings: {
+        Row: {
+          created_at: string;
+          id: string;
+          rating: number;
+          set_id: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          rating: number;
+          set_id: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          rating?: number;
+          set_id?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "set_ratings_set_id_fkey";
             columns: ["set_id"];
             isOneToOne: false;
             referencedRelation: "sets";
@@ -759,6 +855,13 @@ export type Database = {
             referencedRelation: "sets";
             referencedColumns: ["id"];
           },
+          {
+            foreignKeyName: "votes_user_id_profiles_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
         ];
       };
     };
@@ -772,26 +875,84 @@ export type Database = {
         Args: { check_username: string; exclude_user_id?: string };
         Returns: boolean;
       };
-      duplicate_set_with_votes:
-        | {
-            Args: {
-              new_time_end: string;
-              new_time_start: string;
-              source_set_id: string;
-            };
-            Returns: string;
-          }
-        | {
-            Args: {
-              new_description?: string;
-              new_stage_id?: string;
-              new_time_end: string;
-              new_time_start: string;
-              source_set_id: string;
-            };
-            Returns: string;
-          };
+      claim_provider_token_lease: {
+        Args: { p_lease_seconds?: number; p_provider: string };
+        Returns: {
+          refresh_token: string;
+        }[];
+      };
+      commit_schedule: {
+        Args: {
+          p_artists_to_create: Json;
+          p_festival_edition_id: string;
+          p_set_ids_to_archive: string[];
+          p_sets_to_create: Json;
+          p_sets_to_update: Json;
+          p_stages_to_create: Json;
+          p_user_id: string;
+          p_watermark: string;
+        };
+        Returns: Json;
+      };
+      commit_schedule__archive_sets: {
+        Args: { p_festival_edition_id: string; p_set_ids_to_archive: string[] };
+        Returns: number;
+      };
+      commit_schedule__compute_watermark: {
+        Args: { p_festival_edition_id: string };
+        Returns: string;
+      };
+      commit_schedule__create_sets: {
+        Args: {
+          p_festival_edition_id: string;
+          p_sets_to_create: Json;
+          p_user_id: string;
+        };
+        Returns: number;
+      };
+      commit_schedule__parse_ts: { Args: { p_value: string }; Returns: string };
+      commit_schedule__resolve_stage_id: {
+        Args: { p_festival_edition_id: string; p_stage_name: string };
+        Returns: string;
+      };
+      commit_schedule__sync_set_artists: {
+        Args: {
+          p_artist_slugs: Json;
+          p_festival_edition_id: string;
+          p_set_id: string;
+        };
+        Returns: undefined;
+      };
+      commit_schedule__update_sets: {
+        Args: { p_festival_edition_id: string; p_sets_to_update: Json };
+        Returns: number;
+      };
+      commit_schedule__upsert_artists: {
+        Args: { p_artists_to_create: Json; p_user_id: string };
+        Returns: undefined;
+      };
+      commit_schedule__upsert_stages: {
+        Args: { p_festival_edition_id: string; p_stages_to_create: Json };
+        Returns: undefined;
+      };
+      duplicate_set_with_votes: {
+        Args: {
+          new_description?: string;
+          new_stage_id?: string;
+          new_time_end: string;
+          new_time_start: string;
+          source_set_id: string;
+        };
+        Returns: string;
+      };
       get_user_id_by_email: { Args: { user_email: string }; Returns: string };
+      group_member_counts: {
+        Args: { p_group_ids: string[] };
+        Returns: {
+          group_id: string;
+          member_count: number;
+        }[];
+      };
       has_admin_role: {
         Args: {
           check_role: Database["public"]["Enums"]["admin_role"];
@@ -802,12 +963,15 @@ export type Database = {
       is_admin: { Args: { check_user_id: string }; Returns: boolean };
       is_group_creator: { Args: { group_id_param: string }; Returns: boolean };
       is_group_member: { Args: { group_id_param: string }; Returns: boolean };
-      promote_user_to_admin: {
+      slugify: { Args: { p_name: string }; Returns: string };
+      store_provider_token: {
         Args: {
-          target_role?: Database["public"]["Enums"]["admin_role"];
-          user_email: string;
+          p_access_token: string;
+          p_expires_in: number;
+          p_provider: string;
+          p_refresh_token: string;
         };
-        Returns: boolean;
+        Returns: undefined;
       };
       use_invite_token: {
         Args: { token: string; user_id: string };
@@ -815,6 +979,13 @@ export type Database = {
           group_id: string;
           message: string;
           success: boolean;
+        }[];
+      };
+      user_vote_counts: {
+        Args: { p_user_ids: string[] };
+        Returns: {
+          user_id: string;
+          vote_count: number;
         }[];
       };
       users_share_group: {
@@ -837,8 +1008,11 @@ export type Database = {
       };
     };
     Enums: {
+      active_scope: "group" | "everyone" | "me";
       admin_role: "super_admin" | "admin" | "moderator";
+      festival_phase: "pre-schedule" | "planning" | "live" | "post-festival";
       link_type: "website" | "tickets" | "custom";
+      schedule_reveal_level: "draft" | "days" | "stages" | "full";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -972,8 +1146,11 @@ export const Constants = {
   },
   public: {
     Enums: {
+      active_scope: ["group", "everyone", "me"],
       admin_role: ["super_admin", "admin", "moderator"],
+      festival_phase: ["pre-schedule", "planning", "live", "post-festival"],
       link_type: ["website", "tickets", "custom"],
+      schedule_reveal_level: ["draft", "days", "stages", "full"],
     },
   },
 } as const;

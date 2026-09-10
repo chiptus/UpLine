@@ -13,10 +13,10 @@ on:
         value: ${{ jobs.migrate.outputs.migrate_status }}
       types_status:
         description: "Outcome of the type-regeneration step (success/skipped/failure), staging only"
-        value: ${{ jobs.migrate.outputs.types_status }}
+        value: ${{ jobs.regenerate-types.outputs.types_status }}
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   migrate:
@@ -25,8 +25,7 @@ jobs:
     timeout-minutes: 10
     environment: ${{ inputs.target == 'prod' && 'production' || (inputs.target == 'staging' && 'staging' || '') }}
     outputs:
-      migrate_status: ${{ steps.outputs.outputs.migrate_status }}
-      types_status: ${{ steps.outputs.outputs.types_status }}
+      migrate_status: ${{ steps.push.outcome }}
 
     steps:
       - name: Validate target
@@ -52,18 +51,45 @@ jobs:
           supabase link --project-ref "$PROJECT_REF" --password "$DB_PASSWORD"
           supabase db push --password "$DB_PASSWORD"
 
-      # Regenerate types from the schema we just pushed, so database.types.ts never
-      # drifts from the migrations that landed on staging. Prod isn't migrated per-PR,
-      # so this only runs for the staging target. Also requires a pull_request event
-      # (not workflow_dispatch): committing back needs a PR branch to push to.
+  # Regenerate types from the schema migrate just pushed, so database.types.ts never
+  # drifts from the migrations that landed on staging. Prod isn't migrated per-PR, and
+  # committing back needs a PR branch to push to, so this only runs for the staging
+  # target on a pull_request event, and only once migrations actually pushed. Split
+  # into its own job (rather than a step in `migrate`) so only this job needs the
+  # `contents: write` permission to push the regenerated-types commit — `migrate`
+  # itself never touches the git history and stays read-only.
+  regenerate-types:
+    name: Regenerate types (${{ inputs.target }})
+    needs: migrate
+    if: inputs.target == 'staging' && github.event_name == 'pull_request' && needs.migrate.outputs.migrate_status == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: staging
+    permissions:
+      contents: write
+    outputs:
+      types_status: ${{ steps.outcome.outputs.types_status }}
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - uses: supabase/setup-cli@v3
+
       - name: Generate types from staging schema
         id: gen-types
-        if: inputs.target == 'staging' && github.event_name == 'pull_request'
-        run: ./scripts/gen-types.sh --linked
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          PROJECT_REF: ${{ vars.STAGING_PROJECT_REF }}
+          DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+        run: |
+          supabase link --project-ref "$PROJECT_REF" --password "$DB_PASSWORD"
+          ./scripts/gen-types.sh --linked
 
       - name: Commit and push regenerated types
         id: commit-types
-        if: inputs.target == 'staging' && github.event_name == 'pull_request'
+        if: steps.gen-types.outcome == 'success'
         run: |
           set -euo pipefail
           if git diff --quiet -- src/integrations/supabase/types.ts supabase/functions/_shared/database.types.ts; then
@@ -78,8 +104,11 @@ jobs:
           fi
 
       - name: Set job outputs
-        id: outputs
+        id: outcome
         if: always()
         run: |
-          echo "migrate_status=${{ steps.push.outcome }}" >> "$GITHUB_OUTPUT"
-          echo "types_status=${{ steps.commit-types.outputs.status || 'skipped' }}" >> "$GITHUB_OUTPUT"
+          if [[ "${{ steps.gen-types.outcome }}" == "failure" || "${{ steps.commit-types.outcome }}" == "failure" ]]; then
+            echo "types_status=failure" >> "$GITHUB_OUTPUT"
+          else
+            echo "types_status=${{ steps.commit-types.outputs.status || 'skipped' }}" >> "$GITHUB_OUTPUT"
+          fi

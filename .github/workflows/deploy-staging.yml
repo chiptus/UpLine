@@ -121,5 +121,5 @@ jobs:
           TARGET: staging
           MIGRATE_RESULT: ${{ needs.migrate.outputs.migrate_status || needs.migrate.result }}
           FUNCTIONS_RESULT: ${{ needs.functions.result }}
-          TYPES_RESULT: ${{ needs.types.outputs.types_status || needs.types.result || 'skipped' }}
+          TYPES_RESULT: ${{ (needs.types.result != 'success' && needs.types.result) || needs.types.outputs.types_status || 'skipped' }}
         run: .github/scripts/post-deploy-comment.sh

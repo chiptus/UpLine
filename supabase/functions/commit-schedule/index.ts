@@ -23,6 +23,10 @@ const setPayloadSchema = z.object({
   stageName: z.string().nullish(),
   timeStart: nullableTimestamp,
   timeEnd: nullableTimestamp,
+  timeTba: z
+    .boolean()
+    .nullish()
+    .transform((v) => v ?? false),
   artistSlugs: z.array(z.string().min(1)),
 });
 

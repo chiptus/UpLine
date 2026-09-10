@@ -104,7 +104,7 @@ describe("classifyNowNext", () => {
     ]);
   });
 
-  it("excludes sets with masked or missing times without error", () => {
+  it("excludes sets with masked or missing times without error (also covers TBA sets, #45, which always have a null time_end)", () => {
     const masked = { id: "masked", time_start: null, time_end: null };
     const noEnd = {
       id: "no-end",

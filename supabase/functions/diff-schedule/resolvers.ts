@@ -105,19 +105,27 @@ export function resolveStage(
 export function computeTimes(
   row: Pick<CsvRow, "date" | "startTime" | "endTime">,
   timezone: string,
-): { timeStart: string | null; timeEnd: string | null } {
+): { timeStart: string | null; timeEnd: string | null; timeTba: boolean } {
   let timeStart: string | null = null;
   let timeEnd: string | null = null;
+  let timeTba = false;
   if (row.date && row.startTime) {
     timeStart = localToUtc(row.date, row.startTime, timezone);
+    timeEnd = row.endTime
+      ? localToUtc(
+          row.endTime < row.startTime ? advanceDateByOne(row.date) : row.date,
+          row.endTime,
+          timezone,
+        )
+      : null;
+  } else if (row.date) {
+    // Date known, time TBA (#45): fold the set under its festival day at
+    // midnight instead of dropping the date. No end time -- "sometime that
+    // day" has no known duration.
+    timeStart = localToUtc(row.date, "00:00", timezone);
+    timeTba = true;
   }
-  if (row.date && row.endTime) {
-    const crossesMidnight =
-      row.startTime != null && row.endTime < row.startTime;
-    const endDate = crossesMidnight ? advanceDateByOne(row.date) : row.date;
-    timeEnd = localToUtc(endDate, row.endTime, timezone);
-  }
-  return { timeStart, timeEnd };
+  return { timeStart, timeEnd, timeTba };
 }
 
 /** The CSV row's discriminators, as both matching functions consume them. */

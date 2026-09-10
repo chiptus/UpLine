@@ -19,6 +19,7 @@ export const setPayloadSchema = z.object({
   stageName: z.string().nullable(),
   timeStart: z.string().nullable(),
   timeEnd: z.string().nullable(),
+  timeTba: z.boolean(),
   artistSlugs: z.array(z.string()),
 });
 export type SetPayload = z.infer<typeof setPayloadSchema>;

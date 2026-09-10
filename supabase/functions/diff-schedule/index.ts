@@ -111,7 +111,7 @@ serve(async (req) => {
         db
           .from("sets")
           .select(
-            "id, name, description, stage_id, time_start, time_end, set_type, set_artists(artist_id, artists(id, name, slug))",
+            "id, name, description, stage_id, time_start, time_end, time_tba, set_type, set_artists(artist_id, artists(id, name, slug))",
           )
           .eq("festival_edition_id", festivalEditionId)
           .eq("archived", false)

@@ -15,6 +15,7 @@ export function makeSet(
   artists: DbArtist[],
   stageId: string | null = null,
   timeStart: string | null = null,
+  timeTba: boolean = false,
 ): DbSet {
   return {
     id,
@@ -24,6 +25,7 @@ export function makeSet(
     stage_id: stageId,
     time_start: timeStart,
     time_end: null,
+    time_tba: timeTba,
     set_artists: artists.map((a) => ({ artist_id: a.id, artists: a })),
   };
 }

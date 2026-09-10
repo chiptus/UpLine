@@ -28,6 +28,7 @@ export interface ScheduleArtist {
   stageId?: string;
   startTime?: Date | undefined;
   endTime?: Date | undefined;
+  timeTba?: boolean;
   votes?: { vote_type: number; user_id: string }[];
   formattedTimeRange?: string | null;
   conflictsWith?: string[];
@@ -86,6 +87,7 @@ export function useScheduleData({
           stageId: set.stage_id || "",
           startTime,
           endTime,
+          timeTba: set.time_tba,
           votes: set.votes || [],
           formattedTimeRange: formatDateTime(
             set.time_start,

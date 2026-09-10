@@ -71,14 +71,39 @@ Deno.test("computeTimes converts local start/end to UTC", () => {
   );
   assertEquals(result.timeStart, "2026-07-11T23:00:00.000Z");
   assertEquals(result.timeEnd, "2026-07-12T01:00:00.000Z");
+  assertEquals(result.timeTba, false);
 });
 
 Deno.test("computeTimes returns nulls when date is missing", () => {
   assertEquals(computeTimes({ startTime: "23:00" }, "UTC"), {
     timeStart: null,
     timeEnd: null,
+    timeTba: false,
   });
 });
+
+Deno.test(
+  "computeTimes builds midnight + timeTba when date is present without a start time (#45)",
+  () => {
+    const result = computeTimes({ date: "2026-07-11" }, "UTC");
+    assertEquals(result.timeStart, "2026-07-11T00:00:00.000Z");
+    assertEquals(result.timeEnd, null);
+    assertEquals(result.timeTba, true);
+  },
+);
+
+Deno.test(
+  "computeTimes ignores an end time given without a start time (#45)",
+  () => {
+    const result = computeTimes(
+      { date: "2026-07-11", endTime: "23:00" },
+      "UTC",
+    );
+    assertEquals(result.timeStart, "2026-07-11T00:00:00.000Z");
+    assertEquals(result.timeEnd, null);
+    assertEquals(result.timeTba, true);
+  },
+);
 
 function makeContext(
   stageId: string | null = null,
@@ -146,6 +171,7 @@ function makeSet(
     stage_id: stageId,
     time_start: timeStart,
     time_end: null,
+    time_tba: false,
     set_artists: artists.map((a) => ({ artist_id: a.id, artists: a })),
   };
 }

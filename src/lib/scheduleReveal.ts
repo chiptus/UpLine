@@ -28,6 +28,7 @@ export function canShowTime(level: RevealLevel): boolean {
 export type MaskableSet = {
   time_start: string | null;
   time_end: string | null;
+  time_tba: boolean;
   stage_id: string | null;
 };
 
@@ -42,5 +43,6 @@ export function maskSetForReveal<T extends MaskableSet>(
     stage_id: canShowStage(level) ? set.stage_id : null,
     time_start: canShowDay(level) ? set.time_start : null,
     time_end: canShowTime(level) ? set.time_end : null,
+    time_tba: canShowDay(level) ? set.time_tba : false,
   };
 }

@@ -30,6 +30,7 @@ export type DbSet = Pick<
   | "stage_id"
   | "time_start"
   | "time_end"
+  | "time_tba"
   | "set_type"
 > & {
   set_artists: { artist_id: string; artists: DbArtist }[];
@@ -42,6 +43,7 @@ export type SetPayload = {
   stageName: string | null;
   timeStart: string | null;
   timeEnd: string | null;
+  timeTba: boolean;
   artistSlugs: string[];
 };
 

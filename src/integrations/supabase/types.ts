@@ -615,6 +615,7 @@ export type Database = {
           stage_id: string | null;
           time_end: string | null;
           time_start: string | null;
+          time_tba: boolean;
           updated_at: string;
         };
         Insert: {
@@ -631,6 +632,7 @@ export type Database = {
           stage_id?: string | null;
           time_end?: string | null;
           time_start?: string | null;
+          time_tba?: boolean;
           updated_at?: string;
         };
         Update: {
@@ -647,6 +649,7 @@ export type Database = {
           stage_id?: string | null;
           time_end?: string | null;
           time_start?: string | null;
+          time_tba?: boolean;
           updated_at?: string;
         };
         Relationships: [

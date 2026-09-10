@@ -1,5 +1,5 @@
 import { asSetType } from "../_shared/setTypes.ts";
-import { artistKey } from "./helpers.ts";
+import { artistKey, utcToLocalDate } from "./helpers.ts";
 import {
   buildIndexes,
   computeTimes,
@@ -38,7 +38,7 @@ export function computeDiff(
     const stage = resolveStage(row.stage, dbStages, indexes.stageByNameLower);
     const resolvedStage = applyStageResolution(state, stage);
 
-    const { timeStart, timeEnd } = computeTimes(row, timezone);
+    const computedTime = computeTimes(row, timezone);
 
     const name = row.setName?.trim() || row.artists.join(" b2b ");
 
@@ -56,13 +56,18 @@ export function computeDiff(
             state.matchedSetIds,
           );
 
+    const resolvedTime = matched
+      ? resolveTimeForMatch(matched, computedTime, row.date, timezone)
+      : computedTime;
+
     const payload: SetPayload = {
       name,
       setType: row.setType ?? null,
       description: row.description ?? null,
       stageName: resolvedStage.name,
-      timeStart,
-      timeEnd,
+      timeStart: resolvedTime.timeStart,
+      timeEnd: resolvedTime.timeEnd,
+      timeTba: resolvedTime.timeTba,
       artistSlugs,
     };
 
@@ -131,6 +136,32 @@ function createState(): DiffState {
     setsToCreate: [],
     setsToUpdate: [],
   };
+}
+
+// A date-only row matching a set with a real time on the same day (#45) is
+// treated as a full time omission, preserving the more precise stored time.
+function resolveTimeForMatch(
+  matched: DbSet,
+  computed: {
+    timeStart: string | null;
+    timeEnd: string | null;
+    timeTba: boolean;
+  },
+  rowDate: string | undefined,
+  timezone: string,
+): { timeStart: string | null; timeEnd: string | null; timeTba: boolean } {
+  if (
+    !computed.timeTba ||
+    !rowDate ||
+    !matched.time_start ||
+    matched.time_tba
+  ) {
+    return computed;
+  }
+  const sameDay = utcToLocalDate(matched.time_start, timezone) === rowDate;
+  return sameDay
+    ? { timeStart: null, timeEnd: null, timeTba: false }
+    : computed;
 }
 
 // Registers any artists not yet seen across the import as new.

@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, Users } from "lucide-react";
 import { SetVotingButtons } from "./SetVotingButtons";
 import { FestivalSet } from "@/api/sets/types";
-import { formatDayOnly, formatTimeRange } from "@/lib/timeUtils";
+import { formatSetSchedule } from "@/lib/setScheduleDisplay";
 import { GenreBadge } from "@/components/GenreBadge";
 import { IndividualArtistCard } from "./IndividualArtistCard";
 import { StagePin } from "@/components/StagePin";
@@ -40,18 +40,12 @@ export function MultiArtistSetInfoCard({
     from: "/festivals/$festivalSlug/editions/$editionSlug",
   });
   const { canShowStage, canShowDay, canShowTime } = useScheduleReveal();
-  const timeRangeFormatted = canShowTime
-    ? formatTimeRange(
-        set.time_start,
-        set.time_end,
-        use24Hour,
-        festival.timezone,
-      )
-    : null;
-  const dayOnlyFormatted =
-    canShowDay && !canShowTime
-      ? formatDayOnly(set.time_start, festival.timezone)
-      : null;
+  const scheduleFormatted = formatSetSchedule(
+    set,
+    { canShowDay, canShowTime },
+    use24Hour,
+    festival.timezone,
+  );
 
   return (
     <div className="lg:col-span-2 space-y-6">
@@ -100,16 +94,10 @@ export function MultiArtistSetInfoCard({
               {/* Performance Information */}
               <div className="flex flex-wrap gap-4 mb-4 text-muted-foreground">
                 {canShowStage && <StagePin stageId={set.stage_id} />}
-                {timeRangeFormatted && (
+                {scheduleFormatted && (
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4" />
-                    <span className="text-sm">{timeRangeFormatted}</span>
-                  </div>
-                )}
-                {dayOnlyFormatted && (
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    <span className="text-sm">{dayOnlyFormatted}</span>
+                    <span className="text-sm">{scheduleFormatted}</span>
                   </div>
                 )}
               </div>

@@ -1,5 +1,5 @@
 import { Clock } from "lucide-react";
-import { formatDayOnly, formatTimeRange } from "@/lib/timeUtils";
+import { formatSetSchedule } from "@/lib/setScheduleDisplay";
 import { GenreBadge } from "@/components/GenreBadge";
 import { StageBadgeById } from "@/components/StageBadgeById";
 import { useFestivalSet } from "../FestivalSetContext";
@@ -22,19 +22,12 @@ export function SetMetadata() {
         index,
     );
 
-  const timeRangeFormatted = canShowTime
-    ? formatTimeRange(
-        set.time_start,
-        set.time_end,
-        use24Hour,
-        festival.timezone,
-      )
-    : null;
-
-  const dayOnlyFormatted =
-    canShowDay && !canShowTime
-      ? formatDayOnly(set.time_start, festival.timezone)
-      : null;
+  const scheduleFormatted = formatSetSchedule(
+    set,
+    { canShowDay, canShowTime },
+    use24Hour,
+    festival.timezone,
+  );
 
   return (
     <div className="flex items-center flex-wrap gap-2">
@@ -56,16 +49,10 @@ export function SetMetadata() {
         {canShowStage && set?.stage_id && (
           <StageBadgeById stageId={set.stage_id} />
         )}
-        {timeRangeFormatted && (
+        {scheduleFormatted && (
           <div className="flex items-center gap-1 text-sm text-muted-foreground">
             <Clock className="h-3 w-3" />
-            <span>{timeRangeFormatted}</span>
-          </div>
-        )}
-        {dayOnlyFormatted && (
-          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-            <Clock className="h-3 w-3" />
-            <span>{dayOnlyFormatted}</span>
+            <span>{scheduleFormatted}</span>
           </div>
         )}
       </div>

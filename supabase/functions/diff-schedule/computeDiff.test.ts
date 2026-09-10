@@ -381,7 +381,7 @@ Deno.test("update payload carries the matched set's stored type", () => {
 });
 
 Deno.test(
-  "date-only row (no start time) creates a set at midnight with timeTba (#45)",
+  'date-only row (no start time) creates a set at midnight with status "tba" (#45)',
   () => {
     const artist = makeArtist("Carl Cox");
     const result = computeDiff(
@@ -394,7 +394,7 @@ Deno.test(
     const created = result.cleanOperations.setsToCreate[0];
     assertEquals(created.timeStart, "2026-07-11T00:00:00.000Z");
     assertEquals(created.timeEnd, null);
-    assertEquals(created.timeTba, true);
+    assertEquals(created.status, "tba");
   },
 );
 
@@ -419,7 +419,7 @@ Deno.test(
     const updated = result.cleanOperations.setsToUpdate[0];
     assertEquals(updated.timeStart, null);
     assertEquals(updated.timeEnd, null);
-    assertEquals(updated.timeTba, false);
+    assertEquals(updated.status, "confirmed");
   },
 );
 
@@ -444,7 +444,7 @@ Deno.test(
     const updated = result.cleanOperations.setsToUpdate[0];
     assertEquals(updated.timeStart, "2026-07-12T00:00:00.000Z");
     assertEquals(updated.timeEnd, null);
-    assertEquals(updated.timeTba, true);
+    assertEquals(updated.status, "tba");
   },
 );
 
@@ -472,12 +472,12 @@ Deno.test(
     const updated = result.cleanOperations.setsToUpdate[0];
     assertEquals(updated.timeStart, null);
     assertEquals(updated.timeEnd, null);
-    assertEquals(updated.timeTba, false);
+    assertEquals(updated.status, "confirmed");
   },
 );
 
 Deno.test(
-  "a row with a real time always clears timeTba, even over a previously-TBA set (#45)",
+  "a row with a real time always resets status to confirmed, even over a previously-TBA set (#45)",
   () => {
     const artist = makeArtist("Carl Cox");
     const set = makeSet(
@@ -486,7 +486,7 @@ Deno.test(
       [artist],
       null,
       "2026-07-11T00:00:00Z",
-      true,
+      "tba",
     );
     const result = computeDiff(
       [
@@ -503,6 +503,6 @@ Deno.test(
     );
     const updated = result.cleanOperations.setsToUpdate[0];
     assertEquals(updated.timeStart, "2026-07-11T20:00:00.000Z");
-    assertEquals(updated.timeTba, false);
+    assertEquals(updated.status, "confirmed");
   },
 );

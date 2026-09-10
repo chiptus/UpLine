@@ -71,24 +71,24 @@ Deno.test("computeTimes converts local start/end to UTC", () => {
   );
   assertEquals(result.timeStart, "2026-07-11T23:00:00.000Z");
   assertEquals(result.timeEnd, "2026-07-12T01:00:00.000Z");
-  assertEquals(result.timeTba, false);
+  assertEquals(result.status, "confirmed");
 });
 
 Deno.test("computeTimes returns nulls when date is missing", () => {
   assertEquals(computeTimes({ startTime: "23:00" }, "UTC"), {
     timeStart: null,
     timeEnd: null,
-    timeTba: false,
+    status: "confirmed",
   });
 });
 
 Deno.test(
-  "computeTimes builds midnight + timeTba when date is present without a start time (#45)",
+  'computeTimes builds midnight + status "tba" when date is present without a start time (#45)',
   () => {
     const result = computeTimes({ date: "2026-07-11" }, "UTC");
     assertEquals(result.timeStart, "2026-07-11T00:00:00.000Z");
     assertEquals(result.timeEnd, null);
-    assertEquals(result.timeTba, true);
+    assertEquals(result.status, "tba");
   },
 );
 
@@ -101,7 +101,7 @@ Deno.test(
     );
     assertEquals(result.timeStart, "2026-07-11T00:00:00.000Z");
     assertEquals(result.timeEnd, null);
-    assertEquals(result.timeTba, true);
+    assertEquals(result.status, "tba");
   },
 );
 
@@ -171,7 +171,7 @@ function makeSet(
     stage_id: stageId,
     time_start: timeStart,
     time_end: null,
-    time_tba: false,
+    status: "confirmed",
     set_artists: artists.map((a) => ({ artist_id: a.id, artists: a })),
   };
 }

@@ -16,6 +16,7 @@ import type {
   DbStage,
   DiffResult,
   SetPayload,
+  SetStatus,
 } from "./types.ts";
 
 export function computeDiff(
@@ -67,7 +68,7 @@ export function computeDiff(
       stageName: resolvedStage.name,
       timeStart: resolvedTime.timeStart,
       timeEnd: resolvedTime.timeEnd,
-      timeTba: resolvedTime.timeTba,
+      status: resolvedTime.status,
       artistSlugs,
     };
 
@@ -145,22 +146,22 @@ function resolveTimeForMatch(
   computed: {
     timeStart: string | null;
     timeEnd: string | null;
-    timeTba: boolean;
+    status: SetStatus;
   },
   rowDate: string | undefined,
   timezone: string,
-): { timeStart: string | null; timeEnd: string | null; timeTba: boolean } {
+): { timeStart: string | null; timeEnd: string | null; status: SetStatus } {
   if (
-    !computed.timeTba ||
+    computed.status !== "tba" ||
     !rowDate ||
     !matched.time_start ||
-    matched.time_tba
+    matched.status === "tba"
   ) {
     return computed;
   }
   const sameDay = utcToLocalDate(matched.time_start, timezone) === rowDate;
   return sameDay
-    ? { timeStart: null, timeEnd: null, timeTba: false }
+    ? { timeStart: null, timeEnd: null, status: "confirmed" }
     : computed;
 }
 

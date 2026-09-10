@@ -1,4 +1,4 @@
-import type { CsvRow, DbArtist, DbSet, DbStage } from "./types.ts";
+import type { CsvRow, DbArtist, DbSet, DbStage, SetStatus } from "./types.ts";
 import {
   advanceDateByOne,
   artistKey,
@@ -105,10 +105,10 @@ export function resolveStage(
 export function computeTimes(
   row: Pick<CsvRow, "date" | "startTime" | "endTime">,
   timezone: string,
-): { timeStart: string | null; timeEnd: string | null; timeTba: boolean } {
+): { timeStart: string | null; timeEnd: string | null; status: SetStatus } {
   let timeStart: string | null = null;
   let timeEnd: string | null = null;
-  let timeTba = false;
+  let status: SetStatus = "confirmed";
   if (row.date && row.startTime) {
     timeStart = localToUtc(row.date, row.startTime, timezone);
     timeEnd = row.endTime
@@ -123,9 +123,9 @@ export function computeTimes(
     // midnight instead of dropping the date. No end time -- "sometime that
     // day" has no known duration.
     timeStart = localToUtc(row.date, "00:00", timezone);
-    timeTba = true;
+    status = "tba";
   }
-  return { timeStart, timeEnd, timeTba };
+  return { timeStart, timeEnd, status };
 }
 
 /** The CSV row's discriminators, as both matching functions consume them. */

@@ -3,7 +3,7 @@ import { formatDayOnly, formatTimeRange } from "@/lib/timeUtils";
 type SetScheduleFields = {
   time_start: string | null;
   time_end: string | null;
-  time_tba: boolean;
+  status: string;
 };
 
 type ScheduleRevealFlags = {
@@ -11,19 +11,20 @@ type ScheduleRevealFlags = {
   canShowTime: boolean;
 };
 
-// time_tba means time_start is a midnight placeholder, not a real time, so
-// once the reveal level would expose it "TBA" stands in instead (#45).
+// status "tba" means time_start is a midnight placeholder, not a real time,
+// so once the reveal level would expose it "TBA" stands in instead (#45).
 export function formatSetSchedule(
   set: SetScheduleFields,
   reveal: ScheduleRevealFlags,
   use24Hour: boolean,
   timezone?: string,
 ): string | null {
-  if (reveal.canShowTime && !set.time_tba) {
+  const isTba = set.status === "tba";
+  if (reveal.canShowTime && !isTba) {
     return formatTimeRange(set.time_start, set.time_end, use24Hour, timezone);
   }
   if (!reveal.canShowDay) return null;
   const day = formatDayOnly(set.time_start, timezone);
   if (!day) return null;
-  return set.time_tba ? `${day} · TBA` : day;
+  return isTba ? `${day} · TBA` : day;
 }

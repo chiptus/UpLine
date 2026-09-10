@@ -87,7 +87,7 @@ export function useScheduleData({
           stageId: set.stage_id || "",
           startTime,
           endTime,
-          timeTba: set.time_tba,
+          timeTba: set.status === "tba",
           votes: set.votes || [],
           formattedTimeRange: formatDateTime(
             set.time_start,

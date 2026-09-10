@@ -97,7 +97,7 @@ function makePayload(name: string): SetPayload {
     stageName: null,
     timeStart: null,
     timeEnd: null,
-    timeTba: false,
+    status: "confirmed",
     artistSlugs: [],
   };
 }

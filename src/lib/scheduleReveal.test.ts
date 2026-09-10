@@ -11,7 +11,7 @@ const baseSet = {
   id: "s1",
   time_start: "2025-08-01T18:00:00",
   time_end: "2025-08-01T19:00:00",
-  time_tba: false,
+  status: "confirmed" as const,
   stage_id: "stage-1",
   name: "A set",
 };
@@ -62,7 +62,7 @@ describe("maskSetForReveal", () => {
     const masked = maskSetForReveal(baseSet, "draft");
     expect(masked.time_start).toBeNull();
     expect(masked.time_end).toBeNull();
-    expect(masked.time_tba).toBe(false);
+    expect(masked.status).toBe("confirmed");
     expect(masked.stage_id).toBeNull();
     expect(masked.name).toBe(baseSet.name);
   });
@@ -81,11 +81,11 @@ describe("maskSetForReveal", () => {
     expect(masked.stage_id).toBe(baseSet.stage_id);
   });
 
-  it("keeps time_tba at days/stages, masks it at draft", () => {
-    const tbaSet = { ...baseSet, time_tba: true };
-    expect(maskSetForReveal(tbaSet, "days").time_tba).toBe(true);
-    expect(maskSetForReveal(tbaSet, "stages").time_tba).toBe(true);
-    expect(maskSetForReveal(tbaSet, "draft").time_tba).toBe(false);
+  it("keeps status at days/stages, masks it at draft", () => {
+    const tbaSet = { ...baseSet, status: "tba" as const };
+    expect(maskSetForReveal(tbaSet, "days").status).toBe("tba");
+    expect(maskSetForReveal(tbaSet, "stages").status).toBe("tba");
+    expect(maskSetForReveal(tbaSet, "draft").status).toBe("confirmed");
   });
 
   it("does not mutate the original set", () => {

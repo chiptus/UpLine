@@ -4,13 +4,13 @@ import { formatSetSchedule } from "./setScheduleDisplay";
 const timedSet = {
   time_start: "2026-07-11T20:00:00Z",
   time_end: "2026-07-11T22:00:00Z",
-  time_tba: false,
+  status: "confirmed" as const,
 };
 
 const tbaSet = {
   time_start: "2026-07-11T00:00:00Z",
   time_end: null,
-  time_tba: true,
+  status: "tba" as const,
 };
 
 describe("formatSetSchedule", () => {

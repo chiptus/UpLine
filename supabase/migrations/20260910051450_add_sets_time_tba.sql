@@ -1,22 +1,28 @@
 -- #45: support date-only sets (date known, time TBA) in schedule import.
 -- A date-only CSV row (Date present, Start Time absent) now stores
 -- time_start at the festival day's midnight (edition timezone) with
--- time_tba = true, instead of dropping the date entirely. time_end stays
--- null for a TBA set. A row carrying a real start time always clears the
--- flag.
+-- status = 'tba', instead of dropping the date entirely. time_end stays
+-- null for a TBA set. A row carrying a real start time always resets
+-- status back to 'confirmed'.
+--
+-- status is text + CHECK rather than a boolean or a native enum: the same
+-- information as a boolean today, but extending the allowed values later
+-- (e.g. a 'cancelled' status) is a one-line CHECK change instead of the
+-- ALTER TYPE dance a native enum requires.
 
 ALTER TABLE public.sets
-  ADD COLUMN time_tba BOOLEAN NOT NULL DEFAULT false;
+  ADD COLUMN status TEXT NOT NULL DEFAULT 'confirmed'
+    CHECK (status IN ('confirmed', 'tba'));
 
 -- Re-create commit_schedule__create_sets / __update_sets (same signatures,
--- CREATE OR REPLACE only) to persist time_tba alongside time_start.
+-- CREATE OR REPLACE only) to persist status alongside time_start.
 --
 -- The "preserve on same day" nuance from #45 (a date-only row matching a set
 -- that already has a real committed time on the same festival day must not
 -- downgrade it to TBA) is resolved entirely in computeDiff.ts, upstream of
 -- this RPC: it detects that case and sends timeStart = null (full omission)
 -- instead of a midnight+TBA value. So this function only needs to keep
--- time_tba in lockstep with time_start using the same preserve-on-omit
+-- status in lockstep with time_start using the same preserve-on-omit
 -- pattern already used for stage_id/time_start/time_end/set_type -- no
 -- day-comparison logic needed here.
 CREATE OR REPLACE FUNCTION public.commit_schedule__update_sets(
@@ -28,19 +34,19 @@ LANGUAGE plpgsql
 SET search_path = public
 AS $$
 DECLARE
-  v_set_elem  JSONB;
-  v_set_id    UUID;
-  v_new_start TIMESTAMPTZ;
-  v_new_tba   BOOLEAN;
-  v_row_count INT;
-  v_updated   INT := 0;
+  v_set_elem   JSONB;
+  v_set_id     UUID;
+  v_new_start  TIMESTAMPTZ;
+  v_new_status TEXT;
+  v_row_count  INT;
+  v_updated    INT := 0;
 BEGIN
   FOR v_set_elem IN
     SELECT value FROM jsonb_array_elements(COALESCE(p_sets_to_update, '[]'::jsonb))
   LOOP
-    v_set_id    := (v_set_elem->>'id')::UUID;
-    v_new_start := commit_schedule__parse_ts(v_set_elem->>'timeStart');
-    v_new_tba   := COALESCE((v_set_elem->>'timeTba')::boolean, false);
+    v_set_id     := (v_set_elem->>'id')::UUID;
+    v_new_start  := commit_schedule__parse_ts(v_set_elem->>'timeStart');
+    v_new_status := COALESCE(v_set_elem->>'status', 'confirmed');
 
     UPDATE sets
     SET
@@ -60,10 +66,10 @@ BEGIN
       -- omitted time preserves the end as-is.
       time_end    = CASE
         WHEN v_new_start IS NULL THEN sets.time_end
-        WHEN v_new_tba THEN NULL
+        WHEN v_new_status = 'tba' THEN NULL
         ELSE COALESCE(commit_schedule__parse_ts(v_set_elem->>'timeEnd'), sets.time_end)
       END,
-      time_tba    = CASE WHEN v_new_start IS NOT NULL THEN v_new_tba ELSE sets.time_tba END,
+      status      = CASE WHEN v_new_start IS NOT NULL THEN v_new_status ELSE sets.status END,
       updated_at  = NOW()
     WHERE id = v_set_id
       AND festival_edition_id = p_festival_edition_id;
@@ -104,7 +110,7 @@ BEGIN
   LOOP
     INSERT INTO sets (
       festival_edition_id, name, slug, description, set_type, stage_id,
-      time_start, time_end, time_tba, created_by
+      time_start, time_end, status, created_by
     )
     VALUES (
       p_festival_edition_id,
@@ -117,7 +123,7 @@ BEGIN
       ),
       commit_schedule__parse_ts(v_set_elem->>'timeStart'),
       commit_schedule__parse_ts(v_set_elem->>'timeEnd'),
-      COALESCE((v_set_elem->>'timeTba')::boolean, false),
+      COALESCE(v_set_elem->>'status', 'confirmed'),
       p_user_id
     )
     RETURNING id INTO v_new_set_id;

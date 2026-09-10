@@ -1,4 +1,4 @@
-import type { DbArtist, DbSet, DbStage } from "./types.ts";
+import type { DbArtist, DbSet, DbStage, SetStatus } from "./types.ts";
 
 export function makeArtist(name: string): DbArtist {
   const slug = name.toLowerCase().replace(/\s+/g, "-");
@@ -15,7 +15,7 @@ export function makeSet(
   artists: DbArtist[],
   stageId: string | null = null,
   timeStart: string | null = null,
-  timeTba: boolean = false,
+  status: SetStatus = "confirmed",
 ): DbSet {
   return {
     id,
@@ -25,7 +25,7 @@ export function makeSet(
     stage_id: stageId,
     time_start: timeStart,
     time_end: null,
-    time_tba: timeTba,
+    status,
     set_artists: artists.map((a) => ({ artist_id: a.id, artists: a })),
   };
 }

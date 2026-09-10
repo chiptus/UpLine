@@ -419,7 +419,7 @@ Deno.test(
 );
 
 Deno.test(
-  "commit_schedule: date-only create stores midnight + time_tba (#45)",
+  'commit_schedule: date-only create stores midnight + status "tba" (#45)',
   async () => {
     const db = adminClient();
     const editionId = await getTestEditionId(db);
@@ -443,7 +443,7 @@ Deno.test(
           stageName: null,
           timeStart: "2026-07-11T00:00:00.000Z",
           timeEnd: null,
-          timeTba: true,
+          status: "tba",
           artistSlugs: [slug],
         },
       ],
@@ -455,14 +455,14 @@ Deno.test(
 
     const { data: sets } = await db
       .from("sets")
-      .select("id, time_start, time_end, time_tba")
+      .select("id, time_start, time_end, status")
       .eq("festival_edition_id", editionId)
       .eq("name", setName);
 
     assertExists(sets?.[0]);
     assertEquals(sets![0].time_start, "2026-07-11T00:00:00+00:00");
     assertEquals(sets![0].time_end, null);
-    assertEquals(sets![0].time_tba, true);
+    assertEquals(sets![0].status, "tba");
 
     // Cleanup
     await db.from("sets").delete().eq("id", sets![0].id);
@@ -471,7 +471,7 @@ Deno.test(
 );
 
 Deno.test(
-  "commit_schedule: an explicit real time always clears time_tba, and clears a stale end time when going TBA (#45)",
+  "commit_schedule: an explicit real time always resets status to confirmed, and clears a stale end time when going TBA (#45)",
   async () => {
     const db = adminClient();
     const editionId = await getTestEditionId(db);
@@ -486,7 +486,7 @@ Deno.test(
         slug: `tba-roundtrip-${Date.now()}`,
         time_start: "2026-07-11T20:00:00.000Z",
         time_end: "2026-07-11T22:00:00.000Z",
-        time_tba: false,
+        status: "confirmed",
         created_by: userId,
       })
       .select("id")
@@ -513,7 +513,7 @@ Deno.test(
           ...basePayload,
           timeStart: "2026-07-12T00:00:00.000Z",
           timeEnd: null,
-          timeTba: true,
+          status: "tba",
         },
       ],
       p_set_ids_to_archive: [],
@@ -522,14 +522,14 @@ Deno.test(
 
     const { data: afterTba } = await db
       .from("sets")
-      .select("time_start, time_end, time_tba")
+      .select("time_start, time_end, status")
       .eq("id", set!.id)
       .single();
     assertEquals(afterTba!.time_start, "2026-07-12T00:00:00+00:00");
     assertEquals(afterTba!.time_end, null);
-    assertEquals(afterTba!.time_tba, true);
+    assertEquals(afterTba!.status, "tba");
 
-    // A row with a real time always clears time_tba again.
+    // A row with a real time always resets status to confirmed again.
     const { error: realTimeError } = await db.rpc("commit_schedule", {
       p_festival_edition_id: editionId,
       p_user_id: userId,
@@ -541,7 +541,7 @@ Deno.test(
           ...basePayload,
           timeStart: "2026-07-12T20:00:00.000Z",
           timeEnd: "2026-07-12T22:00:00.000Z",
-          timeTba: false,
+          status: "confirmed",
         },
       ],
       p_set_ids_to_archive: [],
@@ -550,12 +550,12 @@ Deno.test(
 
     const { data: afterRealTime } = await db
       .from("sets")
-      .select("time_start, time_end, time_tba")
+      .select("time_start, time_end, status")
       .eq("id", set!.id)
       .single();
     assertEquals(afterRealTime!.time_start, "2026-07-12T20:00:00+00:00");
     assertEquals(afterRealTime!.time_end, "2026-07-12T22:00:00+00:00");
-    assertEquals(afterRealTime!.time_tba, false);
+    assertEquals(afterRealTime!.status, "confirmed");
 
     // Cleanup
     await db.from("sets").delete().eq("id", set!.id);
@@ -563,7 +563,7 @@ Deno.test(
 );
 
 Deno.test(
-  "commit_schedule: omitting time entirely preserves both the stored time and its time_tba flag (#45)",
+  "commit_schedule: omitting time entirely preserves both the stored time and its status (#45)",
   async () => {
     const db = adminClient();
     const editionId = await getTestEditionId(db);
@@ -578,13 +578,13 @@ Deno.test(
         slug: `tba-preserve-${Date.now()}`,
         time_start: "2026-07-11T00:00:00.000Z",
         time_end: null,
-        time_tba: true,
+        status: "tba",
         created_by: userId,
       })
       .select("id")
       .single();
 
-    // A row that supplies neither timeStart nor timeTba (e.g. a CSV re-import
+    // A row that supplies neither timeStart nor status (e.g. a CSV re-import
     // with no Date/Start Time columns) leaves the set's time untouched.
     const { error } = await db.rpc("commit_schedule", {
       p_festival_edition_id: editionId,
@@ -600,7 +600,7 @@ Deno.test(
           stageName: null,
           timeStart: null,
           timeEnd: null,
-          timeTba: false,
+          status: "confirmed",
           artistSlugs: [],
         },
       ],
@@ -610,12 +610,12 @@ Deno.test(
 
     const { data: after } = await db
       .from("sets")
-      .select("time_start, time_end, time_tba, description")
+      .select("time_start, time_end, status, description")
       .eq("id", set!.id)
       .single();
     assertEquals(after!.time_start, "2026-07-11T00:00:00+00:00");
     assertEquals(after!.time_end, null);
-    assertEquals(after!.time_tba, true);
+    assertEquals(after!.status, "tba");
     assertEquals(after!.description, "Updated description only");
 
     // Cleanup

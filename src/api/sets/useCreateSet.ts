@@ -18,7 +18,7 @@ export type CreateSetInput = Omit<
   | "slug"
   | "set_type"
   | "external_url"
-  | "time_tba"
+  | "status"
 > & {
   set_type?: SetType | null;
   external_url?: string | null;

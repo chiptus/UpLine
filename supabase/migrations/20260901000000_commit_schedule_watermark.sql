@@ -1,17 +1,8 @@
--- #42: commit_schedule applied a stale diff snapshot with no re-validation
--- at commit time. diff-schedule (Analyse) and commit_schedule (Commit) can
--- be minutes apart with no lock in between, so a concurrent edit made after
--- Analyse was silently overridden by the earlier plan -- most visibly,
--- setIdsToArchive being built from an orphan list that's gone stale.
---
--- Fix: abort-on-change. diff-schedule computes a watermark over the
--- edition's sets and returns it with the plan; the client threads it
--- through unchanged to commit-schedule; commit_schedule recomputes the same
--- watermark as its first step, inside the transaction, and aborts the whole
--- commit if it doesn't match. No advisory lock needed -- the in-txn re-check
--- makes concurrent commits safe (the second one aborts). The plan is either
--- applied verbatim or rejected whole; setIdsToArchive is never silently
--- recomputed.
+-- https://github.com/chiptus/UpLine/issues/42: commit_schedule applied a
+-- stale diff snapshot with no re-validation at commit time, silently
+-- overriding concurrent edits. Fix: recompute a watermark inside the
+-- transaction and abort if it doesn't match the one Analyse returned -- no
+-- advisory lock needed since a losing commit just aborts.
 
 -- Watermark = row count + latest updated_at across ALL of the edition's
 -- sets (archived included -- an archive is exactly the kind of change this

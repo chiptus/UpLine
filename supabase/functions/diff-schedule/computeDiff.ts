@@ -14,7 +14,7 @@ import type {
   DbArtist,
   DbSet,
   DbStage,
-  DiffResult,
+  DiffPlan,
   SetPayload,
 } from "./types.ts";
 
@@ -24,7 +24,7 @@ export function computeDiff(
   dbSets: DbSet[],
   dbArtists: DbArtist[],
   timezone: string,
-): DiffResult {
+): DiffPlan {
   const indexes = buildIndexes(dbStages, dbSets, dbArtists);
   const state = createState();
 
@@ -114,9 +114,9 @@ type DiffState = {
   seenMismatchedStages: Set<string>;
   artistsToCreate: { name: string; slug: string }[];
   stagesToCreate: { name: string }[];
-  stageNameMismatches: DiffResult["conflicts"]["stageNameMismatches"];
+  stageNameMismatches: DiffPlan["conflicts"]["stageNameMismatches"];
   setsToCreate: SetPayload[];
-  setsToUpdate: DiffResult["cleanOperations"]["setsToUpdate"];
+  setsToUpdate: DiffPlan["cleanOperations"]["setsToUpdate"];
 };
 
 function createState(): DiffState {

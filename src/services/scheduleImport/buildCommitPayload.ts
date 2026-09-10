@@ -10,6 +10,7 @@ export function buildCommitPayload(
   stageMismatchResolutions: Record<string, StageMismatchResolution>,
   orphanResolutions: Record<string, OrphanResolution>,
 ): {
+  watermark: string;
   artistsToCreate: { name: string; slug: string }[];
   stagesToCreate: { name: string }[];
   setsToCreate: SetPayload[];
@@ -33,6 +34,7 @@ export function buildCommitPayload(
     .map((s) => s.id);
 
   return {
+    watermark: diff.watermark,
     artistsToCreate: diff.cleanOperations.artistsToCreate,
     stagesToCreate: [
       ...diff.cleanOperations.stagesToCreate,

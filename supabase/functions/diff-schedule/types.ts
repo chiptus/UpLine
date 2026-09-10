@@ -45,7 +45,7 @@ export type SetPayload = {
   artistSlugs: string[];
 };
 
-export type DiffResult = {
+export type DiffPlan = {
   summary: {
     newArtists: number;
     newStages: number;
@@ -77,3 +77,5 @@ export type DiffResult = {
     }[];
   };
 };
+
+export type DiffResult = DiffPlan & { watermark: string };

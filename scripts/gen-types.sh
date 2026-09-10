@@ -8,7 +8,7 @@
 
 set -euo pipefail
 
-PROJECT_ID="qssmazlqrmxiudxckxvi"
+PROJECT_ID="${PROJECT_ID:-qssmazlqrmxiudxckxvi}"
 APP_TYPES="src/integrations/supabase/types.ts"
 EDGE_TYPES="supabase/functions/_shared/database.types.ts"
 

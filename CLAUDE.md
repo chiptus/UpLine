@@ -144,6 +144,7 @@ Order every file (components, tests, utils) with the primary logic first — the
   - Only comment non-obvious things: a hidden constraint, a workaround for a specific bug, behavior that would surprise a reader
   - When you touch code with a comment nearby, check the comment still matches — a stale comment is worse than no comment
   - No commented-out code, apologies, or "TODO" without an owner or issue link
+  - When a function needs a comment, prefer a JSDoc block (`/** */`) above it over a `//` line
 
 ## Git Workflow
 

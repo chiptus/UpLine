@@ -137,7 +137,13 @@ Order every file (components, tests, utils) with the primary logic first — the
 
 - try to use mutation.mutate(variables, {onSuccess, onError}) instead of try{await mutation.mutateAsync(variables)}catch(err){}
 
-- don't add comments unless really necessary
+- Code Comments:
+  - Write comments that explain _why_, never _what_ — the code itself says what; a comment restating it is dead weight the moment it drifts
+  - Don't comment to compensate for a bad name or a tangled function — rename or restructure instead
+  - Only comment non-obvious things: a hidden constraint, a workaround for a specific bug, behavior that would surprise a reader
+  - When you touch code with a comment nearby, check the comment still matches — a stale comment is worse than no comment
+  - No commented-out code, apologies, or "TODO" without an owner or issue link
+  - When a function needs a comment, prefer a JSDoc block (`/** */`) above it over a `//` line
 
 ## Git Workflow
 

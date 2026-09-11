@@ -1,0 +1,99 @@
+name: _regenerate_types
+
+on:
+  workflow_call:
+    inputs:
+      target:
+        description: "staging or prod"
+        required: true
+        type: string
+    outputs:
+      types_status:
+        description: "Outcome of the type-regeneration step (success/skipped/failure)"
+        value: ${{ jobs.regenerate-types.outputs.types_status }}
+
+permissions:
+  contents: read
+
+jobs:
+  regenerate-types:
+    name: Regenerate types (${{ inputs.target }})
+    if: inputs.target == 'staging' && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: staging
+    permissions:
+      contents: write
+    outputs:
+      types_status: ${{ steps.outcome.outputs.types_status }}
+
+    steps:
+      # The default GITHUB_TOKEN suppresses push/synchronize events on commits it
+      # authors, so Unit Tests/Lint would never re-run against the commit this job
+      # pushes below. Mint a short-lived App installation token instead, which
+      # behaves like a normal push and triggers those checks.
+      - name: Generate App token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          token: ${{ steps.app-token.outputs.token }}
+
+      - uses: pnpm/action-setup@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - uses: supabase/setup-cli@v3
+
+      - name: Generate types from staging schema
+        id: gen-types
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          PROJECT_REF: ${{ vars.STAGING_PROJECT_REF }}
+          DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+        run: |
+          supabase link --project-ref "$PROJECT_REF" --password "$DB_PASSWORD"
+          ./scripts/gen-types.sh --linked
+
+      - name: Format generated types
+        if: steps.gen-types.outcome == 'success'
+        run: pnpm exec prettier --write src/integrations/supabase/types.ts supabase/functions/_shared/database.types.ts
+
+      - name: Commit and push regenerated types
+        id: commit-types
+        if: steps.gen-types.outcome == 'success'
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- src/integrations/supabase/types.ts supabase/functions/_shared/database.types.ts; then
+            echo "status=skipped" >> "$GITHUB_OUTPUT"
+          else
+            git config user.name "${{ steps.app-token.outputs.app-slug }}[bot]"
+            git config user.email "${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com"
+            git add src/integrations/supabase/types.ts supabase/functions/_shared/database.types.ts
+            git commit -m "chore: regenerate Supabase types from staging schema"
+            git push origin "HEAD:$HEAD_REF"
+            echo "status=success" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set job outputs
+        id: outcome
+        if: always()
+        run: |
+          if [[ "${{ steps.gen-types.outcome }}" == "failure" || "${{ steps.commit-types.outcome }}" == "failure" ]]; then
+            echo "types_status=failure" >> "$GITHUB_OUTPUT"
+          else
+            echo "types_status=${{ steps.commit-types.outputs.status || 'skipped' }}" >> "$GITHUB_OUTPUT"
+          fi

@@ -8,6 +8,7 @@ set -euo pipefail
 : "${TARGET:?required}"
 : "${MIGRATE_RESULT:?required}"
 : "${FUNCTIONS_RESULT:?required}"
+: "${TYPES_RESULT:?required}"
 
 MARKER="<!-- deploy-status -->"
 
@@ -31,6 +32,7 @@ TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
   echo ""
   line "DB migrations" "$MIGRATE_RESULT"
   line "Edge functions" "$FUNCTIONS_RESULT"
+  line "Type generation" "$TYPES_RESULT"
 
   if [[ "$MIGRATE_RESULT" == "failure" && "$TARGET" == "staging" ]]; then
     echo ""

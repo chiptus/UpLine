@@ -536,7 +536,7 @@ Deno.test(
 );
 
 Deno.test(
-  'commit_schedule: date-only create stores midnight + status "tba" (#45)',
+  'commit_schedule: date-only create stores midnight + status "tba"',
   async () => {
     const db = adminClient();
     const editionId = await getTestEditionId(db);
@@ -588,7 +588,7 @@ Deno.test(
 );
 
 Deno.test(
-  "commit_schedule: an explicit real time always resets status to confirmed, and clears a stale end time when going TBA (#45)",
+  "commit_schedule: an explicit real time always resets status to confirmed, and clears a stale end time when going TBA",
   async () => {
     const db = adminClient();
     const editionId = await getTestEditionId(db);
@@ -680,7 +680,7 @@ Deno.test(
 );
 
 Deno.test(
-  "commit_schedule: omitting time entirely preserves both the stored time and its status (#45)",
+  "commit_schedule: omitting time entirely preserves both the stored time and its status",
   async () => {
     const db = adminClient();
     const editionId = await getTestEditionId(db);

@@ -21,88 +21,41 @@ const dateless = {
 
 describe("formatSetSchedule", () => {
   it("shows the exact time range at full reveal for a timed set", () => {
-    const result = formatSetSchedule(
-      timedSet,
-      { canShowDay: true, canShowTime: true },
-      true,
-      "UTC",
-    );
+    const result = formatSetSchedule(timedSet, "full", true, "UTC");
     expect(result).toContain("20:00");
   });
 
   it("shows day-only for a timed set below full reveal", () => {
-    const result = formatSetSchedule(
-      timedSet,
-      { canShowDay: true, canShowTime: false },
-      true,
-      "UTC",
-    );
+    const result = formatSetSchedule(timedSet, "days", true, "UTC");
     expect(result).not.toContain("20:00");
     expect(result).not.toContain("TBA");
   });
 
   it("shows nothing when day isn't revealed", () => {
-    expect(
-      formatSetSchedule(
-        timedSet,
-        { canShowDay: false, canShowTime: false },
-        true,
-        "UTC",
-      ),
-    ).toBeNull();
+    expect(formatSetSchedule(timedSet, "draft", true, "UTC")).toBeNull();
   });
 
   it("shows day + TBA at full reveal for a TBA set, never the midnight placeholder time", () => {
-    const result = formatSetSchedule(
-      tbaSet,
-      { canShowDay: true, canShowTime: true },
-      true,
-      "UTC",
-    );
+    const result = formatSetSchedule(tbaSet, "full", true, "UTC");
     expect(result).toContain("TBA");
     expect(result).not.toContain("00:00");
   });
 
   it("shows day + TBA below full reveal too, for a TBA set", () => {
-    const result = formatSetSchedule(
-      tbaSet,
-      { canShowDay: true, canShowTime: false },
-      true,
-      "UTC",
-    );
+    const result = formatSetSchedule(tbaSet, "days", true, "UTC");
     expect(result).toContain("TBA");
+    expect(result).not.toContain("00:00");
   });
 
   it("shows nothing for a TBA set when day isn't revealed", () => {
-    expect(
-      formatSetSchedule(
-        tbaSet,
-        { canShowDay: false, canShowTime: false },
-        true,
-        "UTC",
-      ),
-    ).toBeNull();
+    expect(formatSetSchedule(tbaSet, "draft", true, "UTC")).toBeNull();
   });
 
   it('shows "Time TBA" for a dateless TBA set, once day-level reveal is on', () => {
-    expect(
-      formatSetSchedule(
-        dateless,
-        { canShowDay: true, canShowTime: true },
-        true,
-        "UTC",
-      ),
-    ).toBe("Time TBA");
+    expect(formatSetSchedule(dateless, "full", true, "UTC")).toBe("Time TBA");
   });
 
   it("shows nothing for a dateless TBA set when day isn't revealed", () => {
-    expect(
-      formatSetSchedule(
-        dateless,
-        { canShowDay: false, canShowTime: false },
-        true,
-        "UTC",
-      ),
-    ).toBeNull();
+    expect(formatSetSchedule(dateless, "draft", true, "UTC")).toBeNull();
   });
 });

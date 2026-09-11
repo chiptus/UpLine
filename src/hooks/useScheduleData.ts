@@ -65,7 +65,7 @@ export function useScheduleData({
 
     // Filter sets with performance times and stages, excluding TBA sets --
     // the Schedule tab is a time grid, and a TBA set has no real time to
-    // place on it (shown in the Vote/Explore tabs instead, see #45). Also
+    // place on it (shown in the Vote/Explore tabs instead). Also
     // drop any whose time_start doesn't parse into a valid festival day (so
     // dayKey is always a real key below, never a sentinel).
     const performingSets = sets

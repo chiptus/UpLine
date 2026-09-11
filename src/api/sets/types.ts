@@ -1,12 +1,13 @@
 import type { Database } from "@/integrations/supabase/types";
 import type { Artist } from "@/api/artists/types";
+import { asEnumValue } from "@/lib/enum";
 
 export const SET_TYPES = ["music", "workshop", "performance", "other"] as const;
 
 export type SetType = (typeof SET_TYPES)[number];
 
 export function asSetType(value: string | null): SetType | null {
-  return SET_TYPES.includes(value as SetType) ? (value as SetType) : null;
+  return asEnumValue(SET_TYPES, value);
 }
 
 export function isNonMusicSetType(
@@ -20,9 +21,7 @@ export const SET_STATUSES = ["confirmed", "tba"] as const;
 export type SetStatus = (typeof SET_STATUSES)[number];
 
 export function asSetStatus(value: string): SetStatus {
-  return (SET_STATUSES as readonly string[]).includes(value)
-    ? (value as SetStatus)
-    : "confirmed";
+  return asEnumValue(SET_STATUSES, value) ?? "confirmed";
 }
 
 export type FestivalSet = Omit<

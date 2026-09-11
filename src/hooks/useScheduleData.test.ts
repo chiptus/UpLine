@@ -20,7 +20,7 @@ describe("useScheduleData", () => {
     ]);
   });
 
-  it("excludes a TBA set (date-only or dateless) from the Schedule tab -- shown in Vote/Explore instead (#45)", () => {
+  it("excludes a TBA set (date-only or dateless) from the Schedule tab -- shown in Vote/Explore instead", () => {
     const { result } = renderHook(() =>
       useScheduleData({
         sets: [

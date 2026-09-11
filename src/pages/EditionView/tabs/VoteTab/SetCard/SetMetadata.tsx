@@ -13,7 +13,7 @@ export function SetMetadata() {
   const { festival } = useRouteContext({
     from: "/festivals/$festivalSlug/editions/$editionSlug",
   });
-  const { canShowStage, canShowDay, canShowTime } = useScheduleReveal();
+  const { canShowStage, level } = useScheduleReveal();
   const uniqueGenres = set.artists
     ?.flatMap((a) => a.artist_music_genres || [])
     .filter(
@@ -24,7 +24,7 @@ export function SetMetadata() {
 
   const scheduleFormatted = formatSetSchedule(
     set,
-    { canShowDay, canShowTime },
+    level,
     use24Hour,
     festival.timezone,
   );

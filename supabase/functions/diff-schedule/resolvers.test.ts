@@ -75,7 +75,7 @@ Deno.test("computeTimes converts local start/end to UTC", () => {
 });
 
 Deno.test(
-  'computeTimes returns nulls and status "tba" when date is missing (#45)',
+  'computeTimes returns nulls and status "tba" when date is missing',
   () => {
     assertEquals(computeTimes({ startTime: "23:00" }, "UTC"), {
       timeStart: null,
@@ -86,7 +86,7 @@ Deno.test(
 );
 
 Deno.test(
-  'computeTimes builds midnight + status "tba" when date is present without a start time (#45)',
+  'computeTimes builds midnight + status "tba" when date is present without a start time',
   () => {
     const result = computeTimes({ date: "2026-07-11" }, "UTC");
     assertEquals(result.timeStart, "2026-07-11T00:00:00.000Z");
@@ -95,18 +95,12 @@ Deno.test(
   },
 );
 
-Deno.test(
-  "computeTimes ignores an end time given without a start time (#45)",
-  () => {
-    const result = computeTimes(
-      { date: "2026-07-11", endTime: "23:00" },
-      "UTC",
-    );
-    assertEquals(result.timeStart, "2026-07-11T00:00:00.000Z");
-    assertEquals(result.timeEnd, null);
-    assertEquals(result.status, "tba");
-  },
-);
+Deno.test("computeTimes ignores an end time given without a start time", () => {
+  const result = computeTimes({ date: "2026-07-11", endTime: "23:00" }, "UTC");
+  assertEquals(result.timeStart, "2026-07-11T00:00:00.000Z");
+  assertEquals(result.timeEnd, null);
+  assertEquals(result.status, "tba");
+});
 
 function makeContext(
   stageId: string | null = null,

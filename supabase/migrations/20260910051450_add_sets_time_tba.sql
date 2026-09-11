@@ -1,4 +1,4 @@
--- #45: support date-only sets (date known, time TBA) in schedule import.
+-- Support date-only sets (date known, time TBA) in schedule import.
 -- A date-only CSV row (Date present, Start Time absent) now stores
 -- time_start at the festival day's midnight (edition timezone) with
 -- status = 'tba', instead of dropping the date entirely. time_end stays
@@ -17,7 +17,7 @@ ALTER TABLE public.sets
 -- Re-create commit_schedule__create_sets / __update_sets (same signatures,
 -- CREATE OR REPLACE only) to persist status alongside time_start.
 --
--- The "preserve on same day" nuance from #45 (a date-only row matching a set
+-- The "preserve on same day" nuance (a date-only row matching a set
 -- that already has a real committed time on the same festival day must not
 -- downgrade it to TBA) is resolved entirely in computeDiff.ts, upstream of
 -- this RPC: it detects that case and sends timeStart = null (full omission)

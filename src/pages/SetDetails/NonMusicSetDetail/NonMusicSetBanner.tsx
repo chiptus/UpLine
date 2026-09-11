@@ -22,12 +22,12 @@ export function NonMusicSetBanner({
   const { festival } = useRouteContext({
     from: "/festivals/$festivalSlug/editions/$editionSlug",
   });
-  const { canShowStage, canShowDay, canShowTime } = useScheduleReveal();
+  const { canShowStage, level } = useScheduleReveal();
   const { label, icon: Icon, gradient } = getSetTypeLabel(set.set_type);
 
   const scheduleFormatted = formatSetSchedule(
     set,
-    { canShowDay, canShowTime },
+    level,
     use24Hour,
     festival.timezone,
   );

@@ -381,7 +381,7 @@ Deno.test("update payload carries the matched set's stored type", () => {
 });
 
 Deno.test(
-  'date-only row (no start time) creates a set at midnight with status "tba" (#45)',
+  'date-only row (no start time) creates a set at midnight with status "tba"',
   () => {
     const artist = makeArtist("Carl Cox");
     const result = computeDiff(
@@ -399,7 +399,7 @@ Deno.test(
 );
 
 Deno.test(
-  "date-only row matching a set with a real time on the SAME day preserves the existing time (#45)",
+  "date-only row matching a set with a real time on the SAME day preserves the existing time",
   () => {
     const artist = makeArtist("Carl Cox");
     const set = makeSet(
@@ -424,7 +424,7 @@ Deno.test(
 );
 
 Deno.test(
-  "date-only row matching a set with a real time on a DIFFERENT day downgrades it to TBA on the new day (#45)",
+  "date-only row matching a set with a real time on a DIFFERENT day downgrades it to TBA on the new day",
   () => {
     const artist = makeArtist("Carl Cox");
     const set = makeSet(
@@ -449,7 +449,7 @@ Deno.test(
 );
 
 Deno.test(
-  "same-day preserve compares in the edition's timezone, not raw UTC dates (#45)",
+  "same-day preserve compares in the edition's timezone, not raw UTC dates",
   () => {
     const artist = makeArtist("Carl Cox");
     // 23:30 UTC on the 11th is already 00:30 on the 12th in Europe/Lisbon
@@ -477,7 +477,7 @@ Deno.test(
 );
 
 Deno.test(
-  "a row with a real time always resets status to confirmed, even over a previously-TBA set (#45)",
+  "a row with a real time always resets status to confirmed, even over a previously-TBA set",
   () => {
     const artist = makeArtist("Carl Cox");
     const set = makeSet(

@@ -139,7 +139,7 @@ function createState(): DiffState {
   };
 }
 
-// A date-only row matching a set with a real time on the same day (#45) is
+// A date-only row matching a set with a real time on the same day is
 // treated as a full time omission, preserving the more precise stored time.
 function resolveTimeForMatch(
   matched: DbSet,

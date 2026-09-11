@@ -122,7 +122,7 @@ export function computeTimes(
       : null;
     status = "confirmed";
   } else if (row.date) {
-    // Date known, time TBA (#45): fold the set under its festival day at
+    // Date known, time TBA: fold the set under its festival day at
     // midnight instead of dropping the date. No end time -- "sometime that
     // day" has no known duration.
     timeStart = localToUtc(row.date, "00:00", timezone);

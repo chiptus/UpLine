@@ -2,7 +2,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
-import { FestivalSet, SetType, asSetType, setsKeys } from "./types";
+import {
+  FestivalSet,
+  SetType,
+  asSetStatus,
+  asSetType,
+  setsKeys,
+} from "./types";
 
 type SetInsert = Database["public"]["Tables"]["sets"]["Insert"];
 
@@ -18,7 +24,6 @@ export type CreateSetInput = Omit<
   | "slug"
   | "set_type"
   | "external_url"
-  | "status"
 > & {
   set_type?: SetType | null;
   external_url?: string | null;
@@ -33,6 +38,7 @@ export async function createSet(setData: CreateSetInput): Promise<FestivalSet> {
     stage_id: setData.stage_id,
     time_start: setData.time_start,
     time_end: setData.time_end,
+    status: setData.status,
     created_by: setData.created_by,
     set_type: setData.set_type ?? null,
     external_url: setData.external_url ?? null,
@@ -54,6 +60,7 @@ export async function createSet(setData: CreateSetInput): Promise<FestivalSet> {
   return {
     ...data,
     set_type: asSetType(data.set_type),
+    status: asSetStatus(data.status),
     artists: [],
     votes: [],
   };

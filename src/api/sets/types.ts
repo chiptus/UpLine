@@ -15,11 +15,22 @@ export function isNonMusicSetType(
   return setType !== null && setType !== "music";
 }
 
+export const SET_STATUSES = ["confirmed", "tba"] as const;
+
+export type SetStatus = (typeof SET_STATUSES)[number];
+
+export function asSetStatus(value: string): SetStatus {
+  return (SET_STATUSES as readonly string[]).includes(value)
+    ? (value as SetStatus)
+    : "confirmed";
+}
+
 export type FestivalSet = Omit<
   Database["public"]["Tables"]["sets"]["Row"],
-  "set_type"
+  "set_type" | "status"
 > & {
   set_type: SetType | null;
+  status: SetStatus;
   artists: Artist[];
   votes: { vote_type: number; user_id: string }[];
   stage_name?: string | null;

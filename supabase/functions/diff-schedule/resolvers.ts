@@ -108,7 +108,9 @@ export function computeTimes(
 ): { timeStart: string | null; timeEnd: string | null; status: SetStatus } {
   let timeStart: string | null = null;
   let timeEnd: string | null = null;
-  let status: SetStatus = "confirmed";
+  // Default TBA: "we don't know when yet" covers both a known date with no
+  // time and no date at all -- only a real start time earns "confirmed".
+  let status: SetStatus = "tba";
   if (row.date && row.startTime) {
     timeStart = localToUtc(row.date, row.startTime, timezone);
     timeEnd = row.endTime
@@ -118,12 +120,12 @@ export function computeTimes(
           timezone,
         )
       : null;
+    status = "confirmed";
   } else if (row.date) {
     // Date known, time TBA (#45): fold the set under its festival day at
     // midnight instead of dropping the date. No end time -- "sometime that
     // day" has no known duration.
     timeStart = localToUtc(row.date, "00:00", timezone);
-    status = "tba";
   }
   return { timeStart, timeEnd, status };
 }

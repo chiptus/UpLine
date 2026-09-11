@@ -16,6 +16,7 @@ export type UpdateSetInput = Partial<
     | "stage_id"
     | "time_start"
     | "time_end"
+    | "status"
     | "archived"
     | "external_url"
   >
@@ -49,6 +50,9 @@ export async function updateSet(variables: {
   }
   if (updates.time_end !== undefined) {
     updateData.time_end = updates.time_end;
+  }
+  if (updates.status !== undefined) {
+    updateData.status = updates.status;
   }
   if (updates.archived !== undefined) {
     updateData.archived = updates.archived;

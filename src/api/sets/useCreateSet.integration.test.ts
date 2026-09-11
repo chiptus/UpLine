@@ -16,6 +16,7 @@ async function createSetThroughApi(
     description: null,
     festival_edition_id: editionId,
     stage_id: null,
+    status: "confirmed",
     time_start: null,
     time_end: null,
     created_by: userId,

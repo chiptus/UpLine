@@ -74,13 +74,16 @@ Deno.test("computeTimes converts local start/end to UTC", () => {
   assertEquals(result.status, "confirmed");
 });
 
-Deno.test("computeTimes returns nulls when date is missing", () => {
-  assertEquals(computeTimes({ startTime: "23:00" }, "UTC"), {
-    timeStart: null,
-    timeEnd: null,
-    status: "confirmed",
-  });
-});
+Deno.test(
+  'computeTimes returns nulls and status "tba" when date is missing (#45)',
+  () => {
+    assertEquals(computeTimes({ startTime: "23:00" }, "UTC"), {
+      timeStart: null,
+      timeEnd: null,
+      status: "tba",
+    });
+  },
+);
 
 Deno.test(
   'computeTimes builds midnight + status "tba" when date is present without a start time (#45)',

@@ -8,7 +8,7 @@
 -- status is text + CHECK rather than a boolean or a native enum: the same
 -- information as a boolean today, but extending the allowed values later
 -- (e.g. a 'cancelled' status) is a one-line CHECK change instead of the
--- ALTER TYPE dance a native enum requires.
+-- ALTER TYPE dance a native enum requires. See ADR-0009.
 
 ALTER TABLE public.sets
   ADD COLUMN status TEXT NOT NULL DEFAULT 'confirmed'

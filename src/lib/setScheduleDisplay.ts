@@ -25,7 +25,9 @@ export function formatSetSchedule(
   }
   if (!reveal.canShowDay) return null;
   const day = formatDayOnly(set.time_start, timezone);
-  if (!day) return null;
+  // A dateless TBA set (no time_start at all) has no day to show -- say so
+  // plainly instead of silently showing nothing (#45).
+  if (!day) return isTba ? "Time TBA" : null;
   return isTba ? `${day} · TBA` : day;
 }
 

@@ -13,6 +13,12 @@ const tbaSet = {
   status: "tba" as const,
 };
 
+const dateless = {
+  time_start: null,
+  time_end: null,
+  status: "tba" as const,
+};
+
 describe("formatSetSchedule", () => {
   it("shows the exact time range at full reveal for a timed set", () => {
     const result = formatSetSchedule(
@@ -71,6 +77,28 @@ describe("formatSetSchedule", () => {
     expect(
       formatSetSchedule(
         tbaSet,
+        { canShowDay: false, canShowTime: false },
+        true,
+        "UTC",
+      ),
+    ).toBeNull();
+  });
+
+  it('shows "Time TBA" for a dateless TBA set, once day-level reveal is on', () => {
+    expect(
+      formatSetSchedule(
+        dateless,
+        { canShowDay: true, canShowTime: true },
+        true,
+        "UTC",
+      ),
+    ).toBe("Time TBA");
+  });
+
+  it("shows nothing for a dateless TBA set when day isn't revealed", () => {
+    expect(
+      formatSetSchedule(
+        dateless,
         { canShowDay: false, canShowTime: false },
         true,
         "UTC",

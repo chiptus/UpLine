@@ -1,4 +1,3 @@
-import { Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { isNonMusicSetType } from "@/api/sets/types";
 import { getSetTypeLabel } from "@/lib/setTypeLabels";
@@ -30,13 +29,7 @@ export function SetBlock({ set, timezone }: SetBlockProps) {
         <SetHeader set={set} />
 
         <div className="space-y-1 text-sm text-muted-foreground">
-          {set.timeTba && (
-            <div className="flex items-center gap-1">
-              <Clock className="h-3 w-3 flex-shrink-0" />
-              <span className="text-xs">TBA</span>
-            </div>
-          )}
-          {!set.timeTba && set.startTime && set.endTime && (
+          {set.startTime && set.endTime && (
             <TimeDisplay
               startTime={set.startTime}
               endTime={set.endTime}

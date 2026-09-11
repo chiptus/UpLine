@@ -30,10 +30,3 @@ export function formatSetSchedule(
   if (!day) return isTba ? "Time TBA" : null;
   return isTba ? `${day} · TBA` : day;
 }
-
-// A shared time slot (all sets sorted onto the same midnight placeholder)
-// only reads as "TBA" when every set in it is TBA -- a mix with a real set
-// that happens to start at 00:00 must show the real time instead (#45).
-export function isTimeSlotTba(sets: { timeTba?: boolean }[]): boolean {
-  return sets.length > 0 && sets.every((set) => set.timeTba);
-}

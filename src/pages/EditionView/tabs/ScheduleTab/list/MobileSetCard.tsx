@@ -62,13 +62,7 @@ export function MobileSetCard({ set, timezone }: MobileSetCardProps) {
             </div>
           )}
 
-          {set.timeTba && (
-            <div className="flex items-center gap-1">
-              <span>TBA</span>
-            </div>
-          )}
-
-          {!set.timeTba && set.startTime && set.endTime && (
+          {set.startTime && set.endTime && (
             <div className="flex items-center gap-1">
               <span>
                 {formatTimeOnly(

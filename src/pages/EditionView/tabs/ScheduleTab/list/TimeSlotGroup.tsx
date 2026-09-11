@@ -1,6 +1,5 @@
 import { Clock } from "lucide-react";
 import { formatTimeOnly } from "@/lib/timeUtils";
-import { isTimeSlotTba } from "@/lib/setScheduleDisplay";
 import { useTimeFormat } from "@/hooks/useTimeFormat";
 import { MobileSetCard } from "./MobileSetCard";
 import { cn } from "@/lib/utils";
@@ -21,7 +20,6 @@ interface TimeSlotGroupProps {
 
 export function TimeSlotGroup({ timeSlot, timezone }: TimeSlotGroupProps) {
   const use24Hour = useTimeFormat();
-  const isTba = isTimeSlotTba(timeSlot.sets);
 
   return (
     <div className="relative">
@@ -29,14 +27,12 @@ export function TimeSlotGroup({ timeSlot, timezone }: TimeSlotGroupProps) {
         <div className="flex items-center gap-2 bg-accent-soft px-3 py-1.5 rounded-full">
           <Clock className="h-3 w-3 text-subtle-foreground" />
           <span className="text-sm font-medium text-muted-foreground">
-            {isTba
-              ? "TBA"
-              : formatTimeOnly(
-                  timeSlot.time.toISOString(),
-                  null,
-                  use24Hour,
-                  timezone,
-                )}
+            {formatTimeOnly(
+              timeSlot.time.toISOString(),
+              null,
+              use24Hour,
+              timezone,
+            )}
           </span>
         </div>
         <div className="flex-1 h-px bg-border"></div>

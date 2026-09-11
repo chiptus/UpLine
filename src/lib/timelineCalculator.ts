@@ -80,16 +80,6 @@ export function calculateTimelineData(
     earliestTime,
     (set: ScheduleSet, origin: Date): HorizontalTimelineSet => {
       if (!set.startTime) return set;
-      // A TBA set (#45) has no endTime -- give it the minimum width instead.
-      if (set.timeTba) {
-        return {
-          ...set,
-          horizontalPosition: {
-            left: timeToOffset(set.startTime, origin),
-            width: 100,
-          },
-        };
-      }
       if (!set.endTime) return set;
 
       const left = timeToOffset(set.startTime, origin);
@@ -208,9 +198,6 @@ function processStageGroups<T extends ScheduleSet>(
   sets: T[];
 }> {
   const allStageGroups: Record<string, T[]> = {};
-  // TBA sets (#45) are pulled out of their stage's precisely-timed lane into
-  // one small shared bucket row, positioned per-day like any other set.
-  const tbaSets: T[] = [];
 
   scheduleDays.forEach((day) => {
     day.stages.forEach((stage) => {
@@ -218,17 +205,9 @@ function processStageGroups<T extends ScheduleSet>(
         allStageGroups[stage.id] = [];
       }
 
-      const enhancedSets = stage.sets.map(
-        (set): T => positionCalculator(set, earliestTime),
+      allStageGroups[stage.id].push(
+        ...stage.sets.map((set): T => positionCalculator(set, earliestTime)),
       );
-
-      for (const set of enhancedSets) {
-        if (set.timeTba) {
-          tbaSets.push(set);
-        } else {
-          allStageGroups[stage.id].push(set);
-        }
-      }
     });
   });
 
@@ -257,16 +236,7 @@ function processStageGroups<T extends ScheduleSet>(
       } => !!s,
     );
 
-  const sortedStages = sortStagesByOrder(unifiedStagesUnsorted);
-  if (tbaSets.length === 0) return sortedStages;
-
-  const tbaBucket = {
-    name: "TBA",
-    color: undefined,
-    stage_order: 0,
-    sets: sortByStartTime(tbaSets),
-  };
-  return [tbaBucket, ...sortedStages];
+  return sortStagesByOrder(unifiedStagesUnsorted);
 }
 
 function sortByStartTime<T extends ScheduleSet>(sets: T[]): T[] {

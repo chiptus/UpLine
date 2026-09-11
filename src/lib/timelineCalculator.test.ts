@@ -274,78 +274,7 @@ describe("calculateTimelineData", () => {
     expect(longSet?.horizontalPosition?.width).toBe(60 * PX_PER_MINUTE); // scale-derived, not clamped
   });
 
-  it("pulls a date-only (#45) TBA set out of its stage into a small shared TBA bucket row, positioned at its start with the minimum width", () => {
-    const stage = makeStage();
-    const days = [
-      makeScheduleDay("2024-07-01", [
-        {
-          id: stage.id,
-          name: stage.name,
-          stage_order: 0,
-          sets: [
-            makeSet({
-              id: "timed-set",
-              startTime: new Date("2024-07-01T10:00:00Z"),
-              endTime: new Date("2024-07-01T11:00:00Z"),
-            }),
-            makeSet({
-              id: "tba-set",
-              startTime: new Date("2024-07-01T00:00:00Z"),
-              endTime: undefined,
-              timeTba: true,
-            }),
-          ],
-        },
-      ]),
-    ];
-
-    const data = calculateTimelineData(
-      new Date("2024-07-01T00:00:00Z"),
-      new Date("2024-07-02T00:00:00Z"),
-      days,
-      [stage],
-    );
-
-    // The real stage's own row keeps only its precisely-timed set.
-    const stageRow = data!.stages.find((s) => s.name === stage.name);
-    expect(stageRow?.sets.map((s) => s.id)).toEqual(["timed-set"]);
-
-    // The TBA bucket is a separate, first row, positioned at the set's start.
-    const tbaBucket = data!.stages.find((s) => s.name === "TBA");
-    expect(tbaBucket).toBe(data!.stages[0]);
-    const tbaSet = tbaBucket?.sets.find((s) => s.id === "tba-set");
-    expect(tbaSet?.horizontalPosition).toEqual({ left: 0, width: 100 });
-  });
-
-  it("adds no TBA bucket row when nothing is TBA", () => {
-    const stage = makeStage();
-    const days = [
-      makeScheduleDay("2024-07-01", [
-        {
-          id: stage.id,
-          name: stage.name,
-          stage_order: 0,
-          sets: [
-            makeSet({
-              startTime: new Date("2024-07-01T10:00:00Z"),
-              endTime: new Date("2024-07-01T11:00:00Z"),
-            }),
-          ],
-        },
-      ]),
-    ];
-
-    const data = calculateTimelineData(
-      new Date("2024-07-01T00:00:00Z"),
-      new Date("2024-07-02T00:00:00Z"),
-      days,
-      [stage],
-    );
-
-    expect(data!.stages.some((s) => s.name === "TBA")).toBe(false);
-  });
-
-  it("drops a set with neither an endTime nor timeTba from the horizontal timeline", () => {
+  it("drops a set with no endTime from the horizontal timeline", () => {
     const stage = makeStage();
     const days = [
       makeScheduleDay("2024-07-01", [

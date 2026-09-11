@@ -28,7 +28,6 @@ export interface ScheduleArtist {
   stageId?: string;
   startTime?: Date | undefined;
   endTime?: Date | undefined;
-  timeTba?: boolean;
   votes?: { vote_type: number; user_id: string }[];
   formattedTimeRange?: string | null;
   conflictsWith?: string[];
@@ -64,11 +63,13 @@ export function useScheduleData({
       return [];
     }
 
-    // Filter sets with performance times and stages, and drop any whose
-    // time_start doesn't parse into a valid festival day (so dayKey is
-    // always a real key below, never a sentinel).
+    // Filter sets with performance times and stages, excluding TBA sets --
+    // the Schedule tab is a time grid, and a TBA set has no real time to
+    // place on it (shown in the Vote/Explore tabs instead, see #45). Also
+    // drop any whose time_start doesn't parse into a valid festival day (so
+    // dayKey is always a real key below, never a sentinel).
     const performingSets = sets
-      .filter((set) => set.time_start && set.stage_id)
+      .filter((set) => set.time_start && set.stage_id && set.status !== "tba")
       .flatMap((set) => {
         const dayKey = getFestivalDayKey(set.time_start, timezone);
         return dayKey ? [{ set, dayKey }] : [];
@@ -87,7 +88,6 @@ export function useScheduleData({
           stageId: set.stage_id || "",
           startTime,
           endTime,
-          timeTba: set.status === "tba",
           votes: set.votes || [],
           formattedTimeRange: formatDateTime(
             set.time_start,

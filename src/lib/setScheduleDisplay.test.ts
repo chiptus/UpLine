@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatSetSchedule } from "./setScheduleDisplay";
+import { formatSetSchedule, isTimeSlotTba } from "./setScheduleDisplay";
 
 const timedSet = {
   time_start: "2026-07-11T20:00:00Z",
@@ -76,5 +76,23 @@ describe("formatSetSchedule", () => {
         "UTC",
       ),
     ).toBeNull();
+  });
+});
+
+describe("isTimeSlotTba", () => {
+  it("is true when every set in the slot is TBA", () => {
+    expect(isTimeSlotTba([{ timeTba: true }, { timeTba: true }])).toBe(true);
+  });
+
+  it("is false when the slot mixes a TBA set with a real one (e.g. a 00:00 start)", () => {
+    expect(isTimeSlotTba([{ timeTba: true }, { timeTba: false }])).toBe(false);
+  });
+
+  it("is false when no set in the slot is TBA", () => {
+    expect(isTimeSlotTba([{ timeTba: false }])).toBe(false);
+  });
+
+  it("is false for an empty slot", () => {
+    expect(isTimeSlotTba([])).toBe(false);
   });
 });

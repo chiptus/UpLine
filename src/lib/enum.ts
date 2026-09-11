@@ -1,6 +1,8 @@
-// Narrows a raw DB string column to one of a known set of literal values,
-// falling back to null for anything else (a value predating the enum, or
-// data written outside its CHECK constraint).
+/**
+ * Validates a raw string against a known set of literal values, for
+ * narrowing an untyped DB column (e.g. a `text` + `CHECK` column) to its
+ * proper union type. Returns null if the value isn't one of `values`.
+ */
 export function asEnumValue<T extends string>(
   values: readonly T[],
   value: string | null,

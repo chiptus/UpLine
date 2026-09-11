@@ -11,8 +11,12 @@ type SetScheduleFields = {
   status: string;
 };
 
-// status "tba" means time_start is a midnight placeholder, not a real time,
-// so once the reveal level would expose it "TBA" stands in instead.
+/**
+ * Formats a set's schedule info for display, respecting both the edition's
+ * schedule reveal level and the set's TBA status. Returns the exact time
+ * range, a day-only label, a "TBA" variant of either, or null if nothing
+ * should be shown yet at the current reveal level.
+ */
 export function formatSetSchedule(
   set: SetScheduleFields,
   revealLevel: RevealLevel,

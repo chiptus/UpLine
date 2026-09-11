@@ -139,8 +139,11 @@ function createState(): DiffState {
   };
 }
 
-// A date-only row matching a set with a real time on the same day is
-// treated as a full time omission, preserving the more precise stored time.
+/**
+ * Reconciles a CSV row's computed time against the set it matched, so a
+ * date-only (TBA) row never downgrades a set that already has a more
+ * precise, real time on the same day.
+ */
 function resolveTimeForMatch(
   matched: DbSet,
   computed: {

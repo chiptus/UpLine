@@ -20,12 +20,28 @@ describe("useScheduleData", () => {
     ]);
   });
 
-  it("excludes a TBA set (date-only or dateless) from the Schedule tab -- shown in Vote/Explore instead", () => {
+  it("excludes a date-only TBA set from the Schedule tab -- shown in Vote/Explore instead", () => {
     const { result } = renderHook(() =>
       useScheduleData({
         sets: [
           makeSet({ id: "confirmed-set", status: "confirmed" }),
           makeSet({ id: "tba-set", status: "tba" }),
+        ],
+        stages: [stage],
+      }),
+    );
+
+    expect(setIdsInSchedule(result.current.scheduleDays)).toEqual([
+      "confirmed-set",
+    ]);
+  });
+
+  it("excludes a dateless TBA set (no time_start at all) from the Schedule tab too", () => {
+    const { result } = renderHook(() =>
+      useScheduleData({
+        sets: [
+          makeSet({ id: "confirmed-set", status: "confirmed" }),
+          makeSet({ id: "dateless-set", status: "tba", time_start: null }),
         ],
         stages: [stage],
       }),
@@ -48,13 +64,17 @@ function setIdsInSchedule(
 function makeSet(overrides: {
   id: string;
   status: "confirmed" | "tba";
+  time_start?: string | null;
 }): FestivalSet {
   return {
     id: overrides.id,
     name: `Set ${overrides.id}`,
     slug: overrides.id,
     stage_id: stage.id,
-    time_start: "2026-07-11T20:00:00Z",
+    time_start:
+      overrides.time_start === undefined
+        ? "2026-07-11T20:00:00Z"
+        : overrides.time_start,
     time_end: "2026-07-11T21:00:00Z",
     status: overrides.status,
     set_type: null,

@@ -22,12 +22,11 @@ export function SetMetadata() {
         index,
     );
 
-  const scheduleFormatted = formatSetSchedule(
-    set,
-    level,
+  const scheduleFormatted = formatSetSchedule(set, {
+    revealLevel: level,
     use24Hour,
-    festival.timezone,
-  );
+    timezone: festival.timezone,
+  });
 
   return (
     <div className="flex items-center flex-wrap gap-2">

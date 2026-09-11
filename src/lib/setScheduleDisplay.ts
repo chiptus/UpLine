@@ -11,6 +11,12 @@ type SetScheduleFields = {
   status: string;
 };
 
+type FormatSetScheduleOptions = {
+  revealLevel: RevealLevel;
+  use24Hour: boolean;
+  timezone?: string;
+};
+
 /**
  * Formats a set's schedule info for display, respecting both the edition's
  * schedule reveal level and the set's TBA status. Returns the exact time
@@ -19,9 +25,7 @@ type SetScheduleFields = {
  */
 export function formatSetSchedule(
   set: SetScheduleFields,
-  revealLevel: RevealLevel,
-  use24Hour: boolean,
-  timezone?: string,
+  { revealLevel, use24Hour, timezone }: FormatSetScheduleOptions,
 ): string | null {
   const isTba = set.status === "tba";
   if (canShowTime(revealLevel) && !isTba) {

@@ -25,12 +25,11 @@ export function NonMusicSetBanner({
   const { canShowStage, level } = useScheduleReveal();
   const { label, icon: Icon, gradient } = getSetTypeLabel(set.set_type);
 
-  const scheduleFormatted = formatSetSchedule(
-    set,
-    level,
+  const scheduleFormatted = formatSetSchedule(set, {
+    revealLevel: level,
     use24Hour,
-    festival.timezone,
-  );
+    timezone: festival.timezone,
+  });
 
   return (
     <div

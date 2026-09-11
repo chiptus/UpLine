@@ -7,13 +7,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { SetConfirmedTimeFields } from "./SetConfirmedTimeFields";
+import { SetStatusField } from "./SetStatusField";
 import { SetFormData } from "./setFormSchema";
 
 interface SetTimingFieldsProps {
@@ -29,27 +24,7 @@ export function SetTimingFields({ control, timezone }: SetTimingFieldsProps) {
     <>
       <p className="text-xs text-muted-foreground">Times in {timezone}</p>
       <div className="grid grid-cols-3 gap-4">
-        <FormField
-          control={control}
-          name="status"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Status</FormLabel>
-              <Select value={field.value} onValueChange={field.onChange}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="confirmed">Confirmed</SelectItem>
-                  <SelectItem value="tba">Time TBA</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <SetStatusField control={control} />
         {isTba ? (
           <FormField
             control={control}
@@ -68,34 +43,7 @@ export function SetTimingFields({ control, timezone }: SetTimingFieldsProps) {
             )}
           />
         ) : (
-          <>
-            <FormField
-              control={control}
-              name="time_start"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Start Time</FormLabel>
-                  <FormControl>
-                    <Input type="datetime-local" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name="time_end"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>End Time</FormLabel>
-                  <FormControl>
-                    <Input type="datetime-local" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </>
+          <SetConfirmedTimeFields control={control} />
         )}
       </div>
     </>

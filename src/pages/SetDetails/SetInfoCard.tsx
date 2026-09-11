@@ -33,12 +33,11 @@ export function SetInfoCard({
     from: "/festivals/$festivalSlug/editions/$editionSlug",
   });
   const { canShowStage, level } = useScheduleReveal();
-  const scheduleFormatted = formatSetSchedule(
-    set,
-    level,
+  const scheduleFormatted = formatSetSchedule(set, {
+    revealLevel: level,
     use24Hour,
-    festival.timezone,
-  );
+    timezone: festival.timezone,
+  });
   return (
     <div className="lg:col-span-2">
       <Card className="bg-surface-raised backdrop-blur-md border h-full">

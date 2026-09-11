@@ -103,11 +103,22 @@ AS $$
 DECLARE
   v_set_elem   JSONB;
   v_new_set_id UUID;
+  v_new_start  TIMESTAMPTZ;
+  v_new_status TEXT;
   v_created    INT := 0;
 BEGIN
   FOR v_set_elem IN
     SELECT value FROM jsonb_array_elements(COALESCE(p_sets_to_create, '[]'::jsonb))
   LOOP
+    v_new_start := commit_schedule__parse_ts(v_set_elem->>'timeStart');
+    -- Force consistency regardless of what the payload sends: a TBA set can
+    -- only exist with a start time (the day it lands on) and never an end
+    -- time, and a set with no start time is never TBA.
+    v_new_status := CASE
+      WHEN v_new_start IS NULL THEN 'confirmed'
+      ELSE COALESCE(v_set_elem->>'status', 'confirmed')
+    END;
+
     INSERT INTO sets (
       festival_edition_id, name, slug, description, set_type, stage_id,
       time_start, time_end, status, created_by
@@ -121,9 +132,12 @@ BEGIN
       commit_schedule__resolve_stage_id(
         p_festival_edition_id, v_set_elem->>'stageName'
       ),
-      commit_schedule__parse_ts(v_set_elem->>'timeStart'),
-      commit_schedule__parse_ts(v_set_elem->>'timeEnd'),
-      COALESCE(v_set_elem->>'status', 'confirmed'),
+      v_new_start,
+      CASE
+        WHEN v_new_status = 'tba' THEN NULL
+        ELSE commit_schedule__parse_ts(v_set_elem->>'timeEnd')
+      END,
+      v_new_status,
       p_user_id
     )
     RETURNING id INTO v_new_set_id;

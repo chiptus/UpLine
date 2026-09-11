@@ -94,6 +94,7 @@ src/
 4. **Data Fetching**: Use TanStack Query hooks in `src/api/` — feature-sliced modules, one folder per feature with a shared `types.ts` (entity type + query-key factory) and one `use`-prefixed file per endpoint holding its `queryOptions` factory + hook (see `docs/adr/0001-api-modules.md`)
 5. **Authentication**: Use `useAuth` hook for auth state and actions
 6. **Routing**: Add new routes to `App.tsx` above the catch-all "\*" route
+7. **Edge Functions**: New or touched edge functions should type their Supabase client as `createClient<Database>(...)` (importing `Database` from `supabase/functions/_shared/database.types.ts`) so RPC calls are type-checked — this is a forward-looking convention, not a backfill of existing untyped clients (see `docs/adr/0009-generate-types-against-staging-migrate.md`)
 
 ### Testing Setup
 

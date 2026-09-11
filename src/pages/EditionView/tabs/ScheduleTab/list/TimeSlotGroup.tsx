@@ -1,5 +1,6 @@
 import { Clock } from "lucide-react";
 import { formatTimeOnly } from "@/lib/timeUtils";
+import { isTimeSlotTba } from "@/lib/setScheduleDisplay";
 import { useTimeFormat } from "@/hooks/useTimeFormat";
 import { MobileSetCard } from "./MobileSetCard";
 import { cn } from "@/lib/utils";
@@ -20,8 +21,7 @@ interface TimeSlotGroupProps {
 
 export function TimeSlotGroup({ timeSlot, timezone }: TimeSlotGroupProps) {
   const use24Hour = useTimeFormat();
-  // TBA sets (#45) all land on their day's shared midnight slot.
-  const isTba = timeSlot.sets.some((set) => set.timeTba);
+  const isTba = isTimeSlotTba(timeSlot.sets);
 
   return (
     <div className="relative">

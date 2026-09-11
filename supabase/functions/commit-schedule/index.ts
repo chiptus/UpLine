@@ -32,6 +32,7 @@ const setPayloadSchema = z.object({
 
 const commitRequestSchema = z.object({
   festivalEditionId: z.string().uuid(),
+  watermark: z.string().min(1),
   artistsToCreate: z
     .array(z.object({ name: z.string().min(1), slug: z.string().min(1) }))
     .default([]),
@@ -75,6 +76,7 @@ serve(async (req) => {
 
     const {
       festivalEditionId,
+      watermark,
       artistsToCreate,
       stagesToCreate,
       setsToCreate,
@@ -87,6 +89,7 @@ serve(async (req) => {
     const { data, error } = await db.rpc("commit_schedule", {
       p_festival_edition_id: festivalEditionId,
       p_user_id: auth.userId,
+      p_watermark: watermark,
       p_artists_to_create: artistsToCreate,
       p_stages_to_create: stagesToCreate,
       p_sets_to_create: setsToCreate,

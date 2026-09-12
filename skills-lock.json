@@ -79,6 +79,12 @@
       "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
       "computedHash": "2449db6ab1ded9581f69fcc56c1f64818112d05e271fd4c5da23c6523f9d3d9d"
     },
+    "linearis": {
+      "source": "linearis-oss/linearis",
+      "sourceType": "github",
+      "skillPath": "skills/linearis/SKILL.md",
+      "computedHash": "b9f0a1bbcf051ccda4874275ba085f8964624a139fde6059f24a3d81db16f59f"
+    },
     "pr-review-fixer": {
       "source": "chiptus/skills",
       "sourceType": "github",

@@ -154,7 +154,7 @@ Order every file (components, tests, utils) with the primary logic first — the
 
 ### Issue tracker
 
-Issues (and external PRs) are tracked in GitHub Issues for `chiptus/UpLine`, via the `gh` CLI. External PRs are a triage surface. See `docs/agents/issue-tracker.md`.
+Issues are tracked in Linear (team `UPL`), via the `linearis` CLI (`npx linearis`). PRs remain on GitHub (`chiptus/UpLine`) and external PRs are still a triage surface. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 

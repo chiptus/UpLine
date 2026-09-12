@@ -121,8 +121,7 @@ describe("FestivalLogoDialog", () => {
 });
 
 async function selectFile() {
-  // Dialog content renders into a portal on document.body, not `container`.
-  const input = document.querySelector<HTMLInputElement>('input[type="file"]')!;
+  const input = screen.getByLabelText("Logo");
   const file = new File(["logo"], "logo.png", { type: "image/png" });
   await userEvent.upload(input, file);
 }

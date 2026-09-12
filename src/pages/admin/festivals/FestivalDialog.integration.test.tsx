@@ -3,6 +3,7 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { FestivalDialog } from "./FestivalDialog";
 import {
+  pasteIntoField,
   registerCleanup,
   renderWithQueryClient,
   testSupabase,
@@ -38,12 +39,7 @@ describe("FestivalDialog", () => {
       screen.getByLabelText("Festival Name"),
       "Integration Festival",
     );
-    // The slug field re-sanitizes its value on every keystroke (stripping
-    // trailing hyphens), which corrupts a hyphen-heavy value like a UUID
-    // when typed character-by-character. Pasting sets it in one shot instead.
-    const slugInput = screen.getByLabelText("URL Slug");
-    await userEvent.clear(slugInput);
-    await userEvent.paste(slug);
+    await pasteIntoField("URL Slug", slug);
 
     await userEvent.click(screen.getByRole("button", { name: "Create" }));
 
@@ -104,11 +100,7 @@ describe("FestivalDialog", () => {
       />,
     );
 
-    // Paste in one shot — see the create test's comment on why typing a
-    // hyphenated value character-by-character corrupts it here.
-    const slugInput = screen.getByLabelText("URL Slug");
-    await userEvent.clear(slugInput);
-    await userEvent.paste(taken.slug);
+    await pasteIntoField("URL Slug", taken.slug);
 
     const submitButton = screen.getByRole("button", { name: "Update" });
     await userEvent.click(submitButton);
@@ -140,11 +132,6 @@ describe("FestivalDialog", () => {
       <FestivalDialog open onOpenChange={vi.fn()} editingFestival={null} />,
     );
 
-    // handleSubmit's own guard (name/slug required, valid slug) runs and
-    // returns synchronously before any mutation would be called — the form
-    // has `noValidate` specifically so this reaches that guard instead of
-    // being blocked by native constraint validation — so there's no async
-    // gap to wait out before checking nothing was created.
     await userEvent.click(screen.getByRole("button", { name: "Create" }));
 
     const after = await testSupabase

@@ -3,6 +3,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { FestivalEditionManagement } from "./FestivalEditionManagement";
 import {
+  pasteIntoField,
   renderWithQueryClient,
   testSupabase,
 } from "@/test/integration/harness";
@@ -128,12 +129,7 @@ describe("FestivalEditionManagement", () => {
       screen.getByLabelText("Edition Name"),
       "Conflict Edition",
     );
-    // The slug field re-sanitizes its value on every keystroke (stripping
-    // trailing hyphens), which corrupts a hyphen-heavy value like this one
-    // when typed character-by-character. Pasting sets it in one shot instead.
-    const slugInput = screen.getByLabelText("URL Slug");
-    await userEvent.clear(slugInput);
-    await userEvent.paste(takenSlug);
+    await pasteIntoField("URL Slug", takenSlug);
 
     const dialog = screen.getByRole("dialog");
     const submitButton = within(dialog).getByRole("button", {
@@ -173,11 +169,6 @@ describe("FestivalEditionManagement", () => {
       await screen.findByRole("button", { name: "Add Edition" }),
     );
 
-    // handleSubmit's own guard (edition name/slug required, valid slug) runs
-    // and returns synchronously before any mutation would be called — the
-    // form has `noValidate` specifically so this reaches that guard instead
-    // of being blocked by native constraint validation — so there's no
-    // async gap to wait out before checking nothing was created.
     const dialog = screen.getByRole("dialog");
     await userEvent.click(
       within(dialog).getByRole("button", { name: "Create" }),

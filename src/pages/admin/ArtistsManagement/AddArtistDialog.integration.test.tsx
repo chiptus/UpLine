@@ -22,8 +22,7 @@ vi.mock("@/services/storage", () => ({
 }));
 
 async function selectFile() {
-  // Dialog content renders into a portal on document.body, not `container`.
-  const input = document.querySelector<HTMLInputElement>('input[type="file"]')!;
+  const input = screen.getByLabelText("Logo");
   const file = new File(["logo"], "logo.png", { type: "image/png" });
   await userEvent.upload(input, file);
 }
@@ -45,10 +44,7 @@ describe("AddArtistDialog", () => {
       </AuthProvider>,
     );
 
-    await userEvent.type(
-      await screen.findByPlaceholderText("Enter artist name"),
-      name,
-    );
+    await userEvent.type(await screen.findByLabelText("Artist Name"), name);
     await userEvent.click(screen.getByRole("button", { name: "Add Artist" }));
 
     await waitFor(() => expect(onSuccess).toHaveBeenCalledOnce());
@@ -77,10 +73,7 @@ describe("AddArtistDialog", () => {
       </AuthProvider>,
     );
 
-    await userEvent.type(
-      await screen.findByPlaceholderText("Enter artist name"),
-      name,
-    );
+    await userEvent.type(await screen.findByLabelText("Artist Name"), name);
     await selectFile();
     await userEvent.click(screen.getByRole("button", { name: "Add Artist" }));
 
@@ -110,13 +103,7 @@ describe("AddArtistDialog", () => {
       </AuthProvider>,
     );
 
-    await userEvent.type(
-      await screen.findByPlaceholderText("Enter artist name"),
-      name,
-    );
-    // onSubmit's own `!canEdit` guard runs and returns before any mutation
-    // would be called — no async gap to wait out before checking nothing
-    // landed.
+    await userEvent.type(await screen.findByLabelText("Artist Name"), name);
     await userEvent.click(screen.getByRole("button", { name: "Add Artist" }));
     expect(onSuccess).not.toHaveBeenCalled();
 
@@ -138,8 +125,6 @@ describe("AddArtistDialog", () => {
       </AuthProvider>,
     );
 
-    // react-hook-form's zod validation blocks submission before onSubmit
-    // ever runs — no mutateAsync/mutate bypass hack needed here.
     await userEvent.click(
       await screen.findByRole("button", { name: "Add Artist" }),
     );

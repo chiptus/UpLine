@@ -5,7 +5,8 @@ import {
   type ReactNode,
 } from "react";
 import { afterEach, expect } from "vitest";
-import { render, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { createClient } from "@supabase/supabase-js";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { Database } from "@/integrations/supabase/types";
@@ -94,4 +95,20 @@ export async function waitForQueriesSettled(
   queryClient: QueryClient,
 ): Promise<void> {
   await waitFor(() => expect(queryClient.isFetching()).toBe(0));
+}
+
+/**
+ * Sets a labeled field's value by pasting instead of typing. Some fields
+ * (e.g. a slug input that sanitizes its value on every keystroke, stripping
+ * trailing hyphens) corrupt a hyphen-heavy value like a UUID when it's typed
+ * character-by-character, since each intermediate keystroke gets sanitized
+ * too. Pasting sets the whole value in one shot, avoiding that.
+ */
+export async function pasteIntoField(
+  label: string,
+  value: string,
+): Promise<void> {
+  const field = screen.getByLabelText(label);
+  await userEvent.clear(field);
+  await userEvent.paste(value);
 }

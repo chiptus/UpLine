@@ -683,9 +683,9 @@ export type Database = {
           set_type: string | null;
           slug: string;
           stage_id: string | null;
+          status: string;
           time_end: string | null;
           time_start: string | null;
-          status: string;
           updated_at: string;
         };
         Insert: {
@@ -700,9 +700,9 @@ export type Database = {
           set_type?: string | null;
           slug: string;
           stage_id?: string | null;
+          status?: string;
           time_end?: string | null;
           time_start?: string | null;
-          status?: string;
           updated_at?: string;
         };
         Update: {
@@ -717,9 +717,9 @@ export type Database = {
           set_type?: string | null;
           slug?: string;
           stage_id?: string | null;
+          status?: string;
           time_end?: string | null;
           time_start?: string | null;
-          status?: string;
           updated_at?: string;
         };
         Relationships: [

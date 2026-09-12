@@ -32,13 +32,6 @@ const festival = {
   logo_url: "https://example.com/logo.png",
 } as Festival;
 
-async function selectFile() {
-  // Dialog content renders into a portal on document.body, not `container`.
-  const input = document.querySelector<HTMLInputElement>('input[type="file"]')!;
-  const file = new File(["logo"], "logo.png", { type: "image/png" });
-  await userEvent.upload(input, file);
-}
-
 describe("FestivalLogoDialog", () => {
   beforeEach(() => {
     mutateUpdate.mockReset();
@@ -127,3 +120,10 @@ describe("FestivalLogoDialog", () => {
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 });
+
+async function selectFile() {
+  // Dialog content renders into a portal on document.body, not `container`.
+  const input = document.querySelector<HTMLInputElement>('input[type="file"]')!;
+  const file = new File(["logo"], "logo.png", { type: "image/png" });
+  await userEvent.upload(input, file);
+}

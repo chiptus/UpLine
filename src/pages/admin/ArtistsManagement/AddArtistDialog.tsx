@@ -135,6 +135,8 @@ export function AddArtistDialog({
       image_url: imageUrl,
     };
 
+    // The mutation already toasts on failure (see useCreateArtistMutation),
+    // so no onError here.
     createArtistMutation.mutate(artistData, {
       onSuccess: () => {
         form.reset();

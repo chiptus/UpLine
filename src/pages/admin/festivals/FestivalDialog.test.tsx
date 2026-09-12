@@ -28,21 +28,6 @@ vi.mock("@/hooks/use-toast", () => ({
   useToast: () => ({ toast: toastMock }),
 }));
 
-function makeFestival(overrides: Partial<Festival> = {}): Festival {
-  return {
-    id: "festival-1",
-    name: "Boom Festival",
-    slug: "boom-festival",
-    description: "",
-    published: false,
-    timezone: "Europe/Lisbon",
-    logo_url: null,
-    created_at: "2026-01-01T00:00:00Z",
-    updated_at: "2026-01-01T00:00:00Z",
-    ...overrides,
-  } as Festival;
-}
-
 describe("FestivalDialog", () => {
   beforeEach(() => {
     mutateCreate.mockReset();
@@ -134,3 +119,18 @@ describe("FestivalDialog", () => {
     expect(screen.getByRole("button", { name: "Create" })).toBeDisabled();
   });
 });
+
+function makeFestival(overrides: Partial<Festival> = {}): Festival {
+  return {
+    id: "festival-1",
+    name: "Boom Festival",
+    slug: "boom-festival",
+    description: "",
+    published: false,
+    timezone: "Europe/Lisbon",
+    logo_url: null,
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: "2026-01-01T00:00:00Z",
+    ...overrides,
+  } as Festival;
+}

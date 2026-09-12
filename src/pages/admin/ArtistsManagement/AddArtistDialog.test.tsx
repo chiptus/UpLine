@@ -23,18 +23,6 @@ vi.mock("@/api/artists/useUpdateArtist", () => ({
   useUpdateArtistMutation: () => ({ mutate: vi.fn(), isPending: false }),
 }));
 
-function renderDialog(onSuccess = vi.fn()) {
-  const queryClient = new QueryClient();
-  queryClient.setQueryData(genresKeys.all(), []);
-
-  const utils = render(
-    <QueryClientProvider client={queryClient}>
-      <AddArtistDialog open onOpenChange={vi.fn()} onSuccess={onSuccess} />
-    </QueryClientProvider>,
-  );
-  return { ...utils, onSuccess };
-}
-
 describe("AddArtistDialog", () => {
   beforeEach(() => {
     mutateCreate.mockReset();
@@ -78,3 +66,15 @@ describe("AddArtistDialog", () => {
     expect(onSuccess).not.toHaveBeenCalled();
   });
 });
+
+function renderDialog(onSuccess = vi.fn()) {
+  const queryClient = new QueryClient();
+  queryClient.setQueryData(genresKeys.all(), []);
+
+  const utils = render(
+    <QueryClientProvider client={queryClient}>
+      <AddArtistDialog open onOpenChange={vi.fn()} onSuccess={onSuccess} />
+    </QueryClientProvider>,
+  );
+  return { ...utils, onSuccess };
+}

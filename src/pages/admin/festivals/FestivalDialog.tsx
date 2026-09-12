@@ -135,8 +135,6 @@ export function FestivalDialog({
       return;
     }
 
-    // Both mutations already toast on failure (see useCreateFestivalMutation /
-    // useUpdateFestivalMutation), so no onError here.
     if (editingFestival) {
       updateFestivalMutation.mutate(
         { festivalId: editingFestival.id, festivalData: formData },
@@ -162,7 +160,7 @@ export function FestivalDialog({
               : "Create a new festival with basic information and publish settings."}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <div>
             <Label htmlFor="name">Festival Name</Label>
             <Input

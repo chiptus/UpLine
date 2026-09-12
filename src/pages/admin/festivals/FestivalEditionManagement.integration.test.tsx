@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { screen, fireEvent, waitFor, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { FestivalEditionManagement } from "./FestivalEditionManagement";
 import {
@@ -47,6 +47,56 @@ describe("FestivalEditionManagement", () => {
     expect(data?.name).toBe("Boom 2027");
   });
 
+  it("updates an existing edition for real and closes the dialog on success", async () => {
+    const userId = await signInAsTestUser();
+    await grantAdminRole(userId);
+    const festival = await createFestival();
+    const { data: edition, error: seedError } = await testSupabase
+      .from("festival_editions")
+      .insert({
+        festival_id: festival.id,
+        name: "Old Edition Name",
+        slug: `old-${crypto.randomUUID()}`,
+        year: 2025,
+      })
+      .select("id")
+      .single();
+    if (seedError) throw seedError;
+
+    renderWithQueryClient(
+      <FestivalEditionManagement
+        festivalSlug={festival.slug}
+        onSelect={vi.fn()}
+        selected=""
+      />,
+    );
+
+    await userEvent.click(
+      await screen.findByRole("button", { name: "Edit Old Edition Name" }),
+    );
+
+    const dialog = screen.getByRole("dialog");
+    const nameInput = within(dialog).getByLabelText("Edition Name");
+    await userEvent.clear(nameInput);
+    await userEvent.type(nameInput, "New Edition Name");
+
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: "Update" }),
+    );
+
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
+
+    const { data, error } = await testSupabase
+      .from("festival_editions")
+      .select("name")
+      .eq("id", edition.id)
+      .single();
+    expect(error).toBeNull();
+    expect(data?.name).toBe("New Edition Name");
+  });
+
   it("keeps the dialog open on a real slug conflict within the same festival", async () => {
     const userId = await signInAsTestUser();
     await grantAdminRole(userId);
@@ -80,10 +130,10 @@ describe("FestivalEditionManagement", () => {
     );
     // The slug field re-sanitizes its value on every keystroke (stripping
     // trailing hyphens), which corrupts a hyphen-heavy value like this one
-    // when typed character-by-character — set it in one shot instead.
-    fireEvent.change(screen.getByLabelText("URL Slug"), {
-      target: { value: takenSlug },
-    });
+    // when typed character-by-character. Pasting sets it in one shot instead.
+    const slugInput = screen.getByLabelText("URL Slug");
+    await userEvent.clear(slugInput);
+    await userEvent.paste(takenSlug);
 
     const dialog = screen.getByRole("dialog");
     const submitButton = within(dialog).getByRole("button", {
@@ -122,12 +172,16 @@ describe("FestivalEditionManagement", () => {
     await userEvent.click(
       await screen.findByRole("button", { name: "Add Edition" }),
     );
-    fireEvent.submit(document.querySelector("form")!);
 
-    // There's no success/failure event to wait on here — the assertion is
-    // that nothing happens — so give a would-be (wrongly fired) mutation a
-    // moment to land before checking no row was created.
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    // handleSubmit's own guard (edition name/slug required, valid slug) runs
+    // and returns synchronously before any mutation would be called — the
+    // form has `noValidate` specifically so this reaches that guard instead
+    // of being blocked by native constraint validation — so there's no
+    // async gap to wait out before checking nothing was created.
+    const dialog = screen.getByRole("dialog");
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: "Create" }),
+    );
 
     const { data } = await testSupabase
       .from("festival_editions")

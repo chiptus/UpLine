@@ -199,9 +199,6 @@ export function FestivalEditionManagement({
       festival_id: festivalQuery.data!.id,
     };
 
-    // Both mutations already toast on failure (see
-    // useCreateFestivalEditionMutation / useUpdateFestivalEditionMutation),
-    // so no onError here.
     function onSuccess() {
       setIsDialogOpen(false);
       resetForm();
@@ -270,7 +267,7 @@ export function FestivalEditionManagement({
                     : "Create a new festival edition with dates and publish settings."}
                 </DialogDescription>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4" noValidate>
                 <div>
                   <Label htmlFor="name">Edition Name</Label>
                   <Input
@@ -416,6 +413,8 @@ export function FestivalEditionManagement({
                           e.stopPropagation();
                           handleEdit(edition);
                         }}
+                        aria-label={`Edit ${edition.name}`}
+                        title={`Edit ${edition.name}`}
                       >
                         <Edit2 className="h-4 w-4" />
                       </Button>
@@ -428,6 +427,8 @@ export function FestivalEditionManagement({
                           handleDeleteRequest(edition);
                         }}
                         className="text-destructive hover:text-destructive"
+                        aria-label={`Delete ${edition.name}`}
+                        title={`Delete ${edition.name}`}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

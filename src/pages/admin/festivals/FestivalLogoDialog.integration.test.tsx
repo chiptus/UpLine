@@ -15,7 +15,8 @@ import { createFestival } from "@/test/integration/fixtures/festivals";
 // ...,storage-api,...`), so a real file upload/delete has nothing to talk
 // to here. This is the narrow "impractical to reproduce for real" exception
 // in src/test/integration/README.md: mock only the storage boundary these
-// dialogs call through, and keep updateFestivalMutation — the thing this
+// dialogs call through, and keep useUploadFestivalLogoMutation /
+// useRemoveFestivalLogoMutation's own updateFestival call — the thing this
 // PR's conversion actually touches — running for real against Postgres.
 const uploadFestivalLogoMock = vi.fn();
 const deleteFestivalLogoMock = vi.fn();
@@ -24,13 +25,6 @@ vi.mock("@/services/storage", () => ({
   uploadFestivalLogo: (...args: unknown[]) => uploadFestivalLogoMock(...args),
   deleteFestivalLogo: (...args: unknown[]) => deleteFestivalLogoMock(...args),
 }));
-
-async function selectFile() {
-  // Dialog content renders into a portal on document.body, not `container`.
-  const input = document.querySelector<HTMLInputElement>('input[type="file"]')!;
-  const file = new File(["logo"], "logo.png", { type: "image/png" });
-  await userEvent.upload(input, file);
-}
 
 describe("FestivalLogoDialog", () => {
   beforeEach(() => {
@@ -112,11 +106,7 @@ describe("FestivalLogoDialog", () => {
       />,
     );
 
-    // The remove button is icon-only (no accessible name); target it by its
-    // destructive styling instead.
-    await userEvent.click(
-      document.querySelector<HTMLButtonElement>("button.bg-destructive")!,
-    );
+    await userEvent.click(screen.getByRole("button", { name: "Remove logo" }));
 
     await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
 
@@ -129,3 +119,10 @@ describe("FestivalLogoDialog", () => {
     expect(data?.logo_url).toBeNull();
   });
 });
+
+async function selectFile() {
+  // Dialog content renders into a portal on document.body, not `container`.
+  const input = document.querySelector<HTMLInputElement>('input[type="file"]')!;
+  const file = new File(["logo"], "logo.png", { type: "image/png" });
+  await userEvent.upload(input, file);
+}

@@ -103,10 +103,6 @@ export function AddArtistDialog({
       return;
     }
 
-    // The mutation resolves the final image URL itself — uploading
-    // `logoFile` if present, falling back to `imageUrl` on failure — and
-    // already toasts on both outcomes (see useCreateArtistMutation), so no
-    // onError here.
     createArtistMutation.mutate(
       {
         name: data.name,

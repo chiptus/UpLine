@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { screen, fireEvent, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { FestivalDialog } from "./FestivalDialog";
 import {
@@ -40,10 +40,10 @@ describe("FestivalDialog", () => {
     );
     // The slug field re-sanitizes its value on every keystroke (stripping
     // trailing hyphens), which corrupts a hyphen-heavy value like a UUID
-    // when typed character-by-character — set it in one shot instead.
-    fireEvent.change(screen.getByLabelText("URL Slug"), {
-      target: { value: slug },
-    });
+    // when typed character-by-character. Pasting sets it in one shot instead.
+    const slugInput = screen.getByLabelText("URL Slug");
+    await userEvent.clear(slugInput);
+    await userEvent.paste(slug);
 
     await userEvent.click(screen.getByRole("button", { name: "Create" }));
 
@@ -104,11 +104,11 @@ describe("FestivalDialog", () => {
       />,
     );
 
-    // Set in one shot — see the create test's comment on why typing a
+    // Paste in one shot — see the create test's comment on why typing a
     // hyphenated value character-by-character corrupts it here.
-    fireEvent.change(screen.getByLabelText("URL Slug"), {
-      target: { value: taken.slug },
-    });
+    const slugInput = screen.getByLabelText("URL Slug");
+    await userEvent.clear(slugInput);
+    await userEvent.paste(taken.slug);
 
     const submitButton = screen.getByRole("button", { name: "Update" });
     await userEvent.click(submitButton);
@@ -140,16 +140,12 @@ describe("FestivalDialog", () => {
       <FestivalDialog open onOpenChange={vi.fn()} editingFestival={null} />,
     );
 
-    // The name/slug inputs are also HTML5 `required`, which blocks a real
-    // click-triggered submit before our validation runs — dispatch the
-    // submit event directly to exercise handleSubmit's own guard. Dialog
-    // content renders into a portal on document.body, not `container`.
-    fireEvent.submit(document.querySelector("form")!);
-
-    // There's no success/failure event to wait on here — the assertion is
-    // that nothing happens — so give a would-be (wrongly fired) mutation a
-    // moment to land before checking the row count is unchanged.
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    // handleSubmit's own guard (name/slug required, valid slug) runs and
+    // returns synchronously before any mutation would be called — the form
+    // has `noValidate` specifically so this reaches that guard instead of
+    // being blocked by native constraint validation — so there's no async
+    // gap to wait out before checking nothing was created.
+    await userEvent.click(screen.getByRole("button", { name: "Create" }));
 
     const after = await testSupabase
       .from("festivals")

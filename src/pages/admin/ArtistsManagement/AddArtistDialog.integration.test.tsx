@@ -114,10 +114,10 @@ describe("AddArtistDialog", () => {
       await screen.findByPlaceholderText("Enter artist name"),
       name,
     );
+    // onSubmit's own `!canEdit` guard runs and returns before any mutation
+    // would be called — no async gap to wait out before checking nothing
+    // landed.
     await userEvent.click(screen.getByRole("button", { name: "Add Artist" }));
-
-    // Give the (denied) attempt a moment, then confirm nothing landed.
-    await new Promise((resolve) => setTimeout(resolve, 200));
     expect(onSuccess).not.toHaveBeenCalled();
 
     const { data } = await testSupabase

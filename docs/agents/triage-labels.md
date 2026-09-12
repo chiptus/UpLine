@@ -22,13 +22,16 @@ Edit the right-hand column to match whatever vocabulary you actually use.
 
 Repo-specific labels the autonomic pipeline (`docs/agents/autonomic-issues.md`) uses outside the five canonical roles above — not part of the mattpocock/skills vocabulary, so a skill invocation won't look for them here.
 
-| Label                            | Meaning                                                                                                                                                                            | Applied by                                                      |
-| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| `epic`                           | Tracking-only parent issue whose work has already been fully split into sub-issues, each carrying its own state label. Stays open only to track them; excluded from triage intake. | Triage firing — self-service, no maintainer confirmation needed |
-| `agent:wip`                      | An agent has claimed the issue this firing.                                                                                                                                        | Fix firing                                                      |
-| `agent:pr`                       | An agent PR for this issue is awaiting review.                                                                                                                                     | Fix firing (swapped from `agent:wip` on opening the PR)         |
-| `priority:high` / `priority:low` | Steers fix-firing pick order.                                                                                                                                                      | Maintainer only — triage and fix never set these                |
-| `wayfinder:*`                    | Belongs to a separate design/spec workflow, not this pipeline.                                                                                                                     | Never by this pipeline — triage skips these tickets entirely    |
+| Label         | Meaning                                                                                                                                                                            | Applied by                                                      |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `epic`        | Tracking-only parent issue whose work has already been fully split into sub-issues, each carrying its own state label. Stays open only to track them; excluded from triage intake. | Triage firing — self-service, no maintainer confirmation needed |
+| `agent:wip`   | An agent has claimed the issue this firing.                                                                                                                                        | Fix firing                                                      |
+| `agent:pr`    | An agent PR for this issue is awaiting review.                                                                                                                                     | Fix firing (swapped from `agent:wip` on opening the PR)         |
+| `wayfinder:*` | Belongs to a separate design/spec workflow, not this pipeline.                                                                                                                     | Never by this pipeline — triage skips these tickets entirely    |
+
+## Priority
+
+Fix-firing pick order is steered by Linear's native `priority` field on the issue (not a label): `1` Urgent, `2` High, `3` Medium, `4` Low, `0`/unset No priority. Maintainer only — triage and fix never set it. (Superseded 2026-09-12: this repo previously used `priority:high`/`priority:low` labels for the same purpose; those labels have been deleted from Linear now that the native field covers it.)
 
 ## Category labels
 

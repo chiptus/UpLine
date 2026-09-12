@@ -1,52 +1,35 @@
-# Issue tracker: GitHub
+# Issue tracker: Linear
 
-Issues and PRDs for this repo live as GitHub issues. Use the `gh` CLI for all operations.
+Issues for this repo live in Linear, team **UPL**. Use the `linearis` CLI (`npx linearis`, alias `npx linear`) for all operations — see `.agents/skills/linearis/SKILL.md` for auth, error handling, and the discovery protocol (`npx linearis usage`, then `npx linearis <domain> usage`). Don't guess flags; `usage` is authoritative.
 
 ## Conventions
 
-- **Create an issue**: `gh issue create --title "..." --body "..."`. Use a heredoc for multi-line bodies.
-- **Read an issue**: `gh issue view <number> --comments`, filtering comments by `jq` and also fetching labels.
-- **List issues**: `gh issue list --state open --json number,title,body,labels,comments --jq '[.[] | {number, title, body, labels: [.labels[].name], comments: [.comments[].body]}]'` with appropriate `--label` and `--state` filters.
-- **Comment on an issue**: `gh issue comment <number> --body "..."`
-- **Apply / remove labels**: `gh issue edit <number> --add-label "..."` / `--remove-label "..."`
-- **Close**: `gh issue close <number> --comment "..."`
+- **Create an issue**: `npx linearis issues create --team UPL --title "..." --description "..."`. Use `usage` to confirm flags (e.g. labels, priority) before relying on them.
+- **Read an issue**: `npx linearis issues read <identifier>` (e.g. `UPL-123`), with `--with-attachments` for linked PRs/docs/URLs.
+- **List issues**: `npx linearis issues list --team UPL --fields identifier,title,state.name,labels` with state/label filters as needed — check `usage` for the exact filter flags.
+- **Comment / discuss**: use the `issues discuss` / `discussions` / `replies` / `reply` commands (threaded discussion), not the deprecated top-level `comments` facade. Record non-trivial progress in a discussion thread and keep the description in sync on status changes.
+- **Apply / remove labels**: via `issues update` (or the dedicated label flag `usage` documents).
+- **Close / change state**: via `issues update --state ...` — Linear states are workflow states, not a boolean open/closed; confirm the state names for this team with `npx linearis` (team/workflow usage) rather than assuming GitHub-style "closed".
 
-Infer the repo from `git remote -v` — `gh` does this automatically when run inside a clone.
+IDs are forgiving: pass a UUID, team key (`UPL`), issue identifier (`UPL-123`), or name interchangeably. Reference tickets by identifier in commits, PR bodies, and comments.
 
-## When `gh` isn't available (Claude Code on the web / remote sessions)
+## Pull requests stay on GitHub
 
-In remote execution environments the `gh` CLI is often absent and GitHub is reached through the GitHub MCP tools (`mcp__github__*`) instead. Use these equivalents; the `gh` commands above remain the canonical reference for what each operation should do.
-
-| Operation                | `gh` command                | GitHub MCP tool                                  |
-| ------------------------ | --------------------------- | ------------------------------------------------ |
-| Create an issue          | `gh issue create`           | `issue_write` (method `create`)                  |
-| Read an issue + comments | `gh issue view --comments`  | `issue_read`                                     |
-| List issues              | `gh issue list`             | `list_issues` / `search_issues`                  |
-| Comment on an issue      | `gh issue comment`          | `add_issue_comment`                              |
-| Apply / remove labels    | `gh issue edit --add-label` | `issue_write` (method `update`, with `labels`)   |
-| Close an issue           | `gh issue close`            | `issue_write` (method `update`, `state: closed`) |
-| Read a PR + comments     | `gh pr view --comments`     | `pull_request_read`                              |
-| Read a PR diff           | `gh pr diff`                | `pull_request_read` (diff)                       |
-| List external PRs        | `gh pr list`                | `list_pull_requests` / `search_pull_requests`    |
-
-The repo is `chiptus/UpLine` — pass it as the `owner`/`repo` arguments the MCP tools require (they don't infer it from the clone the way `gh` does). Schemas load on demand via ToolSearch.
+Code hosting and PRs remain in GitHub (`chiptus/UpLine`) — only issue tracking moved to Linear. Use `gh` for PR operations (create, view, diff, comment, merge). Link a PR to its Linear issue by including the issue identifier (e.g. `UPL-123`) in the PR title or body — Linear's GitHub integration picks this up automatically; don't rely on GitHub's own `Closes #N` syntax, which only works for GitHub issues.
 
 ## Pull requests as a triage surface
 
 **PRs as a request surface: yes.** _(Set to `no` if this repo stops treating external PRs as feature requests; `/triage` reads this flag.)_
 
-When set to `yes`, PRs run through the same labels and states as issues, using the `gh pr` equivalents:
+External PRs on GitHub are still a triage input even though issues live in Linear — triage a PR by reading it with `gh pr view <number> --comments` / `gh pr diff <number>`, then create or update the corresponding Linear issue (`npx linearis issues create` / `issues update`) rather than labeling the PR itself.
 
-- **Read a PR**: `gh pr view <number> --comments` and `gh pr diff <number>` for the diff.
 - **List external PRs for triage**: `gh pr list --state open --json number,title,body,labels,author,authorAssociation,comments` then keep only `authorAssociation` of `CONTRIBUTOR`, `FIRST_TIME_CONTRIBUTOR`, or `NONE` (drop `OWNER`/`MEMBER`/`COLLABORATOR`).
-- **Comment / label / close**: `gh pr comment`, `gh pr edit --add-label`/`--remove-label`, `gh pr close`.
-
-GitHub shares one number space across issues and PRs, so a bare `#42` may be either — resolve with `gh pr view 42` and fall back to `gh issue view 42`.
+- **Comment / close a PR**: `gh pr comment`, `gh pr close`.
 
 ## When a skill says "publish to the issue tracker"
 
-Create a GitHub issue.
+Create a Linear issue: `npx linearis issues create --team UPL --title "..." --description "..."`.
 
 ## When a skill says "fetch the relevant ticket"
 
-Run `gh issue view <number> --comments`.
+Run `npx linearis issues read <identifier>`.

@@ -9,7 +9,7 @@ const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
   throw new Error(
     "Missing VITE_SUPABASE_URL or VITE_SUPABASE_PUBLISHABLE_KEY. " +
-      "For local dev: copy .env.local.example to .env.local and run `supabase start`. " +
+      "For local dev: copy .envrc.example to .envrc, run `direnv allow`, and run `supabase start`. " +
       "For deploys: set them as environment variables in your hosting provider.",
   );
 }

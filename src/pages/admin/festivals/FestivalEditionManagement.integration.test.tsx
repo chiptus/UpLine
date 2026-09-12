@@ -78,9 +78,12 @@ describe("FestivalEditionManagement", () => {
       screen.getByLabelText("Edition Name"),
       "Conflict Edition",
     );
-    const slugInput = screen.getByLabelText("URL Slug");
-    await userEvent.clear(slugInput);
-    await userEvent.type(slugInput, takenSlug);
+    // The slug field re-sanitizes its value on every keystroke (stripping
+    // trailing hyphens), which corrupts a hyphen-heavy value like this one
+    // when typed character-by-character — set it in one shot instead.
+    fireEvent.change(screen.getByLabelText("URL Slug"), {
+      target: { value: takenSlug },
+    });
 
     const dialog = screen.getByRole("dialog");
     const submitButton = within(dialog).getByRole("button", {

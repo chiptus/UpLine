@@ -38,9 +38,12 @@ describe("FestivalDialog", () => {
       screen.getByLabelText("Festival Name"),
       "Integration Festival",
     );
-    const slugInput = screen.getByLabelText("URL Slug");
-    await userEvent.clear(slugInput);
-    await userEvent.type(slugInput, slug);
+    // The slug field re-sanitizes its value on every keystroke (stripping
+    // trailing hyphens), which corrupts a hyphen-heavy value like a UUID
+    // when typed character-by-character — set it in one shot instead.
+    fireEvent.change(screen.getByLabelText("URL Slug"), {
+      target: { value: slug },
+    });
 
     await userEvent.click(screen.getByRole("button", { name: "Create" }));
 
@@ -101,9 +104,11 @@ describe("FestivalDialog", () => {
       />,
     );
 
-    const slugInput = screen.getByLabelText("URL Slug");
-    await userEvent.clear(slugInput);
-    await userEvent.type(slugInput, taken.slug);
+    // Set in one shot — see the create test's comment on why typing a
+    // hyphenated value character-by-character corrupts it here.
+    fireEvent.change(screen.getByLabelText("URL Slug"), {
+      target: { value: taken.slug },
+    });
 
     const submitButton = screen.getByRole("button", { name: "Update" });
     await userEvent.click(submitButton);

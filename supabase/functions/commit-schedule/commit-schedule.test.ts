@@ -551,6 +551,7 @@ Deno.test(
     const { error } = await db.rpc("commit_schedule", {
       p_festival_edition_id: editionId,
       p_user_id: userId,
+      p_watermark: await getWatermark(db, editionId),
       p_artists_to_create: [],
       p_stages_to_create: [],
       p_sets_to_create: [
@@ -603,6 +604,7 @@ Deno.test(
     const { error } = await db.rpc("commit_schedule", {
       p_festival_edition_id: editionId,
       p_user_id: userId,
+      p_watermark: await getWatermark(db, editionId),
       p_artists_to_create: [],
       p_stages_to_create: [],
       p_sets_to_create: [
@@ -674,6 +676,7 @@ Deno.test(
     const { error: tbaError } = await db.rpc("commit_schedule", {
       p_festival_edition_id: editionId,
       p_user_id: userId,
+      p_watermark: await getWatermark(db, editionId),
       p_artists_to_create: [],
       p_stages_to_create: [],
       p_sets_to_create: [],
@@ -702,6 +705,7 @@ Deno.test(
     const { error: realTimeError } = await db.rpc("commit_schedule", {
       p_festival_edition_id: editionId,
       p_user_id: userId,
+      p_watermark: await getWatermark(db, editionId),
       p_artists_to_create: [],
       p_stages_to_create: [],
       p_sets_to_create: [],
@@ -758,6 +762,7 @@ Deno.test(
     const { error } = await db.rpc("commit_schedule", {
       p_festival_edition_id: editionId,
       p_user_id: userId,
+      p_watermark: await getWatermark(db, editionId),
       p_artists_to_create: [],
       p_stages_to_create: [],
       p_sets_to_create: [],

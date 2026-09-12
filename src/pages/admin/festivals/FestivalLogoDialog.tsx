@@ -36,60 +36,63 @@ export function FestivalLogoDialog({
     if (!logoFile || !festival) return;
 
     setIsUploading(true);
+
+    // No need to delete old logo since we're using upsert to overwrite
+    let uploadResult;
     try {
-      const uploadResult = await uploadFestivalLogo(logoFile, festival.slug);
-
-      // No need to delete old logo since we're using upsert to overwrite
-
-      // Update festival with new logo URL
-      await updateFestivalMutation.mutateAsync({
-        festivalId: festival.id,
-        festivalData: {
-          logo_url: uploadResult.url,
-        },
-      });
-
-      setLogoFile(null);
-      onOpenChange(false);
+      uploadResult = await uploadFestivalLogo(logoFile, festival.slug);
     } catch (error) {
+      setIsUploading(false);
       toast({
         title: "Error",
         description:
           error instanceof Error ? error.message : "Failed to upload logo",
         variant: "destructive",
       });
-    } finally {
-      setIsUploading(false);
+      return;
     }
+
+    // Update festival with new logo URL. The mutation already toasts on
+    // failure (see useUpdateFestivalMutation), so no onError here.
+    updateFestivalMutation.mutate(
+      { festivalId: festival.id, festivalData: { logo_url: uploadResult.url } },
+      {
+        onSuccess: () => {
+          setLogoFile(null);
+          onOpenChange(false);
+        },
+        onSettled: () => setIsUploading(false),
+      },
+    );
   }
 
   async function handleRemoveLogo() {
     if (!festival?.logo_url) return;
 
     setIsDeleting(true);
+
     try {
-      // Delete logo file from storage
       await deleteFestivalLogo(festival.logo_url);
-
-      // Update festival to remove logo URL
-      await updateFestivalMutation.mutateAsync({
-        festivalId: festival.id,
-        festivalData: {
-          logo_url: null,
-        },
-      });
-
-      onOpenChange(false);
     } catch (error) {
+      setIsDeleting(false);
       toast({
         title: "Error",
         description:
           error instanceof Error ? error.message : "Failed to remove logo",
         variant: "destructive",
       });
-    } finally {
-      setIsDeleting(false);
+      return;
     }
+
+    // Update festival to remove logo URL. The mutation already toasts on
+    // failure (see useUpdateFestivalMutation), so no onError here.
+    updateFestivalMutation.mutate(
+      { festivalId: festival.id, festivalData: { logo_url: null } },
+      {
+        onSuccess: () => onOpenChange(false),
+        onSettled: () => setIsDeleting(false),
+      },
+    );
   }
 
   function handleClose() {

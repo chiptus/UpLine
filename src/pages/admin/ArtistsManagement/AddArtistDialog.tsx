@@ -104,46 +104,44 @@ export function AddArtistDialog({
       return;
     }
 
-    try {
-      // Determine the image URL - prioritize uploaded file over URL input
-      let imageUrl = data.imageUrl || null;
+    // Determine the image URL - prioritize uploaded file over URL input
+    let imageUrl = data.imageUrl || null;
 
-      // Upload image if a file is selected
-      if (logoFile) {
-        try {
-          // Create a temporary ID for upload (will be replaced when artist is created)
-          const tempId = Date.now().toString();
-          const uploadResult = await uploadArtistLogo(logoFile, tempId);
-          imageUrl = uploadResult.url;
-        } catch (uploadError) {
-          console.error("Image upload failed:", uploadError);
-          toast({
-            title: "Warning",
-            description: "Image upload failed, using URL instead",
-            variant: "destructive",
-          });
-        }
+    // Upload image if a file is selected
+    if (logoFile) {
+      try {
+        // Create a temporary ID for upload (will be replaced when artist is created)
+        const tempId = Date.now().toString();
+        const uploadResult = await uploadArtistLogo(logoFile, tempId);
+        imageUrl = uploadResult.url;
+      } catch (uploadError) {
+        console.error("Image upload failed:", uploadError);
+        toast({
+          title: "Warning",
+          description: "Image upload failed, using URL instead",
+          variant: "destructive",
+        });
       }
-
-      // Create the artist with the final image URL
-      const artistData = {
-        name: data.name,
-        description: data.description || "",
-        genre_ids: data.genre_ids || [],
-        added_by: user.id,
-        spotify_url: data.spotifyUrl || null,
-        soundcloud_url: data.soundcloudUrl || null,
-        image_url: imageUrl,
-      };
-
-      await createArtistMutation.mutateAsync(artistData);
-
-      form.reset();
-      setLogoFile(null);
-      onSuccess();
-    } catch (error) {
-      console.error("Failed to create artist:", error);
     }
+
+    // Create the artist with the final image URL
+    const artistData = {
+      name: data.name,
+      description: data.description || "",
+      genre_ids: data.genre_ids || [],
+      added_by: user.id,
+      spotify_url: data.spotifyUrl || null,
+      soundcloud_url: data.soundcloudUrl || null,
+      image_url: imageUrl,
+    };
+
+    createArtistMutation.mutate(artistData, {
+      onSuccess: () => {
+        form.reset();
+        setLogoFile(null);
+        onSuccess();
+      },
+    });
   }
 
   return (

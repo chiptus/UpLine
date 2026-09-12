@@ -63,7 +63,6 @@ export function useScheduleData({
       return [];
     }
 
-    // TBA sets are excluded.
     const performingSets = sets
       .filter((set) => set.time_start && set.stage_id && set.status !== "tba")
       .flatMap((set) => {

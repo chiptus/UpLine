@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AddArtistDialog } from "./AddArtistDialog";
@@ -10,7 +10,29 @@ import {
 import { signInAsTestUser } from "@/test/integration/fixtures/auth";
 import { grantAdminRole } from "@/test/integration/fixtures/adminRoles";
 
+// The local integration Supabase stack starts with storage-api excluded
+// (see .github/workflows/integration-run.yml), so a real file upload has
+// nothing to talk to here — mock only that boundary (per src/test/
+// integration/README.md's narrow exception) and let artist creation run
+// for real against Postgres.
+const uploadArtistLogoMock = vi.fn();
+
+vi.mock("@/services/storage", () => ({
+  uploadArtistLogo: (...args: unknown[]) => uploadArtistLogoMock(...args),
+}));
+
+async function selectFile() {
+  // Dialog content renders into a portal on document.body, not `container`.
+  const input = document.querySelector<HTMLInputElement>('input[type="file"]')!;
+  const file = new File(["logo"], "logo.png", { type: "image/png" });
+  await userEvent.upload(input, file);
+}
+
 describe("AddArtistDialog", () => {
+  beforeEach(() => {
+    uploadArtistLogoMock.mockReset();
+  });
+
   it("creates the artist for real and calls onSuccess", async () => {
     const userId = await signInAsTestUser();
     await grantAdminRole(userId);
@@ -38,6 +60,40 @@ describe("AddArtistDialog", () => {
       .single();
     expect(error).toBeNull();
     expect(data?.added_by).toBe(userId);
+
+    await testSupabase.from("artists").delete().eq("name", name);
+  });
+
+  it("still creates the artist when the image upload fails, falling back to no image", async () => {
+    const userId = await signInAsTestUser();
+    await grantAdminRole(userId);
+    uploadArtistLogoMock.mockRejectedValue(new Error("network down"));
+
+    const onSuccess = vi.fn();
+    const name = `Fallback Collective ${crypto.randomUUID()}`;
+    renderWithQueryClient(
+      <AuthProvider>
+        <AddArtistDialog open onOpenChange={vi.fn()} onSuccess={onSuccess} />
+      </AuthProvider>,
+    );
+
+    await userEvent.type(
+      await screen.findByPlaceholderText("Enter artist name"),
+      name,
+    );
+    await selectFile();
+    await userEvent.click(screen.getByRole("button", { name: "Add Artist" }));
+
+    await waitFor(() => expect(onSuccess).toHaveBeenCalledOnce());
+    expect(uploadArtistLogoMock).toHaveBeenCalledOnce();
+
+    const { data, error } = await testSupabase
+      .from("artists")
+      .select("name, image_url")
+      .eq("name", name)
+      .single();
+    expect(error).toBeNull();
+    expect(data?.image_url).toBeNull();
 
     await testSupabase.from("artists").delete().eq("name", name);
   });

@@ -1,25 +1,25 @@
 # Autonomic issue pipeline
 
-Two Claude Code Routines work this repo's GitHub issue backlog so the maintainer only reviews: a daily **triage sweep** labels incoming issues, and a daily **fix worker** (~1h later, on a stronger model) turns one `ready-for-agent` issue into a green, tested, self-reviewed PR. Each firing is a fresh cloud session with no memory — all cross-firing state lives in issue labels, comments, and PRs. Label vocabulary: `docs/agents/triage-labels.md`; tracker operations: `docs/agents/issue-tracker.md`.
+Two Claude Code Routines work this repo's Linear issue backlog (team `UPL`) so the maintainer only reviews: a daily **triage sweep** labels incoming issues, and a daily **fix worker** (~1h later, on a stronger model) turns one `ready-for-agent` issue into a green, tested, self-reviewed PR. Each firing is a fresh cloud session with no memory — all cross-firing state lives in Linear issue labels, Linear discussions, and GitHub PRs (code hosting and PRs stay on GitHub; see `docs/agents/issue-tracker.md`). Label vocabulary: `docs/agents/triage-labels.md`; tracker operations: `docs/agents/issue-tracker.md`.
 
 The paste-ready Routine prompts are at the [bottom of this doc](#routine-prompts); everything above them is the playbook those prompts point into.
 
 ## Shared state: the `agent:` labels
 
-In-flight state lives as labels **on issues**; an issue's label tells any fresh firing where it is in the pipeline. Meaning and who applies each: `docs/agents/triage-labels.md`. Application mechanics (claim comment, PR swap) are in the Fix firing steps below. Merging a PR closes its issue via `Closes #N`, which drops it out of every count automatically.
+In-flight state lives as labels **on Linear issues**; an issue's label tells any fresh firing where it is in the pipeline. Meaning and who applies each: `docs/agents/triage-labels.md`. Application mechanics (claim comment, PR swap) are in the Fix firing steps below. The PR title/body carries the Linear identifier (e.g. `UPL-123`, per `docs/agents/issue-tracker.md`) so Linear's GitHub integration transitions the linked issue when the PR merges — that transition happens outside the routine (merging is the maintainer's, per Guardrails), so don't treat it as something the fix firing itself performs.
 
-**The PR cap**: at run start the fix worker counts open issues labeled `agent:pr` (one search: `is:issue is:open label:agent:pr`). At or above **3**, the review queue is full — end silently. Counting issues rather than PRs stays correct even if a PR-side label is forgotten. Firings can overlap with no mutual exclusion, so this in-prompt count is the enforcement; a rare overshoot-by-one is accepted.
+**The PR cap**: at run start the fix worker counts non-completed Linear issues labeled `agent:pr` (`npx linearis issues list --team UPL --label agent:pr --fields identifier,state.name`, then drop rows whose state is in a completed/canceled category — check `npx linearis issues usage` / `teams usage` for the exact state-category filter flag rather than guessing one). At or above **3**, the review queue is full — end silently. Counting issues rather than PRs stays correct even if a PR-side label is forgotten. Firings can overlap with no mutual exclusion, so this in-prompt count is the enforcement; a rare overshoot-by-one is accepted.
 
-**Coexistence with manual sessions**: agents skip any issue assigned to a human or with an open linked PR — assignment means "mine, hands off". Manual-session PRs count against the cap only if the maintainer labels the issue `agent:pr` himself.
+**Coexistence with manual sessions**: agents skip any issue with an assignee or with an open linked PR — assignment means "mine, hands off". Manual-session PRs count against the cap only if the maintainer labels the issue `agent:pr` himself.
 
-**Stale claims**: the triage sweep releases any `agent:wip` older than ~24h (by the claim comment's timestamp) with no open linked PR: remove the label and leave a "stale claim released" comment. The fix worker finishes within its firing, so a day-old claim without a PR is dead.
+**Stale claims**: the triage sweep releases any `agent:wip` older than ~24h (by the claim discussion's timestamp) with no open linked PR: remove the label and leave a "stale claim released" reply in the issue's discussion thread. The fix worker finishes within its firing, so a day-old claim without a PR is dead.
 
 ## Triage firing
 
 1. **Release stale claims** (above).
 2. **Intake queue**: open issues labeled `needs-triage` plus open unlabeled issues — nothing else. Skip `wayfinder:*` and `epic` tickets. `needs-info` issues are fully inert: after the reporter answers, the maintainer flips the label back to `needs-triage`. Empty queue → end silently.
 3. **Apply the rubric** (below) to each intake issue **through the triage skill**: Read `.claude/skills/triage/SKILL.md` directly and follow it (it is not model-invocable, so the Skill tool won't list it). It carries the tracker mechanics — the AI-disclaimer prefix on every posted comment, the agent-brief format for `ready-for-agent` issues, the out-of-scope knowledge base. This doc's rubric and guardrails win wherever the two differ.
-4. **Summary table**: end the session with a markdown table of the sweep — one row per issue looked at, `issue | verdict | one-line reason` (verdicts: the label applied, or "held" / "skipped" with why). This is transcript output only, not a GitHub write.
+4. **Summary table**: end the session with a markdown table of the sweep — one row per issue looked at, `issue | verdict | one-line reason` (verdicts: the label applied, or "held" / "skipped" with why). This is transcript output only, not a tracker write.
 
 ### The ready-for-agent bar — all four required
 
@@ -42,12 +42,12 @@ All four hold → label `ready-for-agent`. Missing (a)/(b) → `needs-info`. Mis
 
 ## Fix firing
 
-1. **Repair before build**: list open issues labeled `agent:pr` and follow each to its open linked PR — issues are the source of truth; the PR-side label is display convenience and may be missing. If any such PR is conflicted with main or CI-red on its current head, restoring it (merge main in, get CI green through the quality gates) **is** this firing's work — then end. PRs the maintainer has left review comments on are his: leave them untouched. Broken agent PRs always stay counted against the cap — unreviewed PRs are exactly the review debt the cap limits.
-2. **Cap check**: count `is:issue is:open label:agent:pr`; at or above 3 → end silently.
-3. **Pick one issue**: `ready-for-agent` issues, skipping any assigned to a human or with an open linked PR, ordered `priority:high` → unlabeled → `priority:low`, oldest first within each rank. None eligible → end silently.
-4. **Claim**: apply `agent:wip` and a claim comment (timestamp + branch name) before any work. Branch naming: `type-id/slug`, e.g. `fix-448/consolidate-set-types`.
+1. **Repair before build**: list Linear issues labeled `agent:pr` (`npx linearis issues list --team UPL --label agent:pr`) and follow each to its open linked PR — use `npx linearis issues read <identifier> --with-attachments` to find the linked GitHub PR, then `gh pr view <number>` to check its state; issues are the source of truth, the PR-side label is display convenience and may be missing. If any such PR is conflicted with main or CI-red on its current head, restoring it (merge main in, get CI green through the quality gates) **is** this firing's work — then end. PRs the maintainer has left review comments on are his: leave them untouched. Broken agent PRs always stay counted against the cap — unreviewed PRs are exactly the review debt the cap limits.
+2. **Cap check**: same non-completed `agent:pr` count as above; at or above 3 → end silently.
+3. **Pick one issue**: `ready-for-agent` issues, skipping any with an assignee or an open linked PR, ordered `priority:high` → unlabeled → `priority:low`, oldest first within each rank. None eligible → end silently.
+4. **Claim**: apply `agent:wip` (`npx linearis issues update <identifier> ...` — check `usage` for the label-update flag) and post a claim reply (timestamp + branch name) via `npx linearis issues discuss`/`reply` before any work. Branch naming: `type-id/slug`, e.g. `fix-448/consolidate-set-types`.
 5. **Implement via the implement skill**: Read `.claude/skills/implement/SKILL.md` directly and follow it, with the issue as the spec. Its steps run inside the quality gates (below).
-6. **Open the PR** following `.claude/skills/create-pr/SKILL.md` exactly, with `Closes #N` in the body. Swap the issue's `agent:wip` to `agent:pr`; label the PR `agent:pr`. One PR per firing — done.
+6. **Open the PR** following `.claude/skills/create-pr/SKILL.md` exactly, with the Linear identifier (e.g. `UPL-123`) in the PR title or body per `docs/agents/issue-tracker.md` — not `Closes #N`, which only works for GitHub issues. Swap the issue's `agent:wip` to `agent:pr` via `linearis issues update`; label the GitHub PR itself `agent:pr` via `gh pr edit --add-label agent:pr` (PR labeling stays on GitHub). One PR per firing — done.
 
 **Mid-run bail**: the picked issue turns out not agent-ready (spec gap, missing access, actually a design decision) → re-route it (`needs-info` with questions, or `ready-for-human`) with a comment on what you found, remove `agent:wip`, and pick the next eligible issue — still at most one PR per firing.
 
@@ -73,12 +73,12 @@ Otherwise the pipeline is deliberately permissive: migration files, workflow edi
 
 ## Notifications
 
-Both routines run with push notifications on. The platform sends a push only when a run finishes with something noteworthy — a PR opened, triage questions posted, a failed run's findings — so every no-op path above ends _silently_: no GitHub writes (no comments, no labels), just a one-line note in the session transcript, then stop. Cap-full days never ping; the open PRs in the review queue are already the signal.
+Both routines run with push notifications on. The platform sends a push only when a run finishes with something noteworthy — a PR opened, triage questions posted, a failed run's findings — so every no-op path above ends _silently_: no tracker writes (no comments, no labels), just a one-line note in the session transcript, then stop. Cap-full days never ping; the open PRs in the review queue are already the signal.
 
 ## Setup checklist (manual, one-time)
 
-1. Create the labels in `docs/agents/triage-labels.md`'s pipeline-labels table (`agent:wip`, `agent:pr`, `epic`, `priority:high`, `priority:low`) plus the five canonical triage-role labels — `bug`/`enhancement`/`chore` should already exist.
-2. Create the **triage** Routine: daily, Sonnet (a test firing showed Haiku mis-triages — it judges from issue text alone instead of verifying premises in the codebase), this repo only, Default (trusted-network) environment, no connectors beyond GitHub, push notifications on, prompt below.
+1. Create the labels in `docs/agents/triage-labels.md`'s pipeline-labels table (`agent:wip`, `agent:pr`, `epic`, `priority:high`, `priority:low`) plus the five canonical triage-role labels in **Linear**, team `UPL` — `bug`/`enhancement`/`chore` should already exist there. Also create the `agent:pr` label in **GitHub** (`chiptus/UpLine`), since PR-side tagging stays there.
+2. Create the **triage** Routine: daily, Sonnet (a test firing showed Haiku mis-triages — it judges from issue text alone instead of verifying premises in the codebase), this repo only, Default (trusted-network) environment, connectors for GitHub (PR operations) plus `LINEAR_API_TOKEN` available in the environment for `linearis` (see `.agents/skills/linearis/SKILL.md` preflight), push notifications on, prompt below.
 3. Create the **fix** Routine: daily ~1h after triage, stronger model, same scoping, push notifications on, prompt below.
 4. Routine prompts stay short pointers — evolve the pipeline by editing this doc via PR, not the Routine form.
 

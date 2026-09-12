@@ -1,0 +1,131 @@
+import { describe, expect, it, vi, beforeEach } from "vitest";
+import { screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { FestivalLogoDialog } from "./FestivalLogoDialog";
+import {
+  renderWithQueryClient,
+  testSupabase,
+} from "@/test/integration/harness";
+import { signInAsTestUser } from "@/test/integration/fixtures/auth";
+import { grantAdminRole } from "@/test/integration/fixtures/adminRoles";
+import { createFestival } from "@/test/integration/fixtures/festivals";
+
+// The local integration Supabase stack starts with storage-api excluded
+// (see .github/workflows/integration-run.yml's `supabase start -x
+// ...,storage-api,...`), so a real file upload/delete has nothing to talk
+// to here. This is the narrow "impractical to reproduce for real" exception
+// in src/test/integration/README.md: mock only the storage boundary these
+// dialogs call through, and keep updateFestivalMutation — the thing this
+// PR's conversion actually touches — running for real against Postgres.
+const uploadFestivalLogoMock = vi.fn();
+const deleteFestivalLogoMock = vi.fn();
+
+vi.mock("@/services/storage", () => ({
+  uploadFestivalLogo: (...args: unknown[]) => uploadFestivalLogoMock(...args),
+  deleteFestivalLogo: (...args: unknown[]) => deleteFestivalLogoMock(...args),
+}));
+
+async function selectFile() {
+  // Dialog content renders into a portal on document.body, not `container`.
+  const input = document.querySelector<HTMLInputElement>('input[type="file"]')!;
+  const file = new File(["logo"], "logo.png", { type: "image/png" });
+  await userEvent.upload(input, file);
+}
+
+describe("FestivalLogoDialog", () => {
+  beforeEach(() => {
+    uploadFestivalLogoMock.mockReset();
+    deleteFestivalLogoMock.mockReset();
+  });
+
+  it("uploads a new logo and updates the festival for real on success", async () => {
+    const userId = await signInAsTestUser();
+    await grantAdminRole(userId);
+    const festival = await createFestival();
+    uploadFestivalLogoMock.mockResolvedValue({
+      url: "https://example.com/new-logo.png",
+    });
+
+    const onOpenChange = vi.fn();
+    renderWithQueryClient(
+      <FestivalLogoDialog
+        open
+        onOpenChange={onOpenChange}
+        festival={festival}
+      />,
+    );
+
+    await selectFile();
+    await userEvent.click(screen.getByRole("button", { name: "Upload Logo" }));
+
+    await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
+
+    const { data, error } = await testSupabase
+      .from("festivals")
+      .select("logo_url")
+      .eq("id", festival.id)
+      .single();
+    expect(error).toBeNull();
+    expect(data?.logo_url).toBe("https://example.com/new-logo.png");
+  });
+
+  it("never touches the festival when the upload itself fails", async () => {
+    const userId = await signInAsTestUser();
+    await grantAdminRole(userId);
+    const festival = await createFestival({
+      logo_url: "https://example.com/original.png",
+    });
+    uploadFestivalLogoMock.mockRejectedValue(new Error("network down"));
+
+    renderWithQueryClient(
+      <FestivalLogoDialog open onOpenChange={vi.fn()} festival={festival} />,
+    );
+
+    await selectFile();
+    const uploadButton = screen.getByRole("button", { name: "Upload Logo" });
+    await userEvent.click(uploadButton);
+
+    await waitFor(() => expect(uploadButton).not.toBeDisabled());
+
+    const { data } = await testSupabase
+      .from("festivals")
+      .select("logo_url")
+      .eq("id", festival.id)
+      .single();
+    expect(data?.logo_url).toBe("https://example.com/original.png");
+  });
+
+  it("removes the logo for real on success", async () => {
+    const userId = await signInAsTestUser();
+    await grantAdminRole(userId);
+    const festival = await createFestival({
+      logo_url: "https://example.com/original.png",
+    });
+    deleteFestivalLogoMock.mockResolvedValue(undefined);
+
+    const onOpenChange = vi.fn();
+    renderWithQueryClient(
+      <FestivalLogoDialog
+        open
+        onOpenChange={onOpenChange}
+        festival={festival}
+      />,
+    );
+
+    // The remove button is icon-only (no accessible name); target it by its
+    // destructive styling instead.
+    await userEvent.click(
+      document.querySelector<HTMLButtonElement>("button.bg-destructive")!,
+    );
+
+    await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
+
+    const { data, error } = await testSupabase
+      .from("festivals")
+      .select("logo_url")
+      .eq("id", festival.id)
+      .single();
+    expect(error).toBeNull();
+    expect(data?.logo_url).toBeNull();
+  });
+});

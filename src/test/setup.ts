@@ -18,12 +18,3 @@ process.env.TZ = "UTC";
 // `src/test/integration/`.
 vi.stubEnv("VITE_SUPABASE_URL", "http://localhost:54321");
 vi.stubEnv("VITE_SUPABASE_PUBLISHABLE_KEY", "test-anon-key");
-
-// jsdom has no ResizeObserver; several Radix primitives (Switch, Popover
-// content sizing, etc.) call it as soon as they mount.
-class ResizeObserverStub {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-}
-vi.stubGlobal("ResizeObserver", ResizeObserverStub);

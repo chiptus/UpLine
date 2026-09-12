@@ -5,7 +5,8 @@ import {
   type ReactNode,
 } from "react";
 import { afterEach, expect } from "vitest";
-import { render, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { createClient } from "@supabase/supabase-js";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { Database } from "@/integrations/supabase/types";
@@ -94,4 +95,21 @@ export async function waitForQueriesSettled(
   queryClient: QueryClient,
 ): Promise<void> {
   await waitFor(() => expect(queryClient.isFetching()).toBe(0));
+}
+
+/** Sets a labeled field's value by pasting — avoids per-keystroke corruption from a self-sanitizing field (e.g. a slug stripping trailing hyphens) when typing a hyphenated value. */
+export async function pasteIntoField(
+  label: string,
+  value: string,
+): Promise<void> {
+  const field = screen.getByLabelText(label);
+  await userEvent.clear(field);
+  await userEvent.paste(value);
+}
+
+/** Uploads a fake image into the shared `FileUpload` component's "Logo" field. */
+export async function selectLogoFile(): Promise<void> {
+  const input = screen.getByLabelText("Logo");
+  const file = new File(["logo"], "logo.png", { type: "image/png" });
+  await userEvent.upload(input, file);
 }

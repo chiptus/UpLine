@@ -51,8 +51,9 @@ export function FestivalDialog({
     published: false,
     timezone: DEFAULT_FESTIVAL_TIMEZONE,
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [slugError, setSlugError] = useState("");
+  const isSubmitting =
+    createFestivalMutation.isPending || updateFestivalMutation.isPending;
 
   // Reset form when dialog opens/closes or editing festival changes
   useEffect(() => {
@@ -105,7 +106,7 @@ export function FestivalDialog({
     }
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!formData.name.trim()) {
       toast({
@@ -134,26 +135,15 @@ export function FestivalDialog({
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      if (editingFestival) {
-        await updateFestivalMutation.mutateAsync({
-          festivalId: editingFestival.id,
-          festivalData: formData,
-        });
-      } else {
-        await createFestivalMutation.mutateAsync(formData);
-      }
-      onOpenChange(false);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description:
-          error instanceof Error ? error.message : "Failed to save festival",
-        variant: "destructive",
+    if (editingFestival) {
+      updateFestivalMutation.mutate(
+        { festivalId: editingFestival.id, festivalData: formData },
+        { onSuccess: () => onOpenChange(false) },
+      );
+    } else {
+      createFestivalMutation.mutate(formData, {
+        onSuccess: () => onOpenChange(false),
       });
-    } finally {
-      setIsSubmitting(false);
     }
   }
 
@@ -170,7 +160,7 @@ export function FestivalDialog({
               : "Create a new festival with basic information and publish settings."}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <div>
             <Label htmlFor="name">Festival Name</Label>
             <Input

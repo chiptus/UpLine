@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useUpdateFestivalMutation } from "@/api/festivals/useUpdateFestival";
+import { useUploadFestivalLogoMutation } from "@/api/festivals/useUploadFestivalLogo";
+import { useRemoveFestivalLogoMutation } from "@/api/festivals/useRemoveFestivalLogo";
 import { Festival } from "@/api/festivals/types";
-import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +12,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Loader2, Image as ImageIcon, Trash2 } from "lucide-react";
 import { FileUpload } from "@/components/ui/file-upload";
-import { uploadFestivalLogo, deleteFestivalLogo } from "@/services/storage";
 
 interface FestivalLogoDialogProps {
   open: boolean;
@@ -25,71 +24,32 @@ export function FestivalLogoDialog({
   onOpenChange,
   festival,
 }: FestivalLogoDialogProps) {
-  const { toast } = useToast();
-  const updateFestivalMutation = useUpdateFestivalMutation();
+  const uploadLogoMutation = useUploadFestivalLogoMutation();
+  const removeLogoMutation = useRemoveFestivalLogoMutation();
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
 
-  async function handleUpload() {
+  function handleUpload() {
     if (!logoFile || !festival) return;
 
-    setIsUploading(true);
-    try {
-      const uploadResult = await uploadFestivalLogo(logoFile, festival.slug);
-
-      // No need to delete old logo since we're using upsert to overwrite
-
-      // Update festival with new logo URL
-      await updateFestivalMutation.mutateAsync({
-        festivalId: festival.id,
-        festivalData: {
-          logo_url: uploadResult.url,
+    uploadLogoMutation.mutate(
+      { festivalId: festival.id, festivalSlug: festival.slug, logoFile },
+      {
+        onSuccess: () => {
+          setLogoFile(null);
+          onOpenChange(false);
         },
-      });
-
-      setLogoFile(null);
-      onOpenChange(false);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description:
-          error instanceof Error ? error.message : "Failed to upload logo",
-        variant: "destructive",
-      });
-    } finally {
-      setIsUploading(false);
-    }
+      },
+    );
   }
 
-  async function handleRemoveLogo() {
+  function handleRemoveLogo() {
     if (!festival?.logo_url) return;
 
-    setIsDeleting(true);
-    try {
-      // Delete logo file from storage
-      await deleteFestivalLogo(festival.logo_url);
-
-      // Update festival to remove logo URL
-      await updateFestivalMutation.mutateAsync({
-        festivalId: festival.id,
-        festivalData: {
-          logo_url: null,
-        },
-      });
-
-      onOpenChange(false);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description:
-          error instanceof Error ? error.message : "Failed to remove logo",
-        variant: "destructive",
-      });
-    } finally {
-      setIsDeleting(false);
-    }
+    removeLogoMutation.mutate(
+      { festivalId: festival.id, logoUrl: festival.logo_url },
+      { onSuccess: () => onOpenChange(false) },
+    );
   }
 
   function handleClose() {
@@ -101,6 +61,8 @@ export function FestivalLogoDialog({
 
   const hasCurrentLogo = !!festival.logo_url;
   const hasNewLogo = !!logoFile;
+  const isUploading = uploadLogoMutation.isPending;
+  const isDeleting = removeLogoMutation.isPending;
   const isWorking = isUploading || isDeleting;
 
   return (
@@ -137,6 +99,8 @@ export function FestivalLogoDialog({
                   size="sm"
                   onClick={handleRemoveLogo}
                   disabled={isWorking}
+                  aria-label="Remove logo"
+                  title="Remove logo"
                 >
                   {isDeleting ? (
                     <Loader2 className="h-4 w-4 animate-spin" />

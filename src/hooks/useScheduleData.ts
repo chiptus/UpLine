@@ -63,11 +63,8 @@ export function useScheduleData({
       return [];
     }
 
-    // Filter sets with performance times and stages, and drop any whose
-    // time_start doesn't parse into a valid festival day (so dayKey is
-    // always a real key below, never a sentinel).
     const performingSets = sets
-      .filter((set) => set.time_start && set.stage_id)
+      .filter((set) => set.time_start && set.stage_id && set.status !== "tba")
       .flatMap((set) => {
         const dayKey = getFestivalDayKey(set.time_start, timezone);
         return dayKey ? [{ set, dayKey }] : [];

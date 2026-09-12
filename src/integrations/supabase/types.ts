@@ -683,6 +683,7 @@ export type Database = {
           set_type: string | null;
           slug: string;
           stage_id: string | null;
+          status: string;
           time_end: string | null;
           time_start: string | null;
           updated_at: string;
@@ -699,6 +700,7 @@ export type Database = {
           set_type?: string | null;
           slug: string;
           stage_id?: string | null;
+          status?: string;
           time_end?: string | null;
           time_start?: string | null;
           updated_at?: string;
@@ -715,6 +717,7 @@ export type Database = {
           set_type?: string | null;
           slug?: string;
           stage_id?: string | null;
+          status?: string;
           time_end?: string | null;
           time_start?: string | null;
           updated_at?: string;

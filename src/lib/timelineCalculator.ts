@@ -79,7 +79,8 @@ export function calculateTimelineData(
     stages,
     earliestTime,
     (set: ScheduleSet, origin: Date): HorizontalTimelineSet => {
-      if (!set.startTime || !set.endTime) return set;
+      if (!set.startTime) return set;
+      if (!set.endTime) return set;
 
       const left = timeToOffset(set.startTime, origin);
       const width = Math.max(timeToOffset(set.endTime, set.startTime), 100);
@@ -204,11 +205,9 @@ function processStageGroups<T extends ScheduleSet>(
         allStageGroups[stage.id] = [];
       }
 
-      const enhancedSets = stage.sets.map(
-        (set): T => positionCalculator(set, earliestTime),
+      allStageGroups[stage.id].push(
+        ...stage.sets.map((set): T => positionCalculator(set, earliestTime)),
       );
-
-      allStageGroups[stage.id].push(...enhancedSets);
     });
   });
 
@@ -223,10 +222,7 @@ function processStageGroups<T extends ScheduleSet>(
         name: stage.name,
         color: stage.color || undefined,
         stage_order: stage.stage_order || 0,
-        sets: sets.sort((a, b) => {
-          if (!a.startTime || !b.startTime) return 0;
-          return a.startTime.getTime() - b.startTime.getTime();
-        }),
+        sets: sortByStartTime(sets),
       };
     })
     .filter(
@@ -241,4 +237,11 @@ function processStageGroups<T extends ScheduleSet>(
     );
 
   return sortStagesByOrder(unifiedStagesUnsorted);
+}
+
+function sortByStartTime<T extends ScheduleSet>(sets: T[]): T[] {
+  return sets.sort((a, b) => {
+    if (!a.startTime || !b.startTime) return 0;
+    return a.startTime.getTime() - b.startTime.getTime();
+  });
 }

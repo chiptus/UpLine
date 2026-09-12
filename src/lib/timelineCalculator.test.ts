@@ -274,6 +274,36 @@ describe("calculateTimelineData", () => {
     expect(longSet?.horizontalPosition?.width).toBe(60 * PX_PER_MINUTE); // scale-derived, not clamped
   });
 
+  it("drops a set with no endTime from the horizontal timeline", () => {
+    const stage = makeStage();
+    const days = [
+      makeScheduleDay("2024-07-01", [
+        {
+          id: stage.id,
+          name: stage.name,
+          stage_order: 0,
+          sets: [
+            makeSet({
+              id: "no-end-set",
+              startTime: new Date("2024-07-01T10:00:00Z"),
+              endTime: undefined,
+            }),
+          ],
+        },
+      ]),
+    ];
+
+    const data = calculateTimelineData(
+      new Date("2024-07-01T00:00:00Z"),
+      new Date("2024-07-02T00:00:00Z"),
+      days,
+      [stage],
+    );
+
+    const set = data!.stages[0].sets.find((s) => s.id === "no-end-set");
+    expect(set?.horizontalPosition).toBeUndefined();
+  });
+
   it("positions the last time slot at the total width (axis upper boundary)", () => {
     const stage = makeStage();
     const days = [

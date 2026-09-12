@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { FestivalSet, asSetType, setsKeys } from "./types";
+import { FestivalSet, asSetStatus, asSetType, setsKeys } from "./types";
 
 async function fetchSetBySlug({
   slug,
@@ -38,6 +38,7 @@ async function fetchSetBySlug({
   const transformedData: FestivalSet = {
     ...data,
     set_type: asSetType(data.set_type),
+    status: asSetStatus(data.status),
     artists:
       data.set_artists
         ?.map((sa) => ({

@@ -62,6 +62,7 @@ describe("buildCommitPayload", () => {
             stageName: "Mainstage",
             timeStart: null,
             timeEnd: null,
+            status: "tba",
             artistSlugs: ["carl-cox"],
           },
         ],
@@ -86,6 +87,7 @@ describe("buildCommitPayload", () => {
     );
     expect(payload.setsToCreate[0].stageName).toBe("Main Stage");
     expect(payload.stagesToCreate).toEqual([]);
+    expect(payload.setsToCreate[0].status).toBe("tba");
   });
 
   it("keeps non-mismatched stage names as-is", () => {
@@ -101,6 +103,7 @@ describe("buildCommitPayload", () => {
             stageName: "Main Stage",
             timeStart: null,
             timeEnd: null,
+            status: "confirmed",
             artistSlugs: ["carl-cox"],
           },
         ],
@@ -125,6 +128,7 @@ describe("buildCommitPayload", () => {
             stageName: null,
             timeStart: null,
             timeEnd: null,
+            status: "confirmed",
             artistSlugs: [],
           },
         ],
@@ -138,6 +142,7 @@ describe("buildCommitPayload", () => {
             stageName: null,
             timeStart: null,
             timeEnd: null,
+            status: "confirmed",
             artistSlugs: [],
           },
         ],

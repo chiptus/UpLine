@@ -49,9 +49,10 @@ export function EditSetDialog({
       description: set.description || "",
       external_url: set.external_url || "",
       stage_id: set.stage_id || "none",
+      status: set.status,
       time_start: toDatetimeLocalInTimeZone(set.time_start, tz),
       time_end: toDatetimeLocalInTimeZone(set.time_end, tz),
-      estimated_date: "",
+      tba_date: toDatetimeLocalInTimeZone(set.time_start, tz).slice(0, 10),
       artist_ids: set.artists?.map((a) => a.id) || [],
     },
   });

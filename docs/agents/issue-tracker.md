@@ -1,6 +1,6 @@
 # Issue tracker: Linear
 
-Issues for this repo live in Linear, team **UPL**. Use the `linearis` CLI (`npx linearis`, alias `npx linear`) for all operations — see `.claude/skills/linearis/SKILL.md` for auth, error handling, and the discovery protocol (`npx linearis usage`, then `npx linearis <domain> usage`). Don't guess flags; `usage` is authoritative.
+Issues for this repo live in Linear, team **UPL**. Use the `linearis` CLI (`npx linearis`, alias `npx linear`) for all operations — see `.agents/skills/linearis/SKILL.md` for auth, error handling, and the discovery protocol (`npx linearis usage`, then `npx linearis <domain> usage`). Don't guess flags; `usage` is authoritative.
 
 ## Conventions
 

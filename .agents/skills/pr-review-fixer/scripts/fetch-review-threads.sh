@@ -34,7 +34,7 @@ threads_and_reviews=$(gh api graphql -f query='
   }' -F owner="$owner" -F repo="$repo" -F number="$number" \
   --jq '{
     threads: [.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)],
-    reviews: [.data.repository.pullRequest.reviews.nodes[] | select(.body != "")]
+    reviews: [.data.repository.pullRequest.reviews.nodes[] | select((.body // "") != "")]
   }')
 
 issue_comments=$(gh api "repos/$owner/$repo/issues/$number/comments" \

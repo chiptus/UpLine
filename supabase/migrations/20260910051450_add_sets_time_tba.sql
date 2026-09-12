@@ -17,14 +17,9 @@ ALTER TABLE public.sets
 -- Re-create commit_schedule__create_sets / __update_sets (same signatures,
 -- CREATE OR REPLACE only) to persist status alongside time_start.
 --
--- The "preserve on same day" nuance (a date-only row matching a set
--- that already has a real committed time on the same festival day must not
--- downgrade it to TBA) is resolved entirely in computeDiff.ts, upstream of
--- this RPC: it detects that case and sends timeStart = null (full omission)
--- instead of a midnight+TBA value. So this function only needs to keep
--- status in lockstep with time_start using the same preserve-on-omit
--- pattern already used for stage_id/time_start/time_end/set_type -- no
--- day-comparison logic needed here.
+-- The "preserve on same day" nuance is resolved upstream in computeDiff.ts
+-- (sends timeStart = null for that case) -- no day-comparison logic needed
+-- here, just status in lockstep with time_start.
 CREATE OR REPLACE FUNCTION public.commit_schedule__update_sets(
   p_festival_edition_id UUID,
   p_sets_to_update      JSONB

@@ -97,13 +97,7 @@ export async function waitForQueriesSettled(
   await waitFor(() => expect(queryClient.isFetching()).toBe(0));
 }
 
-/**
- * Sets a labeled field's value by pasting instead of typing. Some fields
- * (e.g. a slug input that sanitizes its value on every keystroke, stripping
- * trailing hyphens) corrupt a hyphen-heavy value like a UUID when it's typed
- * character-by-character, since each intermediate keystroke gets sanitized
- * too. Pasting sets the whole value in one shot, avoiding that.
- */
+/** Sets a labeled field's value by pasting — avoids per-keystroke corruption from a self-sanitizing field (e.g. a slug stripping trailing hyphens) when typing a hyphenated value. */
 export async function pasteIntoField(
   label: string,
   value: string,
@@ -111,4 +105,11 @@ export async function pasteIntoField(
   const field = screen.getByLabelText(label);
   await userEvent.clear(field);
   await userEvent.paste(value);
+}
+
+/** Uploads a fake image into the shared `FileUpload` component's "Logo" field. */
+export async function selectLogoFile(): Promise<void> {
+  const input = screen.getByLabelText("Logo");
+  const file = new File(["logo"], "logo.png", { type: "image/png" });
+  await userEvent.upload(input, file);
 }

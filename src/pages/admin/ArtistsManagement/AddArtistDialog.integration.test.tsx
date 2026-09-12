@@ -5,6 +5,7 @@ import { AddArtistDialog } from "./AddArtistDialog";
 import { AuthProvider } from "@/contexts/AuthContext";
 import {
   renderWithQueryClient,
+  selectLogoFile,
   testSupabase,
 } from "@/test/integration/harness";
 import { signInAsTestUser } from "@/test/integration/fixtures/auth";
@@ -20,12 +21,6 @@ const uploadArtistLogoMock = vi.fn();
 vi.mock("@/services/storage", () => ({
   uploadArtistLogo: (...args: unknown[]) => uploadArtistLogoMock(...args),
 }));
-
-async function selectFile() {
-  const input = screen.getByLabelText("Logo");
-  const file = new File(["logo"], "logo.png", { type: "image/png" });
-  await userEvent.upload(input, file);
-}
 
 describe("AddArtistDialog", () => {
   beforeEach(() => {
@@ -74,7 +69,7 @@ describe("AddArtistDialog", () => {
     );
 
     await userEvent.type(await screen.findByLabelText("Artist Name"), name);
-    await selectFile();
+    await selectLogoFile();
     await userEvent.click(screen.getByRole("button", { name: "Add Artist" }));
 
     await waitFor(() => expect(onSuccess).toHaveBeenCalledOnce());

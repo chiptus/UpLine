@@ -4,20 +4,14 @@ import userEvent from "@testing-library/user-event";
 import { FestivalLogoDialog } from "./FestivalLogoDialog";
 import {
   renderWithQueryClient,
+  selectLogoFile,
   testSupabase,
 } from "@/test/integration/harness";
 import { signInAsTestUser } from "@/test/integration/fixtures/auth";
 import { grantAdminRole } from "@/test/integration/fixtures/adminRoles";
 import { createFestival } from "@/test/integration/fixtures/festivals";
 
-// The local integration Supabase stack starts with storage-api excluded
-// (see .github/workflows/integration-run.yml's `supabase start -x
-// ...,storage-api,...`), so a real file upload/delete has nothing to talk
-// to here. This is the narrow "impractical to reproduce for real" exception
-// in src/test/integration/README.md: mock only the storage boundary these
-// dialogs call through, and keep useUploadFestivalLogoMutation /
-// useRemoveFestivalLogoMutation's own updateFestival call — the thing this
-// PR's conversion actually touches — running for real against Postgres.
+// storage-api isn't in the local integration stack (see integration-run.yml) — mock only that boundary, per src/test/integration/README.md's exception.
 const uploadFestivalLogoMock = vi.fn();
 const deleteFestivalLogoMock = vi.fn();
 
@@ -49,7 +43,7 @@ describe("FestivalLogoDialog", () => {
       />,
     );
 
-    await selectFile();
+    await selectLogoFile();
     await userEvent.click(screen.getByRole("button", { name: "Upload Logo" }));
 
     await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
@@ -75,7 +69,7 @@ describe("FestivalLogoDialog", () => {
       <FestivalLogoDialog open onOpenChange={vi.fn()} festival={festival} />,
     );
 
-    await selectFile();
+    await selectLogoFile();
     const uploadButton = screen.getByRole("button", { name: "Upload Logo" });
     await userEvent.click(uploadButton);
 
@@ -119,9 +113,3 @@ describe("FestivalLogoDialog", () => {
     expect(data?.logo_url).toBeNull();
   });
 });
-
-async function selectFile() {
-  const input = screen.getByLabelText("Logo");
-  const file = new File(["logo"], "logo.png", { type: "image/png" });
-  await userEvent.upload(input, file);
-}

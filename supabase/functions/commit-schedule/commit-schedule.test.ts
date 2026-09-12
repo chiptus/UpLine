@@ -588,6 +588,58 @@ Deno.test(
 );
 
 Deno.test(
+  'commit_schedule: dateless create stores status "tba" with no time_start',
+  async () => {
+    const db = adminClient();
+    const editionId = await getTestEditionId(db);
+    const userId = await getTestUserId(db);
+    const slug = `test-tba-dateless-${Date.now()}`;
+    const setName = `TBA Dateless Set ${slug}`;
+
+    await db
+      .from("artists")
+      .insert({ name: "TBA Dateless Artist", slug, added_by: userId });
+
+    const { error } = await db.rpc("commit_schedule", {
+      p_festival_edition_id: editionId,
+      p_user_id: userId,
+      p_artists_to_create: [],
+      p_stages_to_create: [],
+      p_sets_to_create: [
+        {
+          name: setName,
+          description: null,
+          stageName: null,
+          timeStart: null,
+          timeEnd: null,
+          status: "tba",
+          artistSlugs: [slug],
+        },
+      ],
+      p_sets_to_update: [],
+      p_set_ids_to_archive: [],
+    });
+
+    assertEquals(error, null);
+
+    const { data: sets } = await db
+      .from("sets")
+      .select("id, time_start, time_end, status")
+      .eq("festival_edition_id", editionId)
+      .eq("name", setName);
+
+    assertExists(sets?.[0]);
+    assertEquals(sets![0].time_start, null);
+    assertEquals(sets![0].time_end, null);
+    assertEquals(sets![0].status, "tba");
+
+    // Cleanup
+    await db.from("sets").delete().eq("id", sets![0].id);
+    await db.from("artists").delete().eq("slug", slug);
+  },
+);
+
+Deno.test(
   "commit_schedule: an explicit real time always resets status to confirmed, and clears a stale end time when going TBA",
   async () => {
     const db = adminClient();

@@ -2,9 +2,9 @@
 
 Every label the autonomic issue pipeline reads or writes, what it means, and who's allowed to apply it.
 
-## Canonical triage-role labels
+## Canonical triage-role labels — a mutually-exclusive Linear label group
 
-The skills speak in terms of five canonical triage roles. This table maps those roles to the actual label strings used in this repo's issue tracker.
+The skills speak in terms of five canonical triage roles. In Linear these five live together in a single **label group** (Linear's mutually-exclusive label set): applying one automatically clears any other member of the group from the issue, so an issue can never carry two triage-role labels at once. Set the group up in Linear (team `UPL` → Labels → group these five together) before relying on this table.
 
 | Label in mattpocock/skills | Label in our tracker | Meaning                                  |
 | -------------------------- | -------------------- | ---------------------------------------- |
@@ -18,9 +18,9 @@ When a skill mentions a role (e.g. "apply the AFK-ready triage label"), use the 
 
 Edit the right-hand column to match whatever vocabulary you actually use.
 
-## Pipeline labels
+## Pipeline labels — lifecycle markers, kept outside the triage group
 
-Repo-specific labels the autonomic pipeline (`docs/agents/autonomic-issues.md`) uses outside the five canonical roles above — not part of the mattpocock/skills vocabulary, so a skill invocation won't look for them here.
+Repo-specific labels the autonomic pipeline (`docs/agents/autonomic-issues.md`) uses outside the five canonical roles above — not part of the mattpocock/skills vocabulary, so a skill invocation won't look for them here. These are lifecycle markers, not triage roles: they stay standalone (not in the label group above) because they track pipeline progress alongside a triage-role label, not instead of one — an issue can be `ready-for-agent` and `agent:wip` at the same time.
 
 | Label         | Meaning                                                                                                                                                                            | Applied by                                                      |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |

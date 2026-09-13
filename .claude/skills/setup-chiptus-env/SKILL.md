@@ -38,15 +38,15 @@ The autonomic pipeline needs the `triage` skill (fires the rubric) and an `imple
 
 ### 5. Pick the pipeline template
 
-One template, [`autonomic-issues.md`](./autonomic-issues.md), covers both trackers: every paragraph that differs by tracker is wrapped in `<!-- tracker:github -->…<!-- /tracker:github -->` / `<!-- tracker:linear -->…<!-- /tracker:linear -->` markers, right next to its counterpart, so filling it is "delete the blocks for the tracker you didn't pick."
+[`autonomic-issues.md`](./autonomic-issues.md) is the skeleton — every paragraph that's identical across trackers, with five slots (`{{INTRO}}`, `{{SHARED_STATE}}`, `{{INTAKE_QUERY}}`, `{{FIX_FIRING_STEPS}}`, `{{SETUP_ITEMS}}`) marking the spots that vary. A separate `tracker-<name>.md` fragment file supplies all five slots for one tracker. Adding a tracker later means writing one new fragment file against these same five slots — the skeleton never changes.
 
-- Tracker is **GitHub** → keep the `tracker:github` blocks, delete the `tracker:linear` ones.
-- Tracker is **Linear** → keep the `tracker:linear` blocks, delete the `tracker:github` ones.
-- Tracker is **GitLab, Local, or other** → no ready blocks for it. Ask the user whether the pipeline should follow the GitHub-shaped commands or the Linear-shaped commands (whichever is the closer fit — a CLI issuing list/create/label/comment calls vs. a CLI issuing the same over a team-scoped tracker), keep those blocks, then adapt their commands to the actual tracker CLI.
+- Tracker is **GitHub** → [`tracker-github.md`](./tracker-github.md).
+- Tracker is **Linear** → [`tracker-linear.md`](./tracker-linear.md).
+- Tracker is **GitLab, Local, or other** → no ready fragment. Ask the user whether the pipeline should follow the GitHub-shaped commands or the Linear-shaped commands (whichever is the closer fit — a CLI issuing list/create/label/comment calls vs. a CLI issuing the same over a team-scoped tracker), then write a new `tracker-<name>.md` fragment for the five slots, adapting that closer template's commands to the actual tracker CLI. Offer to keep the new fragment file in this skill folder so the next repo on the same tracker doesn't repeat the work.
 
 ### 6. Fill and confirm
 
-Strip every marker line (including the leading comment explaining the convention) once the right blocks are chosen — the written doc must read as plain prose, no leftover `<!-- tracker:* -->` comments or unchosen-tracker text. Fill the remaining placeholders (repo/team identifiers, PR cap, routine cadence and models) from what step 2 already learned plus one round of questions for anything it didn't — routine cadence, PR-cap number, which models to run triage vs. fix on. Show the filled draft before writing; let the user edit it.
+Substitute each of the skeleton's five slots with the matching section from the chosen fragment file, then delete every `{{SLOT}}` marker and explanatory HTML comment in both source files — the written doc must read as plain prose, no leftover markers or fragment-authoring notes. Fill the remaining placeholders (repo/team identifiers, PR cap, routine cadence and models) from what step 2 already learned plus one round of questions for anything it didn't — routine cadence, PR-cap number, which models to run triage vs. fix on. Show the filled draft before writing; let the user edit it.
 
 ### 7. Write
 

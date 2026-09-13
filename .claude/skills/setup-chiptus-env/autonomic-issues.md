@@ -4,7 +4,7 @@ Two Claude Code Routines work this repo's `<TRACKER>` issue backlog so the maint
 
 ## Tracker specifics
 
-The one place this doc names a tracker by CLI or field. Everything below refers back to these four rows by name ("claimed", "in review", "priority order", "issue↔PR link") instead of repeating tracker mechanics — don't guess flags beyond what's here; the tracker's own `usage`/`--help` is authoritative for anything not load-bearing enough to belong in this table.
+The one place this doc names a tracker by CLI or field. Everything below refers back to these rows by name ("claimed", "in review", "priority order", "issue↔PR link", "triage-role exclusivity") instead of repeating tracker mechanics — don't guess flags beyond what's here; the tracker's own `usage`/`--help` is authoritative for anything not load-bearing enough to belong in this table.
 
 <!-- Delete the row that isn't this repo's tracker. -->
 

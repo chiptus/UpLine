@@ -18,6 +18,8 @@ Check for a `setup-matt-pocock-skills` folder under `.claude/skills/` or `.agent
 
 Invoke the `setup-matt-pocock-skills` skill and let it run to completion (issue tracker, triage labels, domain docs, its own `## Agent skills` block). Its Section A answer is the tracker this skill scaffolds the pipeline for — read it back from `docs/agents/issue-tracker.md` (its heading names the tracker: GitHub, GitLab, Local, or the freeform "other" description) rather than asking again.
 
+If Section B (triage labels) is running and the tracker is GitHub, suggest naming the five labels with a `triage/` prefix (`triage/needs-triage`, `triage/ready-for-agent`, …) when it asks whether to keep the defaults — GitHub has no label-group feature to give them Linear's grouped look, so a shared prefix is the closest substitute. Still the user's call; don't override a "keep defaults" answer.
+
 ### 3. Offer an external docs location
 
 Ask one question: should this repo's agent docs — `docs/agents/` (issue tracker, triage labels, autonomic pipeline, domain consumer rules) and, if used, `CONTEXT.md` / `docs/adr/` — live in this repo, or in a separate folder outside it? Default **in-repo**; skip asking only if the repo already has an obvious signal it needs the external form (e.g. a public repo for a product whose architecture/customer docs must stay out of it, as with Portainer).

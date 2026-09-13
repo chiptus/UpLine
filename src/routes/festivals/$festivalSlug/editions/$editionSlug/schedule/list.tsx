@@ -54,6 +54,7 @@ function ListSchedule() {
     sets: editionSets,
     stages,
     timezone: festival.timezone,
+    dayStartHour: festival.day_start_hour,
   });
   const {
     day: selectedDay,
@@ -134,6 +135,7 @@ function ListSchedule() {
       const dayKey = getFestivalDayKey(
         slot.time.toISOString(),
         festival.timezone,
+        festival.day_start_hour,
       );
       if (!dayKey) return;
       if (!groups.has(dayKey)) groups.set(dayKey, []);
@@ -157,6 +159,7 @@ function ListSchedule() {
     groupMemberIds,
     stages,
     festival.timezone,
+    festival.day_start_hour,
   ]);
 
   if (setsLoading) {

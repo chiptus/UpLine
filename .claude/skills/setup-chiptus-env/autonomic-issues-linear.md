@@ -6,6 +6,8 @@ Two Claude Code Routines work this repo's Linear issue backlog (team `<TEAM>`) s
 
 In-flight state lives on **Linear issues** as one label (`agent`) plus the issue's native status; a fresh firing reads both to know where an issue sits in the pipeline. `agent` marks "an agent currently owns this issue or has an open PR for it" — the stage within that is the status, not a second label: `In Progress` while claimed, `In Review` once the PR is open. `agent` and `epic` are lifecycle markers, standalone (not part of the mutually-exclusive triage-role label group) — see `docs/agents/triage-labels.md`. The PR title/body carries the Linear identifier (e.g. `<TEAM>-123`) so Linear's GitHub integration transitions the linked issue when the PR merges — that transition happens outside the routine (merging is the maintainer's), so don't treat it as something the fix firing itself performs.
 
+Don't add a matching status label on the GitHub PR side (e.g. `status/in-review`). The parity already exists natively: Linear's `In Progress` ≈ the PR as **draft**, `In Review` ≈ **ready for review** and open, `Done` ≈ **merged**, `Canceled` ≈ **closed** unmerged. A GitHub label would just re-encode state GitHub already exposes, without Linear's label-group enforcement keeping it honest — same duplication this scheme replaced `agent:wip`/`agent:pr` to avoid.
+
 **The PR cap**: at run start the fix worker counts Linear issues labeled `agent` with status `In Review`: `npx linearis issues list --team <TEAM> --label agent --status "In Review"`. At or above **`<PR_CAP>`**, the review queue is full — end silently.
 
 **Coexistence with manual sessions**: agents skip any issue with an assignee or with an open linked PR.

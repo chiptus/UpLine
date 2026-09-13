@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Loader2, LinkIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -6,13 +5,9 @@ import {
   useUntypedSetsByEditionQuery,
 } from "@/api/artists/useArtistsMissingLinksByEdition";
 import { usePrefetchNextBatchLinks } from "@/api/artistSearch/usePrefetchNextBatchLinks";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { filterArtistsByStage } from "@/lib/filterArtistsByStage";
 import { useLinkWizardSkipped } from "@/hooks/useLinkWizardSkipped";
-import {
-  buildLinkWizardQueue,
-  type LinkWizardQueueItem,
-} from "./buildLinkWizardQueue";
+import { useLinkWizardQueue } from "./useLinkWizardQueue";
+import type { LinkWizardQueueItem } from "./buildLinkWizardQueue";
 import { LinkWizardQueue } from "./LinkWizardQueue";
 import { LinkWizardStep } from "./LinkWizardStep";
 import { SetTypeBackfillStep } from "./SetTypeBackfillStep";
@@ -22,38 +17,19 @@ interface LinkWizardProps {
 }
 
 export function LinkWizard({ editionId }: LinkWizardProps) {
-  const isMobile = useIsMobile();
   const artistsQuery = useArtistsMissingLinksByEditionQuery(editionId);
   const untypedSetsQuery = useUntypedSetsByEditionQuery(editionId);
-  const [currentItemId, setCurrentItemId] = useState<string | undefined>(
-    undefined,
-  );
-  const [selectedStages, setSelectedStages] = useState<string[]>([]);
-  const [showFullQueue, setShowFullQueue] = useState(false);
   const skippedHook = useLinkWizardSkipped(editionId);
-
   const allArtists = artistsQuery.data ?? [];
-  const unskippedArtists = allArtists.filter(
-    (artist) => !skippedHook.isSkipped(artist.id),
-  );
-  const filteredArtists = filterArtistsByStage(
-    unskippedArtists,
-    selectedStages,
-  );
-
-  const queueItems = buildLinkWizardQueue(
-    filteredArtists,
-    untypedSetsQuery.data ?? [],
-    selectedStages,
-  );
-
-  const currentIndex = currentItemId
-    ? Math.max(
-        0,
-        queueItems.findIndex((item) => item.id === currentItemId),
-      )
-    : 0;
-  const currentItem = queueItems[Math.min(currentIndex, queueItems.length - 1)];
+  const untypedSets = untypedSetsQuery.data ?? [];
+  const queue = useLinkWizardQueue(allArtists, untypedSets, skippedHook);
+  const {
+    items,
+    artists: filteredArtists,
+    currentItem,
+    position,
+    total,
+  } = queue;
 
   usePrefetchNextBatchLinks(
     filteredArtists,
@@ -75,14 +51,12 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
     <div className="space-y-6 lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-6 lg:items-start">
       <div className="lg:sticky lg:top-4">
         <LinkWizardQueue
-          items={queueItems}
+          items={items}
           currentItemId={currentItem?.id}
-          onSelectItem={handleSelectItem}
-          selectedStages={selectedStages}
-          onStageToggle={handleStageToggle}
-          onClearStages={() => setSelectedStages([])}
-          isPreviewMode={isMobile && !showFullQueue}
-          onViewAll={() => setShowFullQueue(true)}
+          onSelectItem={queue.selectItem}
+          selectedStages={queue.selectedStages}
+          onStageToggle={queue.toggleStage}
+          onClearStages={queue.clearStages}
           skippedArtists={skippedHook.getSkippedArtists()}
           allArtists={allArtists}
           onRestoreSkipped={skippedHook.restore}
@@ -97,9 +71,9 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {queueItems.length === 0 ? (
+          {items.length === 0 ? (
             <p className="text-muted-foreground">
-              {selectedStages.length > 0
+              {queue.selectedStages.length > 0
                 ? "No artists missing links and no sets missing a type on selected stages."
                 : "All artists in this edition have both links set and all sets have a type."}
             </p>
@@ -107,29 +81,23 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
             <LinkWizardStep
               key={currentItem.id}
               artist={currentItem.artist}
-              position={currentIndex + 1}
-              total={queueItems.length}
+              position={position}
+              total={total}
               artists={filteredArtists}
-              onPrev={() => goTo(currentIndex - 1)}
-              onNext={() => {
-                skippedHook.markSkipped(currentItem.id);
-                goTo(nextIndexAfterRemoval());
-              }}
-              onSaveSuccess={() => {
-                skippedHook.markSaved(currentItem.id);
-                goTo(nextIndexAfterRemoval());
-              }}
+              onPrev={queue.prev}
+              onNext={queue.skip}
+              onSaveSuccess={queue.save}
             />
           ) : (
             currentItem && (
               <SetTypeBackfillStep
                 key={currentItem.id}
                 set={currentItem.set}
-                position={currentIndex + 1}
-                total={queueItems.length}
-                onPrev={() => goTo(currentIndex - 1)}
-                onNext={() => goTo(currentIndex + 1)}
-                onSaveSuccess={() => goTo(nextIndexAfterRemoval())}
+                position={position}
+                total={total}
+                onPrev={queue.prev}
+                onNext={queue.skip}
+                onSaveSuccess={queue.save}
               />
             )
           )}
@@ -137,28 +105,6 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
       </Card>
     </div>
   );
-
-  function goTo(index: number) {
-    const clamped = Math.max(0, Math.min(index, queueItems.length - 1));
-    setCurrentItemId(queueItems[clamped]?.id);
-  }
-
-  function nextIndexAfterRemoval() {
-    const isLast = currentIndex >= queueItems.length - 1;
-    return isLast ? currentIndex - 1 : currentIndex + 1;
-  }
-
-  function handleSelectItem(item: LinkWizardQueueItem) {
-    setCurrentItemId(item.id);
-  }
-
-  function handleStageToggle(stageId: string) {
-    setSelectedStages((prev) =>
-      prev.includes(stageId)
-        ? prev.filter((id) => id !== stageId)
-        : [...prev, stageId],
-    );
-  }
 }
 
 function itemName(item: LinkWizardQueueItem) {

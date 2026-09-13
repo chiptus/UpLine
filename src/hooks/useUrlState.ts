@@ -40,6 +40,7 @@ export function useUrlState() {
           ...(updatedStageIds ? { stages: resolveSlugs(updatedStageIds) } : {}),
         }),
         replace: true,
+        resetScroll: false,
       });
     },
     [navigate, resolveSlugs],
@@ -48,9 +49,7 @@ export function useUrlState() {
   const clearFilters = useCallback(() => {
     navigate({
       to: ".",
-      search: (prev) => ({
-        invite: prev.invite,
-      }),
+      search: {},
       replace: true,
     });
   }, [navigate]);

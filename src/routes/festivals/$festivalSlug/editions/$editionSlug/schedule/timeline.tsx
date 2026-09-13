@@ -61,6 +61,7 @@ function TimelineContent() {
     time: selectedTime,
     stagesIds: selectedStages,
     votes: selectedVotes,
+    types: selectedTypes,
   } = useTimelineUrlState("timeline");
 
   const scheduleWindow = useMemo(
@@ -80,6 +81,7 @@ function TimelineContent() {
         time: selectedTime,
         stages: selectedStages,
         voteTypes: selectedVotes,
+        setTypes: selectedTypes,
         voteScope,
         currentUserId: user?.id,
         groupMemberIds,
@@ -100,6 +102,7 @@ function TimelineContent() {
     selectedTime,
     selectedStages,
     selectedVotes,
+    selectedTypes,
     voteScope,
     user?.id,
     groupMemberIds,

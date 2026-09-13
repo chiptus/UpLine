@@ -29,7 +29,6 @@ import { useCreateArtistMutation } from "@/api/artists/useCreateArtist";
 import { useUpdateArtistMutation } from "@/api/artists/useUpdateArtist";
 import { GenreMultiSelect } from "./GenreMultiSelect";
 import { FileUpload } from "@/components/ui/file-upload";
-import { uploadArtistLogo } from "@/services/storage";
 import { useState } from "react";
 
 // Form validation schema
@@ -84,7 +83,7 @@ export function AddArtistDialog({
     return null;
   }
 
-  async function onSubmit(data: ArtistFormData) {
+  function onSubmit(data: ArtistFormData) {
     if (!user) {
       toast({
         title: "Error",
@@ -104,46 +103,25 @@ export function AddArtistDialog({
       return;
     }
 
-    try {
-      // Determine the image URL - prioritize uploaded file over URL input
-      let imageUrl = data.imageUrl || null;
-
-      // Upload image if a file is selected
-      if (logoFile) {
-        try {
-          // Create a temporary ID for upload (will be replaced when artist is created)
-          const tempId = Date.now().toString();
-          const uploadResult = await uploadArtistLogo(logoFile, tempId);
-          imageUrl = uploadResult.url;
-        } catch (uploadError) {
-          console.error("Image upload failed:", uploadError);
-          toast({
-            title: "Warning",
-            description: "Image upload failed, using URL instead",
-            variant: "destructive",
-          });
-        }
-      }
-
-      // Create the artist with the final image URL
-      const artistData = {
+    createArtistMutation.mutate(
+      {
         name: data.name,
         description: data.description || "",
         genre_ids: data.genre_ids || [],
         added_by: user.id,
         spotify_url: data.spotifyUrl || null,
         soundcloud_url: data.soundcloudUrl || null,
-        image_url: imageUrl,
-      };
-
-      await createArtistMutation.mutateAsync(artistData);
-
-      form.reset();
-      setLogoFile(null);
-      onSuccess();
-    } catch (error) {
-      console.error("Failed to create artist:", error);
-    }
+        image_url: data.imageUrl || null,
+        logoFile,
+      },
+      {
+        onSuccess: () => {
+          form.reset();
+          setLogoFile(null);
+          onSuccess();
+        },
+      },
+    );
   }
 
   return (

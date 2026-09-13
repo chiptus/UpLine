@@ -1,5 +1,5 @@
 import { asSetType } from "../_shared/setTypes.ts";
-import { artistKey } from "./helpers.ts";
+import { artistKey, utcToLocalDate } from "./helpers.ts";
 import {
   buildIndexes,
   computeTimes,
@@ -14,8 +14,9 @@ import type {
   DbArtist,
   DbSet,
   DbStage,
-  DiffResult,
+  DiffPlan,
   SetPayload,
+  SetStatus,
 } from "./types.ts";
 
 export function computeDiff(
@@ -24,7 +25,7 @@ export function computeDiff(
   dbSets: DbSet[],
   dbArtists: DbArtist[],
   timezone: string,
-): DiffResult {
+): DiffPlan {
   const indexes = buildIndexes(dbStages, dbSets, dbArtists);
   const state = createState();
 
@@ -38,7 +39,7 @@ export function computeDiff(
     const stage = resolveStage(row.stage, dbStages, indexes.stageByNameLower);
     const resolvedStage = applyStageResolution(state, stage);
 
-    const { timeStart, timeEnd } = computeTimes(row, timezone);
+    const computedTime = computeTimes(row, timezone);
 
     const name = row.setName?.trim() || row.artists.join(" b2b ");
 
@@ -56,13 +57,18 @@ export function computeDiff(
             state.matchedSetIds,
           );
 
+    const resolvedTime = matched
+      ? resolveTimeForMatch(matched, computedTime, row.date, timezone)
+      : computedTime;
+
     const payload: SetPayload = {
       name,
       setType: row.setType ?? null,
       description: row.description ?? null,
       stageName: resolvedStage.name,
-      timeStart,
-      timeEnd,
+      timeStart: resolvedTime.timeStart,
+      timeEnd: resolvedTime.timeEnd,
+      status: resolvedTime.status,
       artistSlugs,
     };
 
@@ -114,9 +120,9 @@ type DiffState = {
   seenMismatchedStages: Set<string>;
   artistsToCreate: { name: string; slug: string }[];
   stagesToCreate: { name: string }[];
-  stageNameMismatches: DiffResult["conflicts"]["stageNameMismatches"];
+  stageNameMismatches: DiffPlan["conflicts"]["stageNameMismatches"];
   setsToCreate: SetPayload[];
-  setsToUpdate: DiffResult["cleanOperations"]["setsToUpdate"];
+  setsToUpdate: DiffPlan["cleanOperations"]["setsToUpdate"];
 };
 
 function createState(): DiffState {
@@ -131,6 +137,35 @@ function createState(): DiffState {
     setsToCreate: [],
     setsToUpdate: [],
   };
+}
+
+/**
+ * Reconciles a CSV row's computed time against the set it matched, so a
+ * date-only (TBA) row never downgrades a set that already has a more
+ * precise, real time on the same day.
+ */
+function resolveTimeForMatch(
+  matched: DbSet,
+  computed: {
+    timeStart: string | null;
+    timeEnd: string | null;
+    status: SetStatus;
+  },
+  rowDate: string | undefined,
+  timezone: string,
+): { timeStart: string | null; timeEnd: string | null; status: SetStatus } {
+  if (
+    computed.status !== "tba" ||
+    !rowDate ||
+    !matched.time_start ||
+    matched.status === "tba"
+  ) {
+    return computed;
+  }
+  const sameDay = utcToLocalDate(matched.time_start, timezone) === rowDate;
+  return sameDay
+    ? { timeStart: null, timeEnd: null, status: "confirmed" }
+    : computed;
 }
 
 // Registers any artists not yet seen across the import as new.

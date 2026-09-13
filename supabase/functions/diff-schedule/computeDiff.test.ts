@@ -379,3 +379,130 @@ Deno.test("update payload carries the matched set's stored type", () => {
   assertEquals(result.cleanOperations.setsToUpdate[0].previousSetType, "music");
   assertEquals(result.cleanOperations.setsToUpdate[0].setType, "workshop");
 });
+
+Deno.test(
+  'date-only row (no start time) creates a set at midnight with status "tba"',
+  () => {
+    const artist = makeArtist("Carl Cox");
+    const result = computeDiff(
+      [{ artists: ["Carl Cox"], date: "2026-07-11" }],
+      [],
+      [],
+      [artist],
+      "UTC",
+    );
+    const created = result.cleanOperations.setsToCreate[0];
+    assertEquals(created.timeStart, "2026-07-11T00:00:00.000Z");
+    assertEquals(created.timeEnd, null);
+    assertEquals(created.status, "tba");
+  },
+);
+
+Deno.test(
+  "date-only row matching a set with a real time on the SAME day preserves the existing time",
+  () => {
+    const artist = makeArtist("Carl Cox");
+    const set = makeSet(
+      "set-1",
+      "Carl Cox",
+      [artist],
+      null,
+      "2026-07-11T20:00:00Z",
+    );
+    const result = computeDiff(
+      [{ artists: ["Carl Cox"], date: "2026-07-11" }],
+      [],
+      [set],
+      [artist],
+      "UTC",
+    );
+    const updated = result.cleanOperations.setsToUpdate[0];
+    assertEquals(updated.timeStart, null);
+    assertEquals(updated.timeEnd, null);
+    assertEquals(updated.status, "confirmed");
+  },
+);
+
+Deno.test(
+  "date-only row matching a set with a real time on a DIFFERENT day downgrades it to TBA on the new day",
+  () => {
+    const artist = makeArtist("Carl Cox");
+    const set = makeSet(
+      "set-1",
+      "Carl Cox",
+      [artist],
+      null,
+      "2026-07-11T20:00:00Z",
+    );
+    const result = computeDiff(
+      [{ artists: ["Carl Cox"], date: "2026-07-12" }],
+      [],
+      [set],
+      [artist],
+      "UTC",
+    );
+    const updated = result.cleanOperations.setsToUpdate[0];
+    assertEquals(updated.timeStart, "2026-07-12T00:00:00.000Z");
+    assertEquals(updated.timeEnd, null);
+    assertEquals(updated.status, "tba");
+  },
+);
+
+Deno.test(
+  "same-day preserve compares in the edition's timezone, not raw UTC dates",
+  () => {
+    const artist = makeArtist("Carl Cox");
+    // 23:30 UTC on the 11th is already 00:30 on the 12th in Europe/Lisbon
+    // (UTC+1 in July) -- a raw UTC-string comparison would wrongly see this
+    // as a day mismatch and downgrade the set to TBA instead of preserving it.
+    const set = makeSet(
+      "set-1",
+      "Carl Cox",
+      [artist],
+      null,
+      "2026-07-11T23:30:00Z",
+    );
+    const result = computeDiff(
+      [{ artists: ["Carl Cox"], date: "2026-07-12" }],
+      [],
+      [set],
+      [artist],
+      "Europe/Lisbon",
+    );
+    const updated = result.cleanOperations.setsToUpdate[0];
+    assertEquals(updated.timeStart, null);
+    assertEquals(updated.timeEnd, null);
+    assertEquals(updated.status, "confirmed");
+  },
+);
+
+Deno.test(
+  "a row with a real time always resets status to confirmed, even over a previously-TBA set",
+  () => {
+    const artist = makeArtist("Carl Cox");
+    const set = makeSet(
+      "set-1",
+      "Carl Cox",
+      [artist],
+      null,
+      "2026-07-11T00:00:00Z",
+      "tba",
+    );
+    const result = computeDiff(
+      [
+        {
+          artists: ["Carl Cox"],
+          date: "2026-07-11",
+          startTime: "20:00",
+        },
+      ],
+      [],
+      [set],
+      [artist],
+      "UTC",
+    );
+    const updated = result.cleanOperations.setsToUpdate[0];
+    assertEquals(updated.timeStart, "2026-07-11T20:00:00.000Z");
+    assertEquals(updated.status, "confirmed");
+  },
+);

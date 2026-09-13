@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useId, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,6 +27,7 @@ export function FileUpload({
     currentImageUrl || null,
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const inputId = useId();
 
   function handleFileChange(file: File | null) {
     if (!file) {
@@ -85,7 +86,7 @@ export function FileUpload({
 
   return (
     <div className={cn("space-y-2", className)}>
-      <Label>Logo</Label>
+      <Label htmlFor={inputId}>Logo</Label>
       <div
         className={cn(
           "border-2 border-dashed rounded-lg p-4 text-center transition-colors",
@@ -134,6 +135,7 @@ export function FileUpload({
 
         <Input
           ref={fileInputRef}
+          id={inputId}
           type="file"
           accept={accept}
           onChange={(e) => handleFileChange(e.target.files?.[0] || null)}

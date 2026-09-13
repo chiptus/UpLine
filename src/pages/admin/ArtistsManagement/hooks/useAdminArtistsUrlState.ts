@@ -12,6 +12,7 @@ export function useAdminArtistsUrlState() {
         to: ".",
         search: (prev) => ({ ...prev, ...updates }),
         replace: true,
+        resetScroll: false,
       });
     },
     [navigate],

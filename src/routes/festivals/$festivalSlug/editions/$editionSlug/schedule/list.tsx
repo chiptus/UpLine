@@ -61,6 +61,7 @@ function ListSchedule() {
     time: selectedTime,
     stagesIds: selectedStages,
     votes: selectedVotes,
+    types: selectedTypes,
   } = useTimelineUrlState("list");
 
   const dayGroups = useMemo(() => {
@@ -73,6 +74,7 @@ function ListSchedule() {
         time: selectedTime,
         stages: selectedStages,
         voteTypes: selectedVotes,
+        setTypes: selectedTypes,
         voteScope,
         currentUserId: user?.id,
         groupMemberIds,
@@ -151,6 +153,7 @@ function ListSchedule() {
     selectedTime,
     selectedStages,
     selectedVotes,
+    selectedTypes,
     voteScope,
     user?.id,
     groupMemberIds,

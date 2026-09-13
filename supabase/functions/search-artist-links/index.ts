@@ -86,6 +86,9 @@ serve(async (req) => {
             provider,
             candidates: outcome.candidates,
             ...(outcome.error && { error: outcome.error }),
+            ...(outcome.rateLimitRetryAfter && {
+              rateLimitRetryAfter: outcome.rateLimitRetryAfter,
+            }),
           });
         }
       } catch (providerError) {

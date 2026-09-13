@@ -24,11 +24,11 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: pageMeta({ title: "Select Festival" }),
   }),
-  beforeLoad: async ({ context, search }) => {
+  beforeLoad: async ({ context }) => {
     const festivals =
       await context.queryClient.ensureQueryData(festivalsQuery());
 
-    if (festivals.length === 1 && !search.invite) {
+    if (festivals.length === 1) {
       const festival = festivals[0];
 
       if (isMainGetuplineDomain()) {

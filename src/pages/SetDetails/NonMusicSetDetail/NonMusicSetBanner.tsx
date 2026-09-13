@@ -3,7 +3,7 @@ import { Clock } from "lucide-react";
 import { FestivalSet } from "@/api/sets/types";
 import { StagePin } from "@/components/StagePin";
 import { cn } from "@/lib/utils";
-import { formatDayOnly, formatTimeRange } from "@/lib/timeUtils";
+import { formatSetSchedule } from "@/lib/setScheduleDisplay";
 import { getSetTypeLabel } from "@/lib/setTypeLabels";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 import { useRouteContext } from "@tanstack/react-router";
@@ -22,25 +22,15 @@ export function NonMusicSetBanner({
   const { festival } = useRouteContext({
     from: "/festivals/$festivalSlug/editions/$editionSlug",
   });
-  const { canShowStage, canShowDay, canShowTime } = useScheduleReveal();
+  const { canShowStage, level } = useScheduleReveal();
   const { label, icon: Icon, gradient } = getSetTypeLabel(set.set_type);
 
-  const timeRangeFormatted = canShowTime
-    ? formatTimeRange(
-        set.time_start,
-        set.time_end,
-        use24Hour,
-        festival.timezone,
-      )
-    : null;
-  const dayOnlyFormatted =
-    canShowDay && !canShowTime
-      ? formatDayOnly(
-          set.time_start,
-          festival.timezone,
-          festival.day_start_hour,
-        )
-      : null;
+  const scheduleFormatted = formatSetSchedule(set, {
+    revealLevel: level,
+    use24Hour,
+    timezone: festival.timezone,
+    dayStartHour: festival.day_start_hour,
+  });
 
   return (
     <div
@@ -74,12 +64,10 @@ export function NonMusicSetBanner({
         </h1>
         <div className="flex flex-wrap gap-4 text-muted-foreground mt-2">
           {canShowStage && <StagePin stageId={set.stage_id} />}
-          {(timeRangeFormatted || dayOnlyFormatted) && (
+          {scheduleFormatted && (
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4" />
-              <span className="text-sm">
-                {timeRangeFormatted || dayOnlyFormatted}
-              </span>
+              <span className="text-sm">{scheduleFormatted}</span>
             </div>
           )}
         </div>

@@ -10,6 +10,8 @@ import { useUserVotesQuery } from "@/api/voting/useUserVotesQuery";
 import { useState } from "react";
 import { useExplorableSets } from "@/pages/ExploreSetPage/useExplorableSets";
 import { pageMeta } from "@/lib/pageHead";
+import { VOTE_CONFIG } from "@/lib/voteConfig";
+import type { User } from "@supabase/supabase-js";
 
 export const Route = createFileRoute(
   "/festivals/$festivalSlug/editions/$editionSlug/explore",
@@ -25,16 +27,48 @@ export const Route = createFileRoute(
       : {},
 });
 
+type Edition = ReturnType<typeof Route.useRouteContext>["edition"];
+
 function ExploreSetPage() {
   const { edition } = Route.useRouteContext();
+  const { user, loading: authLoading, showAuthDialog } = useAuth();
+
+  if (authLoading) {
+    return <LoadingState />;
+  }
+
+  // Remounting on edition/user change resets currentIndex and the explorable
+  // queue together, instead of tracking those identity changes internally.
+  return (
+    <ExploreSetPageContent
+      key={`${edition?.id ?? "none"}:${user?.id ?? "anon"}`}
+      edition={edition}
+      user={user}
+      showAuthDialog={showAuthDialog}
+    />
+  );
+}
+
+function ExploreSetPageContent({
+  edition,
+  user,
+  showAuthDialog,
+}: {
+  edition: Edition;
+  user: User | null;
+  showAuthDialog: (inviteToken?: string, groupName?: string) => void;
+}) {
   const navigate = useNavigate();
-  const { user, showAuthDialog } = useAuth();
   const voteMutation = useVoteMutation();
-  const { data: userVotes = {} } = useUserVotesQuery(user?.id || "");
+  const userVotesQuery = useUserVotesQuery(user?.id);
+  const userVotes = userVotesQuery.data ?? {};
+  const votesReady =
+    !user || userVotesQuery.isSuccess || userVotesQuery.isError;
 
   const explorableSetsQuery = useExplorableSets({
     editionId: edition?.id,
     userVotes,
+    votesReady,
   });
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -63,6 +97,7 @@ function ExploreSetPage() {
   const totalSets = explorableSetsQuery.totalSets;
   const currentIndexInAllSets =
     totalSets - totalExplorableSets + currentIndex + 1;
+  const currentVote = currentSet ? userVotes[currentSet.id] : undefined;
 
   return (
     <div className="relative min-h-screen">
@@ -91,12 +126,13 @@ function ExploreSetPage() {
         onVote={handleVote}
         onSkip={handleSkip}
         dragFeedback={dragFeedback}
+        currentVote={currentVote}
       />
     </div>
   );
 
   function handleVote(voteType: number) {
-    if (!currentSet || isAnimating) return;
+    if (!currentSet || isAnimating || voteMutation.isPending) return;
 
     if (!user) {
       showAuthDialog();
@@ -104,8 +140,13 @@ function ExploreSetPage() {
     }
 
     const existingVote = userVotes[currentSet.id];
+    // Only "Won't Go" advances to the next artist, matching the explicit
+    // skip action. "Must Go" / "Interested" just cast the vote and stay.
+    const isWontGo = voteType === VOTE_CONFIG.wontGo.value;
 
-    setIsAnimating(true);
+    if (isWontGo) {
+      setIsAnimating(true);
+    }
 
     voteMutation.mutate(
       {
@@ -116,23 +157,11 @@ function ExploreSetPage() {
       },
       {
         onSuccess: () => {
-          setDirection(voteType >= 1 ? "right" : "left");
-
-          setTimeout(() => {
-            if (isLastSet) {
-              navigate({
-                from: "/festivals/$festivalSlug/editions/$editionSlug/explore",
-                to: "../sets",
-              });
-            } else {
-              setDirection(null);
-            }
-            setIsAnimating(false);
-          }, 300);
+          if (isWontGo) advanceToNextOrExit();
         },
         onError: (error) => {
           console.error("Failed to vote:", error);
-          setIsAnimating(false);
+          if (isWontGo) setIsAnimating(false);
         },
       },
     );
@@ -140,9 +169,9 @@ function ExploreSetPage() {
 
   function handleSwipe(direction: "left" | "right") {
     if (direction === "left") {
-      handleVote(-1); // Won't Go
+      handleVote(VOTE_CONFIG.wontGo.value);
     } else {
-      handleVote(1); // Interested
+      handleVote(VOTE_CONFIG.interested.value);
     }
   }
 
@@ -157,8 +186,12 @@ function ExploreSetPage() {
     if (isAnimating) return;
 
     setIsAnimating(true);
-    setDirection("left");
     setSkippedCount((prev) => prev + 1);
+    advanceToNextOrExit();
+  }
+
+  function advanceToNextOrExit() {
+    setDirection("left");
     setTimeout(() => {
       if (isLastSet) {
         navigate({

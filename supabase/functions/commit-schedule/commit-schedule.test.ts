@@ -7,12 +7,14 @@
 
 import { assertEquals, assertExists } from "jsr:@std/assert@1";
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import type { Database } from "../_shared/database.types.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 
 function adminClient() {
-  return createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+  return createClient<Database>(SUPABASE_URL, SERVICE_ROLE_KEY);
 }
 
 async function getTestEditionId(
@@ -39,6 +41,34 @@ async function getTestUserId(
   return data.user_id;
 }
 
+/** Fetches a fresh watermark for the edition, used right before each commit_schedule call so unrelated setup inserts above don't go stale. */
+async function getWatermark(
+  db: ReturnType<typeof adminClient>,
+  editionId: string,
+): Promise<string> {
+  const { data, error } = await db.rpc("commit_schedule__compute_watermark", {
+    p_festival_edition_id: editionId,
+  });
+  assertEquals(error, null);
+  assertExists(data, "commit_schedule__compute_watermark returned no data");
+  return data;
+}
+
+const commitResultSchema = z.object({
+  setsCreated: z.number(),
+  setsUpdated: z.number(),
+  setsArchived: z.number(),
+});
+
+/** Calls commit_schedule and validates its JSONB return against the known result shape. */
+async function callCommitSchedule(
+  db: ReturnType<typeof adminClient>,
+  args: Database["public"]["Functions"]["commit_schedule"]["Args"],
+) {
+  const { data, error } = await db.rpc("commit_schedule", args);
+  return { data: error ? null : commitResultSchema.parse(data), error };
+}
+
 Deno.test("commit_schedule: creates new artist and set", async () => {
   const db = adminClient();
   const editionId = await getTestEditionId(db);
@@ -46,9 +76,10 @@ Deno.test("commit_schedule: creates new artist and set", async () => {
   const slug = `test-artist-${Date.now()}`;
   const setName = `Test Artist Set ${slug}`;
 
-  const { data, error } = await db.rpc("commit_schedule", {
+  const { data, error } = await callCommitSchedule(db, {
     p_festival_edition_id: editionId,
     p_user_id: userId,
+    p_watermark: await getWatermark(db, editionId),
     p_artists_to_create: [{ name: "Test Artist", slug }],
     p_stages_to_create: [],
     p_sets_to_create: [
@@ -66,6 +97,7 @@ Deno.test("commit_schedule: creates new artist and set", async () => {
   });
 
   assertEquals(error, null);
+  assertExists(data, "commit_schedule returned no data");
   assertEquals(data.setsCreated, 1);
   assertEquals(data.setsUpdated, 0);
 
@@ -109,9 +141,10 @@ Deno.test(
       .from("set_artists")
       .insert({ set_id: set!.id, artist_id: artist!.id });
 
-    const { data, error } = await db.rpc("commit_schedule", {
+    const { data, error } = await callCommitSchedule(db, {
       p_festival_edition_id: editionId,
       p_user_id: userId,
+      p_watermark: await getWatermark(db, editionId),
       p_artists_to_create: [],
       p_stages_to_create: [],
       p_sets_to_create: [],
@@ -130,6 +163,7 @@ Deno.test(
     });
 
     assertEquals(error, null);
+    assertExists(data, "commit_schedule returned no data");
     assertEquals(data.setsUpdated, 1);
 
     const { data: updated } = await db
@@ -162,9 +196,10 @@ Deno.test("commit_schedule: archives orphaned sets", async () => {
     .select("id")
     .single();
 
-  const { data, error } = await db.rpc("commit_schedule", {
+  const { data, error } = await callCommitSchedule(db, {
     p_festival_edition_id: editionId,
     p_user_id: userId,
+    p_watermark: await getWatermark(db, editionId),
     p_artists_to_create: [],
     p_stages_to_create: [],
     p_sets_to_create: [],
@@ -173,6 +208,7 @@ Deno.test("commit_schedule: archives orphaned sets", async () => {
   });
 
   assertEquals(error, null);
+  assertExists(data, "commit_schedule returned no data");
   assertEquals(data.setsArchived, 1);
 
   const { data: archived } = await db
@@ -199,9 +235,10 @@ Deno.test(
       .from("artists")
       .insert({ name: "Dup Set Artist", slug: artistSlug, added_by: userId });
 
-    const { data, error } = await db.rpc("commit_schedule", {
+    const { data, error } = await callCommitSchedule(db, {
       p_festival_edition_id: editionId,
       p_user_id: userId,
+      p_watermark: await getWatermark(db, editionId),
       p_artists_to_create: [],
       p_stages_to_create: [],
       p_sets_to_create: [
@@ -227,6 +264,7 @@ Deno.test(
     });
 
     assertEquals(error, null);
+    assertExists(data, "commit_schedule returned no data");
     assertEquals(data.setsCreated, 2);
 
     const { data: sets } = await db
@@ -258,9 +296,10 @@ Deno.test(
     const userId = await getTestUserId(db);
     const setName = `Morning Yoga ${Date.now()}`;
 
-    const { data, error } = await db.rpc("commit_schedule", {
+    const { data, error } = await callCommitSchedule(db, {
       p_festival_edition_id: editionId,
       p_user_id: userId,
+      p_watermark: await getWatermark(db, editionId),
       p_artists_to_create: [],
       p_stages_to_create: [],
       p_sets_to_create: [
@@ -279,6 +318,7 @@ Deno.test(
     });
 
     assertEquals(error, null);
+    assertExists(data, "commit_schedule returned no data");
     assertEquals(data.setsCreated, 1);
 
     const { data: sets } = await db
@@ -327,9 +367,10 @@ Deno.test(
     };
 
     // Explicit type overwrites the stored one.
-    const { error: overwriteError } = await db.rpc("commit_schedule", {
+    const { error: overwriteError } = await callCommitSchedule(db, {
       p_festival_edition_id: editionId,
       p_user_id: userId,
+      p_watermark: await getWatermark(db, editionId),
       p_artists_to_create: [],
       p_stages_to_create: [],
       p_sets_to_create: [],
@@ -346,9 +387,10 @@ Deno.test(
     assertEquals(afterOverwrite!.set_type, "workshop");
 
     // Null type (blank CSV column) preserves the stored one.
-    const { error: preserveError } = await db.rpc("commit_schedule", {
+    const { error: preserveError } = await callCommitSchedule(db, {
       p_festival_edition_id: editionId,
       p_user_id: userId,
+      p_watermark: await getWatermark(db, editionId),
       p_artists_to_create: [],
       p_stages_to_create: [],
       p_sets_to_create: [],
@@ -381,9 +423,10 @@ Deno.test(
       .from("artists")
       .insert({ name: "Late Night DJ", slug, added_by: userId });
 
-    const { error } = await db.rpc("commit_schedule", {
+    const { error } = await callCommitSchedule(db, {
       p_festival_edition_id: editionId,
       p_user_id: userId,
+      p_watermark: await getWatermark(db, editionId),
       p_artists_to_create: [],
       p_stages_to_create: [],
       p_sets_to_create: [
@@ -415,5 +458,341 @@ Deno.test(
     // Cleanup
     await db.from("sets").delete().eq("id", sets![0].id);
     await db.from("artists").delete().eq("slug", slug);
+  },
+);
+
+Deno.test(
+  "commit_schedule: aborts and applies nothing when the edition changed since the watermark was computed (#42)",
+  async () => {
+    const db = adminClient();
+    const editionId = await getTestEditionId(db);
+    const userId = await getTestUserId(db);
+    const slug = `test-stale-watermark-${Date.now()}`;
+    const setName = `Stale Watermark Set ${slug}`;
+
+    const staleWatermark = await getWatermark(db, editionId);
+
+    // Simulate a concurrent edit landing after Analyse: create an unrelated
+    // set, which changes the edition's watermark.
+    const { data: concurrentSet, error: concurrentSetError } = await db
+      .from("sets")
+      .insert({
+        festival_edition_id: editionId,
+        name: "Concurrent Edit",
+        slug: `concurrent-edit-${Date.now()}`,
+        created_by: userId,
+      })
+      .select("id")
+      .single();
+    assertEquals(concurrentSetError, null);
+    assertExists(concurrentSet);
+
+    const { data, error } = await callCommitSchedule(db, {
+      p_festival_edition_id: editionId,
+      p_user_id: userId,
+      p_watermark: staleWatermark,
+      p_artists_to_create: [{ name: "Stale Watermark Artist", slug }],
+      p_stages_to_create: [],
+      p_sets_to_create: [
+        {
+          name: setName,
+          description: null,
+          stageName: null,
+          timeStart: null,
+          timeEnd: null,
+          artistSlugs: [slug],
+        },
+      ],
+      p_sets_to_update: [],
+      p_set_ids_to_archive: [],
+    });
+
+    assertExists(error, "expected commit_schedule to reject a stale watermark");
+    assertEquals(
+      error.message.startsWith("edition_changed_since_analyse:"),
+      true,
+      `expected the edition_changed_since_analyse marker, got: ${error.message}`,
+    );
+    assertEquals(data, null);
+
+    // Nothing from the rejected commit was applied — same transaction.
+    const { data: artist } = await db
+      .from("artists")
+      .select("id")
+      .eq("slug", slug)
+      .maybeSingle();
+    assertEquals(artist, null);
+
+    const { data: sets } = await db
+      .from("sets")
+      .select("id")
+      .eq("festival_edition_id", editionId)
+      .eq("name", setName);
+    assertEquals(sets?.length, 0);
+
+    // Cleanup
+    await db.from("sets").delete().eq("id", concurrentSet!.id);
+  },
+);
+
+Deno.test(
+  'commit_schedule: date-only create stores midnight + status "tba"',
+  async () => {
+    const db = adminClient();
+    const editionId = await getTestEditionId(db);
+    const userId = await getTestUserId(db);
+    const slug = `test-tba-create-${Date.now()}`;
+    const setName = `TBA Create Set ${slug}`;
+
+    await db
+      .from("artists")
+      .insert({ name: "TBA Create Artist", slug, added_by: userId });
+
+    const { error } = await db.rpc("commit_schedule", {
+      p_festival_edition_id: editionId,
+      p_user_id: userId,
+      p_watermark: await getWatermark(db, editionId),
+      p_artists_to_create: [],
+      p_stages_to_create: [],
+      p_sets_to_create: [
+        {
+          name: setName,
+          description: null,
+          stageName: null,
+          timeStart: "2026-07-11T00:00:00.000Z",
+          timeEnd: null,
+          status: "tba",
+          artistSlugs: [slug],
+        },
+      ],
+      p_sets_to_update: [],
+      p_set_ids_to_archive: [],
+    });
+
+    assertEquals(error, null);
+
+    const { data: sets } = await db
+      .from("sets")
+      .select("id, time_start, time_end, status")
+      .eq("festival_edition_id", editionId)
+      .eq("name", setName);
+
+    assertExists(sets?.[0]);
+    assertEquals(sets![0].time_start, "2026-07-11T00:00:00+00:00");
+    assertEquals(sets![0].time_end, null);
+    assertEquals(sets![0].status, "tba");
+
+    // Cleanup
+    await db.from("sets").delete().eq("id", sets![0].id);
+    await db.from("artists").delete().eq("slug", slug);
+  },
+);
+
+Deno.test(
+  'commit_schedule: dateless create stores status "tba" with no time_start',
+  async () => {
+    const db = adminClient();
+    const editionId = await getTestEditionId(db);
+    const userId = await getTestUserId(db);
+    const slug = `test-tba-dateless-${Date.now()}`;
+    const setName = `TBA Dateless Set ${slug}`;
+
+    await db
+      .from("artists")
+      .insert({ name: "TBA Dateless Artist", slug, added_by: userId });
+
+    const { error } = await db.rpc("commit_schedule", {
+      p_festival_edition_id: editionId,
+      p_user_id: userId,
+      p_watermark: await getWatermark(db, editionId),
+      p_artists_to_create: [],
+      p_stages_to_create: [],
+      p_sets_to_create: [
+        {
+          name: setName,
+          description: null,
+          stageName: null,
+          timeStart: null,
+          timeEnd: null,
+          status: "tba",
+          artistSlugs: [slug],
+        },
+      ],
+      p_sets_to_update: [],
+      p_set_ids_to_archive: [],
+    });
+
+    assertEquals(error, null);
+
+    const { data: sets } = await db
+      .from("sets")
+      .select("id, time_start, time_end, status")
+      .eq("festival_edition_id", editionId)
+      .eq("name", setName);
+
+    assertExists(sets?.[0]);
+    assertEquals(sets![0].time_start, null);
+    assertEquals(sets![0].time_end, null);
+    assertEquals(sets![0].status, "tba");
+
+    // Cleanup
+    await db.from("sets").delete().eq("id", sets![0].id);
+    await db.from("artists").delete().eq("slug", slug);
+  },
+);
+
+Deno.test(
+  "commit_schedule: an explicit real time always resets status to confirmed, and clears a stale end time when going TBA",
+  async () => {
+    const db = adminClient();
+    const editionId = await getTestEditionId(db);
+    const userId = await getTestUserId(db);
+    const setName = `TBA Roundtrip ${Date.now()}`;
+
+    const { data: set } = await db
+      .from("sets")
+      .insert({
+        festival_edition_id: editionId,
+        name: setName,
+        slug: `tba-roundtrip-${Date.now()}`,
+        time_start: "2026-07-11T20:00:00.000Z",
+        time_end: "2026-07-11T22:00:00.000Z",
+        status: "confirmed",
+        created_by: userId,
+      })
+      .select("id")
+      .single();
+
+    const basePayload = {
+      id: set!.id,
+      name: setName,
+      description: null,
+      stageName: null,
+      artistSlugs: [],
+    };
+
+    // A date-only row on a DIFFERENT day downgrades the set to TBA at that
+    // day's midnight, clearing the stale end time from the old real slot.
+    const { error: tbaError } = await db.rpc("commit_schedule", {
+      p_festival_edition_id: editionId,
+      p_user_id: userId,
+      p_watermark: await getWatermark(db, editionId),
+      p_artists_to_create: [],
+      p_stages_to_create: [],
+      p_sets_to_create: [],
+      p_sets_to_update: [
+        {
+          ...basePayload,
+          timeStart: "2026-07-12T00:00:00.000Z",
+          timeEnd: null,
+          status: "tba",
+        },
+      ],
+      p_set_ids_to_archive: [],
+    });
+    assertEquals(tbaError, null);
+
+    const { data: afterTba } = await db
+      .from("sets")
+      .select("time_start, time_end, status")
+      .eq("id", set!.id)
+      .single();
+    assertEquals(afterTba!.time_start, "2026-07-12T00:00:00+00:00");
+    assertEquals(afterTba!.time_end, null);
+    assertEquals(afterTba!.status, "tba");
+
+    // A row with a real time always resets status to confirmed again.
+    const { error: realTimeError } = await db.rpc("commit_schedule", {
+      p_festival_edition_id: editionId,
+      p_user_id: userId,
+      p_watermark: await getWatermark(db, editionId),
+      p_artists_to_create: [],
+      p_stages_to_create: [],
+      p_sets_to_create: [],
+      p_sets_to_update: [
+        {
+          ...basePayload,
+          timeStart: "2026-07-12T20:00:00.000Z",
+          timeEnd: "2026-07-12T22:00:00.000Z",
+          status: "confirmed",
+        },
+      ],
+      p_set_ids_to_archive: [],
+    });
+    assertEquals(realTimeError, null);
+
+    const { data: afterRealTime } = await db
+      .from("sets")
+      .select("time_start, time_end, status")
+      .eq("id", set!.id)
+      .single();
+    assertEquals(afterRealTime!.time_start, "2026-07-12T20:00:00+00:00");
+    assertEquals(afterRealTime!.time_end, "2026-07-12T22:00:00+00:00");
+    assertEquals(afterRealTime!.status, "confirmed");
+
+    // Cleanup
+    await db.from("sets").delete().eq("id", set!.id);
+  },
+);
+
+Deno.test(
+  "commit_schedule: omitting time entirely preserves both the stored time and its status",
+  async () => {
+    const db = adminClient();
+    const editionId = await getTestEditionId(db);
+    const userId = await getTestUserId(db);
+    const setName = `TBA Preserve On Omit ${Date.now()}`;
+
+    const { data: set } = await db
+      .from("sets")
+      .insert({
+        festival_edition_id: editionId,
+        name: setName,
+        slug: `tba-preserve-${Date.now()}`,
+        time_start: "2026-07-11T00:00:00.000Z",
+        time_end: null,
+        status: "tba",
+        created_by: userId,
+      })
+      .select("id")
+      .single();
+
+    // A row that supplies neither timeStart nor status (e.g. a CSV re-import
+    // with no Date/Start Time columns) leaves the set's time untouched.
+    const { error } = await db.rpc("commit_schedule", {
+      p_festival_edition_id: editionId,
+      p_user_id: userId,
+      p_watermark: await getWatermark(db, editionId),
+      p_artists_to_create: [],
+      p_stages_to_create: [],
+      p_sets_to_create: [],
+      p_sets_to_update: [
+        {
+          id: set!.id,
+          name: setName,
+          description: "Updated description only",
+          stageName: null,
+          timeStart: null,
+          timeEnd: null,
+          status: "confirmed",
+          artistSlugs: [],
+        },
+      ],
+      p_set_ids_to_archive: [],
+    });
+    assertEquals(error, null);
+
+    const { data: after } = await db
+      .from("sets")
+      .select("time_start, time_end, status, description")
+      .eq("id", set!.id)
+      .single();
+    assertEquals(after!.time_start, "2026-07-11T00:00:00+00:00");
+    assertEquals(after!.time_end, null);
+    assertEquals(after!.status, "tba");
+    assertEquals(after!.description, "Updated description only");
+
+    // Cleanup
+    await db.from("sets").delete().eq("id", set!.id);
   },
 );

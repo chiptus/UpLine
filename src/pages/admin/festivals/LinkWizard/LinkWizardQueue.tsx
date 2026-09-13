@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { Tag } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import type { ArtistWithSets } from "@/api/artists/useArtistsMissingLinksByEdition";
 import type { ArtistSkipRecord } from "@/hooks/useLinkWizardSkipped";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import type { LinkWizardQueueItem } from "./buildLinkWizardQueue";
 import { LinkWizardStageFilterDropdown } from "./LinkWizardStageFilterDropdown";
@@ -19,8 +21,6 @@ interface LinkWizardQueueProps {
   selectedStages: string[];
   onStageToggle: (stageId: string) => void;
   onClearStages: () => void;
-  isPreviewMode?: boolean;
-  onViewAll?: () => void;
   skippedArtists: ArtistSkipRecord[];
   allArtists: Array<{ id: string; name: string }>;
   onRestoreSkipped: (artistId: string) => void;
@@ -34,13 +34,14 @@ export function LinkWizardQueue({
   selectedStages,
   onStageToggle,
   onClearStages,
-  isPreviewMode = false,
-  onViewAll,
   skippedArtists,
   allArtists,
   onRestoreSkipped,
   onClearAllSkipped,
 }: LinkWizardQueueProps) {
+  const isMobile = useIsMobile();
+  const [showFullQueue, setShowFullQueue] = useState(false);
+  const isPreviewMode = isMobile && !showFullQueue;
   const displayedItems = isPreviewMode
     ? items.slice(0, MOBILE_PREVIEW_COUNT)
     : items;
@@ -104,7 +105,7 @@ export function LinkWizardQueue({
                   variant="ghost"
                   size="sm"
                   className="w-full text-xs text-accent hover:text-accent hover:bg-accent-soft"
-                  onClick={onViewAll}
+                  onClick={() => setShowFullQueue(true)}
                 >
                   View all ({items.length - MOBILE_PREVIEW_COUNT} more)
                 </Button>

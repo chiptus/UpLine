@@ -9,6 +9,7 @@ interface VotingSectionProps {
     direction: "left" | "right" | null;
     intensity: number;
   };
+  currentVote: number | undefined;
 }
 
 export function VotingSection({
@@ -16,6 +17,7 @@ export function VotingSection({
   onVote,
   onSkip,
   dragFeedback,
+  currentVote,
 }: VotingSectionProps) {
   if (!currentSet) {
     return null;
@@ -27,6 +29,7 @@ export function VotingSection({
         onVote={onVote}
         onSkip={onSkip}
         dragFeedback={dragFeedback}
+        currentVote={currentVote}
       />
     </div>
   );

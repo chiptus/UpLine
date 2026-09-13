@@ -16,6 +16,7 @@ import { DayFilterSelect } from "./DayFilterSelect";
 import { TimeFilterSelect } from "./TimeFilterSelect";
 import { StageFilterButtons } from "./StageFilterButtons";
 import { VoteFilterChips } from "./VoteFilterChips";
+import { SetTypeFilter } from "@/components/SetTypeFilter";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -24,7 +25,7 @@ interface ScheduleFilterSheetProps {
 }
 
 /**
- * Shared day / time-of-day / stage filter trigger + bottom sheet for both
+ * Shared day / time-of-day / stage / set-type filter trigger + bottom sheet for both
  * Schedule views, backed by the shared URL state so filters stay in sync.
  * The badge excludes vote-chip selections while logged out (inert filter).
  */
@@ -36,9 +37,11 @@ export function ScheduleFilterSheet({ tab }: ScheduleFilterSheetProps) {
     time,
     stagesIds,
     votes,
+    types,
     updateDay,
     updateTime,
     updateStages,
+    updateTypes,
     clearFilters,
   } = useTimelineUrlState(tab);
 
@@ -46,6 +49,7 @@ export function ScheduleFilterSheet({ tab }: ScheduleFilterSheetProps) {
     (day !== "all" ? 1 : 0) +
     (time !== "all" ? 1 : 0) +
     stagesIds.length +
+    types.length +
     (user ? votes.length : 0);
   const hasActiveFilters = activeFilterCount > 0;
 
@@ -89,7 +93,7 @@ export function ScheduleFilterSheet({ tab }: ScheduleFilterSheetProps) {
         <SheetHeader>
           <SheetTitle className="text-foreground">Filter schedule</SheetTitle>
           <SheetDescription className="text-subtle-foreground">
-            Narrow the schedule by day, time of day, and stage.
+            Narrow the schedule by day, time of day, stage, and set type.
           </SheetDescription>
         </SheetHeader>
 
@@ -100,6 +104,10 @@ export function ScheduleFilterSheet({ tab }: ScheduleFilterSheetProps) {
             selectedStages={stagesIds}
             onStageToggle={handleStageToggle}
           />
+        </div>
+
+        <div className="mt-4">
+          <SetTypeFilter types={types} onChange={updateTypes} />
         </div>
 
         {user && (

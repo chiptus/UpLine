@@ -59,14 +59,22 @@ export function TypedSetsPanel({ setsToCreate, setsToUpdate }: Props) {
 }
 
 /**
- * A stored type differing from the incoming one is the change worth
- * verifying; new sets and first-time types just take the CSV value.
+ * An update whose stored type differs from the incoming one — including a
+ * first-time assignment (stored null) — overwrites data, so it's listed for
+ * review; new sets just take the CSV value.
  */
 function isTypeChange(set: SetToUpdate): boolean {
-  return set.previousSetType !== null && set.previousSetType !== set.setType;
+  return set.previousSetType !== set.setType;
 }
 
 function SetTypeChip({ setType }: { setType: SetType | null }) {
+  if (setType === null) {
+    return (
+      <Badge variant="outline" className="shrink-0 text-muted-foreground">
+        No type
+      </Badge>
+    );
+  }
   const { icon: Icon, label, color } = getSetTypeLabel(setType);
   return (
     <Badge variant="secondary" className="gap-1 shrink-0">

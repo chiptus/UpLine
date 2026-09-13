@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/sheet";
 import { DayFilterSelect } from "../DayFilterSelect";
 import { StageFilterButtons } from "../StageFilterButtons";
+import { SetTypeFilter } from "@/components/SetTypeFilter";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 import { cn } from "@/lib/utils";
@@ -25,8 +26,15 @@ interface LineupFiltersProps {
 export function LineupFilters({ tab }: LineupFiltersProps) {
   const [open, setOpen] = useState(false);
   const { canShowStage } = useScheduleReveal();
-  const { day, stagesIds, updateDay, updateStages, clearFilters } =
-    useTimelineUrlState(tab);
+  const {
+    day,
+    stagesIds,
+    types,
+    updateDay,
+    updateStages,
+    updateTypes,
+    clearFilters,
+  } = useTimelineUrlState(tab);
 
   function handleStageToggle(stageId: string) {
     const newStages = stagesIds.includes(stageId)
@@ -36,7 +44,9 @@ export function LineupFilters({ tab }: LineupFiltersProps) {
   }
 
   const activeFilterCount =
-    (day !== "all" ? 1 : 0) + (canShowStage ? stagesIds.length : 0);
+    (day !== "all" ? 1 : 0) +
+    (canShowStage ? stagesIds.length : 0) +
+    types.length;
   const hasActiveFilters = activeFilterCount > 0;
 
   return (
@@ -80,8 +90,8 @@ export function LineupFilters({ tab }: LineupFiltersProps) {
           <SheetTitle className="text-foreground">Filter schedule</SheetTitle>
           <SheetDescription className="text-subtle-foreground">
             {canShowStage
-              ? "Narrow the schedule by day and stage."
-              : "Narrow the schedule by day."}
+              ? "Narrow the schedule by day, stage, and set type."
+              : "Narrow the schedule by day and set type."}
           </SheetDescription>
         </SheetHeader>
 
@@ -98,6 +108,10 @@ export function LineupFilters({ tab }: LineupFiltersProps) {
               onStageToggle={handleStageToggle}
             />
           )}
+        </div>
+
+        <div className="mt-4">
+          <SetTypeFilter types={types} onChange={updateTypes} />
         </div>
 
         <SheetFooter className="mt-6">

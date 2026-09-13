@@ -1,3 +1,6 @@
+# if you need to use the parent .envrc
+# source_up
+
 # Copy this file to scripts/.env.sync and fill in values.
 # scripts/.env.sync is gitignored — never commit real connection strings.
 #
@@ -10,20 +13,20 @@
 # Session pooler format:
 #   postgresql://postgres.<project-ref>:PASSWORD@aws-0-<region>.pooler.supabase.com:5432/postgres
 
-PROD_DB_URL="postgresql://postgres.qssmazlqrmxiudxckxvi:PASSWORD@aws-0-YOUR-REGION.pooler.supabase.com:5432/postgres"
-STAGING_DB_URL="postgresql://postgres.YOUR-STAGING-REF:PASSWORD@aws-0-YOUR-REGION.pooler.supabase.com:5432/postgres"
+export PROD_DB_URL="postgresql://postgres.qssmazlqrmxiudxckxvi:PASSWORD@aws-0-YOUR-REGION.pooler.supabase.com:5432/postgres"
+export STAGING_DB_URL="postgresql://postgres.YOUR-STAGING-REF:PASSWORD@aws-0-YOUR-REGION.pooler.supabase.com:5432/postgres"
 
 # Optional — defaults to the Supabase CLI's local DB.
-# LOCAL_DB_URL="postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+# export LOCAL_DB_URL="postgresql://postgres:postgres@127.0.0.1:54322/postgres"
 
 # --- Required only for `pnpm run db:recreate:staging` ---
 #
 # STAGING_PROJECT_REF / STAGING_DB_PASSWORD: used for `supabase link`.
 #   Ref is in the dashboard URL; password is the DB password.
-STAGING_PROJECT_REF="YOUR-STAGING-REF"
-STAGING_DB_PASSWORD="YOUR-STAGING-DB-PASSWORD"
+export STAGING_PROJECT_REF="YOUR-STAGING-REF"
+export STAGING_DB_PASSWORD="YOUR-STAGING-DB-PASSWORD"
 
 # STAGING_URL / STAGING_SERVICE_ROLE_KEY: used to create the admin auth user.
 #   URL is the project URL; service role key is in Project Settings -> API.
-STAGING_URL="https://YOUR-STAGING-REF.supabase.co"
-STAGING_SERVICE_ROLE_KEY="YOUR-STAGING-SERVICE-ROLE-KEY"
+export STAGING_URL="https://YOUR-STAGING-REF.supabase.co"
+export STAGING_SERVICE_ROLE_KEY="YOUR-STAGING-SERVICE-ROLE-KEY"

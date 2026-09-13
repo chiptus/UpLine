@@ -32,7 +32,7 @@ export function ImageCell({
   return (
     <>
       <div
-        className="cursor-pointer hover:bg-gray-50 p-1 rounded min-h-10 text-sm flex items-center"
+        className="cursor-pointer hover:bg-surface-active p-1 rounded min-h-10 text-sm flex items-center"
         onClick={() => setIsDialogOpen(true)}
         title="Click to edit image"
       >

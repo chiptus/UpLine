@@ -75,7 +75,11 @@ declare module "@tanstack/react-router" {
   }
 }
 
-supabase.auth.onAuthStateChange(() => {
+let lastAuthUserId: string | null | undefined;
+supabase.auth.onAuthStateChange((_event, session) => {
+  const userId = session?.user?.id ?? null;
+  if (userId === lastAuthUserId) return;
+  lastAuthUserId = userId;
   router.invalidate();
 });
 

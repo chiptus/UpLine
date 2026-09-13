@@ -3,6 +3,13 @@ import { buildCommitPayload } from "./buildCommitPayload";
 import { type DiffResult } from "./types";
 
 describe("buildCommitPayload", () => {
+  it("passes the diff's watermark through unchanged", () => {
+    const diff = makeDiff({ watermark: "7:2026-08-30T12:00:00+00:00" });
+
+    const payload = buildCommitPayload(diff, {}, {});
+    expect(payload.watermark).toBe("7:2026-08-30T12:00:00+00:00");
+  });
+
   it("passes through clean artistsToCreate/stagesToCreate untouched", () => {
     const diff = makeDiff({
       cleanOperations: {
@@ -55,6 +62,7 @@ describe("buildCommitPayload", () => {
             stageName: "Mainstage",
             timeStart: null,
             timeEnd: null,
+            status: "tba",
             artistSlugs: ["carl-cox"],
           },
         ],
@@ -79,6 +87,7 @@ describe("buildCommitPayload", () => {
     );
     expect(payload.setsToCreate[0].stageName).toBe("Main Stage");
     expect(payload.stagesToCreate).toEqual([]);
+    expect(payload.setsToCreate[0].status).toBe("tba");
   });
 
   it("keeps non-mismatched stage names as-is", () => {
@@ -94,6 +103,7 @@ describe("buildCommitPayload", () => {
             stageName: "Main Stage",
             timeStart: null,
             timeEnd: null,
+            status: "confirmed",
             artistSlugs: ["carl-cox"],
           },
         ],
@@ -118,6 +128,7 @@ describe("buildCommitPayload", () => {
             stageName: null,
             timeStart: null,
             timeEnd: null,
+            status: "confirmed",
             artistSlugs: [],
           },
         ],
@@ -131,6 +142,7 @@ describe("buildCommitPayload", () => {
             stageName: null,
             timeStart: null,
             timeEnd: null,
+            status: "confirmed",
             artistSlugs: [],
           },
         ],
@@ -167,6 +179,7 @@ describe("buildCommitPayload", () => {
 
 function makeDiff(overrides: Partial<DiffResult> = {}): DiffResult {
   return {
+    watermark: "3:2026-08-01T00:00:00+00:00",
     summary: {
       newArtists: 0,
       newStages: 0,

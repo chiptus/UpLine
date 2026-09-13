@@ -14,6 +14,9 @@
 #      target's public tables, and restore the dump.
 #   3. Run scripts/anonymize.sql against the target to scrub remaining PII in
 #      the public schema.
+#   4. If ADMIN_EMAIL is set, backfill its public.profiles row if the
+#      truncate/restore in step 2 wiped it (the account only exists on the
+#      target, e.g. a local dev/admin login, so it isn't in prod's dump).
 #
 # Required env vars (put them in scripts/.env.sync, which is gitignored):
 #   PROD_DB_URL      Postgres connection string for the prod project
@@ -22,6 +25,12 @@
 #   LOCAL_DB_URL     Defaults to the Supabase CLI local DB if unset
 #
 # Skip auth syncing with: SYNC_AUTH=0 pnpm run db:sync:staging
+#
+# Keep (or make) an account super_admin after the sync, since prod's own
+# admin_roles rows get restored over whatever the target had:
+#   ADMIN_EMAIL=you@example.com pnpm run db:sync:staging
+# The account must already exist on the target (sign up there first) --
+# this only grants the role, it doesn't create a user.
 #
 set -euo pipefail
 
@@ -155,6 +164,32 @@ SQL
 
 echo "Running anonymizer on public schema…"
 psql "$TARGET_URL" -v ON_ERROR_STOP=1 -f "$SCRIPT_DIR/anonymize.sql"
+
+if [[ -n "${ADMIN_EMAIL:-}" ]]; then
+  ADMIN_USER_ID="$(psql "$TARGET_URL" -tAq -v ON_ERROR_STOP=1 -v email="$ADMIN_EMAIL" <<'SQL'
+SELECT id FROM auth.users WHERE email = :'email';
+SQL
+)"
+  if [[ -z "$ADMIN_USER_ID" ]]; then
+    echo "ADMIN_EMAIL user $ADMIN_EMAIL not found on target. Sign up there first, then re-run." >&2
+    exit 1
+  fi
+
+  echo "Restoring profile for '$ADMIN_EMAIL' if missing…"
+  # Only backfill the admin's own profile (not every target-only account) to avoid reintroducing real emails after anonymize.sql has scrubbed them.
+  psql "$TARGET_URL" -v ON_ERROR_STOP=1 -v uid="$ADMIN_USER_ID" -v email="$ADMIN_EMAIL" <<'SQL'
+INSERT INTO public.profiles (id, username, email)
+VALUES (:'uid'::uuid, NULL, :'email')
+ON CONFLICT (id) DO NOTHING;
+SQL
+
+  echo "Granting super_admin to '$ADMIN_EMAIL'…"
+  psql "$TARGET_URL" -v ON_ERROR_STOP=1 -v uid="$ADMIN_USER_ID" <<'SQL'
+INSERT INTO public.admin_roles (user_id, role, created_by)
+VALUES (:'uid'::uuid, 'super_admin', :'uid'::uuid)
+ON CONFLICT (user_id, role) DO NOTHING;
+SQL
+fi
 
 echo "Done."
 if [[ "$SYNC_AUTH" == "1" ]]; then

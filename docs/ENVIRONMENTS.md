@@ -6,13 +6,7 @@
 | **staging** | a second Supabase project       | `pnpm run dev:staging`, Vercel preview deploys |
 | **prod**    | `qssmazlqrmxiudxckxvi`          | Vercel production only                         |
 
-The frontend reads `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY` from a Vite env file picked by `--mode`. Vite load order (later overrides earlier):
-
-```
-.env  ->  .env.local  ->  .env.[mode]  ->  .env.[mode].local
-```
-
-`*.local` files are gitignored; the `*.example` files are templates.
+The frontend reads `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY` from your shell environment, loaded via [direnv](https://direnv.net/) from `.envrc` (gitignored; `.envrc.example` is the template). Vite gives process env vars priority over any `.env` file, so whatever `.envrc` exports wins.
 
 ## Setting up a new Supabase project (e.g. staging)
 
@@ -61,12 +55,13 @@ Project Settings → Environment Variables. For each Supabase var, add it twice:
 
 - **Supabase CLI** + **Docker** (for `supabase start`)
 - **Postgres client tools** for the sync script: `brew install libpq` on macOS (and add `/opt/homebrew/opt/libpq/bin` to your PATH), `apt-get install postgresql-client` on Debian.
-- Copy env templates:
+- Copy env templates and let direnv load them:
   ```bash
-  cp .env.local.example  .env.local              # local supabase
-  cp .env.staging.example .env.staging.local     # staging
-  cp scripts/.env.sync.example scripts/.env.sync # prod + staging direct DB connection strings (for sync script)
+  cp .envrc.example .envrc                 # local supabase + shared secrets
+  cp scripts/.envrc.example scripts/.envrc # prod + staging direct DB connection strings (for sync script)
+  direnv allow
   ```
+  For `pnpm run dev:staging`, temporarily point `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY` in `.envrc` at the staging project instead — direnv vars apply regardless of Vite `--mode`, so these two aren't mode-scoped.
 
 ## Day-to-day commands
 

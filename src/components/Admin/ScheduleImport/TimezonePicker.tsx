@@ -50,19 +50,21 @@ export function TimezonePicker({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-80 justify-between font-normal"
+            className="w-80 justify-between font-normal group"
           >
             <span className="flex items-center gap-2 truncate">
-              <Globe className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <Globe className="h-4 w-4 shrink-0 text-muted-foreground group-hover:text-accent-foreground" />
               {selected ? (
                 <>
                   <span className="truncate">{selected.zone}</span>
-                  <span className="ml-1 text-xs text-muted-foreground tabular-nums">
+                  <span className="ml-1 text-xs text-muted-foreground group-hover:text-accent-foreground tabular-nums">
                     {selected.offsetLabel}
                   </span>
                 </>
               ) : (
-                <span className="text-muted-foreground">Select timezone…</span>
+                <span className="text-muted-foreground group-hover:text-accent-foreground">
+                  Select timezone…
+                </span>
               )}
             </span>
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />

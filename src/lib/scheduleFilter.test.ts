@@ -523,6 +523,166 @@ describe("filterScheduleDays", () => {
     });
   });
 
+  describe("set-type predicate", () => {
+    it("keeps all sets when no types are selected", () => {
+      const days = [
+        makeDay({
+          stages: [
+            {
+              id: "stage-1",
+              name: "Main Stage",
+              stage_order: 1,
+              sets: [
+                makeSet({ id: "music-set", setType: "music" }),
+                makeSet({ id: "untyped-set", setType: null }),
+              ],
+            },
+          ],
+        }),
+      ];
+
+      const result = filterScheduleDays(
+        days,
+        baseCriteria({ setTypes: [] }),
+        TIMEZONE,
+      );
+
+      expect(result[0].stages[0].sets.map((s) => s.id)).toEqual([
+        "music-set",
+        "untyped-set",
+      ]);
+    });
+
+    it("keeps only sets of the selected type", () => {
+      const days = [
+        makeDay({
+          stages: [
+            {
+              id: "stage-1",
+              name: "Main Stage",
+              stage_order: 1,
+              sets: [
+                makeSet({ id: "music-set", setType: "music" }),
+                makeSet({ id: "workshop-set", setType: "workshop" }),
+              ],
+            },
+          ],
+        }),
+      ];
+
+      const result = filterScheduleDays(
+        days,
+        baseCriteria({ setTypes: ["workshop"] }),
+        TIMEZONE,
+      );
+
+      expect(result[0].stages[0].sets.map((s) => s.id)).toEqual([
+        "workshop-set",
+      ]);
+    });
+
+    it("OR-s together a union of selected types", () => {
+      const days = [
+        makeDay({
+          stages: [
+            {
+              id: "stage-1",
+              name: "Main Stage",
+              stage_order: 1,
+              sets: [
+                makeSet({ id: "music-set", setType: "music" }),
+                makeSet({ id: "workshop-set", setType: "workshop" }),
+                makeSet({ id: "performance-set", setType: "performance" }),
+              ],
+            },
+          ],
+        }),
+      ];
+
+      const result = filterScheduleDays(
+        days,
+        baseCriteria({ setTypes: ["music", "performance"] }),
+        TIMEZONE,
+      );
+
+      expect(result[0].stages[0].sets.map((s) => s.id)).toEqual([
+        "music-set",
+        "performance-set",
+      ]);
+    });
+
+    it("matches untyped (null) sets under the 'other' chip", () => {
+      const days = [
+        makeDay({
+          stages: [
+            {
+              id: "stage-1",
+              name: "Main Stage",
+              stage_order: 1,
+              sets: [
+                makeSet({ id: "untyped-set", setType: null }),
+                makeSet({ id: "other-set", setType: "other" }),
+                makeSet({ id: "music-set", setType: "music" }),
+              ],
+            },
+          ],
+        }),
+      ];
+
+      const result = filterScheduleDays(
+        days,
+        baseCriteria({ setTypes: ["other"] }),
+        TIMEZONE,
+      );
+
+      expect(result[0].stages[0].sets.map((s) => s.id)).toEqual([
+        "untyped-set",
+        "other-set",
+      ]);
+    });
+
+    it("combines with the vote-type predicate", () => {
+      const days = [
+        makeDay({
+          stages: [
+            {
+              id: "stage-1",
+              name: "Main Stage",
+              stage_order: 1,
+              sets: [
+                makeSet({
+                  id: "voted-workshop",
+                  setType: "workshop",
+                  votes: [{ user_id: "me", vote_type: 2 }],
+                }),
+                makeSet({ id: "unvoted-workshop", setType: "workshop" }),
+                makeSet({
+                  id: "voted-music",
+                  setType: "music",
+                  votes: [{ user_id: "me", vote_type: 2 }],
+                }),
+              ],
+            },
+          ],
+        }),
+      ];
+
+      const result = filterScheduleDays(
+        days,
+        baseCriteria({
+          setTypes: ["workshop"],
+          voteTypes: ["mustGo"],
+          currentUserId: "me",
+        }),
+        TIMEZONE,
+      );
+
+      expect(result[0].stages[0].sets.map((s) => s.id)).toEqual([
+        "voted-workshop",
+      ]);
+    });
+  });
+
   describe("combinations", () => {
     it("applies day, time and stage predicates together", () => {
       const days = [

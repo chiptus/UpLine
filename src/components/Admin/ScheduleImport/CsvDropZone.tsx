@@ -54,9 +54,10 @@ export function CsvDropZone({ fileName, rowCount, onFileSelected }: Props) {
         <code>Stage</code>, <code>Date</code> (YYYY-MM-DD),{" "}
         <code>Start Time</code> (HH:MM), <code>End Time</code> (HH:MM),{" "}
         <code>Description</code>. Rows without artists are kept when they have a{" "}
-        <code>Set Name</code> (e.g. workshops). The CSV is treated as the
-        complete schedule: existing sets missing from it are flagged for
-        archiving in the review step.
+        <code>Set Name</code> (e.g. workshops). A <code>Date</code> with no{" "}
+        <code>Start Time</code> creates a set marked "TBA" under that day. The
+        CSV is treated as the complete schedule: existing sets missing from it
+        are flagged for archiving in the review step.
       </p>
     </div>
   );

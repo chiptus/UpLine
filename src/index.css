@@ -64,10 +64,10 @@
     --primary: 76 55% 48%; /* #94be37 muted lime — toned-down accent */
     --primary-foreground: 76.7 100% 7.1%; /* #1a2400 */
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 265 50% 18%; /* dark purple surface, near --popover */
+    --secondary-foreground: 270 100% 98.4%;
 
-    --muted: 210 40% 96.1%;
+    --muted: 265 50% 18%; /* dark purple surface, near --popover */
     --muted-foreground: 263.4 61.2% 86.9%; /* #d9c9f2 */
     --subtle-foreground: 262.1 35.8% 68.8%; /* #a893cc */
 
@@ -178,6 +178,10 @@
     --primary: 82.6 100% 23.9%; /* #4c7a00 olive-green, matches --accent */
     --primary-foreground: 0 0% 100%;
 
+    --secondary: 75 13.3% 94.1%; /* #f1f2ee, matches --surface-active */
+    --secondary-foreground: 225 13.3% 11.8%;
+
+    --muted: 75 13.3% 94.1%; /* #f1f2ee, matches --surface-active */
     --muted-foreground: 222.4 10.6% 31.6%; /* #484d59 */
     --subtle-foreground: 221.1 8.4% 44.1%; /* #676d7a */
 

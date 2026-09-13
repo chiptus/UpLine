@@ -2,6 +2,8 @@ import type { Database } from "../_shared/database.types.ts";
 
 import type { SetType } from "../_shared/setTypes.ts";
 
+export type SetStatus = "confirmed" | "tba";
+
 export type CsvRow = {
   artists: string[];
   setType?: SetType | null;
@@ -30,6 +32,7 @@ export type DbSet = Pick<
   | "stage_id"
   | "time_start"
   | "time_end"
+  | "status"
   | "set_type"
 > & {
   set_artists: { artist_id: string; artists: DbArtist }[];
@@ -42,10 +45,11 @@ export type SetPayload = {
   stageName: string | null;
   timeStart: string | null;
   timeEnd: string | null;
+  status: SetStatus;
   artistSlugs: string[];
 };
 
-export type DiffResult = {
+export type DiffPlan = {
   summary: {
     newArtists: number;
     newStages: number;
@@ -77,3 +81,5 @@ export type DiffResult = {
     }[];
   };
 };
+
+export type DiffResult = DiffPlan & { watermark: string };

@@ -4,13 +4,12 @@ import userEvent from "@testing-library/user-event";
 import { LinkWizardStep } from "./LinkWizardStep";
 import type { ArtistWithSets } from "@/api/artists/useArtistsMissingLinksByEdition";
 import {
-  registerCleanup,
   renderWithQueryClient,
   testSupabase,
 } from "@/test/integration/harness";
 import { signInAsTestUser } from "@/test/integration/fixtures/auth";
 import { createArtist } from "@/test/integration/fixtures/artists";
-import { SEEDED_USER_ID } from "@/test/integration/fixtures/constants";
+import { grantAdminRole } from "@/test/integration/fixtures/adminRoles";
 
 // The Link Wizard's candidate search hits a search-links Edge Function that
 // the integration test stack doesn't serve. This test isolates the save
@@ -63,24 +62,6 @@ vi.mock("@/api/artistSearch/useFetchArtistByUrlMutation", () => ({
     isPending: false,
   }),
 }));
-
-async function grantAdminRole(userId: string): Promise<void> {
-  const { error } = await testSupabase.from("admin_roles").insert({
-    user_id: userId,
-    role: "admin",
-    created_by: SEEDED_USER_ID,
-  });
-  if (error) throw error;
-
-  registerCleanup(async () => {
-    const { error: deleteError } = await testSupabase
-      .from("admin_roles")
-      .delete()
-      .eq("user_id", userId)
-      .eq("role", "admin");
-    if (deleteError) throw deleteError;
-  });
-}
 
 async function loadArtistWithSets(artistId: string): Promise<ArtistWithSets> {
   const { data, error } = await testSupabase

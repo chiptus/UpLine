@@ -14,6 +14,7 @@ export interface SearchResult {
   provider: Provider;
   candidates: Candidate[];
   error?: string;
+  rateLimitRetryAfter?: number;
 }
 
 export interface SearchResponse {

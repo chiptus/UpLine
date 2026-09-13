@@ -26,7 +26,7 @@ _Avoid_: Lineup (lineup = who; schedule = when/where), program, timetable
 
 **Festival phase**:
 Which stage of its lifecycle an **edition** is in. An ordered, derived concept (parallel to how **Schedule** is derived) — not a stored entity and not a column. Computed from the edition's **schedule reveal level**, `start_date`/`end_date`, and the **festival timezone** at the current time. Four ordered values: **Pre-Schedule → Planning → Live → Post-Festival**. `draft` reveal level ⇒ Pre-Schedule; before the festival ⇒ Planning; during (with grace before/after) ⇒ Live; after ⇒ Post-Festival. See ADR-0003.
-_Avoid_: Status, state, stage (stage = a venue), stored phase
+_Avoid_ (for this, the **edition**-level lifecycle concept specifically): Status, state, stage (stage = a venue), stored phase. "Status" is not reserved project-wide — see **Set status**, an unrelated per-**set** concept that legitimately uses the word.
 
 **Set**:
 A single scheduled happening within an edition, with a stage, a start/end time, and zero or more artists. Not every set is music: see **Set type**.
@@ -35,6 +35,10 @@ _Avoid_: Show, gig, slot, performance (a performance is a _type_ of set, not a s
 **Set type**:
 What kind of happening a **set** is: music, workshop, performance, or other. `null` on a set means it is not yet typed (it predates typing, or was imported without a type) and awaits backfill — never "chose not to say". Voting is identical across types.
 _Avoid_: Category, kind
+
+**Set status**:
+A **set**'s own standing, independent of **set type**: `confirmed` or `tba` (time known but not yet decided — see ADR-0009). A third value, `cancelled` (the set as a whole isn't happening), is anticipated but not yet implemented. Mutually exclusive — a set is in exactly one of these states. Distinct from **archived**, which is a cross-entity soft-delete flag (also on festivals/editions/stages) for records removed from active use, not a state of the set itself.
+_Avoid_: Time TBA (that's only one of the states), archived (different concept — see above)
 
 **Roster**:
 The artists on a single **set** — one, or several for a B2B. Per-set, where **lineup** is per-edition. A set's roster is its import identity: schedule re-imports match a roster set by its artists (order-insensitive), not by its name. See ADR-0008.

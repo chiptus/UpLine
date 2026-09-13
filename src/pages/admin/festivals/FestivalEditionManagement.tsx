@@ -77,8 +77,9 @@ export function FestivalEditionManagement({
     published: false,
     schedule_reveal_level: "draft",
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [slugError, setSlugError] = useState("");
+  const isSubmitting =
+    createEditionMutation.isPending || updateEditionMutation.isPending;
 
   if (festivalQuery.isLoading) {
     return (
@@ -162,7 +163,7 @@ export function FestivalEditionManagement({
     }
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!formData.name.trim()) {
       toast({
@@ -191,36 +192,25 @@ export function FestivalEditionManagement({
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      const submitData = {
-        ...formData,
-        start_date: formData.start_date || null,
-        end_date: formData.end_date || null,
-        festival_id: festivalQuery.data!.id,
-      };
+    const submitData = {
+      ...formData,
+      start_date: formData.start_date || null,
+      end_date: formData.end_date || null,
+      festival_id: festivalQuery.data!.id,
+    };
 
-      if (editingEdition) {
-        await updateEditionMutation.mutateAsync({
-          editionId: editingEdition.id,
-          editionData: submitData,
-        });
-      } else {
-        await createEditionMutation.mutateAsync(submitData);
-      }
+    function onSuccess() {
       setIsDialogOpen(false);
       resetForm();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description:
-          error instanceof Error
-            ? error.message
-            : "Failed to save festival edition",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
+    }
+
+    if (editingEdition) {
+      updateEditionMutation.mutate(
+        { editionId: editingEdition.id, editionData: submitData },
+        { onSuccess },
+      );
+    } else {
+      createEditionMutation.mutate(submitData, { onSuccess });
     }
   }
 
@@ -277,7 +267,7 @@ export function FestivalEditionManagement({
                     : "Create a new festival edition with dates and publish settings."}
                 </DialogDescription>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4" noValidate>
                 <div>
                   <Label htmlFor="name">Edition Name</Label>
                   <Input
@@ -423,6 +413,8 @@ export function FestivalEditionManagement({
                           e.stopPropagation();
                           handleEdit(edition);
                         }}
+                        aria-label={`Edit ${edition.name}`}
+                        title={`Edit ${edition.name}`}
                       >
                         <Edit2 className="h-4 w-4" />
                       </Button>
@@ -435,6 +427,8 @@ export function FestivalEditionManagement({
                           handleDeleteRequest(edition);
                         }}
                         className="text-destructive hover:text-destructive"
+                        aria-label={`Delete ${edition.name}`}
+                        title={`Delete ${edition.name}`}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

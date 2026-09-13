@@ -19,11 +19,13 @@ export const setPayloadSchema = z.object({
   stageName: z.string().nullable(),
   timeStart: z.string().nullable(),
   timeEnd: z.string().nullable(),
+  status: z.enum(["confirmed", "tba"]),
   artistSlugs: z.array(z.string()),
 });
 export type SetPayload = z.infer<typeof setPayloadSchema>;
 
 export const diffResultSchema = z.object({
+  watermark: z.string(),
   summary: z.object({
     newArtists: z.number(),
     newStages: z.number(),
@@ -77,3 +79,9 @@ export type StageMismatchResolution =
   | { action: "create" };
 
 export type OrphanResolution = "archive" | "keep";
+
+const EDITION_CHANGED_ERROR_PREFIX = "edition_changed_since_analyse:";
+
+export function isEditionChangedError(message: string): boolean {
+  return message.startsWith(EDITION_CHANGED_ERROR_PREFIX);
+}

@@ -3,17 +3,19 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { festivalsKeys } from "./types";
 
-async function updateFestival(
+export type FestivalUpdateData = Partial<{
+  name: string;
+  slug: string;
+  description?: string;
+  published?: boolean;
+  logo_url?: string | null;
+  timezone?: string;
+  day_start_hour?: number;
+}>;
+
+export async function updateFestival(
   festivalId: string,
-  festivalData: Partial<{
-    name: string;
-    slug: string;
-    description?: string;
-    published?: boolean;
-    logo_url?: string | null;
-    timezone?: string;
-    day_start_hour?: number;
-  }>,
+  festivalData: FestivalUpdateData,
 ) {
   const { data, error } = await supabase
     .from("festivals")
@@ -36,15 +38,7 @@ export function useUpdateFestivalMutation() {
       festivalData,
     }: {
       festivalId: string;
-      festivalData: Partial<{
-        name: string;
-        slug: string;
-        description?: string;
-        published?: boolean;
-        logo_url?: string | null;
-        timezone?: string;
-        day_start_hour?: number;
-      }>;
+      festivalData: FestivalUpdateData;
     }) => updateFestival(festivalId, festivalData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: festivalsKeys.root() });

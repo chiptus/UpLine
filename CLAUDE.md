@@ -94,6 +94,7 @@ src/
 4. **Data Fetching**: Use TanStack Query hooks in `src/api/` — feature-sliced modules, one folder per feature with a shared `types.ts` (entity type + query-key factory) and one `use`-prefixed file per endpoint holding its `queryOptions` factory + hook (see `docs/adr/0001-api-modules.md`)
 5. **Authentication**: Use `useAuth` hook for auth state and actions
 6. **Routing**: Add new routes to `App.tsx` above the catch-all "\*" route
+7. **Edge Functions**: New or touched edge functions should type their Supabase client as `createClient<Database>(...)` (importing `Database` from `supabase/functions/_shared/database.types.ts`) so RPC calls are type-checked — this is a forward-looking convention, not a backfill of existing untyped clients (see `docs/adr/0009-generate-types-against-staging-migrate.md`)
 
 ### Testing Setup
 
@@ -120,9 +121,9 @@ src/
 - No barrel exports - always import directly from file path
 - Use `cn` for conditional class names instead of template literals
 
-#### Function Definitions After Return in React Components
+#### File Structure: implementation first, helpers after
 
-In this codebase, it is acceptable and preferred to define helper functions (such as event handlers) after the main component’s return statement. This style improves readability by keeping the primary component logic at the top and allowing additional details to be found below. JavaScript and TypeScript support function hoisting for function declarations, so this pattern is safe and intentional. Please do not flag this as a style issue in reviews.
+Order every file (components, tests, utils) with the primary logic first — the component body, the `describe`/`it` blocks, the main exported function — and put helper functions below it. This way opening a file immediately shows what it does; helpers are supporting detail, read on demand. Applies everywhere, not just React components. Use `function` declarations for these helpers (not `const` arrow functions) so they're hoisted and callable before their point of definition. Do not flag this as a style issue in review.
 
 ### Important Notes
 
@@ -136,7 +137,13 @@ In this codebase, it is acceptable and preferred to define helper functions (suc
 
 - try to use mutation.mutate(variables, {onSuccess, onError}) instead of try{await mutation.mutateAsync(variables)}catch(err){}
 
-- don't add comments unless really necessary
+- Code Comments:
+  - Write comments that explain _why_, never _what_ — the code itself says what; a comment restating it is dead weight the moment it drifts
+  - Don't comment to compensate for a bad name or a tangled function — rename or restructure instead
+  - Only comment non-obvious things: a hidden constraint, a workaround for a specific bug, behavior that would surprise a reader
+  - When you touch code with a comment nearby, check the comment still matches — a stale comment is worse than no comment
+  - No commented-out code, apologies, or "TODO" without an owner or issue link
+  - When a function needs a comment, prefer a JSDoc block (`/** */`) above it over a `//` line
 
 ## Git Workflow
 
@@ -153,7 +160,7 @@ In this codebase, it is acceptable and preferred to define helper functions (suc
 
 ### Issue tracker
 
-Issues (and external PRs) are tracked in GitHub Issues for `chiptus/UpLine`, via the `gh` CLI. External PRs are a triage surface. See `docs/agents/issue-tracker.md`.
+Issues are tracked in Linear (team `UPL`), via the `linearis` CLI (`npx linearis`). PRs remain on GitHub (`chiptus/UpLine`) and external PRs are still a triage surface. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 

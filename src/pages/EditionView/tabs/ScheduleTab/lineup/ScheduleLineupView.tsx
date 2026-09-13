@@ -6,6 +6,7 @@ import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { useScheduleData } from "@/hooks/useScheduleData";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
+import { matchesSetTypeFilter } from "@/lib/setTypeFilter";
 import { ScheduleNotRevealedPlaceholder } from "../ScheduleNotRevealedPlaceholder";
 import { DaysLineupView } from "./DaysLineupView";
 import { StagesLineupGrid } from "./StagesLineupGrid";
@@ -38,22 +39,36 @@ function ScheduleLineupContent({ tab }: ScheduleLineupViewProps) {
     stages,
     timezone: festival.timezone,
   });
-  const { day: selectedDay, stagesIds: selectedStages } =
-    useTimelineUrlState(tab);
+  const {
+    day: selectedDay,
+    stagesIds: selectedStages,
+    types: selectedTypes,
+  } = useTimelineUrlState(tab);
 
   const filteredScheduleDays = useMemo(() => {
     return scheduleDays
       .filter((day) => selectedDay === "all" || day.date === selectedDay)
       .map((day) => ({
         ...day,
-        stages: day.stages.filter(
-          (stage) =>
-            !canShowStage ||
-            selectedStages.length === 0 ||
-            selectedStages.includes(stage.id),
-        ),
+        stages: day.stages
+          .filter(
+            (stage) =>
+              !canShowStage ||
+              selectedStages.length === 0 ||
+              selectedStages.includes(stage.id),
+          )
+          .map((stage) => ({
+            ...stage,
+            sets: stage.sets.filter((set) =>
+              matchesSetTypeFilter(set.setType, selectedTypes),
+            ),
+          }))
+          // Don't render empty stage cards for stages the type filter emptied.
+          .filter(
+            (stage) => selectedTypes.length === 0 || stage.sets.length > 0,
+          ),
       }));
-  }, [scheduleDays, selectedDay, selectedStages, canShowStage]);
+  }, [scheduleDays, selectedDay, selectedStages, selectedTypes, canShowStage]);
 
   return canShowStage ? (
     <StagesLineupGrid scheduleDays={filteredScheduleDays} tab={tab} />

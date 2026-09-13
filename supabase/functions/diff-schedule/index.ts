@@ -1,9 +1,23 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { requireAdmin } from "../_shared/auth.ts";
 import { buildCorsHeaders } from "../_shared/cors.ts";
 import { SET_TYPES } from "../_shared/setTypes.ts";
+import type { Database } from "../_shared/database.types.ts";
 import { computeDiff } from "./computeDiff.ts";
+import { fetchAllRows } from "./fetchAllRows.ts";
+
+async function fetchWatermark(
+  db: SupabaseClient<Database>,
+  festivalEditionId: string,
+): Promise<string> {
+  const { data, error } = await db.rpc("commit_schedule__compute_watermark", {
+    p_festival_edition_id: festivalEditionId,
+  });
+  if (error) throw error;
+  return data;
+}
 
 function isValidTimezone(tz: string): boolean {
   try {
@@ -96,37 +110,44 @@ serve(async (req) => {
 
     const db = auth.adminClient;
 
-    const [stagesRes, setsRes, artistsRes] = await Promise.all([
-      db
-        .from("stages")
-        .select("id, name")
-        .eq("festival_edition_id", festivalEditionId)
-        .eq("archived", false),
-      db
-        .from("sets")
-        .select(
-          "id, name, description, stage_id, time_start, time_end, set_type, set_artists(artist_id, artists(id, name, slug))",
-        )
-        .eq("festival_edition_id", festivalEditionId)
-        .eq("archived", false)
-        .order("time_start", { nullsFirst: false })
-        .order("id"),
-      db.from("artists").select("id, name, slug").eq("archived", false),
+    // Captured before the sets read so it can never be older than the diff's data.
+    const watermark = await fetchWatermark(db, festivalEditionId);
+
+    const [dbStages, dbSets, dbArtists] = await Promise.all([
+      fetchAllRows((from, to) =>
+        db
+          .from("stages")
+          .select("id, name")
+          .eq("festival_edition_id", festivalEditionId)
+          .eq("archived", false)
+          .order("id")
+          .range(from, to),
+      ),
+      fetchAllRows((from, to) =>
+        db
+          .from("sets")
+          .select(
+            "id, name, description, stage_id, time_start, time_end, status, set_type, set_artists(artist_id, artists(id, name, slug))",
+          )
+          .eq("festival_edition_id", festivalEditionId)
+          .eq("archived", false)
+          .order("time_start", { nullsFirst: false })
+          .order("id")
+          .range(from, to),
+      ),
+      fetchAllRows((from, to) =>
+        db
+          .from("artists")
+          .select("id, name, slug")
+          .eq("archived", false)
+          .order("id")
+          .range(from, to),
+      ),
     ]);
 
-    if (stagesRes.error) throw stagesRes.error;
-    if (setsRes.error) throw setsRes.error;
-    if (artistsRes.error) throw artistsRes.error;
+    const result = computeDiff(rows, dbStages, dbSets, dbArtists, timezone);
 
-    const result = computeDiff(
-      rows,
-      stagesRes.data ?? [],
-      setsRes.data ?? [],
-      artistsRes.data ?? [],
-      timezone,
-    );
-
-    return new Response(JSON.stringify(result), {
+    return new Response(JSON.stringify({ ...result, watermark }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {

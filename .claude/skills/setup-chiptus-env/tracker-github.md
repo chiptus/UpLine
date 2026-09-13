@@ -39,3 +39,5 @@ In-flight state lives as labels **on GitHub issues**; an issue's label tells any
 
 1. Create the pipeline labels (`agent:wip`, `agent:pr`, `epic`) plus the five canonical triage-role labels in **GitHub** (`<owner/repo>`), if not already present from `setup-matt-pocock-skills`. If this repo wants a priority signal, create `priority:high` / `priority:low` labels — GitHub issues have no native priority field.
 2. Create the **triage** Routine: `<CADENCE>`, `<TRIAGE_MODEL>`, this repo only, connectors for GitHub, push notifications on, the triage prompt below.
+3. Create the **fix** Routine: `<CADENCE>` ~1h after triage, `<FIX_MODEL>`, same scoping, push notifications on, the fix prompt below.
+4. Routine prompts stay short pointers — evolve the pipeline by editing this doc via PR, not the Routine form.

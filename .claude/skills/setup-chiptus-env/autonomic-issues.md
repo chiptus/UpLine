@@ -50,7 +50,7 @@ Both routines run with push notifications on; every no-op path above ends _silen
 
 ## Setup checklist (manual, one-time)
 
-{{SETUP_ITEMS}} 3. Create the **fix** Routine: `<CADENCE>` ~1h after triage, `<FIX_MODEL>`, same scoping, push notifications on, the fix prompt below. 4. Routine prompts stay short pointers — evolve the pipeline by editing this doc via PR, not the Routine form.
+{{SETUP_ITEMS}}
 
 ## Routine prompts
 

@@ -45,3 +45,5 @@ Don't add a matching status label on the GitHub PR side (e.g. `status/in-review`
 
 1. Create the pipeline labels (`agent`, `epic`) plus the five canonical triage-role labels in **Linear**, team `<TEAM>`. Group the five triage-role labels into a single mutually-exclusive Linear label group; leave the pipeline labels standalone, outside that group. Priority uses Linear's native `priority` field, not a label. Pipeline stage within `agent` uses the team's existing `In Progress` / `In Review` statuses — nothing to create for those either.
 2. Create the **triage** Routine: `<CADENCE>`, `<TRIAGE_MODEL>`, this repo only, connectors for GitHub plus a Linear API token available for `linearis`, push notifications on, the triage prompt below.
+3. Create the **fix** Routine: `<CADENCE>` ~1h after triage, `<FIX_MODEL>`, same scoping, push notifications on, the fix prompt below.
+4. Routine prompts stay short pointers — evolve the pipeline by editing this doc via PR, not the Routine form.

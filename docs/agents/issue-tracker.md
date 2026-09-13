@@ -9,7 +9,7 @@ Issues for this repo live in Linear, team **UPL**. Use the `linearis` CLI (`npx 
 - **List issues**: `npx linearis issues list --team UPL --fields identifier,title,state.name,labels` with state/label filters as needed — check `usage` for the exact filter flags.
 - **Comment / discuss**: use the `issues discuss` / `discussions` / `replies` / `reply` commands (threaded discussion), not the deprecated top-level `comments` facade. Record non-trivial progress in a discussion thread and keep the description in sync on status changes.
 - **Apply / remove labels**: via `issues update` (or the dedicated label flag `usage` documents).
-- **Close / change state**: via `issues update --status ...` — Linear states are workflow states, not a boolean open/closed; confirm the state names for this team with `npx linearis` (team/workflow usage) rather than assuming GitHub-style "closed".
+- **Close / change state**: via `issues update --state ...` — Linear states are workflow states, not a boolean open/closed; confirm the state names for this team with `npx linearis` (team/workflow usage) rather than assuming GitHub-style "closed".
 
 IDs are forgiving: pass a UUID, team key (`UPL`), issue identifier (`UPL-123`), or name interchangeably. Reference tickets by identifier in commits, PR bodies, and comments.
 

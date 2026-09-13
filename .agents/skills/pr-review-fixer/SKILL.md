@@ -7,7 +7,7 @@ description: >
   PR comments", "address review feedback", "fix review comments", "what comments are
   on this PR", "respond to code review", or similar. Trigger even if they just say
   "let's fix the PR comments" or "what did reviewers say".
-allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/fetch-review-threads.sh) Bash(${CLAUDE_SKILL_DIR}/scripts/resolve-thread.sh *) Bash(gh pr comment *) Bash(command -v gh) mcp__github__pull_request_read mcp__github__resolve_review_thread mcp__github__add_reply_to_pull_request_comment mcp__github__add_issue_comment
+allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/fetch-review-threads.sh) Bash(${CLAUDE_SKILL_DIR}/scripts/resolve-thread.sh *) Bash(gh pr comment *)
 ---
 
 # PR Review Comment Fixer
@@ -17,30 +17,10 @@ whatever the user approves.
 
 ## Phase 1: Fetch threads
 
-Check once whether `gh` is on `PATH` (`command -v gh`) — some session types (e.g. a
-remote/cloud session) have no `gh` CLI and rely on the `mcp__github__*` tools
-instead. Don't discover this by running the script and reacting to its failure;
-check first and pick the right path.
-
-**`gh` available:** Run !`${CLAUDE_SKILL_DIR}/scripts/fetch-review-threads.sh`. It resolves the current PR, fetches review
+Run !`${CLAUDE_SKILL_DIR}/scripts/fetch-review-threads.sh`. It resolves the current PR, fetches review
 threads, review bodies, and issue comments, and filters out resolved threads and
 empty bodies with `jq` before any of it reaches you: you only ever see live,
 unresolved feedback. Output is `{threads, reviews, issueComments}`.
-
-**`gh` missing:** reconstruct the same `{threads, reviews, issueComments}` shape from
-`mcp__github__pull_request_read` (owner/repo from the git remote, PR number for the
-current branch — ask if it's ambiguous):
-
-- `method: get_review_comments` → review threads. Each has `id` (the GraphQL thread
-  node ID — this is what `resolve_review_thread` and Phase 4 need later, keep it),
-  `is_resolved`, `path`, `line`, and `comments[]` with `author`/`body`. Keep only
-  `is_resolved == false` — the tool doesn't filter this for you the way the script's
-  `jq` does.
-- `method: get_reviews` → review bodies; keep only non-empty `body`.
-- `method: get_comments` → top-level PR/issue comments (the script's `issueComments`).
-
-Everything from Phase 2 on reads `{threads, reviews, issueComments}` the same way
-regardless of which path produced it.
 
 If all three arrays are empty, tell the user and stop.
 
@@ -116,23 +96,17 @@ Parse the user's free-text reply to determine which comments to fix. Be flexible
 For each selected comment:
 
 - If `small` or `medium`: implement the fix now. After editing, confirm with a brief
-  "Fixed #N: [what changed]" note. Then resolve the thread — `gh` available:
+  "Fixed #N: [what changed]" note. Then resolve the thread:
   ```bash
   ${CLAUDE_SKILL_DIR}/scripts/resolve-thread.sh <thread-id>
   ```
-  `gh` missing: `mcp__github__resolve_review_thread` with that same thread ID (the
-  `id` field kept from Phase 1's `get_review_comments`).
   (Only resolve inline threads; top-level review bodies and issue comments don't have
   a thread ID to resolve.)
 - If `large`: don't attempt it now. Say: "Comment N is too large for this session:
   suggest tackling it in a dedicated follow-up." Do not resolve the thread.
 - If the comment is a **question**: no code change needed. Explain the answer
-  (optionally posted as a reply, if the user wants it posted, but don't do this unless
-  asked — `gh` available: `gh pr comment --body ...`; `gh` missing: an inline thread
-  reply is `mcp__github__add_reply_to_pull_request_comment` with the numeric comment
-  ID from the thread's comment `html_url` (the `#discussion_r<id>` suffix, not the
-  thread's GraphQL `id`), and a top-level PR comment is `mcp__github__add_issue_comment`).
-  Resolve the thread after answering.
+  (optionally as a reply via `gh pr comment --body ...` if the user wants
+  to post it, but don't do this unless asked). Resolve the thread after answering.
 
 After all fixes are applied, give a short summary of what was changed and what was
 deferred.

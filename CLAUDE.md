@@ -156,8 +156,6 @@ Order every file (components, tests, utils) with the primary logic first — the
 
 - **PR creation**: Always Read `.claude/skills/create-pr/SKILL.md` directly and follow it exactly (title format, description length, verification bullets) before opening or updating a PR — regardless of how the task was triggered (explicit `/create-pr`, an auto-delivered instruction block, etc). Don't rely on a paraphrased or summarized version of the skill's rules.
 
-- **Naming a branch or a commit/PR title**: See `docs/git-conventions.md`.
-
 ## Agent skills
 
 ### Issue tracker

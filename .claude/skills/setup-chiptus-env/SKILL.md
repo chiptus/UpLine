@@ -38,13 +38,15 @@ The autonomic pipeline needs the `triage` skill (fires the rubric) and an `imple
 
 ### 5. Pick the pipeline template
 
-- Tracker is **GitHub** → [`autonomic-issues-github.md`](./autonomic-issues-github.md).
-- Tracker is **Linear** → [`autonomic-issues-linear.md`](./autonomic-issues-linear.md).
-- Tracker is **GitLab, Local, or other** → no ready template. Ask the user whether the pipeline should follow the GitHub-shaped commands or the Linear-shaped commands (whichever is the closer fit — a CLI issuing list/create/label/comment calls vs. a CLI issuing the same over a team-scoped tracker), then adapt that template's commands to the actual tracker CLI.
+One template, [`autonomic-issues.md`](./autonomic-issues.md), covers both trackers: every paragraph that differs by tracker is wrapped in `<!-- tracker:github -->…<!-- /tracker:github -->` / `<!-- tracker:linear -->…<!-- /tracker:linear -->` markers, right next to its counterpart, so filling it is "delete the blocks for the tracker you didn't pick."
+
+- Tracker is **GitHub** → keep the `tracker:github` blocks, delete the `tracker:linear` ones.
+- Tracker is **Linear** → keep the `tracker:linear` blocks, delete the `tracker:github` ones.
+- Tracker is **GitLab, Local, or other** → no ready blocks for it. Ask the user whether the pipeline should follow the GitHub-shaped commands or the Linear-shaped commands (whichever is the closer fit — a CLI issuing list/create/label/comment calls vs. a CLI issuing the same over a team-scoped tracker), keep those blocks, then adapt their commands to the actual tracker CLI.
 
 ### 6. Fill and confirm
 
-Fill the chosen template's placeholders (repo/team identifiers, PR cap, routine cadence and models) from what step 2 already learned plus one round of questions for anything it didn't — routine cadence, PR-cap number, which models to run triage vs. fix on. Show the filled draft before writing; let the user edit it.
+Strip every marker line (including the leading comment explaining the convention) once the right blocks are chosen — the written doc must read as plain prose, no leftover `<!-- tracker:* -->` comments or unchosen-tracker text. Fill the remaining placeholders (repo/team identifiers, PR cap, routine cadence and models) from what step 2 already learned plus one round of questions for anything it didn't — routine cadence, PR-cap number, which models to run triage vs. fix on. Show the filled draft before writing; let the user edit it.
 
 ### 7. Write
 

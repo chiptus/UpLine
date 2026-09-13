@@ -4,7 +4,7 @@ Every label the autonomic issue pipeline reads or writes, what it means, and who
 
 ## Canonical triage-role labels — a mutually-exclusive Linear label group
 
-The skills speak in terms of five canonical triage roles. In Linear these five live together in a single **label group** (Linear's mutually-exclusive label set): applying one automatically clears any other member of the group from the issue, so an issue can never carry two triage-role labels at once. Set the group up in Linear (team `UPL` → Labels → group these five together) before relying on this table.
+The skills speak in terms of five canonical triage roles. In Linear these five live together in a single **label group** (Linear's mutually-exclusive label set): applying one automatically clears any other member of the group from the issue, so an issue can never carry two triage-role labels at once. Group setup: `docs/agents/autonomic-issues.md`'s setup checklist.
 
 | Label in mattpocock/skills | Label in our tracker | Meaning                                  |
 | -------------------------- | -------------------- | ---------------------------------------- |

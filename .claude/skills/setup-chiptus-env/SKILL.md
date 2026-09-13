@@ -36,17 +36,16 @@ Find those skills with `grep -rl "CONTEXT.md\|docs/adr\|docs/agents" .agents/ski
 
 The autonomic pipeline needs the `triage` skill (fires the rubric) and an `implement` skill or equivalent (does the fix-firing work) already installed — step 1's `npx skills` install covers both if it ran. If either is still missing, tell the user which is missing and stop — nothing to scaffold without them.
 
-### 5. Pick the pipeline template
+### 5. Fill the Tracker specifics table
 
-[`autonomic-issues.md`](./autonomic-issues.md) is the skeleton — every paragraph that's identical across trackers, with five slots (`{{INTRO}}`, `{{SHARED_STATE}}`, `{{INTAKE_QUERY}}`, `{{FIX_FIRING_STEPS}}`, `{{SETUP_ITEMS}}`) marking the spots that vary. A separate `tracker-<name>.md` fragment file supplies all five slots for one tracker. Adding a tracker later means writing one new fragment file against these same five slots — the skeleton never changes.
+[`autonomic-issues.md`](./autonomic-issues.md) is one file, written tracker-agnostically throughout, with a single "Tracker specifics" table near the top holding the only tracker-dependent content: how "claimed"/"in review" are represented, how priority works, how a PR declares its issue link. Everything else refers back to that table by name rather than repeating mechanics — this is deliberately terse, not a place to re-explain a CLI the agent already knows from its own `usage`/`--help`.
 
-- Tracker is **GitHub** → [`tracker-github.md`](./tracker-github.md).
-- Tracker is **Linear** → [`tracker-linear.md`](./tracker-linear.md).
-- Tracker is **GitLab, Local, or other** → no ready fragment. Ask the user whether the pipeline should follow the GitHub-shaped commands or the Linear-shaped commands (whichever is the closer fit — a CLI issuing list/create/label/comment calls vs. a CLI issuing the same over a team-scoped tracker), then write a new `tracker-<name>.md` fragment for the five slots, adapting that closer template's commands to the actual tracker CLI. Offer to keep the new fragment file in this skill folder so the next repo on the same tracker doesn't repeat the work.
+- Tracker is **GitHub** or **Linear** → delete the other tracker's column from the table; both are already written.
+- Tracker is **GitLab, Local, or other** → no ready column. Ask the user whether it's closer to GitHub's shape (flat labels, no native per-issue status) or Linear's (a native status field to piggyback on), then add a column for it following that closer pattern, and delete the column that isn't in use.
 
 ### 6. Fill and confirm
 
-Substitute each of the skeleton's five slots with the matching section from the chosen fragment file, then delete every `{{SLOT}}` marker and explanatory HTML comment in both source files — the written doc must read as plain prose, no leftover markers or fragment-authoring notes. Fill the remaining placeholders (repo/team identifiers, PR cap, routine cadence and models) from what step 2 already learned plus one round of questions for anything it didn't — routine cadence, PR-cap number, which models to run triage vs. fix on. Show the filled draft before writing; let the user edit it.
+Replace every `<TRACKER>` / `<TEAM>` / `<owner/repo>` placeholder with this repo's actual values from what step 2 already learned, plus one round of questions for anything it didn't — routine cadence, PR-cap number, which models to run triage vs. fix on. Show the filled draft before writing; let the user edit it.
 
 ### 7. Write
 

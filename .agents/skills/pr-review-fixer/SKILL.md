@@ -31,20 +31,12 @@ and issue comments, and filters out resolved threads and empty bodies with `jq`
 before any of it reaches you: you only ever see live, unresolved feedback. Output
 is `{threads, reviews, issueComments}`.
 
-**`gh` missing:** reconstruct the same `{threads, reviews, issueComments}` shape from
-`mcp__github__pull_request_read` (owner/repo from the git remote, PR number for the
-current branch — ask if it's ambiguous):
+**`gh` missing:** read [`gh-missing.md`](./gh-missing.md)'s "Phase 1" section and
+follow it instead — it reconstructs the same `{threads, reviews, issueComments}`
+shape via `mcp__github__pull_request_read`.
 
-- `method: get_review_comments` → review threads. Each has `id` (the GraphQL thread
-  node ID — this is what `resolve_review_thread` and Phase 4 need later, keep it),
-  `is_resolved`, `path`, `line`, and `comments[]` with `author`/`body`. Keep only
-  `is_resolved == false` — the tool doesn't filter this for you the way the script's
-  `jq` does.
-- `method: get_reviews` → review bodies; keep only non-empty `body`.
-- `method: get_comments` → top-level PR/issue comments (the script's `issueComments`).
-
-Everything from Phase 2 on reads `{threads, reviews, issueComments}` the same way
-regardless of which path produced it.
+Either way, everything from Phase 2 on reads `{threads, reviews, issueComments}`
+the same way regardless of which path produced it.
 
 If all three arrays are empty, tell the user and stop.
 
@@ -124,19 +116,16 @@ For each selected comment:
   ```bash
   ${CLAUDE_SKILL_DIR}/scripts/resolve-thread.sh <thread-id>
   ```
-  `gh` missing: `mcp__github__resolve_review_thread` with that same thread ID (the
-  `id` field kept from Phase 1's `get_review_comments`).
+  `gh` missing: [`gh-missing.md`](./gh-missing.md)'s "Phase 4" section.
   (Only resolve inline threads; top-level review bodies and issue comments don't have
   a thread ID to resolve.)
 - If `large`: don't attempt it now. Say: "Comment N is too large for this session:
   suggest tackling it in a dedicated follow-up." Do not resolve the thread.
 - If the comment is a **question**: no code change needed. Explain the answer
   (optionally posted as a reply, if the user wants it posted, but don't do this unless
-  asked — `gh` available: `gh pr comment --body ...`; `gh` missing: an inline thread
-  reply is `mcp__github__add_reply_to_pull_request_comment` with the numeric comment
-  ID from the thread's comment `html_url` (the `#discussion_r<id>` suffix, not the
-  thread's GraphQL `id`), and a top-level PR comment is `mcp__github__add_issue_comment`).
-  Resolve the thread after answering.
+  asked — `gh` available: `gh pr comment --body ...`; `gh` missing:
+  [`gh-missing.md`](./gh-missing.md)'s "Phase 4" section). Resolve the thread after
+  answering.
 
 After all fixes are applied, give a short summary of what was changed and what was
 deferred.

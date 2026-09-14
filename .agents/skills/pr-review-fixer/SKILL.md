@@ -17,15 +17,19 @@ whatever the user approves.
 
 ## Phase 1: Fetch threads
 
-Check once whether `gh` is on `PATH` (`command -v gh`) — some session types (e.g. a
-remote/cloud session) have no `gh` CLI and rely on the `mcp__github__*` tools
-instead. Don't discover this by running the script and reacting to its failure;
-check first and pick the right path.
+Using the Bash tool yourself — not the auto-exec markdown form (an exclamation
+mark immediately before a backtick-fenced command), which runs unconditionally
+before you get a turn and is exactly what broke the branch below — check once
+whether `gh` is on `PATH`: `command -v gh`. Some session types
+(e.g. a remote/cloud session) have no `gh` CLI and rely on the `mcp__github__*`
+tools instead. Don't discover this by running the fetch script and reacting to its
+failure — check first, with this command, and pick the right path.
 
-**`gh` available:** Run !`${CLAUDE_SKILL_DIR}/scripts/fetch-review-threads.sh`. It resolves the current PR, fetches review
-threads, review bodies, and issue comments, and filters out resolved threads and
-empty bodies with `jq` before any of it reaches you: you only ever see live,
-unresolved feedback. Output is `{threads, reviews, issueComments}`.
+**`gh` available:** run `${CLAUDE_SKILL_DIR}/scripts/fetch-review-threads.sh` via
+the Bash tool. It resolves the current PR, fetches review threads, review bodies,
+and issue comments, and filters out resolved threads and empty bodies with `jq`
+before any of it reaches you: you only ever see live, unresolved feedback. Output
+is `{threads, reviews, issueComments}`.
 
 **`gh` missing:** reconstruct the same `{threads, reviews, issueComments}` shape from
 `mcp__github__pull_request_read` (owner/repo from the git remote, PR number for the

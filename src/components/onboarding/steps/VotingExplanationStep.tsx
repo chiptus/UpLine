@@ -5,7 +5,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ArrowLeft, Vote } from "lucide-react";
-import { VOTE_CONFIG } from "@/lib/voteConfig";
+import { VOTE_CONFIG } from "@/lib/votes/config";
 import { OnboardingContent } from "../OnboardingContent";
 import votingImage from "./voting.png?url";
 interface VotingExplanationStepProps {

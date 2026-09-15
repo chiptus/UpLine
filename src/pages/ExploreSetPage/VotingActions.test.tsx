@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { VotingActions } from "./VotingActions";
-import { VOTE_CONFIG } from "@/lib/voteConfig";
+import { VOTE_CONFIG } from "@/lib/votes/config";
 
 describe("VotingActions", () => {
   it("shows no button as pressed when there is no vote yet", () => {

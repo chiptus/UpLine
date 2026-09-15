@@ -5,7 +5,7 @@ import {
   getVoteConfig,
   getVoteValue,
   type VoteType,
-} from "./voteConfig";
+} from "./config";
 import { Star, Heart, X } from "lucide-react";
 
 describe("VOTE_CONFIG", () => {

@@ -12,30 +12,30 @@ In order: install `setup-matt-pocock-skills` if this repo doesn't have it yet, r
 
 ### 1. Ensure setup-matt-pocock-skills is installed
 
-Check for a `setup-matt-pocock-skills` folder under `.claude/skills/` or `.agents/skills/`. Missing → install the mattpocock/skills set first: run `npx skills usage` (or `--help`) to confirm the current install command rather than guessing flags, then run it. Re-check the folder exists before continuing; if it still doesn't, tell the user the install failed and stop.
+Check for a `setup-matt-pocock-skills` folder under `.claude/skills/` or `.agents/skills/`. Missing → install it with `npx skills add <setup-matt-pocock-skills package> -s "*" -a claude-code -y --json` (verified flag shape — the agent identifier is `claude-code`, not `claude`; the latter is rejected by the CLI). Safe to re-run if already installed (idempotent; re-reports "installed" rather than erroring). Re-check the folder exists before continuing; if it still doesn't, tell the user the install failed and stop.
 
 ### 2. Run setup-matt-pocock-skills
 
 Invoke the `setup-matt-pocock-skills` skill and let it run to completion (issue tracker, triage labels, domain docs, its own `## Agent skills` block). Its Section A answer is the tracker this skill scaffolds the pipeline for — read it back from `docs/agents/issue-tracker.md` (its heading names the tracker: GitHub, GitLab, Local, or the freeform "other" description) rather than asking again.
 
-If Section B (triage labels) is running and the tracker is GitHub, suggest naming the five labels with a `triage/` prefix (`triage/needs-triage`, `triage/ready-for-agent`, …) when it asks whether to keep the defaults — GitHub has no label-group feature to give them Linear's grouped look, so a shared prefix is the closest substitute. Still the user's call; don't override a "keep defaults" answer.
+If Section B (triage labels) is running and the tracker is GitHub, suggest naming the five labels with a `triage/` prefix (`triage/needs-triage`, `triage/ready-for-agent`, …) when it asks whether to keep the defaults — this repo's convention is `/` as the delimiter for every prefixed label, matching `priority/*`, `agent/*`, etc. (see `references/github.md`). This is a plain naming choice for consistency, not a GitHub grouping feature — GitHub renders `/` no differently than any other character. Still the user's call; don't override a "keep defaults" answer.
 
 ### 3. Offer an external docs location
 
 Ask one question: should this repo's agent docs — `docs/agents/` (issue tracker, triage labels, autonomic pipeline, domain consumer rules) and, if used, `CONTEXT.md` / `docs/adr/` — live in this repo, or in a separate folder outside it? Default **in-repo**; skip asking only if the repo already has an obvious signal it needs the external form (e.g. a public repo for a product whose architecture/customer docs must stay out of it, as with Portainer).
 
-On **external**, read [`external-docs.md`](./external-docs.md) for the layout, the pointer mechanism (and which of its two options to use), and how to wire the consumer skills — don't reach for any of that from first principles.
+On **external**, read [`external-docs.md`](./external-docs.md) for the layout, the `AGENTS_DOCS_REPO` pointer mechanism, and how to wire the consumer skills — don't reach for any of that from first principles.
 
 ### 4. Check prerequisites
 
 The autonomic pipeline needs the `triage` skill (fires the rubric) and an `implement` skill or equivalent (does the fix-firing work) already installed — step 1's `npx skills` install covers both if it ran. If either is still missing, tell the user which is missing and stop — nothing to scaffold without them.
 
-### 5. Fill the Tracker specifics table
+### 5. Point at the right tracker reference file
 
-[`autonomic-issues.md`](./autonomic-issues.md) is one file, written tracker-agnostically throughout, with a single "Tracker specifics" table near the top holding the only tracker-dependent content: how "claimed"/"in review" are represented, how priority works, how a PR declares its issue link. Everything else refers back to that table by name rather than repeating mechanics — this is deliberately terse, not a place to re-explain a CLI the agent already knows from its own `usage`/`--help`.
+[`autonomic-issues.md`](./autonomic-issues.md) is tracker-agnostic throughout; tracker-dependent content (how "claimed"/"in review" are represented, how priority works, how a PR declares its issue link) lives in [`references/github.md`](./references/github.md) or [`references/linear.md`](./references/linear.md), one file per tracker.
 
-- Tracker is **GitHub** or **Linear** → delete the other tracker's column from the table; both are already written.
-- Tracker is **GitLab, Local, or other** → no ready column. Ask the user whether it's closer to GitHub's shape (flat labels, no native per-issue status) or Linear's (a native status field to piggyback on), then add a column for it following that closer pattern, and delete the column that isn't in use.
+- Tracker is **GitHub** or **Linear** → both reference files are already written; nothing to fill in for this step.
+- Tracker is **GitLab, Local, or other** → no reference file yet. Ask the user whether it's closer to GitHub's shape (flat labels, no native per-issue status) or Linear's (a native status field to piggyback on), then write `references/<tracker>.md` following that closer file's structure — don't edit the existing GitHub/Linear files to accommodate it.
 
 ### 6. Fill and confirm
 
@@ -43,7 +43,7 @@ Replace every `<TRACKER>` / `<TEAM>` / `<owner/repo>` placeholder with this repo
 
 ### 7. Write
 
-- Write the filled draft to `docs/agents/autonomic-issues.md` (or, if step 3 relocated docs, to the external root's mirrored path).
+- Write the filled draft to `docs/agents/autonomic-issues.md`, plus `docs/agents/references/github.md` and/or `docs/agents/references/linear.md` (only the file(s) for the tracker(s) actually in use) — or, if step 3 relocated docs, to the external root's mirrored paths.
 - Add (or update in place, if already present) an `### Autonomic issue pipeline` entry under the `## Agent skills` block in whichever of `CLAUDE.md` / `AGENTS.md` step 2 edited — plain, no conditional phrasing, per step 3:
 
   ```markdown

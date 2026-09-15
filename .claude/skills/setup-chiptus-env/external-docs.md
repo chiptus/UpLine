@@ -15,23 +15,19 @@ moves, so nothing inside these docs needs rewriting.
 
 ## Pointer mechanism
 
-**Default: an environment variable** — e.g. `AGENTS_DOCS_REPO` — holding the git remote
-URL of a separate repo that holds the external root. This is the default because it's
-the one mechanism that reaches both a local session and a cloud Routine firing: set it
-in this local shell's `.envrc`/profile _and_ in the Routine's own `environment_variables`
-when creating it (setup checklist item 2 in the filled `autonomic-issues.md`). When the
-var is set, clone or fetch it (a shallow clone to a scratch path is enough for a read)
-instead of reading `docs/agents/` in-repo.
+The only mechanism: an environment variable — `AGENTS_DOCS_REPO` — holding the git remote
+URL of a separate repo that holds the external root. This is the one mechanism that
+reaches both a local session and a cloud Routine firing: set it in this local shell's
+`.envrc`/profile _and_ in the Routine's own `environment_variables` when creating it
+(setup checklist item 2 in the filled `autonomic-issues.md`). When the var is set, clone
+or fetch it (a shallow clone to a scratch path is enough for a read) instead of reading
+`docs/agents/` in-repo.
 
-**Lighter option: a file under `.git/`** (the Portainer pattern — e.g.
-`.git/agents-docs-path`, holding a plain local folder path, not a repo URL) — for a solo
-local setup with no cloud Routine ever going to need the docs. Simpler for that one case,
-but it inherits the gap the env var exists to avoid: a Routine firing off a fresh clone
-has no access to anything recorded in _this_ machine's `.git/`.
-
-Ask the user which fits (a separate docs repo they're willing to maintain and grant
-Routine access to, vs. a local-only folder) rather than defaulting silently — the choice
-determines whether the autonomic pipeline can read these docs at all.
+There is deliberately no local-file-only alternative (e.g. a path recorded under `.git/`)
+even for a solo setup with no cloud Routine yet — that shape only works for a session on
+this one machine, and a Routine firing off a fresh clone would have no way to read it. If
+external docs are needed at all, they need to be reachable from a fresh clone, which means
+a separate repo behind `AGENTS_DOCS_REPO` from the start.
 
 ## Wiring it in
 
@@ -45,9 +41,9 @@ to know.
 
 Find those skills with `grep -rl "CONTEXT.md\|docs/adr\|docs/agents" .agents/skills/`
 (don't hardcode a list — it drifts as skills change) and prepend one identical line to
-each, near wherever it currently says to read the file: "Check `$AGENTS_DOCS_REPO` (or
-`.git/agents-docs-path`) first; if set, read this file from there instead of the in-repo
-path." Also add the same line to the two Routine prompts in the filled
+each, near wherever it currently says to read the file: "Check `$AGENTS_DOCS_REPO` first;
+if set, read this file from there instead of the in-repo path." Also add the same line to
+the two Routine prompts in the filled
 `autonomic-issues.md`, since a Routine firing reads it the same way.
 
 These target files are `npx skills`-managed (mattpocock/skills) — flag this deviation to

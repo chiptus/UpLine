@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { tallyVotes } from "./score";
 
-function vote(vote_type: number) {
-  return { vote_type };
-}
-
 describe("tallyVotes", () => {
   it("returns zero counts and zero score for no votes", () => {
     expect(tallyVotes([])).toEqual({
@@ -73,13 +69,17 @@ describe("tallyVotes", () => {
 
   it("tallies a group-scoped subset independently of the full set", () => {
     const all = [vote(2), vote(2), vote(1), vote(-1)];
-    const groupSubset = all.slice(0, 2);
+    const groupSubset = all.slice(0, 3);
     expect(tallyVotes(all).score).toBe(4);
-    expect(tallyVotes(groupSubset).score).toBe(4);
+    expect(tallyVotes(groupSubset).score).toBe(5);
     expect(tallyVotes(groupSubset).counts).toEqual({
       mustGo: 2,
-      interested: 0,
+      interested: 1,
       wontGo: 0,
     });
   });
 });
+
+function vote(vote_type: number) {
+  return { vote_type };
+}

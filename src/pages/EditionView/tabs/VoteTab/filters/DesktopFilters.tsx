@@ -99,30 +99,6 @@ export function DesktopFilters({
           ))}
         </div>
       </div>
-
-      {/* Rating Filter */}
-      <div>
-        <h4 className="text-sm font-medium text-muted-foreground mb-2">
-          Minimum Rating
-        </h4>
-        <div className="flex gap-2">
-          {[0, 1, 2, 3].map((rating) => (
-            <Button
-              key={rating}
-              variant={state.minRating === rating ? "default" : "outline"}
-              size="sm"
-              onClick={() => onStateChange({ minRating: rating })}
-              className={
-                state.minRating === rating
-                  ? "bg-accent text-accent-foreground hover:bg-accent-hover"
-                  : "border-ring text-ring hover:bg-ring hover:text-foreground"
-              }
-            >
-              {rating === 0 ? "Any" : `${rating}+`}
-            </Button>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

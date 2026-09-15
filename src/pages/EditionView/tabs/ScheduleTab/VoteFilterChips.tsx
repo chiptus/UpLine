@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { VOTES_TYPES, VOTE_CONFIG, type VoteType } from "@/lib/voteConfig";
+import { VOTES_TYPES, VOTE_CONFIG, type VoteType } from "@/lib/votes/config";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTimelineUrlState } from "@/hooks/useTimelineUrlState";
 

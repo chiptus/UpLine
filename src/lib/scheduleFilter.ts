@@ -1,6 +1,6 @@
 import { getFestivalHour } from "@/lib/timeUtils";
 import type { TimelineSearch } from "@/lib/searchSchemas";
-import { getVoteConfig, type VoteType } from "@/lib/voteConfig";
+import { getVoteConfig, type VoteType } from "@/lib/votes/config";
 import { resolveVotesForScope, type VoteScope } from "@/lib/voteScope";
 import { matchesSetTypeFilter } from "@/lib/setTypeFilter";
 import type { SetType } from "@/api/sets/types";

@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { VOTE_CONFIG, VOTES_TYPES, type VoteConfig } from "@/lib/voteConfig";
+import { VOTE_CONFIG, VOTES_TYPES, type VoteConfig } from "@/lib/votes/config";
 import { useFestivalSet } from "../FestivalSetContext";
 import { useUserVotesQuery } from "@/api/voting/useUserVotesQuery";
 import { useVoteMutation } from "@/api/voting/useVoteMutation";
 import { useAuth } from "@/contexts/AuthContext";
-import { useVoteCount } from "@/hooks/useVoteCount";
+import { tallyVotes } from "@/lib/votes/score";
 
 interface SetVotingButtonsProps {
   size?: "sm" | "default";
@@ -18,7 +18,7 @@ export function SetVotingButtons({
   const { user, showAuthDialog } = useAuth();
 
   const { set, onLockSort } = useFestivalSet();
-  const { getVoteCount } = useVoteCount(set);
+  const { counts } = tallyVotes(set.votes);
   const userVotesQuery = useUserVotesQuery(user?.id);
   const voteMutation = useVoteMutation();
 
@@ -42,7 +42,7 @@ export function SetVotingButtons({
             config={config}
             isSelected={userVoteForSet === config.value}
             onClick={() => handleVote(config.value)}
-            voteCount={getVoteCount(config.value)}
+            voteCount={counts[voteType]}
             isVoting={voteMutation.isPending}
             size={size}
             layout={layout}

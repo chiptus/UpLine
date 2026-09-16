@@ -7,8 +7,11 @@ empty (e.g. a remote/cloud session with no `gh` CLI, relying on the
 ## Phase 1: fetch threads
 
 Reconstruct the same `{threads, reviews, issueComments}` shape from
-`mcp__github__pull_request_read` (owner/repo from the git remote, PR number for
-the current branch — ask if it's ambiguous):
+`mcp__github__pull_request_read`. This skill's `allowed-tools` grants no git
+command, so don't try to derive owner/repo/PR number by shelling out — use
+what you already know about the repo from this session's own context (its
+scope, working directory, or what the user told you), and ask the user for
+the PR number if it's genuinely ambiguous:
 
 - `method: get_review_comments` → review threads. Each has `id` (the GraphQL
   thread node ID — this is what `resolve_review_thread` below needs, keep it),

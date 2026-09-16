@@ -22,9 +22,6 @@ the PR number if it's genuinely ambiguous:
 - `method: get_comments` → top-level PR/issue comments (the script's
   `issueComments`).
 
-Everything from Phase 2 on reads `{threads, reviews, issueComments}` the same
-way regardless of which path produced it.
-
 ## Phase 4: resolve and reply
 
 - Resolve a thread with `mcp__github__resolve_review_thread`, passing the

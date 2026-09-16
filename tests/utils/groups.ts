@@ -22,7 +22,13 @@ export async function createGroupWithMember(
     throw new Error(`Failed to create test group: ${groupError.message}`);
   }
 
-  await addMemberToGroup(group.id, email);
+  const { error: memberError } = await adminClient
+    .from("group_members")
+    .insert({ group_id: group.id, user_id: userId });
+
+  if (memberError) {
+    throw new Error(`Failed to add test group member: ${memberError.message}`);
+  }
 
   return { groupId: group.id, groupName };
 }

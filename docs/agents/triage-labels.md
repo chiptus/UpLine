@@ -2,9 +2,9 @@
 
 Every label the autonomic issue pipeline reads or writes, what it means, and who's allowed to apply it.
 
-## Canonical triage-role labels — a mutually-exclusive Linear label group
+## Canonical triage-role labels
 
-The skills speak in terms of five canonical triage roles. In Linear these five live together in a single **label group** (Linear's mutually-exclusive label set): applying one automatically clears any other member of the group from the issue, so an issue can never carry two triage-role labels at once. Group setup: `docs/agents/autonomic-issues.md`'s setup checklist.
+The skills speak in terms of five canonical triage roles. This table maps those roles to the actual label strings used in this repo's issue tracker.
 
 | Label in mattpocock/skills | Label in our tracker | Meaning                                  |
 | -------------------------- | -------------------- | ---------------------------------------- |
@@ -18,17 +18,16 @@ When a skill mentions a role (e.g. "apply the AFK-ready triage label"), use the 
 
 Edit the right-hand column to match whatever vocabulary you actually use.
 
-## Pipeline labels — lifecycle markers, kept outside the triage group
+## Pipeline labels
 
-Repo-specific labels the autonomic pipeline (`docs/agents/autonomic-issues.md`) uses outside the five canonical roles above — not part of the mattpocock/skills vocabulary, so a skill invocation won't look for them here. These are lifecycle markers, not triage roles: they stay standalone (not in the label group above) because they track pipeline progress alongside a triage-role label, not instead of one — an issue can be `ready-for-agent` and `agent` at the same time.
+Repo-specific labels the autonomic pipeline (`docs/agents/autonomic-issues.md`) uses outside the five canonical roles above — not part of the mattpocock/skills vocabulary, so a skill invocation won't look for them here.
 
-| Label         | Meaning                                                                                                                                                                                       | Applied by                                                      |
-| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| `epic`        | Tracking-only parent issue whose work has already been fully split into sub-issues, each carrying its own state label. Stays open only to track them; excluded from triage intake.            | Triage firing — self-service, no maintainer confirmation needed |
-| `agent`       | An agent currently owns this issue or has an open PR for it. The stage isn't a separate label — it's the issue's native status: `In Progress` while claimed, `In Review` once the PR is open. | Fix firing                                                      |
-| `wayfinder:*` | Belongs to a separate design/spec workflow, not this pipeline.                                                                                                                                | Never by this pipeline — triage skips these tickets entirely    |
-
-(Superseded 2026-09-13: this repo previously tracked the same two stages with separate `agent:wip`/`agent:pr` labels; those labels have been retired in Linear now that status covers the distinction.)
+| Label         | Meaning                                                                                                                                                                            | Applied by                                                      |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `epic`        | Tracking-only parent issue whose work has already been fully split into sub-issues, each carrying its own state label. Stays open only to track them; excluded from triage intake. | Triage firing — self-service, no maintainer confirmation needed |
+| `agent:wip`   | An agent has claimed the issue this firing.                                                                                                                                        | Fix firing                                                      |
+| `agent:pr`    | An agent PR for this issue is awaiting review.                                                                                                                                     | Fix firing (swapped from `agent:wip` on opening the PR)         |
+| `wayfinder:*` | Belongs to a separate design/spec workflow, not this pipeline.                                                                                                                     | Never by this pipeline — triage skips these tickets entirely    |
 
 ## Priority
 

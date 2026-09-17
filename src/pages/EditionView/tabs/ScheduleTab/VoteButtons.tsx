@@ -23,7 +23,7 @@ export function VoteButtons({ set }: VoteButtonsProps) {
 
   const userVote = userVotesQuery.data?.[set.id];
   const userVoteType = useMemo(() => {
-    return userVote ? getVoteConfig(userVote) : undefined;
+    return userVote !== undefined ? getVoteConfig(userVote) : undefined;
   }, [userVote]);
 
   const votesMap = useMemo(() => {

@@ -72,4 +72,29 @@ describe("useLocalStorageState", () => {
 
     expect(result.current[0]).toEqual({ count: 7 });
   });
+
+  it("reads from and writes to a custom storage adapter instead of localStorage", () => {
+    const store = new Map<string, string>();
+    const customStorage = {
+      getItem: (key: string) => store.get(key) ?? null,
+      setItem: (key: string, value: string) => {
+        store.set(key, value);
+      },
+    };
+    store.set("test-key", JSON.stringify({ count: 5 }));
+
+    const { result } = renderHook(() =>
+      useLocalStorageState("test-key", schema, { count: 0 }, customStorage),
+    );
+
+    expect(result.current[0]).toEqual({ count: 5 });
+
+    act(() => {
+      result.current[1]({ count: 42 });
+    });
+
+    expect(result.current[0]).toEqual({ count: 42 });
+    expect(JSON.parse(store.get("test-key")!)).toEqual({ count: 42 });
+    expect(localStorage.getItem("test-key")).toBeNull();
+  });
 });

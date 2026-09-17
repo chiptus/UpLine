@@ -5,7 +5,7 @@ import {
   useRouteContext,
 } from "@tanstack/react-router";
 import type { TimelineSearch } from "@/lib/searchSchemas";
-import type { VoteType } from "@/lib/voteConfig";
+import type { VoteType } from "@/lib/votes/config";
 import type { SetType } from "@/api/sets/types";
 import { useStageSlugResolver } from "@/hooks/useStageSlugResolver";
 

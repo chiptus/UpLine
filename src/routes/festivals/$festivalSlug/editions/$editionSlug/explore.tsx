@@ -10,7 +10,7 @@ import { useUserVotesQuery } from "@/api/voting/useUserVotesQuery";
 import { useState } from "react";
 import { useExplorableSets } from "@/pages/ExploreSetPage/useExplorableSets";
 import { pageMeta } from "@/lib/pageHead";
-import { VOTE_CONFIG } from "@/lib/voteConfig";
+import { VOTE_CONFIG } from "@/lib/votes/config";
 import type { User } from "@supabase/supabase-js";
 
 export const Route = createFileRoute(

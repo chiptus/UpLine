@@ -12,7 +12,7 @@ import { useUrlState } from "@/hooks/useUrlState";
 import { setBySlugQuery } from "@/api/sets/useSetBySlug";
 import { isNonMusicSetType } from "@/api/sets/types";
 import { useAuth } from "@/contexts/AuthContext";
-import { useVoteCount } from "@/hooks/useVoteCount";
+import { tallyVotes } from "@/lib/votes/score";
 import { pageMeta } from "@/lib/pageHead";
 import { TopBar } from "@/components/layout/TopBar";
 import { FestivalIndicator } from "@/components/layout/AppHeader/FestivalIndicator";
@@ -58,9 +58,7 @@ function SetDetails() {
     setBySlugQuery(setSlug, edition.id),
   );
 
-  const { getVoteCount } = useVoteCount(currentSet);
-
-  const netVoteScore = 2 * getVoteCount(2) + getVoteCount(1) - getVoteCount(-1);
+  const { score } = tallyVotes(currentSet.votes);
 
   const isNonMusicSet = isNonMusicSetType(currentSet.set_type);
   const isArtistlessSet = currentSet.artists.length === 0;
@@ -82,7 +80,7 @@ function SetDetails() {
           {isNonMusicSet || isArtistlessSet ? (
             <NonMusicSetDetail
               set={currentSet}
-              netVoteScore={netVoteScore}
+              score={score}
               use24Hour={urlState.use24Hour}
             />
           ) : isMultiArtistSet ? (
@@ -96,7 +94,7 @@ function SetDetails() {
 
               <MultiArtistSetInfoCard
                 set={currentSet}
-                netVoteScore={netVoteScore}
+                score={score}
                 use24Hour={urlState.use24Hour}
               />
             </div>
@@ -109,7 +107,7 @@ function SetDetails() {
 
               <SetInfoCard
                 set={currentSet}
-                netVoteScore={netVoteScore}
+                score={score}
                 use24Hour={urlState.use24Hour}
               />
             </div>

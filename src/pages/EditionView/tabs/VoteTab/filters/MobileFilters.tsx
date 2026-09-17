@@ -119,37 +119,6 @@ export function MobileFilters({
           </SelectContent>
         </Select>
       </div>
-
-      {/* Rating Filter */}
-      <div>
-        <h4 className="text-sm font-medium text-muted-foreground mb-2">
-          Minimum Rating
-        </h4>
-        <Select
-          value={state.minRating.toString()}
-          onValueChange={(value) =>
-            onStateChange({ minRating: parseInt(value) })
-          }
-        >
-          <SelectTrigger className="w-full bg-surface-raised border-border text-popover-foreground">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="bg-popover border">
-            <SelectItem value="0" className="text-popover-foreground">
-              Any Rating
-            </SelectItem>
-            <SelectItem value="1" className="text-popover-foreground">
-              1+ Rating
-            </SelectItem>
-            <SelectItem value="2" className="text-popover-foreground">
-              2+ Rating
-            </SelectItem>
-            <SelectItem value="3" className="text-popover-foreground">
-              3+ Rating
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { getVoteConfig, VOTE_CONFIG } from "@/lib/voteConfig";
+import { getVoteConfig, VOTE_CONFIG } from "@/lib/votes/config";
 import { calculateOverviewSetBlocks } from "@/lib/timelineOverviewGeometry";
 import type { HorizontalTimelineSet } from "@/lib/timelineCalculator";
 import { DEFAULT_STAGE_COLOR } from "@/lib/constants/stages";

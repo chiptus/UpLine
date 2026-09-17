@@ -34,8 +34,10 @@ export function useCookieConsent() {
     CrossDomainStorage,
   );
 
-  // A stored record from a previous CONSENT_VERSION is treated as no consent,
-  // same as the version-mismatch banner-reset behavior before this migration.
+  // A stored record from a stale CONSENT_VERSION is treated as no consent,
+  // reopening the banner (mirrors the version-gating useLinkWizardSkipped
+  // does outside useLocalStorageState — the schema itself can't enforce
+  // "equals this literal version").
   const consent =
     storedConsent && storedConsent.version === CONSENT_VERSION
       ? storedConsent
@@ -79,8 +81,11 @@ export function useCookieConsent() {
   }
 
   function revokeConsent() {
-    CrossDomainStorage.removeItem(CONSENT_KEY);
+    // Order matters: setStoredConsent writes the literal string "null" back
+    // to storage, so remove the key after, not before, or the removal is
+    // immediately undone.
     setStoredConsent(null);
+    CrossDomainStorage.removeItem(CONSENT_KEY);
     setShowBanner(true);
 
     // Clear non-essential cookies

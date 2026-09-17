@@ -79,7 +79,7 @@ export const VOTE_CONFIG = {
     chipUnselected:
       "text-vote-neutral hover:bg-vote-neutral-soft hover:text-vote-neutral",
     spinnerColor: "border-vote-neutral-foreground",
-    description: "Artists you don't have a strong opinion on (0 points)",
+    description: "Sets you don't have a strong opinion on (0 points)",
   },
 } as const;
 

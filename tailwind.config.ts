@@ -59,6 +59,11 @@ export default {
             foreground: "hsl(var(--vote-skip-foreground))",
             soft: "hsl(var(--vote-skip-soft))",
           },
+          neutral: {
+            DEFAULT: "hsl(var(--vote-neutral))",
+            foreground: "hsl(var(--vote-neutral-foreground))",
+            soft: "hsl(var(--vote-neutral-soft))",
+          },
         },
         primary: {
           DEFAULT: "hsl(var(--primary))",

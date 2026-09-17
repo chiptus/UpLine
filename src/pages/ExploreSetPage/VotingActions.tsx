@@ -22,6 +22,7 @@ export function VotingActions({
   const wontGoConfig = VOTE_CONFIG.wontGo;
   const interestedConfig = VOTE_CONFIG.interested;
   const mustGoConfig = VOTE_CONFIG.mustGo;
+  const neutralConfig = VOTE_CONFIG.neutral;
 
   // Calculate highlight intensity based on drag feedback
   const isLeftDrag = dragFeedback?.direction === "left";
@@ -51,6 +52,17 @@ export function VotingActions({
           Skip
         </Button>
       </motion.div>
+
+      <VoteButton
+        icon={neutralConfig.icon}
+        label={neutralConfig.label}
+        isSelected={currentVote === neutralConfig.value}
+        selectedClassName="bg-[hsl(var(--vote-neutral)/0.28)] border-vote-neutral text-vote-neutral shadow-lg"
+        unselectedClassName="border-vote-neutral hover:bg-vote-neutral-soft text-vote-neutral"
+        scale={1}
+        opacity={isLeftDrag || isRightDrag ? 0.5 : 1}
+        onClick={() => onVote(neutralConfig.value)}
+      />
 
       <VoteButton
         icon={mustGoConfig.icon}

@@ -27,6 +27,23 @@ describe("vote", () => {
     expect(data?.vote_type).toBe(2);
   });
 
+  it("persists a Neutral (0) vote, proving the DB constraint allows it", async () => {
+    const userId = await signInAsTestUser();
+    const setId = await createSet();
+
+    await vote({ setId, voteType: 0, userId });
+
+    const { data, error } = await testSupabase
+      .from("votes")
+      .select("vote_type")
+      .eq("user_id", userId)
+      .eq("set_id", setId)
+      .single();
+
+    expect(error).toBeNull();
+    expect(data?.vote_type).toBe(0);
+  });
+
   it("rejects an unauthenticated vote with the real RLS-denial error", async () => {
     const setId = await createSet();
 

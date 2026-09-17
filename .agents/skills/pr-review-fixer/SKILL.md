@@ -29,7 +29,8 @@ failure — check first, with this command, and pick the right path.
 the Bash tool. It resolves the current PR, fetches review threads, review bodies,
 and issue comments, and filters out resolved threads and empty bodies with `jq`
 before any of it reaches you: you only ever see live, unresolved feedback. Output
-is `{threads, reviews, issueComments}`.
+is `{threads, reviews, issueComments}`. If the script fails to resolve a PR for
+the current branch, ask the user for the PR number or URL and retry.
 
 **`gh` missing:** read [`gh-missing.md`](./gh-missing.md)'s "Phase 1" section and
 follow it instead — it reconstructs the same `{threads, reviews, issueComments}`

@@ -10,8 +10,9 @@ Reconstruct the same `{threads, reviews, issueComments}` shape from
 `mcp__github__pull_request_read`. This skill's `allowed-tools` grants no git
 command, so don't try to derive owner/repo/PR number by shelling out — use
 what you already know about the repo from this session's own context (its
-scope, working directory, or what the user told you), and ask the user for
-the PR number if it's genuinely ambiguous:
+scope, working directory, or what the user told you). This fallback has no
+way to look up the PR number on its own: if it isn't already clear from
+context, ask the user for it before making the call below.
 
 - `method: get_review_comments` → review threads. Each has `id` (the GraphQL
   thread node ID — this is what `resolve_review_thread` below needs, keep it),

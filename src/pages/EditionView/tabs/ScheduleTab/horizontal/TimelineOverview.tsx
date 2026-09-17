@@ -25,6 +25,7 @@ interface TimelineOverviewProps {
   timelineData: TimelineData;
   scheduleDays: ScheduleDay[];
   timezone: string;
+  dayStartHour: number;
   scrollContainerRef: RefObject<HTMLDivElement>;
   onJump: (moment: Date) => void;
 }
@@ -40,6 +41,7 @@ export function TimelineOverview({
   timelineData,
   scheduleDays,
   timezone,
+  dayStartHour,
   scrollContainerRef,
   onJump,
 }: TimelineOverviewProps) {
@@ -52,6 +54,7 @@ export function TimelineOverview({
   const dayBoundaries = calculateDayBoundaries({
     days: scheduleDays,
     timezone,
+    dayStartHour,
     festivalStart: timelineData.festivalStart,
     totalWidth: timelineData.totalWidth,
   });

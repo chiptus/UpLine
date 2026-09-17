@@ -57,6 +57,21 @@ describe("computeDateChanges", () => {
     const changesBerlinSummer = computeDateChanges(timeSlots, "Europe/Berlin");
     expect(changesBerlinSummer).toHaveLength(2);
   });
+
+  it("folds a slot before the dayStartHour cutoff into the previous day", () => {
+    // Without a cutoff, 01:00 is already the next UTC calendar day.
+    const timeSlots = [
+      new Date("2024-07-01T22:00:00Z"),
+      new Date("2024-07-02T01:00:00Z"),
+    ];
+
+    const noCutoff = computeDateChanges(timeSlots, timezone);
+    expect(noCutoff).toHaveLength(2);
+
+    // With a 6h cutoff, 01:00 is still "yesterday" - no boundary crossed.
+    const withCutoff = computeDateChanges(timeSlots, timezone, 6);
+    expect(withCutoff).toHaveLength(1);
+  });
 });
 
 describe("computeDateLabelGeometry", () => {

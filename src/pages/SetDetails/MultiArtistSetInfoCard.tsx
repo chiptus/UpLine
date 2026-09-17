@@ -44,6 +44,7 @@ export function MultiArtistSetInfoCard({
     revealLevel: level,
     use24Hour,
     timezone: festival.timezone,
+    dayStartHour: festival.day_start_hour,
   });
 
   return (

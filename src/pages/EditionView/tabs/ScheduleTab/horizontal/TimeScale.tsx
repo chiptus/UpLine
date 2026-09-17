@@ -9,6 +9,7 @@ interface TimeScaleProps {
   timeSlots: Date[];
   totalWidth: number;
   timezone: string;
+  dayStartHour: number;
   scrollLeft: number;
 }
 
@@ -16,9 +17,10 @@ export function TimeScale({
   timeSlots,
   totalWidth,
   timezone,
+  dayStartHour,
   scrollLeft,
 }: TimeScaleProps) {
-  const dateChanges = computeDateChanges(timeSlots, timezone);
+  const dateChanges = computeDateChanges(timeSlots, timezone, dayStartHour);
   const geometry = computeDateLabelGeometry(
     dateChanges,
     scrollLeft,

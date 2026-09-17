@@ -1,17 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { z } from "zod";
 import { CrossDomainStorage } from "@/lib/crossDomainStorage";
+import { useLocalStorageState } from "./useLocalStorageState";
 
 const CONSENT_KEY = "gdpr-consent";
 const CONSENT_VERSION = "1.0";
 
-export interface ConsentPreferences {
-  essential: boolean;
-  analytics: boolean;
-  preferences: boolean;
-  marketing: boolean;
-  version: string;
-  timestamp: number;
-}
+const consentPreferencesSchema = z.object({
+  essential: z.boolean(),
+  analytics: z.boolean(),
+  preferences: z.boolean(),
+  marketing: z.boolean(),
+  version: z.string(),
+  timestamp: z.number(),
+});
+
+export type ConsentPreferences = z.infer<typeof consentPreferencesSchema>;
 
 const defaultConsent: ConsentPreferences = {
   essential: true, // Always true, required for app to function
@@ -23,27 +27,21 @@ const defaultConsent: ConsentPreferences = {
 };
 
 export function useCookieConsent() {
-  const [consent, setConsent] = useState<ConsentPreferences | null>(null);
-  const [showBanner, setShowBanner] = useState(false);
+  const [storedConsent, setStoredConsent] = useLocalStorageState(
+    CONSENT_KEY,
+    consentPreferencesSchema.nullable(),
+    null,
+    CrossDomainStorage,
+  );
 
-  useEffect(() => {
-    const savedConsent = CrossDomainStorage.getItem(CONSENT_KEY);
-    if (savedConsent) {
-      try {
-        const parsed = JSON.parse(savedConsent);
-        if (parsed.version === CONSENT_VERSION) {
-          setConsent(parsed);
-        } else {
-          // Version mismatch, show banner again
-          setShowBanner(true);
-        }
-      } catch {
-        setShowBanner(true);
-      }
-    } else {
-      setShowBanner(true);
-    }
-  }, []);
+  // A stored record from a previous CONSENT_VERSION is treated as no consent,
+  // same as the version-mismatch banner-reset behavior before this migration.
+  const consent =
+    storedConsent && storedConsent.version === CONSENT_VERSION
+      ? storedConsent
+      : null;
+
+  const [showBanner, setShowBanner] = useState(() => consent === null);
 
   function saveConsent(preferences: Partial<ConsentPreferences>) {
     const newConsent = {
@@ -52,8 +50,7 @@ export function useCookieConsent() {
       timestamp: Date.now(),
     };
 
-    setConsent(newConsent);
-    CrossDomainStorage.setItem(CONSENT_KEY, JSON.stringify(newConsent));
+    setStoredConsent(newConsent);
     setShowBanner(false);
   }
 
@@ -83,7 +80,7 @@ export function useCookieConsent() {
 
   function revokeConsent() {
     CrossDomainStorage.removeItem(CONSENT_KEY);
-    setConsent(null);
+    setStoredConsent(null);
     setShowBanner(true);
 
     // Clear non-essential cookies

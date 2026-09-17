@@ -6,7 +6,7 @@ import {
   getVoteValue,
   type VoteType,
 } from "./voteConfig";
-import { Star, Heart, X } from "lucide-react";
+import { Star, Heart, X, Minus } from "lucide-react";
 
 describe("VOTE_CONFIG", () => {
   it("has correct structure for mustGo", () => {
@@ -28,6 +28,13 @@ describe("VOTE_CONFIG", () => {
     expect(VOTE_CONFIG.wontGo.value).toBe(-1);
     expect(VOTE_CONFIG.wontGo.label).toBe("Won't Go");
     expect(VOTE_CONFIG.wontGo.icon).toBe(X);
+  });
+
+  it("has correct structure for neutral", () => {
+    expect(VOTE_CONFIG.neutral).toBeDefined();
+    expect(VOTE_CONFIG.neutral.value).toBe(0);
+    expect(VOTE_CONFIG.neutral.label).toBe("Neutral");
+    expect(VOTE_CONFIG.neutral.icon).toBe(Minus);
   });
 
   it("has consistent properties across all vote types", () => {
@@ -72,11 +79,11 @@ describe("VOTE_CONFIG", () => {
 
 describe("VOTES_TYPES", () => {
   it("contains all vote types", () => {
-    expect(VOTES_TYPES).toEqual(["mustGo", "interested", "wontGo"]);
+    expect(VOTES_TYPES).toEqual(["mustGo", "interested", "wontGo", "neutral"]);
   });
 
   it("is a readonly array", () => {
-    expect(VOTES_TYPES).toHaveLength(3);
+    expect(VOTES_TYPES).toHaveLength(4);
   });
 });
 
@@ -93,8 +100,11 @@ describe("getVoteConfig", () => {
     expect(getVoteConfig(-1)).toBe("wontGo");
   });
 
+  it("returns correct vote type for value 0", () => {
+    expect(getVoteConfig(0)).toBe("neutral");
+  });
+
   it("returns undefined for invalid values", () => {
-    expect(getVoteConfig(0)).toBeUndefined();
     expect(getVoteConfig(3)).toBeUndefined();
     expect(getVoteConfig(-2)).toBeUndefined();
     expect(getVoteConfig(999)).toBeUndefined();
@@ -111,6 +121,7 @@ describe("getVoteConfig", () => {
       [2, "mustGo"],
       [1, "interested"],
       [-1, "wontGo"],
+      [0, "neutral"],
     ];
 
     validMappings.forEach(([value, expectedType]) => {
@@ -132,11 +143,16 @@ describe("getVoteValue", () => {
     expect(getVoteValue("wontGo")).toBe(-1);
   });
 
+  it("returns 0 for neutral", () => {
+    expect(getVoteValue("neutral")).toBe(0);
+  });
+
   it("returns correct values for all vote types", () => {
-    const expectedValues: Record<VoteType, -1 | 1 | 2> = {
+    const expectedValues: Record<VoteType, -1 | 0 | 1 | 2> = {
       mustGo: 2,
       interested: 1,
       wontGo: -1,
+      neutral: 0,
     };
 
     VOTES_TYPES.forEach((voteType) => {
@@ -147,7 +163,7 @@ describe("getVoteValue", () => {
 
 describe("getVoteConfig and getVoteValue integration", () => {
   it("should be inverse operations for valid values", () => {
-    const validValues = [2, 1, -1];
+    const validValues = [2, 1, -1, 0];
 
     validValues.forEach((value) => {
       const voteType = getVoteConfig(value);

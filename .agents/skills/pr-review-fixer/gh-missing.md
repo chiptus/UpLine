@@ -16,9 +16,10 @@ context, ask the user for it before making the call below.
 
 - `method: get_review_comments` → review threads. Each has `id` (the GraphQL
   thread node ID — this is what `resolve_review_thread` below needs, keep it),
-  `is_resolved`, `path`, `line`, and `comments[]` with `author`/`body`. Keep
-  only `is_resolved == false` — the tool doesn't filter this for you the way
-  the script's `jq` does.
+  `is_resolved`, `path`, `line`, and `comments[]` with `author`/`body`/`html_url`
+  (Phase 4 needs `html_url` to build a reply, keep it too). Keep only
+  `is_resolved == false` — the tool doesn't filter this for you the way the
+  script's `jq` does.
 - `method: get_reviews` → review bodies; keep only non-empty `body`.
 - `method: get_comments` → top-level PR/issue comments (the script's
   `issueComments`).

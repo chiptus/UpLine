@@ -1,11 +1,13 @@
 import {
   test,
   expect,
+  type Browser,
   type BrowserContext,
+  type BrowserContextOptions,
   type Locator,
   type Page,
 } from "@playwright/test";
-import { signIn } from "../utils/login";
+import { signIn, usernameFromEmail } from "../utils/login";
 
 test.describe("Group lifecycle", () => {
   // Each stage (create -> invite -> join -> leave) depends on state built up
@@ -28,17 +30,21 @@ test.describe("Group lifecycle", () => {
   let inviteToken: string;
 
   test.beforeAll(async ({ browser, baseURL, storageState }) => {
-    creatorContext = await browser.newContext({ baseURL, storageState });
-    creatorPage = await creatorContext.newPage();
-    creatorEmail = await signIn(creatorPage);
-
-    joinerContext = await browser.newContext({ baseURL, storageState });
-    joinerPage = await joinerContext.newPage();
-    joinerEmail = await signIn(joinerPage);
-
-    outsiderContext = await browser.newContext({ baseURL, storageState });
-    outsiderPage = await outsiderContext.newPage();
-    await signIn(outsiderPage);
+    [creatorContext, creatorPage, creatorEmail] = await newSignedInPage(
+      browser,
+      baseURL,
+      storageState,
+    );
+    [joinerContext, joinerPage, joinerEmail] = await newSignedInPage(
+      browser,
+      baseURL,
+      storageState,
+    );
+    [outsiderContext, outsiderPage] = await newSignedInPage(
+      browser,
+      baseURL,
+      storageState,
+    );
   });
 
   test.afterAll(async () => {
@@ -71,9 +77,13 @@ test.describe("Group lifecycle", () => {
       creatorPage.getByRole("heading", { name: "Group Members (1)" }),
     ).toBeVisible();
     await expect(
-      creatorPage.getByText(`${usernameOf(creatorEmail)} (You)`),
+      creatorPage.getByText(`${usernameFromEmail(creatorEmail)} (You)`),
     ).toBeVisible();
 
+    // No rename feature exists anywhere in the app (no UI, mutation hook, or
+    // API route — groups only support the archived-flag soft-delete), so
+    // "manage" here covers what's actually buildable: the member list and
+    // the invite link below.
     await creatorPage.getByRole("tab", { name: "Invite Links" }).click();
 
     const [inviteRequest] = await Promise.all([
@@ -88,6 +98,15 @@ test.describe("Group lifecycle", () => {
     inviteToken = (inviteRequest.postDataJSON() as { invite_token: string })
       .invite_token;
     expect(inviteToken).toBeTruthy();
+
+    // The invite becomes accessible to the creator afterward: it shows up
+    // in Active Invites, badged "Active", instead of the "No active
+    // invites" empty state. (Asserting the clipboard content itself is
+    // flaky across browser projects, hence reading the token off the
+    // request above instead.)
+    await expect(
+      creatorPage.getByText("Active", { exact: true }),
+    ).toBeVisible();
   });
 
   test("a second user joins via the invite link and then sees the group", async () => {
@@ -107,7 +126,7 @@ test.describe("Group lifecycle", () => {
       creatorPage.getByRole("heading", { name: "Group Members (2)" }),
     ).toBeVisible();
     await expect(
-      creatorPage.getByText(usernameOf(joinerEmail), { exact: true }),
+      creatorPage.getByText(usernameFromEmail(joinerEmail), { exact: true }),
     ).toBeVisible();
   });
 
@@ -140,6 +159,14 @@ function groupCard(page: Page, name: string): Locator {
   return page.locator('a[href^="/groups/"]').filter({ hasText: name });
 }
 
-function usernameOf(email: string): string {
-  return email.split("@")[0];
+// Opens a fresh, isolated browser context signed in as a new test user.
+async function newSignedInPage(
+  browser: Browser,
+  baseURL: string | undefined,
+  storageState: BrowserContextOptions["storageState"],
+): Promise<[BrowserContext, Page, string]> {
+  const context = await browser.newContext({ baseURL, storageState });
+  const page = await context.newPage();
+  const email = await signIn(page);
+  return [context, page, email];
 }

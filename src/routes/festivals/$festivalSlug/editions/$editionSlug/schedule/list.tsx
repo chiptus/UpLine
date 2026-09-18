@@ -3,7 +3,6 @@ import { useMemo } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useScheduleData } from "@/hooks/useScheduleData";
 import { useSetsByEditionQuery as useEditionSetsQuery } from "@/api/sets/useSetsByEdition";
-import { getFestivalDayKey } from "@/lib/timeUtils";
 import { filterScheduleDays } from "@/lib/scheduleFilter";
 import { ListDayGroup } from "@/pages/EditionView/tabs/ScheduleTab/list/ListDayGroup";
 import { ScheduleFilterSheet } from "@/pages/EditionView/tabs/ScheduleTab/ScheduleFilterSheet";
@@ -81,21 +80,30 @@ function ListSchedule() {
       festival.timezone,
     );
 
-    // Flatten filtered days/stages into a single list, enriching each set
-    // with the stage name/color the group view needs. Sets without a
-    // startTime can't be placed into a time slot, so they're dropped here.
-    const allSets: (ScheduleSet & {
-      stageName: string;
-      stageColor?: string | undefined;
-    })[] = [];
+    // The day filter narrows to the days the user picked; set-level filters
+    // (type/vote/time/stage) never drop a day, they just empty its stages
+    // (see filterScheduleDays' contract) so its header stays visible with an
+    // empty state instead of disappearing.
+    const visibleDays =
+      selectedDay === "all"
+        ? filteredScheduleDays
+        : filteredScheduleDays.filter((day) => day.date === selectedDay);
 
-    filteredScheduleDays.forEach((day) => {
+    return visibleDays.map((day): DayGroup => {
+      // Enrich each set with the stage name/color the group view needs.
+      // Sets without a startTime can't be placed into a time slot, so
+      // they're dropped here.
+      const daySets: (ScheduleSet & {
+        stageName: string;
+        stageColor?: string | undefined;
+      })[] = [];
+
       day.stages.forEach((stage) => {
         const stageData = stages.find((s) => s.id === stage.id);
 
         stage.sets.forEach((set) => {
           if (set.startTime) {
-            allSets.push({
+            daySets.push({
               ...set,
               stageName: stage.name,
               stageColor: stageData?.color || undefined,
@@ -103,48 +111,30 @@ function ListSchedule() {
           }
         });
       });
+
+      // Group sets by start time
+      const timeGroups = new Map<string, typeof daySets>();
+
+      daySets.forEach((set) => {
+        if (!set.startTime) return;
+
+        const timeKey = set.startTime.toISOString();
+        if (!timeGroups.has(timeKey)) {
+          timeGroups.set(timeKey, []);
+        }
+        timeGroups.get(timeKey)!.push(set);
+      });
+
+      // Convert to sorted array
+      const slots: TimeSlot[] = Array.from(timeGroups.entries())
+        .map(([timeKey, sets]) => ({
+          time: new Date(timeKey),
+          sets: sets,
+        }))
+        .sort((a, b) => a.time.getTime() - b.time.getTime());
+
+      return { dayKey: day.date, slots };
     });
-
-    // Group sets by start time
-    const timeGroups = new Map<
-      string,
-      (ScheduleSet & { stageName: string; stageColor?: string | undefined })[]
-    >();
-
-    allSets.forEach((set) => {
-      if (!set.startTime) return;
-
-      const timeKey = set.startTime.toISOString();
-      if (!timeGroups.has(timeKey)) {
-        timeGroups.set(timeKey, []);
-      }
-      timeGroups.get(timeKey)!.push(set);
-    });
-
-    // Convert to sorted array
-    const slots: TimeSlot[] = Array.from(timeGroups.entries())
-      .map(([timeKey, sets]) => ({
-        time: new Date(timeKey),
-        sets: sets,
-      }))
-      .sort((a, b) => a.time.getTime() - b.time.getTime());
-
-    const groups = new Map<string, TimeSlot[]>();
-    slots.forEach((slot) => {
-      const dayKey = getFestivalDayKey(
-        slot.time.toISOString(),
-        festival.timezone,
-      );
-      if (!dayKey) return;
-      if (!groups.has(dayKey)) groups.set(dayKey, []);
-      groups.get(dayKey)!.push(slot);
-    });
-
-    const sortedDayGroups: DayGroup[] = Array.from(groups.entries())
-      .map(([dayKey, daySlots]) => ({ dayKey, slots: daySlots }))
-      .sort((a, b) => a.dayKey.localeCompare(b.dayKey));
-
-    return sortedDayGroups;
   }, [
     scheduleDays,
     selectedDay,

@@ -26,8 +26,11 @@ export function useLocalStorageState<Schema extends z.ZodTypeAny>(
           return result.data;
         }
       }
-    } catch {
-      // Malformed JSON or storage unavailable, fall back to default
+    } catch (error) {
+      console.error(
+        `[useLocalStorageState] Failed to read "${key}", falling back to default:`,
+        error,
+      );
     }
     return typeof defaultValue === "function"
       ? (defaultValue as () => Value)()
@@ -42,8 +45,11 @@ export function useLocalStorageState<Schema extends z.ZodTypeAny>(
       } else {
         storage.setItem(key, JSON.stringify(newValue));
       }
-    } catch {
-      // Storage unavailable (blocked, quota-exceeded, etc.); state still updates in memory
+    } catch (error) {
+      console.error(
+        `[useLocalStorageState] Failed to persist "${key}"; state still updates in memory:`,
+        error,
+      );
     }
   }
 

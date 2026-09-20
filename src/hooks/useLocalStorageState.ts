@@ -17,16 +17,16 @@ export function useLocalStorageState<Schema extends z.ZodTypeAny>(
   const [value, setValue] = useState<Value>(() => readValue());
 
   function readValue(): Value {
-    const raw = storage.getItem(key);
-    if (raw) {
-      try {
+    try {
+      const raw = storage.getItem(key);
+      if (raw) {
         const result = schema.safeParse(JSON.parse(raw));
         if (result.success) {
           return result.data;
         }
-      } catch {
-        // Malformed JSON, fall back to default
       }
+    } catch {
+      // Malformed JSON or storage unavailable, fall back to default
     }
     return typeof defaultValue === "function"
       ? (defaultValue as () => Value)()
@@ -35,7 +35,11 @@ export function useLocalStorageState<Schema extends z.ZodTypeAny>(
 
   function updateValue(newValue: Value) {
     setValue(newValue);
-    storage.setItem(key, JSON.stringify(newValue));
+    try {
+      storage.setItem(key, JSON.stringify(newValue));
+    } catch {
+      // Storage unavailable (blocked, quota-exceeded, etc.); state still updates in memory
+    }
   }
 
   return [value, updateValue] as const;

@@ -14,7 +14,11 @@
 #      target's public tables, and restore the dump.
 #   3. Run scripts/anonymize.sql against the target to scrub remaining PII in
 #      the public schema.
-#   4. If ADMIN_EMAIL is set, backfill its public.profiles row if the
+#   4. Run supabase/seed-test-data.sql against the target to (re)seed the
+#      fixed set of synthetic [TEST]-prefixed festivals (covering every
+#      festival phase, plus zero-edition/single-edition edge cases) that a
+#      prod sync alone would never produce. Idempotent, so safe on every run.
+#   5. If ADMIN_EMAIL is set, backfill its public.profiles row if the
 #      truncate/restore in step 2 wiped it (the account only exists on the
 #      target, e.g. a local dev/admin login, so it isn't in prod's dump).
 #
@@ -164,6 +168,9 @@ SQL
 
 echo "Running anonymizer on public schema…"
 psql "$TARGET_URL" -v ON_ERROR_STOP=1 -f "$SCRIPT_DIR/anonymize.sql"
+
+echo "Seeding synthetic [TEST] festivals…"
+psql "$TARGET_URL" -v ON_ERROR_STOP=1 -f "$SCRIPT_DIR/../supabase/seed-test-data.sql"
 
 if [[ -n "${ADMIN_EMAIL:-}" ]]; then
   ADMIN_USER_ID="$(psql "$TARGET_URL" -tAq -v ON_ERROR_STOP=1 -v email="$ADMIN_EMAIL" <<'SQL'

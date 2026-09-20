@@ -4,6 +4,7 @@ import type { z } from "zod";
 export interface StorageLike {
   getItem(key: string): string | null;
   setItem(key: string, value: string): void;
+  removeItem?(key: string): void;
 }
 
 export function useLocalStorageState<Schema extends z.ZodTypeAny>(
@@ -36,7 +37,11 @@ export function useLocalStorageState<Schema extends z.ZodTypeAny>(
   function updateValue(newValue: Value) {
     setValue(newValue);
     try {
-      storage.setItem(key, JSON.stringify(newValue));
+      if ((newValue === null || newValue === undefined) && storage.removeItem) {
+        storage.removeItem(key);
+      } else {
+        storage.setItem(key, JSON.stringify(newValue));
+      }
     } catch {
       // Storage unavailable (blocked, quota-exceeded, etc.); state still updates in memory
     }

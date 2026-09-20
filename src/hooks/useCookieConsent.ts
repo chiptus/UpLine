@@ -81,11 +81,7 @@ export function useCookieConsent() {
   }
 
   function revokeConsent() {
-    // Order matters: setStoredConsent writes the literal string "null" back
-    // to storage, so remove the key after, not before, or the removal is
-    // immediately undone.
     setStoredConsent(null);
-    CrossDomainStorage.removeItem(CONSENT_KEY);
     setShowBanner(true);
 
     // Clear non-essential cookies

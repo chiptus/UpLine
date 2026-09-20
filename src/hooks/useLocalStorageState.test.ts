@@ -97,4 +97,20 @@ describe("useLocalStorageState", () => {
     expect(JSON.parse(store.get("test-key")!)).toEqual({ count: 42 });
     expect(localStorage.getItem("test-key")).toBeNull();
   });
+
+  it("removes the stored key when the value is set to null", () => {
+    const nullableSchema = z.object({ count: z.number() }).nullable();
+    localStorage.setItem("test-key", JSON.stringify({ count: 5 }));
+
+    const { result } = renderHook(() =>
+      useLocalStorageState("test-key", nullableSchema, null),
+    );
+
+    act(() => {
+      result.current[1](null);
+    });
+
+    expect(result.current[0]).toBeNull();
+    expect(localStorage.getItem("test-key")).toBeNull();
+  });
 });

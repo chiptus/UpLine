@@ -1,7 +1,9 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, Page } from "@playwright/test";
 
 // Seeded in supabase/seed.sql: festival slug "test", edition slug "2025",
-// three festival days (Jul 12-14, 2025), stages "Main Stage"/"Club Stage".
+// three festival days (Jul 12-14, 2025), stages "Main Stage" and "Club
+// Stage". "Maya Jane Coles" (slug maya-jane-coles-set) is one of the
+// edition's seeded sets, used here as a fixed schedule entry to click through.
 const TIMELINE_PATH = "/festivals/test/editions/2025/schedule/timeline";
 const LIST_PATH = "/festivals/test/editions/2025/schedule/list";
 const DAY_PARAM = "day=2025-07-12";
@@ -38,10 +40,8 @@ test.describe("Schedule view switching", { tag: "@smoke" }, () => {
 });
 
 test.describe(
-  "Navigating from a schedule entry to its set detail page",
-  {
-    tag: "@smoke",
-  },
+  "Schedule entry to set detail navigation",
+  { tag: "@smoke" },
   () => {
     test("from the Timeline view", async ({ page }) => {
       await page.goto(TIMELINE_PATH);
@@ -49,10 +49,7 @@ test.describe(
         timeout: 15000,
       });
 
-      await page.getByRole("link", { name: SET_NAME }).click();
-
-      await expect(page).toHaveURL(new RegExp(`${SET_DETAIL_PATH}$`));
-      await expect(page.getByRole("heading", { name: SET_NAME })).toBeVisible();
+      await clickSetAndExpectDetail(page);
     });
 
     test("from the List view", async ({ page }) => {
@@ -61,10 +58,14 @@ test.describe(
         page.getByRole("region", { name: "Schedule by day" }),
       ).toBeVisible();
 
-      await page.getByRole("link", { name: SET_NAME }).click();
-
-      await expect(page).toHaveURL(new RegExp(`${SET_DETAIL_PATH}$`));
-      await expect(page.getByRole("heading", { name: SET_NAME })).toBeVisible();
+      await clickSetAndExpectDetail(page);
     });
   },
 );
+
+async function clickSetAndExpectDetail(page: Page) {
+  await page.getByRole("link", { name: SET_NAME }).click();
+
+  await expect(page).toHaveURL(new RegExp(`${SET_DETAIL_PATH}$`));
+  await expect(page.getByRole("heading", { name: SET_NAME })).toBeVisible();
+}

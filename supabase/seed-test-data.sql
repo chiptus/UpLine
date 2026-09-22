@@ -61,8 +61,9 @@ INSERT INTO auth.identities (
 ON CONFLICT (id) DO NOTHING;
 
 -- 1. Multi-edition festival: Post-Festival (past), Live (active), and
---    Pre-Schedule/Planning (future, unrevealed) editions on the same festival,
---    so a single festival exercises all four derived phases across its editions.
+--    Pre-Schedule (future, unrevealed) editions on the same festival, so a
+--    single festival exercises three of the four derived phases across its
+--    editions (Planning has no fixture here — see docs/adr/0003).
 INSERT INTO public.festivals (id, name, slug, description, published, created_at, updated_at) VALUES
   ('d9100000-0000-0000-0000-000000000001', '[TEST] Multi-Phase Festival', 'test-multi-phase', 'Synthetic festival covering Post-Festival, Live and Pre-Schedule editions for QA.', true, now(), now())
 ON CONFLICT (id) DO UPDATE SET

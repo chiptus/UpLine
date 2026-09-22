@@ -439,8 +439,9 @@ INSERT INTO public.set_artists (set_id, artist_id, role, created_at) VALUES
   ('c4000000-0000-0000-0000-000000000076', 'c5000000-0000-0000-0000-000000000012', 'performer', now()),
   ('c4000000-0000-0000-0000-000000000fff', 'c5000000-0000-0000-0000-000000000001', 'performer', now());
 
--- Synthetic [TEST] festivals covering every festival phase plus the
--- zero-edition/single-edition edge cases (UPL-71). Kept in its own file
--- since it's also applied to staging by scripts/sync-from-prod.sh.
+-- Synthetic [TEST] festivals covering the Pre-Schedule, Live and
+-- Post-Festival phases plus the zero-edition/single-edition edge cases
+-- (UPL-71). Kept in its own file since it's also applied to staging by
+-- scripts/sync-from-prod.sh.
 \ir seed-test-data.sql
 

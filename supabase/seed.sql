@@ -508,9 +508,9 @@ ON CONFLICT (id) DO UPDATE SET
 -- it stays derived as "live" (see getFestivalPhase) for the life of this
 -- fixture, without needing a phase_override.
 INSERT INTO public.festival_editions (id, festival_id, year, slug, name, description, location, start_date, end_date, published, schedule_reveal_level, phase_override, created_at, updated_at) VALUES
-  ('d9200000-0000-0000-0000-000000000001', 'd9100000-0000-0000-0000-000000000001', 2024, '2024', '[TEST] Multi-Phase Festival — Post Edition', 'Past edition, pinned to Post-Festival for retrospective rating/voting QA.', 'Testland', '2024-07-12', '2024-07-14', true, 'full', 'post-festival', now(), now()),
-  ('d9200000-0000-0000-0000-000000000002', 'd9100000-0000-0000-0000-000000000001', 2020, 'ongoing', '[TEST] Multi-Phase Festival — Live Edition', 'Wide-dated edition, naturally derived as Live (not override-pinned), with sets both before and after "now".', 'Testland', '2020-01-01', '2035-12-31', true, 'full', NULL, now(), now()),
-  ('d9200000-0000-0000-0000-000000000003', 'd9100000-0000-0000-0000-000000000001', 2027, '2027', '[TEST] Multi-Phase Festival — Upcoming Edition', 'Future edition with a schedule that exists but is unrevealed (draft), for Pre-Schedule QA.', 'Testland', '2027-08-01', '2027-08-03', true, 'draft', NULL, now(), now())
+  ('d9200000-0000-0000-0000-000000000001', 'd9100000-0000-0000-0000-000000000001', 2024, '2024', 'Post Edition', 'Past edition, pinned to Post-Festival for retrospective rating/voting QA.', 'Testland', '2024-07-12', '2024-07-14', true, 'full', 'post-festival', now(), now()),
+  ('d9200000-0000-0000-0000-000000000002', 'd9100000-0000-0000-0000-000000000001', 2020, 'ongoing', 'Live Edition', 'Wide-dated edition, naturally derived as Live (not override-pinned), with sets both before and after "now".', 'Testland', '2020-01-01', '2035-12-31', true, 'full', NULL, now(), now()),
+  ('d9200000-0000-0000-0000-000000000003', 'd9100000-0000-0000-0000-000000000001', 2027, '2027', 'Upcoming Edition', 'Future edition with a schedule that exists but is unrevealed (draft), for Pre-Schedule QA.', 'Testland', '2027-08-01', '2027-08-03', true, 'draft', NULL, now(), now())
 ON CONFLICT (id) DO UPDATE SET
   festival_id = EXCLUDED.festival_id,
   year = EXCLUDED.year,

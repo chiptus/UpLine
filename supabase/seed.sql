@@ -1,10 +1,7 @@
 -- Comprehensive seed data for festival voting app.
 -- This file creates realistic test data for local development, and is also
 -- re-applied against staging by scripts/sync-from-prod.sh as the final step
--- of every prod sync (idempotent, so safe to replay). Only rows explicitly
--- marked [TEST]-prefixed below are meant to be unmistakable in that
--- environment; see UPL-71 for the plan to bring the rest of this file to
--- the same standard.
+-- of every prod sync (idempotent, so safe to replay).
 
 
 -- Create a test user for seeding data (this would normally be done via auth flow)
@@ -544,20 +541,20 @@ ON CONFLICT (id) DO UPDATE SET
   updated_at = now();
 
 INSERT INTO public.artists (id, name, description, added_by, created_at, updated_at, slug) VALUES
-  ('d9400000-0000-0000-0000-000000000001', 'Test Artist One', 'Synthetic artist for UPL-71 QA fixtures.', '11111111-1111-1111-1111-111111111111', now(), now(), 'test-artist-one'),
-  ('d9400000-0000-0000-0000-000000000002', 'Test Artist Two', 'Synthetic artist for UPL-71 QA fixtures.', '11111111-1111-1111-1111-111111111111', now(), now(), 'test-artist-two'),
-  ('d9400000-0000-0000-0000-000000000003', 'Test Artist Three', 'Synthetic artist for UPL-71 QA fixtures.', '11111111-1111-1111-1111-111111111111', now(), now(), 'test-artist-three'),
-  ('d9400000-0000-0000-0000-000000000004', 'Test Artist Four', 'Synthetic artist for UPL-71 QA fixtures.', '11111111-1111-1111-1111-111111111111', now(), now(), 'test-artist-four')
+  ('d9400000-0000-0000-0000-000000000001', 'Test Artist One', 'Synthetic test artist.', '11111111-1111-1111-1111-111111111111', now(), now(), 'test-artist-one'),
+  ('d9400000-0000-0000-0000-000000000002', 'Test Artist Two', 'Synthetic test artist.', '11111111-1111-1111-1111-111111111111', now(), now(), 'test-artist-two'),
+  ('d9400000-0000-0000-0000-000000000003', 'Test Artist Three', 'Synthetic test artist.', '11111111-1111-1111-1111-111111111111', now(), now(), 'test-artist-three'),
+  ('d9400000-0000-0000-0000-000000000004', 'Test Artist Four', 'Synthetic test artist.', '11111111-1111-1111-1111-111111111111', now(), now(), 'test-artist-four')
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
   updated_at = now();
 
 INSERT INTO public.sets (id, name, slug, festival_edition_id, stage_id, time_start, time_end, description, created_by, created_at, updated_at) VALUES
-  ('d9500000-0000-0000-0000-000000000001', 'Test Artist One', 'test-artist-one-set', 'd9200000-0000-0000-0000-000000000001', 'd9300000-0000-0000-0000-000000000001', '2024-07-12 20:00:00+00', '2024-07-12 21:30:00+00', 'Synthetic set for UPL-71 QA fixtures.', '11111111-1111-1111-1111-111111111111', now(), now()),
-  ('d9500000-0000-0000-0000-000000000002', 'Test Artist Two', 'test-artist-two-set', 'd9200000-0000-0000-0000-000000000001', 'd9300000-0000-0000-0000-000000000002', '2024-07-13 21:00:00+00', '2024-07-13 22:30:00+00', 'Synthetic set for UPL-71 QA fixtures.', '11111111-1111-1111-1111-111111111111', now(), now()),
-  ('d9500000-0000-0000-0000-000000000003', 'Test Artist Three', 'test-artist-three-set', 'd9200000-0000-0000-0000-000000000001', 'd9300000-0000-0000-0000-000000000001', '2024-07-13 20:00:00+00', '2024-07-13 21:30:00+00', 'Synthetic set for UPL-71 QA fixtures.', '11111111-1111-1111-1111-111111111111', now(), now()),
-  ('d9500000-0000-0000-0000-000000000004', 'Test Artist Four', 'test-artist-four-set', 'd9200000-0000-0000-0000-000000000001', 'd9300000-0000-0000-0000-000000000002', '2024-07-14 18:00:00+00', '2024-07-14 19:30:00+00', 'Synthetic set for UPL-71 QA fixtures.', '11111111-1111-1111-1111-111111111111', now(), now()),
+  ('d9500000-0000-0000-0000-000000000001', 'Test Artist One', 'test-artist-one-set', 'd9200000-0000-0000-0000-000000000001', 'd9300000-0000-0000-0000-000000000001', '2024-07-12 20:00:00+00', '2024-07-12 21:30:00+00', 'Synthetic test set.', '11111111-1111-1111-1111-111111111111', now(), now()),
+  ('d9500000-0000-0000-0000-000000000002', 'Test Artist Two', 'test-artist-two-set', 'd9200000-0000-0000-0000-000000000001', 'd9300000-0000-0000-0000-000000000002', '2024-07-13 21:00:00+00', '2024-07-13 22:30:00+00', 'Synthetic test set.', '11111111-1111-1111-1111-111111111111', now(), now()),
+  ('d9500000-0000-0000-0000-000000000003', 'Test Artist Three', 'test-artist-three-set', 'd9200000-0000-0000-0000-000000000001', 'd9300000-0000-0000-0000-000000000001', '2024-07-13 20:00:00+00', '2024-07-13 21:30:00+00', 'Synthetic test set.', '11111111-1111-1111-1111-111111111111', now(), now()),
+  ('d9500000-0000-0000-0000-000000000004', 'Test Artist Four', 'test-artist-four-set', 'd9200000-0000-0000-0000-000000000001', 'd9300000-0000-0000-0000-000000000002', '2024-07-14 18:00:00+00', '2024-07-14 19:30:00+00', 'Synthetic test set.', '11111111-1111-1111-1111-111111111111', now(), now()),
   ('d9500000-0000-0000-0000-000000000005', 'Test Artist One', 'test-artist-one-ongoing-set', 'd9200000-0000-0000-0000-000000000002', 'd9300000-0000-0000-0000-000000000003', '2021-06-01 20:00:00+00', '2021-06-01 21:30:00+00', 'Set already played on the Live-derived edition.', '11111111-1111-1111-1111-111111111111', now(), now()),
   ('d9500000-0000-0000-0000-000000000006', 'Test Artist Two', 'test-artist-two-ongoing-set', 'd9200000-0000-0000-0000-000000000002', 'd9300000-0000-0000-0000-000000000003', '2030-06-01 20:00:00+00', '2030-06-01 21:30:00+00', 'Set still upcoming on the Live-derived edition.', '11111111-1111-1111-1111-111111111111', now(), now()),
   ('d9500000-0000-0000-0000-000000000007', 'Test Artist Three', 'test-artist-three-preview-set', 'd9200000-0000-0000-0000-000000000003', 'd9300000-0000-0000-0000-000000000004', '2027-08-01 20:00:00+00', '2027-08-01 21:30:00+00', 'Real schedule data on the Pre-Schedule edition, hidden by schedule_reveal_level = draft.', '11111111-1111-1111-1111-111111111111', now(), now())
@@ -584,7 +581,7 @@ ON CONFLICT (set_id, artist_id) DO NOTHING;
 -- Test group for collaborative voting/notes QA, with the four synthetic
 -- users (the shared 11111111 test user, plus the three added above) as members.
 INSERT INTO public.groups (id, name, slug, description, created_by, created_at, updated_at) VALUES
-  ('d9600000-0000-0000-0000-000000000001', '[TEST] QA Group', 'test-qa-group', 'Synthetic group for UPL-71 QA fixtures.', '11111111-1111-1111-1111-111111111111', now(), now())
+  ('d9600000-0000-0000-0000-000000000001', '[TEST] QA Group', 'test-qa-group', 'Synthetic test group.', '11111111-1111-1111-1111-111111111111', now(), now())
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   slug = EXCLUDED.slug,
@@ -614,7 +611,7 @@ ON CONFLICT (user_id, set_id) DO UPDATE SET
 -- 20250621125212_create_functions.sql to allow multiple notes per user), so
 -- idempotency here is keyed on a fixed `id` instead.
 INSERT INTO public.artist_notes (id, user_id, artist_id, note_content, created_at) VALUES
-  ('d9700000-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'd9400000-0000-0000-0000-000000000001', 'Synthetic note for UPL-71 QA fixtures.', now()),
+  ('d9700000-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'd9400000-0000-0000-0000-000000000001', 'Synthetic test note.', now()),
   ('d9700000-0000-0000-0000-000000000002', 'd9000000-0000-0000-0000-000000000002', 'd9400000-0000-0000-0000-000000000001', 'Another synthetic note, from a second account.', now())
 ON CONFLICT (id) DO UPDATE SET
   note_content = EXCLUDED.note_content,

@@ -40,10 +40,15 @@ INSERT INTO auth.users (
   ''
 ) ON CONFLICT (id) DO NOTHING;
 
--- Mark this seeded user as already onboarded so tests can use it as an "existing user".
-UPDATE public.profiles
-SET completed_onboarding = true
-WHERE id = '11111111-1111-1111-1111-111111111111';
+-- Explicitly (re)create the profile rather than relying on the handle_new_user
+INSERT INTO public.profiles (id, username, email, completed_onboarding)
+VALUES (
+  '11111111-1111-1111-1111-111111111111',
+  'testuser',
+  'test@example.com',
+  true
+)
+ON CONFLICT (id) DO UPDATE SET completed_onboarding = true;
 
 -- GoTrue's OTP sign-in requires a matching auth.identities row for existing users.
 INSERT INTO auth.identities (
@@ -474,13 +479,12 @@ INSERT INTO auth.users (
   ('d9000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000000', 'authenticated', 'test4@example.com', '$2a$10$example_hash', now(), now(), now(), '{"username": "testuser4"}', false, 'authenticated', '', '', '', '')
 ON CONFLICT (id) DO NOTHING;
 
-UPDATE public.profiles
-SET completed_onboarding = true
-WHERE id IN (
-  'd9000000-0000-0000-0000-000000000002',
-  'd9000000-0000-0000-0000-000000000003',
-  'd9000000-0000-0000-0000-000000000004'
-);
+
+INSERT INTO public.profiles (id, username, email, completed_onboarding) VALUES
+  ('d9000000-0000-0000-0000-000000000002', 'testuser2', 'test2@example.com', true),
+  ('d9000000-0000-0000-0000-000000000003', 'testuser3', 'test3@example.com', true),
+  ('d9000000-0000-0000-0000-000000000004', 'testuser4', 'test4@example.com', true)
+ON CONFLICT (id) DO UPDATE SET completed_onboarding = true;
 
 -- GoTrue's OTP sign-in requires a matching auth.identities row for existing users.
 INSERT INTO auth.identities (

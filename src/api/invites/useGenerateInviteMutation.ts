@@ -53,23 +53,28 @@ export function useGenerateInviteMutation(groupId: string) {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (
+    mutationFn: (
       options: {
         expiresAt?: Date;
         maxUses?: number;
       } = {},
-    ) => {
-      const inviteUrl = await generateInviteLink(groupId, options);
-
-      // Copy to clipboard
-      await navigator.clipboard.writeText(inviteUrl);
-
-      return inviteUrl;
-    },
-    onSuccess: () => {
+    ) => generateInviteLink(groupId, options),
+    onSuccess: async (inviteUrl) => {
+      // Clipboard access can be denied by the browser (permissions, headless
+      // environments) independently of the invite itself being created, so a
+      // denial here must not surface as a mutation failure and skip the
+      // refetch below.
+      let copied = true;
+      try {
+        await navigator.clipboard.writeText(inviteUrl);
+      } catch {
+        copied = false;
+      }
       toast({
         title: "Invite Created",
-        description: "Invite link copied to clipboard!",
+        description: copied
+          ? "Invite link copied to clipboard!"
+          : "Invite link generated.",
       });
       // Refetch invites to show the new one
       queryClient.invalidateQueries({ queryKey: inviteKeys.group(groupId) });

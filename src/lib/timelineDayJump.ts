@@ -1,6 +1,6 @@
-import { fromZonedTime } from "date-fns-tz";
 import { timeToOffset } from "@/lib/timelineCalculator";
 import { roundToNearestMinutes } from "@/lib/timelineMountMoment";
+import { festivalDayStart } from "@/lib/timeUtils";
 import type { ScheduleDay } from "@/hooks/useScheduleData";
 
 // Clears the pinned StageLabels column (absolute, up to ~180px wide for long
@@ -51,7 +51,11 @@ export function jumpToTimelineMoment(
  * jump on dead timeline at the far-left edge. Falls back to festival-timezone
  * midnight when the day has no sets.
  */
-export function getDayJumpMoment(day: ScheduleDay, timezone: string): Date {
+export function getDayJumpMoment(
+  day: ScheduleDay,
+  timezone: string,
+  dayStartHour: number = 0,
+): Date {
   const stageOpenings = day.stages
     .map((stage) =>
       stage.sets.reduce<Date | null>(
@@ -66,7 +70,7 @@ export function getDayJumpMoment(day: ScheduleDay, timezone: string): Date {
 
   return (
     mostCommonStart(stageOpenings) ??
-    fromZonedTime(`${day.date}T00:00:00`, timezone)
+    festivalDayStart(day.date, timezone, dayStartHour)
   );
 }
 

@@ -37,6 +37,7 @@ export function SetInfoCard({
     revealLevel: level,
     use24Hour,
     timezone: festival.timezone,
+    dayStartHour: festival.day_start_hour,
   });
   return (
     <div className="lg:col-span-2">

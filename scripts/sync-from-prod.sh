@@ -14,11 +14,15 @@
 #      target's public tables, and restore the dump.
 #   3. Run scripts/anonymize.sql against the target to scrub remaining PII in
 #      the public schema.
-#   4. Run supabase/seed-test-data.sql against the target to (re)seed the
-#      fixed set of synthetic [TEST]-prefixed festivals (covering the
-#      Pre-Schedule, Live and Post-Festival phases, plus zero-edition/
+#   4. Run supabase/seed.sql against the target to (re)apply its fixtures,
+#      including the synthetic [TEST]-prefixed festivals (covering the
+#      Pre-Schedule and Post-Festival phases, plus zero-edition/
 #      single-edition edge cases) that a prod sync alone would never
-#      produce. Idempotent, so safe on every run.
+#      produce. Idempotent, so safe to replay on every run. NOTE: seed.sql
+#      also still carries older, unlabeled realistic-looking local-dev
+#      fixtures (e.g. "Boom Festival 2025") that land on staging too as a
+#      result - see UPL-71 for the plan to trim/relabel those so this step
+#      only ever adds clearly-synthetic data.
 #   5. If ADMIN_EMAIL is set, backfill its public.profiles row if the
 #      truncate/restore in step 2 wiped it (the account only exists on the
 #      target, e.g. a local dev/admin login, so it isn't in prod's dump).
@@ -170,8 +174,8 @@ SQL
 echo "Running anonymizer on public schema…"
 psql "$TARGET_URL" -v ON_ERROR_STOP=1 -f "$SCRIPT_DIR/anonymize.sql"
 
-echo "Seeding synthetic [TEST] festivals…"
-psql "$TARGET_URL" -v ON_ERROR_STOP=1 -f "$SCRIPT_DIR/../supabase/seed-test-data.sql"
+echo "Re-applying supabase/seed.sql…"
+psql "$TARGET_URL" -v ON_ERROR_STOP=1 -f "$SCRIPT_DIR/../supabase/seed.sql"
 
 if [[ -n "${ADMIN_EMAIL:-}" ]]; then
   ADMIN_USER_ID="$(psql "$TARGET_URL" -tAq -v ON_ERROR_STOP=1 -v email="$ADMIN_EMAIL" <<'SQL'

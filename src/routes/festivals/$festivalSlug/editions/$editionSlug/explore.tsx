@@ -140,11 +140,14 @@ function ExploreSetPageContent({
     }
 
     const existingVote = userVotes[currentSet.id];
-    // Only "Won't Go" advances to the next artist, matching the explicit
-    // skip action. "Must Go" / "Interested" just cast the vote and stay.
-    const isWontGo = voteType === VOTE_CONFIG.wontGo.value;
+    // "Won't Go" and "Neutral" both settle the decision on this artist, so
+    // they advance to the next one, matching the explicit skip action.
+    // "Must Go" / "Interested" just cast the vote and stay.
+    const advancesQueue =
+      voteType === VOTE_CONFIG.wontGo.value ||
+      voteType === VOTE_CONFIG.neutral.value;
 
-    if (isWontGo) {
+    if (advancesQueue) {
       setIsAnimating(true);
     }
 
@@ -157,11 +160,11 @@ function ExploreSetPageContent({
       },
       {
         onSuccess: () => {
-          if (isWontGo) advanceToNextOrExit();
+          if (advancesQueue) advanceToNextOrExit();
         },
         onError: (error) => {
           console.error("Failed to vote:", error);
-          if (isWontGo) setIsAnimating(false);
+          if (advancesQueue) setIsAnimating(false);
         },
       },
     );

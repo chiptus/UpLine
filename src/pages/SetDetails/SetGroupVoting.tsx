@@ -49,6 +49,7 @@ function SetGroupVotingContent({
     2: groupVotes.filter((vote) => vote.vote_type === 2).length,
     1: groupVotes.filter((vote) => vote.vote_type === 1).length,
     [-1]: groupVotes.filter((vote) => vote.vote_type === -1).length,
+    0: groupVotes.filter((vote) => vote.vote_type === 0).length,
   };
 
   const activeGroup = groups.find((g) => g.id === activeGroupId);
@@ -78,7 +79,7 @@ function SetGroupVotingContent({
         ) : (
           <div className="space-y-4">
             {/* Vote Summary */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-4 gap-4">
               {VOTES_TYPES.map((voteTypeKey) => {
                 const config = VOTE_CONFIG[voteTypeKey];
                 const voteType = config.value;

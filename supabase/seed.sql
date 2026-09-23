@@ -170,7 +170,7 @@ INSERT INTO public.artist_music_genres (artist_id, music_genre_id) VALUES
 
 -- Insert festival (with unique slug to avoid conflicts)
 INSERT INTO public.festivals (id, name, slug, description, published, created_at, updated_at) VALUES 
-  ('f1111111-1111-1111-1111-111111111111', 'Test festival', 'test', 'Electronic music festival in beautiful Portuguese countryside', true, now(), now());
+  ('f1111111-1111-1111-1111-111111111111', '[TEST] Test festival', 'test', 'Electronic music festival in beautiful Portuguese countryside', true, now(), now());
 
 -- Update festival info with description and sample data (festival_info record already created by migration trigger)
 UPDATE public.festival_info 
@@ -191,7 +191,7 @@ INSERT INTO public.custom_links (festival_id, title, url, display_order, created
 -- tests stay stable regardless of how far the seeded 2025 dates drift into
 -- the past relative to real wall-clock time (see ADR-0003, ADR-0004).
 INSERT INTO public.festival_editions (id, festival_id, year, slug, name, description, location, start_date, end_date, published, schedule_reveal_level, phase_override, created_at, updated_at) VALUES
-  ('e1111111-1111-1111-1111-111111111111', 'f1111111-1111-1111-1111-111111111111', 2025, '2025', 'Boom Festival 2025', 'The 2025 edition of Boom Festival', 'Idanha-a-Nova, Portugal', '2025-07-12', '2025-07-14', true, 'full', 'live', now(), now());
+  ('e1111111-1111-1111-1111-111111111111', 'f1111111-1111-1111-1111-111111111111', 2025, '2025', '[TEST] Boom Festival 2025', 'The 2025 edition of Boom Festival', 'Idanha-a-Nova, Portugal', '2025-07-12', '2025-07-14', true, 'full', 'live', now(), now());
 
 -- Insert stages
 INSERT INTO public.stages (id, name, slug, festival_edition_id, created_at, updated_at) VALUES
@@ -204,10 +204,10 @@ INSERT INTO public.stages (id, name, slug, festival_edition_id, created_at, upda
 -- voting suite's phase_override = 'live' never has to fight with the
 -- rating suite's phase_override = 'post-festival' on the same row.
 INSERT INTO public.festivals (id, name, slug, description, published, created_at, updated_at) VALUES
-  ('f2222222-2222-2222-2222-222222222222', 'Post Festival Test', 'post-test', 'Festival edition used to test the Post-Festival retrospective rating UI', true, now(), now());
+  ('f2222222-2222-2222-2222-222222222222', '[TEST] Post Festival Test', 'post-test', 'Festival edition used to test the Post-Festival retrospective rating UI', true, now(), now());
 
 INSERT INTO public.festival_editions (id, festival_id, year, slug, name, description, location, start_date, end_date, published, schedule_reveal_level, phase_override, created_at, updated_at) VALUES
-  ('e2222222-2222-2222-2222-222222222222', 'f2222222-2222-2222-2222-222222222222', 2025, '2025', 'Post Festival Test 2025', 'Edition pinned to the post-festival phase for rating e2e tests', 'Idanha-a-Nova, Portugal', '2025-07-12', '2025-07-14', true, 'full', 'post-festival', now(), now());
+  ('e2222222-2222-2222-2222-222222222222', 'f2222222-2222-2222-2222-222222222222', 2025, '2025', '[TEST] Post Festival Test 2025', 'Edition pinned to the post-festival phase for rating e2e tests', 'Idanha-a-Nova, Portugal', '2025-07-12', '2025-07-14', true, 'full', 'post-festival', now(), now());
 
 INSERT INTO public.stages (id, name, slug, festival_edition_id, created_at, updated_at) VALUES
   ('21111111-1111-1111-1111-11111111111a', 'Main Stage', 'main-stage', 'e2222222-2222-2222-2222-222222222222', now(), now());
@@ -301,7 +301,7 @@ INSERT INTO public.artist_notes (user_id, artist_id, note_content, created_at) V
 -- One festival with four editions, one per schedule_reveal_level, so parallel
 -- test workers never need to mutate a shared row - each edition is read-only.
 INSERT INTO public.festivals (id, name, slug, description, published, created_at, updated_at) VALUES
-  ('c1000000-0000-0000-0000-000000000001', 'Reveal Test Festival', 'reveal-test', 'Fixture festival for schedule reveal level e2e tests', true, now(), now());
+  ('c1000000-0000-0000-0000-000000000001', '[TEST] Reveal Test Festival', 'reveal-test', 'Fixture festival for schedule reveal level e2e tests', true, now(), now());
 
 INSERT INTO public.festival_editions (id, festival_id, year, slug, name, description, location, start_date, end_date, published, schedule_reveal_level, created_at, updated_at) VALUES
   ('c2000000-0000-0000-0000-000000000001', 'c1000000-0000-0000-0000-000000000001', 2099, 'draft', 'Reveal Test - Draft', 'Draft reveal level fixture', 'Nowhere', '2099-07-01', '2099-07-03', true, 'draft', now(), now()),

@@ -6,7 +6,8 @@ import { useActiveScope } from "@/contexts/ActiveScopeContext";
 import { userGroupsQuery } from "@/api/groups/useUserGroups";
 import { useGroupVotesQuery } from "@/api/voting/useGroupVotes";
 import { Users } from "lucide-react";
-import { VOTE_CONFIG, VOTES_TYPES, getVoteConfig } from "@/lib/voteConfig";
+import { VOTE_CONFIG, VOTES_TYPES, getVoteConfig } from "@/lib/votes/config";
+import { tallyVotes } from "@/lib/votes/score";
 import { cn } from "@/lib/utils";
 
 interface SetGroupVotingProps {
@@ -45,11 +46,7 @@ function SetGroupVotingContent({
     return null;
   }
 
-  const voteCounts = {
-    2: groupVotes.filter((vote) => vote.vote_type === 2).length,
-    1: groupVotes.filter((vote) => vote.vote_type === 1).length,
-    [-1]: groupVotes.filter((vote) => vote.vote_type === -1).length,
-  };
+  const { counts } = tallyVotes(groupVotes);
 
   const activeGroup = groups.find((g) => g.id === activeGroupId);
 
@@ -81,12 +78,10 @@ function SetGroupVotingContent({
             <div className="grid grid-cols-3 gap-4">
               {VOTES_TYPES.map((voteTypeKey) => {
                 const config = VOTE_CONFIG[voteTypeKey];
-                const voteType = config.value;
                 const IconComponent = config.icon;
                 return (
-                  <div className="flex flex-col items-center" key={voteType}>
+                  <div className="flex flex-col items-center" key={voteTypeKey}>
                     <div
-                      key={voteType}
                       className={cn(
                         "flex items-center justify-center flex-col rounded-md size-24",
                         config.bgColor,
@@ -98,7 +93,7 @@ function SetGroupVotingContent({
                           className={`h-4 w-4 ${config.iconColor}`}
                         />
                         <span className="font-semibold">
-                          {voteCounts[voteType as keyof typeof voteCounts]}
+                          {counts[voteTypeKey]}
                         </span>
                       </div>
                       <p className={`text-sm`}>{config.label}</p>

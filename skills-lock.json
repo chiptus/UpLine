@@ -89,7 +89,7 @@
       "source": "chiptus/skills",
       "sourceType": "github",
       "skillPath": "skills/chiptus/pr-review-fixer/SKILL.md",
-      "computedHash": "4a445dd5f189f0bd917b827971159a48b02af06c025a621ce793673f14f217fd"
+      "computedHash": "288837ff74538498a1e0e85d69e5d50a06dc65fae395363c03e27e31fe3a0d4e"
     },
     "prototype": {
       "source": "mattpocock/skills",

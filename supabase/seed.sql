@@ -444,18 +444,12 @@ INSERT INTO public.set_artists (set_id, artist_id, role, created_at) VALUES
   ('c4000000-0000-0000-0000-000000000076', 'c5000000-0000-0000-0000-000000000012', 'performer', now()),
   ('c4000000-0000-0000-0000-000000000fff', 'c5000000-0000-0000-0000-000000000001', 'performer', now());
 
--- Synthetic [TEST] festivals (UPL-71). Unlike the rest of this file (which
--- mirrors realistic prod-like data for local dev), everything below is
--- clearly synthetic: names are prefixed "[TEST] " and slugs are prefixed
--- "test-" so they're unmistakable in any environment they land in,
--- including staging (scripts/sync-from-prod.sh runs this whole file
--- against the sync target as its final step, so staging always has these
--- fixtures even though it's otherwise seeded only by that prod copy). All
--- ids use the fixed `d9......` UUID prefix range, distinct from every
--- range already used elsewhere in seed.sql, so this section is easy to
--- grep and audit on its own. Every statement uses a fixed id/slug plus
--- ON CONFLICT DO NOTHING/DO UPDATE, so it's safe to run repeatedly (e.g.
--- once per sync-from-prod.sh run) without duplicating rows.
+-- Synthetic [TEST] festivals: names prefixed "[TEST] " and slugs prefixed
+-- "test-" so they're unmistakable everywhere they land, including staging
+-- (sync-from-prod.sh replays this whole file against the sync target).
+-- All ids use the `d9......` UUID prefix range so this section is easy to
+-- grep on its own. Every statement uses ON CONFLICT DO NOTHING/DO UPDATE,
+-- so it's safe to run repeatedly.
 
 -- Three extra synthetic auth users (beyond this file's existing
 -- test@example.com / 11111111-...) so group membership and collaborative
@@ -500,14 +494,12 @@ INSERT INTO auth.identities (
   ('d9000000-0000-0000-0000-000000000004', 'd9000000-0000-0000-0000-000000000004', 'd9000000-0000-0000-0000-000000000004', jsonb_build_object('sub', 'd9000000-0000-0000-0000-000000000004', 'email', 'test4@example.com'), 'email', now(), now(), now())
 ON CONFLICT (id) DO NOTHING;
 
--- 1. Multi-edition festival: Post-Festival (past) and Pre-Schedule (future,
---    unrevealed) editions on the same festival. No Live edition here on
---    purpose — this file's own "test"/"2025" festival (Boom Festival 2025,
---    slug "test") is already a live-phase festival with real e2e coverage,
---    so a second one would just be duplicate test data (see UPL-71).
---    Planning has no fixture either — see docs/adr/0003.
+-- 1. Multi-edition festival: Post-Festival (past), Live (spans "now" via
+--    real dates, not an override) and Pre-Schedule (future, unrevealed)
+--    editions on the same festival. Planning has no fixture — see
+--    docs/adr/0003.
 INSERT INTO public.festivals (id, name, slug, description, published, created_at, updated_at) VALUES
-  ('d9100000-0000-0000-0000-000000000001', '[TEST] Multi-Phase Festival', 'test-multi-phase', 'Synthetic festival covering Post-Festival and Pre-Schedule editions for QA.', true, now(), now())
+  ('d9100000-0000-0000-0000-000000000001', '[TEST] Multi-Phase Festival', 'test-multi-phase', 'Synthetic festival covering Post-Festival, Live and Pre-Schedule editions for QA.', true, now(), now())
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   slug = EXCLUDED.slug,
@@ -515,9 +507,13 @@ ON CONFLICT (id) DO UPDATE SET
   published = EXCLUDED.published,
   updated_at = now();
 
+-- The Live edition's start/end are set far enough into the past/future that
+-- it stays derived as "live" (see getFestivalPhase) for the life of this
+-- fixture, without needing a phase_override.
 INSERT INTO public.festival_editions (id, festival_id, year, slug, name, description, location, start_date, end_date, published, schedule_reveal_level, phase_override, created_at, updated_at) VALUES
   ('d9200000-0000-0000-0000-000000000001', 'd9100000-0000-0000-0000-000000000001', 2024, '2024', '[TEST] Multi-Phase Festival 2024', 'Past edition, pinned to Post-Festival for retrospective rating/voting QA.', 'Testland', '2024-07-12', '2024-07-14', true, 'full', 'post-festival', now(), now()),
-  ('d9200000-0000-0000-0000-000000000003', 'd9100000-0000-0000-0000-000000000001', 2027, '2027', '[TEST] Multi-Phase Festival 2027', 'Future edition with an unrevealed schedule, for Pre-Schedule/Planning QA.', 'Testland', NULL, NULL, true, 'draft', NULL, now(), now())
+  ('d9200000-0000-0000-0000-000000000002', 'd9100000-0000-0000-0000-000000000001', 2020, 'ongoing', '[TEST] Multi-Phase Festival Ongoing', 'Wide-dated edition, naturally derived as Live (not override-pinned), with sets both before and after "now".', 'Testland', '2020-01-01', '2035-12-31', true, 'full', NULL, now(), now()),
+  ('d9200000-0000-0000-0000-000000000003', 'd9100000-0000-0000-0000-000000000001', 2027, '2027', '[TEST] Multi-Phase Festival 2027', 'Future edition with a schedule that exists but is unrevealed (draft), for Pre-Schedule QA.', 'Testland', '2027-08-01', '2027-08-03', true, 'draft', NULL, now(), now())
 ON CONFLICT (id) DO UPDATE SET
   festival_id = EXCLUDED.festival_id,
   year = EXCLUDED.year,
@@ -532,12 +528,15 @@ ON CONFLICT (id) DO UPDATE SET
   phase_override = EXCLUDED.phase_override,
   updated_at = now();
 
--- Stages + artists + sets live on the Post-Festival edition only - the
--- Pre-Schedule edition stays empty on purpose, since its schedule hasn't
--- been revealed yet.
+-- Stages for the Post-Festival, Live and Pre-Schedule editions. The
+-- Pre-Schedule edition gets a real stage/schedule too (below) so
+-- schedule_reveal_level = 'draft' hiding it from viewers can be exercised
+-- against actual data, not an empty edition.
 INSERT INTO public.stages (id, name, slug, festival_edition_id, created_at, updated_at) VALUES
   ('d9300000-0000-0000-0000-000000000001', 'Test Main Stage', 'test-main-stage', 'd9200000-0000-0000-0000-000000000001', now(), now()),
-  ('d9300000-0000-0000-0000-000000000002', 'Test Second Stage', 'test-second-stage', 'd9200000-0000-0000-0000-000000000001', now(), now())
+  ('d9300000-0000-0000-0000-000000000002', 'Test Second Stage', 'test-second-stage', 'd9200000-0000-0000-0000-000000000001', now(), now()),
+  ('d9300000-0000-0000-0000-000000000003', 'Test Ongoing Stage', 'test-ongoing-stage', 'd9200000-0000-0000-0000-000000000002', now(), now()),
+  ('d9300000-0000-0000-0000-000000000004', 'Test Preview Stage', 'test-preview-stage', 'd9200000-0000-0000-0000-000000000003', now(), now())
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   slug = EXCLUDED.slug,
@@ -558,7 +557,10 @@ INSERT INTO public.sets (id, name, slug, festival_edition_id, stage_id, time_sta
   ('d9500000-0000-0000-0000-000000000001', 'Test Artist One', 'test-artist-one-set', 'd9200000-0000-0000-0000-000000000001', 'd9300000-0000-0000-0000-000000000001', '2024-07-12 20:00:00+00', '2024-07-12 21:30:00+00', 'Synthetic set for UPL-71 QA fixtures.', '11111111-1111-1111-1111-111111111111', now(), now()),
   ('d9500000-0000-0000-0000-000000000002', 'Test Artist Two', 'test-artist-two-set', 'd9200000-0000-0000-0000-000000000001', 'd9300000-0000-0000-0000-000000000002', '2024-07-13 21:00:00+00', '2024-07-13 22:30:00+00', 'Synthetic set for UPL-71 QA fixtures.', '11111111-1111-1111-1111-111111111111', now(), now()),
   ('d9500000-0000-0000-0000-000000000003', 'Test Artist Three', 'test-artist-three-set', 'd9200000-0000-0000-0000-000000000001', 'd9300000-0000-0000-0000-000000000001', '2024-07-13 20:00:00+00', '2024-07-13 21:30:00+00', 'Synthetic set for UPL-71 QA fixtures.', '11111111-1111-1111-1111-111111111111', now(), now()),
-  ('d9500000-0000-0000-0000-000000000004', 'Test Artist Four', 'test-artist-four-set', 'd9200000-0000-0000-0000-000000000001', 'd9300000-0000-0000-0000-000000000002', '2024-07-14 18:00:00+00', '2024-07-14 19:30:00+00', 'Synthetic set for UPL-71 QA fixtures.', '11111111-1111-1111-1111-111111111111', now(), now())
+  ('d9500000-0000-0000-0000-000000000004', 'Test Artist Four', 'test-artist-four-set', 'd9200000-0000-0000-0000-000000000001', 'd9300000-0000-0000-0000-000000000002', '2024-07-14 18:00:00+00', '2024-07-14 19:30:00+00', 'Synthetic set for UPL-71 QA fixtures.', '11111111-1111-1111-1111-111111111111', now(), now()),
+  ('d9500000-0000-0000-0000-000000000005', 'Test Artist One', 'test-artist-one-ongoing-set', 'd9200000-0000-0000-0000-000000000002', 'd9300000-0000-0000-0000-000000000003', '2021-06-01 20:00:00+00', '2021-06-01 21:30:00+00', 'Set already played on the Live-derived edition.', '11111111-1111-1111-1111-111111111111', now(), now()),
+  ('d9500000-0000-0000-0000-000000000006', 'Test Artist Two', 'test-artist-two-ongoing-set', 'd9200000-0000-0000-0000-000000000002', 'd9300000-0000-0000-0000-000000000003', '2030-06-01 20:00:00+00', '2030-06-01 21:30:00+00', 'Set still upcoming on the Live-derived edition.', '11111111-1111-1111-1111-111111111111', now(), now()),
+  ('d9500000-0000-0000-0000-000000000007', 'Test Artist Three', 'test-artist-three-preview-set', 'd9200000-0000-0000-0000-000000000003', 'd9300000-0000-0000-0000-000000000004', '2027-08-01 20:00:00+00', '2027-08-01 21:30:00+00', 'Real schedule data on the Pre-Schedule edition, hidden by schedule_reveal_level = draft.', '11111111-1111-1111-1111-111111111111', now(), now())
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   slug = EXCLUDED.slug,
@@ -573,6 +575,9 @@ INSERT INTO public.set_artists (set_id, artist_id, role, created_at) VALUES
   ('d9500000-0000-0000-0000-000000000001', 'd9400000-0000-0000-0000-000000000001', 'performer', now()),
   ('d9500000-0000-0000-0000-000000000002', 'd9400000-0000-0000-0000-000000000002', 'performer', now()),
   ('d9500000-0000-0000-0000-000000000003', 'd9400000-0000-0000-0000-000000000003', 'performer', now()),
+  ('d9500000-0000-0000-0000-000000000005', 'd9400000-0000-0000-0000-000000000001', 'performer', now()),
+  ('d9500000-0000-0000-0000-000000000006', 'd9400000-0000-0000-0000-000000000002', 'performer', now()),
+  ('d9500000-0000-0000-0000-000000000007', 'd9400000-0000-0000-0000-000000000003', 'performer', now()),
   ('d9500000-0000-0000-0000-000000000004', 'd9400000-0000-0000-0000-000000000004', 'performer', now())
 ON CONFLICT (set_id, artist_id) DO NOTHING;
 
@@ -618,7 +623,7 @@ ON CONFLICT (id) DO UPDATE SET
 -- 2. Zero-edition festival: exists, but has no festival_editions rows at all
 --    (edge case for "empty editions" list/detail-page handling).
 INSERT INTO public.festivals (id, name, slug, description, published, created_at, updated_at) VALUES
-  ('d9100000-0000-0000-0000-000000000002', '[TEST] Empty Festival', 'test-empty', 'Synthetic festival with zero editions, for empty-state QA.', true, now(), now())
+  ('d9100000-0000-0000-0000-000000000002', '[TEST] Zero-Edition Festival', 'test-empty', 'Synthetic festival with zero editions, for zero-state QA.', true, now(), now())
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   slug = EXCLUDED.slug,

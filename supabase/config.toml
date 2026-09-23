@@ -3,6 +3,14 @@ project_id = "qssmazlqrmxiudxckxvi"
 [functions.sync-artist-data]
 verify_jwt = false
 
+[db.seed]
+# seed-test-data.sql (UPL-71 synthetic [TEST] festivals) is listed here rather
+# than `\ir`-included from seed.sql: `db reset` feeds seed files through a
+# batch SQL sender, not psql, so a psql-only client meta-command like `\ir`
+# fails there even though it works when the file is run via `psql -f`
+# directly (as scripts/sync-from-prod.sh does).
+sql_paths = ["./seed.sql", "./seed-test-data.sql"]
+
 [auth.email]
 # Match prod: passwordless sign-in via magic link without a separate
 # confirmation step. Toggled in the Supabase dashboard for remote projects

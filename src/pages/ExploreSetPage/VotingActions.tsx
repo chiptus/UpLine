@@ -42,17 +42,6 @@ export function VotingActions({
         onClick={() => onVote(wontGoConfig.value)}
       />
 
-      {/* Skip without voting */}
-      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-        <Button
-          variant="ghost"
-          className="text-foreground/60 hover:text-foreground"
-          onClick={onSkip}
-        >
-          Skip
-        </Button>
-      </motion.div>
-
       <VoteButton
         icon={neutralConfig.icon}
         label={neutralConfig.label}
@@ -63,6 +52,17 @@ export function VotingActions({
         opacity={isLeftDrag || isRightDrag ? 0.5 : 1}
         onClick={() => onVote(neutralConfig.value)}
       />
+
+      {/* Skip without voting */}
+      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+        <Button
+          variant="ghost"
+          className="text-foreground/60 hover:text-foreground"
+          onClick={onSkip}
+        >
+          Skip
+        </Button>
+      </motion.div>
 
       <VoteButton
         icon={mustGoConfig.icon}

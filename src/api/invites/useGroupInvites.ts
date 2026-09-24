@@ -14,13 +14,7 @@ async function getGroupInvites(groupId: string): Promise<Array<GroupInvite>> {
     throw new Error("Failed to fetch group invites");
   }
 
-  return (
-    data.map((i) => ({
-      ...i,
-      expires_at: i.expires_at || "",
-      max_uses: i.max_uses || 0,
-    })) || []
-  );
+  return data;
 }
 
 export function groupInvitesQuery(groupId: string) {

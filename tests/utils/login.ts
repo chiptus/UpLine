@@ -86,9 +86,14 @@ export function generateTestEmail(
   return `${TEST_CONFIG.TEST_USER_EMAIL_BASE}-${suffix}@${TEST_CONFIG.TEST_USER_EMAIL_DOMAIN}`;
 }
 
+// The username a pre-onboarded test user gets, derived the same way createPreOnboardedUser derives it.
+export function usernameFromEmail(email: string): string {
+  return email.split("@")[0];
+}
+
 // Pre-creates an already-onboarded voter via the admin API so OTP sign-in never shows onboarding.
 async function createPreOnboardedUser(email: string): Promise<string> {
-  const username = email.split("@")[0];
+  const username = usernameFromEmail(email);
 
   const { data, error: createError } = await adminClient.auth.admin.createUser({
     email,

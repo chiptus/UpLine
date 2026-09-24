@@ -4,8 +4,8 @@ export interface GroupInvite {
   invite_token: string;
   created_by: string;
   created_at: string;
-  expires_at?: string;
-  max_uses?: number;
+  expires_at: string | null;
+  max_uses: number | null;
   used_count: number;
   is_active: boolean;
 }

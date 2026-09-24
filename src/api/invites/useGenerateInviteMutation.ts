@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { inviteKeys } from "./types";
@@ -50,7 +49,6 @@ async function generateInviteLink(
 
 export function useGenerateInviteMutation(groupId: string) {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
   return useMutation({
     mutationFn: (
@@ -59,33 +57,8 @@ export function useGenerateInviteMutation(groupId: string) {
         maxUses?: number;
       } = {},
     ) => generateInviteLink(groupId, options),
-    onSuccess: async (inviteUrl) => {
-      // Clipboard access can be denied by the browser (permissions, headless
-      // environments) independently of the invite itself being created, so a
-      // denial here must not surface as a mutation failure and skip the
-      // refetch below.
-      let copied = true;
-      try {
-        await navigator.clipboard.writeText(inviteUrl);
-      } catch {
-        copied = false;
-      }
-      toast({
-        title: "Invite Created",
-        description: copied
-          ? "Invite link copied to clipboard!"
-          : "Invite link generated.",
-      });
-      // Refetch invites to show the new one
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: inviteKeys.group(groupId) });
-    },
-    onError: (error) => {
-      console.error("Error generating invite:", error);
-      toast({
-        title: "Error",
-        description: "Failed to generate invite link",
-        variant: "destructive",
-      });
     },
   });
 }

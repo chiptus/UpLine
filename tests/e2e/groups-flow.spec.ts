@@ -9,150 +9,122 @@ import {
 } from "@playwright/test";
 import { signIn, usernameFromEmail } from "../utils/login";
 
-test.describe("Group lifecycle", () => {
-  // Each stage (create -> invite -> join -> leave) depends on state built up
-  // by the previous one, so these must run in order and never concurrently.
-  test.describe.configure({ mode: "serial" });
+test("group lifecycle: create, invite, join, isolate, leave", async ({
+  browser,
+  baseURL,
+  storageState,
+}) => {
+  const creator = await newSignedInPage(browser, baseURL, storageState);
+  const joiner = await newSignedInPage(browser, baseURL, storageState);
+  const outsider = await newSignedInPage(browser, baseURL, storageState);
 
-  let creatorContext: BrowserContext;
-  let creatorPage: Page;
-  let creatorEmail: string;
+  const groupName = `E2E Group ${Date.now()}`;
+  let groupSlug = "";
+  let inviteToken = "";
 
-  let joinerContext: BrowserContext;
-  let joinerPage: Page;
-  let joinerEmail: string;
+  try {
+    await test.step("creator creates a group and sees it under My Groups", async () => {
+      await creator.page.goto("/groups");
+      await creator.page.getByRole("button", { name: "Create Group" }).click();
 
-  let outsiderContext: BrowserContext;
-  let outsiderPage: Page;
+      const dialog = creator.page.getByRole("dialog");
+      await dialog.getByLabel("Group Name").fill(groupName);
+      await dialog.getByRole("button", { name: "Create Group" }).click();
 
-  let groupName: string;
-  let groupSlug: string;
-  let inviteToken: string;
+      await expect(creator.page).toHaveURL(/\/groups\/[^/]+$/);
+      groupSlug = creator.page.url().split("/groups/")[1];
 
-  test.beforeAll(async ({ browser, baseURL, storageState }) => {
-    [creatorContext, creatorPage, creatorEmail] = await newSignedInPage(
-      browser,
-      baseURL,
-      storageState,
-    );
-    [joinerContext, joinerPage, joinerEmail] = await newSignedInPage(
-      browser,
-      baseURL,
-      storageState,
-    );
-    [outsiderContext, outsiderPage] = await newSignedInPage(
-      browser,
-      baseURL,
-      storageState,
-    );
-  });
+      await creator.page.goto("/groups");
+      await expect(groupCard(creator.page, groupName)).toBeVisible();
+    });
 
-  test.afterAll(async () => {
-    await creatorContext?.close();
-    await joinerContext?.close();
-    await outsiderContext?.close();
-  });
+    await test.step("creator sees the member list and generates an invite link", async () => {
+      await creator.page.goto(`/groups/${groupSlug}`);
 
-  test("creates a group and lists it under My Groups", async () => {
-    groupName = `E2E Group ${Date.now()}`;
+      await expect(
+        creator.page.getByRole("heading", { name: "Group Members (1)" }),
+      ).toBeVisible();
+      await expect(
+        creator.page.getByText(`${usernameFromEmail(creator.email)} (You)`),
+      ).toBeVisible();
 
-    await creatorPage.goto("/groups");
-    await creatorPage.getByRole("button", { name: "Create Group" }).click();
+      await creator.page.getByRole("tab", { name: "Invite Links" }).click();
 
-    const dialog = creatorPage.getByRole("dialog");
-    await dialog.getByLabel("Group Name").fill(groupName);
-    await dialog.getByRole("button", { name: "Create Group" }).click();
+      // Reading the clipboard is unreliable across browser projects, so the
+      // token is taken from the insert request instead.
+      const [inviteRequest] = await Promise.all([
+        creator.page.waitForRequest(
+          (request) =>
+            request.url().includes("/rest/v1/group_invites") &&
+            request.method() === "POST",
+        ),
+        creator.page
+          .getByRole("button", { name: "Generate Invite Link" })
+          .click(),
+      ]);
 
-    await expect(creatorPage).toHaveURL(/\/groups\/[^/]+$/);
-    groupSlug = creatorPage.url().split("/groups/")[1];
+      inviteToken = (inviteRequest.postDataJSON() as { invite_token: string })
+        .invite_token;
+      expect(inviteToken).toBeTruthy();
 
-    await creatorPage.goto("/groups");
-    await expect(groupCard(creatorPage, groupName)).toBeVisible();
-  });
+      await expect(
+        creator.page.getByText("Active", { exact: true }),
+      ).toBeVisible();
+    });
 
-  test("creator sees the member list and generates an invite link", async () => {
-    await creatorPage.goto(`/groups/${groupSlug}`);
+    await test.step("a second user joins via the invite link and then sees the group", async () => {
+      const acceptResponse = joiner.page.waitForResponse(
+        (response) =>
+          response.url().includes("/rest/v1/rpc/use_invite_token") &&
+          response.ok(),
+      );
+      // Same shape as the link useGenerateInviteMutation produces, so the
+      // root route's ?invite= redirect is exercised too.
+      await joiner.page.goto(`/?invite=${inviteToken}`);
+      await acceptResponse;
 
-    await expect(
-      creatorPage.getByRole("heading", { name: "Group Members (1)" }),
-    ).toBeVisible();
-    await expect(
-      creatorPage.getByText(`${usernameFromEmail(creatorEmail)} (You)`),
-    ).toBeVisible();
+      await joiner.page.goto("/groups");
+      await expect(groupCard(joiner.page, groupName)).toBeVisible();
 
-    // No rename feature exists anywhere in the app (no UI, mutation hook, or
-    // API route — groups only support the archived-flag soft-delete), so
-    // "manage" here covers what's actually buildable: the member list and
-    // the invite link below.
-    await creatorPage.getByRole("tab", { name: "Invite Links" }).click();
+      await creator.page.goto(`/groups/${groupSlug}`);
+      await expect(
+        creator.page.getByRole("heading", { name: "Group Members (2)" }),
+      ).toBeVisible();
+      await expect(
+        creator.page.getByText(usernameFromEmail(joiner.email), {
+          exact: true,
+        }),
+      ).toBeVisible();
+    });
 
-    const [inviteRequest] = await Promise.all([
-      creatorPage.waitForRequest(
-        (request) =>
-          request.url().includes("/rest/v1/group_invites") &&
-          request.method() === "POST",
-      ),
-      creatorPage.getByRole("button", { name: "Generate Invite Link" }).click(),
-    ]);
+    await test.step("a non-member cannot see the group's data", async () => {
+      await outsider.page.goto(`/groups/${groupSlug}`);
+      await expect(
+        outsider.page.getByText("Group not found or you don't have access"),
+      ).toBeVisible();
 
-    inviteToken = (inviteRequest.postDataJSON() as { invite_token: string })
-      .invite_token;
-    expect(inviteToken).toBeTruthy();
+      await outsider.page.goto("/groups");
+      await expect(groupCard(outsider.page, groupName)).toHaveCount(0);
+    });
 
-    // The invite becomes accessible to the creator afterward: it shows up
-    // in Active Invites, badged "Active", instead of the "No active
-    // invites" empty state. (Asserting the clipboard content itself is
-    // flaky across browser projects, hence reading the token off the
-    // request above instead.)
-    await expect(
-      creatorPage.getByText("Active", { exact: true }),
-    ).toBeVisible();
-  });
+    await test.step("leaving a group removes it from the member's list", async () => {
+      await joiner.page.goto("/groups");
+      const card = groupCard(joiner.page, groupName);
+      await expect(card).toBeVisible();
 
-  test("a second user joins via the invite link and then sees the group", async () => {
-    const acceptResponse = joinerPage.waitForResponse(
-      (response) =>
-        response.url().includes("/rest/v1/rpc/use_invite_token") &&
-        response.ok(),
-    );
-    await joinerPage.goto(`/invite?token=${inviteToken}`);
-    await acceptResponse;
+      await card.getByRole("button", { name: "Leave" }).click();
 
-    await joinerPage.goto("/groups");
-    await expect(groupCard(joinerPage, groupName)).toBeVisible();
+      const confirmDialog = joiner.page.getByRole("alertdialog");
+      await expect(confirmDialog).toBeVisible();
+      await confirmDialog.getByRole("button", { name: "Leave" }).click();
 
-    await creatorPage.goto(`/groups/${groupSlug}`);
-    await expect(
-      creatorPage.getByRole("heading", { name: "Group Members (2)" }),
-    ).toBeVisible();
-    await expect(
-      creatorPage.getByText(usernameFromEmail(joinerEmail), { exact: true }),
-    ).toBeVisible();
-  });
-
-  test("a non-member cannot see the group's data", async () => {
-    await outsiderPage.goto(`/groups/${groupSlug}`);
-    await expect(
-      outsiderPage.getByText("Group not found or you don't have access"),
-    ).toBeVisible();
-
-    await outsiderPage.goto("/groups");
-    await expect(groupCard(outsiderPage, groupName)).toHaveCount(0);
-  });
-
-  test("leaving a group removes it from the member's list", async () => {
-    await joinerPage.goto("/groups");
-    const card = groupCard(joinerPage, groupName);
-    await expect(card).toBeVisible();
-
-    await card.getByRole("button", { name: "Leave" }).click();
-
-    const confirmDialog = joinerPage.getByRole("alertdialog");
-    await expect(confirmDialog).toBeVisible();
-    await confirmDialog.getByRole("button", { name: "Leave" }).click();
-
-    await expect(card).toHaveCount(0);
-  });
+      await expect(card).toHaveCount(0);
+    });
+  } finally {
+    await creator.context.close();
+    await joiner.context.close();
+    await outsider.context.close();
+  }
 });
 
 function groupCard(page: Page, name: string): Locator {
@@ -164,9 +136,9 @@ async function newSignedInPage(
   browser: Browser,
   baseURL: string | undefined,
   storageState: BrowserContextOptions["storageState"],
-): Promise<[BrowserContext, Page, string]> {
+): Promise<{ context: BrowserContext; page: Page; email: string }> {
   const context = await browser.newContext({ baseURL, storageState });
   const page = await context.newPage();
   const email = await signIn(page);
-  return [context, page, email];
+  return { context, page, email };
 }

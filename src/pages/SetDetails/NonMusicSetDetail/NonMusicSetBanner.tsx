@@ -10,13 +10,13 @@ import { useRouteContext } from "@tanstack/react-router";
 
 interface NonMusicSetBannerProps {
   set: FestivalSet;
-  netVoteScore: number;
+  score: number;
   use24Hour: boolean;
 }
 
 export function NonMusicSetBanner({
   set,
-  netVoteScore,
+  score,
   use24Hour,
 }: NonMusicSetBannerProps) {
   const { festival } = useRouteContext({
@@ -44,17 +44,17 @@ export function NonMusicSetBanner({
           <span className="text-xs uppercase tracking-widest text-foreground/70">
             {label}
           </span>
-          {netVoteScore !== 0 && (
+          {score !== 0 && (
             <Badge
               variant="outline"
               className={cn(
-                netVoteScore > 0
+                score > 0
                   ? "border-green-400 text-green-400"
                   : "border-red-400 text-red-400",
               )}
             >
-              Score: {netVoteScore > 0 ? "+" : ""}
-              {netVoteScore}
+              Score: {score > 0 ? "+" : ""}
+              {score}
             </Badge>
           )}
         </div>

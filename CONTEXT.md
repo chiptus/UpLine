@@ -56,6 +56,10 @@ _Avoid_: Venue, room
 A user's reaction to an artist. Three values: "Must Go" (+2), "Interested" (+1), "Won't Go" (-1). A vote belongs to the voting user alone — it is never scoped to a Group; Groups only change whose votes are being looked at, never which votes exist. Anticipatory — answers "will I go." See Retrospective rating for the after-the-fact counterpart.
 _Avoid_: Rating, like
 
+**Score**:
+The single aggregate measure of a **set**'s **votes** within a scope (the whole **edition**, or one **group**): the sum of the vote values (`2·mustGo + interested − wontGo`), computed by `tallyVotes()` in `src/lib/votes/score.ts`. Always displayed alongside the per-type vote counts it sums, so it can be verified at a glance. See ADR-0010.
+_Avoid_: Rating (formerly a separate mean-of-values metric — removed), popularity (formerly a separate positives-only metric — removed), net score, points
+
 **Retrospective rating**:
 A user's after-the-fact reaction to a **set** — "how was it" — recorded once the edition is Post-Festival. Distinct from **Vote**: Vote is anticipatory ("will I go", drives planning points) while a rating answers "did I like it" and never affects or is affected by a Vote on the same set. Stored in its own `set_ratings` table with its own scale (loved / liked / meh), never the Vote scale or copy. See ADR-0004.
 _Avoid_: Vote, score
@@ -73,7 +77,7 @@ The user's durable, Settings-level default lens: Group, Everyone, or Me. When se
 _Avoid_: Active group (the pin covers both which Group and which lens; "Active Group" alone is only the former)
 
 **Vote Perspective**:
-On the Artists tab, which votes are aggregated into a set's rating and popularity score: Everyone, or the Active Group. Perspective re-scores and re-sorts; it never hides sets. See ADR-0005.
+On the Artists tab, which votes are aggregated into a set's Score: Everyone, or the Active Group. Perspective re-scores and re-sorts; it never hides sets. See ADR-0005.
 _Avoid_: Group filter, rating scope
 
 **Vote Scope**:

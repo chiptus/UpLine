@@ -74,7 +74,7 @@ Flat ground `#fafaf7`, solid white surfaces, soft borders + small shadows (the n
 
 ### Vote triad
 
-Initial values keep today's hues (orange / blue / gray), tuned per theme for AA on their ground; consumed via `src/lib/voteConfig.ts` (SetDetails/groups shift along). Exact tuning is an implementation detail inside the family contract: `vote-*` (solid), `vote-*-foreground` (legible text/icon on ground), `vote-*-soft` (translucent card/chip wash).
+Initial values keep today's hues (orange / blue / gray), tuned per theme for AA on their ground; consumed via `src/lib/votes/config.ts` (SetDetails/groups shift along). Exact tuning is an implementation detail inside the family contract: `vote-*` (solid), `vote-*-foreground` (legible text/icon on ground), `vote-*-soft` (translucent card/chip wash).
 
 | Family            | Dark base | Light base |
 | ----------------- | --------- | ---------- |

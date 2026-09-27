@@ -21,10 +21,10 @@ test.describe("Schedule set-type filter", { tag: "@smoke" }, () => {
     await expect(listSchedule(page)).toBeVisible();
     await expect(page.getByText(MUSIC_SET_NAME).first()).toBeVisible();
 
-    // Open the sheet from the workshop's own day group (Jul 13): filtering
-    // unmounts day groups left without sets, and the sheet unmounts with its
-    // host header.
-    const dayGroup = listSchedule(page).getByRole("region", { name: /Jul 13/ });
+    // Open the sheet from a day group the workshop filter empties (Jul 12):
+    // emptied day groups stay mounted with an empty state, so the sheet that
+    // opened it must stay open too.
+    const dayGroup = listSchedule(page).getByRole("region", { name: /Jul 12/ });
     await dayGroup.getByRole("button", { name: /Filters/ }).click();
     const sheet = page.getByRole("dialog");
     await expect(sheet).toBeVisible();
@@ -38,6 +38,9 @@ test.describe("Schedule set-type filter", { tag: "@smoke" }, () => {
     // The active type selection counts toward the filter badge.
     await expect(
       dayGroup.getByRole("button", { name: "Filters (1 active)" }),
+    ).toBeVisible();
+    await expect(
+      dayGroup.getByText("No sets match your filters."),
     ).toBeVisible();
   });
 

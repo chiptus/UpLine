@@ -44,15 +44,21 @@ export function ListDayGroup({ dayKey, slots, timezone }: ListDayGroupProps) {
         </div>
       </header>
 
-      <div className="space-y-6">
-        {slots.map((slot) => (
-          <TimeSlotGroup
-            key={slot.time.toISOString()}
-            timeSlot={slot}
-            timezone={timezone}
-          />
-        ))}
-      </div>
+      {slots.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          No sets match your filters.
+        </p>
+      ) : (
+        <div className="space-y-6">
+          {slots.map((slot) => (
+            <TimeSlotGroup
+              key={slot.time.toISOString()}
+              timeSlot={slot}
+              timezone={timezone}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

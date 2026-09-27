@@ -3,7 +3,7 @@
 > For a full overview of all testing infrastructure, CI/CD, and general troubleshooting, see [docs/TESTING.md](../docs/TESTING.md).
 > All E2E test coverage, debugging, troubleshooting, and next steps are documented here.
 
-This directory contains end-to-end tests for the Boom Voter application using Playwright.
+This directory contains end-to-end tests for the UpLine application using Playwright.
 
 ## 🚀 Quick Start
 
@@ -185,11 +185,16 @@ await testHelpers.takeScreenshot("test-name");
    - Changing a vote updates the selection and vote counts instead of adding a second vote
    - Removing a vote returns the set to the unvoted state
    - Unauthenticated vote attempts surface the sign-in prompt instead of recording a vote
+5. **Groups** (`groups-flow.spec.ts`)
+   - Creating a group lists it under My Groups
+   - The creator sees the member list and can generate an invite link
+   - A second user joins via the invite link and appears in the member list
+   - A non-member can't see the group's detail page or find it in their own list
+   - Leaving a group removes it from the member's list
 
 ### Planned Tests
 
 - User registration
-- Group management
 - Schedule viewing
 - Admin features
 - Mobile responsiveness

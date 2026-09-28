@@ -5,4 +5,6 @@
 ALTER TABLE public.votes DROP CONSTRAINT IF EXISTS votes_type_check;
 
 ALTER TABLE public.votes
-ADD CONSTRAINT votes_type_check CHECK (vote_type IN (-1, 0, 1, 2));
+ADD CONSTRAINT votes_type_check CHECK (vote_type IN (-1, 0, 1, 2)) NOT VALID;
+
+ALTER TABLE public.votes VALIDATE CONSTRAINT votes_type_check;

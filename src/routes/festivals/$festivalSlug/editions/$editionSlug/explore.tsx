@@ -140,7 +140,7 @@ function ExploreSetPageContent({
     }
 
     const existingVote = userVotes[currentSet.id];
-    // "Won't Go" and "Neutral" both settle the decision on this artist, so
+    // "Won't Go" and "Neutral" both settle the decision on this set, so
     // they advance to the next one, matching the explicit skip action.
     // "Must Go" / "Interested" just cast the vote and stay.
     const advancesQueue =

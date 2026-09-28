@@ -8,9 +8,11 @@ Shared across branch names and commit/PR titles below: one of `feat`, `fix`, `re
 
 ## Branch naming
 
-`<type>/<description-slug>` — e.g. `fix/consolidate-set-types`.
+`<type>/<id>/<slug>` - e.g `fix/UPL-448/consolidate-set-types`.
 
-The autonomic pipeline's issue-linked variant ties a branch to its Linear issue: `<type>-<id>/<slug>`, e.g. `fix-448/consolidate-set-types`, where `<id>` is the numeric part of the Linear identifier (`UPL-448` → `448`).
+if no issue id then - `<type>/<description-slug>` — e.g. `fix/consolidate-set-types`.
+
+The autonomic pipeline's issue-linked variant ties a branch to its Linear issue: `<type>/<id>/<slug>`, e.g. `fix/UPL-448/consolidate-set-types`
 
 ## Commit message / PR title format
 

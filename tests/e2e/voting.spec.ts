@@ -6,7 +6,7 @@ import {
   type Page,
 } from "@playwright/test";
 import { signIn } from "../utils/login";
-import { VOTE_CONFIG, type VoteType } from "../../src/lib/voteConfig";
+import { VOTE_CONFIG, type VoteType } from "../../src/lib/votes/config";
 
 // Seeded via supabase/seed.sql: "Test festival" edition "Boom Festival 2025".
 const EDITION_SETS_PATH = "/festivals/test/editions/2025/sets";

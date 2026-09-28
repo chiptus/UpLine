@@ -7,24 +7,20 @@ import { NonMusicSetAboutCard } from "./NonMusicSetAboutCard";
 
 interface NonMusicSetDetailProps {
   set: FestivalSet;
-  netVoteScore: number;
+  score: number;
   use24Hour: boolean;
 }
 
 export function NonMusicSetDetail({
   set,
-  netVoteScore,
+  score,
   use24Hour,
 }: NonMusicSetDetailProps) {
   const artistWithImage = set.artists.find((artist) => artist.image_url);
 
   return (
     <div className="mb-8 space-y-6">
-      <NonMusicSetBanner
-        set={set}
-        netVoteScore={netVoteScore}
-        use24Hour={use24Hour}
-      />
+      <NonMusicSetBanner set={set} score={score} use24Hour={use24Hour} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {artistWithImage?.image_url ? (

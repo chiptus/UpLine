@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { inviteKeys } from "./types";
@@ -50,37 +49,16 @@ async function generateInviteLink(
 
 export function useGenerateInviteMutation(groupId: string) {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (
+    mutationFn: (
       options: {
         expiresAt?: Date;
         maxUses?: number;
       } = {},
-    ) => {
-      const inviteUrl = await generateInviteLink(groupId, options);
-
-      // Copy to clipboard
-      await navigator.clipboard.writeText(inviteUrl);
-
-      return inviteUrl;
-    },
+    ) => generateInviteLink(groupId, options),
     onSuccess: () => {
-      toast({
-        title: "Invite Created",
-        description: "Invite link copied to clipboard!",
-      });
-      // Refetch invites to show the new one
       queryClient.invalidateQueries({ queryKey: inviteKeys.group(groupId) });
-    },
-    onError: (error) => {
-      console.error("Error generating invite:", error);
-      toast({
-        title: "Error",
-        description: "Failed to generate invite link",
-        variant: "destructive",
-      });
     },
   });
 }

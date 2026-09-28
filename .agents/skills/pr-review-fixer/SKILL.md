@@ -7,7 +7,7 @@ description: >
   PR comments", "address review feedback", "fix review comments", "what comments are
   on this PR", "respond to code review", or similar. Trigger even if they just say
   "let's fix the PR comments" or "what did reviewers say".
-allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/fetch-review-threads.sh) Bash(${CLAUDE_SKILL_DIR}/scripts/resolve-thread.sh *) Bash(gh pr comment *)
+allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/fetch-review-threads.sh) Bash(${CLAUDE_SKILL_DIR}/scripts/resolve-thread.sh *) Bash(gh pr comment *) Bash(command -v gh) mcp__github__pull_request_read mcp__github__resolve_review_thread mcp__github__add_reply_to_pull_request_comment mcp__github__add_issue_comment
 ---
 
 # PR Review Comment Fixer
@@ -17,10 +17,22 @@ whatever the user approves.
 
 ## Phase 1: Fetch threads
 
-Run !`${CLAUDE_SKILL_DIR}/scripts/fetch-review-threads.sh`. It resolves the current PR, fetches review
-threads, review bodies, and issue comments, and filters out resolved threads and
-empty bodies with `jq` before any of it reaches you: you only ever see live,
-unresolved feedback. Output is `{threads, reviews, issueComments}`.
+Check whether `gh` is on `PATH`: `command -v gh`. Some sessions (e.g. a
+remote/cloud session) have no `gh` CLI and use `mcp__github__*` tools instead.
+
+**`gh` available:** run `${CLAUDE_SKILL_DIR}/scripts/fetch-review-threads.sh` via
+the Bash tool. It resolves the current PR, fetches review threads, review bodies,
+and issue comments, and filters out resolved threads and empty bodies with `jq`
+before any of it reaches you: you only ever see live, unresolved feedback. Output
+is `{threads, reviews, issueComments}`. If the script fails to resolve a PR for
+the current branch, ask the user for the PR number or URL and retry.
+
+**`gh` missing:** read [`gh-missing.md`](./gh-missing.md)'s "Phase 1" section and
+follow it instead: it reconstructs the same `{threads, reviews, issueComments}`
+shape via `mcp__github__pull_request_read`.
+
+Either way, everything from Phase 2 on reads `{threads, reviews, issueComments}`
+the same way regardless of which path produced it.
 
 If all three arrays are empty, tell the user and stop.
 
@@ -96,17 +108,20 @@ Parse the user's free-text reply to determine which comments to fix. Be flexible
 For each selected comment:
 
 - If `small` or `medium`: implement the fix now. After editing, confirm with a brief
-  "Fixed #N: [what changed]" note. Then resolve the thread:
+  "Fixed #N: [what changed]" note. Then resolve the thread (`gh` available):
   ```bash
   ${CLAUDE_SKILL_DIR}/scripts/resolve-thread.sh <thread-id>
   ```
+  `gh` missing: [`gh-missing.md`](./gh-missing.md)'s "Phase 4" section.
   (Only resolve inline threads; top-level review bodies and issue comments don't have
   a thread ID to resolve.)
 - If `large`: don't attempt it now. Say: "Comment N is too large for this session:
   suggest tackling it in a dedicated follow-up." Do not resolve the thread.
 - If the comment is a **question**: no code change needed. Explain the answer
-  (optionally as a reply via `gh pr comment --body ...` if the user wants
-  to post it, but don't do this unless asked). Resolve the thread after answering.
+  (optionally posted as a reply, if the user wants it posted, but don't do this unless
+  asked: `gh` available, `gh pr comment --body ...`; `gh` missing,
+  [`gh-missing.md`](./gh-missing.md)'s "Phase 4" section). Resolve the thread after
+  answering.
 
 After all fixes are applied, give a short summary of what was changed and what was
 deferred.

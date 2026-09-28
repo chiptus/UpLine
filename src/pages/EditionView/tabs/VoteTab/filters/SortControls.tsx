@@ -15,7 +15,6 @@ import {
   HelpCircle,
   ArrowUpAZ,
   ArrowDownAZ,
-  Star,
   TrendingUp,
   Calendar,
 } from "lucide-react";
@@ -31,8 +30,7 @@ interface SortControlsProps {
 const SORT_ICONS = {
   "name-asc": ArrowUpAZ,
   "name-desc": ArrowDownAZ,
-  "rating-desc": Star,
-  "popularity-desc": TrendingUp,
+  "score-desc": TrendingUp,
   "date-asc": Calendar,
 } as const;
 
@@ -112,27 +110,12 @@ export function SortControls({ sort, onSortChange }: SortControlsProps) {
               </div>
 
               <div className="flex items-center gap-2">
-                <Star className="h-4 w-4 text-subtle-foreground" />
-                <div>
-                  <strong className="text-subtle-foreground">
-                    Highest Rated:
-                  </strong>
-                  <p className="text-popover-foreground/80">
-                    Sort by weighted average rating based on votes (Must go = 2
-                    points, Interested = 1 point, Won't go = -1 point)
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-subtle-foreground" />
                 <div>
-                  <strong className="text-subtle-foreground">
-                    Most Popular:
-                  </strong>
+                  <strong className="text-subtle-foreground">Top Score:</strong>
                   <p className="text-popover-foreground/80">
-                    Sort by weighted popularity score (Must go = 2 points,
-                    Interested = 1 point)
+                    Sort by score, the sum of all votes (Must Go = +2,
+                    Interested = +1, Won't Go = -1)
                   </p>
                 </div>
               </div>

@@ -55,10 +55,33 @@ export function InviteManagement({
     }
 
     generateInviteMutation.mutate(options, {
-      onSuccess: () => {
-        // Reset form
+      onSuccess: async (inviteUrl) => {
         setExpirationDays("");
         setMaxUses("");
+
+        // Clipboard access can be denied (permissions, headless browsers)
+        // even though the invite itself was created, so don't report it as
+        // a failure.
+        let copied = true;
+        try {
+          await navigator.clipboard.writeText(inviteUrl);
+        } catch {
+          copied = false;
+        }
+        toast({
+          title: "Invite Created",
+          description: copied
+            ? "Invite link copied to clipboard!"
+            : "Invite link generated.",
+        });
+      },
+      onError: (error) => {
+        console.error("Error generating invite:", error);
+        toast({
+          title: "Error",
+          description: "Failed to generate invite link",
+          variant: "destructive",
+        });
       },
     });
   }
@@ -97,15 +120,13 @@ export function InviteManagement({
     return new Date(dateString).toLocaleDateString();
   }
 
-  function isExpired(expiresAt?: string) {
+  function isExpired(expiresAt: string | null) {
     if (!expiresAt) return false;
     return new Date(expiresAt) <= new Date();
   }
 
   function isOverused(invite: GroupInvite) {
-    return (
-      invite.max_uses !== undefined && invite.used_count >= invite.max_uses
-    );
+    return invite.max_uses !== null && invite.used_count >= invite.max_uses;
   }
 
   return (

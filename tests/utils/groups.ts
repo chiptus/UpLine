@@ -1,31 +1,4 @@
-import { TEST_CONFIG } from "../config/test-env";
-
-const ADMIN_HEADERS = {
-  "Content-Type": "application/json",
-  apikey: TEST_CONFIG.SUPABASE_SERVICE_ROLE_KEY,
-  Authorization: `Bearer ${TEST_CONFIG.SUPABASE_SERVICE_ROLE_KEY}`,
-};
-
-async function getUserIdByEmail(email: string): Promise<string> {
-  const response = await fetch(
-    `${TEST_CONFIG.SUPABASE_URL}/rest/v1/profiles?email=eq.${encodeURIComponent(email)}&select=id`,
-    { headers: ADMIN_HEADERS },
-  );
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to look up profile for ${email}: ${response.status}`,
-    );
-  }
-
-  const [profile] = (await response.json()) as { id: string }[];
-
-  if (!profile) {
-    throw new Error(`No profile found for ${email}`);
-  }
-
-  return profile.id;
-}
+import { adminClient } from "./supabaseAdmin";
 
 // Creates a group and adds the given user as its sole member, so
 // single-group auto-activation kicks in for them.
@@ -35,38 +8,26 @@ export async function createGroupWithMember(
 ): Promise<{ groupId: string; groupName: string }> {
   const userId = await getUserIdByEmail(email);
 
-  const groupResponse = await fetch(
-    `${TEST_CONFIG.SUPABASE_URL}/rest/v1/groups`,
-    {
-      method: "POST",
-      headers: { ...ADMIN_HEADERS, Prefer: "return=representation" },
-      body: JSON.stringify({
-        name: groupName,
-        slug: groupName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-        created_by: userId,
-      }),
-    },
-  );
+  const { data: group, error: groupError } = await adminClient
+    .from("groups")
+    .insert({
+      name: groupName,
+      slug: groupName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+      created_by: userId,
+    })
+    .select("id")
+    .single();
 
-  if (!groupResponse.ok) {
-    throw new Error(`Failed to create test group: ${groupResponse.status}`);
+  if (groupError) {
+    throw new Error(`Failed to create test group: ${groupError.message}`);
   }
 
-  const [group] = (await groupResponse.json()) as { id: string }[];
+  const { error: memberError } = await adminClient
+    .from("group_members")
+    .insert({ group_id: group.id, user_id: userId });
 
-  const memberResponse = await fetch(
-    `${TEST_CONFIG.SUPABASE_URL}/rest/v1/group_members`,
-    {
-      method: "POST",
-      headers: { ...ADMIN_HEADERS, Prefer: "return=minimal" },
-      body: JSON.stringify({ group_id: group.id, user_id: userId }),
-    },
-  );
-
-  if (!memberResponse.ok) {
-    throw new Error(
-      `Failed to add test group member: ${memberResponse.status}`,
-    );
+  if (memberError) {
+    throw new Error(`Failed to add test group member: ${memberError.message}`);
   }
 
   return { groupId: group.id, groupName };
@@ -79,18 +40,29 @@ export async function addMemberToGroup(
 ): Promise<void> {
   const userId = await getUserIdByEmail(email);
 
-  const memberResponse = await fetch(
-    `${TEST_CONFIG.SUPABASE_URL}/rest/v1/group_members`,
-    {
-      method: "POST",
-      headers: { ...ADMIN_HEADERS, Prefer: "return=minimal" },
-      body: JSON.stringify({ group_id: groupId, user_id: userId }),
-    },
-  );
+  const { error } = await adminClient
+    .from("group_members")
+    .insert({ group_id: groupId, user_id: userId });
 
-  if (!memberResponse.ok) {
-    throw new Error(
-      `Failed to add test group member: ${memberResponse.status}`,
-    );
+  if (error) {
+    throw new Error(`Failed to add test group member: ${error.message}`);
   }
+}
+
+async function getUserIdByEmail(email: string): Promise<string> {
+  const { data: profile, error } = await adminClient
+    .from("profiles")
+    .select("id")
+    .eq("email", email)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to look up profile for ${email}: ${error.message}`);
+  }
+
+  if (!profile) {
+    throw new Error(`No profile found for ${email}`);
+  }
+
+  return profile.id;
 }

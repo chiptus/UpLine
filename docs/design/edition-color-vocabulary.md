@@ -63,7 +63,7 @@ A hairline drawn in `border-white/NN` (not purple) doesn't fit either border rol
 
 ### Vote triad
 
-Vote colors become token families consumed by `src/lib/voteConfig.ts` (shared with SetDetails/groups, which shift along):
+Vote colors become token families consumed by `src/lib/votes/config.ts` (shared with SetDetails/groups, which shift along):
 
 | Family                                      | Vote            | Initial value  |
 | ------------------------------------------- | --------------- | -------------- |

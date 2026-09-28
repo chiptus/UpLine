@@ -34,3 +34,29 @@ describe("filterSortSearchSchema types", () => {
     expect(result.types).toEqual([]);
   });
 });
+
+describe("filterSortSearchSchema legacy URL compatibility", () => {
+  it("falls back to score-desc for the retired rating-desc sort", () => {
+    const result = filterSortSearchSchema.parse({
+      ...filterSortSearchDefaults,
+      sort: "rating-desc",
+    });
+    expect(result.sort).toBe("score-desc");
+  });
+
+  it("falls back to score-desc for the retired popularity-desc sort", () => {
+    const result = filterSortSearchSchema.parse({
+      ...filterSortSearchDefaults,
+      sort: "popularity-desc",
+    });
+    expect(result.sort).toBe("score-desc");
+  });
+
+  it("drops the retired minRating param instead of erroring", () => {
+    const result = filterSortSearchSchema.parse({
+      ...filterSortSearchDefaults,
+      minRating: 2,
+    });
+    expect(result).not.toHaveProperty("minRating");
+  });
+});

@@ -72,3 +72,10 @@ export function revealLabels(
   if (!day) return isTba ? { dayLabel: "Time TBA", stageId } : { stageId };
   return { dayLabel: isTba ? `${day} · TBA` : day, stageId };
 }
+
+/** The one line of text a Set card shows for its schedule, or undefined if nothing should be shown yet. */
+export function scheduleLabel(
+  labels: Pick<RevealLabels, "dayLabel" | "timeLabel">,
+): string | undefined {
+  return labels.dayLabel ?? labels.timeLabel;
+}

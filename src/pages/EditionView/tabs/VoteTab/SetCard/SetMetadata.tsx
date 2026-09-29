@@ -1,6 +1,7 @@
 import { Clock } from "lucide-react";
 import { GenreBadge } from "@/components/GenreBadge";
 import { StageBadgeById } from "@/components/StageBadgeById";
+import { scheduleLabel } from "@/lib/scheduleReveal";
 import { useFestivalSet } from "../FestivalSetContext";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 import { useTimeFormat } from "@/hooks/useTimeFormat";
@@ -17,8 +18,8 @@ export function SetMetadata() {
         index,
     );
 
-  const { dayLabel, timeLabel, stageId } = revealLabels(set, use24Hour);
-  const scheduleFormatted = dayLabel ?? timeLabel;
+  const labels = revealLabels(set, use24Hour);
+  const scheduleFormatted = scheduleLabel(labels);
 
   return (
     <div className="flex items-center flex-wrap gap-2">
@@ -37,7 +38,7 @@ export function SetMetadata() {
 
       {/* Stage and Time Information */}
       <div className="flex flex-wrap gap-2 items-center">
-        {stageId && <StageBadgeById stageId={stageId} />}
+        {labels.stageId && <StageBadgeById stageId={labels.stageId} />}
         {scheduleFormatted && (
           <div className="flex items-center gap-1 text-sm text-muted-foreground">
             <Clock className="h-3 w-3" />

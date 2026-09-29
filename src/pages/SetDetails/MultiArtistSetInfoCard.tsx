@@ -13,6 +13,7 @@ import { GenreBadge } from "@/components/GenreBadge";
 import { IndividualArtistCard } from "./IndividualArtistCard";
 import { StagePin } from "@/components/StagePin";
 import { MarkdownText } from "@/components/ui/markdown-text";
+import { scheduleLabel } from "@/lib/scheduleReveal";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 
 interface MultiArtistSetInfoCardProps {
@@ -35,8 +36,8 @@ export function MultiArtistSetInfoCard({
       self.findIndex((g) => g.music_genre_id === genre.music_genre_id),
   );
   const { revealLabels } = useScheduleReveal();
-  const { dayLabel, timeLabel, stageId } = revealLabels(set, use24Hour);
-  const scheduleFormatted = dayLabel ?? timeLabel;
+  const labels = revealLabels(set, use24Hour);
+  const scheduleFormatted = scheduleLabel(labels);
 
   return (
     <div className="lg:col-span-2 space-y-6">
@@ -84,7 +85,7 @@ export function MultiArtistSetInfoCard({
 
               {/* Performance Information */}
               <div className="flex flex-wrap gap-4 mb-4 text-muted-foreground">
-                {stageId && <StagePin stageId={stageId} />}
+                {labels.stageId && <StagePin stageId={labels.stageId} />}
                 {scheduleFormatted && (
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4" />

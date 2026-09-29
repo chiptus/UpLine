@@ -4,6 +4,7 @@ import { FestivalSet } from "@/api/sets/types";
 import { StagePin } from "@/components/StagePin";
 import { cn } from "@/lib/utils";
 import { getSetTypeLabel } from "@/lib/setTypeLabels";
+import { scheduleLabel } from "@/lib/scheduleReveal";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 
 interface NonMusicSetBannerProps {
@@ -20,8 +21,8 @@ export function NonMusicSetBanner({
   const { revealLabels } = useScheduleReveal();
   const { label, icon: Icon, gradient } = getSetTypeLabel(set.set_type);
 
-  const { dayLabel, timeLabel, stageId } = revealLabels(set, use24Hour);
-  const scheduleFormatted = dayLabel ?? timeLabel;
+  const labels = revealLabels(set, use24Hour);
+  const scheduleFormatted = scheduleLabel(labels);
 
   return (
     <div
@@ -54,7 +55,7 @@ export function NonMusicSetBanner({
           {set.name}
         </h1>
         <div className="flex flex-wrap gap-4 text-muted-foreground mt-2">
-          {stageId && <StagePin stageId={stageId} />}
+          {labels.stageId && <StagePin stageId={labels.stageId} />}
           {scheduleFormatted && (
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4" />

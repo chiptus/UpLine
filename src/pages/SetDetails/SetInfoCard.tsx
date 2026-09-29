@@ -13,6 +13,7 @@ import { FestivalSet } from "@/api/sets/types";
 import { GenreBadge } from "@/components/GenreBadge";
 import { StagePin } from "@/components/StagePin";
 import { MarkdownText } from "@/components/ui/markdown-text";
+import { scheduleLabel } from "@/lib/scheduleReveal";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 
 interface SetInfoCardProps {
@@ -28,8 +29,8 @@ export function SetInfoCard({
 }: SetInfoCardProps) {
   const artist = set.artists[0];
   const { revealLabels } = useScheduleReveal();
-  const { dayLabel, timeLabel, stageId } = revealLabels(set, use24Hour);
-  const scheduleFormatted = dayLabel ?? timeLabel;
+  const labels = revealLabels(set, use24Hour);
+  const scheduleFormatted = scheduleLabel(labels);
   return (
     <div className="lg:col-span-2">
       <Card className="bg-surface-raised backdrop-blur-md border h-full">
@@ -63,7 +64,7 @@ export function SetInfoCard({
 
               {/* Performance Information */}
               <div className="flex flex-wrap gap-4 mb-4 text-muted-foreground">
-                {stageId && <StagePin stageId={stageId} />}
+                {labels.stageId && <StagePin stageId={labels.stageId} />}
                 {scheduleFormatted && (
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4" />

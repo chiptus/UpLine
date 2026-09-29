@@ -5,7 +5,11 @@ import {
   canShowTime,
   isAtLeast,
   revealLabels,
+  scheduleLabel,
+  type RevealLevel,
 } from "./scheduleReveal";
+
+const ALL_LEVELS: RevealLevel[] = ["draft", "days", "stages", "full"];
 
 describe("isAtLeast", () => {
   it("compares levels in declared order", () => {
@@ -72,12 +76,20 @@ describe("revealLabels", () => {
     expect(dayLabel).toBeUndefined();
   });
 
-  it("shows day-only for a timed set below full reveal", () => {
-    const { dayLabel, timeLabel } = revealLabels(timedSet, "days", "UTC", true);
-    expect(dayLabel).toBeDefined();
-    expect(dayLabel).not.toContain("20:00");
-    expect(timeLabel).toBeUndefined();
-  });
+  it.each(["days", "stages"] as const)(
+    "shows day-only for a timed set at %s reveal",
+    (level) => {
+      const { dayLabel, timeLabel } = revealLabels(
+        timedSet,
+        level,
+        "UTC",
+        true,
+      );
+      expect(dayLabel).toBeDefined();
+      expect(dayLabel).not.toContain("20:00");
+      expect(timeLabel).toBeUndefined();
+    },
+  );
 
   it("shows neither label when day isn't revealed", () => {
     const { dayLabel, timeLabel } = revealLabels(
@@ -135,22 +147,33 @@ describe("revealLabels", () => {
     }
   });
 
-  it("nulls stageId below stage-level reveal", () => {
-    expect(revealLabels(timedSet, "draft", "UTC", true).stageId).toBeNull();
-    expect(revealLabels(timedSet, "days", "UTC", true).stageId).toBeNull();
-  });
+  it.each(ALL_LEVELS)(
+    "masks stageId at %s reveal by whether stage-level is met, regardless of whether the set has a stage",
+    (level) => {
+      const expectedWhenPresent = canShowStage(level) ? "stage-1" : null;
+      expect(revealLabels(timedSet, level, "UTC", true).stageId).toBe(
+        expectedWhenPresent,
+      );
+      expect(
+        revealLabels({ ...timedSet, stage_id: null }, level, "UTC", true)
+          .stageId,
+      ).toBeNull();
+    },
+  );
+});
 
-  it("exposes stageId from stage-level reveal onward", () => {
-    expect(revealLabels(timedSet, "stages", "UTC", true).stageId).toBe(
-      "stage-1",
-    );
-    expect(revealLabels(timedSet, "full", "UTC", true).stageId).toBe("stage-1");
-  });
-
-  it("nulls stageId regardless of reveal level when the set has no stage", () => {
+describe("scheduleLabel", () => {
+  it("prefers dayLabel over timeLabel", () => {
     expect(
-      revealLabels({ ...timedSet, stage_id: null }, "full", "UTC", true)
-        .stageId,
-    ).toBeNull();
+      scheduleLabel({ dayLabel: "Fri, Jul 11", timeLabel: "20:00 - 22:00" }),
+    ).toBe("Fri, Jul 11");
+  });
+
+  it("falls back to timeLabel when there's no dayLabel", () => {
+    expect(scheduleLabel({ timeLabel: "20:00 - 22:00" })).toBe("20:00 - 22:00");
+  });
+
+  it("is undefined when neither label is set", () => {
+    expect(scheduleLabel({})).toBeUndefined();
   });
 });

@@ -67,11 +67,7 @@ export function SetExploreCard({
           {/* Content */}
           <div className="relative h-full flex flex-col justify-between p-6 text-foreground">
             {/* Header Info */}
-            <SetCardHeader
-              stageId={set.stage_id || undefined}
-              timeStart={set.time_start}
-              use24Hour={use24Hour}
-            />
+            <SetCardHeader set={set} use24Hour={use24Hour} />
 
             {/* Main Content */}
             <div className="flex-1 flex flex-col justify-center space-y-4">

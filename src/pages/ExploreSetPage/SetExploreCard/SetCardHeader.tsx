@@ -1,48 +1,27 @@
 import { Badge } from "@/components/ui/badge";
 import { Clock } from "lucide-react";
 import { StageBadgeById } from "@/components/StageBadgeById";
+import { FestivalSet } from "@/api/sets/types";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
-import { formatTimeOnly } from "@/lib/timeUtils";
 
 interface SetCardHeaderProps {
-  stageId?: string | undefined;
-  timeStart: string | null;
-  use24Hour?: boolean;
+  set: FestivalSet;
+  use24Hour: boolean;
 }
 
-export function SetCardHeader({
-  stageId,
-  timeStart,
-  use24Hour = true,
-}: SetCardHeaderProps) {
-  const { canShowStage, canShowDay, canShowTime } = useScheduleReveal();
-
-  function formatTime(dateString: string | null) {
-    return formatTimeOnly(dateString, null, use24Hour) ?? "";
-  }
-
-  function formatDate(dateString: string | null) {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-    });
-  }
-
-  const dateLabel = canShowDay ? formatDate(timeStart) : "";
-  const timeLabel = canShowTime && timeStart ? formatTime(timeStart) : "";
+export function SetCardHeader({ set, use24Hour }: SetCardHeaderProps) {
+  const { revealLabels } = useScheduleReveal();
+  const { dayLabel, timeLabel, stageId } = revealLabels(set, use24Hour);
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        {dateLabel && (
+        {dayLabel && (
           <Badge
             variant="secondary"
             className="bg-accent/80 text-foreground border-0"
           >
-            {dateLabel}
+            {dayLabel}
           </Badge>
         )}
         {timeLabel && (
@@ -53,7 +32,7 @@ export function SetCardHeader({
         )}
       </div>
 
-      {canShowStage && stageId && <StageBadgeById stageId={stageId} />}
+      {stageId && <StageBadgeById stageId={stageId} />}
     </div>
   );
 }

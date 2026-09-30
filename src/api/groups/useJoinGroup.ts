@@ -28,7 +28,10 @@ export function useJoinGroupMutation() {
     mutationFn: joinGroup,
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: groupsKeys.user(variables.userId),
+        queryKey: groupsKeys.myGroups(variables.userId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: groupsKeys.allGroups(variables.userId),
       });
       toast({
         title: "Success",

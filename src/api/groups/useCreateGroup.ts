@@ -55,10 +55,7 @@ export function useCreateGroupMutation() {
 
   return useMutation({
     mutationFn: createGroup,
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: groupsKeys.user(variables.userId),
-      });
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: groupsKeys.all,
       });

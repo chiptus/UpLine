@@ -27,11 +27,8 @@ export function useDeleteGroupMutation() {
 
   return useMutation({
     mutationFn: deleteGroup,
-    onSuccess: (_data, variables) => {
+    onSuccess: () => {
       // Invalidate all group-related queries
-      queryClient.invalidateQueries({
-        queryKey: groupsKeys.user(variables.userId),
-      });
       queryClient.invalidateQueries({
         queryKey: groupsKeys.all,
       });

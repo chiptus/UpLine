@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { userGroupsQuery } from "@/api/groups/useUserGroups";
+import { myGroupsQuery, useMyGroupsQuery } from "@/api/groups/useMyGroups";
+import { useAllGroupsQuery } from "@/api/groups/useAllGroups";
 import { Suspense, useState } from "react";
 import { useNavigate, useRouteContext } from "@tanstack/react-router";
 import type { User } from "@supabase/supabase-js";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { useUserPermissionsQuery } from "@/api/auth/useUserPermissions";
 import { useDeleteGroupMutation } from "@/api/groups/useDeleteGroup";
 import { DeleteGroupDialog } from "@/pages/groups/Groups/DeleteGroupDialog";
@@ -21,9 +21,7 @@ export const Route = createFileRoute("/groups/")({
   }),
   loader: async ({ context }) => {
     if (context.user) {
-      void context.queryClient.ensureQueryData(
-        userGroupsQuery(context.user.id, { all: false }),
-      );
+      void context.queryClient.ensureQueryData(myGroupsQuery(context.user.id));
     }
   },
 });
@@ -146,16 +144,46 @@ function GroupsList({
   showAllGroups: boolean;
   onDelete: (id: string, name: string) => void;
 }) {
-  const { data: groups } = useSuspenseQuery(
-    userGroupsQuery(userId, { all: showAllGroups }),
-  );
+  if (showAllGroups) {
+    return <AllGroupsList userId={userId} onDelete={onDelete} />;
+  }
+  return <UserGroupsList userId={userId} onDelete={onDelete} />;
+}
+
+function UserGroupsList({
+  userId,
+  onDelete,
+}: {
+  userId: string;
+  onDelete: (id: string, name: string) => void;
+}) {
+  const { data: groups } = useMyGroupsQuery(userId);
 
   return (
     <MyGroupsList
       groups={groups}
       loading={false}
       onDelete={onDelete}
-      showMembershipBadges={showAllGroups}
+      showMembershipBadges={false}
+    />
+  );
+}
+
+function AllGroupsList({
+  userId,
+  onDelete,
+}: {
+  userId: string;
+  onDelete: (id: string, name: string) => void;
+}) {
+  const { data: groups } = useAllGroupsQuery(userId);
+
+  return (
+    <MyGroupsList
+      groups={groups}
+      loading={false}
+      onDelete={onDelete}
+      showMembershipBadges={true}
     />
   );
 }

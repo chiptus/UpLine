@@ -2,7 +2,7 @@ import { createContext, useContext, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
-import { userGroupsQuery } from "@/api/groups/useUserGroups";
+import { myGroupsQuery } from "@/api/groups/useMyGroups";
 import { resolveActiveGroupId, resolvePinnedScope } from "@/lib/activeGroup";
 import type { PinnedScope } from "@/lib/activeGroup";
 
@@ -66,7 +66,7 @@ function AuthedActiveScopeProvider({
   children: ReactNode;
 }) {
   const { profile } = useAuth();
-  const { data: groups = [] } = useQuery(userGroupsQuery(userId));
+  const { data: groups = [] } = useQuery(myGroupsQuery(userId));
   const [override, setOverride] = useState<PinnedScope | null>(null);
 
   const groupIds = useMemo(() => groups.map((group) => group.id), [groups]);

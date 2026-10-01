@@ -1,19 +1,15 @@
 import { Clock } from "lucide-react";
-import { formatSetSchedule } from "@/lib/setScheduleDisplay";
 import { GenreBadge } from "@/components/GenreBadge";
 import { StageBadgeById } from "@/components/StageBadgeById";
+import { scheduleLabel } from "@/lib/scheduleReveal";
 import { useFestivalSet } from "../FestivalSetContext";
-import { useRouteContext } from "@tanstack/react-router";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
 import { useTimeFormat } from "@/hooks/useTimeFormat";
 
 export function SetMetadata() {
   const { set } = useFestivalSet();
   const use24Hour = useTimeFormat();
-  const { festival } = useRouteContext({
-    from: "/festivals/$festivalSlug/editions/$editionSlug",
-  });
-  const { canShowStage, level } = useScheduleReveal();
+  const { revealLabels } = useScheduleReveal();
   const uniqueGenres = set.artists
     ?.flatMap((a) => a.artist_music_genres || [])
     .filter(
@@ -22,11 +18,8 @@ export function SetMetadata() {
         index,
     );
 
-  const scheduleFormatted = formatSetSchedule(set, {
-    revealLevel: level,
-    use24Hour,
-    timezone: festival.timezone,
-  });
+  const labels = revealLabels(set, { use24Hour });
+  const scheduleFormatted = scheduleLabel(labels);
 
   return (
     <div className="flex items-center flex-wrap gap-2">
@@ -45,9 +38,7 @@ export function SetMetadata() {
 
       {/* Stage and Time Information */}
       <div className="flex flex-wrap gap-2 items-center">
-        {canShowStage && set?.stage_id && (
-          <StageBadgeById stageId={set.stage_id} />
-        )}
+        {labels.stageId && <StageBadgeById stageId={labels.stageId} />}
         {scheduleFormatted && (
           <div className="flex items-center gap-1 text-sm text-muted-foreground">
             <Clock className="h-3 w-3" />

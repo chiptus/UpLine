@@ -10,12 +10,11 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, ExternalLink, Music, Play } from "lucide-react";
 import { SetVotingButtons } from "./SetVotingButtons";
 import { FestivalSet } from "@/api/sets/types";
-import { formatSetSchedule } from "@/lib/setScheduleDisplay";
 import { GenreBadge } from "@/components/GenreBadge";
 import { StagePin } from "@/components/StagePin";
 import { MarkdownText } from "@/components/ui/markdown-text";
+import { scheduleLabel } from "@/lib/scheduleReveal";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
-import { useRouteContext } from "@tanstack/react-router";
 
 interface SetInfoCardProps {
   set: FestivalSet;
@@ -29,15 +28,9 @@ export function SetInfoCard({
   use24Hour = false,
 }: SetInfoCardProps) {
   const artist = set.artists[0];
-  const { festival } = useRouteContext({
-    from: "/festivals/$festivalSlug/editions/$editionSlug",
-  });
-  const { canShowStage, level } = useScheduleReveal();
-  const scheduleFormatted = formatSetSchedule(set, {
-    revealLevel: level,
-    use24Hour,
-    timezone: festival.timezone,
-  });
+  const { revealLabels } = useScheduleReveal();
+  const labels = revealLabels(set, { use24Hour });
+  const scheduleFormatted = scheduleLabel(labels);
   return (
     <div className="lg:col-span-2">
       <Card className="bg-surface-raised backdrop-blur-md border h-full">
@@ -71,7 +64,7 @@ export function SetInfoCard({
 
               {/* Performance Information */}
               <div className="flex flex-wrap gap-4 mb-4 text-muted-foreground">
-                {canShowStage && <StagePin stageId={set.stage_id} />}
+                {labels.stageId && <StagePin stageId={labels.stageId} />}
                 {scheduleFormatted && (
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4" />

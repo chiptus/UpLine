@@ -1,15 +1,16 @@
 import { useRouteContext } from "@tanstack/react-router";
 import {
-  type MaskableSet,
+  type RevealableSet,
+  type RevealLabels,
   type RevealLevel,
   canShowDay,
   canShowStage,
   canShowTime,
-  maskSetForReveal,
+  computeRevealLabels,
 } from "@/lib/scheduleReveal";
 
 export function useScheduleReveal() {
-  const { edition } = useRouteContext({
+  const { edition, festival } = useRouteContext({
     from: "/festivals/$festivalSlug/editions/$editionSlug",
   });
   const level: RevealLevel = edition.schedule_reveal_level ?? "draft";
@@ -19,8 +20,15 @@ export function useScheduleReveal() {
     canShowDay: canShowDay(level),
     canShowStage: canShowStage(level),
     canShowTime: canShowTime(level),
-    maskSet<T extends MaskableSet>(set: T): T {
-      return maskSetForReveal(set, level);
+    revealLabels(
+      set: RevealableSet,
+      { use24Hour }: { use24Hour: boolean },
+    ): RevealLabels {
+      return computeRevealLabels(set, {
+        level,
+        timezone: festival.timezone,
+        use24Hour,
+      });
     },
   };
 }

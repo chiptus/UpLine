@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   getEffectiveFestivalPhase,
   getFestivalPhase,
+  phaseInputFromEdition,
   type FestivalPhase,
   type FestivalPhaseInput,
 } from "./festivalPhase";
@@ -160,4 +161,62 @@ describe("getEffectiveFestivalPhase", () => {
       ).toBe(derived);
     });
   }
+});
+
+describe("phaseInputFromEdition", () => {
+  const NOW = new Date(LIVE_START);
+
+  it("passes through a fully-populated edition", () => {
+    expect(
+      phaseInputFromEdition({
+        edition: {
+          schedule_reveal_level: "full",
+          start_date: "2025-08-01",
+          end_date: "2025-08-03",
+          phase_override: "live",
+        },
+        timezone: TZ,
+        now: NOW,
+      }),
+    ).toEqual({
+      override: "live",
+      derivedInput: {
+        revealLevel: "full",
+        startDate: "2025-08-01",
+        endDate: "2025-08-03",
+        timezone: TZ,
+        now: NOW,
+      },
+    });
+  });
+
+  it("defaults a missing reveal level to draft", () => {
+    expect(
+      phaseInputFromEdition({
+        edition: { start_date: null, end_date: null, phase_override: null },
+        timezone: TZ,
+        now: NOW,
+      }).derivedInput.revealLevel,
+    ).toBe("draft");
+  });
+
+  it("defaults missing dates to null", () => {
+    const { derivedInput } = phaseInputFromEdition({
+      edition: { schedule_reveal_level: "full", phase_override: null },
+      timezone: TZ,
+      now: NOW,
+    });
+    expect(derivedInput.startDate).toBeNull();
+    expect(derivedInput.endDate).toBeNull();
+  });
+
+  it("defaults a missing override to null", () => {
+    expect(
+      phaseInputFromEdition({
+        edition: { schedule_reveal_level: "full" },
+        timezone: TZ,
+        now: NOW,
+      }).override,
+    ).toBeNull();
+  });
 });

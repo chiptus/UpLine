@@ -3,7 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { editionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { festivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
-import { getFestivalPhase } from "@/lib/festivalPhase";
+import { getFestivalPhase, phaseInputFromEdition } from "@/lib/festivalPhase";
 import { ScheduleRevealControl } from "@/pages/admin/festivals/ScheduleRevealControl";
 import { PhaseOverrideControl } from "@/pages/admin/festivals/PhaseOverrideControl";
 import { pageMeta } from "@/lib/pageHead";
@@ -29,13 +29,13 @@ function FestivalEditionSettings() {
     editionBySlugQuery({ festivalId: festival.id, editionSlug }),
   );
 
-  const derivedPhase = getFestivalPhase({
-    revealLevel: currentEdition.schedule_reveal_level ?? "draft",
-    startDate: currentEdition.start_date,
-    endDate: currentEdition.end_date,
+  // Deliberately derived, not override-aware: feeds the "Automatic (...)" label below, which must preview automatic derivation even when an override is active.
+  const { derivedInput } = phaseInputFromEdition({
+    edition: currentEdition,
     timezone: festival.timezone,
     now: new Date(),
   });
+  const derivedPhase = getFestivalPhase(derivedInput);
 
   return (
     <Card>

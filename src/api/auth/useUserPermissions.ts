@@ -2,10 +2,9 @@ import { queryOptions, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { userPermissionsKeys } from "./types";
 
-async function checkUserPermissions(
-  userId: string,
-  permission: "edit_artists" | "is_admin",
-) {
+type Permission = "edit_artists" | "is_admin" | "is_super_admin";
+
+async function checkUserPermissions(userId: string, permission: Permission) {
   try {
     // Use new admin roles system
     if (permission === "edit_artists") {
@@ -26,6 +25,16 @@ async function checkUserPermissions(
         return false;
       }
       return data || false;
+    } else if (permission === "is_super_admin") {
+      const { data, error } = await supabase.rpc("has_admin_role", {
+        check_user_id: userId,
+        check_role: "super_admin",
+      });
+      if (error) {
+        console.error("Error checking is_super_admin permission:", error);
+        return false;
+      }
+      return data || false;
     }
 
     return false;
@@ -35,10 +44,7 @@ async function checkUserPermissions(
   }
 }
 
-export function userPermissionsQuery(
-  userId: string,
-  permission: "edit_artists" | "is_admin",
-) {
+export function userPermissionsQuery(userId: string, permission: Permission) {
   return queryOptions({
     queryKey: userPermissionsKeys.user(userId, permission),
     queryFn: () => checkUserPermissions(userId, permission),
@@ -48,7 +54,7 @@ export function userPermissionsQuery(
 
 export function useUserPermissionsQuery(
   userId: string | undefined,
-  permission: "edit_artists" | "is_admin",
+  permission: Permission,
 ) {
   return useQuery({
     ...userPermissionsQuery(userId!, permission),

@@ -26,7 +26,7 @@ import { z } from "zod";
 import type { QueryClient } from "@tanstack/react-query";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { userGroupsQuery } from "@/api/groups/useUserGroups";
+import { myGroupsQuery } from "@/api/groups/useMyGroups";
 import { pageMeta } from "@/lib/pageHead";
 import { useClearStaticTags } from "@/hooks/useClearStaticTags";
 
@@ -69,9 +69,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   },
   loader: async ({ context }) => {
     if (context.user) {
-      void context.queryClient.ensureQueryData(
-        userGroupsQuery(context.user.id, { all: false }),
-      );
+      void context.queryClient.ensureQueryData(myGroupsQuery(context.user.id));
     }
   },
 });

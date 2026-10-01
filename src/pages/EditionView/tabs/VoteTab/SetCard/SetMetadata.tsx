@@ -18,7 +18,7 @@ export function SetMetadata() {
         index,
     );
 
-  const labels = revealLabels(set, use24Hour);
+  const labels = revealLabels(set, { use24Hour });
   const scheduleFormatted = scheduleLabel(labels);
 
   return (

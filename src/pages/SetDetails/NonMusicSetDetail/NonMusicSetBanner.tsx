@@ -21,7 +21,7 @@ export function NonMusicSetBanner({
   const { revealLabels } = useScheduleReveal();
   const { label, icon: Icon, gradient } = getSetTypeLabel(set.set_type);
 
-  const labels = revealLabels(set, use24Hour);
+  const labels = revealLabels(set, { use24Hour });
   const scheduleFormatted = scheduleLabel(labels);
 
   return (

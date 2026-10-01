@@ -20,8 +20,15 @@ export function useScheduleReveal() {
     canShowDay: canShowDay(level),
     canShowStage: canShowStage(level),
     canShowTime: canShowTime(level),
-    revealLabels(set: RevealableSet, use24Hour: boolean): RevealLabels {
-      return computeRevealLabels(set, level, festival.timezone, use24Hour);
+    revealLabels(
+      set: RevealableSet,
+      { use24Hour }: { use24Hour: boolean },
+    ): RevealLabels {
+      return computeRevealLabels(set, {
+        level,
+        timezone: festival.timezone,
+        use24Hour,
+      });
     },
   };
 }

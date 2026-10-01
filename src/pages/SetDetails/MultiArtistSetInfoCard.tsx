@@ -36,7 +36,7 @@ export function MultiArtistSetInfoCard({
       self.findIndex((g) => g.music_genre_id === genre.music_genre_id),
   );
   const { revealLabels } = useScheduleReveal();
-  const labels = revealLabels(set, use24Hour);
+  const labels = revealLabels(set, { use24Hour });
   const scheduleFormatted = scheduleLabel(labels);
 
   return (

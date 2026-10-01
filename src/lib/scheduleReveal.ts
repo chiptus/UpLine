@@ -49,9 +49,15 @@ export type RevealLabels = {
  */
 export function revealLabels(
   set: RevealableSet,
-  level: RevealLevel,
-  timezone: string | undefined,
-  use24Hour: boolean,
+  {
+    level,
+    timezone,
+    use24Hour,
+  }: {
+    level: RevealLevel;
+    timezone: string | undefined;
+    use24Hour: boolean;
+  },
 ): RevealLabels {
   const stageId = canShowStage(level) ? set.stage_id : null;
   const isTba = set.status === "tba";

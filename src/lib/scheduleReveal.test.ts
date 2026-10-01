@@ -71,7 +71,11 @@ describe("revealLabels", () => {
   };
 
   it("shows the exact time range at full reveal for a timed set", () => {
-    const { timeLabel, dayLabel } = revealLabels(timedSet, "full", "UTC", true);
+    const { timeLabel, dayLabel } = revealLabels(timedSet, {
+      level: "full",
+      timezone: "UTC",
+      use24Hour: true,
+    });
     expect(timeLabel).toContain("20:00");
     expect(dayLabel).toBeUndefined();
   });
@@ -79,12 +83,11 @@ describe("revealLabels", () => {
   it.each(["days", "stages"] as const)(
     "shows day-only for a timed set at %s reveal",
     (level) => {
-      const { dayLabel, timeLabel } = revealLabels(
-        timedSet,
-        level,
-        "UTC",
-        true,
-      );
+      const { dayLabel, timeLabel } = revealLabels(timedSet, {
+        level: level,
+        timezone: "UTC",
+        use24Hour: true,
+      });
       expect(dayLabel).toBeDefined();
       expect(dayLabel).not.toContain("20:00");
       expect(timeLabel).toBeUndefined();
@@ -92,48 +95,62 @@ describe("revealLabels", () => {
   );
 
   it("shows neither label when day isn't revealed", () => {
-    const { dayLabel, timeLabel } = revealLabels(
-      timedSet,
-      "draft",
-      "UTC",
-      true,
-    );
+    const { dayLabel, timeLabel } = revealLabels(timedSet, {
+      level: "draft",
+      timezone: "UTC",
+      use24Hour: true,
+    });
     expect(dayLabel).toBeUndefined();
     expect(timeLabel).toBeUndefined();
   });
 
   it("shows day + TBA at full reveal for a TBA set, never the midnight placeholder time", () => {
-    const { dayLabel, timeLabel } = revealLabels(tbaSet, "full", "UTC", true);
+    const { dayLabel, timeLabel } = revealLabels(tbaSet, {
+      level: "full",
+      timezone: "UTC",
+      use24Hour: true,
+    });
     expect(dayLabel).toContain("TBA");
     expect(dayLabel).not.toContain("00:00");
     expect(timeLabel).toBeUndefined();
   });
 
   it("shows day + TBA below full reveal too, for a TBA set", () => {
-    const { dayLabel } = revealLabels(tbaSet, "days", "UTC", true);
+    const { dayLabel } = revealLabels(tbaSet, {
+      level: "days",
+      timezone: "UTC",
+      use24Hour: true,
+    });
     expect(dayLabel).toContain("TBA");
     expect(dayLabel).not.toContain("00:00");
   });
 
   it("shows neither label for a TBA set when day isn't revealed", () => {
-    const { dayLabel, timeLabel } = revealLabels(tbaSet, "draft", "UTC", true);
+    const { dayLabel, timeLabel } = revealLabels(tbaSet, {
+      level: "draft",
+      timezone: "UTC",
+      use24Hour: true,
+    });
     expect(dayLabel).toBeUndefined();
     expect(timeLabel).toBeUndefined();
   });
 
   it('shows "Time TBA" for a dateless TBA set, once day-level reveal is on', () => {
-    expect(revealLabels(dateless, "full", "UTC", true).dayLabel).toBe(
-      "Time TBA",
-    );
+    expect(
+      revealLabels(dateless, {
+        level: "full",
+        timezone: "UTC",
+        use24Hour: true,
+      }).dayLabel,
+    ).toBe("Time TBA");
   });
 
   it("shows neither label for a dateless TBA set when day isn't revealed", () => {
-    const { dayLabel, timeLabel } = revealLabels(
-      dateless,
-      "draft",
-      "UTC",
-      true,
-    );
+    const { dayLabel, timeLabel } = revealLabels(dateless, {
+      level: "draft",
+      timezone: "UTC",
+      use24Hour: true,
+    });
     expect(dayLabel).toBeUndefined();
     expect(timeLabel).toBeUndefined();
   });
@@ -141,7 +158,11 @@ describe("revealLabels", () => {
   it("never sets both dayLabel and timeLabel", () => {
     for (const level of ["draft", "days", "stages", "full"] as const) {
       for (const set of [timedSet, tbaSet, dateless]) {
-        const { dayLabel, timeLabel } = revealLabels(set, level, "UTC", true);
+        const { dayLabel, timeLabel } = revealLabels(set, {
+          level: level,
+          timezone: "UTC",
+          use24Hour: true,
+        });
         expect(dayLabel && timeLabel).toBeFalsy();
       }
     }
@@ -151,12 +172,18 @@ describe("revealLabels", () => {
     "masks stageId at %s reveal by whether stage-level is met, regardless of whether the set has a stage",
     (level) => {
       const expectedWhenPresent = canShowStage(level) ? "stage-1" : null;
-      expect(revealLabels(timedSet, level, "UTC", true).stageId).toBe(
-        expectedWhenPresent,
-      );
       expect(
-        revealLabels({ ...timedSet, stage_id: null }, level, "UTC", true)
-          .stageId,
+        revealLabels(timedSet, {
+          level: level,
+          timezone: "UTC",
+          use24Hour: true,
+        }).stageId,
+      ).toBe(expectedWhenPresent);
+      expect(
+        revealLabels(
+          { ...timedSet, stage_id: null },
+          { level: level, timezone: "UTC", use24Hour: true },
+        ).stageId,
       ).toBeNull();
     },
   );

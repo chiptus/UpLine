@@ -11,7 +11,7 @@ interface SetCardHeaderProps {
 
 export function SetCardHeader({ set, use24Hour }: SetCardHeaderProps) {
   const { revealLabels } = useScheduleReveal();
-  const { dayLabel, timeLabel, stageId } = revealLabels(set, use24Hour);
+  const { dayLabel, timeLabel, stageId } = revealLabels(set, { use24Hour });
 
   return (
     <div className="space-y-2">

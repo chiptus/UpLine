@@ -29,7 +29,7 @@ export function SetInfoCard({
 }: SetInfoCardProps) {
   const artist = set.artists[0];
   const { revealLabels } = useScheduleReveal();
-  const labels = revealLabels(set, use24Hour);
+  const labels = revealLabels(set, { use24Hour });
   const scheduleFormatted = scheduleLabel(labels);
   return (
     <div className="lg:col-span-2">

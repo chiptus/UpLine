@@ -1,6 +1,7 @@
 import {
   type FestivalPhase,
   getEffectiveFestivalPhase,
+  phaseInputFromEdition,
 } from "@/lib/festivalPhase";
 import { canShowTime, type RevealLevel } from "@/lib/scheduleReveal";
 
@@ -23,15 +24,8 @@ export function canShowNowView(
   timezone: string,
   now: Date,
 ): boolean {
-  const phase = getEffectiveFestivalPhase({
-    override: edition.phase_override,
-    derivedInput: {
-      revealLevel: edition.schedule_reveal_level,
-      startDate: edition.start_date,
-      endDate: edition.end_date,
-      timezone,
-      now,
-    },
-  });
+  const phase = getEffectiveFestivalPhase(
+    phaseInputFromEdition(edition, timezone, now),
+  );
   return phase === "live" && canShowTime(edition.schedule_reveal_level);
 }

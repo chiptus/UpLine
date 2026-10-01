@@ -11,7 +11,10 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { editionBySlugQuery } from "@/api/editions/useFestivalEditionBySlug";
 import { stagesByEditionQuery } from "@/api/stages/useStagesByEdition";
 import { stagesKeys } from "@/api/stages/types";
-import { getEffectiveFestivalPhase } from "@/lib/festivalPhase";
+import {
+  getEffectiveFestivalPhase,
+  phaseInputFromEdition,
+} from "@/lib/festivalPhase";
 import { getDefaultTab } from "@/pages/EditionView/TabNavigation/defaultTab";
 import { tabRoutes } from "@/pages/EditionView/TabNavigation/tabRoutes";
 import { pageMeta } from "@/lib/pageHead";
@@ -42,16 +45,9 @@ export const Route = createFileRoute(
       location.pathname === basePath ||
       location.pathname === `${basePath}/`
     ) {
-      const phase = getEffectiveFestivalPhase({
-        override: edition.phase_override,
-        derivedInput: {
-          revealLevel: edition.schedule_reveal_level,
-          startDate: edition.start_date,
-          endDate: edition.end_date,
-          timezone: context.festival.timezone,
-          now: new Date(),
-        },
-      });
+      const phase = getEffectiveFestivalPhase(
+        phaseInputFromEdition(edition, context.festival.timezone, new Date()),
+      );
 
       throw redirect({
         to: tabRoutes[getDefaultTab(phase)],

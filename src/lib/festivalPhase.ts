@@ -32,6 +32,36 @@ export function getEffectiveFestivalPhase({
   return override ?? getFestivalPhase(derivedInput);
 }
 
+// Minimal edition-like shape phaseInputFromEdition needs — not a full
+// FestivalEdition row — so callers with a partially-loaded or differently
+// shaped edition can still build phase input.
+export type PhaseInputEdition = {
+  schedule_reveal_level?: RevealLevel | null;
+  start_date?: string | null;
+  end_date?: string | null;
+  phase_override?: FestivalPhase | null;
+};
+
+// The one place that owns the edition-row -> phase-input defaulting policy
+// (missing reveal level -> "draft", missing dates -> null), so callers never
+// re-decide it independently.
+export function phaseInputFromEdition(
+  edition: PhaseInputEdition,
+  timezone: string,
+  now: Date,
+): GetEffectiveFestivalPhaseInput {
+  return {
+    override: edition.phase_override ?? null,
+    derivedInput: {
+      revealLevel: edition.schedule_reveal_level ?? "draft",
+      startDate: edition.start_date ?? null,
+      endDate: edition.end_date ?? null,
+      timezone,
+      now,
+    },
+  };
+}
+
 export function getFestivalPhase({
   revealLevel,
   startDate,

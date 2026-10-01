@@ -1,4 +1,4 @@
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Group } from "./types";
 import { groupsKeys } from "./types";
@@ -8,10 +8,6 @@ export function myGroupsQuery(userId: string) {
     queryKey: groupsKeys.myGroups(userId),
     queryFn: () => fetchMyGroups(userId),
   });
-}
-
-export function useMyGroupsQuery(userId: string) {
-  return useSuspenseQuery(myGroupsQuery(userId));
 }
 
 /** Groups the given user is a member of. `is_member` is always `true` — no admin check. */
@@ -33,7 +29,7 @@ export async function fetchMyGroups(userId: string): Promise<Group[]> {
     throw new Error(error.message || "Failed to fetch groups");
   }
 
-  return attachGroupMeta(groupsData || [], userId, { alwaysMember: true });
+  return attachGroupMeta(groupsData || [], userId, userGroupIds);
 }
 
 export async function getUserGroupIds(userId: string): Promise<string[]> {
@@ -53,10 +49,7 @@ export async function getUserGroupIds(userId: string): Promise<string[]> {
 export async function attachGroupMeta(
   groups: Group[],
   userId: string,
-  {
-    alwaysMember,
-    memberGroupIds,
-  }: { alwaysMember: boolean; memberGroupIds?: string[] },
+  memberGroupIds: string[],
 ): Promise<Group[]> {
   const memberCountsByGroupId = await fetchMemberCountsByGroupId(
     groups.map((group) => group.id),
@@ -66,7 +59,7 @@ export async function attachGroupMeta(
     ...group,
     member_count: memberCountsByGroupId.get(group.id) || 0,
     is_creator: group.created_by === userId,
-    is_member: alwaysMember || (memberGroupIds?.includes(group.id) ?? false),
+    is_member: memberGroupIds.includes(group.id),
   }));
 }
 

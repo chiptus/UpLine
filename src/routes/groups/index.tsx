@@ -1,6 +1,7 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { myGroupsQuery, useMyGroupsQuery } from "@/api/groups/useMyGroups";
-import { useAllGroupsQuery } from "@/api/groups/useAllGroups";
+import { myGroupsQuery } from "@/api/groups/useMyGroups";
+import { allGroupsQuery } from "@/api/groups/useAllGroups";
 import { Suspense, useState } from "react";
 import { useNavigate, useRouteContext } from "@tanstack/react-router";
 import type { User } from "@supabase/supabase-js";
@@ -40,9 +41,9 @@ function GroupsContent({ user }: { user: User }) {
   const navigate = useNavigate();
   const [showAllGroups, setShowAllGroups] = useState(false);
 
-  const { data: isAdmin = false } = useUserPermissionsQuery(
+  const { data: isSuperAdmin = false } = useUserPermissionsQuery(
     user.id,
-    "is_admin",
+    "is_super_admin",
   );
   const deleteGroupMutation = useDeleteGroupMutation();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -81,7 +82,7 @@ function GroupsContent({ user }: { user: User }) {
       <div className="container mx-auto px-4 py-8">
         <GroupsHeader onCreate={() => setCreateDialogOpen(true)} />
 
-        {isAdmin && (
+        {isSuperAdmin && (
           <div className="mb-6 flex gap-2">
             <Button
               variant={!showAllGroups ? "default" : "outline"}
@@ -157,7 +158,7 @@ function UserGroupsList({
   userId: string;
   onDelete: (id: string, name: string) => void;
 }) {
-  const { data: groups } = useMyGroupsQuery(userId);
+  const { data: groups } = useSuspenseQuery(myGroupsQuery(userId));
 
   return (
     <MyGroupsList
@@ -176,7 +177,7 @@ function AllGroupsList({
   userId: string;
   onDelete: (id: string, name: string) => void;
 }) {
-  const { data: groups } = useAllGroupsQuery(userId);
+  const { data: groups } = useSuspenseQuery(allGroupsQuery(userId));
 
   return (
     <MyGroupsList

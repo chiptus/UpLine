@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { TopBar } from "@/components/layout/TopBar";
 import { useAuth } from "@/contexts/AuthContext";
-import { useMyGroupsQuery } from "@/api/groups/useMyGroups";
+import { myGroupsQuery } from "@/api/groups/useMyGroups";
 import { profileQuery } from "@/api/auth/useProfile";
 import { SignInRequired } from "@/pages/groups/Groups/SignInRequired";
 import { ActiveGroupSetting } from "./ActiveGroupSetting";
@@ -33,7 +33,7 @@ export function SettingsPage() {
 }
 
 function SettingsContent({ userId }: { userId: string }) {
-  const { data: groups } = useMyGroupsQuery(userId);
+  const { data: groups } = useSuspenseQuery(myGroupsQuery(userId));
   const { data: profile } = useSuspenseQuery(profileQuery(userId));
   const hasGroups = groups.length > 0;
 

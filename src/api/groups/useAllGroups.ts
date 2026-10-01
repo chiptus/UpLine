@@ -1,4 +1,4 @@
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Group } from "./types";
 import { groupsKeys } from "./types";
@@ -11,19 +11,16 @@ export function allGroupsQuery(userId: string) {
   });
 }
 
-export function useAllGroupsQuery(userId: string) {
-  return useSuspenseQuery(allGroupsQuery(userId));
-}
-
 /**
- * Every non-archived group, for an admin caller. A non-admin caller falls
+ * Every non-archived group, for a super-admin caller (the only role `groups` RLS
+ * lets read them all). Any other caller falls
  * back to exactly the member-only result (never an error, never a leaked
  * full group list).
  */
 async function fetchAllGroups(userId: string): Promise<Group[]> {
-  const isAdmin = await isUserAdmin(userId);
+  const canViewAll = await isSuperAdmin(userId);
 
-  if (!isAdmin) {
+  if (!canViewAll) {
     return fetchMyGroups(userId);
   }
 
@@ -40,23 +37,19 @@ async function fetchAllGroups(userId: string): Promise<Group[]> {
     throw new Error(error.message || "Failed to fetch groups");
   }
 
-  return attachGroupMeta(groupsData || [], userId, {
-    alwaysMember: false,
-    memberGroupIds: userGroupIds,
-  });
+  return attachGroupMeta(groupsData || [], userId, userGroupIds);
 }
 
-async function isUserAdmin(userId: string): Promise<boolean> {
-  const { data: isAdminData, error } = await supabase
-    .from("admin_roles")
-    .select("id")
-    .eq("user_id", userId)
-    .limit(1);
+async function isSuperAdmin(userId: string): Promise<boolean> {
+  const { data, error } = await supabase.rpc("has_admin_role", {
+    check_user_id: userId,
+    check_role: "super_admin",
+  });
 
   if (error) {
-    console.error("Error checking admin role:", error);
+    console.error("Error checking super admin role:", error);
     return false;
   }
 
-  return isAdminData && isAdminData.length > 0;
+  return data === true;
 }

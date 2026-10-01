@@ -1,8 +1,9 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useActiveScope } from "@/contexts/ActiveScopeContext";
-import { useMyGroupsQuery } from "@/api/groups/useMyGroups";
+import { myGroupsQuery } from "@/api/groups/useMyGroups";
 import { useGroupVotesQuery } from "@/api/voting/useGroupVotes";
 import { Users } from "lucide-react";
 import { VOTE_CONFIG, VOTES_TYPES, getVoteConfig } from "@/lib/votes/config";
@@ -30,7 +31,7 @@ function SetGroupVotingContent({
   artistId: string;
   userId: string;
 }) {
-  const { data: groups } = useMyGroupsQuery(userId);
+  const { data: groups } = useSuspenseQuery(myGroupsQuery(userId));
   const { current } = useActiveScope();
   const activeGroupId = current.kind === "group" ? current.groupId : undefined;
 

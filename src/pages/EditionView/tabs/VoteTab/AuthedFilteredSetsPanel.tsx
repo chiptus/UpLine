@@ -1,9 +1,10 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { FilterSortControls } from "@/pages/EditionView/tabs/VoteTab/filters/FilterSortControls";
 import { GroupScopedSetsPanel } from "@/pages/EditionView/tabs/VoteTab/GroupScopedSetsPanel";
 import { EveryoneSetsPanel } from "@/pages/EditionView/tabs/VoteTab/SetsPanelContent";
 import { useActiveScope } from "@/contexts/ActiveScopeContext";
-import { useMyGroupsQuery } from "@/api/groups/useMyGroups";
+import { myGroupsQuery } from "@/api/groups/useMyGroups";
 import type { FilteredSetsPanelProps } from "@/pages/EditionView/tabs/VoteTab/FilteredSetsPanel";
 import type { BinaryVoteScope, VoteScope } from "@/lib/voteScope";
 
@@ -11,7 +12,7 @@ export function AuthedFilteredSetsPanel(
   props: FilteredSetsPanelProps & { userId: string },
 ) {
   const { current, activeGroupId } = useActiveScope();
-  const { data: groups } = useMyGroupsQuery(props.userId);
+  const { data: groups } = useSuspenseQuery(myGroupsQuery(props.userId));
   const perspectiveGroupId =
     current.kind === "group" ? current.groupId : activeGroupId;
   const perspectiveGroupName = perspectiveGroupId

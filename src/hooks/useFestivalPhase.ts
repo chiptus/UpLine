@@ -11,7 +11,11 @@ export function useFestivalPhase(): { phase: FestivalPhase } {
   });
 
   const phase = getEffectiveFestivalPhase(
-    phaseInputFromEdition(edition, festival.timezone, new Date()),
+    phaseInputFromEdition({
+      edition,
+      timezone: festival.timezone,
+      now: new Date(),
+    }),
   );
 
   return { phase };

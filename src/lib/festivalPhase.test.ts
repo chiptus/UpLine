@@ -168,16 +168,16 @@ describe("phaseInputFromEdition", () => {
 
   it("passes through a fully-populated edition", () => {
     expect(
-      phaseInputFromEdition(
-        {
+      phaseInputFromEdition({
+        edition: {
           schedule_reveal_level: "full",
           start_date: "2025-08-01",
           end_date: "2025-08-03",
           phase_override: "live",
         },
-        TZ,
-        NOW,
-      ),
+        timezone: TZ,
+        now: NOW,
+      }),
     ).toEqual({
       override: "live",
       derivedInput: {
@@ -192,28 +192,31 @@ describe("phaseInputFromEdition", () => {
 
   it("defaults a missing reveal level to draft", () => {
     expect(
-      phaseInputFromEdition(
-        { start_date: null, end_date: null, phase_override: null },
-        TZ,
-        NOW,
-      ).derivedInput.revealLevel,
+      phaseInputFromEdition({
+        edition: { start_date: null, end_date: null, phase_override: null },
+        timezone: TZ,
+        now: NOW,
+      }).derivedInput.revealLevel,
     ).toBe("draft");
   });
 
   it("defaults missing dates to null", () => {
-    const { derivedInput } = phaseInputFromEdition(
-      { schedule_reveal_level: "full", phase_override: null },
-      TZ,
-      NOW,
-    );
+    const { derivedInput } = phaseInputFromEdition({
+      edition: { schedule_reveal_level: "full", phase_override: null },
+      timezone: TZ,
+      now: NOW,
+    });
     expect(derivedInput.startDate).toBeNull();
     expect(derivedInput.endDate).toBeNull();
   });
 
   it("defaults a missing override to null", () => {
     expect(
-      phaseInputFromEdition({ schedule_reveal_level: "full" }, TZ, NOW)
-        .override,
+      phaseInputFromEdition({
+        edition: { schedule_reveal_level: "full" },
+        timezone: TZ,
+        now: NOW,
+      }).override,
     ).toBeNull();
   });
 });

@@ -71,11 +71,15 @@ export type PhaseInputEdition = {
  * (missing reveal level -> "draft", missing dates -> null), so callers never
  * re-decide it independently.
  */
-export function phaseInputFromEdition(
-  edition: PhaseInputEdition,
-  timezone: string,
-  now: Date,
-): GetEffectiveFestivalPhaseInput {
+export function phaseInputFromEdition({
+  edition,
+  timezone,
+  now,
+}: {
+  edition: PhaseInputEdition;
+  timezone: string;
+  now: Date;
+}): GetEffectiveFestivalPhaseInput {
   return {
     override: edition.phase_override ?? null,
     derivedInput: {

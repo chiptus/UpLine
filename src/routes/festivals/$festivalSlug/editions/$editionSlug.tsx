@@ -46,7 +46,11 @@ export const Route = createFileRoute(
       location.pathname === `${basePath}/`
     ) {
       const phase = getEffectiveFestivalPhase(
-        phaseInputFromEdition(edition, context.festival.timezone, new Date()),
+        phaseInputFromEdition({
+          edition,
+          timezone: context.festival.timezone,
+          now: new Date(),
+        }),
       );
 
       throw redirect({

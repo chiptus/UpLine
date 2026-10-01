@@ -25,7 +25,7 @@ export function canShowNowView(
   now: Date,
 ): boolean {
   const phase = getEffectiveFestivalPhase(
-    phaseInputFromEdition(edition, timezone, now),
+    phaseInputFromEdition({ edition, timezone, now }),
   );
   return phase === "live" && canShowTime(edition.schedule_reveal_level);
 }

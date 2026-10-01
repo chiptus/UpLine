@@ -29,15 +29,12 @@ function FestivalEditionSettings() {
     editionBySlugQuery({ festivalId: festival.id, editionSlug }),
   );
 
-  // Deliberately the derived phase, not the override-aware one: this feeds
-  // the "Automatic (...)" option label below, which must show what automatic
-  // derivation would currently produce even when an override is active — the
-  // override itself is read separately as the control's selected value.
-  const { derivedInput } = phaseInputFromEdition(
-    currentEdition,
-    festival.timezone,
-    new Date(),
-  );
+  // Deliberately derived, not override-aware: feeds the "Automatic (...)" label below, which must preview automatic derivation even when an override is active.
+  const { derivedInput } = phaseInputFromEdition({
+    edition: currentEdition,
+    timezone: festival.timezone,
+    now: new Date(),
+  });
   const derivedPhase = getFestivalPhase(derivedInput);
 
   return (

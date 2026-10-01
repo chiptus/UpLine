@@ -47,7 +47,7 @@ export type RevealLabels = {
  * reveal. A "tba" status set shows "<day> · TBA" / "Time TBA" instead of its
  * (often placeholder) time_start.
  */
-export function revealLabels(
+export function computeRevealLabels(
   set: RevealableSet,
   {
     level,

@@ -4,7 +4,7 @@ import {
   canShowStage,
   canShowTime,
   isAtLeast,
-  revealLabels,
+  computeRevealLabels,
   scheduleLabel,
   type RevealLevel,
 } from "./scheduleReveal";
@@ -48,7 +48,7 @@ describe("canShow predicates", () => {
   });
 });
 
-describe("revealLabels", () => {
+describe("computeRevealLabels", () => {
   const timedSet = {
     time_start: "2026-07-11T20:00:00Z",
     time_end: "2026-07-11T22:00:00Z",
@@ -71,7 +71,7 @@ describe("revealLabels", () => {
   };
 
   it("shows the exact time range at full reveal for a timed set", () => {
-    const { timeLabel, dayLabel } = revealLabels(timedSet, {
+    const { timeLabel, dayLabel } = computeRevealLabels(timedSet, {
       level: "full",
       timezone: "UTC",
       use24Hour: true,
@@ -83,7 +83,7 @@ describe("revealLabels", () => {
   it.each(["days", "stages"] as const)(
     "shows day-only for a timed set at %s reveal",
     (level) => {
-      const { dayLabel, timeLabel } = revealLabels(timedSet, {
+      const { dayLabel, timeLabel } = computeRevealLabels(timedSet, {
         level: level,
         timezone: "UTC",
         use24Hour: true,
@@ -95,7 +95,7 @@ describe("revealLabels", () => {
   );
 
   it("shows neither label when day isn't revealed", () => {
-    const { dayLabel, timeLabel } = revealLabels(timedSet, {
+    const { dayLabel, timeLabel } = computeRevealLabels(timedSet, {
       level: "draft",
       timezone: "UTC",
       use24Hour: true,
@@ -105,7 +105,7 @@ describe("revealLabels", () => {
   });
 
   it("shows day + TBA at full reveal for a TBA set, never the midnight placeholder time", () => {
-    const { dayLabel, timeLabel } = revealLabels(tbaSet, {
+    const { dayLabel, timeLabel } = computeRevealLabels(tbaSet, {
       level: "full",
       timezone: "UTC",
       use24Hour: true,
@@ -116,7 +116,7 @@ describe("revealLabels", () => {
   });
 
   it("shows day + TBA below full reveal too, for a TBA set", () => {
-    const { dayLabel } = revealLabels(tbaSet, {
+    const { dayLabel } = computeRevealLabels(tbaSet, {
       level: "days",
       timezone: "UTC",
       use24Hour: true,
@@ -126,7 +126,7 @@ describe("revealLabels", () => {
   });
 
   it("shows neither label for a TBA set when day isn't revealed", () => {
-    const { dayLabel, timeLabel } = revealLabels(tbaSet, {
+    const { dayLabel, timeLabel } = computeRevealLabels(tbaSet, {
       level: "draft",
       timezone: "UTC",
       use24Hour: true,
@@ -137,7 +137,7 @@ describe("revealLabels", () => {
 
   it('shows "Time TBA" for a dateless TBA set, once day-level reveal is on', () => {
     expect(
-      revealLabels(dateless, {
+      computeRevealLabels(dateless, {
         level: "full",
         timezone: "UTC",
         use24Hour: true,
@@ -146,7 +146,7 @@ describe("revealLabels", () => {
   });
 
   it("shows neither label for a dateless TBA set when day isn't revealed", () => {
-    const { dayLabel, timeLabel } = revealLabels(dateless, {
+    const { dayLabel, timeLabel } = computeRevealLabels(dateless, {
       level: "draft",
       timezone: "UTC",
       use24Hour: true,
@@ -158,7 +158,7 @@ describe("revealLabels", () => {
   it("never sets both dayLabel and timeLabel", () => {
     for (const level of ["draft", "days", "stages", "full"] as const) {
       for (const set of [timedSet, tbaSet, dateless]) {
-        const { dayLabel, timeLabel } = revealLabels(set, {
+        const { dayLabel, timeLabel } = computeRevealLabels(set, {
           level: level,
           timezone: "UTC",
           use24Hour: true,
@@ -173,14 +173,14 @@ describe("revealLabels", () => {
     (level) => {
       const expectedWhenPresent = canShowStage(level) ? "stage-1" : null;
       expect(
-        revealLabels(timedSet, {
+        computeRevealLabels(timedSet, {
           level: level,
           timezone: "UTC",
           use24Hour: true,
         }).stageId,
       ).toBe(expectedWhenPresent);
       expect(
-        revealLabels(
+        computeRevealLabels(
           { ...timedSet, stage_id: null },
           { level: level, timezone: "UTC", use24Hour: true },
         ).stageId,

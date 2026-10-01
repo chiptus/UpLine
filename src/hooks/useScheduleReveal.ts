@@ -6,7 +6,7 @@ import {
   canShowDay,
   canShowStage,
   canShowTime,
-  revealLabels as computeRevealLabels,
+  computeRevealLabels,
 } from "@/lib/scheduleReveal";
 
 export function useScheduleReveal() {

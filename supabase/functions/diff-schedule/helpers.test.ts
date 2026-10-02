@@ -10,6 +10,21 @@ Deno.test("toSlug converts name to lowercase hyphenated slug", () => {
   assertEquals(toSlug("Four Tet"), "four-tet");
 });
 
+Deno.test(
+  "toSlug falls back to a deterministic non-empty slug when nothing is left",
+  () => {
+    const sakanaction = toSlug("サカナクション");
+    const chaif = toSlug("Чайф");
+
+    assertEquals(/^n-[0-9a-f]{8}$/.test(sakanaction), true);
+    assertEquals(/^n-[0-9a-f]{8}$/.test(chaif), true);
+    assertEquals(sakanaction === chaif, false);
+    assertEquals(toSlug("サカナクション"), sakanaction);
+    assertEquals(/^n-[0-9a-f]{8}$/.test(toSlug("!!!")), true);
+    assertEquals(/^n-[0-9a-f]{8}$/.test(toSlug("")), true);
+  },
+);
+
 Deno.test("artistKey sorts slugs and joins with pipe", () => {
   assertEquals(artistKey(["carl-cox"]), "carl-cox");
   assertEquals(artistKey(["carl-cox", "peggy-gou"]), "carl-cox|peggy-gou");

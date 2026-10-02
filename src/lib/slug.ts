@@ -9,13 +9,7 @@ import { md5 } from "./md5";
  */
 export function generateSlug(text: string): string {
   const normalized = text.toLowerCase().trim();
-  const slug = normalized
-    // Replace spaces and special chars with hyphens
-    .replace(/[^a-z0-9]+/g, "-")
-    // Remove leading/trailing hyphens
-    .replace(/^-+|-+$/g, "")
-    // Collapse multiple hyphens
-    .replace(/-+/g, "-");
+  const slug = strip(normalized);
 
   return slug === "" ? `n-${md5(normalized).slice(0, 8)}` : slug;
 }
@@ -30,8 +24,24 @@ export function isValidSlug(slug: string): boolean {
 }
 
 /**
- * Clean up user input to make it a valid slug
+ * Clean up a user-typed slug field. Unlike `generateSlug` (which derives a
+ * slug from a name and must never be empty), this preserves blank input: a
+ * manually-controlled slug field being cleared means "not set yet", and
+ * hashing that would silently save an unrelated value and bypass the
+ * "slug is required" validation that field already has.
  */
 export function sanitizeSlug(input: string): string {
-  return generateSlug(input);
+  return strip(input.toLowerCase().trim());
+}
+
+function strip(normalized: string): string {
+  return (
+    normalized
+      // Replace spaces and special chars with hyphens
+      .replace(/[^a-z0-9]+/g, "-")
+      // Remove leading/trailing hyphens
+      .replace(/^-+|-+$/g, "")
+      // Collapse multiple hyphens
+      .replace(/-+/g, "-")
+  );
 }

@@ -97,7 +97,7 @@ describe("isValidSlug", () => {
 });
 
 describe("sanitizeSlug", () => {
-  it("is an alias for generateSlug", () => {
+  it("matches generateSlug when the input normalizes to something", () => {
     const testCases = [
       "Hello World",
       "Special!@#Characters",
@@ -108,6 +108,16 @@ describe("sanitizeSlug", () => {
     testCases.forEach((testCase) => {
       expect(sanitizeSlug(testCase)).toBe(generateSlug(testCase));
     });
+  });
+
+  // A manually-controlled slug field being cleared means "not set yet" —
+  // unlike generateSlug, hashing that would silently save an unrelated
+  // value and bypass the field's own "slug is required" validation.
+  it("preserves blank input instead of hashing it", () => {
+    expect(sanitizeSlug("")).toBe("");
+    expect(sanitizeSlug("   ")).toBe("");
+    expect(sanitizeSlug("---")).toBe("");
+    expect(sanitizeSlug("!!!")).toBe("");
   });
 
   it("produces valid slugs", () => {

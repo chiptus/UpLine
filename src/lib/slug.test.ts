@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { md5 } from "./md5";
 import { generateSlug, isValidSlug, sanitizeSlug } from "./slug";
 
 describe("generateSlug", () => {
@@ -38,11 +39,21 @@ describe("generateSlug", () => {
     expect(generateSlug("2024 Festival Edition")).toBe("2024-festival-edition");
   });
 
-  it("handles edge cases", () => {
-    expect(generateSlug("")).toBe("");
-    expect(generateSlug("   ")).toBe("");
-    expect(generateSlug("---")).toBe("");
-    expect(generateSlug("@#$%")).toBe("");
+  it("falls back to a deterministic non-empty slug when nothing is left", () => {
+    expect(generateSlug("")).toBe(`n-${md5("").slice(0, 8)}`);
+    expect(generateSlug("   ")).toBe(`n-${md5("").slice(0, 8)}`);
+    expect(generateSlug("---")).toBe(`n-${md5("---").slice(0, 8)}`);
+    expect(generateSlug("@#$%")).toBe(`n-${md5("@#$%").slice(0, 8)}`);
+  });
+
+  it("produces a stable, distinct fallback per input", () => {
+    const a = generateSlug("サカナクション");
+    const b = generateSlug("Чайф");
+
+    expect(a).toMatch(/^n-[0-9a-f]{8}$/);
+    expect(b).toMatch(/^n-[0-9a-f]{8}$/);
+    expect(a).not.toBe(b);
+    expect(generateSlug("サカナクション")).toBe(a);
   });
 
   it("handles unicode characters", () => {

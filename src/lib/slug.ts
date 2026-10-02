@@ -1,18 +1,23 @@
+import { md5 } from "./md5";
+
 /**
- * Generate a URL-friendly slug from a string
+ * Generate a URL-friendly slug from a string. Falls back to a deterministic
+ * hash-based slug when there are no ASCII alphanumerics to keep (e.g.
+ * non-Latin names, punctuation-only input) — mirrors the fallback in
+ * `public.slugify()` (the `slugify_non_empty_fallback` migration) and
+ * `toSlug()` in `supabase/functions/diff-schedule/helpers.ts`.
  */
 export function generateSlug(text: string): string {
-  return (
-    text
-      .toLowerCase()
-      .trim()
-      // Replace spaces and special chars with hyphens
-      .replace(/[^a-z0-9]+/g, "-")
-      // Remove leading/trailing hyphens
-      .replace(/^-+|-+$/g, "")
-      // Collapse multiple hyphens
-      .replace(/-+/g, "-")
-  );
+  const normalized = text.toLowerCase().trim();
+  const slug = normalized
+    // Replace spaces and special chars with hyphens
+    .replace(/[^a-z0-9]+/g, "-")
+    // Remove leading/trailing hyphens
+    .replace(/^-+|-+$/g, "")
+    // Collapse multiple hyphens
+    .replace(/-+/g, "-");
+
+  return slug === "" ? `n-${md5(normalized).slice(0, 8)}` : slug;
 }
 
 /**

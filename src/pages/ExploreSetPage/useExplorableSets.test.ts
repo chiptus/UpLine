@@ -29,6 +29,34 @@ describe("useExplorableSets", () => {
     expect(result.current.data.map((s) => s.id).sort()).toEqual(["a", "c"]);
   });
 
+  it("excludes a set voted Neutral (0), not just truthy vote values", () => {
+    mockSetsQuery([makeSet("a"), makeSet("b"), makeSet("c")]);
+
+    const { result } = renderHook(() =>
+      useExplorableSets({
+        editionId: "edition-1",
+        userVotes: { b: 0 },
+        votesReady: true,
+      }),
+    );
+
+    expect(result.current.data.map((s) => s.id).sort()).toEqual(["a", "c"]);
+  });
+
+  it("counts a Neutral (0) vote toward votedCount", () => {
+    mockSetsQuery([makeSet("a"), makeSet("b"), makeSet("c")]);
+
+    const { result } = renderHook(() =>
+      useExplorableSets({
+        editionId: "edition-1",
+        userVotes: { a: 0 },
+        votesReady: true,
+      }),
+    );
+
+    expect(result.current.votedCount).toBe(1);
+  });
+
   it("keeps the currently displayed set in the queue after it is voted on", () => {
     mockSetsQuery([makeSet("a"), makeSet("b"), makeSet("c")]);
 

@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { md5 } from "./md5";
 import { generateSlug, isValidSlug, sanitizeSlug } from "./slug";
 
 describe("generateSlug", () => {
@@ -39,21 +38,22 @@ describe("generateSlug", () => {
     expect(generateSlug("2024 Festival Edition")).toBe("2024-festival-edition");
   });
 
+  // Fixture values cross-checked against Postgres' own MD5 (verified with
+  // `SELECT 'n-' || LEFT(MD5(LOWER(TRIM(name))), 8)`, the fallback formula
+  // the `slugify_non_empty_fallback` migration uses) so this test catches a
+  // divergence between the JS mirror and the SQL source of truth, not just
+  // a divergence between generateSlug and its own md5 helper.
   it("falls back to a deterministic non-empty slug when nothing is left", () => {
-    expect(generateSlug("")).toBe(`n-${md5("").slice(0, 8)}`);
-    expect(generateSlug("   ")).toBe(`n-${md5("").slice(0, 8)}`);
-    expect(generateSlug("---")).toBe(`n-${md5("---").slice(0, 8)}`);
-    expect(generateSlug("@#$%")).toBe(`n-${md5("@#$%").slice(0, 8)}`);
+    expect(generateSlug("")).toBe("n-d41d8cd9");
+    expect(generateSlug("   ")).toBe("n-d41d8cd9");
+    expect(generateSlug("---")).toBe("n-9efc314b");
+    expect(generateSlug("@#$%")).toBe("n-093ee393");
   });
 
   it("produces a stable, distinct fallback per input", () => {
-    const a = generateSlug("サカナクション");
-    const b = generateSlug("Чайф");
-
-    expect(a).toMatch(/^n-[0-9a-f]{8}$/);
-    expect(b).toMatch(/^n-[0-9a-f]{8}$/);
-    expect(a).not.toBe(b);
-    expect(generateSlug("サカナクション")).toBe(a);
+    expect(generateSlug("サカナクション")).toBe("n-f714de1c");
+    expect(generateSlug("Чайф")).toBe("n-65550cd9");
+    expect(generateSlug("サカナクション")).toBe(generateSlug("サカナクション"));
   });
 
   it("handles unicode characters", () => {

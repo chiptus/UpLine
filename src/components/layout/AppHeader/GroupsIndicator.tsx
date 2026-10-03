@@ -1,10 +1,10 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Suspense } from "react";
 import { Link } from "@tanstack/react-router";
 import { UserPlus } from "lucide-react";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
-import { userGroupsQuery } from "@/api/groups/useUserGroups";
+import { myGroupsQuery } from "@/api/groups/useMyGroups";
 import { cn } from "@/lib/utils";
 import { TooltipButton } from "./TooltipButton";
 import { ActiveGroupSwitcher } from "./GroupSwitcher/ActiveGroupSwitcher";
@@ -42,7 +42,7 @@ function GroupsIndicatorContent({
   isMobile: boolean;
   userId: string;
 }) {
-  const { data: groups } = useSuspenseQuery(userGroupsQuery(userId));
+  const { data: groups } = useSuspenseQuery(myGroupsQuery(userId));
 
   if (groups.length === 0) {
     return (

@@ -31,12 +31,11 @@ async function fetchGroupBySlug(slug: string, userId: string): Promise<Group> {
     return membership.groups as Group;
   }
 
-  // If not found as a member, check if user is the creator
+  // Not a member: let `groups` RLS decide (creator, or super admin who can read every group)
   const { data, error } = await supabase
     .from("groups")
     .select("*")
     .eq("slug", slug)
-    .eq("created_by", userId)
     .eq("archived", false)
     .single();
 

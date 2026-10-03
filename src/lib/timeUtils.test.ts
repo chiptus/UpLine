@@ -93,6 +93,18 @@ describe("formatTimeRange", () => {
     expect(lisbon).toBe("Dec 15, 14:00 - 16:00");
     expect(newYork).toBe("Dec 15, 09:00 - 11:00");
   });
+
+  it("includes the end date when the range crosses midnight in the given timezone but not in UTC", () => {
+    // 06:00Z-08:00Z is one UTC day but Jul 10 23:00 - Jul 11 01:00 in Los Angeles (UTC-7).
+    expect(
+      formatTimeRange(
+        "2026-07-11T06:00:00Z",
+        "2026-07-11T08:00:00Z",
+        true,
+        "America/Los_Angeles",
+      ),
+    ).toBe("Jul 10, 23:00 - Jul 11, 01:00");
+  });
 });
 
 describe("formatDateTime", () => {

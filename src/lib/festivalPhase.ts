@@ -54,6 +54,44 @@ export function getFestivalPhase({
   return "post-festival";
 }
 
+/**
+ * Minimal edition-like shape {@link phaseInputFromEdition} needs — not a full
+ * FestivalEdition row — so callers with a partially-loaded or differently
+ * shaped edition can still build phase input.
+ */
+export type PhaseInputEdition = {
+  schedule_reveal_level?: RevealLevel | null;
+  start_date?: string | null;
+  end_date?: string | null;
+  phase_override?: FestivalPhase | null;
+};
+
+/**
+ * The one place that owns the edition-row -> phase-input defaulting policy
+ * (missing reveal level -> "draft", missing dates -> null), so callers never
+ * re-decide it independently.
+ */
+export function phaseInputFromEdition({
+  edition,
+  timezone,
+  now,
+}: {
+  edition: PhaseInputEdition;
+  timezone: string;
+  now: Date;
+}): GetEffectiveFestivalPhaseInput {
+  return {
+    override: edition.phase_override ?? null,
+    derivedInput: {
+      revealLevel: edition.schedule_reveal_level ?? "draft",
+      startDate: edition.start_date ?? null,
+      endDate: edition.end_date ?? null,
+      timezone,
+      now,
+    },
+  };
+}
+
 // Shift a yyyy-MM-dd calendar day by whole days, staying a yyyy-MM-dd string.
 // Returns null for an unparseable date so callers degrade instead of throwing.
 function shiftDayKey(dateKey: string, delta: number): string | null {

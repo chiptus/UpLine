@@ -18,8 +18,8 @@ export type GroupMember =
 
 export const groupsKeys = {
   all: ["groups"] as const,
-  user: (userId: string, params: unknown = {}) =>
-    [...groupsKeys.all, "user", userId, params] as const,
+  myGroups: (userId: string) => [...groupsKeys.all, "my", userId] as const,
+  allGroups: (userId: string) => [...groupsKeys.all, "all", userId] as const,
   details: () => [...groupsKeys.all, "detail"] as const,
   detail: (groupId: string) => [...groupsKeys.details(), groupId] as const,
   bySlug: () => [...groupsKeys.all, "by-slug"] as const,

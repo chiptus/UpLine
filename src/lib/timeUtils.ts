@@ -2,7 +2,6 @@ import {
   format,
   isValid,
   parseISO,
-  isSameDay,
   differenceInCalendarDays,
   subHours,
 } from "date-fns";
@@ -46,7 +45,11 @@ export function formatTimeRange(
 
   // Both times
   if (validStart && validEnd) {
-    if (isSameDay(validStart, validEnd)) {
+    // Compared in the display timezone: runtime-zone isSameDay disagrees with the formatted dates near midnight.
+    if (
+      formatWith(validStart, "yyyy-MM-dd") ===
+      formatWith(validEnd, "yyyy-MM-dd")
+    ) {
       // Same day: "Dec 15, 2:00 PM - 4:00 PM" or "Dec 15, 14:00 - 16:00"
       return `${formatWith(validStart, dateTimeFormat)} - ${formatWith(
         validEnd,

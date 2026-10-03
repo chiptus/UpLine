@@ -2,6 +2,7 @@ import { useRouteContext } from "@tanstack/react-router";
 import {
   type FestivalPhase,
   getEffectiveFestivalPhase,
+  phaseInputFromEdition,
 } from "@/lib/festivalPhase";
 
 export function useFestivalPhase(): { phase: FestivalPhase } {
@@ -9,16 +10,13 @@ export function useFestivalPhase(): { phase: FestivalPhase } {
     from: "/festivals/$festivalSlug/editions/$editionSlug",
   });
 
-  const phase = getEffectiveFestivalPhase({
-    override: edition.phase_override,
-    derivedInput: {
-      revealLevel: edition.schedule_reveal_level ?? "draft",
-      startDate: edition.start_date,
-      endDate: edition.end_date,
+  const phase = getEffectiveFestivalPhase(
+    phaseInputFromEdition({
+      edition,
       timezone: festival.timezone,
       now: new Date(),
-    },
-  });
+    }),
+  );
 
   return { phase };
 }

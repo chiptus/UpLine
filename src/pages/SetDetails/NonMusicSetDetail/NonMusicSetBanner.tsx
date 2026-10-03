@@ -3,10 +3,9 @@ import { Clock } from "lucide-react";
 import { FestivalSet } from "@/api/sets/types";
 import { StagePin } from "@/components/StagePin";
 import { cn } from "@/lib/utils";
-import { formatSetSchedule } from "@/lib/setScheduleDisplay";
 import { getSetTypeLabel } from "@/lib/setTypeLabels";
+import { scheduleLabel } from "@/lib/scheduleReveal";
 import { useScheduleReveal } from "@/hooks/useScheduleReveal";
-import { useRouteContext } from "@tanstack/react-router";
 
 interface NonMusicSetBannerProps {
   set: FestivalSet;
@@ -19,18 +18,11 @@ export function NonMusicSetBanner({
   score,
   use24Hour,
 }: NonMusicSetBannerProps) {
-  const { festival } = useRouteContext({
-    from: "/festivals/$festivalSlug/editions/$editionSlug",
-  });
-  const { canShowStage, level } = useScheduleReveal();
+  const { revealLabels } = useScheduleReveal();
   const { label, icon: Icon, gradient } = getSetTypeLabel(set.set_type);
 
-  const scheduleFormatted = formatSetSchedule(set, {
-    revealLevel: level,
-    use24Hour,
-    timezone: festival.timezone,
-    dayStartHour: festival.day_start_hour,
-  });
+  const labels = revealLabels(set, { use24Hour });
+  const scheduleFormatted = scheduleLabel(labels);
 
   return (
     <div
@@ -63,7 +55,7 @@ export function NonMusicSetBanner({
           {set.name}
         </h1>
         <div className="flex flex-wrap gap-4 text-muted-foreground mt-2">
-          {canShowStage && <StagePin stageId={set.stage_id} />}
+          {labels.stageId && <StagePin stageId={labels.stageId} />}
           {scheduleFormatted && (
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4" />

@@ -53,10 +53,12 @@ export function computeRevealLabels(
     level,
     timezone,
     use24Hour,
+    dayStartHour,
   }: {
     level: RevealLevel;
     timezone: string | undefined;
     use24Hour: boolean;
+    dayStartHour?: number;
   },
 ): RevealLabels {
   const stageId = canShowStage(level) ? set.stage_id : null;
@@ -74,7 +76,7 @@ export function computeRevealLabels(
 
   if (!canShowDay(level)) return { stageId };
 
-  const day = formatDayOnly(set.time_start, timezone);
+  const day = formatDayOnly(set.time_start, timezone, dayStartHour);
   if (!day) return isTba ? { dayLabel: "Time TBA", stageId } : { stageId };
   return { dayLabel: isTba ? `${day} · TBA` : day, stageId };
 }

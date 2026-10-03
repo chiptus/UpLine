@@ -20,6 +20,7 @@ interface UseTimelineScrollSyncOptions {
   festivalStart: Date;
   scheduleWindow: ScheduleWindow | null;
   timezone: string;
+  dayStartHour: number;
   now: Date;
 }
 
@@ -32,6 +33,7 @@ export function useTimelineScrollSync({
   festivalStart,
   scheduleWindow,
   timezone,
+  dayStartHour,
   now,
 }: UseTimelineScrollSyncOptions) {
   const route =
@@ -57,6 +59,7 @@ export function useTimelineScrollSync({
       scrollTo,
       day,
       timezone,
+      dayStartHour,
       festivalStart,
       scheduleWindow,
       now,

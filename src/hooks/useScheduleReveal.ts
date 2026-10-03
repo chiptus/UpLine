@@ -28,6 +28,7 @@ export function useScheduleReveal() {
         level,
         timezone: festival.timezone,
         use24Hour,
+        dayStartHour: festival.day_start_hour,
       });
     },
   };

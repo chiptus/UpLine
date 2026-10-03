@@ -10,6 +10,7 @@ export type FestivalUpdateData = Partial<{
   published?: boolean;
   logo_url?: string | null;
   timezone?: string;
+  day_start_hour?: number;
 }>;
 
 export async function updateFestival(

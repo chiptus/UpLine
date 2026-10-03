@@ -1,5 +1,5 @@
-import { fromZonedTime } from "date-fns-tz";
 import { timeToOffset } from "./timelineCalculator";
+import { festivalDayStart } from "@/lib/timeUtils";
 import type { HorizontalTimelineSet } from "./timelineCalculator";
 
 /**
@@ -52,20 +52,23 @@ export interface OverviewDayBoundary {
 interface CalculateDayBoundariesParams {
   days: Array<{ date: string }>;
   timezone: string;
+  dayStartHour: number;
   festivalStart: Date;
   totalWidth: number;
 }
 
 /**
- * Proportional position of each day's local midnight, for the vertical
- * boundary lines drawn on the map. A day whose midnight falls outside the
- * currently rendered `[0, totalWidth]` range (e.g. every other day, when a
- * `day` filter has narrowed the strip to a single day) is dropped - the map
- * only ever shows what the strip already shows.
+ * Proportional position of each day's start (the festival's configured
+ * day-start hour, or local midnight when unset), for the vertical boundary
+ * lines drawn on the map. A day whose boundary falls outside the currently
+ * rendered `[0, totalWidth]` range (e.g. every other day, when a `day`
+ * filter has narrowed the strip to a single day) is dropped - the map only
+ * ever shows what the strip already shows.
  */
 export function calculateDayBoundaries({
   days,
   timezone,
+  dayStartHour,
   festivalStart,
   totalWidth,
 }: CalculateDayBoundariesParams): OverviewDayBoundary[] {
@@ -73,8 +76,8 @@ export function calculateDayBoundaries({
 
   return days
     .map((day) => {
-      const midnight = fromZonedTime(`${day.date}T00:00:00`, timezone);
-      const offset = timeToOffset(midnight, festivalStart);
+      const dayStart = festivalDayStart(day.date, timezone, dayStartHour);
+      const offset = timeToOffset(dayStart, festivalStart);
       return {
         date: day.date,
         leftPercent: offsetToPercent(offset, totalWidth),

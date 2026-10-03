@@ -53,6 +53,7 @@ function ListSchedule() {
     sets: editionSets,
     stages,
     timezone: festival.timezone,
+    dayStartHour: festival.day_start_hour,
   });
   const {
     day: selectedDay,

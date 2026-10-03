@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/select";
 import { Calendar } from "lucide-react";
 import { useRouteContext } from "@tanstack/react-router";
-import { format, parseISO, isValid } from "date-fns";
+import { buildDayFilterOptions } from "@/lib/dayFilterOptions";
 
 interface DayFilterSelectProps {
   selectedDay: string;
@@ -18,31 +18,18 @@ export function DayFilterSelect({
   selectedDay,
   onDayChange,
 }: DayFilterSelectProps) {
-  const { edition } = useRouteContext({
+  const { festival, edition } = useRouteContext({
     from: "/festivals/$festivalSlug/editions/$editionSlug",
   });
 
-  // Generate day options from edition dates
-  const dayOptions = [];
-  dayOptions.push({ value: "all", label: "All Days" });
-
-  if (edition?.start_date && edition?.end_date) {
-    const startDate = parseISO(edition.start_date);
-    const endDate = parseISO(edition.end_date);
-
-    if (isValid(startDate) && isValid(endDate)) {
-      const currentDate = new Date(startDate);
-      while (currentDate <= endDate) {
-        const dateStr = format(currentDate, "yyyy-MM-dd");
-        const dayLabel = format(currentDate, "EEEE"); // e.g., "Friday"
-        dayOptions.push({
-          value: dateStr,
-          label: dayLabel,
-        });
-        currentDate.setDate(currentDate.getDate() + 1);
-      }
-    }
-  }
+  const dayOptions = [
+    { value: "all", label: "All Days" },
+    ...buildDayFilterOptions(
+      edition?.start_date,
+      edition?.end_date,
+      festival?.day_start_hour,
+    ),
+  ];
 
   return (
     <div className="space-y-2">

@@ -10,6 +10,7 @@ async function createFestival(festivalData: {
   published?: boolean;
   logo_url?: string | null;
   timezone?: string;
+  day_start_hour?: number;
 }) {
   const { data, error } = await supabase
     .from("festivals")

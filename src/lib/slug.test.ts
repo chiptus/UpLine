@@ -38,11 +38,44 @@ describe("generateSlug", () => {
     expect(generateSlug("2024 Festival Edition")).toBe("2024-festival-edition");
   });
 
-  it("handles edge cases", () => {
-    expect(generateSlug("")).toBe("");
-    expect(generateSlug("   ")).toBe("");
-    expect(generateSlug("---")).toBe("");
-    expect(generateSlug("@#$%")).toBe("");
+  // Fixture values cross-checked against Postgres' own MD5 (verified with
+  // `SELECT 'n-' || LEFT(MD5(LOWER(TRIM(name))), 8)`, the fallback formula
+  // the `slugify_non_empty_fallback` migration uses) so this test catches a
+  // divergence between the JS mirror and the SQL source of truth, not just
+  // a divergence between generateSlug and its own md5 helper.
+  it("falls back to a deterministic non-empty slug when nothing is left", () => {
+    expect(generateSlug("")).toBe("n-d41d8cd9");
+    expect(generateSlug("   ")).toBe("n-d41d8cd9");
+    expect(generateSlug("---")).toBe("n-9efc314b");
+    expect(generateSlug("@#$%")).toBe("n-093ee393");
+  });
+
+  it("produces a stable, distinct fallback per input", () => {
+    expect(generateSlug("サカナクション")).toBe("n-f714de1c");
+    expect(generateSlug("Чайф")).toBe("n-65550cd9");
+    expect(generateSlug("サカナクション")).toBe(generateSlug("サカナクション"));
+  });
+
+  // The actual name that surfaced this bug in the schedule import wizard
+  // (see UPL-53's discussion) — Hebrew has no ASCII alphanumerics either, so
+  // it hits the same fallback as サカナクション/Чайф above.
+  it("handles Hebrew names", () => {
+    expect(generateSlug("כנסיית השכל")).toBe("n-39b9fbf1");
+  });
+
+  // Postgres' default TRIM() only strips plain spaces, not tabs/newlines —
+  // public.slugify() now uses a \s-based regex trim instead so a
+  // tab-padded name hashes the same there as it does here; this fixture
+  // documents that shared expectation (verified against the SQL function).
+  it("strips the same whitespace the SQL fallback does", () => {
+    expect(generateSlug("\tכנסיית השכל\t")).toBe("n-39b9fbf1");
+  });
+
+  // A pure-Chinese name (no ASCII) also has nothing for the regex to keep,
+  // unlike "测试 Test" below, which keeps "Test" and never reaches the
+  // fallback.
+  it("handles Chinese names", () => {
+    expect(generateSlug("北京")).toBe("n-692e9266");
   });
 
   it("handles unicode characters", () => {
@@ -86,7 +119,7 @@ describe("isValidSlug", () => {
 });
 
 describe("sanitizeSlug", () => {
-  it("is an alias for generateSlug", () => {
+  it("matches generateSlug when the input normalizes to something", () => {
     const testCases = [
       "Hello World",
       "Special!@#Characters",
@@ -97,6 +130,16 @@ describe("sanitizeSlug", () => {
     testCases.forEach((testCase) => {
       expect(sanitizeSlug(testCase)).toBe(generateSlug(testCase));
     });
+  });
+
+  // A manually-controlled slug field being cleared means "not set yet" —
+  // unlike generateSlug, hashing that would silently save an unrelated
+  // value and bypass the field's own "slug is required" validation.
+  it("preserves blank input instead of hashing it", () => {
+    expect(sanitizeSlug("")).toBe("");
+    expect(sanitizeSlug("   ")).toBe("");
+    expect(sanitizeSlug("---")).toBe("");
+    expect(sanitizeSlug("!!!")).toBe("");
   });
 
   it("produces valid slugs", () => {

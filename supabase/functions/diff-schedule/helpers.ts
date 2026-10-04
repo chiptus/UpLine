@@ -1,11 +1,18 @@
 import { TZDate } from "npm:@date-fns/tz@1.5.0";
+import md5 from "npm:blueimp-md5@2.19.0";
 
+/**
+ * Mirrors `generateSlug` in `src/lib/slug.ts` and Postgres' `public.slugify()`
+ * (the `slugify_non_empty_fallback` migration) — keep all three in sync.
+ * Falls back to a deterministic hash-based slug when there are no ASCII
+ * alphanumerics to keep, since diff-schedule precomputes slugs the commit
+ * step looks rows up by.
+ */
 export function toSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+  const normalized = name.toLowerCase().trim();
+  const slug = normalized.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+
+  return slug === "" ? `n-${md5(normalized).slice(0, 8)}` : slug;
 }
 
 export function artistKey(slugs: string[]): string {

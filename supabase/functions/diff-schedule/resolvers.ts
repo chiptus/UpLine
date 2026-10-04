@@ -86,6 +86,9 @@ export function resolveStage(
   const strippedInput = strip(lower);
   const closeMatch = dbStages.find((s) => {
     const strippedDb = strip(s.name);
+    // A non-Latin name (e.g. Hebrew) strips to "" entirely -- two such
+    // names must never "match" just because both reduce to nothing.
+    if (strippedDb === "" || strippedInput === "") return false;
     if (strippedDb === strippedInput) return true;
     // Substring matching false-positives on short names (a DB stage "a"
     // matches any CSV stage containing the letter), so require both

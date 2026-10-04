@@ -3,7 +3,8 @@
   "specifiers": {
     "jsr:@std/assert@1": "1.0.19",
     "jsr:@std/internal@^1.0.12": "1.0.13",
-    "npm:@date-fns/tz@1.5.0": "1.5.0"
+    "npm:@date-fns/tz@1.5.0": "1.5.0",
+    "npm:blueimp-md5@2.19.0": "2.19.0"
   },
   "jsr": {
     "@std/assert@1.0.19": {
@@ -19,6 +20,9 @@
   "npm": {
     "@date-fns/tz@1.5.0": {
       "integrity": "sha512-lwYN/vDPeNRULcepoE/LO2Pgx+7/RV+S9ARfbc9lr2DtGkOD7pAiruHvbR1RX3Qyf6ja47EWJDMsNK5vK08DJg=="
+    },
+    "blueimp-md5@2.19.0": {
+      "integrity": "sha512-DRQrD6gJyy8FbiE4s+bDoXS9hiW3Vbx5uCdwvcCf3zLHL+Iv7LtGHLpr+GZV8rHG8tK766FGYBwRbu8pELTt+w=="
     }
   },
   "redirects": {

@@ -1,4 +1,4 @@
-import { md5 } from "./md5";
+import md5 from "blueimp-md5";
 
 /**
  * Generate a URL-friendly slug from a string. Falls back to a deterministic
@@ -8,10 +8,9 @@ import { md5 } from "./md5";
  * `toSlug()` in `supabase/functions/diff-schedule/helpers.ts`.
  */
 export function generateSlug(text: string): string {
-  const normalized = text.toLowerCase().trim();
-  const slug = strip(normalized);
+  const slug = sanitizeSlug(text);
 
-  return slug === "" ? `n-${md5(normalized).slice(0, 8)}` : slug;
+  return slug === "" ? `n-${md5(text.toLowerCase().trim()).slice(0, 8)}` : slug;
 }
 
 /**
@@ -31,12 +30,10 @@ export function isValidSlug(slug: string): boolean {
  * "slug is required" validation that field already has.
  */
 export function sanitizeSlug(input: string): string {
-  return strip(input.toLowerCase().trim());
-}
-
-function strip(normalized: string): string {
   return (
-    normalized
+    input
+      .toLowerCase()
+      .trim()
       // Replace spaces and special chars with hyphens
       .replace(/[^a-z0-9]+/g, "-")
       // Remove leading/trailing hyphens

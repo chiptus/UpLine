@@ -56,6 +56,20 @@ describe("generateSlug", () => {
     expect(generateSlug("サカナクション")).toBe(generateSlug("サカナクション"));
   });
 
+  // The actual name that surfaced this bug in the schedule import wizard
+  // (see UPL-53's discussion) — Hebrew has no ASCII alphanumerics either, so
+  // it hits the same fallback as サカナクション/Чайф above.
+  it("handles Hebrew names", () => {
+    expect(generateSlug("כנסיית השכל")).toBe("n-39b9fbf1");
+  });
+
+  // A pure-Chinese name (no ASCII) also has nothing for the regex to keep,
+  // unlike "测试 Test" below, which keeps "Test" and never reaches the
+  // fallback.
+  it("handles Chinese names", () => {
+    expect(generateSlug("北京")).toBe("n-692e9266");
+  });
+
   it("handles unicode characters", () => {
     expect(generateSlug("Café Münchën")).toBe("caf-m-nch-n");
     expect(generateSlug("测试 Test")).toBe("test");

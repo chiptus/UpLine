@@ -60,6 +60,18 @@ Deno.test("resolveStage does not substring-match a short DB stage name", () => {
   assertEquals(result, { kind: "new", resolvedName: "Beach" });
 });
 
+Deno.test(
+  "resolveStage treats two distinct non-Latin stage names as new, not a false match",
+  () => {
+    // Both "במה א" and "במה ב" strip to "" under the ASCII-only [^a-z0-9]
+    // filter -- they must not "match" each other just because both reduce to
+    // nothing.
+    const stage = makeStage("s1", "במה א");
+    const result = resolveStage("במה ב", [stage], new Map());
+    assertEquals(result, { kind: "new", resolvedName: "במה ב" });
+  },
+);
+
 Deno.test("resolveStage returns none when no stage given", () => {
   assertEquals(resolveStage(undefined, [], new Map()), { kind: "none" });
 });

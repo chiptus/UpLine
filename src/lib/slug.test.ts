@@ -63,6 +63,14 @@ describe("generateSlug", () => {
     expect(generateSlug("כנסיית השכל")).toBe("n-39b9fbf1");
   });
 
+  // Postgres' default TRIM() only strips plain spaces, not tabs/newlines —
+  // public.slugify() now uses a \s-based regex trim instead so a
+  // tab-padded name hashes the same there as it does here; this fixture
+  // documents that shared expectation (verified against the SQL function).
+  it("strips the same whitespace the SQL fallback does", () => {
+    expect(generateSlug("\tכנסיית השכל\t")).toBe("n-39b9fbf1");
+  });
+
   // A pure-Chinese name (no ASCII) also has nothing for the regex to keep,
   // unlike "测试 Test" below, which keeps "Test" and never reaches the
   // fallback.

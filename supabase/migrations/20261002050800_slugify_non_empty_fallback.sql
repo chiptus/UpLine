@@ -4,6 +4,12 @@
 -- '', which the dedupe triggers treat as "no slug supplied" rather than
 -- "slug is the empty string" (COALESCE(NULLIF(TRIM(NEW.slug), ''), ...)),
 -- so the first such row got slug '' and the next '-2'.
+--
+-- Trims with a \s regex rather than plain TRIM(): Postgres' default TRIM
+-- only strips ASCII space, while the JS mirrors' .trim() also strips tabs,
+-- newlines, etc. -- a tab-padded name would otherwise hash differently here
+-- than in resolveArtists() during CSV import, missing the existing row and
+-- creating a duplicate.
 CREATE OR REPLACE FUNCTION public.slugify(p_name TEXT)
 RETURNS TEXT
 LANGUAGE sql
@@ -15,88 +21,143 @@ AS $$
       TRIM(
         BOTH '-' FROM
         REGEXP_REPLACE(
-          REGEXP_REPLACE(LOWER(TRIM(p_name)), '[^a-z0-9]+', '-', 'g'),
+          REGEXP_REPLACE(
+            LOWER(REGEXP_REPLACE(p_name, '^\s+|\s+$', '', 'g')),
+            '[^a-z0-9]+', '-', 'g'
+          ),
           '-+', '-', 'g'
         )
       ),
       ''
     ),
-    'n-' || LEFT(MD5(LOWER(TRIM(p_name))), 8)
+    'n-' || LEFT(MD5(LOWER(REGEXP_REPLACE(p_name, '^\s+|\s+$', '', 'g'))), 8)
   );
 $$;
 
 -- Rows created before the fallback above could end up with slug = '' (or,
 -- for artists/sets whose BEFORE INSERT trigger appends a collision suffix to
 -- an empty base, '-2', '-3', ...) when their name had no ASCII
--- alphanumerics. Recompute those with the now-fixed public.slugify() and
--- re-resolve any new collision the same way the artists/sets
--- unique-constraint migrations already do: append the row id to all but one
--- row per slug, since slug-based lookups and the unique constraints depend
--- on a stable, unique value.
+-- alphanumerics. Recompute those with the now-fixed public.slugify(),
+-- resolving each row's collisions (against both already-unique rows and
+-- sibling rows repaired earlier in the same loop) before writing it, the
+-- same way the artists/sets dedupe triggers resolve a collision on INSERT.
+--
+-- A plain two-pass UPDATE (recompute, then separately re-suffix collisions)
+-- doesn't work here: two legacy rows sharing a name -- the exact shape the
+-- old buggy trigger produced, e.g. two artists both named '!!!' with slugs
+-- '' and '-2' -- recompute to the identical new slug in the same statement,
+-- which violates the existing *_slug_unique constraints and aborts the
+-- whole migration before the re-suffix pass ever runs.
 --
 -- Groups and stages have no such trigger (slug is set once, client-side, at
 -- create time), so a legacy row there can only be the literal empty string
--- -- never a '-2'-style suffix -- and two such rows can't coexist under the
--- same unique constraint (the second insert would have been rejected).
+-- -- never a '-2'-style suffix -- but a repaired row's hash can still
+-- collide with another group/stage's existing slug, so the same per-row
+-- resolution applies to them too.
 
-UPDATE public.artists a
-SET slug = public.slugify(a.name)
-WHERE a.slug = '' OR a.slug ~ '^-[0-9]+$';
+DO $$
+DECLARE
+  r RECORD;
+  v_base TEXT;
+  v_candidate TEXT;
+  v_attempt INT;
+BEGIN
+  FOR r IN
+    SELECT id, name FROM public.artists
+    WHERE slug = '' OR slug ~ '^-[0-9]+$'
+    ORDER BY archived ASC, id
+  LOOP
+    v_base := public.slugify(r.name);
+    v_candidate := v_base;
+    v_attempt := 1;
+    WHILE EXISTS (
+      SELECT 1 FROM public.artists
+      WHERE slug = v_candidate AND id IS DISTINCT FROM r.id
+    ) LOOP
+      v_attempt := v_attempt + 1;
+      v_candidate := v_base || '-' || v_attempt;
+    END LOOP;
+    UPDATE public.artists SET slug = v_candidate WHERE id = r.id;
+  END LOOP;
+END $$;
 
-UPDATE public.artists a
-SET slug = a.slug || '-' || a.id::text
-WHERE a.id IN (
-  SELECT id
-  FROM (
-    SELECT id, ROW_NUMBER() OVER (PARTITION BY slug ORDER BY archived ASC, id) AS rn
-    FROM public.artists
-  ) ranked
-  WHERE rn > 1
-);
+DO $$
+DECLARE
+  r RECORD;
+  v_base TEXT;
+  v_candidate TEXT;
+  v_attempt INT;
+BEGIN
+  FOR r IN
+    SELECT id, name, festival_edition_id FROM public.sets
+    WHERE slug = '' OR slug ~ '^-[0-9]+$'
+    ORDER BY created_at ASC, id
+  LOOP
+    v_base := public.slugify(r.name);
+    v_candidate := v_base;
+    v_attempt := 1;
+    WHILE EXISTS (
+      SELECT 1 FROM public.sets
+      WHERE festival_edition_id = r.festival_edition_id
+        AND slug = v_candidate AND id IS DISTINCT FROM r.id
+    ) LOOP
+      v_attempt := v_attempt + 1;
+      v_candidate := v_base || '-' || v_attempt;
+    END LOOP;
+    UPDATE public.sets SET slug = v_candidate WHERE id = r.id;
+  END LOOP;
+END $$;
 
-UPDATE public.sets s
-SET slug = public.slugify(s.name)
-WHERE s.slug = '' OR s.slug ~ '^-[0-9]+$';
+DO $$
+DECLARE
+  r RECORD;
+  v_base TEXT;
+  v_candidate TEXT;
+  v_attempt INT;
+BEGIN
+  FOR r IN
+    SELECT id, name, created_by FROM public.groups
+    WHERE slug = ''
+    ORDER BY id
+  LOOP
+    v_base := public.slugify(r.name);
+    v_candidate := v_base;
+    v_attempt := 1;
+    WHILE EXISTS (
+      SELECT 1 FROM public.groups
+      WHERE created_by = r.created_by
+        AND slug = v_candidate AND id IS DISTINCT FROM r.id
+    ) LOOP
+      v_attempt := v_attempt + 1;
+      v_candidate := v_base || '-' || v_attempt;
+    END LOOP;
+    UPDATE public.groups SET slug = v_candidate WHERE id = r.id;
+  END LOOP;
+END $$;
 
-UPDATE public.sets s
-SET slug = s.slug || '-' || s.id::text
-WHERE s.id IN (
-  SELECT id
-  FROM (
-    SELECT id, ROW_NUMBER() OVER (
-      PARTITION BY festival_edition_id, slug ORDER BY created_at ASC, id
-    ) AS rn
-    FROM public.sets
-  ) ranked
-  WHERE rn > 1
-);
-
-UPDATE public.groups g
-SET slug = public.slugify(g.name)
-WHERE g.slug = '';
-
-UPDATE public.groups g
-SET slug = g.slug || '-' || g.id::text
-WHERE g.id IN (
-  SELECT id
-  FROM (
-    SELECT id, ROW_NUMBER() OVER (PARTITION BY created_by, slug ORDER BY id) AS rn
-    FROM public.groups
-  ) ranked
-  WHERE rn > 1
-);
-
-UPDATE public.stages st
-SET slug = public.slugify(st.name)
-WHERE st.slug = '';
-
-UPDATE public.stages st
-SET slug = st.slug || '-' || st.id::text
-WHERE st.id IN (
-  SELECT id
-  FROM (
-    SELECT id, ROW_NUMBER() OVER (PARTITION BY festival_edition_id, slug ORDER BY id) AS rn
-    FROM public.stages
-  ) ranked
-  WHERE rn > 1
-);
+DO $$
+DECLARE
+  r RECORD;
+  v_base TEXT;
+  v_candidate TEXT;
+  v_attempt INT;
+BEGIN
+  FOR r IN
+    SELECT id, name, festival_edition_id FROM public.stages
+    WHERE slug = ''
+    ORDER BY id
+  LOOP
+    v_base := public.slugify(r.name);
+    v_candidate := v_base;
+    v_attempt := 1;
+    WHILE EXISTS (
+      SELECT 1 FROM public.stages
+      WHERE festival_edition_id = r.festival_edition_id
+        AND slug = v_candidate AND id IS DISTINCT FROM r.id
+    ) LOOP
+      v_attempt := v_attempt + 1;
+      v_candidate := v_base || '-' || v_attempt;
+    END LOOP;
+    UPDATE public.stages SET slug = v_candidate WHERE id = r.id;
+  END LOOP;
+END $$;

@@ -52,6 +52,20 @@ describe("slug dedupe triggers", () => {
       expect(new Set(slugs).size).toBe(2);
     });
 
+    it("never fails a derived insert that races an explicit one for the same slug", async () => {
+      const userId = await signInAsTestUser();
+      const id = crypto.randomUUID();
+
+      // The explicit insert may lose the race and conflict; the derived one
+      // must always get a slug (suffixed if the explicit one landed first).
+      const [, derived] = await Promise.allSettled([
+        insertGroup(userId, "Explicit", `crew-${id}`),
+        insertGroup(userId, `Crew ${id}`),
+      ]);
+
+      expect(derived.status).toBe("fulfilled");
+    });
+
     it("rejects an explicit slug that is already taken instead of renaming it", async () => {
       const userId = await signInAsTestUser();
       const slug = `custom-${crypto.randomUUID()}`;

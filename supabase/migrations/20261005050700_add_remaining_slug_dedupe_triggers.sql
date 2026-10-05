@@ -13,7 +13,10 @@
 --
 -- The advisory lock is keyed on the uniqueness scope, not the base slug: two
 -- concurrent inserts with different bases (`crew` and `crew-2`) can resolve
--- to the same final slug, so they must serialize on the same lock.
+-- to the same final slug, so they must serialize on the same lock. It is taken
+-- before the explicit-slug early return too: an uncommitted explicit insert
+-- (e.g. commit_schedule) must make a concurrent derived insert wait and then
+-- see its slug, rather than pick the same one and hit the unique constraint.
 
 CREATE OR REPLACE FUNCTION public.groups_dedupe_slug()
 RETURNS TRIGGER
@@ -25,11 +28,11 @@ DECLARE
   v_candidate TEXT;
   v_attempt   INT := 1;
 BEGIN
+  PERFORM pg_advisory_xact_lock(hashtextextended('groups:' || NEW.created_by::text, 0));
+
   IF NULLIF(TRIM(NEW.slug), '') IS NOT NULL THEN
     RETURN NEW;
   END IF;
-
-  PERFORM pg_advisory_xact_lock(hashtextextended('groups:' || NEW.created_by::text, 0));
 
   v_base := public.slugify(NEW.name);
   v_candidate := v_base;
@@ -65,11 +68,11 @@ DECLARE
   v_candidate TEXT;
   v_attempt   INT := 1;
 BEGIN
+  PERFORM pg_advisory_xact_lock(hashtextextended('stages:' || NEW.festival_edition_id::text, 0));
+
   IF NULLIF(TRIM(NEW.slug), '') IS NOT NULL THEN
     RETURN NEW;
   END IF;
-
-  PERFORM pg_advisory_xact_lock(hashtextextended('stages:' || NEW.festival_edition_id::text, 0));
 
   v_base := public.slugify(NEW.name);
   v_candidate := v_base;
@@ -105,11 +108,11 @@ DECLARE
   v_candidate TEXT;
   v_attempt   INT := 1;
 BEGIN
+  PERFORM pg_advisory_xact_lock(hashtextextended('festivals', 0));
+
   IF NULLIF(TRIM(NEW.slug), '') IS NOT NULL THEN
     RETURN NEW;
   END IF;
-
-  PERFORM pg_advisory_xact_lock(hashtextextended('festivals', 0));
 
   v_base := public.slugify(NEW.name);
   v_candidate := v_base;
@@ -145,11 +148,11 @@ DECLARE
   v_candidate TEXT;
   v_attempt   INT := 1;
 BEGIN
+  PERFORM pg_advisory_xact_lock(hashtextextended('festival_editions:' || NEW.festival_id::text, 0));
+
   IF NULLIF(TRIM(NEW.slug), '') IS NOT NULL THEN
     RETURN NEW;
   END IF;
-
-  PERFORM pg_advisory_xact_lock(hashtextextended('festival_editions:' || NEW.festival_id::text, 0));
 
   v_base := public.slugify(NEW.name);
   v_candidate := v_base;

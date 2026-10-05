@@ -37,6 +37,31 @@ describe("slug dedupe triggers", () => {
       expect(await insertGroup(userId, "Whatever", slug)).toBe(slug);
     });
 
+    it("serializes concurrent inserts whose bases overlap after suffixing", async () => {
+      const userId = await signInAsTestUser();
+      const id = crypto.randomUUID();
+      await insertGroup(userId, `Crew ${id}`);
+
+      // `crew-<id>` is taken, so the first resolves to `crew-<id>-2`; the
+      // second's own base is already `crew-<id>-2`.
+      const slugs = await Promise.all([
+        insertGroup(userId, `Crew ${id}`),
+        insertGroup(userId, `Crew ${id} 2`),
+      ]);
+
+      expect(new Set(slugs).size).toBe(2);
+    });
+
+    it("rejects an explicit slug that is already taken instead of renaming it", async () => {
+      const userId = await signInAsTestUser();
+      const slug = `custom-${crypto.randomUUID()}`;
+      await insertGroup(userId, "First", slug);
+
+      await expect(insertGroup(userId, "Second", slug)).rejects.toMatchObject({
+        code: "23505",
+      });
+    });
+
     it("gives a non-Latin name a non-empty slug", async () => {
       const userId = await signInAsTestUser();
 

@@ -2,11 +2,18 @@
 -- 20260804101202_add_slug_dedupe_triggers.sql (sets, artists) to groups,
 -- stages, festivals and festival_editions so the client no longer computes
 -- slugs on create. Each trigger derives a slug from `name` when none is
--- supplied, trusts a caller-supplied one as-is (the admin festival dialogs let
--- a user type their own), and suffixes `-2`, `-3`, ... within the scope of the
--- table's existing unique constraint. The slug columns stay NOT NULL: BEFORE
--- triggers fire before the NOT NULL check, so callers send '' to mean "derive
--- it" (same convention as sets).
+-- supplied and suffixes `-2`, `-3`, ... within the scope of the table's
+-- existing unique constraint. The slug columns stay NOT NULL: BEFORE triggers
+-- fire before the NOT NULL check, so callers send '' to mean "derive it"
+-- (same convention as sets).
+--
+-- Unlike sets/artists, a caller-supplied slug is left untouched: the admin
+-- festival dialogs let a user type one, and silently renaming it to `-2`
+-- would hide a real conflict that the unique constraint should surface.
+--
+-- The advisory lock is keyed on the uniqueness scope, not the base slug: two
+-- concurrent inserts with different bases (`crew` and `crew-2`) can resolve
+-- to the same final slug, so they must serialize on the same lock.
 
 CREATE OR REPLACE FUNCTION public.groups_dedupe_slug()
 RETURNS TRIGGER
@@ -14,13 +21,18 @@ LANGUAGE plpgsql
 SET search_path = public
 AS $$
 DECLARE
-  v_base      TEXT := COALESCE(NULLIF(TRIM(NEW.slug), ''), public.slugify(NEW.name));
-  v_candidate TEXT := v_base;
+  v_base      TEXT;
+  v_candidate TEXT;
   v_attempt   INT := 1;
 BEGIN
-  PERFORM pg_advisory_xact_lock(hashtextextended(
-    'groups:' || NEW.created_by::text || ':' || v_base, 0
-  ));
+  IF NULLIF(TRIM(NEW.slug), '') IS NOT NULL THEN
+    RETURN NEW;
+  END IF;
+
+  PERFORM pg_advisory_xact_lock(hashtextextended('groups:' || NEW.created_by::text, 0));
+
+  v_base := public.slugify(NEW.name);
+  v_candidate := v_base;
 
   WHILE EXISTS (
     SELECT 1 FROM public.groups
@@ -49,13 +61,18 @@ LANGUAGE plpgsql
 SET search_path = public
 AS $$
 DECLARE
-  v_base      TEXT := COALESCE(NULLIF(TRIM(NEW.slug), ''), public.slugify(NEW.name));
-  v_candidate TEXT := v_base;
+  v_base      TEXT;
+  v_candidate TEXT;
   v_attempt   INT := 1;
 BEGIN
-  PERFORM pg_advisory_xact_lock(hashtextextended(
-    'stages:' || NEW.festival_edition_id::text || ':' || v_base, 0
-  ));
+  IF NULLIF(TRIM(NEW.slug), '') IS NOT NULL THEN
+    RETURN NEW;
+  END IF;
+
+  PERFORM pg_advisory_xact_lock(hashtextextended('stages:' || NEW.festival_edition_id::text, 0));
+
+  v_base := public.slugify(NEW.name);
+  v_candidate := v_base;
 
   WHILE EXISTS (
     SELECT 1 FROM public.stages
@@ -84,15 +101,23 @@ LANGUAGE plpgsql
 SET search_path = public
 AS $$
 DECLARE
-  v_base      TEXT := COALESCE(NULLIF(TRIM(NEW.slug), ''), public.slugify(NEW.name));
-  v_candidate TEXT := v_base;
+  v_base      TEXT;
+  v_candidate TEXT;
   v_attempt   INT := 1;
 BEGIN
-  PERFORM pg_advisory_xact_lock(hashtextextended('festivals:' || v_base, 0));
+  IF NULLIF(TRIM(NEW.slug), '') IS NOT NULL THEN
+    RETURN NEW;
+  END IF;
+
+  PERFORM pg_advisory_xact_lock(hashtextextended('festivals', 0));
+
+  v_base := public.slugify(NEW.name);
+  v_candidate := v_base;
 
   WHILE EXISTS (
     SELECT 1 FROM public.festivals
-    WHERE slug = v_candidate
+    WHERE TRUE
+      AND slug = v_candidate
       AND id IS DISTINCT FROM NEW.id
   ) LOOP
     v_attempt := v_attempt + 1;
@@ -116,13 +141,18 @@ LANGUAGE plpgsql
 SET search_path = public
 AS $$
 DECLARE
-  v_base      TEXT := COALESCE(NULLIF(TRIM(NEW.slug), ''), public.slugify(NEW.name));
-  v_candidate TEXT := v_base;
+  v_base      TEXT;
+  v_candidate TEXT;
   v_attempt   INT := 1;
 BEGIN
-  PERFORM pg_advisory_xact_lock(hashtextextended(
-    'festival_editions:' || NEW.festival_id::text || ':' || v_base, 0
-  ));
+  IF NULLIF(TRIM(NEW.slug), '') IS NOT NULL THEN
+    RETURN NEW;
+  END IF;
+
+  PERFORM pg_advisory_xact_lock(hashtextextended('festival_editions:' || NEW.festival_id::text, 0));
+
+  v_base := public.slugify(NEW.name);
+  v_candidate := v_base;
 
   WHILE EXISTS (
     SELECT 1 FROM public.festival_editions

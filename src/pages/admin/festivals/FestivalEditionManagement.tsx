@@ -30,15 +30,14 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Loader2, Plus, Edit2, Trash2, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { generateSlug, isValidSlug, sanitizeSlug } from "@/lib/slug";
+import { generateSlug, isValidSlug } from "@/lib/slug";
+import { useSlugField } from "@/hooks/useSlugField";
 import type { Database } from "@/integrations/supabase/types";
 import { ScheduleRevealLevelField } from "./ScheduleRevealLevelField";
 
 type RevealLevel = Database["public"]["Enums"]["schedule_reveal_level"];
 
 interface EditionFormData {
-  name: string;
-  slug: string;
   year: number;
   start_date?: string;
   end_date?: string;
@@ -68,16 +67,21 @@ export function FestivalEditionManagement({
   const [editingEdition, setEditingEdition] = useState<FestivalEdition | null>(
     null,
   );
+  const {
+    name,
+    slug,
+    slugError,
+    changeName,
+    changeSlug,
+    reset: resetSlugField,
+  } = useSlugField();
   const [formData, setFormData] = useState<EditionFormData>({
-    name: "",
-    slug: "",
     year: new Date().getFullYear(),
     start_date: "",
     end_date: "",
     published: false,
     schedule_reveal_level: "draft",
   });
-  const [slugError, setSlugError] = useState("");
   const isSubmitting =
     createEditionMutation.isPending || updateEditionMutation.isPending;
 
@@ -103,9 +107,8 @@ export function FestivalEditionManagement({
   }
 
   function resetForm() {
+    resetSlugField();
     setFormData({
-      name: "",
-      slug: "",
       year: new Date().getFullYear(),
       start_date: "",
       end_date: "",
@@ -113,7 +116,6 @@ export function FestivalEditionManagement({
       schedule_reveal_level: "draft",
     });
     setEditingEdition(null);
-    setSlugError("");
   }
 
   function handleCreate() {
@@ -122,9 +124,11 @@ export function FestivalEditionManagement({
   }
 
   function handleEdit(edition: FestivalEdition) {
-    setFormData({
+    resetSlugField({
       name: edition.name,
       slug: edition.slug || generateSlug(edition.name),
+    });
+    setFormData({
       year: edition.year,
       start_date: edition.start_date || "",
       end_date: edition.end_date || "",
@@ -132,40 +136,12 @@ export function FestivalEditionManagement({
       schedule_reveal_level: edition.schedule_reveal_level ?? "draft",
     });
     setEditingEdition(edition);
-    setSlugError("");
     setIsDialogOpen(true);
-  }
-
-  // Auto-generate slug when name changes
-  function handleNameChange(name: string) {
-    setFormData((prev) => ({
-      ...prev,
-      name,
-      // Only auto-generate slug if it's empty or matches the generated slug from previous name
-      slug:
-        prev.slug === "" || prev.slug === generateSlug(prev.name)
-          ? generateSlug(name)
-          : prev.slug,
-    }));
-  }
-
-  // Validate slug when it changes
-  function handleSlugChange(slug: string) {
-    const cleanSlug = sanitizeSlug(slug);
-    setFormData((prev) => ({ ...prev, slug: cleanSlug }));
-
-    if (cleanSlug && !isValidSlug(cleanSlug)) {
-      setSlugError(
-        "Slug must contain only lowercase letters, numbers, and hyphens",
-      );
-    } else {
-      setSlugError("");
-    }
   }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!formData.name.trim()) {
+    if (!name.trim()) {
       toast({
         title: "Error",
         description: "Edition name is required",
@@ -174,7 +150,7 @@ export function FestivalEditionManagement({
       return;
     }
 
-    if (!formData.slug.trim()) {
+    if (!slug.trim()) {
       toast({
         title: "Error",
         description: "Edition slug is required",
@@ -183,7 +159,7 @@ export function FestivalEditionManagement({
       return;
     }
 
-    if (!isValidSlug(formData.slug)) {
+    if (!isValidSlug(slug)) {
       toast({
         title: "Error",
         description: "Please enter a valid slug",
@@ -194,6 +170,8 @@ export function FestivalEditionManagement({
 
     const submitData = {
       ...formData,
+      name,
+      slug,
       start_date: formData.start_date || null,
       end_date: formData.end_date || null,
       festival_id: festivalQuery.data!.id,
@@ -272,8 +250,8 @@ export function FestivalEditionManagement({
                   <Label htmlFor="name">Edition Name</Label>
                   <Input
                     id="name"
-                    value={formData.name}
-                    onChange={(e) => handleNameChange(e.target.value)}
+                    value={name}
+                    onChange={(e) => changeName(e.target.value)}
                     placeholder="e.g., Boom Festival 2025"
                     required
                   />
@@ -282,8 +260,8 @@ export function FestivalEditionManagement({
                   <Label htmlFor="slug">URL Slug</Label>
                   <Input
                     id="slug"
-                    value={formData.slug}
-                    onChange={(e) => handleSlugChange(e.target.value)}
+                    value={slug}
+                    onChange={(e) => changeSlug(e.target.value)}
                     placeholder="e.g., boom-2025"
                     required
                   />
@@ -293,7 +271,7 @@ export function FestivalEditionManagement({
                   <p className="text-sm text-muted-foreground mt-1">
                     This will be used in the URL:
                     /festivals/festival-name/editions/
-                    {formData.slug || "your-slug"}
+                    {slug || "your-slug"}
                   </p>
                 </div>
                 <div>

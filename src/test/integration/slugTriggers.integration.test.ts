@@ -4,8 +4,6 @@ import { signInAsTestUser } from "./fixtures/auth";
 import { createFestival } from "./fixtures/festivals";
 import { createScratchFestivalEdition } from "./fixtures/scratchPool";
 
-// Callers send slug: "" to mean "derive it"; the columns are NOT NULL, so the
-// BEFORE INSERT trigger is what fills it in.
 describe("slug dedupe triggers", () => {
   describe("groups (scoped per creator)", () => {
     it("derives a slug from the name and dedupes a collision", async () => {

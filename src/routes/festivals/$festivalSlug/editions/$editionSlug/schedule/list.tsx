@@ -52,8 +52,10 @@ function ListSchedule() {
   const { scheduleDays } = useScheduleData({
     sets: editionSets,
     stages,
-    timezone: festival.timezone,
-    dayStartHour: festival.day_start_hour,
+    display: {
+      timezone: festival.timezone,
+      dayStartHour: festival.day_start_hour,
+    },
   });
   const {
     day: selectedDay,

@@ -37,7 +37,7 @@ function ScheduleLineupContent({ tab }: ScheduleLineupViewProps) {
   const { scheduleDays } = useScheduleData({
     sets: editionSets,
     stages,
-    timezone: festival.timezone,
+    display: { timezone: festival.timezone },
   });
   const {
     day: selectedDay,

@@ -48,6 +48,10 @@ type EnhancedSet = ScheduleSet & { dayKey: string };
 interface UseScheduleDataOptions {
   sets: FestivalSet[] | undefined;
   stages: Array<Stage> | undefined;
+  display?: ScheduleDisplayOptions;
+}
+
+interface ScheduleDisplayOptions {
   use24Hour?: boolean;
   timezone?: string;
   dayStartHour?: number;
@@ -56,10 +60,9 @@ interface UseScheduleDataOptions {
 export function useScheduleData({
   sets,
   stages,
-  use24Hour = false,
-  timezone,
-  dayStartHour = 0,
+  display = {},
 }: UseScheduleDataOptions) {
+  const { use24Hour = false, timezone, dayStartHour = 0 } = display;
   const scheduleDays = useMemo(() => {
     if (!sets || !stages || !Array.isArray(sets) || sets.length === 0) {
       return [];

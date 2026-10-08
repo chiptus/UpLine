@@ -1,5 +1,9 @@
 import type { Database } from "@/integrations/supabase/types";
-import { formatDayOnly, formatTimeRange } from "@/lib/timeUtils";
+import {
+  formatDayOnly,
+  formatTimeRange,
+  type FestivalDayConfig,
+} from "@/lib/timeUtils";
 
 export type RevealLevel = Database["public"]["Enums"]["schedule_reveal_level"];
 
@@ -51,14 +55,12 @@ export function computeRevealLabels(
   set: RevealableSet,
   {
     level,
-    timezone,
     use24Hour,
-    dayStartHour,
+    dayConfig,
   }: {
     level: RevealLevel;
-    timezone: string | undefined;
     use24Hour: boolean;
-    dayStartHour?: number;
+    dayConfig: Partial<FestivalDayConfig>;
   },
 ): RevealLabels {
   const stageId = canShowStage(level) ? set.stage_id : null;
@@ -69,14 +71,14 @@ export function computeRevealLabels(
       set.time_start,
       set.time_end,
       use24Hour,
-      timezone,
+      dayConfig.timezone,
     );
     return timeLabel ? { timeLabel, stageId } : { stageId };
   }
 
   if (!canShowDay(level)) return { stageId };
 
-  const day = formatDayOnly(set.time_start, timezone, dayStartHour);
+  const day = formatDayOnly(set.time_start, dayConfig);
   if (!day) return isTba ? { dayLabel: "Time TBA", stageId } : { stageId };
   return { dayLabel: isTba ? `${day} · TBA` : day, stageId };
 }

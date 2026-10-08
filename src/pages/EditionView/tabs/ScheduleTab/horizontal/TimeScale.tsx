@@ -4,23 +4,22 @@ import {
 } from "./timeScaleGeometry";
 import { DateBand } from "./DateBand";
 import { HourMarkers } from "./HourMarkers";
+import type { FestivalDayConfig } from "@/lib/timeUtils";
 
 interface TimeScaleProps {
   timeSlots: Date[];
   totalWidth: number;
-  timezone: string;
-  dayStartHour: number;
+  dayConfig: FestivalDayConfig;
   scrollLeft: number;
 }
 
 export function TimeScale({
   timeSlots,
   totalWidth,
-  timezone,
-  dayStartHour,
+  dayConfig,
   scrollLeft,
 }: TimeScaleProps) {
-  const dateChanges = computeDateChanges(timeSlots, timezone, dayStartHour);
+  const dateChanges = computeDateChanges(timeSlots, dayConfig);
   const geometry = computeDateLabelGeometry(
     dateChanges,
     scrollLeft,
@@ -33,9 +32,9 @@ export function TimeScale({
         dateChanges={dateChanges}
         geometry={geometry}
         totalWidth={totalWidth}
-        timezone={timezone}
+        timezone={dayConfig.timezone}
       />
-      <HourMarkers timeSlots={timeSlots} timezone={timezone} />
+      <HourMarkers timeSlots={timeSlots} timezone={dayConfig.timezone} />
     </div>
   );
 }

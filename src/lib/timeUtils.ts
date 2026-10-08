@@ -7,6 +7,11 @@ import {
 } from "date-fns";
 import { formatInTimeZone, fromZonedTime, toZonedTime } from "date-fns-tz";
 
+export interface FestivalDayConfig {
+  timezone: string;
+  dayStartHour: number;
+}
+
 export function formatTimeRange(
   startTime: string | null,
   endTime: string | null,
@@ -191,9 +196,9 @@ function shiftForDayStart(date: Date, dayStartHour: number): Date {
 
 export function formatDayOnly(
   dateTime: string | null,
-  timezone?: string,
-  dayStartHour: number = 0,
+  config: Partial<FestivalDayConfig> = {},
 ): string | null {
+  const { timezone, dayStartHour = 0 } = config;
   if (!dateTime) return null;
   const date = parseISO(dateTime);
   if (!isValid(date)) return null;
@@ -211,9 +216,9 @@ export function formatDayOnly(
 // festival day instead of splitting at exact midnight.
 export function getFestivalDayKey(
   dateTime: string | null,
-  timezone?: string,
-  dayStartHour: number = 0,
+  config: Partial<FestivalDayConfig> = {},
 ): string | null {
+  const { timezone, dayStartHour = 0 } = config;
   if (!dateTime) return null;
   const date = parseISO(dateTime);
   if (!isValid(date)) return null;
@@ -229,8 +234,7 @@ export function getFestivalDayKey(
 // position day boundaries/jump targets on the horizontal timeline.
 export function festivalDayStart(
   dayKey: string,
-  timezone: string,
-  dayStartHour: number = 0,
+  { timezone, dayStartHour }: FestivalDayConfig,
 ): Date {
   const hour = String(dayStartHour).padStart(2, "0");
   return fromZonedTime(`${dayKey}T${hour}:00:00`, timezone);

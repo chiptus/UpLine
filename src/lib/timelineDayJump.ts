@@ -1,6 +1,6 @@
 import { timeToOffset } from "@/lib/timelineCalculator";
 import { roundToNearestMinutes } from "@/lib/timelineMountMoment";
-import { festivalDayStart } from "@/lib/timeUtils";
+import { festivalDayStart, type FestivalDayConfig } from "@/lib/timeUtils";
 import type { ScheduleDay } from "@/hooks/useScheduleData";
 
 // Clears the pinned StageLabels column (absolute, up to ~180px wide for long
@@ -53,8 +53,7 @@ export function jumpToTimelineMoment(
  */
 export function getDayJumpMoment(
   day: ScheduleDay,
-  timezone: string,
-  dayStartHour: number = 0,
+  config: FestivalDayConfig,
 ): Date {
   const stageOpenings = day.stages
     .map((stage) =>
@@ -68,10 +67,7 @@ export function getDayJumpMoment(
     )
     .filter((start): start is Date => start !== null);
 
-  return (
-    mostCommonStart(stageOpenings) ??
-    festivalDayStart(day.date, timezone, dayStartHour)
-  );
+  return mostCommonStart(stageOpenings) ?? festivalDayStart(day.date, config);
 }
 
 // The start time shared by the most stages, tie-broken by the earliest time.

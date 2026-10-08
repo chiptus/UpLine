@@ -1,5 +1,5 @@
 import { timeToOffset } from "@/lib/timelineCalculator";
-import { getFestivalDayKey } from "@/lib/timeUtils";
+import { getFestivalDayKey, type FestivalDayConfig } from "@/lib/timeUtils";
 
 export const DAY_GAP_PX = 5;
 
@@ -14,11 +14,10 @@ export interface DateChange {
 
 export function computeDateChanges(
   timeSlots: Date[],
-  timezone: string,
-  dayStartHour: number = 0,
+  config: FestivalDayConfig,
 ): DateChange[] {
   function festivalDate(date: Date): string | null {
-    return getFestivalDayKey(date.toISOString(), timezone, dayStartHour);
+    return getFestivalDayKey(date.toISOString(), config);
   }
 
   return timeSlots.reduce((changes, timeSlot, index) => {

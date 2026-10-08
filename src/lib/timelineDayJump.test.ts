@@ -37,7 +37,10 @@ describe("getDayJumpMoment", () => {
       },
     ]);
 
-    const moment = getDayJumpMoment(day, TIMEZONE);
+    const moment = getDayJumpMoment(day, {
+      timezone: TIMEZONE,
+      dayStartHour: 0,
+    });
     expect(moment.getTime()).toBe(new Date("2025-07-13T15:00:00Z").getTime());
   });
 
@@ -47,14 +50,20 @@ describe("getDayJumpMoment", () => {
       new Date("2025-07-13T20:00:00Z"),
     ]);
 
-    const moment = getDayJumpMoment(day, TIMEZONE);
+    const moment = getDayJumpMoment(day, {
+      timezone: TIMEZONE,
+      dayStartHour: 0,
+    });
     expect(moment.getTime()).toBe(new Date("2025-07-13T20:00:00Z").getTime());
   });
 
   it("falls back to festival-timezone midnight when the day has no timed sets", () => {
     const day = buildDay("2025-07-13", []);
 
-    const moment = getDayJumpMoment(day, TIMEZONE);
+    const moment = getDayJumpMoment(day, {
+      timezone: TIMEZONE,
+      dayStartHour: 0,
+    });
     // Midnight in Europe/Lisbon (UTC+1 in July) is 23:00 UTC the prior day.
     expect(moment.getTime()).toBe(new Date("2025-07-12T23:00:00Z").getTime());
   });
@@ -62,7 +71,10 @@ describe("getDayJumpMoment", () => {
   it("falls back to the configured dayStartHour, not midnight, when given", () => {
     const day = buildDay("2025-07-13", []);
 
-    const moment = getDayJumpMoment(day, TIMEZONE, 6);
+    const moment = getDayJumpMoment(day, {
+      timezone: TIMEZONE,
+      dayStartHour: 6,
+    });
     // 06:00 in Europe/Lisbon (UTC+1 in July) is 05:00 UTC.
     expect(moment.getTime()).toBe(new Date("2025-07-13T05:00:00Z").getTime());
   });

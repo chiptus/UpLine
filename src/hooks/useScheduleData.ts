@@ -3,6 +3,7 @@ import {
   formatDateTime,
   getFestivalDayKey,
   getFestivalDayLabel,
+  type FestivalDayConfig,
 } from "@/lib/timeUtils";
 import type { FestivalSet, SetType } from "@/api/sets/types";
 import type { Stage } from "@/api/stages/types";
@@ -51,11 +52,9 @@ interface UseScheduleDataOptions {
   display?: ScheduleDisplayOptions;
 }
 
-interface ScheduleDisplayOptions {
+type ScheduleDisplayOptions = Partial<FestivalDayConfig> & {
   use24Hour?: boolean;
-  timezone?: string;
-  dayStartHour?: number;
-}
+};
 
 export function useScheduleData({
   sets,
@@ -63,6 +62,11 @@ export function useScheduleData({
   display = {},
 }: UseScheduleDataOptions) {
   const { use24Hour = false, timezone, dayStartHour = 0 } = display;
+  const dayConfig = useMemo(
+    () =>
+      timezone === undefined ? { dayStartHour } : { timezone, dayStartHour },
+    [timezone, dayStartHour],
+  );
   const scheduleDays = useMemo(() => {
     if (!sets || !stages || !Array.isArray(sets) || sets.length === 0) {
       return [];
@@ -71,11 +75,7 @@ export function useScheduleData({
     const performingSets = sets
       .filter((set) => set.time_start && set.stage_id && set.status !== "tba")
       .flatMap((set) => {
-        const dayKey = getFestivalDayKey(
-          set.time_start,
-          timezone,
-          dayStartHour,
-        );
+        const dayKey = getFestivalDayKey(set.time_start, dayConfig);
         return dayKey ? [{ set, dayKey }] : [];
       });
 
@@ -170,7 +170,7 @@ export function useScheduleData({
       });
 
     return scheduleDays;
-  }, [sets, use24Hour, stages, timezone, dayStartHour]);
+  }, [sets, use24Hour, stages, timezone, dayConfig]);
 
   const allStages = useMemo(() => {
     const stageSet = new Set<string>();

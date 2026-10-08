@@ -1,5 +1,5 @@
 import { timeToOffset } from "./timelineCalculator";
-import { festivalDayStart } from "@/lib/timeUtils";
+import { festivalDayStart, type FestivalDayConfig } from "@/lib/timeUtils";
 import type { HorizontalTimelineSet } from "./timelineCalculator";
 
 /**
@@ -51,8 +51,7 @@ export interface OverviewDayBoundary {
 
 interface CalculateDayBoundariesParams {
   days: Array<{ date: string }>;
-  timezone: string;
-  dayStartHour: number;
+  dayConfig: FestivalDayConfig;
   festivalStart: Date;
   totalWidth: number;
 }
@@ -67,8 +66,7 @@ interface CalculateDayBoundariesParams {
  */
 export function calculateDayBoundaries({
   days,
-  timezone,
-  dayStartHour,
+  dayConfig,
   festivalStart,
   totalWidth,
 }: CalculateDayBoundariesParams): OverviewDayBoundary[] {
@@ -76,7 +74,7 @@ export function calculateDayBoundaries({
 
   return days
     .map((day) => {
-      const dayStart = festivalDayStart(day.date, timezone, dayStartHour);
+      const dayStart = festivalDayStart(day.date, dayConfig);
       const offset = timeToOffset(dayStart, festivalStart);
       return {
         date: day.date,

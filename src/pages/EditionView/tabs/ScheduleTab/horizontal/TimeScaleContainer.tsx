@@ -2,18 +2,17 @@ import { TimeScale } from "./TimeScale";
 import type { TimelineData } from "@/lib/timelineCalculator";
 import { HEADER_STRIP_TOP_CLASS } from "@/lib/layout-constants";
 import { cn } from "@/lib/utils";
+import type { FestivalDayConfig } from "@/lib/timeUtils";
 
 interface TimeScaleContainerProps {
   timelineData: TimelineData;
-  timezone: string;
-  dayStartHour: number;
+  dayConfig: FestivalDayConfig;
   scrollLeft: number;
 }
 
 export function TimeScaleContainer({
   timelineData,
-  timezone,
-  dayStartHour,
+  dayConfig,
   scrollLeft,
 }: TimeScaleContainerProps) {
   return (
@@ -32,8 +31,7 @@ export function TimeScaleContainer({
         <TimeScale
           timeSlots={timelineData.timeSlots}
           totalWidth={timelineData.totalWidth}
-          timezone={timezone}
-          dayStartHour={dayStartHour}
+          dayConfig={dayConfig}
           scrollLeft={scrollLeft}
         />
       </div>

@@ -73,7 +73,7 @@ describe("computeRevealLabels", () => {
   it("shows the exact time range at full reveal for a timed set", () => {
     const { timeLabel, dayLabel } = computeRevealLabels(timedSet, {
       level: "full",
-      timezone: "UTC",
+      dayConfig: { timezone: "UTC" },
       use24Hour: true,
     });
     expect(timeLabel).toContain("20:00");
@@ -85,7 +85,7 @@ describe("computeRevealLabels", () => {
     (level) => {
       const { dayLabel, timeLabel } = computeRevealLabels(timedSet, {
         level: level,
-        timezone: "UTC",
+        dayConfig: { timezone: "UTC" },
         use24Hour: true,
       });
       expect(dayLabel).toBeDefined();
@@ -97,7 +97,7 @@ describe("computeRevealLabels", () => {
   it("shows neither label when day isn't revealed", () => {
     const { dayLabel, timeLabel } = computeRevealLabels(timedSet, {
       level: "draft",
-      timezone: "UTC",
+      dayConfig: { timezone: "UTC" },
       use24Hour: true,
     });
     expect(dayLabel).toBeUndefined();
@@ -107,7 +107,7 @@ describe("computeRevealLabels", () => {
   it("shows day + TBA at full reveal for a TBA set, never the midnight placeholder time", () => {
     const { dayLabel, timeLabel } = computeRevealLabels(tbaSet, {
       level: "full",
-      timezone: "UTC",
+      dayConfig: { timezone: "UTC" },
       use24Hour: true,
     });
     expect(dayLabel).toContain("TBA");
@@ -118,7 +118,7 @@ describe("computeRevealLabels", () => {
   it("shows day + TBA below full reveal too, for a TBA set", () => {
     const { dayLabel } = computeRevealLabels(tbaSet, {
       level: "days",
-      timezone: "UTC",
+      dayConfig: { timezone: "UTC" },
       use24Hour: true,
     });
     expect(dayLabel).toContain("TBA");
@@ -128,7 +128,7 @@ describe("computeRevealLabels", () => {
   it("shows neither label for a TBA set when day isn't revealed", () => {
     const { dayLabel, timeLabel } = computeRevealLabels(tbaSet, {
       level: "draft",
-      timezone: "UTC",
+      dayConfig: { timezone: "UTC" },
       use24Hour: true,
     });
     expect(dayLabel).toBeUndefined();
@@ -139,7 +139,7 @@ describe("computeRevealLabels", () => {
     expect(
       computeRevealLabels(dateless, {
         level: "full",
-        timezone: "UTC",
+        dayConfig: { timezone: "UTC" },
         use24Hour: true,
       }).dayLabel,
     ).toBe("Time TBA");
@@ -148,7 +148,7 @@ describe("computeRevealLabels", () => {
   it("shows neither label for a dateless TBA set when day isn't revealed", () => {
     const { dayLabel, timeLabel } = computeRevealLabels(dateless, {
       level: "draft",
-      timezone: "UTC",
+      dayConfig: { timezone: "UTC" },
       use24Hour: true,
     });
     expect(dayLabel).toBeUndefined();
@@ -160,7 +160,7 @@ describe("computeRevealLabels", () => {
       for (const set of [timedSet, tbaSet, dateless]) {
         const { dayLabel, timeLabel } = computeRevealLabels(set, {
           level: level,
-          timezone: "UTC",
+          dayConfig: { timezone: "UTC" },
           use24Hour: true,
         });
         expect(dayLabel && timeLabel).toBeFalsy();
@@ -175,14 +175,14 @@ describe("computeRevealLabels", () => {
       expect(
         computeRevealLabels(timedSet, {
           level: level,
-          timezone: "UTC",
+          dayConfig: { timezone: "UTC" },
           use24Hour: true,
         }).stageId,
       ).toBe(expectedWhenPresent);
       expect(
         computeRevealLabels(
           { ...timedSet, stage_id: null },
-          { level: level, timezone: "UTC", use24Hour: true },
+          { level: level, dayConfig: { timezone: "UTC" }, use24Hour: true },
         ).stageId,
       ).toBeNull();
     },

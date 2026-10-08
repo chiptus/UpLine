@@ -9,7 +9,7 @@ import { formatInTimeZone, fromZonedTime, toZonedTime } from "date-fns-tz";
 
 export interface FestivalDayConfig {
   timezone: string;
-  dayStartHour: number;
+  dayEndHour: number;
 }
 
 export function formatTimeRange(
@@ -187,22 +187,22 @@ export function formatDateOnly(
   return format(date, dateFormat);
 }
 
-// Shifts an instant back by the festival's day-start cutoff hour, so
+// Shifts an instant back by the festival's day-end cutoff hour, so
 // grouping/formatting that runs on the result treats a pre-cutoff instant
 // as still belonging to the previous festival day. A no-op at cutoff 0.
-function shiftForDayStart(date: Date, dayStartHour: number): Date {
-  return dayStartHour ? subHours(date, dayStartHour) : date;
+function shiftForDayEnd(date: Date, dayEndHour: number): Date {
+  return dayEndHour ? subHours(date, dayEndHour) : date;
 }
 
 export function formatDayOnly(
   dateTime: string | null,
   config: Partial<FestivalDayConfig> = {},
 ): string | null {
-  const { timezone, dayStartHour = 0 } = config;
+  const { timezone, dayEndHour = 0 } = config;
   if (!dateTime) return null;
   const date = parseISO(dateTime);
   if (!isValid(date)) return null;
-  const shifted = shiftForDayStart(date, dayStartHour);
+  const shifted = shiftForDayEnd(date, dayEndHour);
   const dayFormat = "EEE, MMM d";
   if (timezone) return formatInTimeZone(shifted, timezone, dayFormat);
   return format(shifted, dayFormat);
@@ -210,33 +210,33 @@ export function formatDayOnly(
 
 // The festival calendar day (yyyy-MM-dd) a UTC timestamp falls on, computed in
 // the festival's own timezone so a post-midnight set groups under the
-// festival's day rather than the viewer's. `dayStartHour` (0-23, the
-// festival's configured day-start cutoff) shifts the instant back by that
+// festival's day rather than the viewer's. `dayEndHour` (0-23, the
+// festival's configured day-end cutoff) shifts the instant back by that
 // many hours first, so sets before the cutoff fold into the previous
 // festival day instead of splitting at exact midnight.
 export function getFestivalDayKey(
   dateTime: string | null,
   config: Partial<FestivalDayConfig> = {},
 ): string | null {
-  const { timezone, dayStartHour = 0 } = config;
+  const { timezone, dayEndHour = 0 } = config;
   if (!dateTime) return null;
   const date = parseISO(dateTime);
   if (!isValid(date)) return null;
-  const shifted = shiftForDayStart(date, dayStartHour);
+  const shifted = shiftForDayEnd(date, dayEndHour);
   if (timezone) return formatInTimeZone(shifted, timezone, "yyyy-MM-dd");
   return format(shifted, "yyyy-MM-dd");
 }
 
 // The UTC instant at which a given festival day-key begins, honoring the
-// festival's day-start cutoff hour (defaults to local midnight). The
+// festival's day-end cutoff hour (defaults to local midnight). The
 // counterpart to getFestivalDayKey: where that derives a day-key from an
 // instant, this derives the boundary instant from a day-key - used to
 // position day boundaries/jump targets on the horizontal timeline.
 export function festivalDayStart(
   dayKey: string,
-  { timezone, dayStartHour }: FestivalDayConfig,
+  { timezone, dayEndHour }: FestivalDayConfig,
 ): Date {
-  const hour = String(dayStartHour).padStart(2, "0");
+  const hour = String(dayEndHour).padStart(2, "0");
   return fromZonedTime(`${dayKey}T${hour}:00:00`, timezone);
 }
 

@@ -7,14 +7,14 @@ export interface DayFilterOption {
 
 /**
  * One option per calendar day the edition runs, plus one extra leading day
- * when `dayStartHour` is set: a festival day starting before midnight can
+ * when `dayEndHour` is set: a festival day ending after midnight can
  * fold a pre-cutoff set on the edition's first calendar day back onto the
  * previous day's key, so that day needs to be offered too.
  */
 export function buildDayFilterOptions(
   startDateStr: string | null | undefined,
   endDateStr: string | null | undefined,
-  dayStartHour: number = 0,
+  dayEndHour: number = 0,
 ): DayFilterOption[] {
   if (!startDateStr || !endDateStr) return [];
 
@@ -23,7 +23,7 @@ export function buildDayFilterOptions(
   if (!isValid(startDate) || !isValid(endDate)) return [];
 
   const currentDate = new Date(startDate);
-  if (dayStartHour) {
+  if (dayEndHour) {
     currentDate.setDate(currentDate.getDate() - 1);
   }
 

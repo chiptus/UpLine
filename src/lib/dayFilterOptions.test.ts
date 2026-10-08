@@ -21,7 +21,7 @@ describe("buildDayFilterOptions", () => {
     expect(buildDayFilterOptions("not-a-date", "2025-07-14")).toEqual([]);
   });
 
-  it("with dayStartHour 0 (or omitted) is unaffected - the default renders identically", () => {
+  it("with dayEndHour 0 (or omitted) is unaffected - the default renders identically", () => {
     const withDefault = buildDayFilterOptions("2025-07-12", "2025-07-14");
     const withExplicitZero = buildDayFilterOptions(
       "2025-07-12",
@@ -32,7 +32,7 @@ describe("buildDayFilterOptions", () => {
     expect(withExplicitZero).toEqual(withDefault);
   });
 
-  it("adds a leading day before start_date when dayStartHour is set", () => {
+  it("adds a leading day before start_date when dayEndHour is set", () => {
     const options = buildDayFilterOptions("2025-07-12", "2025-07-14", 6);
 
     expect(options[0]).toEqual({ value: "2025-07-11", label: "Friday" });

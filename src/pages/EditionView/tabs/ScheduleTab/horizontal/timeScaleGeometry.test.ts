@@ -21,7 +21,7 @@ describe("computeDateChanges", () => {
 
     const changes = computeDateChanges(timeSlots, {
       timezone,
-      dayStartHour: 0,
+      dayEndHour: 0,
     });
 
     expect(changes).toEqual([{ date: timeSlots[0], position: 0 }]);
@@ -37,7 +37,7 @@ describe("computeDateChanges", () => {
 
     const changes = computeDateChanges(timeSlots, {
       timezone,
-      dayStartHour: 0,
+      dayEndHour: 0,
     });
 
     expect(changes).toHaveLength(2);
@@ -47,7 +47,7 @@ describe("computeDateChanges", () => {
   });
 
   it("returns an empty array for an empty slot list", () => {
-    expect(computeDateChanges([], { timezone, dayStartHour: 0 })).toEqual([]);
+    expect(computeDateChanges([], { timezone, dayEndHour: 0 })).toEqual([]);
   });
 
   it("respects the given timezone when detecting the day boundary", () => {
@@ -59,18 +59,18 @@ describe("computeDateChanges", () => {
 
     const changesUtc = computeDateChanges(timeSlots, {
       timezone: "UTC",
-      dayStartHour: 0,
+      dayEndHour: 0,
     });
     expect(changesUtc).toHaveLength(1);
 
     const changesBerlinSummer = computeDateChanges(timeSlots, {
       timezone: "Europe/Berlin",
-      dayStartHour: 0,
+      dayEndHour: 0,
     });
     expect(changesBerlinSummer).toHaveLength(2);
   });
 
-  it("folds a slot before the dayStartHour cutoff into the previous day", () => {
+  it("folds a slot before the dayEndHour cutoff into the previous day", () => {
     // Without a cutoff, 01:00 is already the next UTC calendar day.
     const timeSlots = [
       new Date("2024-07-01T22:00:00Z"),
@@ -79,14 +79,14 @@ describe("computeDateChanges", () => {
 
     const noCutoff = computeDateChanges(timeSlots, {
       timezone,
-      dayStartHour: 0,
+      dayEndHour: 0,
     });
     expect(noCutoff).toHaveLength(2);
 
     // With a 6h cutoff, 01:00 is still "yesterday" - no boundary crossed.
     const withCutoff = computeDateChanges(timeSlots, {
       timezone,
-      dayStartHour: 6,
+      dayEndHour: 6,
     });
     expect(withCutoff).toHaveLength(1);
   });

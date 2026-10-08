@@ -21,13 +21,13 @@ import { useSlugField } from "@/hooks/useSlugField";
 import { TimezonePicker } from "@/components/Admin/ScheduleImport/TimezonePicker";
 
 const DEFAULT_FESTIVAL_TIMEZONE = "Europe/Lisbon";
-const DEFAULT_DAY_START_HOUR = 0;
+const DEFAULT_DAY_END_HOUR = 0;
 
 interface FestivalFormData {
   description?: string;
   published: boolean;
   timezone: string;
-  day_start_hour: number;
+  day_end_hour: number;
 }
 
 interface FestivalDialogProps {
@@ -57,7 +57,7 @@ export function FestivalDialog({
     description: "",
     published: false,
     timezone: DEFAULT_FESTIVAL_TIMEZONE,
-    day_start_hour: DEFAULT_DAY_START_HOUR,
+    day_end_hour: DEFAULT_DAY_END_HOUR,
   });
   const isSubmitting =
     createFestivalMutation.isPending || updateFestivalMutation.isPending;
@@ -74,8 +74,7 @@ export function FestivalDialog({
           description: editingFestival.description || "",
           published: editingFestival.published || false,
           timezone: editingFestival.timezone || DEFAULT_FESTIVAL_TIMEZONE,
-          day_start_hour:
-            editingFestival.day_start_hour ?? DEFAULT_DAY_START_HOUR,
+          day_end_hour: editingFestival.day_end_hour ?? DEFAULT_DAY_END_HOUR,
         });
       } else {
         resetSlugField();
@@ -83,7 +82,7 @@ export function FestivalDialog({
           description: "",
           published: false,
           timezone: DEFAULT_FESTIVAL_TIMEZONE,
-          day_start_hour: DEFAULT_DAY_START_HOUR,
+          day_end_hour: DEFAULT_DAY_END_HOUR,
         });
       }
     }
@@ -195,27 +194,27 @@ export function FestivalDialog({
             description="All schedule times for this festival are displayed in this timezone."
           />
           <div>
-            <Label htmlFor="dayStartHour">Day start hour</Label>
+            <Label htmlFor="dayEndHour">Day end hour</Label>
             <Input
-              id="dayStartHour"
+              id="dayEndHour"
               type="number"
               min={0}
               max={23}
-              value={formData.day_start_hour}
+              value={formData.day_end_hour}
               onChange={(e) => {
                 const parsed = Number(e.target.value);
                 const clamped = Number.isNaN(parsed)
-                  ? DEFAULT_DAY_START_HOUR
+                  ? DEFAULT_DAY_END_HOUR
                   : Math.min(23, Math.max(0, Math.trunc(parsed)));
                 setFormData((prev) => ({
                   ...prev,
-                  day_start_hour: clamped,
+                  day_end_hour: clamped,
                 }));
               }}
             />
             <p className="text-sm text-muted-foreground mt-1">
-              Sets before this hour (in the festival timezone) group under the
-              previous festival day. 0 splits days at midnight.
+              The hour (in the festival timezone) the festival day ends. Sets
+              before it belong to the previous day. 0 ends days at midnight.
             </p>
           </div>
           <div className="flex items-center space-x-2">

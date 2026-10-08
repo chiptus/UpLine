@@ -443,10 +443,10 @@ describe("getFestivalDayKey", () => {
     expect(getFestivalDayKey("2024-12-15T23:30:00Z")).toBe("2024-12-15");
   });
 
-  it("with dayStartHour 0 behaves identically to the default (no cutoff)", () => {
+  it("with dayEndHour 0 behaves identically to the default (no cutoff)", () => {
     const dayKey = getFestivalDayKey("2024-07-15T23:30:00Z", {
       timezone: "Europe/Lisbon",
-      dayStartHour: 0,
+      dayEndHour: 0,
     });
     expect(dayKey).toBe("2024-07-16");
   });
@@ -456,7 +456,7 @@ describe("getFestivalDayKey", () => {
     // under Jul 15 (the previous night) instead of Jul 16.
     const dayKey = getFestivalDayKey("2024-07-16T01:00:00Z", {
       timezone: "Europe/Lisbon",
-      dayStartHour: 6,
+      dayEndHour: 6,
     });
     expect(dayKey).toBe("2024-07-15");
   });
@@ -466,7 +466,7 @@ describe("getFestivalDayKey", () => {
     // exactly the start of the new festival day.
     const dayKey = getFestivalDayKey("2024-07-16T05:00:00Z", {
       timezone: "Europe/Lisbon",
-      dayStartHour: 6,
+      dayEndHour: 6,
     });
     expect(dayKey).toBe("2024-07-16");
   });
@@ -490,7 +490,7 @@ describe("formatDayOnly", () => {
   it("folds a set before the cutoff into the previous day's label", () => {
     const label = formatDayOnly("2024-07-16T01:00:00Z", {
       timezone: "Europe/Lisbon",
-      dayStartHour: 6,
+      dayEndHour: 6,
     });
     expect(label).toBe("Mon, Jul 15");
   });

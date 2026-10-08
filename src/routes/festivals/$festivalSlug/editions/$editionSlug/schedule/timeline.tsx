@@ -53,9 +53,9 @@ function TimelineContent() {
   const dayConfig = useMemo(
     () => ({
       timezone: festival.timezone,
-      dayStartHour: festival.day_start_hour,
+      dayEndHour: festival.day_end_hour,
     }),
-    [festival.timezone, festival.day_start_hour],
+    [festival.timezone, festival.day_end_hour],
   );
   const { scheduleDays } = useScheduleData({
     sets: editionSets,

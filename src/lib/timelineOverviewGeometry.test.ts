@@ -54,7 +54,7 @@ describe("calculateDayBoundaries", () => {
     const totalWidth = 2000;
     const boundaries = calculateDayBoundaries({
       days,
-      dayConfig: { timezone: TIMEZONE, dayStartHour: 0 },
+      dayConfig: { timezone: TIMEZONE, dayEndHour: 0 },
       festivalStart,
       totalWidth,
     });
@@ -64,7 +64,7 @@ describe("calculateDayBoundaries", () => {
     ]);
   });
 
-  it("places a boundary at the configured dayStartHour instead of midnight", () => {
+  it("places a boundary at the configured dayEndHour instead of midnight", () => {
     const festivalStart = new Date("2025-07-12T14:00:00Z");
     const days = [{ date: "2025-07-12" }, { date: "2025-07-13" }];
 
@@ -73,7 +73,7 @@ describe("calculateDayBoundaries", () => {
     const totalWidth = 2000;
     const boundaries = calculateDayBoundaries({
       days,
-      dayConfig: { timezone: TIMEZONE, dayStartHour: 6 },
+      dayConfig: { timezone: TIMEZONE, dayEndHour: 6 },
       festivalStart,
       totalWidth,
     });
@@ -90,7 +90,7 @@ describe("calculateDayBoundaries", () => {
     expect(
       calculateDayBoundaries({
         days,
-        dayConfig: { timezone: TIMEZONE, dayStartHour: 0 },
+        dayConfig: { timezone: TIMEZONE, dayEndHour: 0 },
         festivalStart,
         totalWidth: 2000,
       }),
@@ -101,7 +101,7 @@ describe("calculateDayBoundaries", () => {
     expect(
       calculateDayBoundaries({
         days: [{ date: "2025-07-12" }],
-        dayConfig: { timezone: TIMEZONE, dayStartHour: 0 },
+        dayConfig: { timezone: TIMEZONE, dayEndHour: 0 },
         festivalStart: new Date("2025-07-12T00:00:00Z"),
         totalWidth: 0,
       }),
@@ -179,7 +179,7 @@ describe("the shared ruler", () => {
 
     const boundaries = calculateDayBoundaries({
       days,
-      dayConfig: { timezone: "Europe/Lisbon", dayStartHour: 0 },
+      dayConfig: { timezone: "Europe/Lisbon", dayEndHour: 0 },
       festivalStart,
       totalWidth,
     });

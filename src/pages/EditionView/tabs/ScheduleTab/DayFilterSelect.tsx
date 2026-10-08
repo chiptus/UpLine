@@ -27,7 +27,7 @@ export function DayFilterSelect({
     ...buildDayFilterOptions(
       edition?.start_date,
       edition?.end_date,
-      festival?.day_start_hour,
+      festival?.day_end_hour,
     ),
   ];
 

@@ -58,7 +58,7 @@ interface CalculateDayBoundariesParams {
 
 /**
  * Proportional position of each day's start (the festival's configured
- * day-start hour, or local midnight when unset), for the vertical boundary
+ * day-end hour, or local midnight when unset), for the vertical boundary
  * lines drawn on the map. A day whose boundary falls outside the currently
  * rendered `[0, totalWidth]` range (e.g. every other day, when a `day`
  * filter has narrowed the strip to a single day) is dropped - the map only

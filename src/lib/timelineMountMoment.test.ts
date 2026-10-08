@@ -21,7 +21,7 @@ describe("resolveTimelineMountMoment", () => {
     const moment = resolveTimelineMountMoment({
       scrollTo: "2025-07-13T22:00:00.000Z",
       day: "2025-07-12",
-      dayConfig: { timezone: TIMEZONE, dayStartHour: 0 },
+      dayConfig: { timezone: TIMEZONE, dayEndHour: 0 },
       festivalStart: FESTIVAL_START,
       scheduleWindow: SCHEDULE_WINDOW,
       now: NOW_INSIDE_WINDOW,
@@ -36,7 +36,7 @@ describe("resolveTimelineMountMoment", () => {
     const moment = resolveTimelineMountMoment({
       scrollTo: undefined,
       day: "2025-07-13",
-      dayConfig: { timezone: TIMEZONE, dayStartHour: 0 },
+      dayConfig: { timezone: TIMEZONE, dayEndHour: 0 },
       festivalStart: FESTIVAL_START,
       scheduleWindow: SCHEDULE_WINDOW,
       now: NOW_INSIDE_WINDOW,
@@ -48,11 +48,11 @@ describe("resolveTimelineMountMoment", () => {
     );
   });
 
-  it("honors a non-zero dayStartHour for the day filter's start", () => {
+  it("honors a non-zero dayEndHour for the day filter's start", () => {
     const moment = resolveTimelineMountMoment({
       scrollTo: undefined,
       day: "2025-07-13",
-      dayConfig: { timezone: TIMEZONE, dayStartHour: 6 },
+      dayConfig: { timezone: TIMEZONE, dayEndHour: 6 },
       festivalStart: FESTIVAL_START,
       scheduleWindow: SCHEDULE_WINDOW,
       now: NOW_INSIDE_WINDOW,
@@ -68,7 +68,7 @@ describe("resolveTimelineMountMoment", () => {
     const moment = resolveTimelineMountMoment({
       scrollTo: "not-a-date",
       day: "2025-07-13",
-      dayConfig: { timezone: TIMEZONE, dayStartHour: 0 },
+      dayConfig: { timezone: TIMEZONE, dayEndHour: 0 },
       festivalStart: FESTIVAL_START,
       scheduleWindow: SCHEDULE_WINDOW,
       now: NOW_INSIDE_WINDOW,
@@ -83,7 +83,7 @@ describe("resolveTimelineMountMoment", () => {
     const moment = resolveTimelineMountMoment({
       scrollTo: undefined,
       day: "all",
-      dayConfig: { timezone: TIMEZONE, dayStartHour: 0 },
+      dayConfig: { timezone: TIMEZONE, dayEndHour: 0 },
       festivalStart: FESTIVAL_START,
       scheduleWindow: SCHEDULE_WINDOW,
       now: NOW_INSIDE_WINDOW,
@@ -100,7 +100,7 @@ describe("resolveTimelineMountMoment", () => {
     const moment = resolveTimelineMountMoment({
       scrollTo: undefined,
       day: "all",
-      dayConfig: { timezone: TIMEZONE, dayStartHour: 0 },
+      dayConfig: { timezone: TIMEZONE, dayEndHour: 0 },
       festivalStart: FESTIVAL_START,
       scheduleWindow: { start: windowStart, end: FESTIVAL_END },
       now: nowNearWindowStart,
@@ -113,7 +113,7 @@ describe("resolveTimelineMountMoment", () => {
     const moment = resolveTimelineMountMoment({
       scrollTo: undefined,
       day: "all",
-      dayConfig: { timezone: TIMEZONE, dayStartHour: 0 },
+      dayConfig: { timezone: TIMEZONE, dayEndHour: 0 },
       festivalStart: FESTIVAL_START,
       scheduleWindow: null,
       now: NOW_INSIDE_WINDOW,
@@ -126,7 +126,7 @@ describe("resolveTimelineMountMoment", () => {
     const moment = resolveTimelineMountMoment({
       scrollTo: undefined,
       day: "all",
-      dayConfig: { timezone: TIMEZONE, dayStartHour: 0 },
+      dayConfig: { timezone: TIMEZONE, dayEndHour: 0 },
       festivalStart: FESTIVAL_START,
       scheduleWindow: SCHEDULE_WINDOW,
       now: NOW_BEFORE_WINDOW,
@@ -139,7 +139,7 @@ describe("resolveTimelineMountMoment", () => {
     const moment = resolveTimelineMountMoment({
       scrollTo: undefined,
       day: "all",
-      dayConfig: { timezone: TIMEZONE, dayStartHour: 0 },
+      dayConfig: { timezone: TIMEZONE, dayEndHour: 0 },
       festivalStart: FESTIVAL_START,
       scheduleWindow: SCHEDULE_WINDOW,
       now: NOW_AFTER_WINDOW,
@@ -152,7 +152,7 @@ describe("resolveTimelineMountMoment", () => {
     const moment = resolveTimelineMountMoment({
       scrollTo: "garbage",
       day: "all",
-      dayConfig: { timezone: TIMEZONE, dayStartHour: 0 },
+      dayConfig: { timezone: TIMEZONE, dayEndHour: 0 },
       festivalStart: FESTIVAL_START,
       scheduleWindow: SCHEDULE_WINDOW,
       now: NOW_AFTER_WINDOW,
@@ -165,7 +165,7 @@ describe("resolveTimelineMountMoment", () => {
     const moment = resolveTimelineMountMoment({
       scrollTo: "2025-07-14T12:00:00.000Z",
       day: "2025-07-13",
-      dayConfig: { timezone: TIMEZONE, dayStartHour: 0 },
+      dayConfig: { timezone: TIMEZONE, dayEndHour: 0 },
       festivalStart: FESTIVAL_START,
       scheduleWindow: SCHEDULE_WINDOW,
       now: NOW_INSIDE_WINDOW,
@@ -180,7 +180,7 @@ describe("resolveTimelineMountMoment", () => {
     const moment = resolveTimelineMountMoment({
       scrollTo: undefined,
       day: "2025-07-13",
-      dayConfig: { timezone: TIMEZONE, dayStartHour: 0 },
+      dayConfig: { timezone: TIMEZONE, dayEndHour: 0 },
       festivalStart: FESTIVAL_START,
       scheduleWindow: SCHEDULE_WINDOW,
       now: NOW_INSIDE_WINDOW,

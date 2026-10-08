@@ -54,7 +54,7 @@ function ListSchedule() {
     stages,
     display: {
       timezone: festival.timezone,
-      dayStartHour: festival.day_start_hour,
+      dayEndHour: festival.day_end_hour,
     },
   });
   const {

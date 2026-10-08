@@ -360,7 +360,7 @@ export type Database = {
         Row: {
           archived: boolean;
           created_at: string;
-          day_start_hour: number;
+          day_end_hour: number;
           description: string | null;
           id: string;
           logo_url: string | null;
@@ -373,7 +373,7 @@ export type Database = {
         Insert: {
           archived?: boolean;
           created_at?: string;
-          day_start_hour?: number;
+          day_end_hour?: number;
           description?: string | null;
           id?: string;
           logo_url?: string | null;
@@ -386,7 +386,7 @@ export type Database = {
         Update: {
           archived?: boolean;
           created_at?: string;
-          day_start_hour?: number;
+          day_end_hour?: number;
           description?: string | null;
           id?: string;
           logo_url?: string | null;

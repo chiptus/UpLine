@@ -29,7 +29,7 @@ export function useScheduleReveal() {
         use24Hour,
         dayConfig: {
           timezone: festival.timezone,
-          dayStartHour: festival.day_start_hour,
+          dayEndHour: festival.day_end_hour,
         },
       });
     },

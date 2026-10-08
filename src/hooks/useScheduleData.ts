@@ -61,11 +61,10 @@ export function useScheduleData({
   stages,
   display = {},
 }: UseScheduleDataOptions) {
-  const { use24Hour = false, timezone, dayStartHour = 0 } = display;
+  const { use24Hour = false, timezone, dayEndHour = 0 } = display;
   const dayConfig = useMemo(
-    () =>
-      timezone === undefined ? { dayStartHour } : { timezone, dayStartHour },
-    [timezone, dayStartHour],
+    () => (timezone === undefined ? { dayEndHour } : { timezone, dayEndHour }),
+    [timezone, dayEndHour],
   );
   const scheduleDays = useMemo(() => {
     if (!sets || !stages || !Array.isArray(sets) || sets.length === 0) {

@@ -19,9 +19,12 @@ import { Loader2 } from "lucide-react";
 import { generateSlug, isValidSlug } from "@/lib/slug";
 import { useSlugField } from "@/hooks/useSlugField";
 import { TimezonePicker } from "@/components/Admin/ScheduleImport/TimezonePicker";
+import {
+  DEFAULT_DAY_END_HOUR,
+  DayEndHourField,
+} from "@/pages/admin/festivals/DayEndHourField";
 
 const DEFAULT_FESTIVAL_TIMEZONE = "Europe/Lisbon";
-const DEFAULT_DAY_END_HOUR = 0;
 
 interface FestivalFormData {
   description?: string;
@@ -193,30 +196,12 @@ export function FestivalDialog({
             }
             description="All schedule times for this festival are displayed in this timezone."
           />
-          <div>
-            <Label htmlFor="dayEndHour">Day end hour</Label>
-            <Input
-              id="dayEndHour"
-              type="number"
-              min={0}
-              max={23}
-              value={formData.day_end_hour}
-              onChange={(e) => {
-                const parsed = Number(e.target.value);
-                const clamped = Number.isNaN(parsed)
-                  ? DEFAULT_DAY_END_HOUR
-                  : Math.min(23, Math.max(0, Math.trunc(parsed)));
-                setFormData((prev) => ({
-                  ...prev,
-                  day_end_hour: clamped,
-                }));
-              }}
-            />
-            <p className="text-sm text-muted-foreground mt-1">
-              The hour (in the festival timezone) the festival day ends. Sets
-              before it belong to the previous day. 0 ends days at midnight.
-            </p>
-          </div>
+          <DayEndHourField
+            value={formData.day_end_hour}
+            onChange={(day_end_hour) =>
+              setFormData((prev) => ({ ...prev, day_end_hour }))
+            }
+          />
           <div className="flex items-center space-x-2">
             <Switch
               id="published"

@@ -187,9 +187,7 @@ export function formatDateOnly(
   return format(date, dateFormat);
 }
 
-// Shifts an instant back by the festival's day-end cutoff hour, so
-// grouping/formatting that runs on the result treats a pre-cutoff instant
-// as still belonging to the previous festival day. A no-op at cutoff 0.
+/** Shifts an instant back by dayEndHour so pre-cutoff times fall on the previous festival day. */
 function shiftForDayEnd(date: Date, dayEndHour: number): Date {
   return dayEndHour ? subHours(date, dayEndHour) : date;
 }
@@ -208,12 +206,7 @@ export function formatDayOnly(
   return format(shifted, dayFormat);
 }
 
-// The festival calendar day (yyyy-MM-dd) a UTC timestamp falls on, computed in
-// the festival's own timezone so a post-midnight set groups under the
-// festival's day rather than the viewer's. `dayEndHour` (0-23, the
-// festival's configured day-end cutoff) shifts the instant back by that
-// many hours first, so sets before the cutoff fold into the previous
-// festival day instead of splitting at exact midnight.
+/** Festival-timezone calendar day (yyyy-MM-dd) of an instant; times before dayEndHour fall on the previous day. */
 export function getFestivalDayKey(
   dateTime: string | null,
   config: Partial<FestivalDayConfig> = {},
@@ -227,11 +220,7 @@ export function getFestivalDayKey(
   return format(shifted, "yyyy-MM-dd");
 }
 
-// The UTC instant at which a given festival day-key begins, honoring the
-// festival's day-end cutoff hour (defaults to local midnight). The
-// counterpart to getFestivalDayKey: where that derives a day-key from an
-// instant, this derives the boundary instant from a day-key - used to
-// position day boundaries/jump targets on the horizontal timeline.
+/** The UTC instant a festival day-key starts: the day-end hour in the festival timezone. */
 export function festivalDayStart(
   dayKey: string,
   { timezone, dayEndHour }: FestivalDayConfig,

@@ -56,16 +56,14 @@ type ScheduleDisplayOptions = Partial<FestivalDayConfig> & {
   use24Hour?: boolean;
 };
 
+// Stable identity so the default doesn't invalidate the scheduleDays memo.
+const NO_DISPLAY_OPTIONS: ScheduleDisplayOptions = {};
+
 export function useScheduleData({
   sets,
   stages,
-  display = {},
+  display = NO_DISPLAY_OPTIONS,
 }: UseScheduleDataOptions) {
-  const { use24Hour = false, timezone, dayEndHour = 0 } = display;
-  const dayConfig = useMemo(
-    () => (timezone === undefined ? { dayEndHour } : { timezone, dayEndHour }),
-    [timezone, dayEndHour],
-  );
   const scheduleDays = useMemo(() => {
     if (!sets || !stages || !Array.isArray(sets) || sets.length === 0) {
       return [];
@@ -74,7 +72,7 @@ export function useScheduleData({
     const performingSets = sets
       .filter((set) => set.time_start && set.stage_id && set.status !== "tba")
       .flatMap((set) => {
-        const dayKey = getFestivalDayKey(set.time_start, dayConfig);
+        const dayKey = getFestivalDayKey(set.time_start, display);
         return dayKey ? [{ set, dayKey }] : [];
       });
 
@@ -94,8 +92,8 @@ export function useScheduleData({
           votes: set.votes || [],
           formattedTimeRange: formatDateTime(
             set.time_start,
-            use24Hour,
-            timezone,
+            display.use24Hour ?? false,
+            display.timezone,
           ),
           dayKey,
           setType: set.set_type,
@@ -169,7 +167,7 @@ export function useScheduleData({
       });
 
     return scheduleDays;
-  }, [sets, use24Hour, stages, timezone, dayConfig]);
+  }, [sets, stages, display]);
 
   const allStages = useMemo(() => {
     const stageSet = new Set<string>();

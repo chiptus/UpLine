@@ -16,15 +16,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Loader2 } from "lucide-react";
-import { generateSlug, isValidSlug, sanitizeSlug } from "@/lib/slug";
+import { generateSlug, isValidSlug } from "@/lib/slug";
+import { useSlugField } from "@/hooks/useSlugField";
 import { TimezonePicker } from "@/components/Admin/ScheduleImport/TimezonePicker";
 
 const DEFAULT_FESTIVAL_TIMEZONE = "Europe/Lisbon";
 const DEFAULT_DAY_START_HOUR = 0;
 
 interface FestivalFormData {
-  name: string;
-  slug: string;
   description?: string;
   published: boolean;
   timezone: string;
@@ -46,15 +45,20 @@ export function FestivalDialog({
   const updateFestivalMutation = useUpdateFestivalMutation();
   const { toast } = useToast();
 
+  const {
+    name,
+    slug,
+    slugError,
+    changeName,
+    changeSlug,
+    reset: resetSlugField,
+  } = useSlugField();
   const [formData, setFormData] = useState<FestivalFormData>({
-    name: "",
-    slug: "",
     description: "",
     published: false,
     timezone: DEFAULT_FESTIVAL_TIMEZONE,
     day_start_hour: DEFAULT_DAY_START_HOUR,
   });
-  const [slugError, setSlugError] = useState("");
   const isSubmitting =
     createFestivalMutation.isPending || updateFestivalMutation.isPending;
 
@@ -62,9 +66,11 @@ export function FestivalDialog({
   useEffect(() => {
     if (open) {
       if (editingFestival) {
-        setFormData({
+        resetSlugField({
           name: editingFestival.name,
           slug: editingFestival.slug || generateSlug(editingFestival.name),
+        });
+        setFormData({
           description: editingFestival.description || "",
           published: editingFestival.published || false,
           timezone: editingFestival.timezone || DEFAULT_FESTIVAL_TIMEZONE,
@@ -72,49 +78,20 @@ export function FestivalDialog({
             editingFestival.day_start_hour ?? DEFAULT_DAY_START_HOUR,
         });
       } else {
+        resetSlugField();
         setFormData({
-          name: "",
-          slug: "",
           description: "",
           published: false,
           timezone: DEFAULT_FESTIVAL_TIMEZONE,
           day_start_hour: DEFAULT_DAY_START_HOUR,
         });
       }
-      setSlugError("");
     }
-  }, [open, editingFestival]);
-
-  // Auto-generate slug when name changes
-  function handleNameChange(name: string) {
-    setFormData((prev) => ({
-      ...prev,
-      name,
-      // Only auto-generate slug if it's empty or matches the generated slug from previous name
-      slug:
-        prev.slug === "" || prev.slug === generateSlug(prev.name)
-          ? generateSlug(name)
-          : prev.slug,
-    }));
-  }
-
-  // Validate slug when it changes
-  function handleSlugChange(slug: string) {
-    const cleanSlug = sanitizeSlug(slug);
-    setFormData((prev) => ({ ...prev, slug: cleanSlug }));
-
-    if (cleanSlug && !isValidSlug(cleanSlug)) {
-      setSlugError(
-        "Slug must contain only lowercase letters, numbers, and hyphens",
-      );
-    } else {
-      setSlugError("");
-    }
-  }
+  }, [open, editingFestival, resetSlugField]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!formData.name.trim()) {
+    if (!name.trim()) {
       toast({
         title: "Error",
         description: "Festival name is required",
@@ -123,7 +100,7 @@ export function FestivalDialog({
       return;
     }
 
-    if (!formData.slug.trim()) {
+    if (!slug.trim()) {
       toast({
         title: "Error",
         description: "Festival slug is required",
@@ -132,7 +109,7 @@ export function FestivalDialog({
       return;
     }
 
-    if (!isValidSlug(formData.slug)) {
+    if (!isValidSlug(slug)) {
       toast({
         title: "Error",
         description: "Please enter a valid slug",
@@ -143,13 +120,17 @@ export function FestivalDialog({
 
     if (editingFestival) {
       updateFestivalMutation.mutate(
-        { festivalId: editingFestival.id, festivalData: formData },
+        {
+          festivalId: editingFestival.id,
+          festivalData: { ...formData, name, slug },
+        },
         { onSuccess: () => onOpenChange(false) },
       );
     } else {
-      createFestivalMutation.mutate(formData, {
-        onSuccess: () => onOpenChange(false),
-      });
+      createFestivalMutation.mutate(
+        { ...formData, name, slug },
+        { onSuccess: () => onOpenChange(false) },
+      );
     }
   }
 
@@ -171,8 +152,8 @@ export function FestivalDialog({
             <Label htmlFor="name">Festival Name</Label>
             <Input
               id="name"
-              value={formData.name}
-              onChange={(e) => handleNameChange(e.target.value)}
+              value={name}
+              onChange={(e) => changeName(e.target.value)}
               placeholder="e.g., Boom Festival"
               required
             />
@@ -181,8 +162,8 @@ export function FestivalDialog({
             <Label htmlFor="slug">URL Slug</Label>
             <Input
               id="slug"
-              value={formData.slug}
-              onChange={(e) => handleSlugChange(e.target.value)}
+              value={slug}
+              onChange={(e) => changeSlug(e.target.value)}
               placeholder="e.g., boom-festival"
               required
             />
@@ -191,7 +172,7 @@ export function FestivalDialog({
             )}
             <p className="text-sm text-muted-foreground mt-1">
               This will be used in the URL: /festivals/
-              {formData.slug || "your-slug"}
+              {slug || "your-slug"}
             </p>
           </div>
           <div>

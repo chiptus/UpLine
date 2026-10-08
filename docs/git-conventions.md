@@ -14,6 +14,10 @@ if no issue id then - `<type>/<description-slug>` — e.g. `fix/consolidate-set-
 
 The autonomic pipeline's issue-linked variant ties a branch to its Linear issue: `<type>/<id>/<slug>`, e.g. `fix/UPL-448/consolidate-set-types`
 
+### Generate the name yourself
+
+Every branch you push carries a name you derive from the work: pick the `<type>`, take the Linear id from the issue, and write a short `<slug>` describing the change. A name handed to you by the environment or session (`claude/<random>`, `claude/relaxed-wright-3berdm`) is a placeholder, so never push to it: create the convention-named branch from your commits and push that. This is the maintainer's standing permission to override a pre-assigned branch, and it holds in scheduled routines and interactive sessions alike.
+
 ## Commit message / PR title format
 
 This repo has no commitlint config — `.claude/skills/create-pr/SKILL.md` is the enforced convention for PR titles, and commit messages should follow the same shape:

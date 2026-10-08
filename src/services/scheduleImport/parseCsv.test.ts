@@ -120,18 +120,18 @@ describe("parseScheduleCsv", () => {
     expect(parseScheduleCsv(csv)).toHaveLength(1);
   });
 
-  it("throws when an artist-less row's set name has no letters or digits", () => {
+  it("imports a non-Latin artist name", () => {
+    const csv = ["Artists,Stage", "サカナクション,Main"].join("\n");
+    expect(parseScheduleCsv(csv)[0].artists).toEqual(["サカナクション"]);
+  });
+
+  it("imports an artist-less row whose set name has no ASCII letters or digits", () => {
     const csv = ["Artists,Set Name", ",???"].join("\n");
-    expect(() => parseScheduleCsv(csv)).toThrow(/no letters or digits/);
+    expect(parseScheduleCsv(csv)[0].setName).toBe("???");
   });
 
-  it("throws when an artist name has no letters or digits", () => {
-    const csv = ["Artists,Stage", "!!!,Main"].join("\n");
-    expect(() => parseScheduleCsv(csv)).toThrow(/no letters or digits/);
-  });
-
-  it("throws when a stage name has no letters or digits", () => {
+  it("imports a stage name with no ASCII letters or digits", () => {
     const csv = ["Artists,Stage", "Carl Cox,---"].join("\n");
-    expect(() => parseScheduleCsv(csv)).toThrow(/no letters or digits/);
+    expect(parseScheduleCsv(csv)[0].stage).toBe("---");
   });
 });

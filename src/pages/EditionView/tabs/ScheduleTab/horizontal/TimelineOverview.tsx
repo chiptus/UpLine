@@ -14,6 +14,7 @@ import {
 import { OverviewStageRow } from "./OverviewStageRow";
 import { OverviewViewportWindow } from "./OverviewViewportWindow";
 import { useTimelineViewportSize } from "./useTimelineViewportSize";
+import type { FestivalDayConfig } from "@/lib/timeUtils";
 
 // Fixed regardless of stage count: rows shrink to fit rather than the map
 // growing taller on festivals with many stages (which made it unusably tall
@@ -24,7 +25,7 @@ const LABEL_HEIGHT_PX = 16;
 interface TimelineOverviewProps {
   timelineData: TimelineData;
   scheduleDays: ScheduleDay[];
-  timezone: string;
+  dayConfig: FestivalDayConfig;
   scrollContainerRef: RefObject<HTMLDivElement>;
   onJump: (moment: Date) => void;
 }
@@ -39,7 +40,7 @@ interface TimelineOverviewProps {
 export function TimelineOverview({
   timelineData,
   scheduleDays,
-  timezone,
+  dayConfig,
   scrollContainerRef,
   onJump,
 }: TimelineOverviewProps) {
@@ -51,7 +52,7 @@ export function TimelineOverview({
 
   const dayBoundaries = calculateDayBoundaries({
     days: scheduleDays,
-    timezone,
+    dayConfig,
     festivalStart: timelineData.festivalStart,
     totalWidth: timelineData.totalWidth,
   });

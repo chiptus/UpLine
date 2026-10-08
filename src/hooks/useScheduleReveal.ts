@@ -26,8 +26,11 @@ export function useScheduleReveal() {
     ): RevealLabels {
       return computeRevealLabels(set, {
         level,
-        timezone: festival.timezone,
         use24Hour,
+        dayConfig: {
+          timezone: festival.timezone,
+          dayEndHour: festival.day_end_hour,
+        },
       });
     },
   };

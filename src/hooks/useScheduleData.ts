@@ -3,6 +3,7 @@ import {
   formatDateTime,
   getFestivalDayKey,
   getFestivalDayLabel,
+  type FestivalDayConfig,
 } from "@/lib/timeUtils";
 import type { FestivalSet, SetType } from "@/api/sets/types";
 import type { Stage } from "@/api/stages/types";
@@ -48,15 +49,20 @@ type EnhancedSet = ScheduleSet & { dayKey: string };
 interface UseScheduleDataOptions {
   sets: FestivalSet[] | undefined;
   stages: Array<Stage> | undefined;
-  use24Hour?: boolean;
-  timezone?: string;
+  display?: ScheduleDisplayOptions;
 }
+
+type ScheduleDisplayOptions = Partial<FestivalDayConfig> & {
+  use24Hour?: boolean;
+};
+
+// Stable identity so the default doesn't invalidate the scheduleDays memo.
+const NO_DISPLAY_OPTIONS: ScheduleDisplayOptions = {};
 
 export function useScheduleData({
   sets,
   stages,
-  use24Hour = false,
-  timezone,
+  display = NO_DISPLAY_OPTIONS,
 }: UseScheduleDataOptions) {
   const scheduleDays = useMemo(() => {
     if (!sets || !stages || !Array.isArray(sets) || sets.length === 0) {
@@ -66,7 +72,7 @@ export function useScheduleData({
     const performingSets = sets
       .filter((set) => set.time_start && set.stage_id && set.status !== "tba")
       .flatMap((set) => {
-        const dayKey = getFestivalDayKey(set.time_start, timezone);
+        const dayKey = getFestivalDayKey(set.time_start, display);
         return dayKey ? [{ set, dayKey }] : [];
       });
 
@@ -86,8 +92,8 @@ export function useScheduleData({
           votes: set.votes || [],
           formattedTimeRange: formatDateTime(
             set.time_start,
-            use24Hour,
-            timezone,
+            display.use24Hour ?? false,
+            display.timezone,
           ),
           dayKey,
           setType: set.set_type,
@@ -161,7 +167,7 @@ export function useScheduleData({
       });
 
     return scheduleDays;
-  }, [sets, use24Hour, stages, timezone]);
+  }, [sets, stages, display]);
 
   const allStages = useMemo(() => {
     const stageSet = new Set<string>();

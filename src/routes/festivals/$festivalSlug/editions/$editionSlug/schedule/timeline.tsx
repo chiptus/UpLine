@@ -50,10 +50,17 @@ function TimelineContent() {
   const { user } = useAuth();
   const { voteScope, groupMemberIds } = useScheduleVoteScope();
 
+  const dayConfig = useMemo(
+    () => ({
+      timezone: festival.timezone,
+      dayEndHour: festival.day_end_hour,
+    }),
+    [festival.timezone, festival.day_end_hour],
+  );
   const { scheduleDays } = useScheduleData({
     sets: editionSets,
     stages,
-    timezone: festival.timezone,
+    display: dayConfig,
   });
   const {
     day: selectedDay,
@@ -128,7 +135,7 @@ function TimelineContent() {
   return (
     <TimelineContainer
       timelineData={timelineData}
-      timezone={festival.timezone}
+      dayConfig={dayConfig}
       scheduleDays={scheduleDays}
       selectedDay={selectedDay}
       scheduleWindow={scheduleWindow}

@@ -11,6 +11,7 @@ import {
   roundToNearestMinutes,
 } from "@/lib/timelineMountMoment";
 import { TIMELINE_START_SCROLL_GUTTER_PX } from "@/lib/timelineDayJump";
+import type { FestivalDayConfig } from "@/lib/timeUtils";
 
 const SCROLL_DEBOUNCE_MS = 300;
 const SCROLL_ROUND_MINUTES = 5;
@@ -19,7 +20,7 @@ interface UseTimelineScrollSyncOptions {
   scrollContainerRef: RefObject<HTMLDivElement>;
   festivalStart: Date;
   scheduleWindow: ScheduleWindow | null;
-  timezone: string;
+  dayConfig: FestivalDayConfig;
   now: Date;
 }
 
@@ -31,7 +32,7 @@ export function useTimelineScrollSync({
   scrollContainerRef,
   festivalStart,
   scheduleWindow,
-  timezone,
+  dayConfig,
   now,
 }: UseTimelineScrollSyncOptions) {
   const route =
@@ -56,7 +57,7 @@ export function useTimelineScrollSync({
     const moment = resolveTimelineMountMoment({
       scrollTo,
       day,
-      timezone,
+      dayConfig,
       festivalStart,
       scheduleWindow,
       now,

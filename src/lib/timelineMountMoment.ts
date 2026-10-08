@@ -1,11 +1,11 @@
 import { isValid, parseISO } from "date-fns";
-import { fromZonedTime } from "date-fns-tz";
+import { festivalDayStart, type FestivalDayConfig } from "@/lib/timeUtils";
 import type { ScheduleWindow } from "@/lib/timelineCalculator";
 
 export interface TimelineMountMomentInput {
   scrollTo?: string | undefined;
   day: string;
-  timezone: string;
+  dayConfig: FestivalDayConfig;
   festivalStart: Date;
   scheduleWindow: ScheduleWindow | null;
   now: Date;
@@ -19,7 +19,7 @@ export function resolveTimelineMountMoment(
 ): Date {
   return (
     momentFromScrollTo(input.scrollTo) ??
-    momentFromDayFilter(input.day, input.timezone) ??
+    momentFromDayFilter(input.day, input.dayConfig) ??
     momentFromNow(input.now, input.scheduleWindow) ??
     input.festivalStart
   );
@@ -46,10 +46,13 @@ function momentFromScrollTo(scrollTo: string | undefined): Date | null {
   return isValid(parsed) ? parsed : null;
 }
 
-function momentFromDayFilter(day: string, timezone: string): Date | null {
+function momentFromDayFilter(
+  day: string,
+  dayConfig: FestivalDayConfig,
+): Date | null {
   if (!day || day === "all") return null;
   try {
-    const dayStart = fromZonedTime(`${day}T00:00:00`, timezone);
+    const dayStart = festivalDayStart(day, dayConfig);
     return isValid(dayStart) ? dayStart : null;
   } catch {
     return null;

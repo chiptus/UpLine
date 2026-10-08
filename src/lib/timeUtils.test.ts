@@ -3,6 +3,7 @@ import {
   formatTimeRange,
   formatDateTime,
   formatTimeOnly,
+  formatDayOnly,
   toDatetimeLocal,
   toISOString,
   toDatetimeLocalInTimeZone,
@@ -402,37 +403,96 @@ describe("toDatetimeLocalInTimeZone", () => {
 
 describe("getFestivalDayKey", () => {
   it("returns null for null input", () => {
-    expect(getFestivalDayKey(null, "Europe/Lisbon")).toBeNull();
+    expect(getFestivalDayKey(null, { timezone: "Europe/Lisbon" })).toBeNull();
   });
 
   it("returns null for invalid input", () => {
-    expect(getFestivalDayKey("invalid", "Europe/Lisbon")).toBeNull();
+    expect(
+      getFestivalDayKey("invalid", { timezone: "Europe/Lisbon" }),
+    ).toBeNull();
   });
 
   it("groups a post-midnight set under the festival's calendar day", () => {
     // Lisbon observes WEST (UTC+1) in July: 23:30 UTC on Jul 15 is 00:30 on Jul 16 locally.
-    const dayKey = getFestivalDayKey("2024-07-15T23:30:00Z", "Europe/Lisbon");
+    const dayKey = getFestivalDayKey("2024-07-15T23:30:00Z", {
+      timezone: "Europe/Lisbon",
+    });
     expect(dayKey).toBe("2024-07-16");
   });
 
   it("groups a near-midnight set under the correct festival day", () => {
     // 22:55 UTC on Jul 15 is 23:55 in Lisbon (UTC+1) on Jul 15 - still Jul 15.
-    const dayKey = getFestivalDayKey("2024-07-15T22:55:00Z", "Europe/Lisbon");
+    const dayKey = getFestivalDayKey("2024-07-15T22:55:00Z", {
+      timezone: "Europe/Lisbon",
+    });
     expect(dayKey).toBe("2024-07-15");
   });
 
   it("is independent of the machine's local zone", () => {
-    const lisbon = getFestivalDayKey("2024-07-15T23:30:00Z", "Europe/Lisbon");
-    const newYork = getFestivalDayKey(
-      "2024-07-15T23:30:00Z",
-      "America/New_York",
-    );
+    const lisbon = getFestivalDayKey("2024-07-15T23:30:00Z", {
+      timezone: "Europe/Lisbon",
+    });
+    const newYork = getFestivalDayKey("2024-07-15T23:30:00Z", {
+      timezone: "America/New_York",
+    });
     expect(lisbon).toBe("2024-07-16");
     expect(newYork).toBe("2024-07-15");
   });
 
   it("falls back to UTC calendar day when no timezone is given", () => {
     expect(getFestivalDayKey("2024-12-15T23:30:00Z")).toBe("2024-12-15");
+  });
+
+  it("with dayEndHour 0 behaves identically to the default (no cutoff)", () => {
+    const dayKey = getFestivalDayKey("2024-07-15T23:30:00Z", {
+      timezone: "Europe/Lisbon",
+      dayEndHour: 0,
+    });
+    expect(dayKey).toBe("2024-07-16");
+  });
+
+  it("folds a set before the cutoff into the previous festival day", () => {
+    // 02:00 Lisbon time on Jul 16 (01:00 UTC), with a 06:00 cutoff, groups
+    // under Jul 15 (the previous night) instead of Jul 16.
+    const dayKey = getFestivalDayKey("2024-07-16T01:00:00Z", {
+      timezone: "Europe/Lisbon",
+      dayEndHour: 6,
+    });
+    expect(dayKey).toBe("2024-07-15");
+  });
+
+  it("keeps a set at/after the cutoff on its own calendar day", () => {
+    // 06:00 Lisbon time on Jul 16 (05:00 UTC), with a 06:00 cutoff, is
+    // exactly the start of the new festival day.
+    const dayKey = getFestivalDayKey("2024-07-16T05:00:00Z", {
+      timezone: "Europe/Lisbon",
+      dayEndHour: 6,
+    });
+    expect(dayKey).toBe("2024-07-16");
+  });
+});
+
+describe("formatDayOnly", () => {
+  it("returns null for null input", () => {
+    expect(formatDayOnly(null, { timezone: "Europe/Lisbon" })).toBeNull();
+  });
+
+  it("returns null for invalid input", () => {
+    expect(formatDayOnly("invalid", { timezone: "Europe/Lisbon" })).toBeNull();
+  });
+
+  it("formats the festival-timezone calendar day", () => {
+    expect(
+      formatDayOnly("2024-07-15T22:55:00Z", { timezone: "Europe/Lisbon" }),
+    ).toBe("Mon, Jul 15");
+  });
+
+  it("folds a set before the cutoff into the previous day's label", () => {
+    const label = formatDayOnly("2024-07-16T01:00:00Z", {
+      timezone: "Europe/Lisbon",
+      dayEndHour: 6,
+    });
+    expect(label).toBe("Mon, Jul 15");
   });
 });
 

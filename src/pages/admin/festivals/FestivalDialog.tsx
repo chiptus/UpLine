@@ -19,6 +19,10 @@ import { Loader2 } from "lucide-react";
 import { generateSlug, isValidSlug } from "@/lib/slug";
 import { useSlugField } from "@/hooks/useSlugField";
 import { TimezonePicker } from "@/components/Admin/ScheduleImport/TimezonePicker";
+import {
+  DEFAULT_DAY_END_HOUR,
+  DayEndHourField,
+} from "@/pages/admin/festivals/DayEndHourField";
 
 const DEFAULT_FESTIVAL_TIMEZONE = "Europe/Lisbon";
 
@@ -26,6 +30,7 @@ interface FestivalFormData {
   description?: string;
   published: boolean;
   timezone: string;
+  day_end_hour: number;
 }
 
 interface FestivalDialogProps {
@@ -55,6 +60,7 @@ export function FestivalDialog({
     description: "",
     published: false,
     timezone: DEFAULT_FESTIVAL_TIMEZONE,
+    day_end_hour: DEFAULT_DAY_END_HOUR,
   });
   const isSubmitting =
     createFestivalMutation.isPending || updateFestivalMutation.isPending;
@@ -71,6 +77,7 @@ export function FestivalDialog({
           description: editingFestival.description || "",
           published: editingFestival.published || false,
           timezone: editingFestival.timezone || DEFAULT_FESTIVAL_TIMEZONE,
+          day_end_hour: editingFestival.day_end_hour ?? DEFAULT_DAY_END_HOUR,
         });
       } else {
         resetSlugField();
@@ -78,6 +85,7 @@ export function FestivalDialog({
           description: "",
           published: false,
           timezone: DEFAULT_FESTIVAL_TIMEZONE,
+          day_end_hour: DEFAULT_DAY_END_HOUR,
         });
       }
     }
@@ -187,6 +195,12 @@ export function FestivalDialog({
               setFormData((prev) => ({ ...prev, timezone }))
             }
             description="All schedule times for this festival are displayed in this timezone."
+          />
+          <DayEndHourField
+            value={formData.day_end_hour}
+            onChange={(day_end_hour) =>
+              setFormData((prev) => ({ ...prev, day_end_hour }))
+            }
           />
           <div className="flex items-center space-x-2">
             <Switch

@@ -5,12 +5,13 @@ import {
   DAY_JUMP_START_GUTTER_PX,
   getDayJumpMoment,
 } from "@/lib/timelineDayJump";
+import type { FestivalDayConfig } from "@/lib/timeUtils";
 import type { ScheduleDay } from "./useScheduleData";
 
 interface UseActiveTimelineDayOptions {
   scrollContainerRef: RefObject<HTMLDivElement>;
   days: ScheduleDay[];
-  timezone: string;
+  dayConfig: FestivalDayConfig;
   festivalStart: Date;
 }
 
@@ -22,7 +23,7 @@ interface UseActiveTimelineDayOptions {
 export function useActiveTimelineDay({
   scrollContainerRef,
   days,
-  timezone,
+  dayConfig,
   festivalStart,
 }: UseActiveTimelineDayOptions) {
   const [activeDate, setActiveDate] = useState<string | null>(
@@ -41,7 +42,7 @@ export function useActiveTimelineDay({
         date: day.date,
         offset: Math.max(
           0,
-          timeToOffset(getDayJumpMoment(day, timezone), festivalStart) -
+          timeToOffset(getDayJumpMoment(day, dayConfig), festivalStart) -
             DAY_JUMP_START_GUTTER_PX,
         ),
       }))
@@ -60,7 +61,7 @@ export function useActiveTimelineDay({
     updateActiveDay();
     container.addEventListener("scroll", updateActiveDay, { passive: true });
     return () => container.removeEventListener("scroll", updateActiveDay);
-  }, [scrollContainerRef, days, timezone, festivalStart]);
+  }, [scrollContainerRef, days, dayConfig, festivalStart]);
 
   return activeDate;
 }

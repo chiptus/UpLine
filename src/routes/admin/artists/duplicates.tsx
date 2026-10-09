@@ -63,11 +63,11 @@ function DuplicateArtistsPage() {
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Link to="/admin/artists">
-                <Button variant="ghost" size="sm">
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/admin/artists" aria-label="Back to artists">
                   <ArrowLeft className="h-4 w-4" />
-                </Button>
-              </Link>
+                </Link>
+              </Button>
               <Copy className="h-5 w-5 text-orange-600" />
               <span>Duplicate Artists</span>
             </div>

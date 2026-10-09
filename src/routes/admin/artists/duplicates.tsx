@@ -8,7 +8,7 @@ import { AlertTriangle, Copy, ArrowLeft, Zap } from "lucide-react";
 import { duplicateArtistsQuery } from "@/api/artists/useDuplicateArtists";
 import { DuplicateGroupCard } from "@/pages/admin/ArtistsManagement/DuplicateGroupCard";
 import { BulkMergeDialog } from "@/pages/admin/ArtistsManagement/BulkMergeDialog";
-import { Link } from "@tanstack/react-router";
+import { Link, useCanGoBack, useRouter } from "@tanstack/react-router";
 import { genresQuery } from "@/api/genres/useGenres";
 import { pageMeta } from "@/lib/pageHead";
 
@@ -24,6 +24,9 @@ export const Route = createFileRoute("/admin/artists/duplicates")({
 });
 
 function DuplicateArtistsPage() {
+  const router = useRouter();
+  // history.back() restores the list's search/sort/page, which the list route strips from the URL when navigating fresh.
+  const canGoBack = useCanGoBack();
   const duplicatesQuery = useSuspenseQuery(duplicateArtistsQuery());
   const [selectedGroups, setSelectedGroups] = useState<Set<string>>(new Set());
   const [showBulkMerge, setShowBulkMerge] = useState(false);
@@ -63,11 +66,22 @@ function DuplicateArtistsPage() {
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Link to="/admin/artists">
-                <Button variant="ghost" size="sm">
+              {canGoBack ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  aria-label="Back to artists"
+                  onClick={() => router.history.back()}
+                >
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
-              </Link>
+              ) : (
+                <Link to="/admin/artists" aria-label="Back to artists">
+                  <Button variant="ghost" size="sm">
+                    <ArrowLeft className="h-4 w-4" />
+                  </Button>
+                </Link>
+              )}
               <Copy className="h-5 w-5 text-orange-600" />
               <span>Duplicate Artists</span>
             </div>

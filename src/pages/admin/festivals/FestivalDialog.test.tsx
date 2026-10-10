@@ -106,6 +106,25 @@ describe("FestivalDialog", () => {
       },
     });
   });
+
+  it("resets the form when the dialog is reopened", async () => {
+    const { rerender } = renderDialog();
+    await userEvent.type(screen.getByLabelText("Festival Name"), "Draft");
+
+    rerender(
+      <FestivalDialog
+        open={false}
+        onOpenChange={vi.fn()}
+        editingFestival={null}
+      />,
+    );
+    rerender(
+      <FestivalDialog open onOpenChange={vi.fn()} editingFestival={null} />,
+    );
+
+    expect(screen.getByLabelText("Festival Name")).toHaveValue("");
+    expect(screen.getByLabelText("URL Slug")).toHaveValue("");
+  });
 });
 
 const festival = {

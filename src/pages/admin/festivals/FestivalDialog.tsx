@@ -128,6 +128,7 @@ export function FestivalDialog({
                       placeholder="e.g., Boom Festival"
                       {...field}
                       onChange={(e) => {
+                        // Must run before field.onChange: it compares against the previous name.
                         handleNameChange(e.target.value);
                         field.onChange(e);
                       }}

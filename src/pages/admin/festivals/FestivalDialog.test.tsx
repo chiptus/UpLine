@@ -55,10 +55,13 @@ describe("FestivalDialog", () => {
     expect(slug).toHaveValue("boom-fest");
 
     await userEvent.clear(slug);
-    await userEvent.type(slug, "custom");
+    await userEvent.click(slug);
+    await userEvent.paste("My Custom Slug!");
+    expect(slug).toHaveValue("my-custom-slug");
+
     await userEvent.type(name, "ival");
 
-    expect(slug).toHaveValue("custom");
+    expect(slug).toHaveValue("my-custom-slug");
   });
 
   it("submits the create payload and closes on success", async () => {

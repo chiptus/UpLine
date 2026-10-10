@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useCreateFestivalMutation } from "@/api/festivals/useCreateFestival";
 import { useUpdateFestivalMutation } from "@/api/festivals/useUpdateFestival";
 import { Festival } from "@/api/festivals/types";
-import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -10,23 +12,40 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Loader2 } from "lucide-react";
-import { generateSlug, isValidSlug } from "@/lib/slug";
-import { useSlugField } from "@/hooks/useSlugField";
+import { generateSlug, isValidSlug, sanitizeSlug } from "@/lib/slug";
 import { TimezonePicker } from "@/components/Admin/ScheduleImport/TimezonePicker";
 
 const DEFAULT_FESTIVAL_TIMEZONE = "Europe/Lisbon";
 
-interface FestivalFormData {
-  description?: string;
-  published: boolean;
-  timezone: string;
-}
+const festivalFormSchema = z.object({
+  name: z.string().trim().min(1, "Festival name is required"),
+  slug: z
+    .string()
+    .min(1, "Festival slug is required")
+    .refine(
+      isValidSlug,
+      "Slug must contain only lowercase letters, numbers, and hyphens",
+    ),
+  description: z.string(),
+  published: z.boolean(),
+  timezone: z.string(),
+});
+
+type FestivalFormData = z.infer<typeof festivalFormSchema>;
 
 interface FestivalDialogProps {
   open: boolean;
@@ -41,90 +60,41 @@ export function FestivalDialog({
 }: FestivalDialogProps) {
   const createFestivalMutation = useCreateFestivalMutation();
   const updateFestivalMutation = useUpdateFestivalMutation();
-  const { toast } = useToast();
 
-  const {
-    name,
-    slug,
-    slugError,
-    changeName,
-    changeSlug,
-    reset: resetSlugField,
-  } = useSlugField();
-  const [formData, setFormData] = useState<FestivalFormData>({
-    description: "",
-    published: false,
-    timezone: DEFAULT_FESTIVAL_TIMEZONE,
+  const form = useForm<FestivalFormData>({
+    resolver: zodResolver(festivalFormSchema),
+    defaultValues: getDefaultValues(editingFestival),
   });
   const isSubmitting =
     createFestivalMutation.isPending || updateFestivalMutation.isPending;
 
-  // Reset form when dialog opens/closes or editing festival changes
+  const { reset } = form;
   useEffect(() => {
     if (open) {
-      if (editingFestival) {
-        resetSlugField({
-          name: editingFestival.name,
-          slug: editingFestival.slug || generateSlug(editingFestival.name),
-        });
-        setFormData({
-          description: editingFestival.description || "",
-          published: editingFestival.published || false,
-          timezone: editingFestival.timezone || DEFAULT_FESTIVAL_TIMEZONE,
-        });
-      } else {
-        resetSlugField();
-        setFormData({
-          description: "",
-          published: false,
-          timezone: DEFAULT_FESTIVAL_TIMEZONE,
-        });
-      }
+      reset(getDefaultValues(editingFestival));
     }
-  }, [open, editingFestival, resetSlugField]);
+  }, [open, editingFestival, reset]);
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!name.trim()) {
-      toast({
-        title: "Error",
-        description: "Festival name is required",
-        variant: "destructive",
-      });
-      return;
+  function handleNameChange(name: string) {
+    // The slug follows the name until it's edited directly, i.e. while it
+    // still equals the slug derived from the previous name.
+    const { name: prevName, slug } = form.getValues();
+    if (slug === "" || slug === generateSlug(prevName)) {
+      form.setValue("slug", generateSlug(name), { shouldValidate: true });
     }
+  }
 
-    if (!slug.trim()) {
-      toast({
-        title: "Error",
-        description: "Festival slug is required",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!isValidSlug(slug)) {
-      toast({
-        title: "Error",
-        description: "Please enter a valid slug",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  function handleSubmit(values: FestivalFormData) {
+    const festivalData = { ...values, name: values.name.trim() };
     if (editingFestival) {
       updateFestivalMutation.mutate(
-        {
-          festivalId: editingFestival.id,
-          festivalData: { ...formData, name, slug },
-        },
+        { festivalId: editingFestival.id, festivalData },
         { onSuccess: () => onOpenChange(false) },
       );
     } else {
-      createFestivalMutation.mutate(
-        { ...formData, name, slug },
-        { onSuccess: () => onOpenChange(false) },
-      );
+      createFestivalMutation.mutate(festivalData, {
+        onSuccess: () => onOpenChange(false),
+      });
     }
   }
 
@@ -141,86 +111,140 @@ export function FestivalDialog({
               : "Create a new festival with basic information and publish settings."}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-          <div>
-            <Label htmlFor="name">Festival Name</Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => changeName(e.target.value)}
-              placeholder="e.g., Boom Festival"
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="slug">URL Slug</Label>
-            <Input
-              id="slug"
-              value={slug}
-              onChange={(e) => changeSlug(e.target.value)}
-              placeholder="e.g., boom-festival"
-              required
-            />
-            {slugError && (
-              <p className="text-sm text-destructive mt-1">{slugError}</p>
-            )}
-            <p className="text-sm text-muted-foreground mt-1">
-              This will be used in the URL: /festivals/
-              {slug || "your-slug"}
-            </p>
-          </div>
-          <div>
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
-              placeholder="Short description for festival listings..."
-              rows={3}
-            />
-          </div>
-          <TimezonePicker
-            value={formData.timezone}
-            onChange={(timezone) =>
-              setFormData((prev) => ({ ...prev, timezone }))
-            }
-            description="All schedule times for this festival are displayed in this timezone."
-          />
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="published"
-              checked={formData.published}
-              onCheckedChange={(checked) =>
-                setFormData({ ...formData, published: checked })
-              }
-            />
-            <Label htmlFor="published">Published</Label>
-            <p className="text-sm text-muted-foreground">
-              {formData.published
-                ? "Visible to public users"
-                : "Only visible to admins"}
-            </p>
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting && (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+            noValidate
+          >
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Festival Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g., Boom Festival"
+                      {...field}
+                      onChange={(e) => {
+                        handleNameChange(e.target.value);
+                        field.onChange(e);
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-              {editingFestival ? "Update" : "Create"}
-            </Button>
-          </div>
-        </form>
+            />
+            <FormField
+              control={form.control}
+              name="slug"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>URL Slug</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g., boom-festival"
+                      {...field}
+                      onChange={(e) =>
+                        field.onChange(sanitizeSlug(e.target.value))
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                  <FormDescription>
+                    This will be used in the URL: /festivals/
+                    {field.value || "your-slug"}
+                  </FormDescription>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Short description for festival listings..."
+                      rows={3}
+                      {...field}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="timezone"
+              render={({ field }) => (
+                <TimezonePicker
+                  value={field.value}
+                  onChange={field.onChange}
+                  description="All schedule times for this festival are displayed in this timezone."
+                />
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="published"
+              render={({ field }) => (
+                <FormItem className="flex items-center space-x-2 space-y-0">
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormLabel>Published</FormLabel>
+                  <FormDescription className="!mt-0">
+                    {field.value
+                      ? "Visible to public users"
+                      : "Only visible to admins"}
+                  </FormDescription>
+                </FormItem>
+              )}
+            />
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting && (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                )}
+                {editingFestival ? "Update" : "Create"}
+              </Button>
+            </div>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
+}
+
+function getDefaultValues(festival: Festival | null): FestivalFormData {
+  if (!festival) {
+    return {
+      name: "",
+      slug: "",
+      description: "",
+      published: false,
+      timezone: DEFAULT_FESTIVAL_TIMEZONE,
+    };
+  }
+  return {
+    name: festival.name,
+    slug: festival.slug || generateSlug(festival.name),
+    description: festival.description || "",
+    published: festival.published || false,
+    timezone: festival.timezone || DEFAULT_FESTIVAL_TIMEZONE,
+  };
 }

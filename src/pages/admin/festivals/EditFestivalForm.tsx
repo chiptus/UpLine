@@ -1,6 +1,7 @@
 import { useUpdateFestivalMutation } from "@/api/festivals/useUpdateFestival";
 import { Festival } from "@/api/festivals/types";
-import { FestivalForm, getFestivalDefaultValues } from "./FestivalForm";
+import { FestivalForm } from "./FestivalForm/FestivalForm";
+import { getFestivalDefaultValues } from "./FestivalForm/festivalFormSchema";
 
 interface EditFestivalFormProps {
   festival: Festival;

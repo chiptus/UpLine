@@ -1,5 +1,6 @@
 import { useCreateFestivalMutation } from "@/api/festivals/useCreateFestival";
-import { FestivalForm, getFestivalDefaultValues } from "./FestivalForm";
+import { FestivalForm } from "./FestivalForm/FestivalForm";
+import { getFestivalDefaultValues } from "./FestivalForm/festivalFormSchema";
 
 interface CreateFestivalFormProps {
   onDone: () => void;

@@ -39,10 +39,10 @@ describe("FestivalDialog", () => {
 
     await userEvent.click(screen.getByRole("button", { name: "Create" }));
 
-    expect(
-      await screen.findByText("Festival name is required"),
-    ).toBeInTheDocument();
-    expect(screen.getByText("Festival slug is required")).toBeInTheDocument();
+    const alerts = await screen.findAllByRole("alert");
+    expect(alerts).toHaveLength(2);
+    expect(alerts[0]).toHaveTextContent("Festival name is required");
+    expect(alerts[1]).toHaveTextContent("Festival slug is required");
     expect(createMutate).not.toHaveBeenCalled();
   });
 

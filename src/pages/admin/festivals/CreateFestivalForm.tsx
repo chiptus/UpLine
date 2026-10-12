@@ -1,6 +1,9 @@
 import { useCreateFestivalMutation } from "@/api/festivals/useCreateFestival";
 import { FestivalForm } from "./FestivalForm/FestivalForm";
-import { getFestivalDefaultValues } from "./FestivalForm/festivalFormSchema";
+import {
+  DEFAULT_FESTIVAL_TIMEZONE,
+  FestivalFormData,
+} from "./FestivalForm/festivalFormSchema";
 
 interface CreateFestivalFormProps {
   onDone: () => void;
@@ -11,7 +14,7 @@ export function CreateFestivalForm({ onDone }: CreateFestivalFormProps) {
 
   return (
     <FestivalForm
-      defaultValues={getFestivalDefaultValues(null)}
+      defaultValues={getCreateDefaults()}
       submitLabel="Create"
       isSubmitting={createFestivalMutation.isPending}
       onSubmit={(values) =>
@@ -23,4 +26,14 @@ export function CreateFestivalForm({ onDone }: CreateFestivalFormProps) {
       onCancel={onDone}
     />
   );
+}
+
+function getCreateDefaults(): FestivalFormData {
+  return {
+    name: "",
+    slug: "",
+    description: "",
+    published: false,
+    timezone: DEFAULT_FESTIVAL_TIMEZONE,
+  };
 }

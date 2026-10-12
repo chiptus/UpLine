@@ -1,8 +1,7 @@
 import { z } from "zod";
-import { Festival } from "@/api/festivals/types";
-import { generateSlug, isValidSlug } from "@/lib/slug";
+import { isValidSlug } from "@/lib/slug";
 
-const DEFAULT_FESTIVAL_TIMEZONE = "Europe/Lisbon";
+export const DEFAULT_FESTIVAL_TIMEZONE = "Europe/Lisbon";
 
 export const festivalFormSchema = z.object({
   name: z.string().trim().min(1, "Festival name is required"),
@@ -19,24 +18,3 @@ export const festivalFormSchema = z.object({
 });
 
 export type FestivalFormData = z.infer<typeof festivalFormSchema>;
-
-export function getFestivalDefaultValues(
-  festival: Festival | null,
-): FestivalFormData {
-  if (!festival) {
-    return {
-      name: "",
-      slug: "",
-      description: "",
-      published: false,
-      timezone: DEFAULT_FESTIVAL_TIMEZONE,
-    };
-  }
-  return {
-    name: festival.name,
-    slug: festival.slug || generateSlug(festival.name),
-    description: festival.description || "",
-    published: festival.published || false,
-    timezone: festival.timezone || DEFAULT_FESTIVAL_TIMEZONE,
-  };
-}

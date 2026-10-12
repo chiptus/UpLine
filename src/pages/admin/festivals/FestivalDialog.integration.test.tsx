@@ -40,6 +40,7 @@ describe("FestivalDialog", () => {
       "Integration Festival",
     );
     await pasteIntoField("URL Slug", slug);
+    await userEvent.type(screen.getByLabelText("Description"), "Psy");
 
     await userEvent.click(screen.getByRole("button", { name: "Create" }));
 
@@ -47,17 +48,28 @@ describe("FestivalDialog", () => {
 
     const { data, error } = await testSupabase
       .from("festivals")
-      .select("name, slug")
+      .select("name, slug, description, published, timezone")
       .eq("slug", slug)
       .single();
     expect(error).toBeNull();
-    expect(data?.name).toBe("Integration Festival");
+    expect(data).toMatchObject({
+      name: "Integration Festival",
+      slug,
+      description: "Psy",
+      published: false,
+      timezone: "Europe/Lisbon",
+    });
   });
 
   it("updates an existing festival for real", async () => {
     const userId = await signInAsTestUser();
     await grantAdminRole(userId);
-    const festival = await createFestival({ name: "Old Name" });
+    const festival = await createFestival({
+      name: "Old Name",
+      description: "Old desc",
+      published: true,
+      timezone: "Asia/Tokyo",
+    });
 
     const onOpenChange = vi.fn();
     renderWithQueryClient(
@@ -67,6 +79,10 @@ describe("FestivalDialog", () => {
         editingFestival={festival}
       />,
     );
+
+    expect(screen.getByLabelText("Festival Name")).toHaveValue("Old Name");
+    expect(screen.getByLabelText("URL Slug")).toHaveValue(festival.slug);
+    expect(screen.getByLabelText("Description")).toHaveValue("Old desc");
 
     const nameInput = screen.getByLabelText("Festival Name");
     await userEvent.clear(nameInput);
@@ -78,11 +94,17 @@ describe("FestivalDialog", () => {
 
     const { data, error } = await testSupabase
       .from("festivals")
-      .select("name")
+      .select("name, slug, description, published, timezone")
       .eq("id", festival.id)
       .single();
     expect(error).toBeNull();
-    expect(data?.name).toBe("New Name");
+    expect(data).toMatchObject({
+      name: "New Name",
+      slug: festival.slug,
+      description: "Old desc",
+      published: true,
+      timezone: "Asia/Tokyo",
+    });
   });
 
   it("keeps the dialog open and re-enables submit on a real slug conflict", async () => {

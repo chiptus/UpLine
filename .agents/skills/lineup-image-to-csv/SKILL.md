@@ -1,7 +1,7 @@
 ---
 name: lineup-image-to-csv
 description: Convert a festival lineup poster/flyer image into a schedule-import CSV. Use when asked to turn a lineup poster image into a CSV, digitize a festival schedule graphic, or prepare an image for the schedule import wizard.
-allowed-tools: Read, Write, Bash(uv venv .venv), Bash(uv pip install --python .venv/bin/python pillow), Bash(.venv/bin/python .agents/skills/lineup-image-to-csv/crop.py*)
+allowed-tools: Read, Write, Bash(uv run --with pillow python .agents/skills/lineup-image-to-csv/crop.py *)
 ---
 
 # Lineup image to CSV
@@ -16,18 +16,17 @@ Posters are not one shape. Read the full image (or, for a lineup split across se
 - **Text-list poster** — a day header followed by plain `time — title — artist` lines, no boxes or ruler. Often one image per stage. Skip cropping entirely: read times and titles directly off the full image (re-crop only if resolution is too low to read text). Go straight to _5. Compile the CSV_, applying the midnight rule (_4_) where a day's lines cross `00:00`. Example: `ownspirit/*.jpeg`, one image per stage.
 - **Name-only poster** — an artist list with no times or stages (e.g. a phase-announcement flyer). There is no schedule to extract. Leave `Stage`, `Date`, `Start Time`, `End Time` blank; only `Artists`, `Set Name`, `Type`, and `Description` apply. Capture groupings the poster itself marks — joint billings (`X | Y`), "2 sets", "Live", "B2B" — the same way step 5's multi-artist rule does. Example: `desert-base/2026/lineup-phase1.jpg`.
 
-The rest of this skill (steps 1-4) applies only to grid posters.
+Steps 1-3 (cropping, grid mapping, border reads) apply only to grid posters. Step 4 (the midnight rule) and step 5 apply to every poster that has times.
 
 ## 1. Set up cropping
 
-The Read tool shows the whole image but can't crop, and a full poster is too low-resolution to resolve individual grid lines. Before reading times, set up the venv `crop.py` runs in:
+The Read tool shows the whole image but can't crop, and a full poster is too low-resolution to resolve individual grid lines. Crop with `.agents/skills/lineup-image-to-csv/crop.py` rather than ad hoc Pillow snippets, run from the repo root:
 
 ```
-uv venv .venv
-uv pip install --python .venv/bin/python pillow
+uv run --with pillow python .agents/skills/lineup-image-to-csv/crop.py --image <poster> --box L,T,R,B --out <scratchpad>/crop.png --scale 6
 ```
 
-Do this in your scratchpad directory, not the repo. Crop with `.agents/skills/lineup-image-to-csv/crop.py` (run via `.venv/bin/python`) rather than ad hoc Pillow snippets — its `--box`/`--scale`/`--out` args cover every crop this skill needs; see its docstring for usage.
+`uv run --with pillow` needs no venv, so nothing lands in the repo; write crop output to your scratchpad via `--out`. Its `--box`/`--scale`/`--out` args cover every crop this skill needs; see the script's docstring for usage.
 
 ## 2. Map the grid once
 

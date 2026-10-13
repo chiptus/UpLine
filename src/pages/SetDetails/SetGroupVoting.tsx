@@ -75,7 +75,7 @@ function SetGroupVotingContent({
         ) : (
           <div className="space-y-4">
             {/* Vote Summary */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-4 gap-4">
               {VOTES_TYPES.map((voteTypeKey) => {
                 const config = VOTE_CONFIG[voteTypeKey];
                 const IconComponent = config.icon;

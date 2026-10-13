@@ -39,6 +39,12 @@ export function SetVotingButtons({ set }: SetVotingButtonsProps) {
         onClick={() => handleVote(-1)}
         count={counts.wontGo}
       />
+      <VoteButton
+        voteType={0}
+        isActive={userVoteForSet === 0}
+        onClick={() => handleVote(0)}
+        count={counts.neutral}
+      />
     </div>
   );
 

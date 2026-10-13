@@ -4,6 +4,7 @@ export interface CandidateUpdate {
   providerUrl?: Partial<Record<Provider, string>>;
   image_url?: string | null;
   description?: string | null;
+  soundcloudFollowers?: number;
 }
 
 export type SelectableField = "url" | "image" | "description";
@@ -23,6 +24,12 @@ export function mergeCandidateSelection(
 
   if (fields.includes("url")) {
     updates.providerUrl = { [provider]: candidate.url };
+
+    // Spotify stopped returning followers for non-extended apps, so only
+    // SoundCloud has a real value to persist.
+    if (provider === "soundcloud" && candidate.followers !== null) {
+      updates.soundcloudFollowers = candidate.followers;
+    }
   }
 
   if (fields.includes("image") && candidate.imageUrl && !staged.image_url) {

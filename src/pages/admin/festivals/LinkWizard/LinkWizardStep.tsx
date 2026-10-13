@@ -215,7 +215,9 @@ export function LinkWizardStep({
         shouldDirty: true,
       });
     }
-    if (update.soundcloudFollowers !== undefined) {
+    // Reassigned (even to undefined) on every SoundCloud URL pick so a
+    // previous candidate's count never pairs with a new URL.
+    if (update.providerUrl?.soundcloud !== undefined) {
       form.setValue("soundcloud_followers", update.soundcloudFollowers, {
         shouldDirty: true,
       });

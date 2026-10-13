@@ -77,14 +77,16 @@ async function updateArtist(variables: {
   }
 
   if (updates.soundcloud_followers !== undefined) {
-    // The next sync-artist-data run may overwrite this; it only seeds the
-    // count until then.
-    const { error } = await supabase
-      .from("soundcloud")
-      .upsert(
-        { artist_id: id, followers_count: updates.soundcloud_followers },
-        { onConflict: "artist_id" },
-      );
+    // Only the count is seeded, so last_sync stays null to keep the row
+    // eligible for the next sync-artist-data run, which may overwrite it.
+    const { error } = await supabase.from("soundcloud").upsert(
+      {
+        artist_id: id,
+        followers_count: updates.soundcloud_followers,
+        last_sync: null,
+      },
+      { onConflict: "artist_id" },
+    );
 
     if (error) {
       console.error("Error saving soundcloud followers:", error);

@@ -34,10 +34,17 @@ function ScheduleLineupContent({ tab }: ScheduleLineupViewProps) {
     setsByEditionQuery(edition.id),
   );
   const { data: stages } = useSuspenseQuery(stagesByEditionQuery(edition.id));
+  const display = useMemo(
+    () => ({
+      timezone: festival.timezone,
+      dayEndHour: festival.day_end_hour,
+    }),
+    [festival.timezone, festival.day_end_hour],
+  );
   const { scheduleDays } = useScheduleData({
     sets: editionSets,
     stages,
-    timezone: festival.timezone,
+    display,
   });
   const {
     day: selectedDay,

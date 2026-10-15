@@ -1,5 +1,16 @@
-import { format, isValid, parseISO, differenceInCalendarDays } from "date-fns";
+import {
+  format,
+  isValid,
+  parseISO,
+  differenceInCalendarDays,
+  subHours,
+} from "date-fns";
 import { formatInTimeZone, fromZonedTime, toZonedTime } from "date-fns-tz";
+
+export interface FestivalDayConfig {
+  timezone: string;
+  dayEndHour: number;
+}
 
 export function formatTimeRange(
   startTime: string | null,
@@ -176,30 +187,46 @@ export function formatDateOnly(
   return format(date, dateFormat);
 }
 
-export function formatDayOnly(
-  dateTime: string | null,
-  timezone?: string,
-): string | null {
-  if (!dateTime) return null;
-  const date = parseISO(dateTime);
-  if (!isValid(date)) return null;
-  const dayFormat = "EEE, MMM d";
-  if (timezone) return formatInTimeZone(date, timezone, dayFormat);
-  return format(date, dayFormat);
+/** Shifts an instant back by dayEndHour so pre-cutoff times fall on the previous festival day. */
+function shiftForDayEnd(date: Date, dayEndHour: number): Date {
+  return dayEndHour ? subHours(date, dayEndHour) : date;
 }
 
-// The festival calendar day (yyyy-MM-dd) a UTC timestamp falls on, computed in
-// the festival's own timezone so a post-midnight set groups under the
-// festival's day rather than the viewer's.
-export function getFestivalDayKey(
+export function formatDayOnly(
   dateTime: string | null,
-  timezone?: string,
+  config: Partial<FestivalDayConfig> = {},
 ): string | null {
+  const { timezone, dayEndHour = 0 } = config;
   if (!dateTime) return null;
   const date = parseISO(dateTime);
   if (!isValid(date)) return null;
-  if (timezone) return formatInTimeZone(date, timezone, "yyyy-MM-dd");
-  return format(date, "yyyy-MM-dd");
+  const shifted = shiftForDayEnd(date, dayEndHour);
+  const dayFormat = "EEE, MMM d";
+  if (timezone) return formatInTimeZone(shifted, timezone, dayFormat);
+  return format(shifted, dayFormat);
+}
+
+/** Festival-timezone calendar day (yyyy-MM-dd) of an instant; times before dayEndHour fall on the previous day. */
+export function getFestivalDayKey(
+  dateTime: string | null,
+  config: Partial<FestivalDayConfig> = {},
+): string | null {
+  const { timezone, dayEndHour = 0 } = config;
+  if (!dateTime) return null;
+  const date = parseISO(dateTime);
+  if (!isValid(date)) return null;
+  const shifted = shiftForDayEnd(date, dayEndHour);
+  if (timezone) return formatInTimeZone(shifted, timezone, "yyyy-MM-dd");
+  return format(shifted, "yyyy-MM-dd");
+}
+
+/** The UTC instant a festival day-key starts: the day-end hour in the festival timezone. */
+export function festivalDayStart(
+  dayKey: string,
+  { timezone, dayEndHour }: FestivalDayConfig,
+): Date {
+  const hour = String(dayEndHour).padStart(2, "0");
+  return fromZonedTime(`${dayKey}T${hour}:00:00`, timezone);
 }
 
 // Human-readable label for a day-key produced by getFestivalDayKey.

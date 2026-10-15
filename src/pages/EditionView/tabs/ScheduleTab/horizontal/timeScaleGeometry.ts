@@ -1,5 +1,5 @@
-import { formatInTimeZone } from "date-fns-tz";
 import { timeToOffset } from "@/lib/timelineCalculator";
+import { getFestivalDayKey, type FestivalDayConfig } from "@/lib/timeUtils";
 
 export const DAY_GAP_PX = 5;
 
@@ -14,19 +14,19 @@ export interface DateChange {
 
 export function computeDateChanges(
   timeSlots: Date[],
-  timezone: string,
+  config: FestivalDayConfig,
 ): DateChange[] {
+  function festivalDate(date: Date): string | null {
+    return getFestivalDayKey(date.toISOString(), config);
+  }
+
   return timeSlots.reduce((changes, timeSlot, index) => {
     if (index === 0) {
       changes.push({ date: timeSlot, position: 0 });
       return changes;
     }
-    const prevDate = formatInTimeZone(
-      timeSlots[index - 1],
-      timezone,
-      "yyyy-MM-dd",
-    );
-    const currentDate = formatInTimeZone(timeSlot, timezone, "yyyy-MM-dd");
+    const prevDate = festivalDate(timeSlots[index - 1]);
+    const currentDate = festivalDate(timeSlot);
     if (prevDate !== currentDate) {
       changes.push({
         date: timeSlot,

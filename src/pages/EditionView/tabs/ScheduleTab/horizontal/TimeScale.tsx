@@ -4,21 +4,27 @@ import {
 } from "./timeScaleGeometry";
 import { DateBand } from "./DateBand";
 import { HourMarkers } from "./HourMarkers";
+import type { FestivalDayConfig } from "@/lib/timeUtils";
 
 interface TimeScaleProps {
   timeSlots: Date[];
   totalWidth: number;
-  timezone: string;
+  dayConfig: FestivalDayConfig;
   scrollLeft: number;
 }
 
 export function TimeScale({
   timeSlots,
   totalWidth,
-  timezone,
+  dayConfig,
   scrollLeft,
 }: TimeScaleProps) {
-  const dateChanges = computeDateChanges(timeSlots, timezone);
+  // The axis is continuous clock time, so bands split at real midnight; the
+  // festival-day cutoff would label 02:00 Saturday as Friday under Saturday's hour markers.
+  const dateChanges = computeDateChanges(timeSlots, {
+    timezone: dayConfig.timezone,
+    dayEndHour: 0,
+  });
   const geometry = computeDateLabelGeometry(
     dateChanges,
     scrollLeft,
@@ -31,9 +37,9 @@ export function TimeScale({
         dateChanges={dateChanges}
         geometry={geometry}
         totalWidth={totalWidth}
-        timezone={timezone}
+        timezone={dayConfig.timezone}
       />
-      <HourMarkers timeSlots={timeSlots} timezone={timezone} />
+      <HourMarkers timeSlots={timeSlots} timezone={dayConfig.timezone} />
     </div>
   );
 }

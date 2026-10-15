@@ -41,6 +41,9 @@ describe("FestivalDialog", () => {
     );
     await pasteIntoField("URL Slug", slug);
     await userEvent.type(screen.getByLabelText("Description"), "Psy");
+    const dayEndHour = screen.getByLabelText("Day end hour");
+    await userEvent.clear(dayEndHour);
+    await userEvent.type(dayEndHour, "6");
 
     await userEvent.click(screen.getByRole("button", { name: "Create" }));
 
@@ -48,7 +51,7 @@ describe("FestivalDialog", () => {
 
     const { data, error } = await testSupabase
       .from("festivals")
-      .select("name, slug, description, published, timezone")
+      .select("name, slug, description, published, timezone, day_end_hour")
       .eq("slug", slug)
       .single();
     expect(error).toBeNull();
@@ -58,6 +61,7 @@ describe("FestivalDialog", () => {
       description: "Psy",
       published: false,
       timezone: "Europe/Lisbon",
+      day_end_hour: 6,
     });
   });
 
@@ -69,6 +73,7 @@ describe("FestivalDialog", () => {
       description: "Old desc",
       published: true,
       timezone: "Asia/Tokyo",
+      day_end_hour: 4,
     });
 
     const onOpenChange = vi.fn();
@@ -87,6 +92,9 @@ describe("FestivalDialog", () => {
     const nameInput = screen.getByLabelText("Festival Name");
     await userEvent.clear(nameInput);
     await userEvent.type(nameInput, "New Name");
+    const dayEndHour = screen.getByLabelText("Day end hour");
+    await userEvent.clear(dayEndHour);
+    await userEvent.type(dayEndHour, "4");
 
     await userEvent.click(screen.getByRole("button", { name: "Update" }));
 
@@ -94,7 +102,7 @@ describe("FestivalDialog", () => {
 
     const { data, error } = await testSupabase
       .from("festivals")
-      .select("name, slug, description, published, timezone")
+      .select("name, slug, description, published, timezone, day_end_hour")
       .eq("id", festival.id)
       .single();
     expect(error).toBeNull();
@@ -104,6 +112,7 @@ describe("FestivalDialog", () => {
       description: "Old desc",
       published: true,
       timezone: "Asia/Tokyo",
+      day_end_hour: 4,
     });
   });
 

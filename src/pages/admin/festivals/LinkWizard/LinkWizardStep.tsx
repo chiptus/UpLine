@@ -58,6 +58,7 @@ const linkStepSchema = z.object({
     }),
   image_url: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
+  soundcloud_followers: z.number().optional(),
 });
 
 export type LinkStepData = z.infer<typeof linkStepSchema>;
@@ -214,6 +215,13 @@ export function LinkWizardStep({
         shouldDirty: true,
       });
     }
+    // Reassigned (even to undefined) on every SoundCloud URL pick so a
+    // previous candidate's count never pairs with a new URL.
+    if (update.providerUrl?.soundcloud !== undefined) {
+      form.setValue("soundcloud_followers", update.soundcloudFollowers, {
+        shouldDirty: true,
+      });
+    }
   }
 
   // The picked types must persist before the step advances — the artist save
@@ -245,6 +253,10 @@ export function LinkWizardStep({
     }
     if (data.description !== undefined) {
       updates.description = data.description;
+    }
+
+    if (data.soundcloud_followers !== undefined) {
+      updates.soundcloud_followers = data.soundcloud_followers;
     }
 
     updateArtistMutation.mutate(

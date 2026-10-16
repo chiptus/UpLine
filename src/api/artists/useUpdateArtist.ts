@@ -21,7 +21,7 @@ export type UpdateArtistUpdates = Partial<
     | "time_end"
     | "archived"
   >
-> & { genre_ids?: string[] };
+> & { genre_ids?: string[]; soundcloud_followers?: number };
 
 // Mutation function
 async function updateArtist(variables: {
@@ -73,6 +73,24 @@ async function updateArtist(variables: {
     if (error) {
       console.error("Error updating artist:", error);
       throw new Error("Failed to update artist");
+    }
+  }
+
+  if (updates.soundcloud_followers !== undefined) {
+    // Only the count is seeded, so last_sync stays null to keep the row
+    // eligible for the next sync-artist-data run, which may overwrite it.
+    const { error } = await supabase.from("soundcloud").upsert(
+      {
+        artist_id: id,
+        followers_count: updates.soundcloud_followers,
+        last_sync: null,
+      },
+      { onConflict: "artist_id" },
+    );
+
+    if (error) {
+      console.error("Error saving soundcloud followers:", error);
+      throw new Error("Failed to save SoundCloud followers");
     }
   }
 

@@ -1,14 +1,14 @@
 import type { Database } from "@/integrations/supabase/types";
 import type { Artist } from "@/api/artists/types";
 import { asEnumValue } from "@/lib/enum";
+import {
+  SET_TYPES,
+  asSetType,
+  type SetType,
+} from "../../../supabase/functions/_shared/setTypes.ts";
 
-export const SET_TYPES = ["music", "workshop", "performance", "other"] as const;
-
-export type SetType = (typeof SET_TYPES)[number];
-
-export function asSetType(value: string | null): SetType | null {
-  return asEnumValue(SET_TYPES, value);
-}
+export { SET_TYPES, asSetType };
+export type { SetType };
 
 export function isNonMusicSetType(
   setType: SetType | null,

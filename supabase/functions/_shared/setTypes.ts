@@ -1,6 +1,8 @@
 /**
- * Mirrors SET_TYPES in src/api/sets/types.ts and the sets_set_type_check
- * constraint. Keep the three in sync when adding a type.
+ * Single TypeScript definition of set types: src/api/sets/types.ts re-exports
+ * it, so this file must stay dependency-free (Deno can't resolve `@/` aliases).
+ * The sets_set_type_check constraint is the other copy;
+ * src/lib/setTypeConstraint.test.ts fails when it drifts.
  */
 export const SET_TYPES = ["music", "workshop", "performance", "other"] as const;
 

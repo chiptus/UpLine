@@ -19,12 +19,7 @@ export function TimeScale({
   dayConfig,
   scrollLeft,
 }: TimeScaleProps) {
-  // The axis is continuous clock time, so bands split at real midnight; the
-  // festival-day cutoff would label 02:00 Saturday as Friday under Saturday's hour markers.
-  const dateChanges = computeDateChanges(timeSlots, {
-    timezone: dayConfig.timezone,
-    dayEndHour: 0,
-  });
+  const dateChanges = computeDateChanges(timeSlots, dayConfig.timezone);
   const geometry = computeDateLabelGeometry(
     dateChanges,
     scrollLeft,

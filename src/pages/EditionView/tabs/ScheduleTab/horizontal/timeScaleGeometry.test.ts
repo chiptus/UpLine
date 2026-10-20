@@ -19,10 +19,7 @@ describe("computeDateChanges", () => {
       new Date("2024-07-01T12:00:00Z"),
     ];
 
-    const changes = computeDateChanges(timeSlots, {
-      timezone,
-      dayEndHour: 0,
-    });
+    const changes = computeDateChanges(timeSlots, timezone);
 
     expect(changes).toEqual([{ date: timeSlots[0], position: 0 }]);
   });
@@ -35,10 +32,7 @@ describe("computeDateChanges", () => {
       new Date("2024-07-02T01:00:00Z"),
     ];
 
-    const changes = computeDateChanges(timeSlots, {
-      timezone,
-      dayEndHour: 0,
-    });
+    const changes = computeDateChanges(timeSlots, timezone);
 
     expect(changes).toHaveLength(2);
     expect(changes[0]).toEqual({ date: timeSlots[0], position: 0 });
@@ -47,7 +41,7 @@ describe("computeDateChanges", () => {
   });
 
   it("returns an empty array for an empty slot list", () => {
-    expect(computeDateChanges([], { timezone, dayEndHour: 0 })).toEqual([]);
+    expect(computeDateChanges([], timezone)).toEqual([]);
   });
 
   it("respects the given timezone when detecting the day boundary", () => {
@@ -57,38 +51,11 @@ describe("computeDateChanges", () => {
       new Date("2024-07-01T22:00:00Z"),
     ];
 
-    const changesUtc = computeDateChanges(timeSlots, {
-      timezone: "UTC",
-      dayEndHour: 0,
-    });
+    const changesUtc = computeDateChanges(timeSlots, "UTC");
     expect(changesUtc).toHaveLength(1);
 
-    const changesBerlinSummer = computeDateChanges(timeSlots, {
-      timezone: "Europe/Berlin",
-      dayEndHour: 0,
-    });
+    const changesBerlinSummer = computeDateChanges(timeSlots, "Europe/Berlin");
     expect(changesBerlinSummer).toHaveLength(2);
-  });
-
-  it("folds a slot before the dayEndHour cutoff into the previous day", () => {
-    // Without a cutoff, 01:00 is already the next UTC calendar day.
-    const timeSlots = [
-      new Date("2024-07-01T22:00:00Z"),
-      new Date("2024-07-02T01:00:00Z"),
-    ];
-
-    const noCutoff = computeDateChanges(timeSlots, {
-      timezone,
-      dayEndHour: 0,
-    });
-    expect(noCutoff).toHaveLength(2);
-
-    // With a 6h cutoff, 01:00 is still "yesterday" - no boundary crossed.
-    const withCutoff = computeDateChanges(timeSlots, {
-      timezone,
-      dayEndHour: 6,
-    });
-    expect(withCutoff).toHaveLength(1);
   });
 });
 

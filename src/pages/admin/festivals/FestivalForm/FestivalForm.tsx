@@ -13,6 +13,7 @@ import { Loader2 } from "lucide-react";
 import { TimezonePicker } from "@/components/Admin/ScheduleImport/TimezonePicker";
 import { FestivalNameField } from "./FestivalNameField";
 import { FestivalSlugField } from "./FestivalSlugField";
+import { DayEndHourField } from "./DayEndHourField";
 import { FestivalPublishedField } from "./FestivalPublishedField";
 import { festivalFormSchema, FestivalFormData } from "./festivalFormSchema";
 
@@ -72,6 +73,7 @@ export function FestivalForm({
             />
           )}
         />
+        <DayEndHourField />
         <FestivalPublishedField />
         <div className="flex justify-end gap-2">
           <Button

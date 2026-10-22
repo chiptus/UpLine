@@ -1,5 +1,5 @@
-import { formatInTimeZone } from "date-fns-tz";
 import { timeToOffset } from "@/lib/timelineCalculator";
+import { getFestivalDayKey } from "@/lib/timeUtils";
 
 export const DAY_GAP_PX = 5;
 
@@ -12,21 +12,26 @@ export interface DateChange {
   position: number;
 }
 
+/**
+ * Splits at real midnight in `timezone`, deliberately ignoring the festival's
+ * day-end cutoff: the axis is continuous clock time, so a band labelled with
+ * the previous day would sit over after-midnight hour markers.
+ */
 export function computeDateChanges(
   timeSlots: Date[],
   timezone: string,
 ): DateChange[] {
+  function festivalDate(date: Date): string | null {
+    return getFestivalDayKey(date.toISOString(), { timezone, dayEndHour: 0 });
+  }
+
   return timeSlots.reduce((changes, timeSlot, index) => {
     if (index === 0) {
       changes.push({ date: timeSlot, position: 0 });
       return changes;
     }
-    const prevDate = formatInTimeZone(
-      timeSlots[index - 1],
-      timezone,
-      "yyyy-MM-dd",
-    );
-    const currentDate = formatInTimeZone(timeSlot, timezone, "yyyy-MM-dd");
+    const prevDate = festivalDate(timeSlots[index - 1]);
+    const currentDate = festivalDate(timeSlot);
     if (prevDate !== currentDate) {
       changes.push({
         date: timeSlot,

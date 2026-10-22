@@ -16,10 +16,11 @@ import { useTimelineScrollSync } from "@/hooks/useTimelineScrollSync";
 import { jumpToTimelineMoment } from "@/lib/timelineDayJump";
 import { useActiveTimelineDay } from "@/hooks/useActiveTimelineDay";
 import { useScrollLeft } from "./useScrollLeft";
+import type { FestivalDayConfig } from "@/lib/timeUtils";
 
 interface TimelineContainerProps {
   timelineData: TimelineData;
-  timezone: string;
+  dayConfig: FestivalDayConfig;
   scheduleDays: ScheduleDay[];
   selectedDay: string;
   scheduleWindow: ScheduleWindow | null;
@@ -28,7 +29,7 @@ interface TimelineContainerProps {
 
 export function TimelineContainer({
   timelineData,
-  timezone,
+  dayConfig,
   scheduleDays,
   selectedDay,
   scheduleWindow,
@@ -42,14 +43,14 @@ export function TimelineContainer({
     scrollContainerRef,
     festivalStart: timelineData.festivalStart,
     scheduleWindow,
-    timezone,
+    dayConfig,
     now,
   });
 
   const activeDay = useActiveTimelineDay({
     scrollContainerRef,
     days: scheduleDays,
-    timezone,
+    dayConfig,
     festivalStart: timelineData.festivalStart,
   });
 
@@ -75,7 +76,7 @@ export function TimelineContainer({
         days={scheduleDays}
         selectedDay={selectedDay}
         activeDay={activeDay}
-        timezone={timezone}
+        dayConfig={dayConfig}
         onJumpToDay={(moment) => jumpTo(moment, "start")}
         isOverviewExpanded={isOverviewExpanded}
         onToggleOverview={() => setIsOverviewExpanded((prev) => !prev)}
@@ -86,14 +87,14 @@ export function TimelineContainer({
         <TimelineOverview
           timelineData={timelineData}
           scheduleDays={scheduleDays}
-          timezone={timezone}
+          dayConfig={dayConfig}
           scrollContainerRef={scrollContainerRef}
           onJump={(moment) => jumpTo(moment, "center")}
         />
       )}
       <TimeScaleContainer
         timelineData={timelineData}
-        timezone={timezone}
+        dayConfig={dayConfig}
         scrollLeft={scrollLeft}
       />
 
@@ -111,7 +112,7 @@ export function TimelineContainer({
                   key={stage.name}
                   stage={stage}
                   totalWidth={timelineData.totalWidth}
-                  timezone={timezone}
+                  timezone={dayConfig.timezone}
                 />
               ))}
             </div>

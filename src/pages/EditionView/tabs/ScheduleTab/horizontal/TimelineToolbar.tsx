@@ -9,12 +9,13 @@ import type { ScheduleDay } from "@/hooks/useScheduleData";
 import { useScrollEdgeFade } from "./useScrollEdgeFade";
 import { STICKY_TOP_BELOW_TOP_BAR_CLASS } from "@/lib/layout-constants";
 import { cn } from "@/lib/utils";
+import type { FestivalDayConfig } from "@/lib/timeUtils";
 
 interface TimelineToolbarProps {
   days: ScheduleDay[];
   selectedDay: string;
   activeDay: string | null;
-  timezone: string;
+  dayConfig: FestivalDayConfig;
   onJumpToDay: (moment: Date) => void;
   isOverviewExpanded: boolean;
   onToggleOverview: () => void;
@@ -33,7 +34,7 @@ export function TimelineToolbar({
   days,
   selectedDay,
   activeDay,
-  timezone,
+  dayConfig,
   onJumpToDay,
   isOverviewExpanded,
   onToggleOverview,
@@ -77,7 +78,7 @@ export function TimelineToolbar({
         <DayJumpButtons
           days={visibleDays}
           activeDay={activeDay}
-          timezone={timezone}
+          dayConfig={dayConfig}
           onJumpToDay={onJumpToDay}
         />
       </div>

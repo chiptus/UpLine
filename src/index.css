@@ -103,6 +103,9 @@
     --vote-skip: 218.8 9.2% 63.7%; /* #9aa0ab */
     --vote-skip-foreground: 216.9 11.9% 78.6%; /* #c2c7cf */
     --vote-skip-soft: 218.8 9.2% 63.7% / 0.14;
+    --vote-neutral: 270 20% 65%; /* #a29ab8 */
+    --vote-neutral-foreground: 270 24% 79%; /* #cbc4dc */
+    --vote-neutral-soft: 270 20% 65% / 0.14;
 
     --radius: 0.75rem;
 
@@ -217,6 +220,9 @@
     --vote-skip: 218.8 8.5% 39%; /* #5b616c */
     --vote-skip-foreground: 218.8 8.5% 39%;
     --vote-skip-soft: 218.8 8.5% 39% / 0.12;
+    --vote-neutral: 270 24% 41%; /* #6b5a86 */
+    --vote-neutral-foreground: 270 24% 41%;
+    --vote-neutral-soft: 270 24% 41% / 0.12;
   }
 
   .dark {

@@ -41,6 +41,19 @@ describe("FestivalDialog", () => {
     expect(createMutate).not.toHaveBeenCalled();
   });
 
+  it("blocks submit when the day end hour is outside 0-23", async () => {
+    renderDialog();
+    await userEvent.type(screen.getByLabelText("Festival Name"), "Boom Fest");
+    const dayEndHour = screen.getByLabelText("Day end hour");
+    await userEvent.clear(dayEndHour);
+    await userEvent.type(dayEndHour, "24");
+
+    await userEvent.click(screen.getByRole("button", { name: "Create" }));
+
+    await expectAlert("Hour must be between 0 and 23");
+    expect(createMutate).not.toHaveBeenCalled();
+  });
+
   it("derives the slug from the name until the slug is edited directly", async () => {
     renderDialog();
     const name = screen.getByLabelText("Festival Name");

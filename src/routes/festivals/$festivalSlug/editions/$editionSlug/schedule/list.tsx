@@ -49,10 +49,17 @@ function ListSchedule() {
   const { data: stages } = useSuspenseQuery(stagesByEditionQuery(edition.id));
   const { user } = useAuth();
   const { voteScope, groupMemberIds } = useScheduleVoteScope();
+  const display = useMemo(
+    () => ({
+      timezone: festival.timezone,
+      dayEndHour: festival.day_end_hour,
+    }),
+    [festival.timezone, festival.day_end_hour],
+  );
   const { scheduleDays } = useScheduleData({
     sets: editionSets,
     stages,
-    timezone: festival.timezone,
+    display,
   });
   const {
     day: selectedDay,

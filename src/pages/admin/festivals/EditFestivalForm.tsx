@@ -2,6 +2,7 @@ import { useUpdateFestivalMutation } from "@/api/festivals/useUpdateFestival";
 import { Festival } from "@/api/festivals/types";
 import { FestivalForm } from "./FestivalForm/FestivalForm";
 import {
+  DEFAULT_DAY_END_HOUR,
   DEFAULT_FESTIVAL_TIMEZONE,
   FestivalFormData,
 } from "./FestivalForm/festivalFormSchema";
@@ -41,5 +42,6 @@ function getEditDefaults(festival: Festival): FestivalFormData {
     description: festival.description || "",
     published: festival.published || false,
     timezone: festival.timezone || DEFAULT_FESTIVAL_TIMEZONE,
+    day_end_hour: festival.day_end_hour ?? DEFAULT_DAY_END_HOUR,
   };
 }

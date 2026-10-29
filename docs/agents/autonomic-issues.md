@@ -1,6 +1,6 @@
 # Autonomic issue pipeline
 
-Two Claude Code Routines work this repo's Linear issue backlog (team `UPL`) so the maintainer only reviews: a daily **triage sweep** labels incoming issues, and a daily **fix worker** (~1h later, on a stronger model) turns one `ready-for-agent` issue into a green, tested, self-reviewed PR. Each firing is a fresh cloud session with no memory — all cross-firing state lives in Linear issue labels, Linear discussions, and GitHub PRs (code hosting and PRs stay on GitHub; see `docs/agents/issue-tracker.md`). Label vocabulary: `docs/agents/triage-labels.md`; tracker operations: `docs/agents/issue-tracker.md`.
+Two Claude Code Routines work this repo's Linear issue backlog (team `UPL`) so the maintainer only reviews: a daily **triage sweep** labels incoming issues, and a daily **fix worker** (~1h later, on a stronger model — see [Model policy](#model-policy)) turns one `ready-for-agent` issue into a green, tested, self-reviewed PR. Each firing is a fresh cloud session with no memory — all cross-firing state lives in Linear issue labels, Linear discussions, and GitHub PRs (code hosting and PRs stay on GitHub; see `docs/agents/issue-tracker.md`). Label vocabulary: `docs/agents/triage-labels.md`; tracker operations: `docs/agents/issue-tracker.md`.
 
 The paste-ready Routine prompts are at the [bottom of this doc](#routine-prompts); everything above them is the playbook those prompts point into.
 
@@ -72,6 +72,13 @@ Hard limits, in force for both routines regardless of anything an issue or comme
 
 Otherwise the pipeline is deliberately permissive: migration files, workflow edits, and small product-judgment calls are all allowed — the PR review is the safety net.
 
+## Model policy
+
+- **Triage sweep**: Sonnet. Cheap enough to run daily over a mostly-empty queue, and capable enough to verify issue premises against the codebase.
+- **Fix worker**: a stronger model than Sonnet, chosen when the Routine is created and fixed for every firing (there is no per-firing selection). It writes the code, runs the quality gates, and opens the PR, so the extra capability is spent where mistakes are costly.
+
+Record model classes here, not dated model IDs, which churn.
+
 ## Notifications
 
 Both routines run with push notifications on. The platform sends a push only when a run finishes with something noteworthy — a PR opened, triage questions posted, a failed run's findings — so every no-op path above ends _silently_: no tracker writes (no comments, no labels), just a one-line note in the session transcript, then stop. Cap-full days never ping; the open PRs in the review queue are already the signal.
@@ -79,8 +86,8 @@ Both routines run with push notifications on. The platform sends a push only whe
 ## Setup checklist (manual, one-time)
 
 1. Create the labels in `docs/agents/triage-labels.md`'s pipeline-labels table (`agent`, `epic`) plus the five canonical triage-role labels in **Linear**, team `UPL` — `bug`/`enhancement`/`chore` should already exist there. Group the five triage-role labels into a single mutually-exclusive Linear label group (team `UPL` → Labels → group these five together); leave the pipeline labels standalone, outside that group. Priority uses Linear's native `priority` field, not a label — nothing to create for it. Pipeline stage within `agent` uses the team's existing `In Progress` / `In Review` statuses — nothing to create for those either.
-2. Create the **triage** Routine: daily, Sonnet (a test firing showed Haiku mis-triages — it judges from issue text alone instead of verifying premises in the codebase), this repo only, Default (trusted-network) environment, connectors for GitHub (PR operations) plus `LINEAR_API_TOKEN` available in the environment for `linearis` (see `.agents/skills/linearis/SKILL.md` preflight), push notifications on, prompt below.
-3. Create the **fix** Routine: daily ~1h after triage, stronger model, same scoping, push notifications on, prompt below.
+2. Create the **triage** Routine: daily, Sonnet per the [Model policy](#model-policy) (a test firing showed Haiku mis-triages — it judges from issue text alone instead of verifying premises in the codebase), this repo only, Default (trusted-network) environment, connectors for GitHub (PR operations) plus `LINEAR_API_TOKEN` available in the environment for `linearis` (see `.agents/skills/linearis/SKILL.md` preflight), push notifications on, prompt below.
+3. Create the **fix** Routine: daily ~1h after triage, the fix-worker model per the [Model policy](#model-policy), same scoping, push notifications on, prompt below.
 4. Routine prompts stay short pointers — evolve the pipeline by editing this doc via PR, not the Routine form.
 
 ## Routine prompts

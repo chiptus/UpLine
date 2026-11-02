@@ -58,7 +58,9 @@ const linkStepSchema = z.object({
     }),
   image_url: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
-  soundcloud_followers: z.number().optional(),
+  soundcloud_followers: z
+    .object({ url: z.string(), count: z.number() })
+    .optional(),
 });
 
 export type LinkStepData = z.infer<typeof linkStepSchema>;
@@ -218,9 +220,16 @@ export function LinkWizardStep({
     // Reassigned (even to undefined) on every SoundCloud URL pick so a
     // previous candidate's count never pairs with a new URL.
     if (update.providerUrl?.soundcloud !== undefined) {
-      form.setValue("soundcloud_followers", update.soundcloudFollowers, {
-        shouldDirty: true,
-      });
+      form.setValue(
+        "soundcloud_followers",
+        update.soundcloudFollowers === undefined
+          ? undefined
+          : {
+              url: update.providerUrl.soundcloud,
+              count: update.soundcloudFollowers,
+            },
+        { shouldDirty: true },
+      );
     }
   }
 
@@ -255,8 +264,11 @@ export function LinkWizardStep({
       updates.description = data.description;
     }
 
-    if (data.soundcloud_followers !== undefined) {
-      updates.soundcloud_followers = data.soundcloud_followers;
+    // The URL field stays editable after a pick; the count only belongs to
+    // the URL it came from.
+    const staged = data.soundcloud_followers;
+    if (staged && staged.url === data.providerUrl.soundcloud) {
+      updates.soundcloud_followers = staged.count;
     }
 
     updateArtistMutation.mutate(

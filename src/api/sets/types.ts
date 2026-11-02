@@ -5,7 +5,7 @@ import {
   SET_TYPES,
   asSetType,
   type SetType,
-} from "../../../supabase/functions/_shared/setTypes.ts";
+} from "@functions/_shared/setTypes.ts";
 
 export { SET_TYPES, asSetType };
 export type { SetType };

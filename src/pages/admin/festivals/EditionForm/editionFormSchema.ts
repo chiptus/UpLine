@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { isValidSlug } from "@/lib/slug";
-import type { RevealLevel } from "@/lib/scheduleReveal";
 
 export const editionFormSchema = z.object({
   name: z.string().trim().min(1, "Edition name is required"),
@@ -19,7 +18,7 @@ export const editionFormSchema = z.object({
   start_date: z.string(),
   end_date: z.string(),
   published: z.boolean(),
-  schedule_reveal_level: z.custom<RevealLevel>(),
+  schedule_reveal_level: z.enum(["draft", "days", "stages", "full"]),
 });
 
 export type EditionFormData = z.infer<typeof editionFormSchema>;

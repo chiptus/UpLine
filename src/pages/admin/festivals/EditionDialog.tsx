@@ -70,7 +70,7 @@ export function EditionDialog({
         </DialogHeader>
         {/* Dialog content unmounts on close, so every open starts from fresh defaults. */}
         <EditionForm
-          defaultValues={getDefaults(editingEdition)}
+          defaultValues={getEditionFormDefaults(editingEdition)}
           submitLabel={editingEdition ? "Update" : "Create"}
           isSubmitting={isSubmitting}
           onSubmit={handleSubmit}
@@ -81,7 +81,9 @@ export function EditionDialog({
   );
 }
 
-function getDefaults(edition: FestivalEdition | null): EditionFormData {
+function getEditionFormDefaults(
+  edition: FestivalEdition | null,
+): EditionFormData {
   if (!edition) {
     return {
       name: "",

@@ -166,7 +166,7 @@ function DateField({
   name,
   label,
 }: {
-  name: "start_date" | "end_date";
+  name: keyof Pick<EditionFormData, "start_date" | "end_date">;
   label: string;
 }) {
   const form = useFormContext<EditionFormData>();

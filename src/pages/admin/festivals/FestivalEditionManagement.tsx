@@ -1,11 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useFestivalEditionsForFestivalQuery } from "@/api/editions/useFestivalEditionsForFestival";
 import { useFestivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
-import { useCreateFestivalEditionMutation } from "@/api/editions/useCreateFestivalEdition";
-import { useUpdateFestivalEditionMutation } from "@/api/editions/useUpdateFestivalEdition";
 import { useDeleteFestivalEditionMutation } from "@/api/editions/useDeleteFestivalEdition";
 import { FestivalEdition } from "@/api/editions/types";
-import { useToast } from "@/hooks/use-toast";
 import {
   Table,
   TableBody,
@@ -14,36 +11,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { confirm } from "@/hooks/use-confirm";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Loader2, Plus, Edit2, Trash2, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { generateSlug, isValidSlug } from "@/lib/slug";
-import { useSlugField } from "@/hooks/useSlugField";
-import type { Database } from "@/integrations/supabase/types";
-import { ScheduleRevealLevelField } from "./ScheduleRevealLevelField";
-
-type RevealLevel = Database["public"]["Enums"]["schedule_reveal_level"];
-
-interface EditionFormData {
-  year: number;
-  start_date?: string;
-  end_date?: string;
-  published: boolean;
-  schedule_reveal_level: RevealLevel;
-}
+import { EditionDialog } from "./EditionDialog";
 
 export function FestivalEditionManagement({
   festivalSlug,
@@ -58,32 +31,13 @@ export function FestivalEditionManagement({
   const festivalQuery = useFestivalBySlugQuery(festivalSlug);
   const { data: editions = [], isLoading } =
     useFestivalEditionsForFestivalQuery(festivalQuery.data?.id, { all: true });
-  const createEditionMutation = useCreateFestivalEditionMutation();
-  const updateEditionMutation = useUpdateFestivalEditionMutation();
   const deleteEditionMutation = useDeleteFestivalEditionMutation();
-  const { toast } = useToast();
 
+  const addButtonRef = useRef<HTMLButtonElement>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingEdition, setEditingEdition] = useState<FestivalEdition | null>(
     null,
   );
-  const {
-    name,
-    slug,
-    slugError,
-    changeName,
-    changeSlug,
-    reset: resetSlugField,
-  } = useSlugField();
-  const [formData, setFormData] = useState<EditionFormData>({
-    year: new Date().getFullYear(),
-    start_date: "",
-    end_date: "",
-    published: false,
-    schedule_reveal_level: "draft",
-  });
-  const isSubmitting =
-    createEditionMutation.isPending || updateEditionMutation.isPending;
 
   if (festivalQuery.isLoading) {
     return (
@@ -106,90 +60,14 @@ export function FestivalEditionManagement({
     );
   }
 
-  function resetForm() {
-    resetSlugField();
-    setFormData({
-      year: new Date().getFullYear(),
-      start_date: "",
-      end_date: "",
-      published: false,
-      schedule_reveal_level: "draft",
-    });
-    setEditingEdition(null);
-  }
-
   function handleCreate() {
-    resetForm();
+    setEditingEdition(null);
     setIsDialogOpen(true);
   }
 
   function handleEdit(edition: FestivalEdition) {
-    resetSlugField({
-      name: edition.name,
-      slug: edition.slug || generateSlug(edition.name),
-    });
-    setFormData({
-      year: edition.year,
-      start_date: edition.start_date || "",
-      end_date: edition.end_date || "",
-      published: edition.published || false,
-      schedule_reveal_level: edition.schedule_reveal_level ?? "draft",
-    });
     setEditingEdition(edition);
     setIsDialogOpen(true);
-  }
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!name.trim()) {
-      toast({
-        title: "Error",
-        description: "Edition name is required",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!slug.trim()) {
-      toast({
-        title: "Error",
-        description: "Edition slug is required",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!isValidSlug(slug)) {
-      toast({
-        title: "Error",
-        description: "Please enter a valid slug",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const submitData = {
-      ...formData,
-      name,
-      slug,
-      start_date: formData.start_date || null,
-      end_date: formData.end_date || null,
-      festival_id: festivalQuery.data!.id,
-    };
-
-    function onSuccess() {
-      setIsDialogOpen(false);
-      resetForm();
-    }
-
-    if (editingEdition) {
-      updateEditionMutation.mutate(
-        { editionId: editingEdition.id, editionData: submitData },
-        { onSuccess },
-      );
-    } else {
-      createEditionMutation.mutate(submitData, { onSuccess });
-    }
   }
 
   async function handleDeleteRequest(edition: FestivalEdition) {
@@ -222,138 +100,14 @@ export function FestivalEditionManagement({
             <CalendarDays className="h-5 w-5" />
             Editions
           </span>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button
-                onClick={handleCreate}
-                className="bg-accent text-accent-foreground hover:bg-accent-hover"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Edition
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>
-                  {editingEdition
-                    ? "Edit Festival Edition"
-                    : "Create New Festival Edition"}
-                </DialogTitle>
-                <DialogDescription>
-                  {editingEdition
-                    ? "Update edition information including name, dates, and visibility settings."
-                    : "Create a new festival edition with dates and publish settings."}
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-                <div>
-                  <Label htmlFor="name">Edition Name</Label>
-                  <Input
-                    id="name"
-                    value={name}
-                    onChange={(e) => changeName(e.target.value)}
-                    placeholder="e.g., Boom Festival 2025"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="slug">URL Slug</Label>
-                  <Input
-                    id="slug"
-                    value={slug}
-                    onChange={(e) => changeSlug(e.target.value)}
-                    placeholder="e.g., boom-2025"
-                    required
-                  />
-                  {slugError && (
-                    <p className="text-sm text-destructive mt-1">{slugError}</p>
-                  )}
-                  <p className="text-sm text-muted-foreground mt-1">
-                    This will be used in the URL:
-                    /festivals/festival-name/editions/
-                    {slug || "your-slug"}
-                  </p>
-                </div>
-                <div>
-                  <Label htmlFor="year">Year</Label>
-                  <Input
-                    id="year"
-                    type="number"
-                    value={formData.year}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        year: parseInt(e.target.value),
-                      })
-                    }
-                    min="2000"
-                    max="2100"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="start_date">Start Date</Label>
-                  <Input
-                    id="start_date"
-                    type="date"
-                    value={formData.start_date}
-                    onChange={(e) =>
-                      setFormData({ ...formData, start_date: e.target.value })
-                    }
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="end_date">End Date</Label>
-                  <Input
-                    id="end_date"
-                    type="date"
-                    value={formData.end_date}
-                    onChange={(e) =>
-                      setFormData({ ...formData, end_date: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="published"
-                    checked={formData.published}
-                    onCheckedChange={(checked) =>
-                      setFormData({ ...formData, published: checked })
-                    }
-                  />
-                  <Label htmlFor="published">Published</Label>
-                  <p className="text-sm text-muted-foreground">
-                    {formData.published
-                      ? "Visible to public users"
-                      : "Only visible to admins"}
-                  </p>
-                </div>
-                <ScheduleRevealLevelField
-                  value={formData.schedule_reveal_level}
-                  onChange={(level) =>
-                    setFormData({ ...formData, schedule_reveal_level: level })
-                  }
-                  editionPublished={formData.published}
-                />
-                <div className="flex justify-end gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setIsDialogOpen(false)}
-                    disabled={isSubmitting}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting && (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    )}
-                    {editingEdition ? "Update" : "Create"}
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <Button
+            ref={addButtonRef}
+            onClick={handleCreate}
+            className="bg-accent text-accent-foreground hover:bg-accent-hover"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Edition
+          </Button>
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -425,6 +179,13 @@ export function FestivalEditionManagement({
           )}
         </div>
       </CardContent>
+      <EditionDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        festivalId={festivalQuery.data.id}
+        editingEdition={editingEdition}
+        returnFocusRef={addButtonRef}
+      />
     </Card>
   );
 }

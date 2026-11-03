@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -117,6 +118,17 @@ describe("EditionDialog", () => {
     });
   });
 
+  it("returns focus to the opener when the dialog closes", async () => {
+    render(<FocusHarness />);
+    await userEvent.click(screen.getByRole("button", { name: "Open" }));
+
+    await userEvent.keyboard("{Escape}");
+
+    await vi.waitFor(() =>
+      expect(screen.getByRole("button", { name: "Open" })).toHaveFocus(),
+    );
+  });
+
   it("resets the form when the dialog is reopened", async () => {
     const { rerender } = renderDialog();
     await userEvent.type(screen.getByLabelText("Edition Name"), "Draft");
@@ -149,10 +161,31 @@ function makeEdition(): FestivalEdition {
   } as FestivalEdition;
 }
 
+function FocusHarness() {
+  const openerRef = useRef<HTMLButtonElement>(null);
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <button ref={openerRef} onClick={() => setOpen(true)}>
+        Open
+      </button>
+      <EditionDialog
+        open={open}
+        onOpenChange={setOpen}
+        festivalId="festival-1"
+        editingEdition={null}
+        returnFocusRef={openerRef}
+      />
+    </>
+  );
+}
+
 function dialog(props: Partial<React.ComponentProps<typeof EditionDialog>>) {
   return (
     <EditionDialog
       open
+      returnFocusRef={{ current: null }}
       onOpenChange={vi.fn()}
       festivalId="festival-1"
       editingEdition={null}

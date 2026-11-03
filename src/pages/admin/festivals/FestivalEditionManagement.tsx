@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useFestivalEditionsForFestivalQuery } from "@/api/editions/useFestivalEditionsForFestival";
 import { useFestivalBySlugQuery } from "@/api/festivals/useFestivalBySlug";
 import { useDeleteFestivalEditionMutation } from "@/api/editions/useDeleteFestivalEdition";
@@ -33,6 +33,7 @@ export function FestivalEditionManagement({
     useFestivalEditionsForFestivalQuery(festivalQuery.data?.id, { all: true });
   const deleteEditionMutation = useDeleteFestivalEditionMutation();
 
+  const addButtonRef = useRef<HTMLButtonElement>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingEdition, setEditingEdition] = useState<FestivalEdition | null>(
     null,
@@ -100,6 +101,7 @@ export function FestivalEditionManagement({
             Editions
           </span>
           <Button
+            ref={addButtonRef}
             onClick={handleCreate}
             className="bg-accent text-accent-foreground hover:bg-accent-hover"
           >
@@ -182,6 +184,7 @@ export function FestivalEditionManagement({
         onOpenChange={setIsDialogOpen}
         festivalId={festivalQuery.data.id}
         editingEdition={editingEdition}
+        returnFocusRef={addButtonRef}
       />
     </Card>
   );

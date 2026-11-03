@@ -1,3 +1,4 @@
+import type { RefObject } from "react";
 import { FestivalEdition } from "@/api/editions/types";
 import { useCreateFestivalEditionMutation } from "@/api/editions/useCreateFestivalEdition";
 import { useUpdateFestivalEditionMutation } from "@/api/editions/useUpdateFestivalEdition";
@@ -17,6 +18,7 @@ interface EditionDialogProps {
   onOpenChange: (open: boolean) => void;
   festivalId: string;
   editingEdition: FestivalEdition | null;
+  returnFocusRef: RefObject<HTMLElement | null>;
 }
 
 export function EditionDialog({
@@ -24,6 +26,7 @@ export function EditionDialog({
   onOpenChange,
   festivalId,
   editingEdition,
+  returnFocusRef,
 }: EditionDialogProps) {
   const createEditionMutation = useCreateFestivalEditionMutation();
   const updateEditionMutation = useUpdateFestivalEditionMutation();
@@ -55,7 +58,13 @@ export function EditionDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      {/* The opener lives outside the dialog root, so Radix has no trigger to refocus. */}
+      <DialogContent
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          returnFocusRef.current?.focus();
+        }}
+      >
         <DialogHeader>
           <DialogTitle>
             {editingEdition

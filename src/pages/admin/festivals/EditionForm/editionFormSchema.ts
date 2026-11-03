@@ -22,3 +22,14 @@ export const editionFormSchema = z.object({
 });
 
 export type EditionFormData = z.infer<typeof editionFormSchema>;
+
+/** Blank date inputs are stored as null, not empty strings. */
+export function toEditionPayload(values: EditionFormData, festivalId: string) {
+  return {
+    ...values,
+    name: values.name.trim(),
+    start_date: values.start_date || null,
+    end_date: values.end_date || null,
+    festival_id: festivalId,
+  };
+}

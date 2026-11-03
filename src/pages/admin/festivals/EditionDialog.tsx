@@ -1,7 +1,5 @@
 import type { RefObject } from "react";
 import { FestivalEdition } from "@/api/editions/types";
-import { useCreateFestivalEditionMutation } from "@/api/editions/useCreateFestivalEdition";
-import { useUpdateFestivalEditionMutation } from "@/api/editions/useUpdateFestivalEdition";
 import {
   Dialog,
   DialogContent,
@@ -9,9 +7,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { generateSlug } from "@/lib/slug";
-import { EditionForm } from "./EditionForm/EditionForm";
-import { EditionFormData } from "./EditionForm/editionFormSchema";
+import { CreateEditionForm } from "./CreateEditionForm";
+import { EditEditionForm } from "./EditEditionForm";
 
 interface EditionDialogProps {
   open: boolean;
@@ -28,43 +25,10 @@ export function EditionDialog({
   editingEdition,
   returnFocusRef,
 }: EditionDialogProps) {
-  const createEditionMutation = useCreateFestivalEditionMutation();
-  const updateEditionMutation = useUpdateFestivalEditionMutation();
-  const isSubmitting =
-    createEditionMutation.isPending || updateEditionMutation.isPending;
-
-  function close() {
-    onOpenChange(false);
-  }
-
-  function handleSubmit(values: EditionFormData) {
-    const editionData = {
-      ...values,
-      name: values.name.trim(),
-      start_date: values.start_date || null,
-      end_date: values.end_date || null,
-      festival_id: festivalId,
-    };
-
-    if (editingEdition) {
-      updateEditionMutation.mutate(
-        { editionId: editingEdition.id, editionData },
-        { onSuccess: close },
-      );
-    } else {
-      createEditionMutation.mutate(editionData, { onSuccess: close });
-    }
-  }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {/* The opener lives outside the dialog root, so Radix has no trigger to refocus. */}
-      <DialogContent
-        onCloseAutoFocus={(event) => {
-          event.preventDefault();
-          returnFocusRef.current?.focus();
-        }}
-      >
+      <DialogContent onCloseAutoFocus={restoreFocus}>
         <DialogHeader>
           <DialogTitle>
             {editingEdition
@@ -77,41 +41,27 @@ export function EditionDialog({
               : "Create a new festival edition with dates and publish settings."}
           </DialogDescription>
         </DialogHeader>
-        {/* Dialog content unmounts on close, so every open starts from fresh defaults. */}
-        <EditionForm
-          defaultValues={getEditionFormDefaults(editingEdition)}
-          submitLabel={editingEdition ? "Update" : "Create"}
-          isSubmitting={isSubmitting}
-          onSubmit={handleSubmit}
-          onCancel={close}
-        />
+        {/* Keyed so switching editions remounts the form with fresh defaults. */}
+        {editingEdition ? (
+          <EditEditionForm
+            key={editingEdition.id}
+            edition={editingEdition}
+            festivalId={festivalId}
+            onDone={close}
+          />
+        ) : (
+          <CreateEditionForm festivalId={festivalId} onDone={close} />
+        )}
       </DialogContent>
     </Dialog>
   );
-}
 
-function getEditionFormDefaults(
-  edition: FestivalEdition | null,
-): EditionFormData {
-  if (!edition) {
-    return {
-      name: "",
-      slug: "",
-      year: new Date().getFullYear(),
-      start_date: "",
-      end_date: "",
-      published: false,
-      schedule_reveal_level: "draft",
-    };
+  function close() {
+    onOpenChange(false);
   }
 
-  return {
-    name: edition.name,
-    slug: edition.slug || generateSlug(edition.name),
-    year: edition.year,
-    start_date: edition.start_date || "",
-    end_date: edition.end_date || "",
-    published: edition.published || false,
-    schedule_reveal_level: edition.schedule_reveal_level ?? "draft",
-  };
+  function restoreFocus(event: Event) {
+    event.preventDefault();
+    returnFocusRef.current?.focus();
+  }
 }

@@ -14,12 +14,33 @@
             "allowArrowFunctions": false
           }
         ],
-        "typescript/no-explicit-any": "error"
+        "typescript/no-explicit-any": "error",
+        "max-lines": [
+          "warn",
+          {
+            "max": 150,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
       },
       "env": {
         "es2024": true
       },
       "plugins": ["react", "typescript"]
+    },
+    {
+      "files": ["**/*.{test,spec}.{ts,tsx}"],
+      "rules": {
+        "max-lines": [
+          "warn",
+          {
+            "max": 200,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
     }
   ]
 }

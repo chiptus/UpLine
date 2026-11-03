@@ -136,6 +136,36 @@ describe("mergeCandidateSelection", () => {
 
     expect(update.providerUrl).toEqual({ spotify: candidate.url });
   });
+
+  it("carries soundcloud followers when a soundcloud url is selected", () => {
+    const candidate = makeCandidate({
+      url: "https://soundcloud.com/artist",
+      followers: 4200,
+    });
+
+    const update = mergeCandidateSelection(candidate, "soundcloud", ["url"]);
+
+    expect(update.soundcloudFollowers).toBe(4200);
+  });
+
+  it("writes nothing for soundcloud candidates with null followers", () => {
+    const candidate = makeCandidate({
+      url: "https://soundcloud.com/artist",
+      followers: null,
+    });
+
+    const update = mergeCandidateSelection(candidate, "soundcloud", ["url"]);
+
+    expect(update).not.toHaveProperty("soundcloudFollowers");
+  });
+
+  it("does not carry followers for spotify candidates", () => {
+    const candidate = makeCandidate({ followers: 1000 });
+
+    const update = mergeCandidateSelection(candidate, "spotify", ["url"]);
+
+    expect(update).not.toHaveProperty("soundcloudFollowers");
+  });
 });
 
 function makeCandidate(overrides: Partial<Candidate> = {}): Candidate {

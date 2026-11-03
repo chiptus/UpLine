@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Users, ExternalLink } from "lucide-react";
 import type { Candidate } from "@/api/artistSearch/types";
 import type { SelectableField } from "@/api/artistSearch/mergeCandidateSelection";
+import { formatFollowers } from "./formatFollowers";
 
 interface CandidateCardProps {
   candidate: Candidate;
@@ -119,10 +120,4 @@ export function CandidateCard({ candidate, onSelect }: CandidateCardProps) {
       </div>
     </Card>
   );
-}
-
-function formatFollowers(followers: number): string {
-  return followers < 1000
-    ? followers.toString()
-    : `${(followers / 1000).toFixed(1)}k`;
 }

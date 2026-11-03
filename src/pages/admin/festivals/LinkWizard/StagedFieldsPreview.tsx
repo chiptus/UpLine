@@ -10,6 +10,7 @@ import type { LinkStepData } from "./LinkWizardStep";
 import type { Candidate, Provider } from "@/api/artistSearch/types";
 import type { SelectableField } from "@/api/artistSearch/mergeCandidateSelection";
 import { ProviderUrlField } from "./ProviderUrlField";
+import { formatFollowers } from "./formatFollowers";
 
 const URL_FIELDS: {
   fieldName: "providerUrl.spotify" | "providerUrl.soundcloud";
@@ -46,6 +47,13 @@ export function StagedFieldsPreview({
 }: StagedFieldsPreviewProps) {
   const imageUrl = form.watch("image_url");
   const description = form.watch("description");
+  const stagedFollowers = form.watch("soundcloud_followers");
+  const soundcloudUrl = form.watch("providerUrl.soundcloud");
+  // Mirrors the save-time check: a count only applies to the URL it came from.
+  const followersToShow =
+    stagedFollowers && stagedFollowers.url === soundcloudUrl
+      ? stagedFollowers.count
+      : undefined;
 
   return (
     <div className="space-y-3 rounded-lg border p-3">
@@ -62,6 +70,12 @@ export function StagedFieldsPreview({
           onSelectCandidate={onSelectCandidate}
         />
       ))}
+
+      {followersToShow !== undefined && (
+        <p className="text-sm text-muted-foreground">
+          SoundCloud followers: {formatFollowers(followersToShow)}
+        </p>
+      )}
 
       {(imageUrl || description !== undefined) && (
         <div className="flex items-start gap-3 text-sm">

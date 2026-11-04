@@ -2,7 +2,7 @@ import type { Database } from "@/integrations/supabase/types";
 import {
   formatDayOnly,
   formatTimeRange,
-  type FestivalDayConfig,
+  type FestivalDayOptions,
 } from "@/lib/timeUtils";
 
 export type RevealLevel = Database["public"]["Enums"]["schedule_reveal_level"];
@@ -60,7 +60,7 @@ export function computeRevealLabels(
   }: {
     level: RevealLevel;
     use24Hour: boolean;
-    dayConfig: Partial<FestivalDayConfig>;
+    dayConfig: FestivalDayOptions;
   },
 ): RevealLabels {
   const stageId = canShowStage(level) ? set.stage_id : null;

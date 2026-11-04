@@ -4,9 +4,13 @@ import { ArtistSetCard } from "./ArtistSetCard";
 
 interface ArtistSetInfoPanelProps {
   artist: ArtistWithSets;
+  timezone: string;
 }
 
-export function ArtistSetInfoPanel({ artist }: ArtistSetInfoPanelProps) {
+export function ArtistSetInfoPanel({
+  artist,
+  timezone,
+}: ArtistSetInfoPanelProps) {
   const sets = artist.sets;
 
   if (sets.length === 0) {
@@ -22,7 +26,12 @@ export function ArtistSetInfoPanel({ artist }: ArtistSetInfoPanelProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         {sets.map((set) => (
-          <ArtistSetCard key={set.id} set={set} currentArtistId={artist.id} />
+          <ArtistSetCard
+            key={set.id}
+            set={set}
+            timezone={timezone}
+            currentArtistId={artist.id}
+          />
         ))}
       </CardContent>
     </Card>

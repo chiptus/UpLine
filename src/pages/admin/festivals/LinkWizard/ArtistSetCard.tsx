@@ -4,11 +4,16 @@ import { SetCoPerformers } from "./SetCoPerformers";
 
 interface ArtistSetCardProps {
   set: ArtistSetWithCoPerformers;
+  timezone: string;
   currentArtistId?: string;
 }
 
-export function ArtistSetCard({ set, currentArtistId }: ArtistSetCardProps) {
-  const time = formatTimeOnly(set.time_start, set.time_end, true);
+export function ArtistSetCard({
+  set,
+  timezone,
+  currentArtistId,
+}: ArtistSetCardProps) {
+  const time = formatTimeOnly(set.time_start, set.time_end, true, timezone);
 
   return (
     <div className="border-l-2 border-primary pl-4 py-2">

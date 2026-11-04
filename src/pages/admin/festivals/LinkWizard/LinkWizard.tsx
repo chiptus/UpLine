@@ -14,9 +14,10 @@ import { SetTypeBackfillStep } from "./SetTypeBackfillStep";
 
 interface LinkWizardProps {
   editionId: string;
+  timezone: string;
 }
 
-export function LinkWizard({ editionId }: LinkWizardProps) {
+export function LinkWizard({ editionId, timezone }: LinkWizardProps) {
   const artistsQuery = useArtistsMissingLinksByEditionQuery(editionId);
   const untypedSetsQuery = useUntypedSetsByEditionQuery(editionId);
   const skippedHook = useLinkWizardSkipped(editionId);
@@ -84,6 +85,7 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
               position={position}
               total={total}
               artists={filteredArtists}
+              timezone={timezone}
               onPrev={queue.prev}
               onNext={queue.skip}
               onSaveSuccess={queue.save}
@@ -93,6 +95,7 @@ export function LinkWizard({ editionId }: LinkWizardProps) {
               <SetTypeBackfillStep
                 key={currentItem.id}
                 set={currentItem.set}
+                timezone={timezone}
                 position={position}
                 total={total}
                 onPrev={queue.prev}

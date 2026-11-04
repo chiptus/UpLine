@@ -6,12 +6,15 @@ import type { Stage } from "@/api/stages/types";
 
 const stage = { id: "stage-1", name: "Main Stage", stage_order: 0 } as Stage;
 
+const DISPLAY = { timezone: "Europe/Lisbon" };
+
 describe("useScheduleData", () => {
   it("includes a confirmed set with a real time", () => {
     const { result } = renderHook(() =>
       useScheduleData({
         sets: [makeSet({ id: "confirmed-set", status: "confirmed" })],
         stages: [stage],
+        display: DISPLAY,
       }),
     );
 
@@ -28,6 +31,7 @@ describe("useScheduleData", () => {
           makeSet({ id: "tba-set", status: "tba" }),
         ],
         stages: [stage],
+        display: DISPLAY,
       }),
     );
 
@@ -44,6 +48,7 @@ describe("useScheduleData", () => {
           makeSet({ id: "dateless-set", status: "tba", time_start: null }),
         ],
         stages: [stage],
+        display: DISPLAY,
       }),
     );
 

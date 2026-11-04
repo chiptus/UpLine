@@ -19,7 +19,7 @@ interface SetsTableProps {
   onEdit: (set: FestivalSet) => void;
   onDelete: (set: FestivalSet) => void;
   editionId: string;
-  timezone?: string;
+  timezone: string;
 }
 
 export function SetsTable({
@@ -48,12 +48,10 @@ export function SetsTable({
 
   return (
     <div className="rounded-md border">
-      {timezone && (
-        <FestivalTimeHint
-          timezone={timezone}
-          className="block border-b px-4 py-2 text-muted-foreground"
-        />
-      )}
+      <FestivalTimeHint
+        timezone={timezone}
+        className="block border-b px-4 py-2 text-muted-foreground"
+      />
       <Table>
         <TableHeader>
           <TableRow>

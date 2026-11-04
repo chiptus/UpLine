@@ -15,7 +15,7 @@ interface TimeSlot {
 
 interface TimeSlotGroupProps {
   timeSlot: TimeSlot;
-  timezone?: string | undefined;
+  timezone: string;
 }
 
 export function TimeSlotGroup({ timeSlot, timezone }: TimeSlotGroupProps) {

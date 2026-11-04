@@ -98,6 +98,7 @@ describe("LinkWizardStep save flow", () => {
         position={1}
         total={1}
         artists={[artist]}
+        timezone="Europe/Lisbon"
         onPrev={vi.fn()}
         onNext={onNext}
       />,
@@ -141,6 +142,7 @@ describe("LinkWizardStep save flow", () => {
         position={1}
         total={1}
         artists={[artist]}
+        timezone="Europe/Lisbon"
         onPrev={vi.fn()}
         onNext={onNext}
       />,
@@ -215,6 +217,7 @@ describe("LinkWizardStep save flow", () => {
         position={1}
         total={1}
         artists={[artist]}
+        timezone="Europe/Lisbon"
         onPrev={vi.fn()}
         onNext={onNext}
       />,

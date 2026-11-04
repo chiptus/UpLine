@@ -6,12 +6,14 @@ import { SetTypePicker } from "./SetTypePicker";
 
 interface UntypedSetsBlockProps {
   untypedSets: ArtistSetWithCoPerformers[];
+  timezone: string;
   pendingTypes: Record<string, SetType>;
   onPick: (setId: string, setType: SetType) => void;
 }
 
 export function UntypedSetsBlock({
   untypedSets,
+  timezone,
   pendingTypes,
   onPick,
 }: UntypedSetsBlockProps) {
@@ -49,7 +51,7 @@ export function UntypedSetsBlock({
               {[
                 set.name,
                 set.stage_name,
-                formatTimeOnly(set.time_start, set.time_end, true),
+                formatTimeOnly(set.time_start, set.time_end, true, timezone),
               ]
                 .filter(Boolean)
                 .join(" · ")}

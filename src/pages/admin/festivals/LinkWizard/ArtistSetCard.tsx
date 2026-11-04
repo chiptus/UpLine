@@ -13,7 +13,10 @@ export function ArtistSetCard({
   timezone,
   currentArtistId,
 }: ArtistSetCardProps) {
-  const time = formatTimeOnly(set.time_start, set.time_end, true, timezone);
+  const time = formatTimeOnly(set.time_start, set.time_end, {
+    use24Hour: true,
+    timezone,
+  });
 
   return (
     <div className="border-l-2 border-primary pl-4 py-2">

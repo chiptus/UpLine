@@ -69,12 +69,10 @@ export function SetsTable({
               <TableCell>{getStageName(set.stage_id)}</TableCell>
               <TableCell>
                 {set.time_start && set.time_end
-                  ? formatTimeRange(
-                      set.time_start,
-                      set.time_end,
-                      true,
+                  ? formatTimeRange(set.time_start, set.time_end, {
+                      use24Hour: true,
                       timezone,
-                    )
+                    })
                   : "—"}
               </TableCell>
               <TableCell>

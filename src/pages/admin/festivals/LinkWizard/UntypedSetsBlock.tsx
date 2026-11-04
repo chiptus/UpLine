@@ -51,7 +51,10 @@ export function UntypedSetsBlock({
               {[
                 set.name,
                 set.stage_name,
-                formatTimeOnly(set.time_start, set.time_end, true, timezone),
+                formatTimeOnly(set.time_start, set.time_end, {
+                  use24Hour: true,
+                  timezone,
+                }),
               ]
                 .filter(Boolean)
                 .join(" · ")}

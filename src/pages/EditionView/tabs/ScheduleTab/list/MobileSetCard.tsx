@@ -68,8 +68,7 @@ export function MobileSetCard({ set, timezone }: MobileSetCardProps) {
                 {formatTimeOnly(
                   set.startTime.toISOString(),
                   set.endTime.toISOString(),
-                  use24Hour,
-                  timezone,
+                  { use24Hour, timezone },
                 )}
               </span>
             </div>

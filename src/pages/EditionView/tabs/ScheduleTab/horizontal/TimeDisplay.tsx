@@ -51,12 +51,10 @@ export function TimeDisplay({
       <span className="text-xs whitespace-nowrap overflow-hidden text-ellipsis">
         {useCompact
           ? formatCompactTime(startTime, endTime, use24Hour, timezone)
-          : formatTimeOnly(
-              startTime.toISOString(),
-              endTime.toISOString(),
+          : formatTimeOnly(startTime.toISOString(), endTime.toISOString(), {
               use24Hour,
               timezone,
-            )}
+            })}
       </span>
     </div>
   );

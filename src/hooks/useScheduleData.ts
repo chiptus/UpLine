@@ -87,11 +87,10 @@ export function useScheduleData({
           startTime,
           endTime,
           votes: set.votes || [],
-          formattedTimeRange: formatDateTime(
-            set.time_start,
-            display.use24Hour ?? false,
-            display.timezone,
-          ),
+          formattedTimeRange: formatDateTime(set.time_start, {
+            use24Hour: display.use24Hour ?? false,
+            timezone: display.timezone,
+          }),
           dayKey,
           setType: set.set_type,
           artists: (set.artists || []).map((artist) => ({

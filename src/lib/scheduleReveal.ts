@@ -67,12 +67,10 @@ export function computeRevealLabels(
   const isTba = set.status === "tba";
 
   if (canShowTime(level) && !isTba) {
-    const timeLabel = formatTimeRange(
-      set.time_start,
-      set.time_end,
+    const timeLabel = formatTimeRange(set.time_start, set.time_end, {
       use24Hour,
-      dayConfig.timezone,
-    );
+      timezone: dayConfig.timezone,
+    });
     return timeLabel ? { timeLabel, stageId } : { stageId };
   }
 

@@ -12,14 +12,18 @@ export interface FestivalDayConfig {
   dayEndHour: number;
 }
 
+export interface TimeFormatOptions {
+  use24Hour?: boolean;
+  timezone: string;
+}
+
 export type FestivalDayOptions = Pick<FestivalDayConfig, "timezone"> &
   Partial<Pick<FestivalDayConfig, "dayEndHour">>;
 
 export function formatTimeRange(
   startTime: string | null,
   endTime: string | null,
-  use24Hour: boolean = false,
-  timezone: string,
+  { use24Hour = false, timezone }: TimeFormatOptions,
 ): string | null {
   if (!startTime && !endTime) return null;
 
@@ -75,8 +79,7 @@ export function formatTimeRange(
 
 export function formatDateTime(
   dateTime: string | null,
-  use24Hour: boolean = false,
-  timezone: string,
+  { use24Hour = false, timezone }: TimeFormatOptions,
 ): string | null {
   if (!dateTime) return null;
 
@@ -90,8 +93,7 @@ export function formatDateTime(
 export function formatTimeOnly(
   startTime: string | null,
   endTime: string | null,
-  use24Hour: boolean = false,
-  timezone: string,
+  { use24Hour = false, timezone }: TimeFormatOptions,
 ): string | null {
   if (!startTime) return null;
 

@@ -36,6 +36,7 @@ export function SetNoteItem({
         {note.note_content}
       </div>
       <div className="text-xs text-accent-soft-foreground">
+        {/* Note edit time is the viewer's own context, not a festival time, so it is deliberately viewer-local. */}
         {format(parseISO(note.updated_at), "MMM d, yyyy")}
       </div>
     </div>

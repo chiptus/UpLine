@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { CardTitle } from "@/components/ui/card";
+import { Link, useParams } from "@tanstack/react-router";
 import { Users } from "lucide-react";
 import { getSetTypeLabel } from "@/lib/setTypeLabels";
 import { isNonMusicSetType } from "@/api/sets/types";
@@ -12,6 +13,9 @@ interface SetHeaderProps {
 
 export function SetHeader({ size = "lg" }: SetHeaderProps) {
   const { set } = useFestivalSet();
+  const { festivalSlug, editionSlug } = useParams({
+    from: "/festivals/$festivalSlug/editions/$editionSlug",
+  });
   const isMultiArtist = set.artists.length > 1;
   const isNonMusicSet = isNonMusicSetType(set.set_type);
   const typeLabel = getSetTypeLabel(set.set_type);
@@ -23,7 +27,19 @@ export function SetHeader({ size = "lg" }: SetHeaderProps) {
 
   return (
     <div className="flex items-center gap-2 mb-2">
-      <CardTitle className={titleClass}>{set.name}</CardTitle>
+      <CardTitle className={titleClass}>
+        {set.slug ? (
+          <Link
+            to="/festivals/$festivalSlug/editions/$editionSlug/sets/$setSlug"
+            params={{ festivalSlug, editionSlug, setSlug: set.slug }}
+            className="hover:text-subtle-foreground transition-colors"
+          >
+            {set.name}
+          </Link>
+        ) : (
+          set.name
+        )}
+      </CardTitle>
 
       {isNonMusicSet && (
         <Badge variant="secondary" className="gap-1 shrink-0">

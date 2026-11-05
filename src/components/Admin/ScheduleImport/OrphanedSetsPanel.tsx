@@ -84,7 +84,7 @@ function OrphanedItem({
   const isArchive = resolution === "archive";
   // Format in the festival timezone so review decisions don't flip across
   // midnight/DST for admins in a different timezone than the festival.
-  const time = formatDateTime(set.timeStart, { timezone: timezone });
+  const time = formatDateTime(set.timeStart, { timezone });
   const switchId = `orphan-${set.id}`;
 
   return (

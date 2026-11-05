@@ -1,6 +1,11 @@
-import { Star, Heart, X } from "lucide-react";
+import { Star, Heart, X, Minus } from "lucide-react";
 
-export const VOTES_TYPES = ["mustGo", "interested", "wontGo"] as const;
+export const VOTES_TYPES = [
+  "mustGo",
+  "interested",
+  "wontGo",
+  "neutral",
+] as const;
 export type VoteType = (typeof VOTES_TYPES)[number];
 
 export const VOTE_CONFIG = {
@@ -58,10 +63,28 @@ export const VOTE_CONFIG = {
     spinnerColor: "border-vote-skip-foreground",
     description: "Artists you'd prefer to skip (-1 point)",
   },
+  neutral: {
+    value: 0,
+    label: "Neutral",
+    icon: Minus,
+    bgColor: "bg-vote-neutral-soft",
+    iconColor: "text-vote-neutral",
+    textColor: "text-vote-neutral-foreground",
+    descColor: "text-vote-neutral-foreground",
+    circleColor: "bg-vote-neutral",
+    buttonSelected:
+      "border border-vote-neutral bg-[hsl(var(--vote-neutral)/0.28)] text-vote-neutral hover:bg-[hsl(var(--vote-neutral)/0.34)]",
+    buttonUnselected:
+      "border-vote-neutral-foreground text-vote-neutral-foreground hover:bg-vote-neutral-soft hover:text-vote-neutral hover:border-vote-neutral",
+    chipUnselected:
+      "text-vote-neutral hover:bg-vote-neutral-soft hover:text-vote-neutral",
+    spinnerColor: "border-vote-neutral-foreground",
+    description: "Sets you don't have a strong opinion on (0 points)",
+  },
 } as const;
 
 export type VoteConfig = {
-  value: -1 | 1 | 2;
+  value: -1 | 0 | 1 | 2;
   label: string;
   icon: typeof Star;
   bgColor: string;
@@ -82,6 +105,6 @@ export function getVoteConfig(voteValue: number): VoteType | undefined {
   );
 }
 
-export function getVoteValue(voteType: VoteType): -1 | 1 | 2 {
+export function getVoteValue(voteType: VoteType): -1 | 0 | 1 | 2 {
   return VOTE_CONFIG[voteType].value;
 }

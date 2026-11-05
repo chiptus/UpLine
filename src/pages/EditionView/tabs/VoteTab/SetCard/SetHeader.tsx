@@ -7,8 +7,6 @@ import { isNonMusicSetType } from "@/api/sets/types";
 import { SocialPlatformLinkList } from "./SocialPlatformLinkList";
 import { useFestivalSet } from "../FestivalSetContext";
 
-// A string rather than the route's `fullPath`: importing the route here would
-// be circular, since the route file renders these components.
 const VOTE_TAB_ROUTE = "/festivals/$festivalSlug/editions/$editionSlug/sets/";
 
 interface SetHeaderProps {

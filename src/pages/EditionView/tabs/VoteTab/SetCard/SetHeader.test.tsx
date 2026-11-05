@@ -36,6 +36,16 @@ async function renderHeader(set: FestivalSet) {
   const edition = createRoute({
     getParentRoute: () => rootRoute,
     path: "/festivals/$festivalSlug/editions/$editionSlug",
+    component: Outlet,
+  });
+  const sets = createRoute({
+    getParentRoute: () => edition,
+    path: "/sets",
+    component: Outlet,
+  });
+  const votes = createRoute({
+    getParentRoute: () => sets,
+    path: "/",
     component: () => (
       <FestivalSetProvider set={set} onLockSort={() => {}}>
         <SetHeader />
@@ -43,14 +53,16 @@ async function renderHeader(set: FestivalSet) {
     ),
   });
   const setDetails = createRoute({
-    getParentRoute: () => edition,
-    path: "/sets/$setSlug",
+    getParentRoute: () => sets,
+    path: "$setSlug",
     component: () => null,
   });
   const router = createRouter({
-    routeTree: rootRoute.addChildren([edition.addChildren([setDetails])]),
+    routeTree: rootRoute.addChildren([
+      edition.addChildren([sets.addChildren([votes, setDetails])]),
+    ]),
     history: createMemoryHistory({
-      initialEntries: ["/festivals/fest/editions/2026"],
+      initialEntries: ["/festivals/fest/editions/2026/sets"],
     }),
   });
 

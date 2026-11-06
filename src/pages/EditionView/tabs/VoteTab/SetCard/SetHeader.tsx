@@ -1,10 +1,13 @@
 import { Badge } from "@/components/ui/badge";
 import { CardTitle } from "@/components/ui/card";
+import { Link } from "@tanstack/react-router";
 import { Users } from "lucide-react";
 import { getSetTypeLabel } from "@/lib/setTypeLabels";
 import { isNonMusicSetType } from "@/api/sets/types";
 import { SocialPlatformLinkList } from "./SocialPlatformLinkList";
 import { useFestivalSet } from "../FestivalSetContext";
+
+const VOTE_TAB_ROUTE = "/festivals/$festivalSlug/editions/$editionSlug/sets/";
 
 interface SetHeaderProps {
   size?: "sm" | "lg";
@@ -23,7 +26,20 @@ export function SetHeader({ size = "lg" }: SetHeaderProps) {
 
   return (
     <div className="flex items-center gap-2 mb-2">
-      <CardTitle className={titleClass}>{set.name}</CardTitle>
+      <CardTitle className={titleClass}>
+        {set.slug ? (
+          <Link
+            from={VOTE_TAB_ROUTE}
+            to="./$setSlug"
+            params={{ setSlug: set.slug }}
+            className="hover:text-subtle-foreground transition-colors"
+          >
+            {set.name}
+          </Link>
+        ) : (
+          set.name
+        )}
+      </CardTitle>
 
       {isNonMusicSet && (
         <Badge variant="secondary" className="gap-1 shrink-0">

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { http, HttpResponse } from "msw";
 import { LinkWizardStep } from "./LinkWizardStep";
 import type { ArtistWithSets } from "@/api/artists/useArtistsMissingLinksByEdition";
 import {
@@ -10,64 +11,43 @@ import {
 import { signInAsTestUser } from "@/test/integration/fixtures/auth";
 import { createArtist } from "@/test/integration/fixtures/artists";
 import { grantAdminRole } from "@/test/integration/fixtures/adminRoles";
+import { stubEdgeFunctions } from "@/test/integration/edgeFunctionStubs";
 
-// The Link Wizard's Edge Functions aren't served by the integration test
-// stack, so their responses are stubbed at the fetch boundary. Hoisted so it
-// is in place before the app's Supabase client captures `fetch`. Requests
-// to anything else still reach the real local Supabase.
-vi.hoisted(() => {
-  const realFetch = globalThis.fetch;
-  const candidate = {
-    name: "Candidate Artist",
-    url: "https://open.spotify.com/artist/candidate",
-    imageUrl: null,
-    description: null,
-    followers: null,
-    genres: [],
-  };
-  const fetchedCandidate = {
-    name: "Fetched Artist",
-    url: "https://open.spotify.com/artist/fetched123",
-    imageUrl: "https://example.com/image.jpg",
-    description: "A fetched artist description",
-    followers: 1000,
-    genres: ["Electronic"],
-  };
+const candidate = {
+  name: "Candidate Artist",
+  url: "https://open.spotify.com/artist/candidate",
+  imageUrl: null,
+  description: null,
+  followers: null,
+  genres: [],
+};
 
-  globalThis.fetch = async function stubbedFetch(input, init) {
-    const url =
-      typeof input === "string"
-        ? input
-        : input instanceof URL
-          ? input.href
-          : input.url;
-    const body = typeof init?.body === "string" ? JSON.parse(init.body) : {};
+const fetchedCandidate = {
+  name: "Fetched Artist",
+  url: "https://open.spotify.com/artist/fetched123",
+  imageUrl: "https://example.com/image.jpg",
+  description: "A fetched artist description",
+  followers: 1000,
+  genres: ["Electronic"],
+};
 
-    if (url.includes("/functions/v1/search-artist-links")) {
-      // Results are matched to the wizard's artist by name, so echo the
-      // requested names back.
-      const artistNames: string[] = body.artistNames ?? [];
-      return jsonResponse({
-        results: artistNames.map((artistName) => ({
-          artistName,
-          provider: "spotify",
-          candidates: [candidate],
-        })),
-      });
-    }
-    if (url.includes("/functions/v1/fetch-artist-by-url")) {
-      return jsonResponse({ candidate: fetchedCandidate });
-    }
-    return realFetch(input, init);
-  };
-
-  function jsonResponse(payload: unknown) {
-    return new Response(JSON.stringify(payload), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
+stubEdgeFunctions(
+  // Results are matched to the wizard's artist by name, so echo the
+  // requested names back.
+  http.post("*/functions/v1/search-artist-links", async ({ request }) => {
+    const { artistNames } = (await request.json()) as { artistNames: string[] };
+    return HttpResponse.json({
+      results: artistNames.map((artistName) => ({
+        artistName,
+        provider: "spotify",
+        candidates: [candidate],
+      })),
     });
-  }
-});
+  }),
+  http.post("*/functions/v1/fetch-artist-by-url", () =>
+    HttpResponse.json({ candidate: fetchedCandidate }),
+  ),
+);
 
 async function loadArtistWithSets(artistId: string): Promise<ArtistWithSets> {
   const { data, error } = await testSupabase

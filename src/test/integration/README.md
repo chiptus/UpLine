@@ -30,8 +30,8 @@ tier doesn't need to duplicate it.
 **The one narrow exception:** mocking at the fetch/network boundary is
 permitted only for conditions that are impractical to reproduce for real —
 genuine network unreachability, a timeout, a malformed response from a
-misbehaving server. Even then, mock `fetch` (or an equivalent network
-seam), never the Supabase client or a hook itself — the code under test
+misbehaving server. Even then, stub the network (`stubEdgeFunctions` in
+`edgeFunctionStubs.ts` wraps msw for Edge Function responses), never the Supabase client or a hook itself — the code under test
 must still run its real query/mutation logic against a fake transport, not
 have that logic replaced outright.
 

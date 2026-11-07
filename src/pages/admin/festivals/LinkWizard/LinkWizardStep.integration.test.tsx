@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { http, HttpResponse } from "msw";
 import { LinkWizardStep } from "./LinkWizardStep";
 import type { ArtistWithSets } from "@/api/artists/useArtistsMissingLinksByEdition";
 import {
@@ -10,58 +11,43 @@ import {
 import { signInAsTestUser } from "@/test/integration/fixtures/auth";
 import { createArtist } from "@/test/integration/fixtures/artists";
 import { grantAdminRole } from "@/test/integration/fixtures/adminRoles";
+import { stubEdgeFunctions } from "@/test/integration/edgeFunctionStubs";
 
-// The Link Wizard's candidate search hits a search-links Edge Function that
-// the integration test stack doesn't serve. This test isolates the save
-// path it's targeting by stubbing search results instead.
-vi.mock("@/api/artistSearch/useSearchArtistLinksQuery", () => ({
-  useSearchArtistLinksQuery: (artistNames: string[]) => ({
-    data: artistNames.length
-      ? {
-          results: artistNames.map((artistName) => ({
-            artistName,
-            provider: "spotify" as const,
-            candidates: [
-              {
-                name: "Candidate Artist",
-                url: "https://open.spotify.com/artist/candidate",
-                imageUrl: null,
-                description: null,
-                followers: null,
-                genres: [],
-              },
-            ],
-          })),
-        }
-      : undefined,
-    isLoading: false,
-    isError: false,
-    error: null,
-  }),
-}));
+const candidate = {
+  name: "Candidate Artist",
+  url: "https://open.spotify.com/artist/candidate",
+  imageUrl: null,
+  description: null,
+  followers: null,
+  genres: [],
+};
 
-vi.mock("@/api/artistSearch/useFetchArtistByUrlMutation", () => ({
-  useFetchArtistByUrlMutation: () => ({
-    mutate: (
-      params: { provider: string; url: string },
-      callbacks: { onSuccess: (data: unknown) => void },
-    ) => {
-      if (params.provider === "spotify" && params.url) {
-        callbacks.onSuccess({
-          candidate: {
-            name: "Fetched Artist",
-            url: "https://open.spotify.com/artist/fetched123",
-            imageUrl: "https://example.com/image.jpg",
-            description: "A fetched artist description",
-            followers: 1000,
-            genres: ["Electronic"],
-          },
-        });
-      }
-    },
-    isPending: false,
+const fetchedCandidate = {
+  name: "Fetched Artist",
+  url: "https://open.spotify.com/artist/fetched123",
+  imageUrl: "https://example.com/image.jpg",
+  description: "A fetched artist description",
+  followers: 1000,
+  genres: ["Electronic"],
+};
+
+stubEdgeFunctions(
+  // Results are matched to the wizard's artist by name, so echo the
+  // requested names back.
+  http.post("*/functions/v1/search-artist-links", async ({ request }) => {
+    const { artistNames } = (await request.json()) as { artistNames: string[] };
+    return HttpResponse.json({
+      results: artistNames.map((artistName) => ({
+        artistName,
+        provider: "spotify",
+        candidates: [candidate],
+      })),
+    });
   }),
-}));
+  http.post("*/functions/v1/fetch-artist-by-url", () =>
+    HttpResponse.json({ candidate: fetchedCandidate }),
+  ),
+);
 
 async function loadArtistWithSets(artistId: string): Promise<ArtistWithSets> {
   const { data, error } = await testSupabase

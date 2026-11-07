@@ -19,7 +19,7 @@ interface SetsTableProps {
   onEdit: (set: FestivalSet) => void;
   onDelete: (set: FestivalSet) => void;
   editionId: string;
-  timezone?: string;
+  timezone: string;
 }
 
 export function SetsTable({
@@ -48,12 +48,10 @@ export function SetsTable({
 
   return (
     <div className="rounded-md border">
-      {timezone && (
-        <FestivalTimeHint
-          timezone={timezone}
-          className="block border-b px-4 py-2 text-muted-foreground"
-        />
-      )}
+      <FestivalTimeHint
+        timezone={timezone}
+        className="block border-b px-4 py-2 text-muted-foreground"
+      />
       <Table>
         <TableHeader>
           <TableRow>
@@ -71,12 +69,10 @@ export function SetsTable({
               <TableCell>{getStageName(set.stage_id)}</TableCell>
               <TableCell>
                 {set.time_start && set.time_end
-                  ? formatTimeRange(
-                      set.time_start,
-                      set.time_end,
-                      true,
+                  ? formatTimeRange(set.time_start, set.time_end, {
+                      use24Hour: true,
                       timezone,
-                    )
+                    })
                   : "—"}
               </TableCell>
               <TableCell>

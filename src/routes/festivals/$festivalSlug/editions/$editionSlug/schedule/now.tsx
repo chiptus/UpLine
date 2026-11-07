@@ -116,8 +116,8 @@ function SetLine({ set, timezone, live = false }: SetLineProps) {
   const use24Hour = useTimeFormat();
 
   const time = live
-    ? `until ${formatTimeOnly(set.time_end, null, use24Hour, timezone)}`
-    : `at ${formatTimeOnly(set.time_start, null, use24Hour, timezone)}`;
+    ? `until ${formatTimeOnly(set.time_end, null, { use24Hour, timezone })}`
+    : `at ${formatTimeOnly(set.time_start, null, { use24Hour, timezone })}`;
 
   return (
     <div className="flex items-center gap-2 text-sm">

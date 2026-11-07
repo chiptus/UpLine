@@ -70,6 +70,7 @@ interface LinkWizardStepProps {
   position: number;
   total: number;
   artists: Artist[];
+  timezone: string;
   onPrev: () => void;
   onNext: () => void;
   onSaveSuccess?: () => void;
@@ -80,6 +81,7 @@ export function LinkWizardStep({
   position,
   total,
   artists,
+  timezone,
   onPrev,
   onNext,
   onSaveSuccess,
@@ -113,11 +115,12 @@ export function LinkWizardStep({
         </span>
       </div>
 
-      <ArtistSetInfoPanel artist={artist} />
+      <ArtistSetInfoPanel artist={artist} timezone={timezone} />
 
       {untypedSets.length > 0 && (
         <UntypedSetsBlock
           untypedSets={untypedSets}
+          timezone={timezone}
           pendingTypes={pendingTypes}
           onPick={(setId, setType) =>
             setPendingTypes((prev) => ({ ...prev, [setId]: setType }))

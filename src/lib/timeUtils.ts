@@ -12,11 +12,18 @@ export interface FestivalDayConfig {
   dayEndHour: number;
 }
 
+export interface TimeFormatOptions {
+  use24Hour?: boolean;
+  timezone: string;
+}
+
+export type FestivalDayOptions = Pick<FestivalDayConfig, "timezone"> &
+  Partial<Pick<FestivalDayConfig, "dayEndHour">>;
+
 export function formatTimeRange(
   startTime: string | null,
   endTime: string | null,
-  use24Hour: boolean = false,
-  timezone?: string,
+  { use24Hour = false, timezone }: TimeFormatOptions,
 ): string | null {
   if (!startTime && !endTime) return null;
 
@@ -33,9 +40,7 @@ export function formatTimeRange(
   const dateTimeFormat = use24Hour ? "MMM d, HH:mm" : "MMM d, h:mm a";
 
   function formatWith(date: Date, dateFormat: string) {
-    return timezone
-      ? formatInTimeZone(date, timezone, dateFormat)
-      : format(date, dateFormat);
+    return formatInTimeZone(date, timezone, dateFormat);
   }
 
   // Only start time
@@ -74,8 +79,7 @@ export function formatTimeRange(
 
 export function formatDateTime(
   dateTime: string | null,
-  use24Hour: boolean = false,
-  timezone?: string,
+  { use24Hour = false, timezone }: TimeFormatOptions,
 ): string | null {
   if (!dateTime) return null;
 
@@ -83,15 +87,13 @@ export function formatDateTime(
   if (!isValid(date)) return null;
 
   const dateTimeFormat = use24Hour ? "MMM d, HH:mm" : "MMM d, h:mm a";
-  if (timezone) return formatInTimeZone(date, timezone, dateTimeFormat);
-  return format(date, dateTimeFormat);
+  return formatInTimeZone(date, timezone, dateTimeFormat);
 }
 
 export function formatTimeOnly(
   startTime: string | null,
   endTime: string | null,
-  use24Hour: boolean = false,
-  timezone?: string,
+  { use24Hour = false, timezone }: TimeFormatOptions,
 ): string | null {
   if (!startTime) return null;
 
@@ -102,9 +104,7 @@ export function formatTimeOnly(
 
   const timeFormat = use24Hour ? "HH:mm" : "h:mm a";
   function formatTime(date: Date) {
-    return timezone
-      ? formatInTimeZone(date, timezone, timeFormat)
-      : format(date, timeFormat);
+    return formatInTimeZone(date, timezone, timeFormat);
   }
 
   if (end && isValid(end)) {
@@ -177,14 +177,13 @@ export function combineDateAndTime(
 
 export function formatDateOnly(
   dateTime: string | null,
-  timezone?: string,
+  timezone: string,
 ): string | null {
   if (!dateTime) return null;
   const date = parseISO(dateTime);
   if (!isValid(date)) return null;
   const dateFormat = "MMM d, yyyy";
-  if (timezone) return formatInTimeZone(date, timezone, dateFormat);
-  return format(date, dateFormat);
+  return formatInTimeZone(date, timezone, dateFormat);
 }
 
 /** Shifts an instant back by dayEndHour so pre-cutoff times fall on the previous festival day. */
@@ -194,7 +193,7 @@ function shiftForDayEnd(date: Date, dayEndHour: number): Date {
 
 export function formatDayOnly(
   dateTime: string | null,
-  config: Partial<FestivalDayConfig> = {},
+  config: FestivalDayOptions,
 ): string | null {
   const { timezone, dayEndHour = 0 } = config;
   if (!dateTime) return null;
@@ -202,22 +201,20 @@ export function formatDayOnly(
   if (!isValid(date)) return null;
   const shifted = shiftForDayEnd(date, dayEndHour);
   const dayFormat = "EEE, MMM d";
-  if (timezone) return formatInTimeZone(shifted, timezone, dayFormat);
-  return format(shifted, dayFormat);
+  return formatInTimeZone(shifted, timezone, dayFormat);
 }
 
 /** Festival-timezone calendar day (yyyy-MM-dd) of an instant; times before dayEndHour fall on the previous day. */
 export function getFestivalDayKey(
   dateTime: string | null,
-  config: Partial<FestivalDayConfig> = {},
+  config: FestivalDayOptions,
 ): string | null {
   const { timezone, dayEndHour = 0 } = config;
   if (!dateTime) return null;
   const date = parseISO(dateTime);
   if (!isValid(date)) return null;
   const shifted = shiftForDayEnd(date, dayEndHour);
-  if (timezone) return formatInTimeZone(shifted, timezone, "yyyy-MM-dd");
-  return format(shifted, "yyyy-MM-dd");
+  return formatInTimeZone(shifted, timezone, "yyyy-MM-dd");
 }
 
 /** The UTC instant a festival day-key starts: the day-end hour in the festival timezone. */
@@ -263,13 +260,12 @@ export function areFestivalDaysAdjacent(
 // timezone, for time-of-day filters (morning/afternoon/evening).
 export function getFestivalHour(
   dateTime: string | null,
-  timezone?: string,
+  timezone: string,
 ): number | null {
   if (!dateTime) return null;
   const date = parseISO(dateTime);
   if (!isValid(date)) return null;
-  if (timezone) return Number(formatInTimeZone(date, timezone, "H"));
-  return date.getHours();
+  return Number(formatInTimeZone(date, timezone, "H"));
 }
 
 export function convertLocalTimeToUTC(

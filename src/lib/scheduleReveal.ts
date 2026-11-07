@@ -2,7 +2,7 @@ import type { Database } from "@/integrations/supabase/types";
 import {
   formatDayOnly,
   formatTimeRange,
-  type FestivalDayConfig,
+  type FestivalDayOptions,
 } from "@/lib/timeUtils";
 
 export type RevealLevel = Database["public"]["Enums"]["schedule_reveal_level"];
@@ -60,19 +60,17 @@ export function computeRevealLabels(
   }: {
     level: RevealLevel;
     use24Hour: boolean;
-    dayConfig: Partial<FestivalDayConfig>;
+    dayConfig: FestivalDayOptions;
   },
 ): RevealLabels {
   const stageId = canShowStage(level) ? set.stage_id : null;
   const isTba = set.status === "tba";
 
   if (canShowTime(level) && !isTba) {
-    const timeLabel = formatTimeRange(
-      set.time_start,
-      set.time_end,
+    const timeLabel = formatTimeRange(set.time_start, set.time_end, {
       use24Hour,
-      dayConfig.timezone,
-    );
+      timezone: dayConfig.timezone,
+    });
     return timeLabel ? { timeLabel, stageId } : { stageId };
   }
 

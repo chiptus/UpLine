@@ -18,7 +18,7 @@ interface TimeSlot {
 interface ListDayGroupProps {
   dayKey: string;
   slots: TimeSlot[];
-  timezone?: string;
+  timezone: string;
 }
 
 // The section is the sticky containing block, so the header stays docked

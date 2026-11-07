@@ -8,6 +8,6 @@ export const Route = createFileRoute(
 });
 
 function FestivalLinks() {
-  const { edition } = Route.useRouteContext();
-  return <LinkWizard editionId={edition.id} />;
+  const { edition, festival } = Route.useRouteContext();
+  return <LinkWizard editionId={edition.id} timezone={festival.timezone} />;
 }

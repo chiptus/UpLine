@@ -10,6 +10,7 @@ import { UntypedSetsBlock } from "./UntypedSetsBlock";
 
 interface SetTypeBackfillStepProps {
   set: ArtistSetWithCoPerformers;
+  timezone: string;
   position: number;
   total: number;
   onPrev: () => void;
@@ -19,6 +20,7 @@ interface SetTypeBackfillStepProps {
 
 export function SetTypeBackfillStep({
   set,
+  timezone,
   position,
   total,
   onPrev,
@@ -41,12 +43,13 @@ export function SetTypeBackfillStep({
           <CardTitle className="text-base">{set.name} - Set Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <ArtistSetCard set={set} />
+          <ArtistSetCard set={set} timezone={timezone} />
         </CardContent>
       </Card>
 
       <UntypedSetsBlock
         untypedSets={[set]}
+        timezone={timezone}
         pendingTypes={pendingType ? { [set.id]: pendingType } : {}}
         onPick={(_setId, setType) => setPendingType(setType)}
       />

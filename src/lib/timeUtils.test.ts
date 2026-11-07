@@ -16,19 +16,25 @@ import {
   getFestivalHour,
 } from "./timeUtils";
 
+const TZ = "Europe/Lisbon";
+
 describe("formatTimeRange", () => {
   it("returns null when both times are null", () => {
-    expect(formatTimeRange(null, null)).toBeNull();
+    expect(formatTimeRange(null, null, { timezone: TZ })).toBeNull();
   });
 
   it("formats start time only", () => {
-    const result = formatTimeRange("2024-12-15T14:00:00Z", null);
+    const result = formatTimeRange("2024-12-15T14:00:00Z", null, {
+      timezone: TZ,
+    });
     expect(result).toContain("Starts:");
     expect(result).toContain("Dec 15");
   });
 
   it("formats end time only", () => {
-    const result = formatTimeRange(null, "2024-12-15T16:00:00Z");
+    const result = formatTimeRange(null, "2024-12-15T16:00:00Z", {
+      timezone: TZ,
+    });
     expect(result).toContain("Ends:");
     expect(result).toContain("Dec 15");
   });
@@ -37,6 +43,7 @@ describe("formatTimeRange", () => {
     const result = formatTimeRange(
       "2024-12-15T14:00:00Z",
       "2024-12-15T16:00:00Z",
+      { timezone: TZ },
     );
     expect(result).toBeTruthy();
     expect(result).toContain("-");
@@ -46,7 +53,7 @@ describe("formatTimeRange", () => {
     const result = formatTimeRange(
       "2024-12-15T14:00:00Z",
       "2024-12-15T16:00:00Z",
-      true,
+      { use24Hour: true, timezone: TZ },
     );
     expect(result).toBeTruthy();
     expect(result).toContain("-");
@@ -57,23 +64,30 @@ describe("formatTimeRange", () => {
     const result = formatTimeRange(
       "2024-12-15T10:00:00Z",
       "2024-12-16T14:00:00Z",
+      { timezone: TZ },
     );
     expect(result).toContain("Dec 15");
     expect(result).toContain("Dec 16");
   });
 
   it("returns null for invalid start time", () => {
-    const result = formatTimeRange("invalid", "2024-12-15T16:00:00Z");
+    const result = formatTimeRange("invalid", "2024-12-15T16:00:00Z", {
+      timezone: TZ,
+    });
     expect(result).toContain("Ends:");
   });
 
   it("returns null for invalid end time", () => {
-    const result = formatTimeRange("2024-12-15T14:00:00Z", "invalid");
+    const result = formatTimeRange("2024-12-15T14:00:00Z", "invalid", {
+      timezone: TZ,
+    });
     expect(result).toContain("Starts:");
   });
 
   it("returns null for both invalid times", () => {
-    expect(formatTimeRange("invalid", "also-invalid")).toBeNull();
+    expect(
+      formatTimeRange("invalid", "also-invalid", { timezone: TZ }),
+    ).toBeNull();
   });
 
   it("formats in the given timezone instead of the browser zone", () => {
@@ -81,14 +95,12 @@ describe("formatTimeRange", () => {
     const lisbon = formatTimeRange(
       "2024-12-15T14:00:00Z",
       "2024-12-15T16:00:00Z",
-      true,
-      "Europe/Lisbon",
+      { use24Hour: true, timezone: "Europe/Lisbon" },
     );
     const newYork = formatTimeRange(
       "2024-12-15T14:00:00Z",
       "2024-12-15T16:00:00Z",
-      true,
-      "America/New_York",
+      { use24Hour: true, timezone: "America/New_York" },
     );
     expect(lisbon).toBe("Dec 15, 14:00 - 16:00");
     expect(newYork).toBe("Dec 15, 09:00 - 11:00");
@@ -97,39 +109,40 @@ describe("formatTimeRange", () => {
   it("includes the end date when the range crosses midnight in the given timezone but not in UTC", () => {
     // 06:00Z-08:00Z is one UTC day but Jul 10 23:00 - Jul 11 01:00 in Los Angeles (UTC-7).
     expect(
-      formatTimeRange(
-        "2026-07-11T06:00:00Z",
-        "2026-07-11T08:00:00Z",
-        true,
-        "America/Los_Angeles",
-      ),
+      formatTimeRange("2026-07-11T06:00:00Z", "2026-07-11T08:00:00Z", {
+        use24Hour: true,
+        timezone: "America/Los_Angeles",
+      }),
     ).toBe("Jul 10, 23:00 - Jul 11, 01:00");
   });
 });
 
 describe("formatDateTime", () => {
   it("returns null for null input", () => {
-    expect(formatDateTime(null)).toBeNull();
+    expect(formatDateTime(null, { timezone: TZ })).toBeNull();
   });
 
   it("formats date and time in 12-hour format", () => {
-    const result = formatDateTime("2024-12-15T14:30:00Z");
+    const result = formatDateTime("2024-12-15T14:30:00Z", { timezone: TZ });
     expect(result).toContain("Dec 15");
   });
 
   it("formats date and time in 24-hour format", () => {
-    const result = formatDateTime("2024-12-15T14:30:00Z", true);
+    const result = formatDateTime("2024-12-15T14:30:00Z", {
+      use24Hour: true,
+      timezone: TZ,
+    });
     expect(result).toContain("Dec 15");
     expect(result).toMatch(/\d{2}:\d{2}/);
   });
 
   it("returns null for invalid date", () => {
-    expect(formatDateTime("invalid-date")).toBeNull();
+    expect(formatDateTime("invalid-date", { timezone: TZ })).toBeNull();
   });
 
   it("handles different months", () => {
-    const jan = formatDateTime("2024-01-15T14:00:00Z");
-    const jun = formatDateTime("2024-06-15T14:00:00Z");
+    const jan = formatDateTime("2024-01-15T14:00:00Z", { timezone: TZ });
+    const jun = formatDateTime("2024-06-15T14:00:00Z", { timezone: TZ });
     expect(jan).toContain("Jan");
     expect(jun).toContain("Jun");
   });
@@ -137,16 +150,21 @@ describe("formatDateTime", () => {
 
 describe("formatTimeOnly", () => {
   it("returns null for null start time", () => {
-    expect(formatTimeOnly(null, null)).toBeNull();
+    expect(formatTimeOnly(null, null, { timezone: TZ })).toBeNull();
   });
 
   it("formats single time in 12-hour format", () => {
-    const result = formatTimeOnly("2024-12-15T14:30:00Z", null);
+    const result = formatTimeOnly("2024-12-15T14:30:00Z", null, {
+      timezone: TZ,
+    });
     expect(result).toBeTruthy();
   });
 
   it("formats single time in 24-hour format", () => {
-    const result = formatTimeOnly("2024-12-15T14:30:00Z", null, true);
+    const result = formatTimeOnly("2024-12-15T14:30:00Z", null, {
+      use24Hour: true,
+      timezone: TZ,
+    });
     expect(result).toMatch(/\d{2}:\d{2}/);
   });
 
@@ -154,6 +172,7 @@ describe("formatTimeOnly", () => {
     const result = formatTimeOnly(
       "2024-12-15T14:00:00Z",
       "2024-12-15T16:00:00Z",
+      { timezone: TZ },
     );
     expect(result).toContain("-");
   });
@@ -162,36 +181,34 @@ describe("formatTimeOnly", () => {
     const result = formatTimeOnly(
       "2024-12-15T14:00:00Z",
       "2024-12-15T16:00:00Z",
-      true,
+      { use24Hour: true, timezone: TZ },
     );
     expect(result).toContain("-");
     expect(result).toMatch(/\d{2}:\d{2}/);
   });
 
   it("returns null for invalid start time", () => {
-    expect(formatTimeOnly("invalid", null)).toBeNull();
+    expect(formatTimeOnly("invalid", null, { timezone: TZ })).toBeNull();
   });
 
   it("handles invalid end time gracefully", () => {
-    const result = formatTimeOnly("2024-12-15T14:00:00Z", "invalid");
+    const result = formatTimeOnly("2024-12-15T14:00:00Z", "invalid", {
+      timezone: TZ,
+    });
     expect(result).toBeTruthy();
     expect(result).not.toContain("-");
   });
 
   it("formats in the given timezone instead of the browser zone", () => {
     // 14:00 UTC is 14:00 in Lisbon (WET, UTC+0 in December) and 09:00 in New York (UTC-5).
-    const lisbon = formatTimeOnly(
-      "2024-12-15T14:00:00Z",
-      null,
-      true,
-      "Europe/Lisbon",
-    );
-    const newYork = formatTimeOnly(
-      "2024-12-15T14:00:00Z",
-      null,
-      true,
-      "America/New_York",
-    );
+    const lisbon = formatTimeOnly("2024-12-15T14:00:00Z", null, {
+      use24Hour: true,
+      timezone: "Europe/Lisbon",
+    });
+    const newYork = formatTimeOnly("2024-12-15T14:00:00Z", null, {
+      use24Hour: true,
+      timezone: "America/New_York",
+    });
     expect(lisbon).toBe("14:00");
     expect(newYork).toBe("09:00");
   });
@@ -437,10 +454,6 @@ describe("getFestivalDayKey", () => {
     });
     expect(lisbon).toBe("2024-07-16");
     expect(newYork).toBe("2024-07-15");
-  });
-
-  it("falls back to UTC calendar day when no timezone is given", () => {
-    expect(getFestivalDayKey("2024-12-15T23:30:00Z")).toBe("2024-12-15");
   });
 
   it("with dayEndHour 0 behaves identically to the default (no cutoff)", () => {

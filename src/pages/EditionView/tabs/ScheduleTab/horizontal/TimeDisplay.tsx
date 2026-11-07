@@ -1,6 +1,6 @@
 import { Clock } from "lucide-react";
 import { formatInTimeZone } from "date-fns-tz";
-import { formatTimeOnly } from "@/lib/timeUtils";
+import { formatTimeOnly, type TimeFormatOptions } from "@/lib/timeUtils";
 import { useTimeFormat } from "@/hooks/useTimeFormat";
 import { useMemo } from "react";
 
@@ -13,8 +13,7 @@ interface TimeDisplayProps {
 function formatCompactTime(
   startTime: Date,
   endTime: Date,
-  use24Hour: boolean,
-  timezone: string,
+  { use24Hour, timezone }: TimeFormatOptions,
 ): string {
   const hourFormat = use24Hour ? "H" : "h a";
   const hourMinuteFormat = use24Hour ? "H:mm" : "h:mm a";
@@ -50,13 +49,11 @@ export function TimeDisplay({
       <Clock className="h-3 w-3 flex-shrink-0" />
       <span className="text-xs whitespace-nowrap overflow-hidden text-ellipsis">
         {useCompact
-          ? formatCompactTime(startTime, endTime, use24Hour, timezone)
-          : formatTimeOnly(
-              startTime.toISOString(),
-              endTime.toISOString(),
+          ? formatCompactTime(startTime, endTime, { use24Hour, timezone })
+          : formatTimeOnly(startTime.toISOString(), endTime.toISOString(), {
               use24Hour,
               timezone,
-            )}
+            })}
       </span>
     </div>
   );

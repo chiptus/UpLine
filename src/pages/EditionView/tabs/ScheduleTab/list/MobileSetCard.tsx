@@ -13,7 +13,7 @@ import type { ScheduleSet } from "@/hooks/useScheduleData";
 
 interface MobileSetCardProps {
   set: ScheduleSet & { stageName: string; stageColor?: string | undefined };
-  timezone?: string | undefined;
+  timezone: string;
 }
 
 export function MobileSetCard({ set, timezone }: MobileSetCardProps) {
@@ -68,8 +68,7 @@ export function MobileSetCard({ set, timezone }: MobileSetCardProps) {
                 {formatTimeOnly(
                   set.startTime.toISOString(),
                   set.endTime.toISOString(),
-                  use24Hour,
-                  timezone,
+                  { use24Hour, timezone },
                 )}
               </span>
             </div>

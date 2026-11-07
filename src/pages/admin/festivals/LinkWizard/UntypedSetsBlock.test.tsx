@@ -23,6 +23,7 @@ describe("UntypedSetsBlock", () => {
     render(
       <UntypedSetsBlock
         untypedSets={[makeSet("s1", "Morning Yoga")]}
+        timezone="Europe/Lisbon"
         pendingTypes={{}}
         onPick={vi.fn()}
       />,
@@ -40,6 +41,7 @@ describe("UntypedSetsBlock", () => {
     render(
       <UntypedSetsBlock
         untypedSets={[makeSet("s1", "Morning Yoga")]}
+        timezone="Europe/Lisbon"
         pendingTypes={{}}
         onPick={onPick}
       />,
@@ -54,6 +56,7 @@ describe("UntypedSetsBlock", () => {
     render(
       <UntypedSetsBlock
         untypedSets={[makeSet("s1", "Morning Yoga")]}
+        timezone="Europe/Lisbon"
         pendingTypes={{ s1: "performance" }}
         onPick={vi.fn()}
       />,
@@ -74,6 +77,7 @@ describe("UntypedSetsBlock", () => {
     render(
       <UntypedSetsBlock
         untypedSets={[makeSet("s1", "Set One"), makeSet("s2", "Set Two")]}
+        timezone="Europe/Lisbon"
         pendingTypes={{}}
         onPick={onPick}
       />,

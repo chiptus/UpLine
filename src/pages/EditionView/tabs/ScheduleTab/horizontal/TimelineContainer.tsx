@@ -16,6 +16,7 @@ import { useTimelineScrollSync } from "@/hooks/useTimelineScrollSync";
 import { jumpToTimelineMoment } from "@/lib/timelineDayJump";
 import { useActiveTimelineDay } from "@/hooks/useActiveTimelineDay";
 import { useScrollLeft } from "./useScrollLeft";
+import { useElementHeight } from "./useElementHeight";
 import type { FestivalDayConfig } from "@/lib/timeUtils";
 
 interface TimelineContainerProps {
@@ -38,6 +39,7 @@ export function TimelineContainer({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isOverviewExpanded, setIsOverviewExpanded] = useState(false);
   const scrollLeft = useScrollLeft(scrollContainerRef);
+  const [toolbarRef, toolbarHeight] = useElementHeight();
 
   useTimelineScrollSync({
     scrollContainerRef,
@@ -82,6 +84,7 @@ export function TimelineContainer({
         onToggleOverview={() => setIsOverviewExpanded((prev) => !prev)}
         showNowButton={showNowButton}
         onJumpToNow={() => jumpTo(now)}
+        toolbarRef={toolbarRef}
       />
       {isOverviewExpanded && (
         <TimelineOverview
@@ -96,6 +99,7 @@ export function TimelineContainer({
         timelineData={timelineData}
         dayConfig={dayConfig}
         scrollLeft={scrollLeft}
+        toolbarHeight={toolbarHeight}
       />
 
       <div className="relative">

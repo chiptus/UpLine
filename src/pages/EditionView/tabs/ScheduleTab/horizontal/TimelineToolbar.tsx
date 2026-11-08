@@ -21,6 +21,7 @@ interface TimelineToolbarProps {
   onToggleOverview: () => void;
   showNowButton: boolean;
   onJumpToNow: () => void;
+  toolbarRef: (el: HTMLElement | null) => void;
 }
 
 // Width of the edge-fade hinting that the day row scrolls further that way.
@@ -40,6 +41,7 @@ export function TimelineToolbar({
   onToggleOverview,
   showNowButton,
   onJumpToNow,
+  toolbarRef,
 }: TimelineToolbarProps) {
   const dayRowRef = useRef<HTMLDivElement>(null);
 
@@ -60,6 +62,7 @@ export function TimelineToolbar({
 
   return (
     <div
+      ref={toolbarRef}
       data-testid="timeline-day-toolbar"
       role="toolbar"
       aria-label="Timeline navigation"

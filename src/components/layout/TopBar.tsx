@@ -33,8 +33,7 @@ export function TopBar({
           isMobile={isMobile}
         />
       </div>
-      <div className={TOP_BAR_SPACER_CLASS} />{" "}
-      {/* Spacer to offset fixed top bar */}
+      <div className={TOP_BAR_SPACER_CLASS} />
     </>
   );
 }

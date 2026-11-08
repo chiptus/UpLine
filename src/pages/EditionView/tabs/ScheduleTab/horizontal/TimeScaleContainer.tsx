@@ -1,10 +1,6 @@
 import type { CSSProperties } from "react";
 import { TimeScale } from "./TimeScale";
 import type { TimelineData } from "@/lib/timelineCalculator";
-import {
-  HEADER_STRIP_TOP_CLASS,
-  TIMELINE_TOOLBAR_HEIGHT_CSS_VAR,
-} from "@/lib/layout-constants";
 import { cn } from "@/lib/utils";
 import type { FestivalDayConfig } from "@/lib/timeUtils";
 
@@ -25,12 +21,12 @@ export function TimeScaleContainer({
     <div
       style={
         {
-          [TIMELINE_TOOLBAR_HEIGHT_CSS_VAR]: `${toolbarHeight}px`,
+          "--timeline-toolbar-height": `${toolbarHeight}px`,
         } as CSSProperties
       }
       className={cn(
         "sticky z-30 overflow-hidden rounded-b-lg bg-popover",
-        HEADER_STRIP_TOP_CLASS,
+        "top-[calc(theme(spacing.top-bar)+theme(spacing.timeline-toolbar))]",
       )}
     >
       <div

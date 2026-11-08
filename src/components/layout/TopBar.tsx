@@ -2,7 +2,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { AppBranding } from "./AppHeader/AppBranding";
 import { UserActions } from "./AppHeader/UserActions";
 import { PropsWithChildren } from "react";
-import { TOP_BAR_SPACER_CLASS } from "@/lib/layout-constants";
 
 interface TopBarProps {
   showBackButton?: boolean;
@@ -33,7 +32,7 @@ export function TopBar({
           isMobile={isMobile}
         />
       </div>
-      <div className={TOP_BAR_SPACER_CLASS} />
+      <div className="h-top-bar" />
     </>
   );
 }

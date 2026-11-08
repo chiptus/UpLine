@@ -19,6 +19,12 @@ export default {
       },
     },
     extend: {
+      // Backed by CSS vars so the fixed top bar's height (index.css) and the
+      // measured timeline toolbar height (TimeScaleContainer) have one source.
+      spacing: {
+        "top-bar": "var(--top-bar-height)",
+        "timeline-toolbar": "var(--timeline-toolbar-height, 0px)",
+      },
       fontFamily: {
         sans: ['"Space Grotesk"', '"Segoe UI"', "system-ui", "sans-serif"],
         display: ["Unbounded", '"Arial Black"', "system-ui", "sans-serif"],

@@ -7,7 +7,6 @@ import { ScheduleFilterSheet } from "../ScheduleFilterSheet";
 import { VoteFilterChips } from "../VoteFilterChips";
 import type { ScheduleDay } from "@/hooks/useScheduleData";
 import { useScrollEdgeFade } from "./useScrollEdgeFade";
-import { STICKY_TOP_BELOW_TOP_BAR_CLASS } from "@/lib/layout-constants";
 import { cn } from "@/lib/utils";
 import type { FestivalDayConfig } from "@/lib/timeUtils";
 
@@ -68,7 +67,7 @@ export function TimelineToolbar({
       aria-label="Timeline navigation"
       className={cn(
         "sticky z-40 mb-4 flex items-end gap-1 rounded-lg border border-border bg-popover px-2 pb-2.5 pt-2 backdrop-blur-md",
-        STICKY_TOP_BELOW_TOP_BAR_CLASS,
+        "top-top-bar",
       )}
     >
       <div

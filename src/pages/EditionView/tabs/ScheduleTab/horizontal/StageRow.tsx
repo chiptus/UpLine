@@ -1,5 +1,4 @@
 import { SetBlock } from "./SetBlock";
-import { SCROLL_MT_BELOW_TOP_BAR_CLASS } from "@/lib/layout-constants";
 import { cn } from "@/lib/utils";
 import type { HorizontalTimelineSet } from "@/lib/timelineCalculator";
 
@@ -31,7 +30,7 @@ export function StageRow({ stage, totalWidth, timezone }: StageRowProps) {
             <div
               key={set.id}
               // scrollIntoView shouldn't leave the block hidden under the top bar.
-              className={cn("absolute h-16", SCROLL_MT_BELOW_TOP_BAR_CLASS)}
+              className={cn("absolute h-16", "scroll-mt-top-bar")}
               style={{
                 left: `${set.horizontalPosition.left}px`,
                 width: `${set.horizontalPosition.width - 4}px`, // Reduce width by 4px for spacing

@@ -1,4 +1,3 @@
-import { STICKY_TOP_BELOW_TOP_BAR_CLASS } from "@/lib/layout-constants";
 import { cn } from "@/lib/utils";
 import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
 import { useParams, Link, Outlet } from "@tanstack/react-router";
@@ -80,7 +79,7 @@ function FestivalEdition() {
         <div
           className={cn(
             "sticky z-10 grid w-full grid-cols-5 gap-2 bg-surface-raised backdrop-blur-md p-1 rounded-lg",
-            STICKY_TOP_BELOW_TOP_BAR_CLASS,
+            "top-top-bar",
           )}
         >
           <EditionNavLink

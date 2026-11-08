@@ -51,7 +51,8 @@
 
 @layer base {
   /* Height of the fixed top bar. Single source for TopBar's spacer and every
-     sticky/scroll-margin offset docking below it (see layout-constants.ts). */
+     sticky/scroll-margin offset docking below it (`top-bar` spacing token in
+     tailwind.config.ts). */
   :root {
     --top-bar-height: 4rem;
   }

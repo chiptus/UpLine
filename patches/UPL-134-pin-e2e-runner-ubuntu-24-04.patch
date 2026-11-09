@@ -1,0 +1,38 @@
+From 8436dae6cf36ef5e72a28684b8c7365aaf14dc72 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Mon, 9 Nov 2026 14:31:38 +0000
+Subject: [PATCH] ci(e2e): pin e2e runner to ubuntu-24.04
+
+ubuntu-latest now resolves to 26.04, which Playwright 1.55.1 can't
+install WebKit system libraries on. install-deps logs an error but
+exits 0, so WebKit and Mobile Safari fail at launch on every nightly
+shard while chromium/firefox pass.
+
+UPL-134
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01TL8Ypzz6KfPtaWEy6Dr7m7
+---
+ .github/workflows/e2e-run.yml | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/.github/workflows/e2e-run.yml b/.github/workflows/e2e-run.yml
+index 6e342d0..c210b7e 100644
+--- a/.github/workflows/e2e-run.yml
++++ b/.github/workflows/e2e-run.yml
+@@ -17,7 +17,11 @@ on:
+ jobs:
+   run:
+     timeout-minutes: 60
+-    runs-on: ubuntu-latest
++    # Pinned: ubuntu-latest moved to 26.04, which this Playwright version can't
++    # install WebKit's system libraries on (`install-deps` prints an error but
++    # exits 0), so every WebKit/Mobile Safari test failed at browser launch.
++    # Unpin once the Playwright version supports the newer image.
++    runs-on: ubuntu-24.04
+     env:
+       VITE_SUPABASE_URL: http://127.0.0.1:54321
+       VITE_SUPABASE_PUBLISHABLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+-- 
+2.43.0
+

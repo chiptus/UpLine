@@ -60,11 +60,10 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps ${{ inputs.browsers != 'all' && inputs.browsers || '' }}
 
-      - name: Setup Supabase
-        run: |
-          pnpm exec supabase start -x realtime,storage-api,imgproxy,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
-          sleep 10
-          pnpm exec supabase db reset
+      # `supabase start` on a fresh container already applies migrations and
+      # seed.sql, so a following `db reset` would just redo that work.
+      - name: Start Supabase
+        run: pnpm exec supabase start -x realtime,storage-api,imgproxy,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
 
       - name: Build project
         run: pnpm run build

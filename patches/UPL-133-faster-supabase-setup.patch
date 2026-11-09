@@ -1,0 +1,77 @@
+From db3039b0a1122e4977eb7691be1bb13291aaa138 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Mon, 9 Nov 2026 05:39:40 +0000
+Subject: [PATCH] ci(e2e): drop redundant supabase db reset and smoke retries
+
+supabase start on a fresh container already applies migrations and
+seed.sql, so the db reset + sleep 10 that followed redid that work in
+every e2e shard and integration job (~2 min of a ~6 min job).
+
+Also drops smoke retries from 2 to 0 so flakes surface.
+
+UPL-133, UPL-130
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01TL8Ypzz6KfPtaWEy6Dr7m7
+---
+ .github/workflows/e2e-run.yml         | 9 ++++-----
+ .github/workflows/e2e-smoke.yml       | 2 +-
+ .github/workflows/integration-run.yml | 9 ++++-----
+ 3 files changed, 9 insertions(+), 11 deletions(-)
+
+diff --git a/.github/workflows/e2e-run.yml b/.github/workflows/e2e-run.yml
+index f46db5c..6e342d0 100644
+--- a/.github/workflows/e2e-run.yml
++++ b/.github/workflows/e2e-run.yml
+@@ -60,11 +60,10 @@ jobs:
+         if: steps.playwright-cache.outputs.cache-hit == 'true'
+         run: npx playwright install-deps ${{ inputs.browsers != 'all' && inputs.browsers || '' }}
+ 
+-      - name: Setup Supabase
+-        run: |
+-          pnpm exec supabase start -x realtime,storage-api,imgproxy,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+-          sleep 10
+-          pnpm exec supabase db reset
++      # `supabase start` on a fresh container already applies migrations and
++      # seed.sql, so a following `db reset` would just redo that work.
++      - name: Start Supabase
++        run: pnpm exec supabase start -x realtime,storage-api,imgproxy,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+ 
+       - name: Build project
+         run: pnpm run build
+diff --git a/.github/workflows/e2e-smoke.yml b/.github/workflows/e2e-smoke.yml
+index 62c6b51..2adef84 100644
+--- a/.github/workflows/e2e-smoke.yml
++++ b/.github/workflows/e2e-smoke.yml
+@@ -21,7 +21,7 @@ jobs:
+     if: "((github.event.action != 'labeled' && github.event.action != 'unlabeled') || github.event.label.name == 'full-e2e') && (github.event_name != 'pull_request' || !contains(github.event.pull_request.labels.*.name, 'full-e2e'))"
+     uses: ./.github/workflows/e2e-run.yml
+     with:
+-      test-args: "--project=chromium --retries=2 --grep @smoke"
++      test-args: "--project=chromium --retries=0 --grep @smoke"
+       artifact-name: smoke-blob-report
+       browsers: chromium
+ 
+diff --git a/.github/workflows/integration-run.yml b/.github/workflows/integration-run.yml
+index 4a7aca7..2f6200d 100644
+--- a/.github/workflows/integration-run.yml
++++ b/.github/workflows/integration-run.yml
+@@ -21,11 +21,10 @@ jobs:
+       - name: Install dependencies
+         run: pnpm install --frozen-lockfile
+ 
+-      - name: Setup Supabase
+-        run: |
+-          pnpm exec supabase start -x realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+-          sleep 10
+-          pnpm exec supabase db reset
++      # `supabase start` on a fresh container already applies migrations and
++      # seed.sql, so a following `db reset` would just redo that work.
++      - name: Start Supabase
++        run: pnpm exec supabase start -x realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+ 
+       - name: Run integration tests
+         run: pnpm test:integration
+-- 
+2.43.0
+

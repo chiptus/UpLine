@@ -21,7 +21,7 @@ jobs:
     if: "((github.event.action != 'labeled' && github.event.action != 'unlabeled') || github.event.label.name == 'full-e2e') && (github.event_name != 'pull_request' || !contains(github.event.pull_request.labels.*.name, 'full-e2e'))"
     uses: ./.github/workflows/e2e-run.yml
     with:
-      test-args: "--project=chromium --retries=2 --grep @smoke"
+      test-args: "--project=chromium --retries=0 --grep @smoke"
       artifact-name: smoke-blob-report
       browsers: chromium
 

@@ -1,9 +1,9 @@
 import type { Locator } from "@playwright/test";
 
-// Frames of unchanged scrollLeft that must pass before the scroll counts as
-// idle. 24 frames is ~400ms at 60Hz, longer than the 300ms scrollTo debounce,
-// so the debounced URL write has fired by the time this resolves.
-const IDLE_FRAMES = 24;
+// Longer than the 300ms scrollTo debounce, so the debounced URL write has
+// fired by the time the scroll counts as idle. Time-based rather than
+// frame-based so it holds on high-refresh displays.
+const IDLE_MS = 400;
 
 /**
  * Resolves once the container's horizontal scroll position has stopped
@@ -11,18 +11,17 @@ const IDLE_FRAMES = 24;
  */
 export async function waitForScrollIdle(scrollContainer: Locator) {
   await scrollContainer.evaluate(
-    (el, idleFrames) =>
+    (el, idleMs) =>
       new Promise<void>((resolve) => {
         let last = el.scrollLeft;
-        let stableFrames = 0;
+        let lastChangeAt = performance.now();
         function tick() {
-          if (el.scrollLeft === last) {
-            stableFrames += 1;
-          } else {
+          const now = performance.now();
+          if (el.scrollLeft !== last) {
             last = el.scrollLeft;
-            stableFrames = 0;
+            lastChangeAt = now;
           }
-          if (stableFrames >= idleFrames) {
+          if (now - lastChangeAt >= idleMs) {
             resolve();
             return;
           }
@@ -30,6 +29,6 @@ export async function waitForScrollIdle(scrollContainer: Locator) {
         }
         requestAnimationFrame(tick);
       }),
-    IDLE_FRAMES,
+    IDLE_MS,
   );
 }

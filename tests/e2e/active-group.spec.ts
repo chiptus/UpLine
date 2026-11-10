@@ -12,7 +12,6 @@ test.describe("Active group", () => {
     const { groupName } = await createGroupWithMember(email);
 
     await page.goto("/");
-    await page.reload();
 
     await expect(
       page.getByRole("button", { name: new RegExp(groupName, "i") }),

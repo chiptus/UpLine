@@ -17,7 +17,10 @@ on:
 jobs:
   run:
     timeout-minutes: 60
-    runs-on: ubuntu-latest
+    # Explicit version, not ubuntu-latest: a silent image bump to 26.04 once
+    # broke WebKit's system libraries under an older Playwright (`install-deps`
+    # prints an error but exits 0). Bump this deliberately, with Playwright.
+    runs-on: ubuntu-26.04
     env:
       VITE_SUPABASE_URL: http://127.0.0.1:54321
       VITE_SUPABASE_PUBLISHABLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
@@ -34,23 +37,28 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Get Playwright version
+      # The OS version is part of the cache keys because Playwright downloads
+      # OS-specific browser builds and apt .debs: restoring ubuntu-24.04 ones on
+      # 26.04 skips the browser install and WebKit then fails to launch.
+      - name: Get Playwright and runner OS versions
         id: playwright-version
-        run: echo "version=$(node -e "console.log(require('@playwright/test/package.json').version)")" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "version=$(node -e "console.log(require('@playwright/test/package.json').version)")" >> "$GITHUB_OUTPUT"
+          echo "os=$(. /etc/os-release && echo "$ID-$VERSION_ID")" >> "$GITHUB_OUTPUT"
 
       - name: Cache Playwright browsers
         id: playwright-cache
         uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}-${{ inputs.browsers }}
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.os }}-${{ steps.playwright-version.outputs.version }}-${{ inputs.browsers }}
 
       - name: Cache apt packages
         id: apt-cache
         uses: actions/cache@v6
         with:
           path: /var/cache/apt/archives/*.deb
-          key: apt-${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}-${{ inputs.browsers }}
+          key: apt-${{ runner.os }}-${{ steps.playwright-version.outputs.os }}-playwright-${{ steps.playwright-version.outputs.version }}-${{ inputs.browsers }}
 
       - name: Install Playwright Browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'

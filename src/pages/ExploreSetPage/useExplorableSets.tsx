@@ -22,7 +22,7 @@ export function useExplorableSets({
 
   if (queue === null && allSets.length > 0 && votesReady) {
     const validSets = allSets.filter(
-      (set) => hasExplorableData(set) && !userVotes[set.id],
+      (set) => hasExplorableData(set) && userVotes[set.id] === undefined,
     );
     setQueue(shuffle(validSets));
   }
@@ -32,7 +32,7 @@ export function useExplorableSets({
   let votedCount = 0;
   let nonExplorableCount = 0;
   for (const set of allSets) {
-    if (userVotes[set.id]) {
+    if (userVotes[set.id] !== undefined) {
       votedCount++;
     } else if (!hasExplorableData(set)) {
       nonExplorableCount++;

@@ -4,21 +4,21 @@ import { tallyVotes } from "./score";
 describe("tallyVotes", () => {
   it("returns zero counts and zero score for no votes", () => {
     expect(tallyVotes([])).toEqual({
-      counts: { mustGo: 0, interested: 0, wontGo: 0 },
+      counts: { mustGo: 0, interested: 0, wontGo: 0, neutral: 0 },
       score: 0,
     });
   });
 
   it("returns zero counts and zero score for undefined votes", () => {
     expect(tallyVotes(undefined)).toEqual({
-      counts: { mustGo: 0, interested: 0, wontGo: 0 },
+      counts: { mustGo: 0, interested: 0, wontGo: 0, neutral: 0 },
       score: 0,
     });
   });
 
   it("returns zero counts and zero score for null votes", () => {
     expect(tallyVotes(null)).toEqual({
-      counts: { mustGo: 0, interested: 0, wontGo: 0 },
+      counts: { mustGo: 0, interested: 0, wontGo: 0, neutral: 0 },
       score: 0,
     });
   });
@@ -32,7 +32,12 @@ describe("tallyVotes", () => {
       vote(1),
       vote(-1),
     ]);
-    expect(counts).toEqual({ mustGo: 3, interested: 2, wontGo: 1 });
+    expect(counts).toEqual({
+      mustGo: 3,
+      interested: 2,
+      wontGo: 1,
+      neutral: 0,
+    });
   });
 
   it("scores as the sum of vote values: 2·mustGo + interested − wontGo", () => {
@@ -54,15 +59,26 @@ describe("tallyVotes", () => {
 
   it("scores an all-negative vote set as minus the vote count", () => {
     expect(tallyVotes([vote(-1), vote(-1), vote(-1)])).toEqual({
-      counts: { mustGo: 0, interested: 0, wontGo: 3 },
+      counts: { mustGo: 0, interested: 0, wontGo: 3, neutral: 0 },
       score: -3,
     });
   });
 
+  it("counts neutral votes without contributing to the score", () => {
+    const { counts, score } = tallyVotes([vote(0), vote(0), vote(2)]);
+    expect(counts).toEqual({
+      mustGo: 1,
+      interested: 0,
+      wontGo: 0,
+      neutral: 2,
+    });
+    expect(score).toBe(2);
+  });
+
   it("ignores unknown vote_type values in both counts and score", () => {
-    const result = tallyVotes([vote(2), vote(0), vote(99), vote(-5)]);
+    const result = tallyVotes([vote(2), vote(99), vote(-5)]);
     expect(result).toEqual({
-      counts: { mustGo: 1, interested: 0, wontGo: 0 },
+      counts: { mustGo: 1, interested: 0, wontGo: 0, neutral: 0 },
       score: 2,
     });
   });
@@ -76,6 +92,7 @@ describe("tallyVotes", () => {
       mustGo: 2,
       interested: 1,
       wontGo: 0,
+      neutral: 0,
     });
   });
 });

@@ -1,4 +1,5 @@
 import { test, expect, type Locator, type Page } from "@playwright/test";
+import { waitForScrollIdle } from "./helpers/waitForScrollIdle";
 
 // Seeded in supabase/seed.sql: festival slug "test", edition slug "2025".
 const TIMELINE_PATH = "/festivals/test/editions/2025/schedule/timeline";
@@ -35,21 +36,6 @@ async function findSetLinkInView(scrollContainer: Locator) {
     throw new Error("no set link overlapping the visible timeline viewport");
   }
   return best.link;
-}
-
-// Waits until the debounced scrollTo URL write has settled: the value must
-// survive a full debounce window (300ms) unchanged.
-async function waitForScrollToToSettle(page: Page) {
-  await expect
-    .poll(
-      async () => {
-        const before = new URL(page.url()).searchParams.get("scrollTo");
-        await page.waitForTimeout(400);
-        return before === new URL(page.url()).searchParams.get("scrollTo");
-      },
-      { timeout: 15000 },
-    )
-    .toBe(true);
 }
 
 test.describe(
@@ -119,7 +105,7 @@ test.describe(
       await scrollContainer.evaluate((el) => {
         el.scrollLeft = el.scrollLeft + 400;
       });
-      await waitForScrollToToSettle(page);
+      await waitForScrollIdle(scrollContainer);
       await expect(page).toHaveURL(/scrollTo=/);
 
       const scrollYAfter = await page.evaluate(() => window.scrollY);
@@ -177,7 +163,7 @@ test.describe(
 
       const setLink = await findSetLinkInView(scrollContainer);
       await setLink.scrollIntoViewIfNeeded();
-      await waitForScrollToToSettle(page);
+      await waitForScrollIdle(scrollContainer);
 
       const urlWithScroll = page.url();
       const scrollLeftBeforeNav = await scrollContainer.evaluate(

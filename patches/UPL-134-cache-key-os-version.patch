@@ -1,0 +1,57 @@
+From 3ead84ccda2c961d2faf71ab9ef5e8dc8a6ea6bb Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 10 Nov 2026 07:41:01 +0000
+Subject: [PATCH] ci(e2e): key playwright and apt caches by runner OS version
+
+The browser cache key had no OS version, so the 26.04 runner restored
+the WebKit build cached from the earlier ubuntu-24.04 run, skipped the
+browser install, and WebKit failed to launch (libicudata.so.74).
+
+UPL-134
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01TL8Ypzz6KfPtaWEy6Dr7m7
+---
+ .github/workflows/e2e-run.yml | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
+
+diff --git a/.github/workflows/e2e-run.yml b/.github/workflows/e2e-run.yml
+index 96324da..fc33988 100644
+--- a/.github/workflows/e2e-run.yml
++++ b/.github/workflows/e2e-run.yml
+@@ -37,23 +37,28 @@ jobs:
+       - name: Install dependencies
+         run: pnpm install --frozen-lockfile
+ 
+-      - name: Get Playwright version
++      # The OS version is part of the cache keys because Playwright downloads
++      # OS-specific browser builds and apt .debs: restoring ubuntu-24.04 ones on
++      # 26.04 skips the browser install and WebKit then fails to launch.
++      - name: Get Playwright and runner OS versions
+         id: playwright-version
+-        run: echo "version=$(node -e "console.log(require('@playwright/test/package.json').version)")" >> "$GITHUB_OUTPUT"
++        run: |
++          echo "version=$(node -e "console.log(require('@playwright/test/package.json').version)")" >> "$GITHUB_OUTPUT"
++          echo "os=$(. /etc/os-release && echo "$ID-$VERSION_ID")" >> "$GITHUB_OUTPUT"
+ 
+       - name: Cache Playwright browsers
+         id: playwright-cache
+         uses: actions/cache@v6
+         with:
+           path: ~/.cache/ms-playwright
+-          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}-${{ inputs.browsers }}
++          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.os }}-${{ steps.playwright-version.outputs.version }}-${{ inputs.browsers }}
+ 
+       - name: Cache apt packages
+         id: apt-cache
+         uses: actions/cache@v6
+         with:
+           path: /var/cache/apt/archives/*.deb
+-          key: apt-${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}-${{ inputs.browsers }}
++          key: apt-${{ runner.os }}-${{ steps.playwright-version.outputs.os }}-playwright-${{ steps.playwright-version.outputs.version }}-${{ inputs.browsers }}
+ 
+       - name: Install Playwright Browsers
+         if: steps.playwright-cache.outputs.cache-hit != 'true'
+-- 
+2.43.0
+

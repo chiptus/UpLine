@@ -17,11 +17,10 @@ on:
 jobs:
   run:
     timeout-minutes: 60
-    # Pinned: ubuntu-latest moved to 26.04, which this Playwright version can't
-    # install WebKit's system libraries on (`install-deps` prints an error but
-    # exits 0), so every WebKit/Mobile Safari test failed at browser launch.
-    # Unpin once the Playwright version supports the newer image.
-    runs-on: ubuntu-24.04
+    # Explicit version, not ubuntu-latest: a silent image bump to 26.04 once
+    # broke WebKit's system libraries under an older Playwright (`install-deps`
+    # prints an error but exits 0). Bump this deliberately, with Playwright.
+    runs-on: ubuntu-26.04
     env:
       VITE_SUPABASE_URL: http://127.0.0.1:54321
       VITE_SUPABASE_PUBLISHABLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0

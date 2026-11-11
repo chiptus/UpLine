@@ -18,6 +18,15 @@ describe("getFieldChanges", () => {
     ]);
   });
 
+  it("compares the resolved stage name, not the CSV one", () => {
+    const set = makeSet({ stageName: "Main Stge" });
+    set.previous.stageName = "Main Stage";
+    expect(getFieldChanges(set, () => "Main Stage")).toEqual([]);
+    expect(getFieldChanges(set, () => "Side Stage")).toEqual([
+      { field: "stage", stored: "Main Stage", incoming: "Side Stage" },
+    ]);
+  });
+
   it("treats different spellings of the same instant as unchanged", () => {
     const set = makeSet({ timeStart: "2026-07-01T20:00:00Z" });
     set.previous.timeStart = "2026-07-01T20:00:00+00:00";

@@ -69,6 +69,7 @@ export function DiffReviewStep({
           setsToCreate={diff.cleanOperations.setsToCreate}
           setsToUpdate={diff.cleanOperations.setsToUpdate}
           timezone={timezone}
+          stageMismatchResolutions={stageMismatchResolutions}
         />
 
         <StageMismatchResolver

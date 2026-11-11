@@ -12,6 +12,7 @@ describe("SetChangesPanel", () => {
         setsToCreate={[]}
         setsToUpdate={[makeUpdate("set-1", "Peggy Gou")]}
         timezone="UTC"
+        stageMismatchResolutions={{}}
       />,
     );
     expect(container).toBeEmptyDOMElement();
@@ -29,6 +30,7 @@ describe("SetChangesPanel", () => {
         setsToCreate={[]}
         setsToUpdate={[changed, makeUpdate("set-2", "Peggy Gou")]}
         timezone="UTC"
+        stageMismatchResolutions={{}}
       />,
     );
 
@@ -42,12 +44,36 @@ describe("SetChangesPanel", () => {
     expect(screen.getByText(/1 matched set is identical/)).toBeVisible();
   });
 
+  it("ignores a stage mismatch the admin mapped to the stored stage", () => {
+    const set = makeUpdate("set-1", "Fire Show");
+    set.stageName = "Main Stge";
+    set.previous.stageName = "Main Stage";
+
+    const { container } = render(
+      <SetChangesPanel
+        setsToCreate={[]}
+        setsToUpdate={[set]}
+        timezone="UTC"
+        stageMismatchResolutions={{
+          "Main Stge": { action: "map", dbStageName: "Main Stage" },
+        }}
+      />,
+    );
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
   it("shows a first-time type as a change from no type", () => {
     const set = makeUpdate("set-1", "Fire Show");
     set.setType = "performance";
 
     render(
-      <SetChangesPanel setsToCreate={[]} setsToUpdate={[set]} timezone="UTC" />,
+      <SetChangesPanel
+        setsToCreate={[]}
+        setsToUpdate={[set]}
+        timezone="UTC"
+        stageMismatchResolutions={{}}
+      />,
     );
 
     expect(screen.getByText("No type")).toBeVisible();
@@ -60,6 +86,7 @@ describe("SetChangesPanel", () => {
         setsToCreate={[{ ...makeUpdate("x", "Yoga"), setType: "workshop" }]}
         setsToUpdate={[]}
         timezone="UTC"
+        stageMismatchResolutions={{}}
       />,
     );
     expect(screen.getByText("No changes to existing sets")).toBeVisible();

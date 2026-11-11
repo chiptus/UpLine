@@ -16,11 +16,18 @@ export type FieldChange = {
   incoming: string | null;
 };
 
-export function getFieldChanges(set: SetToUpdate): FieldChange[] {
+/**
+ * `resolveStageName` maps the CSV stage name to the one the commit will use,
+ * so a mismatch the admin resolves to the stored stage isn't reported as a change.
+ */
+export function getFieldChanges(
+  set: SetToUpdate,
+  resolveStageName: (stageName: string | null) => string | null = identity,
+): FieldChange[] {
   const { previous } = set;
   const changes: FieldChange[] = [];
   push("name", previous.name, set.name);
-  push("stage", previous.stageName, set.stageName);
+  push("stage", previous.stageName, resolveStageName(set.stageName));
   push("timeStart", previous.timeStart, set.timeStart, sameInstant);
   push("timeEnd", previous.timeEnd, set.timeEnd, sameInstant);
   // A blank CSV type keeps the stored one, so it is never a change.
@@ -38,6 +45,10 @@ export function getFieldChanges(set: SetToUpdate): FieldChange[] {
       changes.push({ field, stored, incoming });
     }
   }
+}
+
+function identity<T>(value: T): T {
+  return value;
 }
 
 function sameText(a: string | null, b: string | null): boolean {

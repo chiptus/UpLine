@@ -4,7 +4,10 @@ import type { SetType } from "@/api/sets/types";
 import { cn } from "@/lib/utils";
 import { getSetTypeLabel } from "@/lib/setTypeLabels";
 import { formatDateTime } from "@/lib/timeUtils";
-import { type DiffResult } from "@/services/scheduleImport/types";
+import {
+  type DiffResult,
+  type StageMismatchResolution,
+} from "@/services/scheduleImport/types";
 import {
   getFieldChanges,
   type FieldChange,
@@ -15,6 +18,7 @@ type Props = {
   setsToCreate: DiffResult["cleanOperations"]["setsToCreate"];
   setsToUpdate: DiffResult["cleanOperations"]["setsToUpdate"];
   timezone: string;
+  stageMismatchResolutions: Record<string, StageMismatchResolution>;
 };
 
 const FIELD_LABELS: Record<FieldKey, string> = {
@@ -30,9 +34,13 @@ export function SetChangesPanel({
   setsToCreate,
   setsToUpdate,
   timezone,
+  stageMismatchResolutions,
 }: Props) {
   const changed = setsToUpdate
-    .map((set) => ({ set, changes: getFieldChanges(set) }))
+    .map((set) => ({
+      set,
+      changes: getFieldChanges(set, resolveStageName),
+    }))
     .filter(({ changes }) => changes.length > 0);
   const anyTyped =
     setsToCreate.some((s) => s.setType !== null) ||
@@ -77,6 +85,12 @@ export function SetChangesPanel({
       )}
     </div>
   );
+
+  function resolveStageName(stageName: string | null): string | null {
+    if (!stageName) return null;
+    const resolution = stageMismatchResolutions[stageName];
+    return resolution?.action === "map" ? resolution.dbStageName : stageName;
+  }
 }
 
 function ChangeRow({

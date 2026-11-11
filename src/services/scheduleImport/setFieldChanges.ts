@@ -21,20 +21,8 @@ export function getFieldChanges(set: SetToUpdate): FieldChange[] {
   const changes: FieldChange[] = [];
   push("name", previous.name, set.name);
   push("stage", previous.stageName, set.stageName);
-  if (!sameInstant(previous.timeStart, set.timeStart)) {
-    changes.push({
-      field: "timeStart",
-      stored: previous.timeStart,
-      incoming: set.timeStart,
-    });
-  }
-  if (!sameInstant(previous.timeEnd, set.timeEnd)) {
-    changes.push({
-      field: "timeEnd",
-      stored: previous.timeEnd,
-      incoming: set.timeEnd,
-    });
-  }
+  push("timeStart", previous.timeStart, set.timeStart, sameInstant);
+  push("timeEnd", previous.timeEnd, set.timeEnd, sameInstant);
   // A blank CSV type keeps the stored one, so it is never a change.
   if (set.setType !== null) push("type", previous.setType, set.setType);
   push("description", previous.description, set.description);
@@ -44,15 +32,22 @@ export function getFieldChanges(set: SetToUpdate): FieldChange[] {
     field: FieldKey,
     stored: string | null,
     incoming: string | null,
+    isSame: (a: string | null, b: string | null) => boolean = sameText,
   ) {
-    if ((stored ?? "") !== (incoming ?? "")) {
+    if (!isSame(stored, incoming)) {
       changes.push({ field, stored, incoming });
     }
   }
 }
 
-// Stored timestamps and the differ's output can use different ISO spellings
-// of the same instant (Z vs +00:00).
+function sameText(a: string | null, b: string | null): boolean {
+  return (a ?? "") === (b ?? "");
+}
+
+/**
+ * Stored timestamps and the differ's output can use different ISO spellings
+ * of the same instant (Z vs +00:00).
+ */
 function sameInstant(a: string | null, b: string | null): boolean {
   if (a === null || b === null) return a === b;
   return new Date(a).getTime() === new Date(b).getTime();

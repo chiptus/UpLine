@@ -509,3 +509,37 @@ Deno.test(
     assertEquals(updated.status, "confirmed");
   },
 );
+
+Deno.test(
+  "update payload carries the matched set's stored stage, times and description",
+  () => {
+    const artist = makeArtist("Carl Cox");
+    const stage = makeStage("Main");
+    const set = {
+      ...makeSet(
+        "set-1",
+        "Carl Cox",
+        [artist],
+        stage.id,
+        "2026-07-01T20:00:00Z",
+      ),
+      time_end: "2026-07-01T21:00:00Z",
+      description: "old blurb",
+    };
+    const result = computeDiff(
+      [{ artists: ["Carl Cox"], stage: "Main", description: "new blurb" }],
+      [stage],
+      [set],
+      [artist],
+      "UTC",
+    );
+    assertEquals(result.cleanOperations.setsToUpdate[0].previous, {
+      name: "Carl Cox",
+      setType: null,
+      description: "old blurb",
+      stageName: "Main",
+      timeStart: "2026-07-01T20:00:00Z",
+      timeEnd: "2026-07-01T21:00:00Z",
+    });
+  },
+);

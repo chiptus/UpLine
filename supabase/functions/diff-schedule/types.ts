@@ -49,6 +49,16 @@ export type SetPayload = {
   artistSlugs: string[];
 };
 
+/** The matched set's stored values, so the review can render stored → incoming. */
+export type PreviousSetValues = {
+  name: string;
+  setType: SetType | null;
+  description: string | null;
+  stageName: string | null;
+  timeStart: string | null;
+  timeEnd: string | null;
+};
+
 export type DiffPlan = {
   summary: {
     newArtists: number;
@@ -64,7 +74,7 @@ export type DiffPlan = {
     setsToCreate: SetPayload[];
     setsToUpdate: ({
       id: string;
-      previousSetType: SetType | null;
+      previous: PreviousSetValues;
     } & SetPayload)[];
   };
   conflicts: {

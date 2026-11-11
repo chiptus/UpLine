@@ -41,9 +41,16 @@ export const diffResultSchema = z.object({
     setsToUpdate: z.array(
       setPayloadSchema.extend({
         id: z.string(),
-        // The matched set's stored type, so the review can render
-        // stored → incoming chips. Not written on commit.
-        previousSetType: z.enum(SET_TYPES).nullable(),
+        // The matched set's stored values, so the review can render
+        // stored → incoming per field. Not written on commit.
+        previous: z.object({
+          name: z.string(),
+          setType: z.enum(SET_TYPES).nullable(),
+          description: z.string().nullable(),
+          stageName: z.string().nullable(),
+          timeStart: z.string().nullable(),
+          timeEnd: z.string().nullable(),
+        }),
       }),
     ),
   }),

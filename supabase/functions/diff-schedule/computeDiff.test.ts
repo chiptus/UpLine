@@ -366,7 +366,7 @@ Deno.test(
   },
 );
 
-Deno.test("update payload carries the matched set's stored type", () => {
+Deno.test("update payload carries the matched set's stored values", () => {
   const artist = makeArtist("Carl Cox");
   const set = { ...makeSet("set-1", "Carl Cox", [artist]), set_type: "music" };
   const result = computeDiff(
@@ -376,7 +376,10 @@ Deno.test("update payload carries the matched set's stored type", () => {
     [artist],
     "UTC",
   );
-  assertEquals(result.cleanOperations.setsToUpdate[0].previousSetType, "music");
+  assertEquals(
+    result.cleanOperations.setsToUpdate[0].previous.setType,
+    "music",
+  );
   assertEquals(result.cleanOperations.setsToUpdate[0].setType, "workshop");
 });
 

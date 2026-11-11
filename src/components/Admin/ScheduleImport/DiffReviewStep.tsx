@@ -9,7 +9,7 @@ import {
 } from "@/services/scheduleImport/types";
 import type { RevealLevel } from "@/lib/scheduleReveal";
 import { DiffSummaryBanner } from "./DiffSummaryBanner";
-import { TypedSetsPanel } from "./TypedSetsPanel";
+import { SetChangesPanel } from "./SetChangesPanel";
 import { StageMismatchResolver } from "./StageMismatchResolver";
 import { OrphanedSetsPanel } from "./OrphanedSetsPanel";
 import { LiveCommitWarning } from "./LiveCommitWarning";
@@ -65,9 +65,10 @@ export function DiffReviewStep({
       <CardContent className="space-y-6">
         <DiffSummaryBanner diff={diff} />
 
-        <TypedSetsPanel
+        <SetChangesPanel
           setsToCreate={diff.cleanOperations.setsToCreate}
           setsToUpdate={diff.cleanOperations.setsToUpdate}
+          timezone={timezone}
         />
 
         <StageMismatchResolver

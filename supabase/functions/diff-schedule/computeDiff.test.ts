@@ -514,7 +514,7 @@ Deno.test(
   "update payload carries the matched set's stored stage, times and description",
   () => {
     const artist = makeArtist("Carl Cox");
-    const stage = makeStage("Main");
+    const stage = makeStage("stage-main", "Main");
     const set = {
       ...makeSet(
         "set-1",

@@ -1,9 +1,9 @@
 import { test, expect } from "@playwright/test";
+import { waitForScrollIdle } from "./helpers/waitForScrollIdle";
 
 // Seeded in supabase/seed.sql: festival slug "test", edition slug "2025",
 // three festival days (Jul 12-14, 2025) each with timed sets.
 const TIMELINE_PATH = "/festivals/test/editions/2025/schedule/timeline";
-const SCROLL_ANIMATION_WAIT_MS = 800; // > smooth-scroll animation + the ~300ms debounce
 
 test.describe("Timeline day-jump toolbar", { tag: "@smoke" }, () => {
   test("renders one sticky button per festival day, labeled weekday + date", async ({
@@ -61,7 +61,7 @@ test.describe("Timeline day-jump toolbar", { tag: "@smoke" }, () => {
 
     // The write must be stable: the post-scroll debounced write settles on
     // the same moment jumpTo wrote, so the URL doesn't drift afterwards.
-    await page.waitForTimeout(SCROLL_ANIMATION_WAIT_MS);
+    await waitForScrollIdle(scrollContainer);
     expect(new URL(page.url()).searchParams.get("scrollTo")).toBe(scrollTo);
   });
 
@@ -93,7 +93,7 @@ test.describe("Timeline day-jump toolbar", { tag: "@smoke" }, () => {
     expect(scrollTo).toBeTruthy();
 
     // The write must be stable: no drift once the scroll has settled.
-    await page.waitForTimeout(SCROLL_ANIMATION_WAIT_MS);
+    await waitForScrollIdle(scrollContainer);
     expect(new URL(page.url()).searchParams.get("scrollTo")).toBe(scrollTo);
   });
 

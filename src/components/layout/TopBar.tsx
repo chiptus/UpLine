@@ -32,7 +32,7 @@ export function TopBar({
           isMobile={isMobile}
         />
       </div>
-      <div className="h-16 md:h-20" /> {/* Spacer to offset fixed top bar */}
+      <div className="h-top-bar" />
     </>
   );
 }

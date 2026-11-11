@@ -1,4 +1,5 @@
 import { SetBlock } from "./SetBlock";
+import { cn } from "@/lib/utils";
 import type { HorizontalTimelineSet } from "@/lib/timelineCalculator";
 
 interface StageRowProps {
@@ -28,9 +29,8 @@ export function StageRow({ stage, totalWidth, timezone }: StageRowProps) {
           return (
             <div
               key={set.id}
-              // scroll-mt matches the sticky toolbar's height (top-16/top-20)
-              // so scrollIntoView doesn't leave the block hidden under it.
-              className="absolute h-16 scroll-mt-16 md:scroll-mt-20"
+              // scrollIntoView shouldn't leave the block hidden under the top bar.
+              className={cn("absolute h-16", "scroll-mt-top-bar")}
               style={{
                 left: `${set.horizontalPosition.left}px`,
                 width: `${set.horizontalPosition.width - 4}px`, // Reduce width by 4px for spacing

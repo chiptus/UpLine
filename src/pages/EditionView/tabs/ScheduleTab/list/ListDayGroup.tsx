@@ -1,6 +1,5 @@
 import { Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { STICKY_TOP_BELOW_TOP_BAR_CLASS } from "@/lib/layout-constants";
 import { getFestivalDayLabel } from "@/lib/timeUtils";
 import { ScheduleFilterSheet } from "../ScheduleFilterSheet";
 import { VoteFilterChips } from "../VoteFilterChips";
@@ -31,7 +30,7 @@ export function ListDayGroup({ dayKey, slots, timezone }: ListDayGroupProps) {
       <header
         className={cn(
           "sticky z-10 mb-4 flex items-center gap-2 rounded-lg border border-border bg-popover px-4 py-2 backdrop-blur-md",
-          STICKY_TOP_BELOW_TOP_BAR_CLASS,
+          "top-top-bar",
         )}
       >
         <Calendar className="h-4 w-4 text-subtle-foreground" />

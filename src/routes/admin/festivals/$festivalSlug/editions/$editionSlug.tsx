@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
 import { useParams, Link, Outlet } from "@tanstack/react-router";
 import { Link2, MapPin, Music, Settings, Upload } from "lucide-react";
@@ -75,7 +76,12 @@ function FestivalEdition() {
   return (
     <div className="space-y-6">
       <div className="w-full">
-        <div className="sticky top-16 md:top-20 z-10 grid w-full grid-cols-5 gap-2 bg-surface-raised backdrop-blur-md p-1 rounded-lg">
+        <div
+          className={cn(
+            "sticky z-10 grid w-full grid-cols-5 gap-2 bg-surface-raised backdrop-blur-md p-1 rounded-lg",
+            "top-top-bar",
+          )}
+        >
           <EditionNavLink
             to="stages"
             festivalSlug={festivalSlug}

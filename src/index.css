@@ -50,6 +50,21 @@
 }
 
 @layer base {
+  /* Height of the fixed top bar. Single source for TopBar's spacer and every
+     sticky/scroll-margin offset docking below it (`top-bar` spacing token in
+     tailwind.config.ts). */
+  :root {
+    --top-bar-height: 4rem;
+  }
+
+  @media (min-width: 768px) {
+    :root {
+      --top-bar-height: 5rem;
+    }
+  }
+}
+
+@layer base {
   /* Festival v2 — dark is the default theme (docs/design/edition-identity-spec.md) */
   :root {
     --background: 266.9 74.4% 7.6%; /* #120522 */

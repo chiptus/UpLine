@@ -57,6 +57,7 @@ export type PreviousSetValues = {
   stageName: string | null;
   timeStart: string | null;
   timeEnd: string | null;
+  status: SetStatus;
 };
 
 export type DiffPlan = {

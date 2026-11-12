@@ -144,6 +144,7 @@ describe("buildCommitPayload", () => {
               stageName: null,
               timeStart: null,
               timeEnd: null,
+              status: "confirmed",
             },
             description: null,
             stageName: null,

@@ -26,6 +26,7 @@ const FIELD_LABELS: Record<FieldKey, string> = {
   stage: "Stage",
   timeStart: "Start",
   timeEnd: "End",
+  status: "Status",
   type: "Type",
   description: "Description",
 };

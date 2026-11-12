@@ -540,6 +540,7 @@ Deno.test(
       stageName: "Main",
       timeStart: "2026-07-01T20:00:00Z",
       timeEnd: "2026-07-01T21:00:00Z",
+      status: "confirmed",
     });
   },
 );

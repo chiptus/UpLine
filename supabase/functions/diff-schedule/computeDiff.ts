@@ -84,6 +84,7 @@ export function computeDiff(
             indexes.stageById.get(matched.stage_id ?? "")?.name ?? null,
           timeStart: matched.time_start,
           timeEnd: matched.time_end,
+          status: matched.status === "tba" ? "tba" : "confirmed",
         },
         ...payload,
       });

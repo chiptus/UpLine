@@ -50,6 +50,7 @@ export const diffResultSchema = z.object({
           stageName: z.string().nullable(),
           timeStart: z.string().nullable(),
           timeEnd: z.string().nullable(),
+          status: z.enum(["confirmed", "tba"]),
         }),
       }),
     ),

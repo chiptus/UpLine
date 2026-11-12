@@ -112,6 +112,7 @@ function makeUpdate(id: string, name: string): SetToUpdate {
       stageName: null,
       timeStart: null,
       timeEnd: null,
+      status: "confirmed",
     },
   };
 }

@@ -54,6 +54,21 @@ describe("getFieldChanges", () => {
     ]);
   });
 
+  it("reports a TBA set gaining a real start time as a status change", () => {
+    const set = makeSet({ timeStart: "2026-07-01T00:00:00Z" });
+    set.previous.timeStart = "2026-07-01T00:00:00Z";
+    set.previous.status = "tba";
+    expect(getFieldChanges(set)).toEqual([
+      { field: "status", stored: "tba", incoming: "confirmed" },
+    ]);
+  });
+
+  it("keeps the stored status when the incoming start is null", () => {
+    const set = makeSet({ timeStart: null, status: "confirmed" });
+    set.previous.status = "tba";
+    expect(getFieldChanges(set)).toEqual([]);
+  });
+
   it("treats null and empty description as equal", () => {
     const set = makeSet({ description: null });
     set.previous.description = "";
@@ -79,6 +94,7 @@ function makeSet(overrides: Partial<SetToUpdate> = {}): SetToUpdate {
       stageName: null,
       timeStart: null,
       timeEnd: null,
+      status: "confirmed",
     },
     ...overrides,
   };

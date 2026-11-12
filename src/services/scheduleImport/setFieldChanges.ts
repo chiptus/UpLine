@@ -7,6 +7,7 @@ export type FieldKey =
   | "stage"
   | "timeStart"
   | "timeEnd"
+  | "status"
   | "type"
   | "description";
 
@@ -30,6 +31,12 @@ export function getFieldChanges(
   push("stage", previous.stageName, resolveStageName(set.stageName));
   push("timeStart", previous.timeStart, set.timeStart, sameInstant);
   push("timeEnd", previous.timeEnd, set.timeEnd, sameInstant);
+  // The commit keeps the stored status when the incoming start is null.
+  push(
+    "status",
+    previous.status,
+    set.timeStart === null ? previous.status : set.status,
+  );
   // A blank CSV type keeps the stored one, so it is never a change.
   if (set.setType !== null) push("type", previous.setType, set.setType);
   push("description", previous.description, set.description);

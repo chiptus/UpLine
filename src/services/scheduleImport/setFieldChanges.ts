@@ -28,10 +28,17 @@ export function getFieldChanges(
   const { previous } = set;
   const changes: FieldChange[] = [];
   push("name", previous.name, set.name);
-  push("stage", previous.stageName, resolveStageName(set.stageName));
-  push("timeStart", previous.timeStart, set.timeStart, sameInstant);
-  push("timeEnd", previous.timeEnd, set.timeEnd, sameInstant);
-  // The commit keeps the stored status when the incoming start is null.
+  // The commit keeps the stored stage / start / end when the incoming value
+  // is null, so only a non-null value (or a TBA status clearing the end) can change them.
+  const incomingStage = resolveStageName(set.stageName);
+  push("stage", previous.stageName, incomingStage ?? previous.stageName);
+  push(
+    "timeStart",
+    previous.timeStart,
+    set.timeStart ?? previous.timeStart,
+    sameInstant,
+  );
+  push("timeEnd", previous.timeEnd, incomingEnd(), sameInstant);
   push(
     "status",
     previous.status,
@@ -41,6 +48,12 @@ export function getFieldChanges(
   if (set.setType !== null) push("type", previous.setType, set.setType);
   push("description", previous.description, set.description);
   return changes;
+
+  function incomingEnd(): string | null {
+    if (set.timeStart === null) return previous.timeEnd;
+    if (set.status === "tba") return null;
+    return set.timeEnd ?? previous.timeEnd;
+  }
 
   function push(
     field: FieldKey,

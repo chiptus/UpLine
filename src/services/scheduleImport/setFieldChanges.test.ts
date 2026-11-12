@@ -33,14 +33,34 @@ describe("getFieldChanges", () => {
     expect(getFieldChanges(set)).toEqual([]);
   });
 
-  it("reports a time change and a cleared end time", () => {
+  it("reports a time change, keeping the stored end when the row has none", () => {
     const set = makeSet({ timeStart: "2026-07-01T21:00:00Z", timeEnd: null });
+    set.previous.timeStart = "2026-07-01T20:00:00Z";
+    set.previous.timeEnd = "2026-07-01T22:00:00Z";
+    expect(getFieldChanges(set).map((c) => c.field)).toEqual(["timeStart"]);
+  });
+
+  it("reports the end cleared when the row turns TBA", () => {
+    const set = makeSet({
+      timeStart: "2026-07-01T00:00:00Z",
+      timeEnd: null,
+      status: "tba",
+    });
     set.previous.timeStart = "2026-07-01T20:00:00Z";
     set.previous.timeEnd = "2026-07-01T22:00:00Z";
     expect(getFieldChanges(set).map((c) => c.field)).toEqual([
       "timeStart",
       "timeEnd",
+      "status",
     ]);
+  });
+
+  it("treats blank stage and time cells as keeping the stored values", () => {
+    const set = makeSet({ stageName: null, timeStart: null, timeEnd: null });
+    set.previous.stageName = "Main";
+    set.previous.timeStart = "2026-07-01T20:00:00Z";
+    set.previous.timeEnd = "2026-07-01T22:00:00Z";
+    expect(getFieldChanges(set)).toEqual([]);
   });
 
   it("ignores a blank CSV type but reports a first-time assignment", () => {

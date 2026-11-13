@@ -11,8 +11,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
+import { SLUG_TAKEN_MESSAGE } from "@/lib/slug";
 import { toDatetimeLocalInTimeZone } from "@/lib/timeUtils";
-import { setFormSchema, SetFormData } from "./setFormSchema";
+import { editSetFormSchema, SetFormData } from "./setFormSchema";
 import { useUpdateSetSubmit } from "./useUpdateSetSubmit";
 import { SetFormFields } from "./SetFormFields";
 import { SetFormFooter } from "./SetFormFooter";
@@ -39,13 +40,15 @@ export function EditSetDialog({
     editionId,
     timezone: tz,
     onComplete: onClose,
+    onSlugTaken: markSlugTaken,
   });
 
   const form = useForm<SetFormData>({
-    resolver: zodResolver(setFormSchema),
+    resolver: zodResolver(editSetFormSchema),
     defaultValues: {
       set_type: set.set_type,
       name: set.name,
+      slug: set.slug,
       description: set.description || "",
       external_url: set.external_url || "",
       stage_id: set.stage_id || "none",
@@ -56,6 +59,10 @@ export function EditSetDialog({
       artist_ids: set.artists?.map((a) => a.id) || [],
     },
   });
+
+  function markSlugTaken() {
+    form.setError("slug", { message: SLUG_TAKEN_MESSAGE });
+  }
 
   const setType = useWatch({ control: form.control, name: "set_type" });
   const isNonMusicSet = isNonMusicSetType(setType);
@@ -81,6 +88,7 @@ export function EditSetDialog({
               editionId={editionId}
               timezone={tz}
               isNonMusicSet={isNonMusicSet}
+              showSlugField
             />
 
             <SetFormFooter

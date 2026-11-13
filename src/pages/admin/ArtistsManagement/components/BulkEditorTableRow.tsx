@@ -1,6 +1,7 @@
 import { TableRow, TableCell } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Artist } from "@/api/artists/types";
+import { SlugCell } from "../BulkEditor/SlugCell";
 import { TextCell } from "../BulkEditor/TextCell";
 import { TextareaCell } from "../BulkEditor/TextareaCell";
 import { UrlCell } from "../BulkEditor/UrlCell";
@@ -56,6 +57,13 @@ export function BulkEditorTableRow({
           value={artist.name}
           required
           onSave={(value) => value && onSave("name", value)}
+        />
+      </TableCell>
+      <TableCell>
+        <SlugCell
+          artistId={artist.id}
+          value={artist.slug}
+          onSave={(value) => onSave("slug", value)}
         />
       </TableCell>
       <TableCell>

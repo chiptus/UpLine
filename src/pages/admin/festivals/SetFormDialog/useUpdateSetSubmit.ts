@@ -1,7 +1,9 @@
 import { FestivalSet } from "@/api/sets/types";
+import { isSetSlugTaken } from "@/api/sets/isSetSlugTaken";
 import { useUpdateSetMutation } from "@/api/sets/useUpdateSet";
 import { useAddArtistsToSetMutation } from "@/api/sets/useAddArtistsToSet";
 import { useRemoveArtistsFromSetMutation } from "@/api/sets/useRemoveArtistsFromSet";
+import { SlugConflictError } from "@/lib/slug";
 import { SetFormData } from "./setFormSchema";
 import { toSetPayload } from "./toSetPayload";
 
@@ -10,6 +12,7 @@ interface UseUpdateSetSubmitOptions {
   editionId: string;
   timezone: string;
   onComplete: () => void;
+  onSlugTaken: () => void;
 }
 
 export function useUpdateSetSubmit({
@@ -17,6 +20,7 @@ export function useUpdateSetSubmit({
   editionId,
   timezone,
   onComplete,
+  onSlugTaken,
 }: UseUpdateSetSubmitOptions) {
   const updateSetMutation = useUpdateSetMutation();
   const addArtistsToSetMutation = useAddArtistsToSetMutation();
@@ -30,10 +34,38 @@ export function useUpdateSetSubmit({
   return { submit, isPending };
 
   function submit(data: SetFormData) {
+    const slug = data.slug?.trim();
+    if (slug && slug !== set.slug) {
+      checkSlugThenUpdate(data, slug);
+      return;
+    }
+    update(data);
+  }
+
+  // Pre-check so the user is warned before submitting; the unique constraint
+  // still backstops a race, handled in update's onError.
+  function checkSlugThenUpdate(data: SetFormData, slug: string) {
+    isSetSlugTaken({ editionId, slug, excludeSetId: set.id }).then(
+      (taken) => (taken ? onSlugTaken() : update(data)),
+      () => update(data),
+    );
+  }
+
+  function update(data: SetFormData) {
+    const slug = data.slug?.trim();
     updateSetMutation.mutate(
-      { id: set.id, updates: toSetPayload(data, editionId, timezone) },
+      {
+        id: set.id,
+        updates: {
+          ...toSetPayload(data, editionId, timezone),
+          ...(slug && slug !== set.slug ? { slug } : {}),
+        },
+      },
       {
         onSuccess: (updatedSet) => syncArtistsAndComplete(data, updatedSet.id),
+        onError: (error) => {
+          if (error instanceof SlugConflictError) onSlugTaken();
+        },
       },
     );
   }

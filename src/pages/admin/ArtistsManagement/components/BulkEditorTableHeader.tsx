@@ -43,6 +43,7 @@ export function BulkEditorTableHeader({
         >
           Name{getSortIndicator("name")}
         </TableHead>
+        <TableHead className="min-w-40">Slug</TableHead>
         <TableHead
           className="cursor-pointer hover:bg-surface-active min-w-64"
           onClick={() => onSort("description")}

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { FestivalSet } from "@/api/sets/types";
 import { isSetSlugTaken } from "@/api/sets/isSetSlugTaken";
 import { useUpdateSetMutation } from "@/api/sets/useUpdateSet";
@@ -26,7 +27,10 @@ export function useUpdateSetSubmit({
   const addArtistsToSetMutation = useAddArtistsToSetMutation();
   const removeArtistsFromSetMutation = useRemoveArtistsFromSetMutation();
 
+  const [isCheckingSlug, setIsCheckingSlug] = useState(false);
+
   const isPending =
+    isCheckingSlug ||
     updateSetMutation.isPending ||
     addArtistsToSetMutation.isPending ||
     removeArtistsFromSetMutation.isPending;
@@ -34,6 +38,8 @@ export function useUpdateSetSubmit({
   return { submit, isPending };
 
   function submit(data: SetFormData) {
+    if (isPending) return;
+
     // The schema already trims; undefined means the slug is unchanged.
     const changedSlug =
       data.slug && data.slug !== set.slug ? data.slug : undefined;
@@ -49,10 +55,13 @@ export function useUpdateSetSubmit({
    * still backstops a race, handled in update's onError.
    */
   function checkSlugThenUpdate(data: SetFormData, slug: string) {
-    isSetSlugTaken({ editionId, slug, excludeSetId: set.id }).then(
-      (taken) => (taken ? onSlugTaken() : update(data, slug)),
-      () => update(data, slug),
-    );
+    setIsCheckingSlug(true);
+    isSetSlugTaken({ editionId, slug, excludeSetId: set.id })
+      .then(
+        (taken) => (taken ? onSlugTaken() : update(data, slug)),
+        () => update(data, slug),
+      )
+      .finally(() => setIsCheckingSlug(false));
   }
 
   function update(data: SetFormData, slug: string | undefined) {

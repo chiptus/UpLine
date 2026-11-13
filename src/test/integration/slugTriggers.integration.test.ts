@@ -126,10 +126,11 @@ describe("slug dedupe triggers", () => {
       const slug = `custom-${crypto.randomUUID()}`;
       await updateArtistSlug(id, slug);
 
-      await testSupabase
+      const { error } = await testSupabase
         .from("artists")
         .update({ name: `Renamed ${crypto.randomUUID()}` })
         .eq("id", id);
+      expect(error).toBeNull();
 
       expect(await readArtistSlug(id)).toBe(slug);
     });

@@ -1,6 +1,7 @@
 import { TableRow, TableCell } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Artist } from "@/api/artists/types";
+import { SlugCell } from "../BulkEditor/SlugCell";
 import { TextCell } from "../BulkEditor/TextCell";
 import { TextareaCell } from "../BulkEditor/TextareaCell";
 import { UrlCell } from "../BulkEditor/UrlCell";
@@ -24,6 +25,9 @@ export function BulkEditorTableRow({
 }: BulkEditorTableRowProps) {
   // Centralized mutation hooks
   const updateArtistMutation = useUpdateArtistMutation();
+  // Separate observer so other cell saves cannot drop the slug cell's
+  // per-call callbacks (only the latest mutate call per observer fires them).
+  const updateSlugMutation = useUpdateArtistMutation();
   // Centralized cell change handler with mutation
   function onSave<T extends keyof UpdateArtistUpdates>(
     field: T,
@@ -56,6 +60,18 @@ export function BulkEditorTableRow({
           value={artist.name}
           required
           onSave={(value) => value && onSave("name", value)}
+        />
+      </TableCell>
+      <TableCell>
+        <SlugCell
+          artistId={artist.id}
+          value={artist.slug}
+          onSave={(slug, callbacks) =>
+            updateSlugMutation.mutate(
+              { id: artist.id, updates: { slug } },
+              callbacks,
+            )
+          }
         />
       </TableCell>
       <TableCell>

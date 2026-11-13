@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -22,11 +22,15 @@ interface SlugCellProps {
 
 export function SlugCell({ artistId, value, onSave }: SlugCellProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const [phase, setPhase] = useState<"idle" | "checking" | "saving">("idle");
+  const lookupAbort = useRef<AbortController | null>(null);
   const form = useForm<SlugCellData>({
     resolver: zodResolver(slugCellSchema),
     defaultValues: { slug: value },
   });
   const error = form.formState.errors.slug?.message;
+
+  useEffect(() => () => lookupAbort.current?.abort(), []);
 
   if (!isEditing) {
     return (
@@ -53,6 +57,7 @@ export function SlugCell({ artistId, value, onSave }: SlugCellProps) {
         className="text-sm font-mono"
         aria-label="Artist slug"
         aria-invalid={!!error}
+        readOnly={phase !== "idle"}
         autoFocus
       />
       {error && <p className="text-xs text-destructive">{error}</p>}
@@ -65,35 +70,54 @@ export function SlugCell({ artistId, value, onSave }: SlugCellProps) {
   }
 
   function cancel() {
+    lookupAbort.current?.abort();
+    setPhase("idle");
     form.reset({ slug: value });
     setIsEditing(false);
   }
 
   function onKeyDown(e: React.KeyboardEvent) {
-    if (e.key === "Escape") cancel();
+    // A started save can't be aborted, so cancelling would only hide it.
+    if (e.key === "Escape" && phase !== "saving") cancel();
   }
 
   async function submit(data: SlugCellData) {
+    if (phase !== "idle") return;
     if (data.slug === value) {
       cancel();
       return;
     }
 
+    const abort = new AbortController();
+    lookupAbort.current = abort;
+    setPhase("checking");
+
     // A failed lookup falls through: the unique constraint is the backstop.
     const taken = await isArtistSlugTaken({
       slug: data.slug,
       excludeArtistId: artistId,
+      signal: abort.signal,
     }).catch(() => false);
+    if (abort.signal.aborted) return;
+
     if (taken) {
+      setPhase("idle");
       form.setError("slug", { message: SLUG_TAKEN_MESSAGE });
       return;
     }
 
     // Stay open until the save lands so a raced unique violation can still be
     // shown inline.
+    setPhase("saving");
     onSave(data.slug, {
-      onSuccess: () => setIsEditing(false),
-      onError: (error) => form.setError("slug", { message: error.message }),
+      onSuccess: () => {
+        setPhase("idle");
+        setIsEditing(false);
+      },
+      onError: (error) => {
+        setPhase("idle");
+        form.setError("slug", { message: error.message });
+      },
     });
   }
 }

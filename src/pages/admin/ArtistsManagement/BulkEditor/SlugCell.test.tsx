@@ -57,6 +57,7 @@ describe("SlugCell", () => {
     expect(isArtistSlugTaken).toHaveBeenCalledWith({
       slug: "taken",
       excludeArtistId: "artist-1",
+      signal: expect.any(AbortSignal),
     });
     expect(onSave).not.toHaveBeenCalled();
   });
@@ -72,6 +73,39 @@ describe("SlugCell", () => {
 
     expect(await screen.findByText("That slug is already in use")).toBeTruthy();
     expect(screen.getByLabelText("Artist slug")).toBeTruthy();
+  });
+
+  it("aborts the lookup and skips the save when cancelled mid-check", async () => {
+    let signal: AbortSignal | undefined;
+    isArtistSlugTaken.mockImplementation((params: { signal: AbortSignal }) => {
+      signal = params.signal;
+      return new Promise((resolve) =>
+        params.signal.addEventListener("abort", () => resolve(false)),
+      );
+    });
+    await startEditing();
+    await userEvent.clear(input());
+    await userEvent.type(input(), "late");
+    await userEvent.keyboard("{Enter}");
+    await userEvent.keyboard("{Escape}");
+
+    await vi.waitFor(() => expect(signal?.aborted).toBe(true));
+    expect(screen.queryByLabelText("Artist slug")).toBeNull();
+    expect(onSave).not.toHaveBeenCalled();
+  });
+
+  it("ignores Escape and repeat submits while the save is in flight", async () => {
+    onSave.mockImplementation(() => {});
+    await startEditing();
+    await userEvent.clear(input());
+    await userEvent.type(input(), "slow");
+    await userEvent.keyboard("{Enter}");
+    await vi.waitFor(() => expect(onSave).toHaveBeenCalledTimes(1));
+
+    await userEvent.keyboard("{Escape}{Enter}");
+
+    expect(screen.getByLabelText("Artist slug")).toBeTruthy();
+    expect(onSave).toHaveBeenCalledTimes(1);
   });
 
   it("does not save when the slug is unchanged", async () => {

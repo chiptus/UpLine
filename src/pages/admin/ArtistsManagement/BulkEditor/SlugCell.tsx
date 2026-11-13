@@ -14,7 +14,10 @@ type SlugCellData = z.infer<typeof slugCellSchema>;
 interface SlugCellProps {
   artistId: string;
   value: string;
-  onSave: (slug: string) => void;
+  onSave: (
+    slug: string,
+    callbacks: { onSuccess: () => void; onError: (error: Error) => void },
+  ) => void;
 }
 
 export function SlugCell({ artistId, value, onSave }: SlugCellProps) {
@@ -85,7 +88,11 @@ export function SlugCell({ artistId, value, onSave }: SlugCellProps) {
       return;
     }
 
-    onSave(data.slug);
-    setIsEditing(false);
+    // Stay open until the save lands so a raced unique violation can still be
+    // shown inline.
+    onSave(data.slug, {
+      onSuccess: () => setIsEditing(false),
+      onError: (error) => form.setError("slug", { message: error.message }),
+    });
   }
 }

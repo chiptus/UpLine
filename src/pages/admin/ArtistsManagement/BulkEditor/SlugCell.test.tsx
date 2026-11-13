@@ -41,7 +41,9 @@ describe("SlugCell", () => {
     await userEvent.type(input(), "new-slug");
     await userEvent.keyboard("{Enter}");
 
-    await vi.waitFor(() => expect(onSave).toHaveBeenCalledWith("new-slug"));
+    await vi.waitFor(() =>
+      expect(onSave).toHaveBeenCalledWith("new-slug", expect.any(Object)),
+    );
   });
 
   it("warns when the slug belongs to another artist", async () => {
@@ -57,6 +59,19 @@ describe("SlugCell", () => {
       excludeArtistId: "artist-1",
     });
     expect(onSave).not.toHaveBeenCalled();
+  });
+
+  it("shows a raced conflict inline and stays open", async () => {
+    onSave.mockImplementation((_slug, callbacks) =>
+      callbacks.onError(new Error("That slug is already in use")),
+    );
+    await startEditing();
+    await userEvent.clear(input());
+    await userEvent.type(input(), "raced");
+    await userEvent.keyboard("{Enter}");
+
+    expect(await screen.findByText("That slug is already in use")).toBeTruthy();
+    expect(screen.getByLabelText("Artist slug")).toBeTruthy();
   });
 
   it("does not save when the slug is unchanged", async () => {

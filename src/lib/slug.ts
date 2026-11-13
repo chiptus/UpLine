@@ -47,14 +47,17 @@ export const SLUG_TAKEN_MESSAGE = "That slug is already in use";
 
 /**
  * Whether a Supabase/Postgres error is a unique violation on a slug
- * constraint (`artists_slug_unique`, `sets_festival_edition_id_slug_unique`),
+ * constraint (`artists_slug_unique`, `sets_festival_edition_id_slug_unique`; matched on
+ * the `slug_unique` suffix they share),
  * i.e. a race that slipped past the form's pre-check.
  */
 export function isSlugConflictError(error: unknown): boolean {
   if (typeof error !== "object" || error === null) return false;
   const { code, message } = error as { code?: unknown; message?: unknown };
   return (
-    code === "23505" && typeof message === "string" && message.includes("slug")
+    code === "23505" &&
+    typeof message === "string" &&
+    message.includes("slug_unique")
   );
 }
 

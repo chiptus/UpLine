@@ -34,31 +34,34 @@ export function useUpdateSetSubmit({
   return { submit, isPending };
 
   function submit(data: SetFormData) {
-    const slug = data.slug?.trim();
-    if (slug && slug !== set.slug) {
-      checkSlugThenUpdate(data, slug);
+    // The schema already trims; undefined means the slug is unchanged.
+    const changedSlug =
+      data.slug && data.slug !== set.slug ? data.slug : undefined;
+    if (changedSlug) {
+      checkSlugThenUpdate(data, changedSlug);
       return;
     }
-    update(data);
+    update(data, undefined);
   }
 
-  // Pre-check so the user is warned before submitting; the unique constraint
-  // still backstops a race, handled in update's onError.
+  /**
+   * Pre-check so the user is warned before the write; the unique constraint
+   * still backstops a race, handled in update's onError.
+   */
   function checkSlugThenUpdate(data: SetFormData, slug: string) {
     isSetSlugTaken({ editionId, slug, excludeSetId: set.id }).then(
-      (taken) => (taken ? onSlugTaken() : update(data)),
-      () => update(data),
+      (taken) => (taken ? onSlugTaken() : update(data, slug)),
+      () => update(data, slug),
     );
   }
 
-  function update(data: SetFormData) {
-    const slug = data.slug?.trim();
+  function update(data: SetFormData, slug: string | undefined) {
     updateSetMutation.mutate(
       {
         id: set.id,
         updates: {
           ...toSetPayload(data, editionId, timezone),
-          ...(slug && slug !== set.slug ? { slug } : {}),
+          ...(slug ? { slug } : {}),
         },
       },
       {

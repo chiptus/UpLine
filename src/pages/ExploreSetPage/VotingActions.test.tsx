@@ -17,6 +17,26 @@ describe("VotingActions", () => {
     expect(
       screen.getByRole("button", { name: VOTE_CONFIG.wontGo.label }),
     ).toHaveAttribute("aria-pressed", "false");
+    expect(
+      screen.getByRole("button", { name: VOTE_CONFIG.neutral.label }),
+    ).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("marks the Neutral button as pressed when currentVote is 0", () => {
+    render(
+      <VotingActions
+        onVote={vi.fn()}
+        onSkip={vi.fn()}
+        currentVote={VOTE_CONFIG.neutral.value}
+      />,
+    );
+
+    expect(
+      screen.getByRole("button", { name: VOTE_CONFIG.neutral.label }),
+    ).toHaveAttribute("aria-pressed", "true");
+    expect(
+      screen.getByRole("button", { name: VOTE_CONFIG.mustGo.label }),
+    ).toHaveAttribute("aria-pressed", "false");
   });
 
   it("marks the Must Go button as pressed when currentVote matches it", () => {
@@ -60,6 +80,18 @@ describe("VotingActions", () => {
     );
 
     expect(onVote).toHaveBeenCalledWith(VOTE_CONFIG.mustGo.value);
+  });
+
+  it("calls onVote with 0 when the Neutral button is clicked", async () => {
+    const user = userEvent.setup();
+    const onVote = vi.fn();
+    render(<VotingActions onVote={onVote} onSkip={vi.fn()} />);
+
+    await user.click(
+      screen.getByRole("button", { name: VOTE_CONFIG.neutral.label }),
+    );
+
+    expect(onVote).toHaveBeenCalledWith(VOTE_CONFIG.neutral.value);
   });
 
   it("calls onSkip when the Skip button is clicked", async () => {

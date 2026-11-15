@@ -154,9 +154,7 @@ describe("EditionDialog", () => {
     await userEvent.type(slug, "Not Valid!");
     await userEvent.click(screen.getByRole("button", { name: "Update" }));
 
-    await expectAlert(
-      "Slug must contain only lowercase letters, numbers, and hyphens",
-    );
+    await expectAlert("Use only lowercase letters, numbers, and hyphens");
     expect(isEditionSlugTaken).not.toHaveBeenCalled();
     expect(updateMutate).not.toHaveBeenCalled();
   });
@@ -184,9 +182,7 @@ describe("EditionDialog", () => {
     await userEvent.type(slug, "My Slug!");
 
     expect(slug).toHaveValue("My Slug!");
-    await expectAlert(
-      "Slug must contain only lowercase letters, numbers, and hyphens",
-    );
+    await expectAlert("Use only lowercase letters, numbers, and hyphens");
 
     await userEvent.click(screen.getByRole("button", { name: "Slugify" }));
 

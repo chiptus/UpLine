@@ -23,6 +23,23 @@ export function isValidSlug(slug: string): boolean {
 }
 
 /**
+ * Explain why a non-empty slug is invalid, or null when it is valid. Kept in
+ * step with `isValidSlug` so forms can show the actual problem.
+ */
+export function getSlugError(slug: string): string | null {
+  if (/[^a-z0-9-]/.test(slug)) {
+    return "Use only lowercase letters, numbers, and hyphens";
+  }
+  if (slug.startsWith("-") || slug.endsWith("-")) {
+    return "Slug can't start or end with a hyphen";
+  }
+  if (slug.includes("--")) {
+    return "Slug can't contain two hyphens in a row";
+  }
+  return null;
+}
+
+/**
  * Clean up a user-typed slug field. Unlike `generateSlug` (which derives a
  * slug from a name and must never be empty), this preserves blank input: a
  * manually-controlled slug field being cleared means "not set yet", and

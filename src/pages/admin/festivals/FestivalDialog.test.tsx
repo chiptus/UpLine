@@ -79,14 +79,23 @@ describe("FestivalDialog", () => {
     await userEvent.type(slug, "My Slug!");
 
     expect(slug).toHaveValue("My Slug!");
-    await expectAlert(
-      "Slug must contain only lowercase letters, numbers, and hyphens",
-    );
+    await expectAlert("Use only lowercase letters, numbers, and hyphens");
 
     await userEvent.click(screen.getByRole("button", { name: "Slugify" }));
 
     expect(slug).toHaveValue("my-slug");
     expect(screen.queryByRole("button", { name: "Slugify" })).toBeNull();
+  });
+
+  it("explains a trailing or doubled hyphen specifically", async () => {
+    renderDialog();
+    const slug = screen.getByLabelText("URL Slug");
+
+    await userEvent.type(slug, "boom-");
+    await expectAlert("Slug can't start or end with a hyphen");
+
+    await userEvent.type(slug, "-fest");
+    await expectAlert("Slug can't contain two hyphens in a row");
   });
 
   it("lets a hyphen be typed mid-slug", async () => {

@@ -1,23 +1,17 @@
 import { z } from "zod";
-import { isValidSlug, sanitizeSlug } from "@/lib/slug";
+import { isValidSlug } from "@/lib/slug";
 
 export const DEFAULT_FESTIVAL_TIMEZONE = "Europe/Lisbon";
 export const DEFAULT_DAY_END_HOUR = 0;
 
 export const festivalFormSchema = z.object({
   name: z.string().trim().min(1, "Festival name is required"),
-  // Sanitized here too so Enter-to-submit while the field is focused (no blur) still passes.
   slug: z
     .string()
-    .transform(sanitizeSlug)
-    .pipe(
-      z
-        .string()
-        .min(1, "Festival slug is required")
-        .refine(
-          isValidSlug,
-          "Slug must contain only lowercase letters, numbers, and hyphens",
-        ),
+    .min(1, "Festival slug is required")
+    .refine(
+      isValidSlug,
+      "Slug must contain only lowercase letters, numbers, and hyphens",
     ),
   description: z.string(),
   published: z.boolean(),

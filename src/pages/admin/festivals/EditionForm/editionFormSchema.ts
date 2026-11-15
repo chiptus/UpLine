@@ -1,20 +1,14 @@
 import { z } from "zod";
-import { isValidSlug, sanitizeSlug } from "@/lib/slug";
+import { isValidSlug } from "@/lib/slug";
 
 export const editionFormSchema = z.object({
   name: z.string().trim().min(1, "Edition name is required"),
-  // Sanitized here too so Enter-to-submit while the field is focused (no blur) still passes.
   slug: z
     .string()
-    .transform(sanitizeSlug)
-    .pipe(
-      z
-        .string()
-        .min(1, "Edition slug is required")
-        .refine(
-          isValidSlug,
-          "Slug must contain only lowercase letters, numbers, and hyphens",
-        ),
+    .min(1, "Edition slug is required")
+    .refine(
+      isValidSlug,
+      "Slug must contain only lowercase letters, numbers, and hyphens",
     ),
   year: z
     .number({ invalid_type_error: "Enter a year between 2000 and 2100" })

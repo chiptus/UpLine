@@ -42,16 +42,3 @@ export function sanitizeSlug(input: string): string {
       .replace(/-+/g, "-")
   );
 }
-
-/**
- * Per-keystroke counterpart to `sanitizeSlug`: keeps trailing hyphens so a
- * dash typed mid-slug ("boom-" on the way to "boom-festival") isn't stripped
- * before the next character arrives. Run `sanitizeSlug` on blur to finish.
- */
-export function normalizeSlugInput(input: string): string {
-  return input
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+/, "")
-    .replace(/-+/g, "-");
-}

@@ -64,8 +64,7 @@ describe("FestivalDialog", () => {
 
     await userEvent.clear(slug);
     await userEvent.click(slug);
-    await userEvent.paste("My Custom Slug!");
-    await userEvent.tab();
+    await userEvent.paste("my-custom-slug");
     expect(slug).toHaveValue("my-custom-slug");
 
     await userEvent.type(name, "ival");
@@ -73,29 +72,31 @@ describe("FestivalDialog", () => {
     expect(slug).toHaveValue("my-custom-slug");
   });
 
-  it("lets a hyphen be typed mid-slug and trims it on blur", async () => {
+  it("keeps what the user types, flags an invalid slug and offers to slugify it", async () => {
+    renderDialog();
+    const slug = screen.getByLabelText("URL Slug");
+
+    await userEvent.type(slug, "My Slug!");
+
+    expect(slug).toHaveValue("My Slug!");
+    await expectAlert(
+      "Slug must contain only lowercase letters, numbers, and hyphens",
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: "Slugify" }));
+
+    expect(slug).toHaveValue("my-slug");
+    expect(screen.queryByRole("button", { name: "Slugify" })).toBeNull();
+  });
+
+  it("lets a hyphen be typed mid-slug", async () => {
     renderDialog();
     const slug = screen.getByLabelText("URL Slug");
 
     await userEvent.type(slug, "boom-festival");
+
     expect(slug).toHaveValue("boom-festival");
-
-    await userEvent.clear(slug);
-    await userEvent.type(slug, "boom-");
-    expect(slug).toHaveValue("boom-");
-    await userEvent.tab();
-    expect(slug).toHaveValue("boom");
-  });
-
-  it("sanitizes a trailing hyphen on submit without blurring the slug", async () => {
-    renderDialog();
-    await userEvent.type(screen.getByLabelText("Festival Name"), "Boom");
-    const slug = screen.getByLabelText("URL Slug");
-    await userEvent.clear(slug);
-    await userEvent.type(slug, "boom-{enter}");
-
-    await vi.waitFor(() => expect(createMutate).toHaveBeenCalledTimes(1));
-    expect(createMutate.mock.calls[0][0]).toMatchObject({ slug: "boom" });
+    expect(screen.queryByRole("button", { name: "Slugify" })).toBeNull();
   });
 
   it("resets the form when the dialog is reopened", async () => {

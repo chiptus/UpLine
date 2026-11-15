@@ -75,8 +75,7 @@ describe("EditionDialog", () => {
 
     await userEvent.clear(slug);
     await userEvent.click(slug);
-    await userEvent.paste("My Custom Slug!");
-    await userEvent.tab();
+    await userEvent.paste("my-custom-slug");
     expect(slug).toHaveValue("my-custom-slug");
 
     await userEvent.type(name, "!");
@@ -147,6 +146,21 @@ describe("EditionDialog", () => {
     expect(updateMutate).not.toHaveBeenCalled();
   });
 
+  it("does not look up or update an invalid slug", async () => {
+    renderDialog({ editingEdition: makeEdition() });
+
+    const slug = screen.getByLabelText("URL Slug");
+    await userEvent.clear(slug);
+    await userEvent.type(slug, "Not Valid!");
+    await userEvent.click(screen.getByRole("button", { name: "Update" }));
+
+    await expectAlert(
+      "Slug must contain only lowercase letters, numbers, and hyphens",
+    );
+    expect(isEditionSlugTaken).not.toHaveBeenCalled();
+    expect(updateMutate).not.toHaveBeenCalled();
+  });
+
   it("does not update when the dialog closes during the slug lookup", async () => {
     const lookup = deferred<boolean>();
     isEditionSlugTaken.mockReturnValue(lookup.promise);
@@ -163,17 +177,31 @@ describe("EditionDialog", () => {
     expect(updateMutate).not.toHaveBeenCalled();
   });
 
-  it("lets a hyphen be typed mid-slug and trims it on blur", async () => {
+  it("keeps what the user types, flags an invalid slug and offers to slugify it", async () => {
     renderDialog();
     const slug = screen.getByLabelText("URL Slug");
 
-    await userEvent.type(slug, "boom-2025");
-    expect(slug).toHaveValue("boom-2025");
+    await userEvent.type(slug, "My Slug!");
 
-    await userEvent.clear(slug);
-    await userEvent.type(slug, "boom-");
-    await userEvent.tab();
-    expect(slug).toHaveValue("boom");
+    expect(slug).toHaveValue("My Slug!");
+    await expectAlert(
+      "Slug must contain only lowercase letters, numbers, and hyphens",
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: "Slugify" }));
+
+    expect(slug).toHaveValue("my-slug");
+    expect(screen.queryByRole("button", { name: "Slugify" })).toBeNull();
+  });
+
+  it("lets a hyphen be typed mid-slug", async () => {
+    renderDialog();
+    const slug = screen.getByLabelText("URL Slug");
+
+    await userEvent.type(slug, "boom-festival");
+
+    expect(slug).toHaveValue("boom-festival");
+    expect(screen.queryByRole("button", { name: "Slugify" })).toBeNull();
   });
 
   it("resets the form when the dialog is reopened", async () => {

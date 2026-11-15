@@ -1,10 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  generateSlug,
-  isValidSlug,
-  normalizeSlugInput,
-  sanitizeSlug,
-} from "./slug";
+import { generateSlug, isValidSlug, sanitizeSlug } from "./slug";
 
 describe("generateSlug", () => {
   it("converts basic text to lowercase slug", () => {
@@ -161,17 +156,5 @@ describe("sanitizeSlug", () => {
         expect(isValidSlug(result)).toBe(true);
       }
     });
-  });
-});
-
-describe("normalizeSlugInput", () => {
-  it("keeps a trailing hyphen so dashes can be typed mid-slug", () => {
-    expect(normalizeSlugInput("boom-")).toBe("boom-");
-    expect(normalizeSlugInput("boom-f")).toBe("boom-f");
-  });
-
-  it("lowercases, replaces invalid characters and collapses hyphens", () => {
-    expect(normalizeSlugInput("My  Slug!!")).toBe("my-slug-");
-    expect(normalizeSlugInput("-a--b")).toBe("a-b");
   });
 });

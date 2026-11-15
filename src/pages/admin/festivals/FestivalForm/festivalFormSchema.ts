@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { isValidSlug } from "@/lib/slug";
+import { getSlugError } from "@/lib/slug";
 
 export const DEFAULT_FESTIVAL_TIMEZONE = "Europe/Lisbon";
 export const DEFAULT_DAY_END_HOUR = 0;
@@ -9,10 +9,10 @@ export const festivalFormSchema = z.object({
   slug: z
     .string()
     .min(1, "Festival slug is required")
-    .refine(
-      isValidSlug,
-      "Slug must contain only lowercase letters, numbers, and hyphens",
-    ),
+    .superRefine((slug, ctx) => {
+      const message = getSlugError(slug);
+      if (message) ctx.addIssue({ code: z.ZodIssueCode.custom, message });
+    }),
   description: z.string(),
   published: z.boolean(),
   timezone: z.string(),

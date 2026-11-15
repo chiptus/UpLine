@@ -15,7 +15,7 @@ interface EditionFormProps {
   defaultValues: EditionFormData;
   submitLabel: string;
   isSubmitting: boolean;
-  onSubmit: (values: EditionFormData) => void;
+  onSubmit: (values: EditionFormData) => void | Promise<void>;
   onCancel: () => void;
 }
 

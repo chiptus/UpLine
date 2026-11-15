@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { generateSlug, isValidSlug, sanitizeSlug } from "./slug";
+import { generateSlug, getSlugError, isValidSlug, sanitizeSlug } from "./slug";
 
 describe("generateSlug", () => {
   it("converts basic text to lowercase slug", () => {
@@ -156,5 +156,25 @@ describe("sanitizeSlug", () => {
         expect(isValidSlug(result)).toBe(true);
       }
     });
+  });
+});
+
+describe("getSlugError", () => {
+  it("returns null for a valid slug", () => {
+    expect(getSlugError("boom-2025")).toBeNull();
+  });
+
+  it("names the specific problem", () => {
+    expect(getSlugError("Boom")).toMatch(/lowercase letters/);
+    expect(getSlugError("my slug")).toMatch(/lowercase letters/);
+    expect(getSlugError("boom-")).toMatch(/start or end/);
+    expect(getSlugError("-boom")).toMatch(/start or end/);
+    expect(getSlugError("boom--fest")).toMatch(/two hyphens/);
+  });
+
+  it("agrees with isValidSlug", () => {
+    for (const slug of ["a", "a-b", "a-", "-a", "a--b", "A", "a b", "a_b"]) {
+      expect(getSlugError(slug) === null).toBe(isValidSlug(slug));
+    }
   });
 });

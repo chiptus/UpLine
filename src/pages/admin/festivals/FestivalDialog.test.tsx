@@ -64,12 +64,48 @@ describe("FestivalDialog", () => {
 
     await userEvent.clear(slug);
     await userEvent.click(slug);
-    await userEvent.paste("My Custom Slug!");
+    await userEvent.paste("my-custom-slug");
     expect(slug).toHaveValue("my-custom-slug");
 
     await userEvent.type(name, "ival");
 
     expect(slug).toHaveValue("my-custom-slug");
+  });
+
+  it("keeps what the user types, flags an invalid slug and offers to slugify it", async () => {
+    renderDialog();
+    const slug = screen.getByLabelText("URL Slug");
+
+    await userEvent.type(slug, "My Slug!");
+
+    expect(slug).toHaveValue("My Slug!");
+    await expectAlert("Use only lowercase letters, numbers, and hyphens");
+
+    await userEvent.click(screen.getByRole("button", { name: "Slugify" }));
+
+    expect(slug).toHaveValue("my-slug");
+    expect(screen.queryByRole("button", { name: "Slugify" })).toBeNull();
+  });
+
+  it("explains a trailing or doubled hyphen specifically", async () => {
+    renderDialog();
+    const slug = screen.getByLabelText("URL Slug");
+
+    await userEvent.type(slug, "boom-");
+    await expectAlert("Slug can't start or end with a hyphen");
+
+    await userEvent.type(slug, "-fest");
+    await expectAlert("Slug can't contain two hyphens in a row");
+  });
+
+  it("lets a hyphen be typed mid-slug", async () => {
+    renderDialog();
+    const slug = screen.getByLabelText("URL Slug");
+
+    await userEvent.type(slug, "boom-festival");
+
+    expect(slug).toHaveValue("boom-festival");
+    expect(screen.queryByRole("button", { name: "Slugify" })).toBeNull();
   });
 
   it("resets the form when the dialog is reopened", async () => {

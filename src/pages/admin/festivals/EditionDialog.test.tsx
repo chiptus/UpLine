@@ -14,6 +14,10 @@ vi.mock("@/api/editions/useCreateFestivalEdition", () => ({
     isPending: false,
   }),
 }));
+const isEditionSlugTaken = vi.fn();
+vi.mock("@/api/festivals/slugTaken", () => ({
+  isEditionSlugTaken: (...args: unknown[]) => isEditionSlugTaken(...args),
+}));
 vi.mock("@/api/editions/useUpdateFestivalEdition", () => ({
   useUpdateFestivalEditionMutation: () => ({
     mutate: updateMutate,
@@ -34,6 +38,8 @@ describe("EditionDialog", () => {
     );
     createMutate.mockReset();
     updateMutate.mockReset();
+    isEditionSlugTaken.mockReset();
+    isEditionSlugTaken.mockResolvedValue(false);
   });
 
   it("blocks submit with field errors for an empty name and slug", async () => {
@@ -69,7 +75,7 @@ describe("EditionDialog", () => {
 
     await userEvent.clear(slug);
     await userEvent.click(slug);
-    await userEvent.paste("My Custom Slug!");
+    await userEvent.paste("my-custom-slug");
     expect(slug).toHaveValue("my-custom-slug");
 
     await userEvent.type(name, "!");
@@ -127,6 +133,71 @@ describe("EditionDialog", () => {
     await vi.waitFor(() =>
       expect(screen.getByRole("button", { name: "Open" })).toHaveFocus(),
     );
+  });
+
+  it("blocks the update when the new slug is already taken", async () => {
+    isEditionSlugTaken.mockResolvedValue(true);
+    renderDialog({ editingEdition: makeEdition() });
+
+    await userEvent.type(screen.getByLabelText("Edition Name"), " Redux");
+    await userEvent.click(screen.getByRole("button", { name: "Update" }));
+
+    await vi.waitFor(() => expect(isEditionSlugTaken).toHaveBeenCalled());
+    expect(updateMutate).not.toHaveBeenCalled();
+  });
+
+  it("does not look up or update an invalid slug", async () => {
+    renderDialog({ editingEdition: makeEdition() });
+
+    const slug = screen.getByLabelText("URL Slug");
+    await userEvent.clear(slug);
+    await userEvent.type(slug, "Not Valid!");
+    await userEvent.click(screen.getByRole("button", { name: "Update" }));
+
+    await expectAlert("Use only lowercase letters, numbers, and hyphens");
+    expect(isEditionSlugTaken).not.toHaveBeenCalled();
+    expect(updateMutate).not.toHaveBeenCalled();
+  });
+
+  it("does not update when the dialog closes during the slug lookup", async () => {
+    const lookup = deferred<boolean>();
+    isEditionSlugTaken.mockReturnValue(lookup.promise);
+    const { rerender } = renderDialog({ editingEdition: makeEdition() });
+
+    await userEvent.type(screen.getByLabelText("Edition Name"), " Redux");
+    await userEvent.click(screen.getByRole("button", { name: "Update" }));
+    await vi.waitFor(() => expect(isEditionSlugTaken).toHaveBeenCalled());
+
+    rerender(dialog({ open: false, editingEdition: makeEdition() }));
+    lookup.resolve(false);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(updateMutate).not.toHaveBeenCalled();
+  });
+
+  it("keeps what the user types, flags an invalid slug and offers to slugify it", async () => {
+    renderDialog();
+    const slug = screen.getByLabelText("URL Slug");
+
+    await userEvent.type(slug, "My Slug!");
+
+    expect(slug).toHaveValue("My Slug!");
+    await expectAlert("Use only lowercase letters, numbers, and hyphens");
+
+    await userEvent.click(screen.getByRole("button", { name: "Slugify" }));
+
+    expect(slug).toHaveValue("my-slug");
+    expect(screen.queryByRole("button", { name: "Slugify" })).toBeNull();
+  });
+
+  it("lets a hyphen be typed mid-slug", async () => {
+    renderDialog();
+    const slug = screen.getByLabelText("URL Slug");
+
+    await userEvent.type(slug, "boom-festival");
+
+    expect(slug).toHaveValue("boom-festival");
+    expect(screen.queryByRole("button", { name: "Slugify" })).toBeNull();
   });
 
   it("resets the form when the dialog is reopened", async () => {
@@ -198,4 +269,12 @@ function renderDialog(
   props: Partial<React.ComponentProps<typeof EditionDialog>> = {},
 ) {
   return render(dialog(props));
+}
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((res) => {
+    resolve = res;
+  });
+  return { promise, resolve };
 }

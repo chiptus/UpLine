@@ -7,6 +7,8 @@ import {
   FestivalFormData,
 } from "./FestivalForm/festivalFormSchema";
 import { generateSlug } from "@/lib/slug";
+import { isFestivalSlugTaken } from "@/api/festivals/slugTaken";
+import { useToast } from "@/hooks/use-toast";
 
 interface EditFestivalFormProps {
   festival: Festival;
@@ -15,21 +17,37 @@ interface EditFestivalFormProps {
 
 export function EditFestivalForm({ festival, onDone }: EditFestivalFormProps) {
   const updateFestivalMutation = useUpdateFestivalMutation();
+  const { toast } = useToast();
+
+  async function handleSubmit(values: FestivalFormData) {
+    // A failed pre-check must not block saving: the DB unique constraint is the backstop.
+    const taken =
+      values.slug !== festival.slug &&
+      (await isFestivalSlugTaken(values.slug, festival.id).catch(() => false));
+    if (taken) {
+      toast({
+        title: "Slug already taken",
+        description: "Another festival uses this slug. Choose a different one.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    updateFestivalMutation.mutate(
+      {
+        festivalId: festival.id,
+        festivalData: { ...values, name: values.name.trim() },
+      },
+      { onSuccess: onDone },
+    );
+  }
 
   return (
     <FestivalForm
       defaultValues={getEditDefaults(festival)}
       submitLabel="Update"
       isSubmitting={updateFestivalMutation.isPending}
-      onSubmit={(values) =>
-        updateFestivalMutation.mutate(
-          {
-            festivalId: festival.id,
-            festivalData: { ...values, name: values.name.trim() },
-          },
-          { onSuccess: onDone },
-        )
-      }
+      onSubmit={handleSubmit}
       onCancel={onDone}
     />
   );

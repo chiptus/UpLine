@@ -21,7 +21,7 @@ interface FestivalFormProps {
   defaultValues: FestivalFormData;
   submitLabel: string;
   isSubmitting: boolean;
-  onSubmit: (values: FestivalFormData) => void;
+  onSubmit: (values: FestivalFormData) => void | Promise<void>;
   onCancel: () => void;
 }
 

@@ -14,6 +14,10 @@ vi.mock("@/api/editions/useCreateFestivalEdition", () => ({
     isPending: false,
   }),
 }));
+const isEditionSlugTaken = vi.fn();
+vi.mock("@/api/festivals/slugTaken", () => ({
+  isEditionSlugTaken: (...args: unknown[]) => isEditionSlugTaken(...args),
+}));
 vi.mock("@/api/editions/useUpdateFestivalEdition", () => ({
   useUpdateFestivalEditionMutation: () => ({
     mutate: updateMutate,
@@ -34,6 +38,8 @@ describe("EditionDialog", () => {
     );
     createMutate.mockReset();
     updateMutate.mockReset();
+    isEditionSlugTaken.mockReset();
+    isEditionSlugTaken.mockResolvedValue(false);
   });
 
   it("blocks submit with field errors for an empty name and slug", async () => {
@@ -128,6 +134,30 @@ describe("EditionDialog", () => {
     await vi.waitFor(() =>
       expect(screen.getByRole("button", { name: "Open" })).toHaveFocus(),
     );
+  });
+
+  it("blocks the update when the new slug is already taken", async () => {
+    isEditionSlugTaken.mockResolvedValue(true);
+    renderDialog({ editingEdition: makeEdition() });
+
+    await userEvent.type(screen.getByLabelText("Edition Name"), " Redux");
+    await userEvent.click(screen.getByRole("button", { name: "Update" }));
+
+    await vi.waitFor(() => expect(isEditionSlugTaken).toHaveBeenCalled());
+    expect(updateMutate).not.toHaveBeenCalled();
+  });
+
+  it("lets a hyphen be typed mid-slug and trims it on blur", async () => {
+    renderDialog();
+    const slug = screen.getByLabelText("URL Slug");
+
+    await userEvent.type(slug, "boom-2025");
+    expect(slug).toHaveValue("boom-2025");
+
+    await userEvent.clear(slug);
+    await userEvent.type(slug, "boom-");
+    await userEvent.tab();
+    expect(slug).toHaveValue("boom");
   });
 
   it("resets the form when the dialog is reopened", async () => {

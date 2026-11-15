@@ -1,14 +1,31 @@
 import { describe, expect, it } from "vitest";
-import { isUniqueViolation } from "./postgresErrors";
+import { isSlugUniqueViolation } from "./postgresErrors";
 
-describe("isUniqueViolation", () => {
-  it("is true for a Postgres 23505 error", () => {
-    expect(isUniqueViolation({ code: "23505", message: "dup" })).toBe(true);
+describe("isSlugUniqueViolation", () => {
+  it("is true for a 23505 on a slug constraint", () => {
+    expect(
+      isSlugUniqueViolation({
+        code: "23505",
+        message:
+          'duplicate key value violates unique constraint "festivals_slug_unique"',
+      }),
+    ).toBe(true);
+  });
+
+  it("is false for a 23505 on another constraint", () => {
+    expect(
+      isSlugUniqueViolation({
+        code: "23505",
+        message: 'duplicate key value violates unique constraint "other_key"',
+      }),
+    ).toBe(false);
   });
 
   it("is false for other codes and non-objects", () => {
-    expect(isUniqueViolation({ code: "42501" })).toBe(false);
-    expect(isUniqueViolation(new Error("boom"))).toBe(false);
-    expect(isUniqueViolation(null)).toBe(false);
+    expect(isSlugUniqueViolation({ code: "42501", message: "slug" })).toBe(
+      false,
+    );
+    expect(isSlugUniqueViolation(new Error("slug"))).toBe(false);
+    expect(isSlugUniqueViolation(null)).toBe(false);
   });
 });

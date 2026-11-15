@@ -4,13 +4,15 @@ import { supabase } from "@/integrations/supabase/client";
 export async function isFestivalSlugTaken(
   slug: string,
   excludeFestivalId: string,
+  signal?: AbortSignal,
 ): Promise<boolean> {
-  const { data, error } = await supabase
+  const query = supabase
     .from("festivals")
     .select("id")
     .eq("slug", slug)
     .neq("id", excludeFestivalId)
     .limit(1);
+  const { data, error } = await (signal ? query.abortSignal(signal) : query);
 
   if (error) throw error;
   return data.length > 0;
@@ -21,14 +23,16 @@ export async function isEditionSlugTaken(
   slug: string,
   festivalId: string,
   excludeEditionId: string,
+  signal?: AbortSignal,
 ): Promise<boolean> {
-  const { data, error } = await supabase
+  const query = supabase
     .from("festival_editions")
     .select("id")
     .eq("slug", slug)
     .eq("festival_id", festivalId)
     .neq("id", excludeEditionId)
     .limit(1);
+  const { data, error } = await (signal ? query.abortSignal(signal) : query);
 
   if (error) throw error;
   return data.length > 0;

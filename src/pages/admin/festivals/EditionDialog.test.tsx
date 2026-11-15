@@ -147,6 +147,22 @@ describe("EditionDialog", () => {
     expect(updateMutate).not.toHaveBeenCalled();
   });
 
+  it("does not update when the dialog closes during the slug lookup", async () => {
+    const lookup = deferred<boolean>();
+    isEditionSlugTaken.mockReturnValue(lookup.promise);
+    const { rerender } = renderDialog({ editingEdition: makeEdition() });
+
+    await userEvent.type(screen.getByLabelText("Edition Name"), " Redux");
+    await userEvent.click(screen.getByRole("button", { name: "Update" }));
+    await vi.waitFor(() => expect(isEditionSlugTaken).toHaveBeenCalled());
+
+    rerender(dialog({ open: false, editingEdition: makeEdition() }));
+    lookup.resolve(false);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(updateMutate).not.toHaveBeenCalled();
+  });
+
   it("lets a hyphen be typed mid-slug and trims it on blur", async () => {
     renderDialog();
     const slug = screen.getByLabelText("URL Slug");
@@ -229,4 +245,12 @@ function renderDialog(
   props: Partial<React.ComponentProps<typeof EditionDialog>> = {},
 ) {
   return render(dialog(props));
+}
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((res) => {
+    resolve = res;
+  });
+  return { promise, resolve };
 }

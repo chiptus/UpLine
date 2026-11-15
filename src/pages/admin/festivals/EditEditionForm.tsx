@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { FestivalEdition } from "@/api/editions/types";
 import { useUpdateFestivalEditionMutation } from "@/api/editions/useUpdateFestivalEdition";
 import { generateSlug } from "@/lib/slug";
@@ -24,19 +24,32 @@ export function EditEditionForm({
   const updateEditionMutation = useUpdateFestivalEditionMutation();
   const { toast } = useToast();
   const submitInFlight = useRef(false);
+  const abortController = useRef<AbortController | null>(null);
+
+  // Closing the dialog mid-lookup must not let the edit save afterwards.
+  useEffect(() => {
+    const controller = new AbortController();
+    abortController.current = controller;
+    return () => controller.abort();
+  }, []);
 
   async function handleSubmit(values: EditionFormData) {
     // The slug lookup runs before the mutation, so isPending alone can't stop a double submit.
     if (submitInFlight.current) return;
     submitInFlight.current = true;
+    const signal = abortController.current?.signal;
     let mutationStarted = false;
     try {
       // A failed pre-check must not block saving: the DB unique constraint is the backstop.
       const taken =
         values.slug !== edition.slug &&
-        (await isEditionSlugTaken(values.slug, festivalId, edition.id).catch(
-          () => false,
-        ));
+        (await isEditionSlugTaken(
+          values.slug,
+          festivalId,
+          edition.id,
+          signal,
+        ).catch(() => false));
+      if (signal?.aborted) return;
       if (taken) {
         toast({
           title: "Slug already taken",

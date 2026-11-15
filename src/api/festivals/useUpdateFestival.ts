@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { isUniqueViolation } from "@/lib/postgresErrors";
 import { supabase } from "@/integrations/supabase/client";
 import { festivalsKeys } from "./types";
 
@@ -51,7 +52,9 @@ export function useUpdateFestivalMutation() {
       console.error("Error updating festival:", error);
       toast({
         title: "Error",
-        description: "Failed to update festival",
+        description: isUniqueViolation(error)
+          ? "This slug is already taken. Choose a different one."
+          : "Failed to update festival",
         variant: "destructive",
       });
     },

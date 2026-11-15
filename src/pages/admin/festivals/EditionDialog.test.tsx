@@ -70,6 +70,7 @@ describe("EditionDialog", () => {
     await userEvent.clear(slug);
     await userEvent.click(slug);
     await userEvent.paste("My Custom Slug!");
+    await userEvent.tab();
     expect(slug).toHaveValue("my-custom-slug");
 
     await userEvent.type(name, "!");

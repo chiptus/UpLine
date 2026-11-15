@@ -65,11 +65,26 @@ describe("FestivalDialog", () => {
     await userEvent.clear(slug);
     await userEvent.click(slug);
     await userEvent.paste("My Custom Slug!");
+    await userEvent.tab();
     expect(slug).toHaveValue("my-custom-slug");
 
     await userEvent.type(name, "ival");
 
     expect(slug).toHaveValue("my-custom-slug");
+  });
+
+  it("lets a hyphen be typed mid-slug and trims it on blur", async () => {
+    renderDialog();
+    const slug = screen.getByLabelText("URL Slug");
+
+    await userEvent.type(slug, "boom-festival");
+    expect(slug).toHaveValue("boom-festival");
+
+    await userEvent.clear(slug);
+    await userEvent.type(slug, "boom-");
+    expect(slug).toHaveValue("boom-");
+    await userEvent.tab();
+    expect(slug).toHaveValue("boom");
   });
 
   it("resets the form when the dialog is reopened", async () => {

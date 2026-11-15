@@ -8,7 +8,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { sanitizeSlug } from "@/lib/slug";
+import { normalizeSlugInput, sanitizeSlug } from "@/lib/slug";
 import type { EditionFormData } from "./editionFormSchema";
 
 export function EditionSlugField() {
@@ -25,7 +25,13 @@ export function EditionSlugField() {
             <Input
               placeholder="e.g., boom-2025"
               {...field}
-              onChange={(e) => field.onChange(sanitizeSlug(e.target.value))}
+              onChange={(e) =>
+                field.onChange(normalizeSlugInput(e.target.value))
+              }
+              onBlur={() => {
+                field.onChange(sanitizeSlug(field.value));
+                field.onBlur();
+              }}
             />
           </FormControl>
           <FormMessage />

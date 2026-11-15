@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { useUpdateFestivalMutation } from "@/api/festivals/useUpdateFestival";
 import { Festival } from "@/api/festivals/types";
 import { FestivalForm } from "./FestivalForm/FestivalForm";
@@ -18,28 +19,46 @@ interface EditFestivalFormProps {
 export function EditFestivalForm({ festival, onDone }: EditFestivalFormProps) {
   const updateFestivalMutation = useUpdateFestivalMutation();
   const { toast } = useToast();
+  const submitInFlight = useRef(false);
 
   async function handleSubmit(values: FestivalFormData) {
-    // A failed pre-check must not block saving: the DB unique constraint is the backstop.
-    const taken =
-      values.slug !== festival.slug &&
-      (await isFestivalSlugTaken(values.slug, festival.id).catch(() => false));
-    if (taken) {
-      toast({
-        title: "Slug already taken",
-        description: "Another festival uses this slug. Choose a different one.",
-        variant: "destructive",
-      });
-      return;
-    }
+    // The slug lookup runs before the mutation, so isPending alone can't stop a double submit.
+    if (submitInFlight.current) return;
+    submitInFlight.current = true;
+    let mutationStarted = false;
+    try {
+      // A failed pre-check must not block saving: the DB unique constraint is the backstop.
+      const taken =
+        values.slug !== festival.slug &&
+        (await isFestivalSlugTaken(values.slug, festival.id).catch(
+          () => false,
+        ));
+      if (taken) {
+        toast({
+          title: "Slug already taken",
+          description:
+            "Another festival uses this slug. Choose a different one.",
+          variant: "destructive",
+        });
+        return;
+      }
 
-    updateFestivalMutation.mutate(
-      {
-        festivalId: festival.id,
-        festivalData: { ...values, name: values.name.trim() },
-      },
-      { onSuccess: onDone },
-    );
+      mutationStarted = true;
+      updateFestivalMutation.mutate(
+        {
+          festivalId: festival.id,
+          festivalData: { ...values, name: values.name.trim() },
+        },
+        {
+          onSuccess: onDone,
+          onSettled: () => {
+            submitInFlight.current = false;
+          },
+        },
+      );
+    } finally {
+      if (!mutationStarted) submitInFlight.current = false;
+    }
   }
 
   return (

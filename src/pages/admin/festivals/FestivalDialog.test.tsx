@@ -87,6 +87,17 @@ describe("FestivalDialog", () => {
     expect(slug).toHaveValue("boom");
   });
 
+  it("sanitizes a trailing hyphen on submit without blurring the slug", async () => {
+    renderDialog();
+    await userEvent.type(screen.getByLabelText("Festival Name"), "Boom");
+    const slug = screen.getByLabelText("URL Slug");
+    await userEvent.clear(slug);
+    await userEvent.type(slug, "boom-{enter}");
+
+    await vi.waitFor(() => expect(createMutate).toHaveBeenCalledTimes(1));
+    expect(createMutate.mock.calls[0][0]).toMatchObject({ slug: "boom" });
+  });
+
   it("resets the form when the dialog is reopened", async () => {
     const { rerender } = renderDialog();
     await userEvent.type(screen.getByLabelText("Festival Name"), "Draft");

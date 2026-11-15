@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { FestivalEdition } from "@/api/editions/types";
 import { useUpdateFestivalEditionMutation } from "@/api/editions/useUpdateFestivalEdition";
 import { generateSlug } from "@/lib/slug";
@@ -22,31 +23,46 @@ export function EditEditionForm({
 }: EditEditionFormProps) {
   const updateEditionMutation = useUpdateFestivalEditionMutation();
   const { toast } = useToast();
+  const submitInFlight = useRef(false);
 
   async function handleSubmit(values: EditionFormData) {
-    // A failed pre-check must not block saving: the DB unique constraint is the backstop.
-    const taken =
-      values.slug !== edition.slug &&
-      (await isEditionSlugTaken(values.slug, festivalId, edition.id).catch(
-        () => false,
-      ));
-    if (taken) {
-      toast({
-        title: "Slug already taken",
-        description:
-          "Another edition of this festival uses this slug. Choose a different one.",
-        variant: "destructive",
-      });
-      return;
-    }
+    // The slug lookup runs before the mutation, so isPending alone can't stop a double submit.
+    if (submitInFlight.current) return;
+    submitInFlight.current = true;
+    let mutationStarted = false;
+    try {
+      // A failed pre-check must not block saving: the DB unique constraint is the backstop.
+      const taken =
+        values.slug !== edition.slug &&
+        (await isEditionSlugTaken(values.slug, festivalId, edition.id).catch(
+          () => false,
+        ));
+      if (taken) {
+        toast({
+          title: "Slug already taken",
+          description:
+            "Another edition of this festival uses this slug. Choose a different one.",
+          variant: "destructive",
+        });
+        return;
+      }
 
-    updateEditionMutation.mutate(
-      {
-        editionId: edition.id,
-        editionData: toEditionPayload(values, festivalId),
-      },
-      { onSuccess: onDone },
-    );
+      mutationStarted = true;
+      updateEditionMutation.mutate(
+        {
+          editionId: edition.id,
+          editionData: toEditionPayload(values, festivalId),
+        },
+        {
+          onSuccess: onDone,
+          onSettled: () => {
+            submitInFlight.current = false;
+          },
+        },
+      );
+    } finally {
+      if (!mutationStarted) submitInFlight.current = false;
+    }
   }
 
   return (

@@ -11,5 +11,7 @@ export const artistsKeys = {
   list: (filters?: unknown) => [...artistsKeys.lists(), filters] as const,
   details: () => [...artistsKeys.all, "detail"] as const,
   detail: (id: string) => [...artistsKeys.details(), id] as const,
+  slugTaken: (params: unknown) =>
+    [...artistsKeys.all, "slug-taken", params] as const,
   bySlug: (slug: string) => [...artistsKeys.details(), "slug", slug] as const,
 };

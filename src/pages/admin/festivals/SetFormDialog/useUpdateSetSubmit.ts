@@ -1,6 +1,4 @@
-import { useState } from "react";
 import { FestivalSet } from "@/api/sets/types";
-import { isSetSlugTaken } from "@/api/sets/isSetSlugTaken";
 import { useUpdateSetMutation } from "@/api/sets/useUpdateSet";
 import { useAddArtistsToSetMutation } from "@/api/sets/useAddArtistsToSet";
 import { useRemoveArtistsFromSetMutation } from "@/api/sets/useRemoveArtistsFromSet";
@@ -27,10 +25,7 @@ export function useUpdateSetSubmit({
   const addArtistsToSetMutation = useAddArtistsToSetMutation();
   const removeArtistsFromSetMutation = useRemoveArtistsFromSetMutation();
 
-  const [isCheckingSlug, setIsCheckingSlug] = useState(false);
-
   const isPending =
-    isCheckingSlug ||
     updateSetMutation.isPending ||
     addArtistsToSetMutation.isPending ||
     removeArtistsFromSetMutation.isPending;
@@ -43,27 +38,13 @@ export function useUpdateSetSubmit({
     // The schema already trims; undefined means the slug is unchanged.
     const changedSlug =
       data.slug && data.slug !== set.slug ? data.slug : undefined;
-    if (changedSlug) {
-      checkSlugThenUpdate(data, changedSlug);
-      return;
-    }
-    update(data, undefined);
+    update(data, changedSlug);
   }
 
   /**
-   * Pre-check so the user is warned before the write; the unique constraint
-   * still backstops a race, handled in update's onError.
+   * Availability is checked live in the form; the unique constraint still
+   * backstops a race, handled in onError.
    */
-  function checkSlugThenUpdate(data: SetFormData, slug: string) {
-    setIsCheckingSlug(true);
-    isSetSlugTaken({ editionId, slug, excludeSetId: set.id })
-      .then(
-        (taken) => (taken ? onSlugTaken() : update(data, slug)),
-        () => update(data, slug),
-      )
-      .finally(() => setIsCheckingSlug(false));
-  }
-
   function update(data: SetFormData, slug: string | undefined) {
     updateSetMutation.mutate(
       {

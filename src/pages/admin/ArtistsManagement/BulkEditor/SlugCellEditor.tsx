@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { isArtistSlugTaken } from "@/api/artists/isArtistSlugTaken";
+import { useArtistSlugTakenQuery } from "@/api/artists/useArtistSlugTaken";
 import { Input } from "@/components/ui/input";
+import { useCheckableSlug } from "@/hooks/useCheckableSlug";
 import { SLUG_TAKEN_MESSAGE } from "@/lib/slug";
 import { slugFieldSchema } from "@/lib/slugFieldSchema";
 
@@ -30,15 +31,22 @@ export function SlugCellEditor({
   onSave,
   onClose,
 }: SlugCellEditorProps) {
-  const [phase, setPhase] = useState<"idle" | "checking" | "saving">("idle");
-  const lookupAbort = useRef<AbortController | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const form = useForm<SlugCellData>({
     resolver: zodResolver(slugCellSchema),
     defaultValues: { slug: value },
   });
-  const error = form.formState.errors.slug?.message;
-
-  useEffect(() => () => lookupAbort.current?.abort(), []);
+  const slug = useWatch({ control: form.control, name: "slug" });
+  const checkableSlug = useCheckableSlug(slug, value);
+  const { data: taken } = useArtistSlugTakenQuery({
+    slug: checkableSlug ?? "",
+    excludeArtistId: artistId,
+    enabled: checkableSlug !== null,
+  });
+  const isTaken = checkableSlug !== null && taken === true;
+  const error =
+    form.formState.errors.slug?.message ??
+    (isTaken ? SLUG_TAKEN_MESSAGE : undefined);
 
   return (
     <form
@@ -52,7 +60,7 @@ export function SlugCellEditor({
         className="text-sm font-mono"
         aria-label="Artist slug"
         aria-invalid={!!error}
-        readOnly={phase !== "idle"}
+        readOnly={isSaving}
         autoFocus
       />
       {error && <p className="text-xs text-destructive">{error}</p>}
@@ -61,41 +69,23 @@ export function SlugCellEditor({
 
   function onKeyDown(e: React.KeyboardEvent) {
     // A started save can't be aborted, so cancelling would only hide it.
-    if (e.key === "Escape" && phase !== "saving") onClose();
+    if (e.key === "Escape" && !isSaving) onClose();
   }
 
-  async function submit(data: SlugCellData) {
-    if (phase !== "idle") return;
+  function submit(data: SlugCellData) {
+    if (isSaving || isTaken) return;
     if (data.slug === value) {
       onClose();
       return;
     }
 
-    const abort = new AbortController();
-    lookupAbort.current = abort;
-    setPhase("checking");
-
-    // A failed lookup falls through: the unique constraint is the backstop.
-    const taken = await isArtistSlugTaken({
-      slug: data.slug,
-      excludeArtistId: artistId,
-      signal: abort.signal,
-    }).catch(() => false);
-    if (abort.signal.aborted) return;
-
-    if (taken) {
-      setPhase("idle");
-      form.setError("slug", { message: SLUG_TAKEN_MESSAGE });
-      return;
-    }
-
-    // Stay open until the save lands so a raced unique violation can still be
-    // shown inline.
-    setPhase("saving");
+    // Stay open until the save lands so a unique violation that slipped past
+    // the lookup (still debouncing, or raced) can be shown inline.
+    setIsSaving(true);
     onSave(data.slug, {
       onSuccess: onClose,
       onError: (error) => {
-        setPhase("idle");
+        setIsSaving(false);
         form.setError("slug", { message: error.message });
       },
     });

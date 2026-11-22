@@ -2,6 +2,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useArtistsQuery } from "@/api/artists/useArtists";
 import { FestivalSet, isNonMusicSetType } from "@/api/sets/types";
+import { useSetSlugTakenQuery } from "@/api/sets/useSetSlugTaken";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Dialog,
@@ -11,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
+import { useCheckableSlug } from "@/hooks/useCheckableSlug";
 import { SLUG_TAKEN_MESSAGE } from "@/lib/slug";
 import { toDatetimeLocalInTimeZone } from "@/lib/timeUtils";
 import { editSetFormSchema, SetFormData } from "./setFormSchema";
@@ -60,9 +62,23 @@ export function EditSetDialog({
     },
   });
 
+  function submitUnlessTaken(data: SetFormData) {
+    if (!isSlugTaken) submit(data);
+  }
+
   function markSlugTaken() {
     form.setError("slug", { message: SLUG_TAKEN_MESSAGE });
   }
+
+  const slug = useWatch({ control: form.control, name: "slug" });
+  const checkableSlug = useCheckableSlug(slug ?? "", set.slug);
+  const { data: taken } = useSetSlugTakenQuery({
+    editionId,
+    slug: checkableSlug ?? "",
+    excludeSetId: set.id,
+    enabled: checkableSlug !== null,
+  });
+  const isSlugTaken = checkableSlug !== null && taken === true;
 
   const setType = useWatch({ control: form.control, name: "set_type" });
   const isNonMusicSet = isNonMusicSetType(setType);
@@ -79,7 +95,7 @@ export function EditSetDialog({
         <Form {...form}>
           <form
             noValidate
-            onSubmit={form.handleSubmit(submit)}
+            onSubmit={form.handleSubmit(submitUnlessTaken)}
             className="space-y-4"
           >
             <SetFormFields
@@ -89,11 +105,12 @@ export function EditSetDialog({
               timezone={tz}
               isNonMusicSet={isNonMusicSet}
               showSlugField
+              isSlugTaken={isSlugTaken}
             />
 
             <SetFormFooter
               submitLabel="Update"
-              disabled={!user || isPending}
+              disabled={!user || isPending || isSlugTaken}
               isPending={isPending}
               onCancel={onClose}
             />

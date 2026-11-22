@@ -3,16 +3,17 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SlugCell } from "./SlugCell";
 
-const isArtistSlugTaken = vi.fn();
+const useArtistSlugTakenQuery = vi.fn();
 const onSave = vi.fn();
 
-vi.mock("@/api/artists/isArtistSlugTaken", () => ({
-  isArtistSlugTaken: (...args: unknown[]) => isArtistSlugTaken(...args),
+vi.mock("@/api/artists/useArtistSlugTaken", () => ({
+  useArtistSlugTakenQuery: (...args: unknown[]) =>
+    useArtistSlugTakenQuery(...args),
 }));
 
 describe("SlugCell", () => {
   beforeEach(() => {
-    isArtistSlugTaken.mockReset().mockResolvedValue(false);
+    useArtistSlugTakenQuery.mockReset().mockReturnValue({ data: false });
     onSave.mockReset();
   });
 
@@ -46,20 +47,32 @@ describe("SlugCell", () => {
     );
   });
 
-  it("warns when the slug belongs to another artist", async () => {
-    isArtistSlugTaken.mockResolvedValue(true);
+  it("warns while typing when the slug belongs to another artist", async () => {
+    useArtistSlugTakenQuery.mockReturnValue({ data: true });
     await startEditing();
     await userEvent.clear(input());
     await userEvent.type(input(), "taken");
-    await userEvent.keyboard("{Enter}");
 
     expect(await screen.findByText("That slug is already in use")).toBeTruthy();
-    expect(isArtistSlugTaken).toHaveBeenCalledWith({
+    expect(useArtistSlugTakenQuery).toHaveBeenLastCalledWith({
       slug: "taken",
       excludeArtistId: "artist-1",
-      signal: expect.any(AbortSignal),
+      enabled: true,
     });
+
+    await userEvent.keyboard("{Enter}");
     expect(onSave).not.toHaveBeenCalled();
+  });
+
+  it("does not look up the slug while it is invalid or unchanged", async () => {
+    await startEditing();
+    await userEvent.clear(input());
+    await userEvent.type(input(), "Not A Slug");
+    await new Promise((resolve) => setTimeout(resolve, 400));
+
+    expect(useArtistSlugTakenQuery).not.toHaveBeenCalledWith(
+      expect.objectContaining({ enabled: true }),
+    );
   });
 
   it("shows a raced conflict inline and stays open", async () => {
@@ -73,25 +86,6 @@ describe("SlugCell", () => {
 
     expect(await screen.findByText("That slug is already in use")).toBeTruthy();
     expect(screen.getByLabelText("Artist slug")).toBeTruthy();
-  });
-
-  it("aborts the lookup and skips the save when cancelled mid-check", async () => {
-    let signal: AbortSignal | undefined;
-    isArtistSlugTaken.mockImplementation((params: { signal: AbortSignal }) => {
-      signal = params.signal;
-      return new Promise((resolve) =>
-        params.signal.addEventListener("abort", () => resolve(false)),
-      );
-    });
-    await startEditing();
-    await userEvent.clear(input());
-    await userEvent.type(input(), "late");
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Escape}");
-
-    await vi.waitFor(() => expect(signal?.aborted).toBe(true));
-    expect(screen.queryByLabelText("Artist slug")).toBeNull();
-    expect(onSave).not.toHaveBeenCalled();
   });
 
   it("ignores Escape and repeat submits while the save is in flight", async () => {
@@ -116,7 +110,6 @@ describe("SlugCell", () => {
       expect(screen.queryByLabelText("Artist slug")).toBeNull(),
     );
     expect(onSave).not.toHaveBeenCalled();
-    expect(isArtistSlugTaken).not.toHaveBeenCalled();
   });
 });
 

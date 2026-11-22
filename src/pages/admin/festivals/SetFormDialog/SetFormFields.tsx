@@ -29,6 +29,7 @@ interface SetFormFieldsProps {
   onManualNameEdit?: () => void;
   onArtistsChange?: (artistIds: string[]) => void;
   showSlugField?: boolean;
+  isSlugTaken?: boolean;
 }
 
 export function SetFormFields({
@@ -42,6 +43,7 @@ export function SetFormFields({
   onManualNameEdit,
   onArtistsChange,
   showSlugField = false,
+  isSlugTaken = false,
 }: SetFormFieldsProps) {
   return (
     <>
@@ -61,7 +63,9 @@ export function SetFormFields({
         onManualEdit={onManualNameEdit}
       />
 
-      {showSlugField && <SetSlugField control={control} />}
+      {showSlugField && (
+        <SetSlugField control={control} isTaken={isSlugTaken} />
+      )}
 
       <FormField
         control={control}

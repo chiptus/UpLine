@@ -24,7 +24,6 @@ interface SlugCellEditorProps {
   onClose: () => void;
 }
 
-/** Mounted only while editing, so form state resets by unmounting. */
 export function SlugCellEditor({
   artistId,
   value,

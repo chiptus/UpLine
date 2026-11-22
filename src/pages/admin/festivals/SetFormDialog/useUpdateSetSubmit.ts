@@ -41,10 +41,6 @@ export function useUpdateSetSubmit({
     update(data, changedSlug);
   }
 
-  /**
-   * Availability is checked live in the form; the unique constraint still
-   * backstops a race, handled in onError.
-   */
   function update(data: SetFormData, slug: string | undefined) {
     updateSetMutation.mutate(
       {

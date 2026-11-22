@@ -38,11 +38,10 @@ export function SlugCellEditor({
   });
   const slug = useWatch({ control: form.control, name: "slug" });
   const checkableSlug = useCheckableSlug(slug, value);
-  const { data: taken } = useArtistSlugTakenQuery({
-    slug: checkableSlug ?? "",
-    excludeArtistId: artistId,
-    enabled: checkableSlug !== null,
-  });
+  const { data: taken } = useArtistSlugTakenQuery(
+    { slug: checkableSlug ?? "", excludeArtistId: artistId },
+    { enabled: checkableSlug !== null },
+  );
   const isTaken = checkableSlug !== null && taken === true;
   const error =
     form.formState.errors.slug?.message ??

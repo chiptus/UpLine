@@ -16,22 +16,21 @@ export function artistSlugTakenQuery(params: ArtistSlugTakenParams) {
 
 /** Artist slugs are globally unique. */
 export function useArtistSlugTakenQuery(
-  params: ArtistSlugTakenParams & { enabled: boolean },
+  params: ArtistSlugTakenParams,
+  options: { enabled?: boolean } = {},
 ) {
-  const { enabled, ...rest } = params;
-  return useQuery({ ...artistSlugTakenQuery(rest), enabled });
+  return useQuery({ ...artistSlugTakenQuery(params), ...options });
 }
 
 async function fetchArtistSlugTaken(
   params: ArtistSlugTakenParams,
   signal: AbortSignal,
 ): Promise<boolean> {
-  const { data, error } = await supabase
+  const { count, error } = await supabase
     .from("artists")
-    .select("id")
+    .select("id", { count: "exact", head: true })
     .eq("slug", params.slug)
     .neq("id", params.excludeArtistId)
-    .limit(1)
     .abortSignal(signal);
 
   if (error) {
@@ -39,5 +38,5 @@ async function fetchArtistSlugTaken(
     throw new Error("Failed to check slug availability");
   }
 
-  return data.length > 0;
+  return (count ?? 0) > 0;
 }

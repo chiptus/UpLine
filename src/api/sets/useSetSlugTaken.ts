@@ -17,23 +17,22 @@ export function setSlugTakenQuery(params: SetSlugTakenParams) {
 
 /** Sets are unique per edition, so the check is scoped to it. */
 export function useSetSlugTakenQuery(
-  params: SetSlugTakenParams & { enabled: boolean },
+  params: SetSlugTakenParams,
+  options: { enabled?: boolean } = {},
 ) {
-  const { enabled, ...rest } = params;
-  return useQuery({ ...setSlugTakenQuery(rest), enabled });
+  return useQuery({ ...setSlugTakenQuery(params), ...options });
 }
 
 async function fetchSetSlugTaken(
   params: SetSlugTakenParams,
   signal: AbortSignal,
 ): Promise<boolean> {
-  const { data, error } = await supabase
+  const { count, error } = await supabase
     .from("sets")
-    .select("id")
+    .select("id", { count: "exact", head: true })
     .eq("festival_edition_id", params.editionId)
     .eq("slug", params.slug)
     .neq("id", params.excludeSetId)
-    .limit(1)
     .abortSignal(signal);
 
   if (error) {
@@ -41,5 +40,5 @@ async function fetchSetSlugTaken(
     throw new Error("Failed to check slug availability");
   }
 
-  return data.length > 0;
+  return (count ?? 0) > 0;
 }

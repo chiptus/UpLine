@@ -54,11 +54,10 @@ describe("SlugCell", () => {
     await userEvent.type(input(), "taken");
 
     expect(await screen.findByText("That slug is already in use")).toBeTruthy();
-    expect(useArtistSlugTakenQuery).toHaveBeenLastCalledWith({
-      slug: "taken",
-      excludeArtistId: "artist-1",
-      enabled: true,
-    });
+    expect(useArtistSlugTakenQuery).toHaveBeenLastCalledWith(
+      { slug: "taken", excludeArtistId: "artist-1" },
+      { enabled: true },
+    );
 
     await userEvent.keyboard("{Enter}");
     expect(onSave).not.toHaveBeenCalled();
@@ -71,7 +70,8 @@ describe("SlugCell", () => {
     await new Promise((resolve) => setTimeout(resolve, 400));
 
     expect(useArtistSlugTakenQuery).not.toHaveBeenCalledWith(
-      expect.objectContaining({ enabled: true }),
+      expect.anything(),
+      { enabled: true },
     );
   });
 

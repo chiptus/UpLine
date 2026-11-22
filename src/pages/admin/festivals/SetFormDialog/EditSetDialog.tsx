@@ -72,12 +72,10 @@ export function EditSetDialog({
 
   const slug = useWatch({ control: form.control, name: "slug" });
   const checkableSlug = useCheckableSlug(slug ?? "", set.slug);
-  const { data: taken } = useSetSlugTakenQuery({
-    editionId,
-    slug: checkableSlug ?? "",
-    excludeSetId: set.id,
-    enabled: checkableSlug !== null,
-  });
+  const { data: taken } = useSetSlugTakenQuery(
+    { editionId, slug: checkableSlug ?? "", excludeSetId: set.id },
+    { enabled: checkableSlug !== null },
+  );
   const isSlugTaken = checkableSlug !== null && taken === true;
 
   const setType = useWatch({ control: form.control, name: "set_type" });
@@ -110,7 +108,8 @@ export function EditSetDialog({
 
             <SetFormFooter
               submitLabel="Update"
-              disabled={!user || isPending || isSlugTaken}
+              disabled={!user || isPending}
+              submitDisabled={isSlugTaken}
               isPending={isPending}
               onCancel={onClose}
             />

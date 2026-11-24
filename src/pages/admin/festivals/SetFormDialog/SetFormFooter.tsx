@@ -4,6 +4,8 @@ import { Loader2 } from "lucide-react";
 interface SetFormFooterProps {
   submitLabel: string;
   disabled: boolean;
+  /** Extra reason to block submit that must not block Cancel. */
+  submitDisabled?: boolean;
   isPending: boolean;
   onCancel: () => void;
 }
@@ -11,6 +13,7 @@ interface SetFormFooterProps {
 export function SetFormFooter({
   submitLabel,
   disabled,
+  submitDisabled = false,
   isPending,
   onCancel,
 }: SetFormFooterProps) {
@@ -24,7 +27,7 @@ export function SetFormFooter({
       >
         Cancel
       </Button>
-      <Button type="submit" disabled={disabled}>
+      <Button type="submit" disabled={disabled || submitDisabled}>
         {isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
         {submitLabel}
       </Button>

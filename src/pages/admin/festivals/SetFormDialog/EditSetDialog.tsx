@@ -2,6 +2,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useArtistsQuery } from "@/api/artists/useArtists";
 import { FestivalSet, isNonMusicSetType } from "@/api/sets/types";
+import { useSetSlugTakenQuery } from "@/api/sets/useSetSlugTaken";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Dialog,
@@ -11,8 +12,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
+import { useCheckableSlug } from "@/hooks/useCheckableSlug";
+import { SLUG_TAKEN_MESSAGE } from "@/lib/slug";
 import { toDatetimeLocalInTimeZone } from "@/lib/timeUtils";
-import { setFormSchema, SetFormData } from "./setFormSchema";
+import { editSetFormSchema, SetFormData } from "./setFormSchema";
 import { useUpdateSetSubmit } from "./useUpdateSetSubmit";
 import { SetFormFields } from "./SetFormFields";
 import { SetFormFooter } from "./SetFormFooter";
@@ -39,13 +42,15 @@ export function EditSetDialog({
     editionId,
     timezone: tz,
     onComplete: onClose,
+    onSlugTaken: markSlugTaken,
   });
 
   const form = useForm<SetFormData>({
-    resolver: zodResolver(setFormSchema),
+    resolver: zodResolver(editSetFormSchema),
     defaultValues: {
       set_type: set.set_type,
       name: set.name,
+      slug: set.slug,
       description: set.description || "",
       external_url: set.external_url || "",
       stage_id: set.stage_id || "none",
@@ -56,6 +61,22 @@ export function EditSetDialog({
       artist_ids: set.artists?.map((a) => a.id) || [],
     },
   });
+
+  function submitUnlessTaken(data: SetFormData) {
+    if (!isSlugTaken) submit(data);
+  }
+
+  function markSlugTaken() {
+    form.setError("slug", { message: SLUG_TAKEN_MESSAGE });
+  }
+
+  const slug = useWatch({ control: form.control, name: "slug" });
+  const checkableSlug = useCheckableSlug(slug ?? "", set.slug);
+  const { data: taken } = useSetSlugTakenQuery(
+    { editionId, slug: checkableSlug ?? "", excludeSetId: set.id },
+    { enabled: checkableSlug !== null },
+  );
+  const isSlugTaken = checkableSlug !== null && taken === true;
 
   const setType = useWatch({ control: form.control, name: "set_type" });
   const isNonMusicSet = isNonMusicSetType(setType);
@@ -72,7 +93,7 @@ export function EditSetDialog({
         <Form {...form}>
           <form
             noValidate
-            onSubmit={form.handleSubmit(submit)}
+            onSubmit={form.handleSubmit(submitUnlessTaken)}
             className="space-y-4"
           >
             <SetFormFields
@@ -81,11 +102,14 @@ export function EditSetDialog({
               editionId={editionId}
               timezone={tz}
               isNonMusicSet={isNonMusicSet}
+              showSlugField
+              isSlugTaken={isSlugTaken}
             />
 
             <SetFormFooter
               submitLabel="Update"
               disabled={!user || isPending}
+              submitDisabled={isSlugTaken}
               isPending={isPending}
               onCancel={onClose}
             />

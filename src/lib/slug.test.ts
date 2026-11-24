@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { generateSlug, getSlugError, isValidSlug, sanitizeSlug } from "./slug";
+import {
+  generateSlug,
+  getSlugError,
+  isSlugConflictError,
+  isValidSlug,
+  sanitizeSlug,
+} from "./slug";
 
 describe("generateSlug", () => {
   it("converts basic text to lowercase slug", () => {
@@ -176,5 +182,28 @@ describe("getSlugError", () => {
     for (const slug of ["a", "a-b", "a-", "-a", "a--b", "A", "a b", "a_b"]) {
       expect(getSlugError(slug) === null).toBe(isValidSlug(slug));
     }
+  });
+});
+
+describe("isSlugConflictError", () => {
+  it("matches a unique violation on a slug constraint", () => {
+    expect(
+      isSlugConflictError({
+        code: "23505",
+        message:
+          'duplicate key value violates unique constraint "artists_slug_unique"',
+      }),
+    ).toBe(true);
+  });
+
+  it("ignores unique violations on other columns and non-errors", () => {
+    expect(
+      isSlugConflictError({
+        code: "23505",
+        message: 'duplicate key value violates unique constraint "x_name_key"',
+      }),
+    ).toBe(false);
+    expect(isSlugConflictError(null)).toBe(false);
+    expect(isSlugConflictError(new Error("boom"))).toBe(false);
   });
 });

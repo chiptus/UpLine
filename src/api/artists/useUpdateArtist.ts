@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
-import { generateSlug } from "@/lib/slug";
+import { isSlugConflictError, SlugConflictError } from "@/lib/slug";
 import { artistsKeys } from "./types";
 
 type ArtistUpdate = Database["public"]["Tables"]["artists"]["Update"];
@@ -11,6 +11,7 @@ export type UpdateArtistUpdates = Partial<
   Pick<
     ArtistUpdate,
     | "name"
+    | "slug"
     | "description"
     | "estimated_date"
     | "image_url"
@@ -34,7 +35,10 @@ async function updateArtist(variables: {
   const updateData: ArtistUpdate = {};
   if (updates.name !== undefined) {
     updateData.name = updates.name;
-    updateData.slug = generateSlug(updates.name);
+  }
+  // Renaming never touches the slug: only an explicit slug edit changes URLs.
+  if (updates.slug !== undefined) {
+    updateData.slug = updates.slug;
   }
   if (updates.description !== undefined) {
     updateData.description = updates.description;
@@ -71,6 +75,7 @@ async function updateArtist(variables: {
       .eq("id", id);
 
     if (error) {
+      if (isSlugConflictError(error)) throw new SlugConflictError();
       console.error("Error updating artist:", error);
       throw new Error("Failed to update artist");
     }

@@ -36,6 +36,7 @@ export function SlugCellEditor({
   const [isSaving, setIsSaving] = useState(false);
   const form = useForm<SlugCellData>({
     resolver: zodResolver(slugCellSchema),
+    mode: "onChange",
     defaultValues: { slug: value },
   });
   const slug = useWatch({ control: form.control, name: "slug" });

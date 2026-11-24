@@ -36,6 +36,16 @@ describe("SlugCell", () => {
     expect(onSave).not.toHaveBeenCalled();
   });
 
+  it("shows validation errors while typing, before submitting", async () => {
+    await startEditing();
+    await userEvent.clear(input());
+    expect(await screen.findByText("Slug is required")).toBeTruthy();
+
+    await userEvent.type(input(), "Not A Slug");
+    expect(await screen.findByText(/Slug must contain only/)).toBeTruthy();
+    expect(onSave).not.toHaveBeenCalled();
+  });
+
   it("lets a hyphen be typed mid-slug", async () => {
     await startEditing();
     await userEvent.clear(input());

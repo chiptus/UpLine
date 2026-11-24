@@ -32,7 +32,7 @@ describe("SlugCell", () => {
     await userEvent.type(input(), "Not A Slug");
     await userEvent.keyboard("{Enter}");
 
-    expect(await screen.findByText(/Slug must contain only/)).toBeTruthy();
+    expect(await screen.findByText(/Use only lowercase letters/)).toBeTruthy();
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -42,7 +42,7 @@ describe("SlugCell", () => {
     expect(await screen.findByText("Slug is required")).toBeTruthy();
 
     await userEvent.type(input(), "Not A Slug");
-    expect(await screen.findByText(/Slug must contain only/)).toBeTruthy();
+    expect(await screen.findByText(/Use only lowercase letters/)).toBeTruthy();
     expect(onSave).not.toHaveBeenCalled();
   });
 

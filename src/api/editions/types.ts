@@ -17,6 +17,8 @@ export const editionsKeys = {
     festivalId: string;
     editionId: string;
   }) => [...editionsKeys.root(festivalId), editionId] as const,
+  slugTaken: (festivalId: string, params: unknown) =>
+    [...editionsKeys.root(festivalId), "slug-taken", params] as const,
   bySlug: (festivalId: string, editionSlug: string) =>
     [...editionsKeys.root(festivalId), "slug", editionSlug] as const,
 };

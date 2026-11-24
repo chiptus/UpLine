@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { isSlugUniqueViolation } from "@/lib/postgresErrors";
+import { isSlugConflictError, SlugConflictError } from "@/lib/slug";
 import { supabase } from "@/integrations/supabase/client";
 import { festivalsKeys } from "./types";
 
@@ -25,7 +25,10 @@ export async function updateFestival(
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    if (isSlugConflictError(error)) throw new SlugConflictError();
+    throw error;
+  }
   return data;
 }
 
@@ -52,9 +55,10 @@ export function useUpdateFestivalMutation() {
       console.error("Error updating festival:", error);
       toast({
         title: "Error",
-        description: isSlugUniqueViolation(error)
-          ? "This slug is already taken. Choose a different one."
-          : "Failed to update festival",
+        description:
+          error instanceof SlugConflictError
+            ? error.message
+            : "Failed to update festival",
         variant: "destructive",
       });
     },

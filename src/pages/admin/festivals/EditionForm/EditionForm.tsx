@@ -10,9 +10,12 @@ import { EditionDateField } from "./EditionDateField";
 import { EditionPublishedField } from "./EditionPublishedField";
 import { EditionRevealLevelField } from "./EditionRevealLevelField";
 import { editionFormSchema, EditionFormData } from "./editionFormSchema";
+import { ExistingEdition, useIsEditionSlugTaken } from "./useEditionSlugTaken";
 
 interface EditionFormProps {
   defaultValues: EditionFormData;
+  /** Set when editing, to check the slug against sibling editions. */
+  existing?: ExistingEdition;
   submitLabel: string;
   isSubmitting: boolean;
   onSubmit: (values: EditionFormData) => void | Promise<void>;
@@ -21,6 +24,7 @@ interface EditionFormProps {
 
 export function EditionForm({
   defaultValues,
+  existing,
   submitLabel,
   isSubmitting,
   onSubmit,
@@ -30,16 +34,25 @@ export function EditionForm({
     resolver: zodResolver(editionFormSchema),
     defaultValues,
   });
+  const isSlugTaken = useIsEditionSlugTaken(
+    form.control,
+    defaultValues.slug,
+    existing,
+  );
+
+  function submitUnlessTaken(values: EditionFormData) {
+    if (!isSlugTaken) return onSubmit(values);
+  }
 
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(submitUnlessTaken)}
         className="space-y-4"
         noValidate
       >
         <EditionNameField />
-        <EditionSlugField />
+        <EditionSlugField isTaken={isSlugTaken} />
         <EditionYearField />
         <EditionDateField name="start_date" label="Start Date" />
         <EditionDateField name="end_date" label="End Date" />
@@ -54,7 +67,7 @@ export function EditionForm({
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting || isSlugTaken}>
             {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             {submitLabel}
           </Button>

@@ -8,6 +8,8 @@ export const festivalsKeys = {
   all: ({ all }: { all?: boolean | undefined } = {}) =>
     [...festivalsKeys.root(), { all }] as const,
   item: (festivalId: string) => [...festivalsKeys.root(), festivalId] as const,
+  slugTaken: (params: unknown) =>
+    [...festivalsKeys.root(), "slug-taken", params] as const,
   bySlug: (festivalSlug: string) =>
     [...festivalsKeys.root(), "slug", festivalSlug] as const,
 };

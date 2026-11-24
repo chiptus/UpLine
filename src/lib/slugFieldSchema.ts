@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { isValidSlug } from "./slug";
+import { getSlugError } from "./slug";
 
 /**
  * Validates a user-typed slug without rewriting it: sanitizing on every
@@ -10,7 +10,7 @@ export const slugFieldSchema = z
   .string()
   .trim()
   .min(1, "Slug is required")
-  .refine(
-    isValidSlug,
-    "Slug must contain only lowercase letters, numbers, and single hyphens between them",
-  );
+  .superRefine((slug, ctx) => {
+    const message = getSlugError(slug);
+    if (message) ctx.addIssue({ code: z.ZodIssueCode.custom, message });
+  });

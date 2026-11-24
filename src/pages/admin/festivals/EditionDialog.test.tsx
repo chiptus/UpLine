@@ -14,9 +14,10 @@ vi.mock("@/api/editions/useCreateFestivalEdition", () => ({
     isPending: false,
   }),
 }));
-const isEditionSlugTaken = vi.fn();
-vi.mock("@/api/festivals/slugTaken", () => ({
-  isEditionSlugTaken: (...args: unknown[]) => isEditionSlugTaken(...args),
+const useEditionSlugTakenQuery = vi.fn();
+vi.mock("@/api/editions/useEditionSlugTaken", () => ({
+  useEditionSlugTakenQuery: (...args: unknown[]) =>
+    useEditionSlugTakenQuery(...args),
 }));
 vi.mock("@/api/editions/useUpdateFestivalEdition", () => ({
   useUpdateFestivalEditionMutation: () => ({
@@ -38,8 +39,7 @@ describe("EditionDialog", () => {
     );
     createMutate.mockReset();
     updateMutate.mockReset();
-    isEditionSlugTaken.mockReset();
-    isEditionSlugTaken.mockResolvedValue(false);
+    useEditionSlugTakenQuery.mockReset().mockReturnValue({ data: false });
   });
 
   it("blocks submit with field errors for an empty name and slug", async () => {
@@ -135,18 +135,28 @@ describe("EditionDialog", () => {
     );
   });
 
-  it("blocks the update when the new slug is already taken", async () => {
-    isEditionSlugTaken.mockResolvedValue(true);
+  it("warns while typing and blocks the update when the slug is already taken", async () => {
+    useEditionSlugTakenQuery.mockReturnValue({ data: true });
     renderDialog({ editingEdition: makeEdition() });
 
     await userEvent.type(screen.getByLabelText("Edition Name"), " Redux");
-    await userEvent.click(screen.getByRole("button", { name: "Update" }));
 
-    await vi.waitFor(() => expect(isEditionSlugTaken).toHaveBeenCalled());
+    expect(await screen.findByText("That slug is already in use")).toBeTruthy();
+    expect(useEditionSlugTakenQuery).toHaveBeenLastCalledWith(
+      {
+        festivalId: "festival-1",
+        slug: "boom-2025-redux",
+        excludeEditionId: "edition-1",
+      },
+      { enabled: true },
+    );
+    const update = screen.getByRole("button", { name: "Update" });
+    expect(update).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeEnabled();
     expect(updateMutate).not.toHaveBeenCalled();
   });
 
-  it("does not look up or update an invalid slug", async () => {
+  it("does not look up an invalid slug", async () => {
     renderDialog({ editingEdition: makeEdition() });
 
     const slug = screen.getByLabelText("URL Slug");
@@ -155,24 +165,22 @@ describe("EditionDialog", () => {
     await userEvent.click(screen.getByRole("button", { name: "Update" }));
 
     await expectAlert("Use only lowercase letters, numbers, and hyphens");
-    expect(isEditionSlugTaken).not.toHaveBeenCalled();
+    expect(useEditionSlugTakenQuery).not.toHaveBeenCalledWith(
+      expect.anything(),
+      { enabled: true },
+    );
     expect(updateMutate).not.toHaveBeenCalled();
   });
 
-  it("does not update when the dialog closes during the slug lookup", async () => {
-    const lookup = deferred<boolean>();
-    isEditionSlugTaken.mockReturnValue(lookup.promise);
-    const { rerender } = renderDialog({ editingEdition: makeEdition() });
+  it("fills the slug from the name with the regenerate button", async () => {
+    renderDialog({ editingEdition: makeEdition() });
+    const slug = screen.getByLabelText("URL Slug");
+    await userEvent.clear(slug);
+    await userEvent.type(slug, "custom");
 
-    await userEvent.type(screen.getByLabelText("Edition Name"), " Redux");
-    await userEvent.click(screen.getByRole("button", { name: "Update" }));
-    await vi.waitFor(() => expect(isEditionSlugTaken).toHaveBeenCalled());
+    await userEvent.click(screen.getByLabelText("Regenerate slug from name"));
 
-    rerender(dialog({ open: false, editingEdition: makeEdition() }));
-    lookup.resolve(false);
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    expect(updateMutate).not.toHaveBeenCalled();
+    expect(slug).toHaveValue("boom-2025");
   });
 
   it("keeps what the user types, flags an invalid slug and offers to slugify it", async () => {
@@ -269,12 +277,4 @@ function renderDialog(
   props: Partial<React.ComponentProps<typeof EditionDialog>> = {},
 ) {
   return render(dialog(props));
-}
-
-function deferred<T>() {
-  let resolve!: (value: T) => void;
-  const promise = new Promise<T>((res) => {
-    resolve = res;
-  });
-  return { promise, resolve };
 }

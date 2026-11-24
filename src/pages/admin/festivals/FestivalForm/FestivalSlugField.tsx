@@ -9,11 +9,22 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { isValidSlug, sanitizeSlug } from "@/lib/slug";
+import { SlugFromNameButton } from "@/components/SlugFromNameButton";
+import {
+  generateSlug,
+  isValidSlug,
+  sanitizeSlug,
+  SLUG_TAKEN_MESSAGE,
+} from "@/lib/slug";
 import type { FestivalFormData } from "./festivalFormSchema";
 
-export function FestivalSlugField() {
+interface FestivalSlugFieldProps {
+  isTaken?: boolean;
+}
+
+export function FestivalSlugField({ isTaken = false }: FestivalSlugFieldProps) {
   const form = useFormContext<FestivalFormData>();
+  const name = form.watch("name");
 
   return (
     <FormField
@@ -33,6 +44,15 @@ export function FestivalSlugField() {
                 }}
               />
             </FormControl>
+            <SlugFromNameButton
+              disabled={!name?.trim() || field.value === generateSlug(name)}
+              onClick={() =>
+                form.setValue("slug", generateSlug(name), {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                })
+              }
+            />
             {field.value && !isValidSlug(field.value) && (
               <Button
                 type="button"
@@ -49,6 +69,11 @@ export function FestivalSlugField() {
             )}
           </div>
           <FormMessage />
+          {isTaken && (
+            <p className="text-sm font-medium text-destructive">
+              {SLUG_TAKEN_MESSAGE}
+            </p>
+          )}
           <FormDescription>
             This will be used in the URL: /festivals/
             {field.value || "your-slug"}

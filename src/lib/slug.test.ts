@@ -196,6 +196,20 @@ describe("isSlugConflictError", () => {
     ).toBe(true);
   });
 
+  it("matches the festival and edition slug constraints", () => {
+    for (const name of [
+      "festivals_slug_unique",
+      "festival_editions_slug_festival_unique",
+    ]) {
+      expect(
+        isSlugConflictError({
+          code: "23505",
+          message: `duplicate key value violates unique constraint "${name}"`,
+        }),
+      ).toBe(true);
+    }
+  });
+
   it("ignores unique violations on other columns and non-errors", () => {
     expect(
       isSlugConflictError({

@@ -11,6 +11,9 @@ vi.mock("@/api/festivals/useCreateFestival", () => ({
 vi.mock("@/api/festivals/useUpdateFestival", () => ({
   useUpdateFestivalMutation: () => ({ mutate: vi.fn(), isPending: false }),
 }));
+vi.mock("@/api/festivals/useFestivalSlugTaken", () => ({
+  useFestivalSlugTakenQuery: () => ({ data: false }),
+}));
 vi.mock("@/components/Admin/ScheduleImport/TimezonePicker", () => ({
   TimezonePicker: ({ value }: { value: string }) => (
     <div data-testid="timezone">{value}</div>

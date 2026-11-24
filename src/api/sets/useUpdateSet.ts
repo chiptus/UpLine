@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
-import { generateSlug } from "@/lib/slug";
+import { isSlugConflictError, SlugConflictError } from "@/lib/slug";
 import { SetType, setsKeys } from "./types";
 
 type SetUpdate = Database["public"]["Tables"]["sets"]["Update"];
@@ -11,6 +11,7 @@ export type UpdateSetInput = Partial<
   Pick<
     SetUpdate,
     | "name"
+    | "slug"
     | "description"
     | "festival_edition_id"
     | "stage_id"
@@ -34,7 +35,10 @@ export async function updateSet(variables: {
   const updateData: SetUpdate = {};
   if (updates.name !== undefined) {
     updateData.name = updates.name;
-    updateData.slug = generateSlug(updates.name);
+  }
+  // Renaming never touches the slug: only an explicit slug edit changes URLs.
+  if (updates.slug !== undefined) {
+    updateData.slug = updates.slug;
   }
   if (updates.description !== undefined) {
     updateData.description = updates.description;
@@ -72,6 +76,7 @@ export async function updateSet(variables: {
     .single();
 
   if (error) {
+    if (isSlugConflictError(error)) throw new SlugConflictError();
     console.error("Error updating set:", error);
     throw new Error("Failed to update set");
   }

@@ -44,6 +44,8 @@ export const setsKeys = {
   details: () => [...setsKeys.all, "detail"] as const,
   detail: (id: string) => [...setsKeys.details(), id] as const,
   bySlug: (params: unknown) => [...setsKeys.details(), params] as const,
+  slugTaken: (params: unknown) =>
+    [...setsKeys.all, "slug-taken", params] as const,
   byEdition: (editionId: string) =>
     [...setsKeys.all, "edition", editionId] as const,
 };

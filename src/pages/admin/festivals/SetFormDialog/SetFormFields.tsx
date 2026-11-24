@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { StageSelector } from "../StageSelector";
 import { ArtistSelectionField } from "./ArtistSelectionField";
 import { SetNameField } from "./SetNameField";
+import { SetSlugField } from "./SetSlugField";
 import { SetTimingFields } from "./SetTimingFields";
 import { SetTypeField } from "./SetTypeField";
 import { NamedArtist } from "./generateSetName";
@@ -27,6 +28,8 @@ interface SetFormFieldsProps {
   hasManuallyEditedName?: boolean;
   onManualNameEdit?: () => void;
   onArtistsChange?: (artistIds: string[]) => void;
+  showSlugField?: boolean;
+  isSlugTaken?: boolean;
 }
 
 export function SetFormFields({
@@ -39,6 +42,8 @@ export function SetFormFields({
   hasManuallyEditedName = true,
   onManualNameEdit,
   onArtistsChange,
+  showSlugField = false,
+  isSlugTaken = false,
 }: SetFormFieldsProps) {
   return (
     <>
@@ -57,6 +62,10 @@ export function SetFormFields({
         isNonMusicSet={isNonMusicSet}
         onManualEdit={onManualNameEdit}
       />
+
+      {showSlugField && (
+        <SetSlugField control={control} isTaken={isSlugTaken} />
+      )}
 
       <FormField
         control={control}

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { SET_STATUSES, SET_TYPES } from "@/api/sets/types";
+import { slugFieldSchema } from "@/lib/slugFieldSchema";
 
 export const setFormSchema = z.object({
   set_type: z
@@ -21,6 +22,12 @@ export const setFormSchema = z.object({
   time_end: z.string().optional(),
   tba_date: z.string().optional(),
   artist_ids: z.array(z.string()).optional(),
+  slug: z.string().optional(),
+});
+
+/** Only the edit dialog exposes the slug; create derives it server-side. */
+export const editSetFormSchema = setFormSchema.extend({
+  slug: slugFieldSchema,
 });
 
 export type SetFormData = z.infer<typeof setFormSchema>;

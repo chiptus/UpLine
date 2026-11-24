@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { registerCleanup, testSupabase } from "./harness";
 import { signInAsTestUser } from "./fixtures/auth";
+import { createArtist } from "./fixtures/artists";
 import { createFestival } from "./fixtures/festivals";
 import { createScratchFestivalEdition } from "./fixtures/scratchPool";
 
@@ -110,6 +111,42 @@ describe("slug dedupe triggers", () => {
     });
   });
 
+  describe("artists (UPDATE backstop)", () => {
+    it("derives a slug when an UPDATE blanks it", async () => {
+      const name = `Backstop Artist ${crypto.randomUUID()}`;
+      const id = await createArtist({ name });
+
+      await updateArtistSlug(id, "");
+
+      expect(await readArtistSlug(id)).toMatch(/^backstop-artist-/);
+    });
+
+    it("keeps an explicit slug and does not re-derive it on rename", async () => {
+      const id = await createArtist();
+      const slug = `custom-${crypto.randomUUID()}`;
+      await updateArtistSlug(id, slug);
+
+      const { error } = await testSupabase
+        .from("artists")
+        .update({ name: `Renamed ${crypto.randomUUID()}` })
+        .eq("id", id);
+      expect(error).toBeNull();
+
+      expect(await readArtistSlug(id)).toBe(slug);
+    });
+
+    it("rejects an explicit slug that another artist holds instead of renaming it", async () => {
+      const takenSlug = `taken-${crypto.randomUUID()}`;
+      const otherId = await createArtist();
+      await updateArtistSlug(otherId, takenSlug);
+      const id = await createArtist();
+
+      await expect(updateArtistSlug(id, takenSlug)).rejects.toMatchObject({
+        code: "23505",
+      });
+    });
+  });
+
   describe("festivals (globally unique)", () => {
     it("derives a slug from the name and dedupes a collision", async () => {
       const name = `Slug Festival ${crypto.randomUUID()}`;
@@ -210,5 +247,23 @@ async function insertEdition(festivalId: string, name: string, slug = "") {
     if (deleteError) throw deleteError;
   });
 
+  return data.slug;
+}
+
+async function updateArtistSlug(id: string, slug: string) {
+  const { error } = await testSupabase
+    .from("artists")
+    .update({ slug })
+    .eq("id", id);
+  if (error) throw error;
+}
+
+async function readArtistSlug(id: string) {
+  const { data, error } = await testSupabase
+    .from("artists")
+    .select("slug")
+    .eq("id", id)
+    .single();
+  if (error) throw error;
   return data.slug;
 }

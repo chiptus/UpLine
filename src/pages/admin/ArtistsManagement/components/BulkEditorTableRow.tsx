@@ -65,6 +65,7 @@ export function BulkEditorTableRow({
       <TableCell>
         <SlugCell
           artistId={artist.id}
+          name={artist.name}
           value={artist.slug}
           onSave={(slug, callbacks) =>
             updateSlugMutation.mutate(

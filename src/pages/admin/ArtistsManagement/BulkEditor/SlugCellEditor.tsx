@@ -3,9 +3,10 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useArtistSlugTakenQuery } from "@/api/artists/useArtistSlugTaken";
+import { SlugFromNameButton } from "@/components/SlugFromNameButton";
 import { Input } from "@/components/ui/input";
 import { useCheckableSlug } from "@/hooks/useCheckableSlug";
-import { SLUG_TAKEN_MESSAGE } from "@/lib/slug";
+import { generateSlug, SLUG_TAKEN_MESSAGE } from "@/lib/slug";
 import { slugFieldSchema } from "@/lib/slugFieldSchema";
 
 const slugCellSchema = z.object({ slug: slugFieldSchema });
@@ -19,6 +20,7 @@ export interface SlugSaveCallbacks {
 
 interface SlugCellEditorProps {
   artistId: string;
+  name: string;
   value: string;
   onSave: (slug: string, callbacks: SlugSaveCallbacks) => void;
   onClose: () => void;
@@ -26,6 +28,7 @@ interface SlugCellEditorProps {
 
 export function SlugCellEditor({
   artistId,
+  name,
   value,
   onSave,
   onClose,
@@ -52,18 +55,28 @@ export function SlugCellEditor({
       className="min-w-40 space-y-1"
       onSubmit={form.handleSubmit(submit)}
     >
-      <Input
-        {...form.register("slug")}
-        onKeyDown={onKeyDown}
-        className="text-sm font-mono"
-        aria-label="Artist slug"
-        aria-invalid={!!error}
-        readOnly={isSaving}
-        autoFocus
-      />
+      <div className="flex items-center gap-1">
+        <Input
+          {...form.register("slug")}
+          onKeyDown={onKeyDown}
+          className="text-sm font-mono"
+          aria-label="Artist slug"
+          aria-invalid={!!error}
+          readOnly={isSaving}
+          autoFocus
+        />
+        <SlugFromNameButton
+          disabled={isSaving || !name.trim() || slug === generateSlug(name)}
+          onClick={regenerateFromName}
+        />
+      </div>
       {error && <p className="text-xs text-destructive">{error}</p>}
     </form>
   );
+
+  function regenerateFromName() {
+    form.setValue("slug", generateSlug(name), { shouldValidate: true });
+  }
 
   function onKeyDown(e: React.KeyboardEvent) {
     // A started save can't be aborted, so cancelling would only hide it.

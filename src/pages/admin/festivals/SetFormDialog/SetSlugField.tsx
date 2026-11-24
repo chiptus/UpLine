@@ -1,4 +1,4 @@
-import { Control } from "react-hook-form";
+import { Control, useFormContext, useWatch } from "react-hook-form";
 import {
   FormControl,
   FormDescription,
@@ -7,8 +7,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { SlugFromNameButton } from "@/components/SlugFromNameButton";
 import { Input } from "@/components/ui/input";
-import { SLUG_TAKEN_MESSAGE } from "@/lib/slug";
+import { generateSlug, SLUG_TAKEN_MESSAGE } from "@/lib/slug";
 import type { SetFormData } from "./setFormSchema";
 
 interface SetSlugFieldProps {
@@ -17,6 +18,10 @@ interface SetSlugFieldProps {
 }
 
 export function SetSlugField({ control, isTaken = false }: SetSlugFieldProps) {
+  const form = useFormContext<SetFormData>();
+  const name = useWatch({ control, name: "name" });
+  const slug = useWatch({ control, name: "slug" });
+
   return (
     <FormField
       control={control}
@@ -24,9 +29,20 @@ export function SetSlugField({ control, isTaken = false }: SetSlugFieldProps) {
       render={({ field }) => (
         <FormItem>
           <FormLabel>URL Slug</FormLabel>
-          <FormControl>
-            <Input placeholder="e.g., shpongle-live-set" {...field} />
-          </FormControl>
+          <div className="flex items-center gap-2">
+            <FormControl>
+              <Input placeholder="e.g., shpongle-live-set" {...field} />
+            </FormControl>
+            <SlugFromNameButton
+              disabled={!name?.trim() || slug === generateSlug(name)}
+              onClick={() =>
+                form.setValue("slug", generateSlug(name), {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                })
+              }
+            />
+          </div>
           <FormMessage />
           {isTaken && (
             <p className="text-sm font-medium text-destructive">

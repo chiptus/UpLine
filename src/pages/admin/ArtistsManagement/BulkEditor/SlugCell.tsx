@@ -3,17 +3,19 @@ import { SlugCellEditor, type SlugSaveCallbacks } from "./SlugCellEditor";
 
 interface SlugCellProps {
   artistId: string;
+  name: string;
   value: string;
   onSave: (slug: string, callbacks: SlugSaveCallbacks) => void;
 }
 
-export function SlugCell({ artistId, value, onSave }: SlugCellProps) {
+export function SlugCell({ artistId, name, value, onSave }: SlugCellProps) {
   const [isEditing, setIsEditing] = useState(false);
 
   if (isEditing) {
     return (
       <SlugCellEditor
         artistId={artistId}
+        name={name}
         value={value}
         onSave={onSave}
         onClose={() => setIsEditing(false)}

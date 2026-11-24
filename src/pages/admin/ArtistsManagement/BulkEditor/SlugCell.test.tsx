@@ -102,6 +102,17 @@ describe("SlugCell", () => {
     expect(onSave).toHaveBeenCalledTimes(1);
   });
 
+  it("fills the slug from the artist name", async () => {
+    await startEditing();
+    await userEvent.click(screen.getByLabelText("Regenerate slug from name"));
+
+    expect((input() as HTMLInputElement).value).toBe("fresh-name");
+    await userEvent.type(input(), "{Enter}");
+    await vi.waitFor(() =>
+      expect(onSave).toHaveBeenCalledWith("fresh-name", expect.any(Object)),
+    );
+  });
+
   it("does not save when the slug is unchanged", async () => {
     await startEditing();
     await userEvent.keyboard("{Enter}");
@@ -114,7 +125,14 @@ describe("SlugCell", () => {
 });
 
 async function startEditing() {
-  render(<SlugCell artistId="artist-1" value="old-slug" onSave={onSave} />);
+  render(
+    <SlugCell
+      artistId="artist-1"
+      name="Fresh Name"
+      value="old-slug"
+      onSave={onSave}
+    />,
+  );
   await userEvent.click(screen.getByText("old-slug"));
 }
 

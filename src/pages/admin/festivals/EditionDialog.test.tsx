@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { FestivalEdition } from "@/api/editions/types";
 import { EditionDialog } from "./EditionDialog";
@@ -150,10 +150,34 @@ describe("EditionDialog", () => {
       },
       { enabled: true },
     );
+    const slug = screen.getByRole<HTMLInputElement>("textbox", {
+      name: "URL Slug",
+    });
+    expect(slug).toHaveAttribute("aria-invalid", "true");
+    expect(slug).toHaveAccessibleDescription(
+      /This will be used in the URL:.*That slug is already in use/,
+    );
     const update = screen.getByRole("button", { name: "Update" });
     expect(update).toBeDisabled();
+
+    await act(async () => {
+      fireEvent.submit(slug.form!);
+    });
     expect(screen.getByRole("button", { name: "Cancel" })).toBeEnabled();
     expect(updateMutate).not.toHaveBeenCalled();
+  });
+
+  it("updates an edition without checking an unchanged slug", async () => {
+    useEditionSlugTakenQuery.mockReturnValue({ data: true });
+    renderDialog({ editingEdition: makeEdition() });
+
+    await userEvent.click(screen.getByRole("button", { name: "Update" }));
+
+    await vi.waitFor(() => expect(updateMutate).toHaveBeenCalledTimes(1));
+    expect(useEditionSlugTakenQuery).not.toHaveBeenCalledWith(
+      expect.anything(),
+      { enabled: true },
+    );
   });
 
   it("does not look up an invalid slug", async () => {

@@ -1,6 +1,5 @@
 import { useFormContext } from "react-hook-form";
 import {
-  FormControl,
   FormDescription,
   FormField,
   FormItem,
@@ -8,7 +7,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { SlugInput } from "@/components/SlugInput";
 import { SlugFromNameButton } from "@/components/SlugFromNameButton";
 import {
   generateSlug,
@@ -34,16 +33,12 @@ export function FestivalSlugField({ isTaken = false }: FestivalSlugFieldProps) {
         <FormItem>
           <FormLabel>URL Slug</FormLabel>
           <div className="flex gap-2">
-            <FormControl>
-              <Input
-                placeholder="e.g., boom-festival"
-                {...field}
-                onChange={(e) => {
-                  field.onChange(e);
-                  form.trigger("slug");
-                }}
-              />
-            </FormControl>
+            <SlugInput
+              field={field}
+              placeholder="e.g., boom-festival"
+              isTaken={isTaken}
+              takenMessageId="festival-slug-taken"
+            />
             <SlugFromNameButton
               disabled={!name?.trim() || field.value === generateSlug(name)}
               onClick={() =>
@@ -70,7 +65,11 @@ export function FestivalSlugField({ isTaken = false }: FestivalSlugFieldProps) {
           </div>
           <FormMessage />
           {isTaken && (
-            <p className="text-sm font-medium text-destructive">
+            <p
+              id="festival-slug-taken"
+              role="alert"
+              className="text-sm font-medium text-destructive"
+            >
               {SLUG_TAKEN_MESSAGE}
             </p>
           )}

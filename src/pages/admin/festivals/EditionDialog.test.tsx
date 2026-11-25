@@ -162,7 +162,6 @@ describe("EditionDialog", () => {
     const slug = screen.getByLabelText("URL Slug");
     await userEvent.clear(slug);
     await userEvent.type(slug, "Not Valid!");
-    await userEvent.click(screen.getByRole("button", { name: "Update" }));
 
     await expectAlert("Use only lowercase letters, numbers, and hyphens");
     expect(useEditionSlugTakenQuery).not.toHaveBeenCalledWith(
@@ -170,6 +169,18 @@ describe("EditionDialog", () => {
       { enabled: true },
     );
     expect(updateMutate).not.toHaveBeenCalled();
+  });
+
+  it("sanitizes the slug on blur but keeps hyphens while typing", async () => {
+    renderDialog({ editingEdition: makeEdition() });
+    const slug = screen.getByLabelText("URL Slug");
+    await userEvent.clear(slug);
+
+    await userEvent.type(slug, "boom-");
+    expect(slug).toHaveValue("boom-");
+
+    await userEvent.tab();
+    expect(slug).toHaveValue("boom");
   });
 
   it("fills the slug from the name with the regenerate button", async () => {

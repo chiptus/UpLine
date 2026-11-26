@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, screen, waitFor, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { LinkWizardStep } from "./LinkWizardStep";
@@ -93,9 +93,9 @@ describe("LinkWizardStep save flow", () => {
     const selectUrlButton = await screen.findByRole("button", {
       name: "URL",
     });
-    fireEvent.click(selectUrlButton);
+    await userEvent.click(selectUrlButton);
 
-    fireEvent.click(screen.getByRole("button", { name: /save & next/i }));
+    await userEvent.click(screen.getByRole("button", { name: /save & next/i }));
 
     await waitFor(() => expect(onNext).toHaveBeenCalled());
 

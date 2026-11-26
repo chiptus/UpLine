@@ -1,11 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { Festival } from "@/api/festivals/types";
 import { FestivalDialog } from "./FestivalDialog";
@@ -196,9 +190,7 @@ describe("FestivalDialog", () => {
     );
     expect(update).toBeDisabled();
 
-    await act(async () => {
-      fireEvent.submit(slug.form!);
-    });
+    await userEvent.type(slug, "{Enter}");
     expect(updateMutate).not.toHaveBeenCalled();
 
     await userEvent.click(regenerate);

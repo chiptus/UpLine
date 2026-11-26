@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { FestivalEdition } from "@/api/editions/types";
 import { EditionDialog } from "./EditionDialog";
@@ -160,9 +160,7 @@ describe("EditionDialog", () => {
     const update = screen.getByRole("button", { name: "Update" });
     expect(update).toBeDisabled();
 
-    await act(async () => {
-      fireEvent.submit(slug.form!);
-    });
+    await userEvent.type(slug, "{Enter}");
     expect(screen.getByRole("button", { name: "Cancel" })).toBeEnabled();
     expect(updateMutate).not.toHaveBeenCalled();
   });

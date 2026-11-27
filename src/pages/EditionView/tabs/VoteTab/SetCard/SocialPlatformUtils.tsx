@@ -12,7 +12,9 @@ export function getSocialPlatformLogo(url: string) {
     return {
       logo: socialPlatformLogos.soundcloud.logo,
       platform: "SoundCloud",
-      color: "text-orange-400 hover:text-orange-300",
+      // The logo asset is black, so it needs SoundCloud's orange tile behind it
+      // to be visible and on-brand.
+      color: "bg-[#ff5500] hover:bg-[#ff7733]",
     };
   }
   return null;

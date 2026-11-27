@@ -31,31 +31,16 @@ export function SocialPlatformLink({
       title={`Open ${artistName} in ${platformInfo.platform}`}
     >
       <a href={url} target="_blank" rel="noopener noreferrer">
-        {platformInfo.tint ? (
-          <span
-            role="img"
-            aria-label={`${platformInfo.platform} logo`}
-            data-testid="tinted-platform-logo"
-            className={cn(imageSize, "block")}
-            style={{
-              backgroundColor: platformInfo.tint,
-              maskImage: `url(${platformInfo.logo})`,
-              WebkitMaskImage: `url(${platformInfo.logo})`,
-              maskSize: "contain",
-              WebkitMaskSize: "contain",
-              maskRepeat: "no-repeat",
-              WebkitMaskRepeat: "no-repeat",
-              maskPosition: "center",
-              WebkitMaskPosition: "center",
-            }}
-          />
-        ) : (
-          <img
-            src={platformInfo.logo}
-            alt={`${platformInfo.platform} logo`}
-            className={cn(imageSize, "object-contain")}
-          />
-        )}
+        <img
+          src={platformInfo.logo}
+          alt={`${platformInfo.platform} logo`}
+          className={cn(imageSize, "object-contain")}
+          style={
+            platformInfo.logoFilter
+              ? { filter: platformInfo.logoFilter }
+              : undefined
+          }
+        />
       </a>
     </Button>
   );

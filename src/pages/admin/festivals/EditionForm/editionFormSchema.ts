@@ -1,15 +1,15 @@
 import { z } from "zod";
-import { isValidSlug } from "@/lib/slug";
+import { getSlugError } from "@/lib/slug";
 
 export const editionFormSchema = z.object({
   name: z.string().trim().min(1, "Edition name is required"),
   slug: z
     .string()
     .min(1, "Edition slug is required")
-    .refine(
-      isValidSlug,
-      "Slug must contain only lowercase letters, numbers, and hyphens",
-    ),
+    .superRefine((slug, ctx) => {
+      const message = getSlugError(slug);
+      if (message) ctx.addIssue({ code: z.ZodIssueCode.custom, message });
+    }),
   year: z
     .number({ invalid_type_error: "Enter a year between 2000 and 2100" })
     .int("Enter a whole year")

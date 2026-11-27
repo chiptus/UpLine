@@ -14,6 +14,11 @@ vi.mock("@/api/editions/useCreateFestivalEdition", () => ({
     isPending: false,
   }),
 }));
+const useEditionSlugTakenQuery = vi.fn();
+vi.mock("@/api/editions/useEditionSlugTaken", () => ({
+  useEditionSlugTakenQuery: (...args: unknown[]) =>
+    useEditionSlugTakenQuery(...args),
+}));
 vi.mock("@/api/editions/useUpdateFestivalEdition", () => ({
   useUpdateFestivalEditionMutation: () => ({
     mutate: updateMutate,
@@ -34,6 +39,7 @@ describe("EditionDialog", () => {
     );
     createMutate.mockReset();
     updateMutate.mockReset();
+    useEditionSlugTakenQuery.mockReset().mockReturnValue({ data: false });
   });
 
   it("blocks submit with field errors for an empty name and slug", async () => {
@@ -69,7 +75,7 @@ describe("EditionDialog", () => {
 
     await userEvent.clear(slug);
     await userEvent.click(slug);
-    await userEvent.paste("My Custom Slug!");
+    await userEvent.paste("my-custom-slug");
     expect(slug).toHaveValue("my-custom-slug");
 
     await userEvent.type(name, "!");
@@ -127,6 +133,116 @@ describe("EditionDialog", () => {
     await vi.waitFor(() =>
       expect(screen.getByRole("button", { name: "Open" })).toHaveFocus(),
     );
+  });
+
+  it("warns while typing and blocks the update when the slug is already taken", async () => {
+    useEditionSlugTakenQuery.mockReturnValue({ data: true });
+    renderDialog({ editingEdition: makeEdition() });
+
+    await userEvent.type(screen.getByLabelText("Edition Name"), " Redux");
+
+    expect(await screen.findByText("That slug is already in use")).toBeTruthy();
+    expect(useEditionSlugTakenQuery).toHaveBeenLastCalledWith(
+      {
+        festivalId: "festival-1",
+        slug: "boom-2025-redux",
+        excludeEditionId: "edition-1",
+      },
+      { enabled: true },
+    );
+    const slug = screen.getByRole<HTMLInputElement>("textbox", {
+      name: "URL Slug",
+    });
+    expect(slug).toHaveAttribute("aria-invalid", "true");
+    expect(slug).toHaveAccessibleDescription(
+      /This will be used in the URL:.*That slug is already in use/,
+    );
+    const update = screen.getByRole("button", { name: "Update" });
+    expect(update).toBeDisabled();
+
+    await userEvent.type(slug, "{Enter}");
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeEnabled();
+    expect(updateMutate).not.toHaveBeenCalled();
+  });
+
+  it("updates an edition without checking an unchanged slug", async () => {
+    useEditionSlugTakenQuery.mockReturnValue({ data: true });
+    renderDialog({ editingEdition: makeEdition() });
+
+    await userEvent.click(screen.getByRole("button", { name: "Update" }));
+
+    await vi.waitFor(() => expect(updateMutate).toHaveBeenCalledTimes(1));
+    expect(useEditionSlugTakenQuery).not.toHaveBeenCalledWith(
+      expect.anything(),
+      { enabled: true },
+    );
+  });
+
+  it("does not look up an invalid slug", async () => {
+    renderDialog({ editingEdition: makeEdition() });
+
+    const slug = screen.getByLabelText("URL Slug");
+    await userEvent.clear(slug);
+    await userEvent.type(slug, "Not Valid!");
+
+    await expectAlert("Use only lowercase letters, numbers, and hyphens");
+    expect(useEditionSlugTakenQuery).not.toHaveBeenCalledWith(
+      expect.anything(),
+      { enabled: true },
+    );
+    expect(updateMutate).not.toHaveBeenCalled();
+  });
+
+  it("keeps an invalid slug as typed, even after blur", async () => {
+    renderDialog({ editingEdition: makeEdition() });
+    const slug = screen.getByLabelText("URL Slug");
+    await userEvent.clear(slug);
+
+    await userEvent.type(slug, "boom-");
+    await userEvent.tab();
+
+    expect(slug).toHaveValue("boom-");
+    await expectAlert("Slug can't start or end with a hyphen");
+
+    await userEvent.click(screen.getByRole("button", { name: "Update" }));
+    expect(slug).toHaveValue("boom-");
+    expect(updateMutate).not.toHaveBeenCalled();
+  });
+
+  it("fills the slug from the name with the regenerate button", async () => {
+    renderDialog({ editingEdition: makeEdition() });
+    const slug = screen.getByLabelText("URL Slug");
+    await userEvent.clear(slug);
+    await userEvent.type(slug, "custom");
+
+    await userEvent.click(screen.getByLabelText("Regenerate slug from name"));
+
+    expect(slug).toHaveValue("boom-2025");
+  });
+
+  it("keeps what the user types, flags an invalid slug and offers to slugify it", async () => {
+    renderDialog();
+    const slug = screen.getByLabelText("URL Slug");
+
+    await userEvent.type(slug, "My Slug!");
+
+    expect(slug).toHaveValue("My Slug!");
+    await expectAlert("Use only lowercase letters, numbers, and hyphens");
+
+    await userEvent.click(screen.getByRole("button", { name: "Slugify" }));
+
+    expect(slug).toHaveValue("my-slug");
+    expect(screen.queryByRole("button", { name: "Slugify" })).toBeNull();
+  });
+
+  it("lets a hyphen be typed mid-slug", async () => {
+    renderDialog();
+    const slug = screen.getByLabelText("URL Slug");
+
+    await userEvent.type(slug, "boom-festival");
+
+    expect(slug).toHaveValue("boom-festival");
+    expect(screen.queryByRole("button", { name: "Slugify" })).toBeNull();
   });
 
   it("resets the form when the dialog is reopened", async () => {

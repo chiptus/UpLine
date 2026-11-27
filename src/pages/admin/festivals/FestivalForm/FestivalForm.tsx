@@ -16,17 +16,21 @@ import { FestivalSlugField } from "./FestivalSlugField";
 import { DayEndHourField } from "./DayEndHourField";
 import { FestivalPublishedField } from "./FestivalPublishedField";
 import { festivalFormSchema, FestivalFormData } from "./festivalFormSchema";
+import { useIsFestivalSlugTaken } from "./useFestivalSlugTaken";
 
 interface FestivalFormProps {
   defaultValues: FestivalFormData;
+  /** Set when editing, to check the slug against other festivals. */
+  festivalId?: string;
   submitLabel: string;
   isSubmitting: boolean;
-  onSubmit: (values: FestivalFormData) => void;
+  onSubmit: (values: FestivalFormData) => void | Promise<void>;
   onCancel: () => void;
 }
 
 export function FestivalForm({
   defaultValues,
+  festivalId,
   submitLabel,
   isSubmitting,
   onSubmit,
@@ -36,16 +40,25 @@ export function FestivalForm({
     resolver: zodResolver(festivalFormSchema),
     defaultValues,
   });
+  const isSlugTaken = useIsFestivalSlugTaken(
+    form.control,
+    defaultValues.slug,
+    festivalId,
+  );
+
+  function submitUnlessTaken(values: FestivalFormData) {
+    if (!isSlugTaken) return onSubmit(values);
+  }
 
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(submitUnlessTaken)}
         className="space-y-4"
         noValidate
       >
         <FestivalNameField />
-        <FestivalSlugField />
+        <FestivalSlugField isTaken={isSlugTaken} />
         <FormField
           control={form.control}
           name="description"
@@ -84,7 +97,7 @@ export function FestivalForm({
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting || isSlugTaken}>
             {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             {submitLabel}
           </Button>

@@ -23,6 +23,7 @@ export function EditEditionForm({
   return (
     <EditionForm
       defaultValues={getEditDefaults(edition)}
+      existing={{ festivalId, editionId: edition.id }}
       submitLabel="Update"
       isSubmitting={updateEditionMutation.isPending}
       onSubmit={(values) =>

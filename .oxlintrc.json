@@ -32,6 +32,23 @@
     {
       "files": ["**/*.{test,spec}.{ts,tsx}"],
       "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@testing-library/react",
+                "importNames": ["fireEvent"],
+                "message": "Use @testing-library/user-event instead of fireEvent."
+              },
+              {
+                "name": "@testing-library/dom",
+                "importNames": ["fireEvent"],
+                "message": "Use @testing-library/user-event instead of fireEvent."
+              }
+            ]
+          }
+        ],
         "max-lines": [
           "warn",
           {

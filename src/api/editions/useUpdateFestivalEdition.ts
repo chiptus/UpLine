@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { isSlugConflictError, SlugConflictError } from "@/lib/slug";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { festivalsKeys } from "@/api/festivals/types";
@@ -18,7 +19,10 @@ async function updateFestivalEdition(
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    if (isSlugConflictError(error)) throw new SlugConflictError();
+    throw error;
+  }
   return data;
 }
 
@@ -45,7 +49,10 @@ export function useUpdateFestivalEditionMutation() {
       console.error("Error updating festival edition:", error);
       toast({
         title: "Error",
-        description: "Failed to update festival edition",
+        description:
+          error instanceof SlugConflictError
+            ? error.message
+            : "Failed to update festival edition",
         variant: "destructive",
       });
     },

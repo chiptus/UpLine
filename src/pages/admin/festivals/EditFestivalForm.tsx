@@ -19,6 +19,7 @@ export function EditFestivalForm({ festival, onDone }: EditFestivalFormProps) {
   return (
     <FestivalForm
       defaultValues={getEditDefaults(festival)}
+      festivalId={festival.id}
       submitLabel="Update"
       isSubmitting={updateFestivalMutation.isPending}
       onSubmit={(values) =>

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   generateSlug,
+  getSlugError,
   isSlugConflictError,
   isValidSlug,
   sanitizeSlug,
@@ -164,6 +165,26 @@ describe("sanitizeSlug", () => {
   });
 });
 
+describe("getSlugError", () => {
+  it("returns null for a valid slug", () => {
+    expect(getSlugError("boom-2025")).toBeNull();
+  });
+
+  it("names the specific problem", () => {
+    expect(getSlugError("Boom")).toMatch(/lowercase letters/);
+    expect(getSlugError("my slug")).toMatch(/lowercase letters/);
+    expect(getSlugError("boom-")).toMatch(/start or end/);
+    expect(getSlugError("-boom")).toMatch(/start or end/);
+    expect(getSlugError("boom--fest")).toMatch(/two hyphens/);
+  });
+
+  it("agrees with isValidSlug", () => {
+    for (const slug of ["a", "a-b", "a-", "-a", "a--b", "A", "a b", "a_b"]) {
+      expect(getSlugError(slug) === null).toBe(isValidSlug(slug));
+    }
+  });
+});
+
 describe("isSlugConflictError", () => {
   it("matches a unique violation on a slug constraint", () => {
     expect(
@@ -173,6 +194,20 @@ describe("isSlugConflictError", () => {
           'duplicate key value violates unique constraint "artists_slug_unique"',
       }),
     ).toBe(true);
+  });
+
+  it("matches the festival and edition slug constraints", () => {
+    for (const name of [
+      "festivals_slug_unique",
+      "festival_editions_slug_festival_unique",
+    ]) {
+      expect(
+        isSlugConflictError({
+          code: "23505",
+          message: `duplicate key value violates unique constraint "${name}"`,
+        }),
+      ).toBe(true);
+    }
   });
 
   it("ignores unique violations on other columns and non-errors", () => {

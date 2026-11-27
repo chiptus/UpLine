@@ -103,7 +103,6 @@ src/
 - Test data setup via `scripts/setup-test-env.sh`
 - CI/CD runs tests in parallel across multiple browsers
 - Detailed testing documentation in `tests/README.md`
-- In component tests, simulate user interaction with `@testing-library/user-event`, never `fireEvent` (enforced by an oxlint `no-restricted-imports` rule)
 
 ### Code Conventions
 

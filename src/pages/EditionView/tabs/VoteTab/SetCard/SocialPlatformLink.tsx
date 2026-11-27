@@ -27,7 +27,11 @@ export function SocialPlatformLink({
       asChild
       variant="secondary"
       size="sm"
-      className={`p-1 ${buttonSize} bg-surface-active hover:bg-foreground/30 backdrop-blur-sm border-0 ${platformInfo.color}`}
+      className={cn(
+        "p-1 bg-surface-active hover:bg-foreground/30 backdrop-blur-sm border-0",
+        buttonSize,
+        platformInfo.color,
+      )}
       title={`Open ${artistName} in ${platformInfo.platform}`}
     >
       <a href={url} target="_blank" rel="noopener noreferrer">
@@ -35,11 +39,6 @@ export function SocialPlatformLink({
           src={platformInfo.logo}
           alt={`${platformInfo.platform} logo`}
           className={cn(imageSize, "object-contain")}
-          style={
-            platformInfo.logoFilter
-              ? { filter: platformInfo.logoFilter }
-              : undefined
-          }
         />
       </a>
     </Button>

@@ -193,16 +193,20 @@ describe("EditionDialog", () => {
     expect(updateMutate).not.toHaveBeenCalled();
   });
 
-  it("sanitizes the slug on blur but keeps hyphens while typing", async () => {
+  it("keeps an invalid slug as typed, even after blur", async () => {
     renderDialog({ editingEdition: makeEdition() });
     const slug = screen.getByLabelText("URL Slug");
     await userEvent.clear(slug);
 
     await userEvent.type(slug, "boom-");
-    expect(slug).toHaveValue("boom-");
-
     await userEvent.tab();
-    expect(slug).toHaveValue("boom");
+
+    expect(slug).toHaveValue("boom-");
+    await expectAlert("Slug can't start or end with a hyphen");
+
+    await userEvent.click(screen.getByRole("button", { name: "Update" }));
+    expect(slug).toHaveValue("boom-");
+    expect(updateMutate).not.toHaveBeenCalled();
   });
 
   it("fills the slug from the name with the regenerate button", async () => {

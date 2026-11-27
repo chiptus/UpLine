@@ -155,7 +155,7 @@ describe("FestivalDialog", () => {
     );
   });
 
-  it("checks the sanitized edit, blocks submission on a collision, and lets the user recover", async () => {
+  it("keeps an invalid slug as typed, slugifies on request, then blocks a collision until the user recovers", async () => {
     useFestivalSlugTakenQuery.mockImplementation(
       ({ slug }: { slug: string }, { enabled }: { enabled: boolean }) => ({
         data: enabled && slug === "taken",
@@ -177,6 +177,9 @@ describe("FestivalDialog", () => {
     expect(slug).toHaveAccessibleDescription(/Use only lowercase letters/);
 
     await userEvent.tab();
+    expect(slug).toHaveValue("Taken-");
+
+    await userEvent.click(screen.getByRole("button", { name: "Slugify" }));
     expect(slug).toHaveValue("taken");
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent("That slug is already in use");

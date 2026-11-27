@@ -1,7 +1,6 @@
 import { useFormContext } from "react-hook-form";
 import { FormControl, useFormField } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { sanitizeSlug } from "@/lib/slug";
 
 interface SlugInputProps {
   field: {
@@ -17,9 +16,10 @@ interface SlugInputProps {
 }
 
 /**
- * Raw input is kept on change so intermediate hyphens survive typing;
- * sanitizing happens on blur. `isTaken` is not a form error, so FormControl's
- * aria wiring is extended by hand to cover it.
+ * The user's input is never rewritten here: an invalid slug stays in the
+ * field and fails validation until they fix it or use the Slugify button.
+ * `isTaken` is not a form error, so FormControl's aria wiring is extended by
+ * hand to cover it.
  */
 export function SlugInput({
   field,
@@ -48,16 +48,6 @@ export function SlugInput({
         onChange={(e) => {
           field.onChange(e);
           form.trigger("slug");
-        }}
-        onBlur={() => {
-          const sanitized = sanitizeSlug(field.value);
-          if (sanitized !== field.value) {
-            form.setValue("slug", sanitized, {
-              shouldValidate: true,
-              shouldDirty: true,
-            });
-          }
-          field.onBlur();
         }}
       />
     </FormControl>

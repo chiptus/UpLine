@@ -15,12 +15,6 @@ interface SlugInputProps {
   takenMessageId: string;
 }
 
-/**
- * The user's input is never rewritten here: an invalid slug stays in the
- * field and fails validation until they fix it or use the Slugify button.
- * `isTaken` is not a form error, so FormControl's aria wiring is extended by
- * hand to cover it.
- */
 export function SlugInput({
   field,
   placeholder,

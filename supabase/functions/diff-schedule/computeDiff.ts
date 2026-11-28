@@ -76,7 +76,16 @@ export function computeDiff(
       state.matchedSetIds.add(matched.id);
       state.setsToUpdate.push({
         id: matched.id,
-        previousSetType: asSetType(matched.set_type),
+        previous: {
+          name: matched.name,
+          setType: asSetType(matched.set_type),
+          description: matched.description,
+          stageName:
+            indexes.stageById.get(matched.stage_id ?? "")?.name ?? null,
+          timeStart: matched.time_start,
+          timeEnd: matched.time_end,
+          status: matched.status === "tba" ? "tba" : "confirmed",
+        },
         ...payload,
       });
     } else {

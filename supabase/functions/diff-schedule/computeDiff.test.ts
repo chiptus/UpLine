@@ -366,7 +366,7 @@ Deno.test(
   },
 );
 
-Deno.test("update payload carries the matched set's stored type", () => {
+Deno.test("update payload carries the matched set's stored values", () => {
   const artist = makeArtist("Carl Cox");
   const set = { ...makeSet("set-1", "Carl Cox", [artist]), set_type: "music" };
   const result = computeDiff(
@@ -376,7 +376,10 @@ Deno.test("update payload carries the matched set's stored type", () => {
     [artist],
     "UTC",
   );
-  assertEquals(result.cleanOperations.setsToUpdate[0].previousSetType, "music");
+  assertEquals(
+    result.cleanOperations.setsToUpdate[0].previous.setType,
+    "music",
+  );
   assertEquals(result.cleanOperations.setsToUpdate[0].setType, "workshop");
 });
 
@@ -504,5 +507,40 @@ Deno.test(
     const updated = result.cleanOperations.setsToUpdate[0];
     assertEquals(updated.timeStart, "2026-07-11T20:00:00.000Z");
     assertEquals(updated.status, "confirmed");
+  },
+);
+
+Deno.test(
+  "update payload carries the matched set's stored stage, times and description",
+  () => {
+    const artist = makeArtist("Carl Cox");
+    const stage = makeStage("stage-main", "Main");
+    const set = {
+      ...makeSet(
+        "set-1",
+        "Carl Cox",
+        [artist],
+        stage.id,
+        "2026-07-01T20:00:00Z",
+      ),
+      time_end: "2026-07-01T21:00:00Z",
+      description: "old blurb",
+    };
+    const result = computeDiff(
+      [{ artists: ["Carl Cox"], stage: "Main", description: "new blurb" }],
+      [stage],
+      [set],
+      [artist],
+      "UTC",
+    );
+    assertEquals(result.cleanOperations.setsToUpdate[0].previous, {
+      name: "Carl Cox",
+      setType: null,
+      description: "old blurb",
+      stageName: "Main",
+      timeStart: "2026-07-01T20:00:00Z",
+      timeEnd: "2026-07-01T21:00:00Z",
+      status: "confirmed",
+    });
   },
 );

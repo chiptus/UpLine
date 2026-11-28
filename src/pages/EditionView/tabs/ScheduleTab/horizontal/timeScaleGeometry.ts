@@ -1,3 +1,4 @@
+import { fromZonedTime } from "date-fns-tz";
 import { timeToOffset } from "@/lib/timelineCalculator";
 import { getFestivalDayKey } from "@/lib/timeUtils";
 
@@ -35,7 +36,10 @@ export function computeDateChanges(
     if (prevDate !== currentDate) {
       changes.push({
         date: timeSlot,
-        position: timeToOffset(timeSlot, timeSlots[0]),
+        position: timeToOffset(
+          fromZonedTime(`${currentDate}T00:00:00`, timezone),
+          timeSlots[0],
+        ),
       });
     }
     return changes;

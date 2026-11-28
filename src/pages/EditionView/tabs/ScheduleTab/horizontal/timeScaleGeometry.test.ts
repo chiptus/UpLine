@@ -44,6 +44,32 @@ describe("computeDateChanges", () => {
     expect(computeDateChanges([], timezone)).toEqual([]);
   });
 
+  it("positions the boundary at local midnight even when slots are off the hour", () => {
+    // Slots are anchored to an earliest set at :20, so none lands on midnight.
+    const timeSlots = [
+      new Date("2024-07-01T22:20:00Z"),
+      new Date("2024-07-01T23:20:00Z"),
+      new Date("2024-07-02T00:20:00Z"),
+    ];
+
+    const changes = computeDateChanges(timeSlots, "UTC");
+
+    expect(changes[1].position).toBeCloseTo(100 * PX_PER_MINUTE);
+  });
+
+  it("positions the boundary at local midnight in a half-hour-offset timezone", () => {
+    // Kolkata midnight 07-02 is 18:30Z on 07-01.
+    const timeSlots = [
+      new Date("2024-07-01T17:00:00Z"),
+      new Date("2024-07-01T18:00:00Z"),
+      new Date("2024-07-01T19:00:00Z"),
+    ];
+
+    const changes = computeDateChanges(timeSlots, "Asia/Kolkata");
+
+    expect(changes[1].position).toBeCloseTo(90 * PX_PER_MINUTE);
+  });
+
   it("respects the given timezone when detecting the day boundary", () => {
     // 21:30 UTC on 07-01 is already 07-02 in a UTC+2 (Berlin summer) zone.
     const timeSlots = [
